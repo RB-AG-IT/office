@@ -443,6 +443,17 @@
                     })
                     .then(html => {
                         container.innerHTML = html;
+                        
+                        // Execute scripts manually (innerHTML doesn't execute them in some browsers)
+                        const scripts = container.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            Array.from(oldScript.attributes).forEach(attr => {
+                                newScript.setAttribute(attr.name, attr.value);
+                            });
+                            newScript.textContent = oldScript.textContent;
+                            oldScript.parentNode.replaceChild(newScript, oldScript);
+                        });
                     })
                     .catch(error => {
                         container.innerHTML = '<h1 style="font-size: 28px; margin-bottom: 8px; font-weight: 600;">Seite nicht gefunden</h1><p style="color: var(--text-secondary); font-size: 14px;">Die angeforderte Seite konnte nicht geladen werden.</p>';
