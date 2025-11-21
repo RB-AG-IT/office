@@ -445,8 +445,16 @@ function filterEmployees() {
     document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
 }
 
-document.getElementById('searchInput').addEventListener('input', filterEmployees);
-document.getElementById('roleFilter').addEventListener('change', filterEmployees);
-document.getElementById('statusFilter').addEventListener('change', filterEmployees);
-document.getElementById('addEmployeeBtn').addEventListener('click', openModal);
+// Event Listener mit kleinem Delay um sicherzustellen dass DOM bereit ist
+setTimeout(function() {
+    const searchInput = document.getElementById('searchInput');
+    const roleFilter = document.getElementById('roleFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+    
+    if (searchInput) searchInput.addEventListener('input', filterEmployees);
+    if (roleFilter) roleFilter.addEventListener('change', filterEmployees);
+    if (statusFilter) statusFilter.addEventListener('change', filterEmployees);
+    if (addEmployeeBtn) addEmployeeBtn.addEventListener('click', openModal);
+}, 100);
 </script>
