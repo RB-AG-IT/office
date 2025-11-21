@@ -89,6 +89,7 @@
         border-radius: 8px;
         font-size: 14px;
         transition: all 0.2s;
+        box-sizing: border-box;
     }
     
     .form-input:focus {
@@ -178,9 +179,10 @@
     <p style="color: var(--text-secondary); font-size: 14px;">Mitarbeiter und Teams verwalten</p>
 </div>
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px;">
-    <div style="display: flex; gap: 12px; flex: 1; align-items: center;">
-        <div style="position: relative; flex: 0 0 280px;">
+<div style="margin-bottom: 24px;">
+    <!-- Zeile 1: Suchfeld + Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 16px;">
+        <div style="position: relative; flex: 1; max-width: 500px;">
             <input 
                 type="text" 
                 id="searchInput" 
@@ -192,7 +194,20 @@
             </svg>
         </div>
         
-        <select id="roleFilter" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; min-width: 180px;">
+        <button 
+            id="addEmployeeBtn"
+            style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; flex-shrink: 0;"
+        >
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Neuer Mitarbeiter
+        </button>
+    </div>
+    
+    <!-- Zeile 2: Filter -->
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <select id="roleFilter" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; min-width: 180px; flex-shrink: 0;">
             <option value="">Alle Rollen</option>
             <option value="führungsebene">Führungsebene</option>
             <option value="kader manager">Kader Manager</option>
@@ -203,85 +218,93 @@
             <option value="recruiting manager">Recruiting Manager</option>
         </select>
         
-        <select id="statusFilter" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; min-width: 140px;">
+        <select id="statusFilter" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; min-width: 140px; flex-shrink: 0;">
             <option value="">Alle Status</option>
             <option value="aktiv">Aktiv</option>
             <option value="ausstehend">Ausstehend</option>
             <option value="inaktiv">Inaktiv</option>
         </select>
     </div>
-    
-    <button 
-        id="addEmployeeBtn"
-        style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px;"
-    >
-        <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Neuer Mitarbeiter
-    </button>
 </div>
 
 <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
-    <div style="display: grid; grid-template-columns: 48px 3fr 100px 100px 2fr 60px; gap: 24px; padding: 16px 24px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">
+    <div style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">
         <div></div>
         <div>Name</div>
-        <div style="text-align: center;">Rolle</div>
-        <div style="text-align: center;">Status</div>
+        <div>Rolle</div>
+        <div>Status</div>
         <div>E-Mail</div>
         <div></div>
     </div>
     
     <div id="employeeList">
-        <div class="employee-row" style="display: grid; grid-template-columns: 48px 3fr 100px 100px 2fr 60px; gap: 24px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center;">
+        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center;">
             <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">MK</div>
             <div>
                 <div style="font-weight: 500; font-size: 14px;">Max Kellermann</div>
                 <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Mitglied seit 15.01.2024</div>
             </div>
-            <div style="display: flex; justify-content: center;">
+            <div>
                 <span style="padding: 3px 6px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-size: 12px; font-weight: 500;">Führungsebene</span>
             </div>
-            <div style="display: flex; justify-content: center;">
+            <div>
                 <span style="padding: 3px 6px; background: #f0fdf4; color: #22c55e; border-radius: 6px; font-size: 12px; font-weight: 500;">Aktiv
                 </span>
             </div>
             <div style="font-size: 14px; color: #6b7280;">max.kellermann@example.com</div>
-            <div></div>
+            <div style="display: flex; justify-content: flex-end;">
+                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
+                    <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                </button>
+            </div>
         </div>
 
-        <div class="employee-row" style="display: grid; grid-template-columns: 48px 3fr 100px 100px 2fr 60px; gap: 24px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center;">
+        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center;">
             <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">AS</div>
             <div>
                 <div style="font-weight: 500; font-size: 14px;">Anna Schmidt</div>
                 <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Mitglied seit 03.03.2024</div>
             </div>
-            <div style="display: flex; justify-content: center;">
+            <div>
                 <span style="padding: 3px 6px; background: #e0e7ff; color: #4f46e5; border-radius: 6px; font-size: 12px; font-weight: 500;">Spitzen Botschafter</span>
             </div>
-            <div style="display: flex; justify-content: center;">
+            <div>
                 <span style="padding: 3px 6px; background: #f0fdf4; color: #22c55e; border-radius: 6px; font-size: 12px; font-weight: 500;">Aktiv
                 </span>
             </div>
             <div style="font-size: 14px; color: #6b7280;">anna.schmidt@example.com</div>
-            <div></div>
+            <div style="display: flex; justify-content: flex-end;">
+                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
+                    <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                </button>
+            </div>
         </div>
 
-        <div class="employee-row" style="display: grid; grid-template-columns: 48px 3fr 100px 100px 2fr 60px; gap: 24px; padding: 16px 24px; align-items: center;">
+        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; align-items: center;">
             <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">TM</div>
             <div>
                 <div style="font-weight: 500; font-size: 14px;">Thomas Müller</div>
                 <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Mitglied seit 20.02.2024</div>
             </div>
-            <div style="display: flex; justify-content: center;">
+            <div>
                 <span style="padding: 3px 6px; background: #dcfce7; color: #16a34a; border-radius: 6px; font-size: 12px; font-weight: 500;">Quality Manager</span>
             </div>
-            <div style="display: flex; justify-content: center;">
+            <div>
                 <span style="padding: 3px 6px; background: #fef2f2; color: #ef4444; border-radius: 6px; font-size: 12px; font-weight: 500;">Ausstehend
                 </span>
             </div>
             <div style="font-size: 14px; color: #6b7280;">thomas.mueller@example.com</div>
-            <div></div>
+            <div style="display: flex; justify-content: flex-end;">
+                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
+                    <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -354,7 +377,7 @@ function addEmployee() {
     
     const newRow = document.createElement('div');
     newRow.className = 'employee-row';
-    newRow.style.cssText = 'display: grid; grid-template-columns: 48px 3fr 100px 100px 2fr 60px; gap: 24px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center;';
+    newRow.style.cssText = 'display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center;';
     
     newRow.innerHTML = `
         <div style="width: 40px; height: 40px; border-radius: 50%; background: ${gradient}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">${initials}</div>
@@ -362,15 +385,20 @@ function addEmployee() {
             <div style="font-weight: 500; font-size: 14px;">${name}</div>
             <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Mitglied seit ${today}</div>
         </div>
-        <div style="display: flex; justify-content: center;">
+        <div>
             <span style="padding: 3px 6px; ${roleColor} border-radius: 6px; font-size: 12px; font-weight: 500;">${roleText}</span>
         </div>
-        <div style="display: flex; justify-content: center;">
-            <span style="padding: 3px 6px; background: #fef2f2; color: #ef4444; border-radius: 6px; font-size: 12px; font-weight: 500;">Ausstehend
-            </span>
+        <div>
+            <span style="padding: 3px 6px; background: #fef2f2; color: #ef4444; border-radius: 6px; font-size: 12px; font-weight: 500;">Ausstehend</span>
         </div>
         <div style="font-size: 14px; color: #6b7280;">${email}</div>
-        <div></div>
+        <div style="display: flex; justify-content: flex-end;">
+            <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
+                <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+            </button>
+        </div>
     `;
     
     document.getElementById('employeeList').insertBefore(newRow, document.getElementById('employeeList').firstChild);
@@ -382,33 +410,29 @@ function filterEmployees() {
     const roleFilter = document.getElementById('roleFilter').value.toLowerCase();
     const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
     
-    console.log('=== FILTER DEBUG ===');
-    console.log('statusFilter:', JSON.stringify(statusFilter));
-    
     const rows = document.querySelectorAll('.employee-row');
     let visibleCount = 0;
     
     rows.forEach(row => {
-        const nameEl = row.querySelector('div:nth-child(2) div:first-child');
-        const emailEl = row.querySelector('div:nth-child(5)');
-        const roleEl = row.querySelector('div:nth-child(3) span');
-        const statusEl = row.querySelector('div:nth-child(4) span');
+        const cols = row.querySelectorAll(':scope > div');
+        
+        if (cols.length < 6) return;
+        
+        const nameEl = cols[1].querySelector('div:first-child');
+        const emailEl = cols[4];
+        const roleEl = cols[2].querySelector('span');
+        const statusEl = cols[3].querySelector('span');
         
         if (!nameEl || !emailEl || !roleEl || !statusEl) return;
         
         const name = nameEl.textContent.toLowerCase();
         const email = emailEl.textContent.toLowerCase();
         const role = roleEl.textContent.toLowerCase();
-        const status = statusEl.textContent.toLowerCase();
-        
-        console.log('Row status text:', JSON.stringify(status));
-        console.log('Status includes check:', status.includes(statusFilter));
+        const status = statusEl.textContent.toLowerCase().trim();
         
         const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
         const matchesRole = !roleFilter || role.includes(roleFilter);
         const matchesStatus = !statusFilter || status.includes(statusFilter);
-        
-        console.log('matchesStatus:', matchesStatus, 'for', nameEl.textContent);
         
         if (matchesSearch && matchesRole && matchesStatus) {
             row.style.display = 'grid';
