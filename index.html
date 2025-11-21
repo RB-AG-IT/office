@@ -411,7 +411,10 @@
                 // Get page name
                 const page = this.getAttribute('data-page');
                 
-                // Load content (placeholder for now)
+                // Set URL hash
+                window.location.hash = page;
+                
+                // Load content
                 loadPage(page);
             });
         });
@@ -447,6 +450,40 @@
                     });
             }
         }
+
+        // Load page based on URL hash on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash.substring(1); // Remove #
+            
+            if (hash && document.querySelector(`[data-page="${hash}"]`)) {
+                // Remove active from all
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                
+                // Set active on hash page
+                const navLink = document.querySelector(`[data-page="${hash}"]`);
+                if (navLink) {
+                    navLink.classList.add('active');
+                    loadPage(hash);
+                }
+            }
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.substring(1);
+            
+            if (hash && document.querySelector(`[data-page="${hash}"]`)) {
+                // Remove active from all
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                
+                // Set active on hash page
+                const navLink = document.querySelector(`[data-page="${hash}"]`);
+                if (navLink) {
+                    navLink.classList.add('active');
+                    loadPage(hash);
+                }
+            }
+        });
     </script>
 </body>
 </html>
