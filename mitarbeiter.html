@@ -1,140 +1,21 @@
-<style>
-    :root {
-        --bg-primary: #ffffff;
-        --bg-secondary: #f8f9fa;
-        --bg-hover: #f0f1f3;
-        --text-primary: #1a1a1a;
-        --text-secondary: #6b7280;
-        --border-color: #e5e7eb;
-    }
-    
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .modal.show {
-        display: flex;
-    }
-    
-    .modal-content {
-        background: var(--bg-primary);
-        border-radius: 12px;
-        width: 90%;
-        max-width: 500px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-    
-    .modal-header {
-        padding: 24px;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .modal-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-    
-    .modal-close {
-        width: 32px;
-        height: 32px;
-        border: none;
-        background: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-        transition: background 0.2s;
-    }
-    
-    .modal-close:hover {
-        background: var(--bg-hover);
-    }
-    
-    .modal-body {
-        padding: 24px;
-    }
-    
-    .form-group {
-        margin-bottom: 20px;
-    }
-    
-    .form-label {
-        display: block;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text-primary);
-        margin-bottom: 8px;
-    }
-    
-    .form-input {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        font-size: 14px;
-        transition: all 0.2s;
-        box-sizing: border-box;
-    }
-    
-    .form-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-    
-    .modal-footer {
-        padding: 24px;
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-    }
-    
-    .btn {
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: none;
-    }
-    
-    .btn-secondary {
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-    }
-    
-    .btn-secondary:hover {
-        background: var(--bg-hover);
-    }
-    
-    .btn-primary {
-        background: #3b82f6;
-        color: white;
-    }
-    
-    .btn-primary:hover {
-        background: #2563eb;
-    }
-</style>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitarbeiter</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--bg-secondary);
+            padding: var(--spacing-xl);
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
 
+<!-- Modal für neuen Mitarbeiter -->
 <div class="modal" id="addEmployeeModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -174,20 +55,23 @@
     </div>
 </div>
 
-<div style="margin-bottom: 32px;">
-    <h1 style="font-size: 28px; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Mitarbeiter</h1>
-    <p style="color: var(--text-secondary); font-size: 14px;">Mitarbeiter und Teams verwalten</p>
+<!-- Page Header -->
+<div style="margin-bottom: var(--spacing-xl);">
+    <h1 style="font-size: var(--font-size-heading); margin-bottom: var(--spacing-sm); font-weight: 600; color: var(--text-primary);">Mitarbeiter</h1>
+    <p class="text-secondary text-sm">Mitarbeiter und Teams verwalten</p>
 </div>
 
-<div style="margin-bottom: 24px;">
+<!-- Action Bar -->
+<div style="margin-bottom: var(--spacing-lg);">
     <!-- Zeile 1: Suchfeld + Button -->
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
         <div style="position: relative; flex: 1; max-width: 500px;">
             <input 
                 type="text" 
                 id="searchInput" 
                 placeholder="Mitarbeiter suchen..." 
-                style="width: 100%; padding: 10px 12px 10px 40px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;"
+                class="form-input"
+                style="padding-left: 40px;"
             >
             <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -196,7 +80,7 @@
         
         <button 
             id="addEmployeeBtn"
-            style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; flex-shrink: 0;"
+            class="btn btn-primary"
         >
             <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -206,8 +90,8 @@
     </div>
     
     <!-- Zeile 2: Filter -->
-    <div style="display: flex; gap: 12px; align-items: center;">
-        <select id="roleFilter" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; min-width: 180px; flex-shrink: 0;">
+    <div style="display: flex; gap: var(--spacing-md); align-items: center;">
+        <select id="roleFilter" class="form-input" style="min-width: 180px; flex-shrink: 0; width: auto;">
             <option value="">Alle Rollen</option>
             <option value="führungsebene">Führungsebene</option>
             <option value="kader manager">Kader Manager</option>
@@ -218,7 +102,7 @@
             <option value="recruiting manager">Recruiting Manager</option>
         </select>
         
-        <select id="statusFilter" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; min-width: 140px; flex-shrink: 0;">
+        <select id="statusFilter" class="form-input" style="min-width: 140px; flex-shrink: 0; width: auto;">
             <option value="">Alle Status</option>
             <option value="aktiv">Aktiv</option>
             <option value="ausstehend">Ausstehend</option>
@@ -227,8 +111,10 @@
     </div>
 </div>
 
-<div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
-    <div style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">
+<!-- Employee List -->
+<div class="table-container">
+    <!-- Table Header -->
+    <div style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xs); font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">
         <div></div>
         <div>Name</div>
         <div>Rolle</div>
@@ -237,23 +123,24 @@
         <div></div>
     </div>
     
+    <!-- Table Body -->
     <div id="employeeList">
-        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">MK</div>
+        <!-- Employee Row 1 -->
+        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid #f0f0f0; align-items: center;">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: var(--font-size-sm);">MK</div>
             <div>
-                <div style="font-weight: 500; font-size: 14px;">Max Kellermann</div>
-                <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Mitglied seit 15.01.2024</div>
+                <div style="font-weight: 500; font-size: var(--font-size-sm);">Max Kellermann</div>
+                <div class="text-xs text-secondary" style="margin-top: 2px;">Mitglied seit 15.01.2024</div>
             </div>
             <div>
-                <span style="padding: 3px 6px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-size: 12px; font-weight: 500;">Führungsebene</span>
+                <span style="padding: 3px 6px; background: #fee2e2; color: #dc2626; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500;">Führungsebene</span>
             </div>
             <div>
-                <span style="padding: 3px 6px; background: #f0fdf4; color: #22c55e; border-radius: 6px; font-size: 12px; font-weight: 500;">Aktiv
-                </span>
+                <span class="badge badge-success">Aktiv</span>
             </div>
-            <div style="font-size: 14px; color: #6b7280;">max.kellermann@example.com</div>
+            <div class="text-sm text-secondary">max.kellermann@example.com</div>
             <div style="display: flex; justify-content: flex-end;">
-                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
+                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
                     <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                     </svg>
@@ -261,22 +148,22 @@
             </div>
         </div>
 
-        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">AS</div>
+        <!-- Employee Row 2 -->
+        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid #f0f0f0; align-items: center;">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: var(--font-size-sm);">AS</div>
             <div>
-                <div style="font-weight: 500; font-size: 14px;">Anna Schmidt</div>
-                <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Mitglied seit 03.03.2024</div>
+                <div style="font-weight: 500; font-size: var(--font-size-sm);">Anna Schmidt</div>
+                <div class="text-xs text-secondary" style="margin-top: 2px;">Mitglied seit 03.03.2024</div>
             </div>
             <div>
-                <span style="padding: 3px 6px; background: #e0e7ff; color: #4f46e5; border-radius: 6px; font-size: 12px; font-weight: 500;">Spitzen Botschafter</span>
+                <span style="padding: 3px 6px; background: #e0e7ff; color: #4f46e5; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500;">Spitzen Botschafter</span>
             </div>
             <div>
-                <span style="padding: 3px 6px; background: #f0fdf4; color: #22c55e; border-radius: 6px; font-size: 12px; font-weight: 500;">Aktiv
-                </span>
+                <span class="badge badge-success">Aktiv</span>
             </div>
-            <div style="font-size: 14px; color: #6b7280;">anna.schmidt@example.com</div>
+            <div class="text-sm text-secondary">anna.schmidt@example.com</div>
             <div style="display: flex; justify-content: flex-end;">
-                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
+                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
                     <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                     </svg>
@@ -284,22 +171,22 @@
             </div>
         </div>
 
-        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; align-items: center;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">TM</div>
+        <!-- Employee Row 3 -->
+        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); align-items: center;">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: var(--font-size-sm);">TM</div>
             <div>
-                <div style="font-weight: 500; font-size: 14px;">Thomas Müller</div>
-                <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Mitglied seit 20.02.2024</div>
+                <div style="font-weight: 500; font-size: var(--font-size-sm);">Thomas Müller</div>
+                <div class="text-xs text-secondary" style="margin-top: 2px;">Mitglied seit 20.02.2024</div>
             </div>
             <div>
-                <span style="padding: 3px 6px; background: #dcfce7; color: #16a34a; border-radius: 6px; font-size: 12px; font-weight: 500;">Quality Manager</span>
+                <span style="padding: 3px 6px; background: #dcfce7; color: #16a34a; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500;">Quality Manager</span>
             </div>
             <div>
-                <span style="padding: 3px 6px; background: #fef2f2; color: #ef4444; border-radius: 6px; font-size: 12px; font-weight: 500;">Ausstehend
-                </span>
+                <span class="badge badge-warning">Ausstehend</span>
             </div>
-            <div style="font-size: 14px; color: #6b7280;">thomas.mueller@example.com</div>
+            <div class="text-sm text-secondary">thomas.mueller@example.com</div>
             <div style="display: flex; justify-content: flex-end;">
-                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
+                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
                     <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                     </svg>
@@ -309,9 +196,13 @@
     </div>
 </div>
 
-<div id="emptyState" style="display: none; text-align: center; padding: 64px 24px;">
-    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Keine Mitarbeiter gefunden</h3>
-    <p style="font-size: 14px; color: #6b7280;">Versuchen Sie einen anderen Suchbegriff oder Filter.</p>
+<!-- Empty State -->
+<div id="emptyState" style="display: none; text-align: center; padding: 64px var(--spacing-lg);">
+    <svg style="width: 64px; height: 64px; margin: 0 auto var(--spacing-md); color: #d1d5db;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+    </svg>
+    <h3 style="font-size: var(--font-size-lg); font-weight: 600; margin-bottom: var(--spacing-sm);">Keine Mitarbeiter gefunden</h3>
+    <p class="text-secondary text-sm">Versuchen Sie einen anderen Suchbegriff oder Filter.</p>
 </div>
 
 <script>
@@ -389,7 +280,7 @@ function addEmployee() {
             <span style="padding: 3px 6px; ${roleColor} border-radius: 6px; font-size: 12px; font-weight: 500;">${roleText}</span>
         </div>
         <div>
-            <span style="padding: 3px 6px; background: #fef2f2; color: #ef4444; border-radius: 6px; font-size: 12px; font-weight: 500;">Ausstehend</span>
+            <span class="badge badge-warning">Ausstehend</span>
         </div>
         <div style="font-size: 14px; color: #6b7280;">${email}</div>
         <div style="display: flex; justify-content: flex-end;">
@@ -445,16 +336,12 @@ function filterEmployees() {
     document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
 }
 
-// Event Listener mit kleinem Delay um sicherzustellen dass DOM bereit ist
-setTimeout(function() {
-    const searchInput = document.getElementById('searchInput');
-    const roleFilter = document.getElementById('roleFilter');
-    const statusFilter = document.getElementById('statusFilter');
-    const addEmployeeBtn = document.getElementById('addEmployeeBtn');
-    
-    if (searchInput) searchInput.addEventListener('input', filterEmployees);
-    if (roleFilter) roleFilter.addEventListener('change', filterEmployees);
-    if (statusFilter) statusFilter.addEventListener('change', filterEmployees);
-    if (addEmployeeBtn) addEmployeeBtn.addEventListener('click', openModal);
-}, 100);
+// Event Listeners
+document.getElementById('searchInput').addEventListener('input', filterEmployees);
+document.getElementById('roleFilter').addEventListener('change', filterEmployees);
+document.getElementById('statusFilter').addEventListener('change', filterEmployees);
+document.getElementById('addEmployeeBtn').addEventListener('click', openModal);
 </script>
+
+</body>
+</html>
