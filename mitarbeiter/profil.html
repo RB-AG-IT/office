@@ -953,7 +953,7 @@
             }
             
             if (cleanIBAN.length === 0) {
-                ibanField.style.borderColor = 'var(--border-color)';
+                ibanField.style.borderColor = '#e5e7eb';
                 bankField.value = '';
                 bicField.value = '';
                 return;
@@ -961,18 +961,18 @@
 
             // Only validate when minimum length reached (at least 15 characters)
             if (cleanIBAN.length < 15) {
-                ibanField.style.borderColor = 'var(--border-color)';
+                ibanField.style.borderColor = '#e5e7eb';
                 return;
             }
 
             // IBAN Validation with MOD-97
             if (isValidIBAN(cleanIBAN)) {
-                ibanField.style.borderColor = 'var(--success-text)';
+                ibanField.style.borderColor = '#22c55e';
                 
                 // API Call for Bank Lookup
                 lookupBankFromIBAN(cleanIBAN, bankField, bicField);
             } else {
-                ibanField.style.borderColor = 'var(--warning-text)';
+                ibanField.style.borderColor = '#ef4444';
                 bankField.value = '';
                 bicField.value = '';
             }
@@ -1038,20 +1038,20 @@
                     bicField.value = data.bankData.bic || '';
                     
                     // Success styling
-                    bankField.style.borderColor = 'var(--success-text)';
-                    bicField.style.borderColor = 'var(--success-text)';
+                    bankField.style.borderColor = '#22c55e';
+                    bicField.style.borderColor = '#22c55e';
                 } else {
                     // API has no bank data
                     showManualFillMessage();
-                    bankField.style.borderColor = 'var(--border-color)';
-                    bicField.style.borderColor = 'var(--border-color)';
+                    bankField.style.borderColor = '#e5e7eb';
+                    bicField.style.borderColor = '#e5e7eb';
                 }
             } catch (error) {
                 // No internet or API error
                 console.log('Bank-Lookup Error:', error);
                 showManualFillMessage();
-                bankField.style.borderColor = 'var(--border-color)';
-                bicField.style.borderColor = 'var(--border-color)';
+                bankField.style.borderColor = '#e5e7eb';
+                bicField.style.borderColor = '#e5e7eb';
             }
         }
 
