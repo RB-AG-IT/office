@@ -1163,25 +1163,60 @@
                     additionalRoles.push('recruiting_manager');
                 }
 
-                // DELETE all existing additional roles first (to avoid duplicate key error)
-                await supabase
+                // SMART ROLE MANAGEMENT: Only update what changed (preserves history!)
+
+                // 1. Get all current additional roles from database
+                const { data: existingRoles } = await supabase
                     .from('user_roles')
-                    .delete()
+                    .select('role_name, is_active')
                     .eq('user_id', userId)
                     .eq('role_type', 'additional');
 
-                // Insert selected additional roles
-                for (const roleName of additionalRoles) {
-                    const { error: roleError } = await supabase
-                        .from('user_roles')
-                        .insert({
-                            user_id: userId,
-                            role_type: 'additional',
-                            role_name: roleName,
-                            is_active: true
-                        });
+                const existingRoleMap = new Map();
+                if (existingRoles) {
+                    existingRoles.forEach(role => {
+                        existingRoleMap.set(role.role_name, role.is_active);
+                    });
+                }
 
-                    if (roleError) console.error('Role error:', roleError);
+                // 2. For each selected role (from checkboxes)
+                for (const roleName of additionalRoles) {
+                    if (existingRoleMap.has(roleName)) {
+                        // Role exists in DB
+                        if (!existingRoleMap.get(roleName)) {
+                            // It's inactive → reactivate it
+                            await supabase
+                                .from('user_roles')
+                                .update({ is_active: true, assigned_at: new Date().toISOString() })
+                                .eq('user_id', userId)
+                                .eq('role_type', 'additional')
+                                .eq('role_name', roleName)
+                                .eq('is_active', false);
+                        }
+                        // else: it's already active → do nothing (no error!)
+                    } else {
+                        // Role doesn't exist → create new one
+                        await supabase
+                            .from('user_roles')
+                            .insert({
+                                user_id: userId,
+                                role_type: 'additional',
+                                role_name: roleName,
+                                is_active: true
+                            });
+                    }
+                }
+
+                // 3. For roles that exist in DB but are NOT selected → deactivate (keeps history!)
+                for (const [roleName, isActive] of existingRoleMap) {
+                    if (!additionalRoles.includes(roleName) && isActive) {
+                        await supabase
+                            .from('user_roles')
+                            .update({ is_active: false })
+                            .eq('user_id', userId)
+                            .eq('role_type', 'additional')
+                            .eq('role_name', roleName);
+                    }
                 }
 
                 // 6. Success!
