@@ -30,12 +30,14 @@ DECLARE
     v_last_name TEXT := 'User';              -- ← Nachname
 BEGIN
     -- Insert into public.users
+    -- WICHTIG: role='werber' ist nur ein Platzhalter
+    -- Die echte Rolle wird in user_roles gespeichert!
     INSERT INTO public.users (id, email, name, role, created_at)
     VALUES (
         v_user_id,
         v_email,
         v_name,
-        'führungsebene',
+        'werber',  -- Platzhalter-Wert (erlaubter Wert im Constraint)
         NOW()
     )
     ON CONFLICT (id) DO NOTHING;
