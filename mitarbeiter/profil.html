@@ -744,12 +744,22 @@
         // PHOTO & DOCUMENT UPLOAD HANDLERS
         // ================================================================
 
+        // Store selected photo files (will be uploaded when saving)
+        let selectedPhotos = {
+            photoIntern: null,
+            photoExtern: null
+        };
+
         // Photo Upload Handler
         function handlePhotoUpload(type, input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                const reader = new FileReader();
 
+                // Store file for later upload
+                selectedPhotos[type] = file;
+
+                // Show preview
+                const reader = new FileReader();
                 reader.onload = function(e) {
                     const box = document.getElementById(`${type}Box`);
                     const preview = document.getElementById(`${type}Preview`);
@@ -757,9 +767,41 @@
                     preview.src = e.target.result;
                     box.classList.add('has-image');
                 };
-
                 reader.readAsDataURL(file);
             }
+        }
+
+        // Upload photo to Supabase Storage
+        async function uploadPhoto(userId, type, file) {
+            if (!file) return null;
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${userId}/${type}.${fileExt}`;
+
+            // Delete old photo if exists
+            await supabase.storage
+                .from('profile-photos')
+                .remove([fileName]);
+
+            // Upload new photo
+            const { data, error } = await supabase.storage
+                .from('profile-photos')
+                .upload(fileName, file, {
+                    cacheControl: '3600',
+                    upsert: true
+                });
+
+            if (error) {
+                console.error('Photo upload error:', error);
+                return null;
+            }
+
+            // Get public URL
+            const { data: urlData } = supabase.storage
+                .from('profile-photos')
+                .getPublicUrl(fileName);
+
+            return urlData.publicUrl;
         }
 
         // Document Upload Handler
@@ -1120,32 +1162,49 @@
                     userId = existingUserId;
                 }
 
-                // 3. Update user_profiles
+                // 3. Upload photos if selected
+                let photoInternUrl = null;
+                let photoExternUrl = null;
+
+                if (selectedPhotos.photoIntern) {
+                    photoInternUrl = await uploadPhoto(userId, 'photo-intern', selectedPhotos.photoIntern);
+                }
+                if (selectedPhotos.photoExtern) {
+                    photoExternUrl = await uploadPhoto(userId, 'photo-extern', selectedPhotos.photoExtern);
+                }
+
+                // 4. Update user_profiles
+                const profileData = {
+                    user_id: userId,
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: email,
+                    phone: phone,
+                    game_tag: gameTag,
+                    street: document.getElementById('street').value.trim(),
+                    house_number: document.getElementById('houseNumber').value.trim(),
+                    postal_code: document.getElementById('postalCode').value.trim(),
+                    city: document.getElementById('city').value.trim(),
+                    country: document.getElementById('country').value,
+                    account_holder: document.getElementById('accountHolder').value.trim(),
+                    iban: document.getElementById('iban').value.replace(/\s/g, ''),
+                    bic: document.getElementById('bic').value.trim(),
+                    bank_name: document.getElementById('bankName').value.trim(),
+                    tax_number: document.getElementById('taxNumber').value.trim(),
+                    clothing_size: document.getElementById('clothingSize').value
+                };
+
+                // Add photo URLs if uploaded
+                if (photoInternUrl) profileData.photo_intern_url = photoInternUrl;
+                if (photoExternUrl) profileData.photo_extern_url = photoExternUrl;
+
                 const { error: profileError } = await supabase
                     .from('user_profiles')
-                    .upsert({
-                        user_id: userId,
-                        first_name: firstName,
-                        last_name: lastName,
-                        email: email,
-                        phone: phone,
-                        game_tag: gameTag,
-                        street: document.getElementById('street').value.trim(),
-                        house_number: document.getElementById('houseNumber').value.trim(),
-                        postal_code: document.getElementById('postalCode').value.trim(),
-                        city: document.getElementById('city').value.trim(),
-                        country: document.getElementById('country').value,
-                        account_holder: document.getElementById('accountHolder').value.trim(),
-                        iban: document.getElementById('iban').value.replace(/\s/g, ''),
-                        bic: document.getElementById('bic').value.trim(),
-                        bank_name: document.getElementById('bankName').value.trim(),
-                        tax_number: document.getElementById('taxNumber').value.trim(),
-                        clothing_size: document.getElementById('clothingSize').value
-                    });
+                    .upsert(profileData);
 
                 if (profileError) throw profileError;
 
-                // 4. Set main role
+                // 5. Set main role
                 const { error: mainRoleError } = await supabase.rpc('set_main_role', {
                     p_user_id: userId,
                     p_role_name: mainRole
@@ -1153,7 +1212,7 @@
 
                 if (mainRoleError) throw mainRoleError;
 
-                // 5. Set additional roles
+                // 6. Set additional roles
                 const additionalRoles = [];
                 if (document.getElementById('role_quality_manager').checked) {
                     additionalRoles.push('quality_manager');
@@ -1221,7 +1280,7 @@
                     }
                 }
 
-                // 6. Success!
+                // 7. Success!
                 document.getElementById('lastSaved').textContent = `Zuletzt gespeichert: ${new Date().toLocaleTimeString('de-DE')}`;
                 document.getElementById('profileName').textContent = `${firstName} ${lastName}`;
                 document.getElementById('employeeId').textContent = userId.substring(0, 8);
@@ -1310,6 +1369,20 @@
                             document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
                             sizeOption.classList.add('selected');
                         }
+                    }
+
+                    // Load photos
+                    if (profile.photo_intern_url) {
+                        const internPreview = document.getElementById('photoInternPreview');
+                        const internBox = document.getElementById('photoInternBox');
+                        internPreview.src = profile.photo_intern_url;
+                        internBox.classList.add('has-image');
+                    }
+                    if (profile.photo_extern_url) {
+                        const externPreview = document.getElementById('photoExternPreview');
+                        const externBox = document.getElementById('photoExternBox');
+                        externPreview.src = profile.photo_extern_url;
+                        externBox.classList.add('has-image');
                     }
                 }
 
