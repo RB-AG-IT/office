@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitarbeiter Profil - RB Inside</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--bg-secondary);
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .profile-header {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: var(--font-size-heading);
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .profile-content {
+            display: grid;
+            gap: var(--spacing-lg);
+        }
+
+        .section-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .form-grid.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-grid-triple {
+            display: grid;
+            grid-template-columns: 2fr 1fr 2fr;
+            gap: var(--spacing-md);
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        /* Photo Upload Section */
+        .photo-upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+        }
+
+        .photo-upload-box {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-secondary);
+        }
+
+        .photo-upload-box:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-hover);
+        }
+
+        .photo-upload-box.has-image {
+            border-style: solid;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .photo-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: none;
+        }
+
+        .photo-upload-box.has-image .photo-preview {
+            display: block;
+        }
+
+        .photo-upload-box.has-image .upload-placeholder {
+            display: none;
+        }
+
+        .upload-placeholder {
+            padding: var(--spacing-xl);
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto var(--spacing-md);
+            color: var(--text-secondary);
+        }
+
+        .photo-label {
+            font-weight: 600;
+            font-size: var(--font-size-base);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .photo-hint {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        /* Document Upload */
+        .document-upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .document-upload-item {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+        }
+
+        .document-upload-item h4 {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .document-upload-box {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .document-upload-box:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-hover);
+        }
+
+        .document-upload-box.has-file {
+            border-style: solid;
+            border-color: var(--success-text);
+            background: var(--success-bg);
+        }
+
+        .document-icon {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto var(--spacing-sm);
+            color: var(--text-secondary);
+        }
+
+        .document-upload-box.has-file .document-icon {
+            color: var(--success-text);
+        }
+
+        .document-name {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-top: var(--spacing-sm);
+        }
+
+        /* Size selector */
+        .size-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: var(--spacing-sm);
+        }
+
+        .size-option {
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+        }
+
+        .size-option:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-hover);
+        }
+
+        .size-option.selected {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* Address autocomplete */
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-results.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: var(--spacing-md);
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: var(--font-size-sm);
+        }
+
+        .autocomplete-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .sticky-footer {
+            position: sticky;
+            bottom: 0;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            margin-top: var(--spacing-xl);
+        }
+
+        .footer-info {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        /* Hidden file inputs */
+        input[type="file"] {
+            display: none;
+        }
+
+        .badge-status {
+            padding: 4px 12px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+        }
+
+        .badge-active {
+            background: var(--success-bg);
+            color: var(--success-text);
+        }
+
+        /* IBAN Grid */
+        .iban-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-md);
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <!-- Header -->
+        <div class="profile-header">
+            <div class="header-left">
+                <h1 id="profileName">Neuer Mitarbeiter</h1>
+                <p id="profileInfo">Mitarbeiter-ID: <span id="employeeId">-</span> • Erstellt am: <span id="createdDate">-</span></p>
+            </div>
+            <div class="header-actions">
+                <span class="badge-status badge-pending" id="statusBadge">Ausstehend</span>
+                <button class="btn btn-secondary" onclick="window.location.href='mitarbeiter.html'">
+                    <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Zurück
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="profile-content">
+
+            <!-- Persönliche Daten -->
+            <div class="section-card">
+                <h2 class="section-title">Persönliche Daten</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Vorname *</label>
+                        <input type="text" class="form-input" id="firstName" placeholder="Max">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nachname *</label>
+                        <input type="text" class="form-input" id="lastName" placeholder="Mustermann">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">E-Mail (für Login) *</label>
+                        <input type="email" class="form-input" id="email" placeholder="max.mustermann@rb-inside.de">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefon *</label>
+                        <input type="tel" class="form-input" id="phone" placeholder="+49 123 456789">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Rolle *</label>
+                        <select class="form-input" id="role">
+                            <option value="">Rolle auswählen</option>
+                            <option value="admin">Admin</option>
+                            <option value="werber">Werber</option>
+                            <option value="führungsebene">Führungsebene</option>
+                            <option value="kader manager">Kader Manager</option>
+                            <option value="junior botschafter">Junior Botschafter</option>
+                            <option value="senior botschafter">Senior Botschafter</option>
+                            <option value="spitzen botschafter">Spitzen Botschafter</option>
+                            <option value="quality manager">Quality Manager</option>
+                            <option value="recruiting manager">Recruiting Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GameTAG</label>
+                        <input type="text" class="form-input" id="gameTag" placeholder="z.B. MaxPro#1234">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adresse -->
+            <div class="section-card">
+                <h2 class="section-title">Adresse</h2>
+                <div class="form-grid">
+                    <div class="form-group form-group-full">
+                        <label class="form-label">Straße und Hausnummer *</label>
+                        <div class="autocomplete-container">
+                            <input type="text" class="form-input" id="street" placeholder="Musterstraße 123">
+                            <div class="autocomplete-results" id="streetAutocomplete"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">PLZ *</label>
+                        <input type="text" class="form-input" id="postalCode" placeholder="12345">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stadt *</label>
+                        <input type="text" class="form-input" id="city" placeholder="Musterstadt">
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label class="form-label">Zusatzinformation</label>
+                        <input type="text" class="form-input" id="addressExtra" placeholder="z.B. 2. Stock, Hinterhaus">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profilfotos -->
+            <div class="section-card">
+                <h2 class="section-title">Profilfotos</h2>
+                <div class="photo-upload-section">
+                    <div>
+                        <label for="photoInternInput" class="photo-upload-box" id="photoInternBox">
+                            <div class="upload-placeholder">
+                                <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <div class="photo-label">Profilfoto INTERN</div>
+                                <div class="photo-hint">Klicken zum Hochladen</div>
+                            </div>
+                            <img class="photo-preview" id="photoInternPreview" alt="Profilfoto Intern">
+                        </label>
+                        <input type="file" id="photoInternInput" accept="image/*" onchange="handlePhotoUpload('photoIntern', this)">
+                    </div>
+
+                    <div>
+                        <label for="photoExternInput" class="photo-upload-box" id="photoExternBox">
+                            <div class="upload-placeholder">
+                                <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <div class="photo-label">Profilfoto EXTERN (DRK)</div>
+                                <div class="photo-hint">Klicken zum Hochladen</div>
+                            </div>
+                            <img class="photo-preview" id="photoExternPreview" alt="Profilfoto Extern">
+                        </label>
+                        <input type="file" id="photoExternInput" accept="image/*" onchange="handlePhotoUpload('photoExtern', this)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bankdaten -->
+            <div class="section-card">
+                <h2 class="section-title">Bankdaten (für Auszahlungen)</h2>
+                <div class="form-grid">
+                    <div class="form-group form-group-full">
+                        <label class="form-label">Kontoinhaber *</label>
+                        <input type="text" class="form-input" id="accountHolder" placeholder="Max Mustermann">
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label class="form-label">IBAN *</label>
+                        <input type="text" class="form-input" id="iban" placeholder="DE89 3704 0044 0532 0130 00" maxlength="34">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">BIC</label>
+                        <input type="text" class="form-input" id="bic" placeholder="COBADEFFXXX" maxlength="11">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bankname</label>
+                        <input type="text" class="form-input" id="bankName" placeholder="z.B. Commerzbank">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Steuerdaten -->
+            <div class="section-card">
+                <h2 class="section-title">Steuerdaten</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Steuernummer</label>
+                        <input type="text" class="form-input" id="taxNumber" placeholder="12/345/67890">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Umsatzsteuer-ID</label>
+                        <input type="text" class="form-input" id="vatNumber" placeholder="DE123456789">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weitere Informationen -->
+            <div class="section-card">
+                <h2 class="section-title">Weitere Informationen</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Kleidergröße</label>
+                        <div class="size-selector">
+                            <div class="size-option" data-size="XXS">XXS</div>
+                            <div class="size-option" data-size="XS">XS</div>
+                            <div class="size-option" data-size="S">S</div>
+                            <div class="size-option" data-size="M">M</div>
+                            <div class="size-option" data-size="L">L</div>
+                            <div class="size-option" data-size="XL">XL</div>
+                            <div class="size-option" data-size="XXL">XXL</div>
+                        </div>
+                        <input type="hidden" id="clothingSize">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Individuelle Provision (%)</label>
+                        <input type="number" class="form-input" id="customCommission" placeholder="z.B. 15" min="0" max="100" step="0.1">
+                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
+                            Wird später im Detail besprochen
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dokumente -->
+            <div class="section-card">
+                <h2 class="section-title">Dokumente</h2>
+                <div class="document-upload-grid">
+                    <!-- Personalausweis -->
+                    <div class="document-upload-item">
+                        <h4>Personalausweis Vorderseite</h4>
+                        <label for="idFrontInput" class="document-upload-box" id="idFrontBox">
+                            <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
+                            <div class="document-name" id="idFrontName"></div>
+                        </label>
+                        <input type="file" id="idFrontInput" accept="image/*,.pdf" onchange="handleDocumentUpload('idFront', this)">
+                    </div>
+
+                    <div class="document-upload-item">
+                        <h4>Personalausweis Rückseite</h4>
+                        <label for="idBackInput" class="document-upload-box" id="idBackBox">
+                            <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
+                            <div class="document-name" id="idBackName"></div>
+                        </label>
+                        <input type="file" id="idBackInput" accept="image/*,.pdf" onchange="handleDocumentUpload('idBack', this)">
+                    </div>
+
+                    <!-- Führerschein -->
+                    <div class="document-upload-item">
+                        <h4>Führerschein Vorderseite</h4>
+                        <label for="licenseFrontInput" class="document-upload-box" id="licenseFrontBox">
+                            <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
+                            <div class="document-name" id="licenseFrontName"></div>
+                        </label>
+                        <input type="file" id="licenseFrontInput" accept="image/*,.pdf" onchange="handleDocumentUpload('licenseFront', this)">
+                    </div>
+
+                    <div class="document-upload-item">
+                        <h4>Führerschein Rückseite</h4>
+                        <label for="licenseBackInput" class="document-upload-box" id="licenseBackBox">
+                            <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
+                            <div class="document-name" id="licenseBackName"></div>
+                        </label>
+                        <input type="file" id="licenseBackInput" accept="image/*,.pdf" onchange="handleDocumentUpload('licenseBack', this)">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Sticky Footer -->
+    <div class="sticky-footer">
+        <div class="footer-info">
+            <span id="lastSaved">Noch nicht gespeichert</span>
+        </div>
+        <div class="footer-actions">
+            <button class="btn btn-secondary" onclick="window.location.href='mitarbeiter.html'">Abbrechen</button>
+            <button class="btn btn-primary" onclick="saveProfile()">
+                <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Speichern
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Photo Upload Handler
+        function handlePhotoUpload(type, input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const box = document.getElementById(`${type}Box`);
+                    const preview = document.getElementById(`${type}Preview`);
+
+                    preview.src = e.target.result;
+                    box.classList.add('has-image');
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Document Upload Handler
+        function handleDocumentUpload(type, input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const box = document.getElementById(`${type}Box`);
+                const nameDisplay = document.getElementById(`${type}Name`);
+
+                box.classList.add('has-file');
+                nameDisplay.textContent = file.name;
+            }
+        }
+
+        // Clothing Size Selector
+        document.querySelectorAll('.size-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('clothingSize').value = this.dataset.size;
+            });
+        });
+
+        // IBAN Formatting
+        document.getElementById('iban').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '').toUpperCase();
+            let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+            e.target.value = formatted;
+        });
+
+        // Simple Address Autocomplete (Placeholder - will be enhanced with real API)
+        const streetInput = document.getElementById('street');
+        const autocompleteResults = document.getElementById('streetAutocomplete');
+
+        streetInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+
+            if (value.length < 3) {
+                autocompleteResults.classList.remove('show');
+                return;
+            }
+
+            // Placeholder - Replace with real address API
+            const dummyResults = [
+                { street: value + ' 1', postalCode: '12345', city: 'Berlin' },
+                { street: value + ' 15', postalCode: '12345', city: 'Berlin' },
+                { street: value + ' 23', postalCode: '12346', city: 'Berlin' }
+            ];
+
+            autocompleteResults.innerHTML = '';
+            dummyResults.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.textContent = `${result.street}, ${result.postalCode} ${result.city}`;
+                item.addEventListener('click', function() {
+                    document.getElementById('street').value = result.street;
+                    document.getElementById('postalCode').value = result.postalCode;
+                    document.getElementById('city').value = result.city;
+                    autocompleteResults.classList.remove('show');
+                });
+                autocompleteResults.appendChild(item);
+            });
+
+            autocompleteResults.classList.add('show');
+        });
+
+        // Close autocomplete when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.autocomplete-container')) {
+                autocompleteResults.classList.remove('show');
+            }
+        });
+
+        // Save Profile Function
+        function saveProfile() {
+            // Collect all form data
+            const profileData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                role: document.getElementById('role').value,
+                gameTag: document.getElementById('gameTag').value,
+                address: {
+                    street: document.getElementById('street').value,
+                    postalCode: document.getElementById('postalCode').value,
+                    city: document.getElementById('city').value,
+                    extra: document.getElementById('addressExtra').value
+                },
+                bankDetails: {
+                    accountHolder: document.getElementById('accountHolder').value,
+                    iban: document.getElementById('iban').value,
+                    bic: document.getElementById('bic').value,
+                    bankName: document.getElementById('bankName').value
+                },
+                tax: {
+                    taxNumber: document.getElementById('taxNumber').value,
+                    vatNumber: document.getElementById('vatNumber').value
+                },
+                clothingSize: document.getElementById('clothingSize').value,
+                customCommission: document.getElementById('customCommission').value
+            };
+
+            // Validation
+            if (!profileData.firstName || !profileData.lastName || !profileData.email) {
+                alert('Bitte füllen Sie alle Pflichtfelder aus (Vorname, Nachname, E-Mail)');
+                return;
+            }
+
+            // TODO: Save to Supabase
+            console.log('Profile Data:', profileData);
+
+            // Update UI
+            document.getElementById('lastSaved').textContent = `Zuletzt gespeichert: ${new Date().toLocaleTimeString('de-DE')}`;
+            document.getElementById('profileName').textContent = `${profileData.firstName} ${profileData.lastName}`;
+
+            alert('Profil erfolgreich gespeichert! (Wird später mit Supabase verbunden)');
+        }
+
+        // Update profile name on input
+        document.getElementById('firstName').addEventListener('input', updateProfileName);
+        document.getElementById('lastName').addEventListener('input', updateProfileName);
+
+        function updateProfileName() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+
+            if (firstName || lastName) {
+                document.getElementById('profileName').textContent = `${firstName} ${lastName}`.trim() || 'Neuer Mitarbeiter';
+            }
+        }
+
+        // Load profile data if ID is provided in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const employeeId = urlParams.get('id');
+
+        if (employeeId) {
+            document.getElementById('employeeId').textContent = employeeId;
+            // TODO: Load profile from Supabase
+            console.log('Loading employee:', employeeId);
+        }
+    </script>
+</body>
+</html>
