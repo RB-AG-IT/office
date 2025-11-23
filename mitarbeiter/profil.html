@@ -1163,19 +1163,24 @@
                     additionalRoles.push('recruiting_manager');
                 }
 
-                // Remove all existing additional roles first
+                // DELETE all existing additional roles first (to avoid duplicate key error)
                 await supabase
                     .from('user_roles')
-                    .update({ is_active: false })
+                    .delete()
                     .eq('user_id', userId)
                     .eq('role_type', 'additional');
 
-                // Add selected additional roles
+                // Insert selected additional roles
                 for (const roleName of additionalRoles) {
-                    const { error: roleError } = await supabase.rpc('add_additional_role', {
-                        p_user_id: userId,
-                        p_role_name: roleName
-                    });
+                    const { error: roleError } = await supabase
+                        .from('user_roles')
+                        .insert({
+                            user_id: userId,
+                            role_type: 'additional',
+                            role_name: roleName,
+                            is_active: true
+                        });
+
                     if (roleError) console.error('Role error:', roleError);
                 }
 
