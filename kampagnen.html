@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kampagnen - RB Inside</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--bg-secondary);
+            padding: var(--spacing-lg);
+            margin: 0;
+        }
+
+        .campaign-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .campaign-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--border-color);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .campaign-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-color);
+        }
+
+        .campaign-card.status-active {
+            border-color: #22c55e;
+        }
+
+        .campaign-card.status-planned {
+            border-color: #3b82f6;
+        }
+
+        .campaign-card.status-inactive {
+            border-color: #9ca3af;
+            opacity: 0.7;
+        }
+
+        .campaign-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .campaign-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .campaign-meta {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .campaign-status {
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .campaign-status.active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .campaign-status.planned {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .campaign-status.inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .campaign-info {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-xs) 0;
+            font-size: var(--font-size-sm);
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .employee-count {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .employee-count-title {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .week-employees {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .week-badge {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 4px 8px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .week-badge svg {
+            width: 14px;
+            height: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Modal Styles */
+        .modal-large .modal-content {
+            max-width: 900px;
+        }
+
+        .kw-assignment-grid {
+            display: grid;
+            gap: var(--spacing-lg);
+            max-height: 400px;
+            overflow-y: auto;
+            padding: var(--spacing-sm);
+        }
+
+        .kw-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+        }
+
+        .kw-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .kw-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .kw-dates {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .employee-selector {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .assigned-employees {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-sm);
+        }
+
+        .employee-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 4px 8px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .employee-tag.teamleader {
+            background: #f59e0b;
+        }
+
+        .employee-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            opacity: 0.8;
+        }
+
+        .employee-tag button:hover {
+            opacity: 1;
+        }
+
+        .employee-tag button svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 64px var(--spacing-lg);
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto var(--spacing-md);
+            color: #d1d5db;
+        }
+
+        .empty-state h3 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Modal für neue Kampagne -->
+<div class="modal modal-large" id="campaignModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="modalTitle">Neue Kampagne</h2>
+            <button class="modal-close" onclick="closeCampaignModal()">
+                <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Kampagnenname *</label>
+                <input type="text" class="form-input" id="campaignName" placeholder="z.B. Frühjahrs-Kampagne 2024">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Von KW *</label>
+                    <input type="number" class="form-input" id="kwFrom" placeholder="z.B. 10" min="1" max="53">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bis KW *</label>
+                    <input type="number" class="form-input" id="kwTo" placeholder="z.B. 15" min="1" max="53">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Kunde *</label>
+                    <select class="form-input" id="customer">
+                        <option value="">Kunde auswählen</option>
+                        <option value="drk">DRK - Deutsches Rotes Kreuz</option>
+                        <option value="unicef">UNICEF Deutschland</option>
+                        <option value="wwf">WWF Deutschland</option>
+                        <option value="greenpeace">Greenpeace e.V.</option>
+                        <option value="aerzte">Ärzte ohne Grenzen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Werbegebiet *</label>
+                    <select class="form-input" id="area">
+                        <option value="">Werbegebiet auswählen</option>
+                        <option value="berlin">Berlin & Umgebung</option>
+                        <option value="muenchen">München & Südbayern</option>
+                        <option value="hamburg">Hamburg & Norddeutschland</option>
+                        <option value="koeln">Köln & Rheinland</option>
+                        <option value="frankfurt">Frankfurt & Hessen</option>
+                        <option value="stuttgart">Stuttgart & Baden-Württemberg</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Teamleiter *</label>
+                <select class="form-input" id="teamLeader">
+                    <option value="">Teamleiter auswählen</option>
+                    <option value="1">Max Kellermann</option>
+                    <option value="2">Anna Schmidt</option>
+                    <option value="3">Thomas Müller</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="kwAssignmentSection" style="display: none;">
+                <label class="form-label">Mitarbeiter pro Kalenderwoche zuweisen</label>
+                <div class="kw-assignment-grid" id="kwAssignmentGrid">
+                    <!-- KW Cards will be generated here -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeCampaignModal()">Abbrechen</button>
+            <button type="button" class="btn btn-primary" id="generateKWBtn" onclick="generateKWCards()" style="display: none;">KW generieren</button>
+            <button type="button" class="btn btn-primary" id="saveCampaignBtn" onclick="saveCampaign()">Kampagne speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- Page Header -->
+<div style="margin-bottom: var(--spacing-xl);">
+    <h1 style="font-size: var(--font-size-heading); margin-bottom: var(--spacing-sm); font-weight: 600; color: var(--text-primary);">Kampagnen</h1>
+    <p class="text-secondary text-sm">Kampagnen verwalten und Mitarbeiter zuweisen</p>
+</div>
+
+<!-- Action Bar -->
+<div style="margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center;">
+    <div style="display: flex; gap: var(--spacing-md);">
+        <select id="statusFilter" class="form-input" style="min-width: 140px; width: auto;">
+            <option value="">Alle Status</option>
+            <option value="active">Aktiv</option>
+            <option value="planned">Geplant</option>
+            <option value="inactive">Inaktiv</option>
+        </select>
+    </div>
+
+    <button class="btn btn-primary" onclick="openCampaignModal()">
+        <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Neue Kampagne
+    </button>
+</div>
+
+<!-- Campaign Grid -->
+<div class="campaign-grid" id="campaignGrid">
+    <!-- Campaigns will be rendered here -->
+</div>
+
+<!-- Empty State -->
+<div id="emptyState" class="empty-state" style="display: none;">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+    </svg>
+    <h3>Keine Kampagnen gefunden</h3>
+    <p class="text-secondary text-sm">Erstellen Sie Ihre erste Kampagne</p>
+</div>
+
+<script>
+// Dummy employee data
+const employees = [
+    { id: 1, name: 'Max Kellermann' },
+    { id: 2, name: 'Anna Schmidt' },
+    { id: 3, name: 'Thomas Müller' },
+    { id: 4, name: 'Lisa Weber' },
+    { id: 5, name: 'Peter Fischer' },
+    { id: 6, name: 'Sarah Klein' },
+    { id: 7, name: 'Michael Becker' }
+];
+
+// Campaign storage
+let campaigns = [
+    {
+        id: 1,
+        name: 'DRK Frühjahr 2024',
+        kwFrom: 10,
+        kwTo: 15,
+        customer: 'DRK - Deutsches Rotes Kreuz',
+        area: 'Berlin & Umgebung',
+        teamLeader: 'Max Kellermann',
+        assignments: {
+            10: [1, 2, 4],
+            11: [1, 2, 3, 5],
+            12: [1, 4, 5, 6],
+            13: [2, 3, 6, 7],
+            14: [1, 3, 5, 7],
+            15: [2, 4, 6]
+        }
+    },
+    {
+        id: 2,
+        name: 'UNICEF Sommer 2024',
+        kwFrom: 25,
+        kwTo: 30,
+        customer: 'UNICEF Deutschland',
+        area: 'München & Südbayern',
+        teamLeader: 'Anna Schmidt',
+        assignments: {
+            25: [2, 3, 4],
+            26: [2, 4, 5],
+            27: [2, 3, 5, 6],
+            28: [3, 4, 6, 7],
+            29: [2, 5, 6],
+            30: [3, 4, 7]
+        }
+    }
+];
+
+let editingCampaignId = null;
+
+// Get current week number
+function getCurrentWeek() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1);
+    const diff = now - start;
+    const oneWeek = 1000 * 60 * 60 * 24 * 7;
+    return Math.ceil(diff / oneWeek);
+}
+
+// Get campaign status
+function getCampaignStatus(kwFrom, kwTo) {
+    const currentWeek = getCurrentWeek();
+
+    if (currentWeek >= kwFrom && currentWeek <= kwTo) {
+        return 'active';
+    } else if (currentWeek < kwFrom) {
+        return 'planned';
+    } else {
+        return 'inactive';
+    }
+}
+
+// Render campaigns
+function renderCampaigns() {
+    const grid = document.getElementById('campaignGrid');
+    const emptyState = document.getElementById('emptyState');
+    const statusFilter = document.getElementById('statusFilter').value;
+
+    let filteredCampaigns = campaigns;
+
+    if (statusFilter) {
+        filteredCampaigns = campaigns.filter(c => {
+            const status = getCampaignStatus(c.kwFrom, c.kwTo);
+            return status === statusFilter;
+        });
+    }
+
+    if (filteredCampaigns.length === 0) {
+        grid.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+    }
+
+    grid.style.display = 'grid';
+    emptyState.style.display = 'none';
+
+    grid.innerHTML = filteredCampaigns.map(campaign => {
+        const status = getCampaignStatus(campaign.kwFrom, campaign.kwTo);
+        const statusLabels = {
+            active: 'Aktiv',
+            planned: 'Geplant',
+            inactive: 'Inaktiv'
+        };
+
+        let employeeCountHTML = '';
+        if (status === 'active') {
+            const currentWeek = getCurrentWeek();
+            const nextWeek = currentWeek + 1;
+
+            const currentCount = campaign.assignments[currentWeek]?.length || 0;
+            const nextCount = campaign.assignments[nextWeek]?.length || 0;
+
+            employeeCountHTML = `
+                <div class="employee-count">
+                    <div class="employee-count-title">Mitarbeiter</div>
+                    <div class="week-employees">
+                        <div class="week-badge">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            KW ${currentWeek}: ${currentCount} P.
+                        </div>
+                        ${nextWeek <= campaign.kwTo ? `
+                        <div class="week-badge">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            KW ${nextWeek}: ${nextCount} P.
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="campaign-card status-${status}" onclick="editCampaign(${campaign.id})">
+                <div class="campaign-header">
+                    <div>
+                        <div class="campaign-title">${campaign.name}</div>
+                        <div class="campaign-meta">KW ${campaign.kwFrom} - ${campaign.kwTo}</div>
+                    </div>
+                    <span class="campaign-status ${status}">${statusLabels[status]}</span>
+                </div>
+
+                <div class="campaign-info">
+                    <div class="info-row">
+                        <span class="info-label">Kunde:</span>
+                        <span class="info-value">${campaign.customer}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Gebiet:</span>
+                        <span class="info-value">${campaign.area}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Teamleiter:</span>
+                        <span class="info-value">${campaign.teamLeader}</span>
+                    </div>
+                </div>
+
+                ${employeeCountHTML}
+            </div>
+        `;
+    }).join('');
+}
+
+// Open modal
+function openCampaignModal() {
+    editingCampaignId = null;
+    document.getElementById('modalTitle').textContent = 'Neue Kampagne';
+    document.getElementById('campaignModal').classList.add('show');
+    document.getElementById('campaignName').value = '';
+    document.getElementById('kwFrom').value = '';
+    document.getElementById('kwTo').value = '';
+    document.getElementById('customer').value = '';
+    document.getElementById('area').value = '';
+    document.getElementById('teamLeader').value = '';
+    document.getElementById('kwAssignmentSection').style.display = 'none';
+    document.getElementById('generateKWBtn').style.display = 'inline-flex';
+    document.getElementById('saveCampaignBtn').style.display = 'none';
+}
+
+// Close modal
+function closeCampaignModal() {
+    document.getElementById('campaignModal').classList.remove('show');
+}
+
+// Generate KW cards
+function generateKWCards() {
+    const kwFrom = parseInt(document.getElementById('kwFrom').value);
+    const kwTo = parseInt(document.getElementById('kwTo').value);
+
+    if (!kwFrom || !kwTo || kwFrom > kwTo) {
+        alert('Bitte gültige KW-Werte eingeben (Von muss kleiner als Bis sein)');
+        return;
+    }
+
+    const grid = document.getElementById('kwAssignmentGrid');
+    grid.innerHTML = '';
+
+    for (let kw = kwFrom; kw <= kwTo; kw++) {
+        const kwCard = createKWCard(kw);
+        grid.appendChild(kwCard);
+    }
+
+    document.getElementById('kwAssignmentSection').style.display = 'block';
+    document.getElementById('generateKWBtn').style.display = 'none';
+    document.getElementById('saveCampaignBtn').style.display = 'inline-flex';
+}
+
+// Create KW card
+function createKWCard(kw, assignedEmployees = []) {
+    const card = document.createElement('div');
+    card.className = 'kw-card';
+    card.dataset.kw = kw;
+
+    card.innerHTML = `
+        <div class="kw-header">
+            <div>
+                <div class="kw-title">Kalenderwoche ${kw}</div>
+                <div class="kw-dates">Jahr 2024</div>
+            </div>
+        </div>
+
+        <div class="employee-selector">
+            <select class="form-input" style="flex: 1;" onchange="addEmployeeToKW(${kw}, this.value); this.value = '';">
+                <option value="">Mitarbeiter hinzufügen</option>
+                ${employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('')}
+            </select>
+        </div>
+
+        <div class="assigned-employees" id="employees-kw-${kw}">
+            ${assignedEmployees.map(empId => {
+                const emp = employees.find(e => e.id === empId);
+                return emp ? `
+                    <span class="employee-tag">
+                        ${emp.name}
+                        <button onclick="removeEmployeeFromKW(${kw}, ${empId})">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </span>
+                ` : '';
+            }).join('')}
+        </div>
+    `;
+
+    return card;
+}
+
+// Add employee to KW
+function addEmployeeToKW(kw, employeeId) {
+    if (!employeeId) return;
+
+    employeeId = parseInt(employeeId);
+    const container = document.getElementById(`employees-kw-${kw}`);
+    const employee = employees.find(e => e.id === employeeId);
+
+    if (!employee) return;
+
+    // Check if already added
+    const existing = container.querySelector(`[data-emp-id="${employeeId}"]`);
+    if (existing) return;
+
+    const tag = document.createElement('span');
+    tag.className = 'employee-tag';
+    tag.dataset.empId = employeeId;
+    tag.innerHTML = `
+        ${employee.name}
+        <button onclick="removeEmployeeFromKW(${kw}, ${employeeId})">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    `;
+
+    container.appendChild(tag);
+}
+
+// Remove employee from KW
+function removeEmployeeFromKW(kw, employeeId) {
+    const container = document.getElementById(`employees-kw-${kw}`);
+    const tag = container.querySelector(`[data-emp-id="${employeeId}"]`);
+    if (tag) {
+        tag.remove();
+    }
+}
+
+// Save campaign
+function saveCampaign() {
+    const name = document.getElementById('campaignName').value;
+    const kwFrom = parseInt(document.getElementById('kwFrom').value);
+    const kwTo = parseInt(document.getElementById('kwTo').value);
+    const customer = document.getElementById('customer').selectedOptions[0]?.text;
+    const area = document.getElementById('area').selectedOptions[0]?.text;
+    const teamLeader = document.getElementById('teamLeader').selectedOptions[0]?.text;
+
+    if (!name || !kwFrom || !kwTo || !customer || !area || !teamLeader) {
+        alert('Bitte alle Pflichtfelder ausfüllen');
+        return;
+    }
+
+    // Collect assignments
+    const assignments = {};
+    for (let kw = kwFrom; kw <= kwTo; kw++) {
+        const container = document.getElementById(`employees-kw-${kw}`);
+        if (container) {
+            const tags = container.querySelectorAll('.employee-tag');
+            assignments[kw] = Array.from(tags).map(tag => parseInt(tag.dataset.empId));
+        }
+    }
+
+    if (editingCampaignId) {
+        // Update existing
+        const campaign = campaigns.find(c => c.id === editingCampaignId);
+        campaign.name = name;
+        campaign.kwFrom = kwFrom;
+        campaign.kwTo = kwTo;
+        campaign.customer = customer;
+        campaign.area = area;
+        campaign.teamLeader = teamLeader;
+        campaign.assignments = assignments;
+    } else {
+        // Create new
+        const newCampaign = {
+            id: campaigns.length + 1,
+            name,
+            kwFrom,
+            kwTo,
+            customer,
+            area,
+            teamLeader,
+            assignments
+        };
+        campaigns.push(newCampaign);
+    }
+
+    closeCampaignModal();
+    renderCampaigns();
+}
+
+// Edit campaign
+function editCampaign(id) {
+    const campaign = campaigns.find(c => c.id === id);
+    if (!campaign) return;
+
+    editingCampaignId = id;
+
+    document.getElementById('modalTitle').textContent = 'Kampagne bearbeiten';
+    document.getElementById('campaignName').value = campaign.name;
+    document.getElementById('kwFrom').value = campaign.kwFrom;
+    document.getElementById('kwTo').value = campaign.kwTo;
+
+    // Set customer
+    const customerSelect = document.getElementById('customer');
+    for (let option of customerSelect.options) {
+        if (option.text === campaign.customer) {
+            option.selected = true;
+            break;
+        }
+    }
+
+    // Set area
+    const areaSelect = document.getElementById('area');
+    for (let option of areaSelect.options) {
+        if (option.text === campaign.area) {
+            option.selected = true;
+            break;
+        }
+    }
+
+    // Set team leader
+    const teamLeaderSelect = document.getElementById('teamLeader');
+    for (let option of teamLeaderSelect.options) {
+        if (option.text === campaign.teamLeader) {
+            option.selected = true;
+            break;
+        }
+    }
+
+    // Generate KW cards with assignments
+    const grid = document.getElementById('kwAssignmentGrid');
+    grid.innerHTML = '';
+
+    for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
+        const assignedEmployees = campaign.assignments[kw] || [];
+        const kwCard = createKWCard(kw, assignedEmployees);
+        grid.appendChild(kwCard);
+    }
+
+    document.getElementById('kwAssignmentSection').style.display = 'block';
+    document.getElementById('generateKWBtn').style.display = 'none';
+    document.getElementById('saveCampaignBtn').style.display = 'inline-flex';
+    document.getElementById('campaignModal').classList.add('show');
+}
+
+// Modal close on background click
+document.getElementById('campaignModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCampaignModal();
+});
+
+// Status filter
+document.getElementById('statusFilter').addEventListener('change', renderCampaigns);
+
+// Initial render
+renderCampaigns();
+</script>
+
+</body>
+</html>
