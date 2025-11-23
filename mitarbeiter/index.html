@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mitarbeiter</title>
     <link rel="stylesheet" href="../styles.css">
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             background: var(--bg-secondary);
@@ -93,13 +96,11 @@
     <div style="display: flex; gap: var(--spacing-md); align-items: center;">
         <select id="roleFilter" class="form-input" style="min-width: 180px; flex-shrink: 0; width: auto;">
             <option value="">Alle Rollen</option>
+            <option value="junior_marketing_manager">Junior Marketing Manager</option>
+            <option value="senior_marketing_manager">Senior Marketing Manager</option>
+            <option value="spitzenbotschafter">Spitzenbotschafter</option>
+            <option value="kader_manager">Kader Manager</option>
             <option value="führungsebene">Führungsebene</option>
-            <option value="kader manager">Kader Manager</option>
-            <option value="junior botschafter">Junior Botschafter</option>
-            <option value="senior botschafter">Senior Botschafter</option>
-            <option value="spitzen botschafter">Spitzen Botschafter</option>
-            <option value="quality manager">Quality Manager</option>
-            <option value="recruiting manager">Recruiting Manager</option>
         </select>
         
         <select id="statusFilter" class="form-input" style="min-width: 140px; flex-shrink: 0; width: auto;">
@@ -125,73 +126,9 @@
     
     <!-- Table Body -->
     <div id="employeeList">
-        <!-- Employee Row 1 -->
-        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid #f0f0f0; align-items: center;">
-            <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: var(--font-size-sm);">MK</div>
-            <div>
-                <div style="font-weight: 500; font-size: var(--font-size-sm);">Max Kellermann</div>
-                <div class="text-xs text-secondary" style="margin-top: 2px;">Mitglied seit 15.01.2024</div>
-            </div>
-            <div>
-                <span style="padding: 3px 6px; background: #fee2e2; color: #dc2626; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500;">Führungsebene</span>
-            </div>
-            <div>
-                <span class="badge badge-success">Aktiv</span>
-            </div>
-            <div class="text-sm text-secondary">max.kellermann@example.com</div>
-            <div style="display: flex; justify-content: flex-end;">
-                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten" onclick="window.location.href='profil.html?id=2'">
-                    <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Employee Row 2 -->
-        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid #f0f0f0; align-items: center;">
-            <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: var(--font-size-sm);">AS</div>
-            <div>
-                <div style="font-weight: 500; font-size: var(--font-size-sm);">Anna Schmidt</div>
-                <div class="text-xs text-secondary" style="margin-top: 2px;">Mitglied seit 03.03.2024</div>
-            </div>
-            <div>
-                <span style="padding: 3px 6px; background: #e0e7ff; color: #4f46e5; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500;">Spitzen Botschafter</span>
-            </div>
-            <div>
-                <span class="badge badge-success">Aktiv</span>
-            </div>
-            <div class="text-sm text-secondary">anna.schmidt@example.com</div>
-            <div style="display: flex; justify-content: flex-end;">
-                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten" onclick="window.location.href='profil.html?id=2'">
-                    <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Employee Row 3 -->
-        <div class="employee-row" style="display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); align-items: center;">
-            <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: var(--font-size-sm);">TM</div>
-            <div>
-                <div style="font-weight: 500; font-size: var(--font-size-sm);">Thomas Müller</div>
-                <div class="text-xs text-secondary" style="margin-top: 2px;">Mitglied seit 20.02.2024</div>
-            </div>
-            <div>
-                <span style="padding: 3px 6px; background: #dcfce7; color: #16a34a; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500;">Quality Manager</span>
-            </div>
-            <div>
-                <span class="badge badge-warning">Ausstehend</span>
-            </div>
-            <div class="text-sm text-secondary">thomas.mueller@example.com</div>
-            <div style="display: flex; justify-content: flex-end;">
-                <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten" onclick="window.location.href='profil.html?id=3'">
-                    <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                    </svg>
-                </button>
-            </div>
+        <!-- Mitarbeiter werden dynamisch aus Supabase geladen -->
+        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+            Lade Mitarbeiter...
         </div>
     </div>
 </div>
@@ -206,14 +143,38 @@
 </div>
 
 <script>
+// ================================================================
+// SUPABASE SETUP
+// ================================================================
+const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ================================================================
+// CONSTANTS
+// ================================================================
+
 const roleColors = {
     'führungsebene': 'background: #fee2e2; color: #dc2626;',
-    'kader manager': 'background: #f3e8ff; color: #9333ea;',
-    'junior botschafter': 'background: #dbeafe; color: #3b82f6;',
-    'senior botschafter': 'background: #bfdbfe; color: #2563eb;',
-    'spitzen botschafter': 'background: #e0e7ff; color: #4f46e5;',
-    'quality manager': 'background: #dcfce7; color: #16a34a;',
-    'recruiting manager': 'background: #fed7aa; color: #ea580c;'
+    'kader_manager': 'background: #f3e8ff; color: #9333ea;',
+    'junior_marketing_manager': 'background: #dbeafe; color: #3b82f6;',
+    'senior_marketing_manager': 'background: #bfdbfe; color: #2563eb;',
+    'spitzenbotschafter': 'background: #e0e7ff; color: #4f46e5;',
+    'quality_manager': 'background: #dcfce7; color: #16a34a;',
+    'recruiting_manager': 'background: #fed7aa; color: #ea580c;',
+    'teamleiter': 'background: #fef3c7; color: #d97706;'
+};
+
+const roleLabels = {
+    'junior_marketing_manager': 'Junior Marketing Manager',
+    'senior_marketing_manager': 'Senior Marketing Manager',
+    'spitzenbotschafter': 'Spitzenbotschafter',
+    'kader_manager': 'Kader Manager',
+    'führungsebene': 'Führungsebene',
+    'quality_manager': 'Quality Manager',
+    'teamleiter': 'Teamleiter',
+    'recruiting_manager': 'Recruiting Manager'
 };
 
 function openModal() {
@@ -302,33 +263,31 @@ function addEmployee() {
 
 function filterEmployees() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const roleFilter = document.getElementById('roleFilter').value.toLowerCase();
-    const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
-    
+    const roleFilter = document.getElementById('roleFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+
     const rows = document.querySelectorAll('.employee-row');
     let visibleCount = 0;
-    
+
     rows.forEach(row => {
         const cols = row.querySelectorAll(':scope > div');
-        
+
         if (cols.length < 6) return;
-        
+
         const nameEl = cols[1].querySelector('div:first-child');
         const emailEl = cols[4];
-        const roleEl = cols[2].querySelector('span');
-        const statusEl = cols[3].querySelector('span');
-        
-        if (!nameEl || !emailEl || !roleEl || !statusEl) return;
-        
+
+        if (!nameEl || !emailEl) return;
+
         const name = nameEl.textContent.toLowerCase();
         const email = emailEl.textContent.toLowerCase();
-        const role = roleEl.textContent.toLowerCase();
-        const status = statusEl.textContent.toLowerCase().trim();
-        
+        const mainRole = row.dataset.mainRole || '';
+        const status = row.dataset.status || '';
+
         const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
-        const matchesRole = !roleFilter || role.includes(roleFilter);
-        const matchesStatus = !statusFilter || status.includes(statusFilter);
-        
+        const matchesRole = !roleFilter || mainRole === roleFilter;
+        const matchesStatus = !statusFilter || status === statusFilter;
+
         if (matchesSearch && matchesRole && matchesStatus) {
             row.style.display = 'grid';
             visibleCount++;
@@ -336,15 +295,117 @@ function filterEmployees() {
             row.style.display = 'none';
         }
     });
-    
+
     document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
 }
 
-// Event Listeners
+// ================================================================
+// LOAD EMPLOYEES FROM SUPABASE
+// ================================================================
+
+async function loadEmployees() {
+    try {
+        const employeeListEl = document.getElementById('employeeList');
+        employeeListEl.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Lade Mitarbeiter...</div>';
+
+        // Load all users with their profiles and roles
+        const { data: users, error } = await supabase
+            .from('user_with_roles')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!users || users.length === 0) {
+            employeeListEl.innerHTML = '';
+            document.getElementById('emptyState').style.display = 'block';
+            return;
+        }
+
+        // Render employees
+        employeeListEl.innerHTML = '';
+        document.getElementById('emptyState').style.display = 'none';
+
+        for (const user of users) {
+            // Load profile data
+            const { data: profile } = await supabase
+                .from('user_profiles')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            const fullName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : user.name || user.email;
+            const mainRole = user.main_role || 'junior_marketing_manager';
+            const additionalRoles = user.additional_roles || [];
+            const roleLabel = roleLabels[mainRole] || mainRole;
+            const roleColor = roleColors[mainRole] || 'background: #f0f0f0; color: #666;';
+            const initials = getInitials(fullName);
+            const gradient = getRandomGradient();
+            const memberSince = new Date(user.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            // Determine status (for now, all active)
+            const status = 'aktiv';
+            const statusBadge = status === 'aktiv' ? 'badge-success' : status === 'ausstehend' ? 'badge-warning' : 'badge-danger';
+            const statusLabel = status === 'aktiv' ? 'Aktiv' : status === 'ausstehend' ? 'Ausstehend' : 'Inaktiv';
+
+            const row = document.createElement('div');
+            row.className = 'employee-row';
+            row.style.cssText = 'display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: var(--spacing-sm); padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid #f0f0f0; align-items: center;';
+            row.dataset.mainRole = mainRole;
+            row.dataset.status = status;
+
+            row.innerHTML = `
+                <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: ${gradient}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: var(--font-size-sm);">${initials}</div>
+                <div>
+                    <div style="font-weight: 500; font-size: var(--font-size-sm);">${fullName}</div>
+                    <div class="text-xs text-secondary" style="margin-top: 2px;">Mitglied seit ${memberSince}</div>
+                </div>
+                <div>
+                    <span style="padding: 3px 6px; ${roleColor} border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: 500;">${roleLabel}</span>
+                    ${additionalRoles.length > 0 ? `<div style="margin-top: 4px; font-size: 10px; color: var(--text-secondary);">+${additionalRoles.length} Zusatz</div>` : ''}
+                </div>
+                <div>
+                    <span class="badge ${statusBadge}">${statusLabel}</span>
+                </div>
+                <div class="text-sm text-secondary">${user.email}</div>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten" onclick="window.location.href='profil.html?id=${user.id}'">
+                        <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            employeeListEl.appendChild(row);
+        }
+
+    } catch (error) {
+        console.error('Load error:', error);
+        document.getElementById('employeeList').innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #ef4444;">
+                <svg style="width: 48px; height: 48px; margin: 0 auto 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div style="font-weight: 600; margin-bottom: 8px;">Fehler beim Laden</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">${error.message}</div>
+                <button onclick="loadEmployees()" style="margin-top: 16px; padding: 8px 16px; background: var(--accent-color); color: white; border: none; border-radius: 6px; cursor: pointer;">Erneut versuchen</button>
+            </div>
+        `;
+    }
+}
+
+// ================================================================
+// EVENT LISTENERS
+// ================================================================
+
 document.getElementById('searchInput').addEventListener('input', filterEmployees);
 document.getElementById('roleFilter').addEventListener('change', filterEmployees);
 document.getElementById('statusFilter').addEventListener('change', filterEmployees);
 document.getElementById('addEmployeeBtn').addEventListener('click', openModal);
+
+// Load employees on page load
+document.addEventListener('DOMContentLoaded', loadEmployees);
 </script>
 
 </body>
