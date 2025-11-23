@@ -1027,10 +1027,10 @@
             return parseInt(remainder, 10) % 97 === 1;
         }
 
-        // Bank Lookup via OpenIBAN API
+        // Bank Lookup via Supabase Edge Function
         async function lookupBankFromIBAN(iban, bankField, bicField) {
             try {
-                const response = await fetch(`https://openiban.com/validate/${iban}?getBIC=true&validateBankCode=true`);
+                const response = await fetch(`https://lgztglycqtiwcmiydxnm.supabase.co/functions/v1/iban-validate?iban=${encodeURIComponent(iban)}`);
                 const data = await response.json();
                 
                 if (data.valid && data.bankData) {
@@ -1109,8 +1109,7 @@
             // Debounce API call (300ms after last input)
             autocompleteTimer = setTimeout(async () => {
                 try {
-                    const apiKey = 'bbb56e4d3e5447a89b834ac1c3b8875d';
-                    const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&filter=countrycode:de&format=json&lang=de&limit=10&apiKey=${apiKey}`;
+                    const url = `https://lgztglycqtiwcmiydxnm.supabase.co/functions/v1/address-search?query=${encodeURIComponent(query)}`;
                     
                     const response = await fetch(url);
                     
