@@ -41,13 +41,12 @@
             <div class="form-group">
                 <label class="form-label">Rolle *</label>
                 <select class="form-input" id="employeeRole">
+                    <option value="">Bitte auswählen</option>
+                    <option value="junior_marketing_manager">Junior Marketing Manager</option>
+                    <option value="senior_marketing_manager">Senior Marketing Manager</option>
+                    <option value="spitzenbotschafter">Spitzenbotschafter</option>
+                    <option value="kader_manager">Kader Manager</option>
                     <option value="führungsebene">Führungsebene</option>
-                    <option value="kader manager">Kader Manager</option>
-                    <option value="junior botschafter">Junior Botschafter</option>
-                    <option value="senior botschafter">Senior Botschafter</option>
-                    <option value="spitzen botschafter">Spitzen Botschafter</option>
-                    <option value="quality manager">Quality Manager</option>
-                    <option value="recruiting manager">Recruiting Manager</option>
                 </select>
             </div>
         </div>
@@ -211,54 +210,96 @@ function getInitials(name) {
     return name.substring(0, 2).toUpperCase();
 }
 
-function addEmployee() {
-    // Redirect to profile page for new employee
-    window.location.href = 'profil.html';
-    return;
+async function addEmployee() {
+    try {
+        // Get form values
+        const name = document.getElementById('employeeName').value.trim();
+        const email = document.getElementById('employeeEmail').value.trim();
+        const role = document.getElementById('employeeRole').value;
 
-    const name = document.getElementById('employeeName').value;
-    const email = document.getElementById('employeeEmail').value;
-    const role = document.getElementById('employeeRole').value;
+        // Validation
+        if (!name || !email || !role) {
+            alert('Bitte alle Felder ausfüllen:\n- Name\n- E-Mail\n- Rolle');
+            return;
+        }
 
-    if (!name || !email) {
-        alert('Bitte Name und E-Mail eingeben!');
-        return;
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+            return;
+        }
+
+        // Split name into first and last name
+        const nameParts = name.split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        // Show loading state
+        const addBtn = event.target;
+        const originalText = addBtn.textContent;
+        addBtn.disabled = true;
+        addBtn.textContent = 'Speichern...';
+
+        // Generate temporary password
+        const tempPassword = Math.random().toString(36).slice(-12) + 'A1!';
+
+        // Create user in Supabase Auth
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: email,
+            password: tempPassword,
+            options: {
+                data: {
+                    name: name,
+                    role: role
+                },
+                emailRedirectTo: window.location.origin + '/mitarbeiter/'
+            }
+        });
+
+        if (authError) throw authError;
+
+        const userId = authData.user.id;
+
+        // Create user profile
+        const { error: profileError } = await supabase
+            .from('user_profiles')
+            .insert({
+                user_id: userId,
+                first_name: firstName,
+                last_name: lastName
+            });
+
+        if (profileError) throw profileError;
+
+        // Set main role
+        const { error: roleError } = await supabase.rpc('set_main_role', {
+            p_user_id: userId,
+            p_role_name: role
+        });
+
+        if (roleError) throw roleError;
+
+        // Success!
+        alert('✅ Mitarbeiter erfolgreich angelegt!\n\nEine Bestätigungs-E-Mail wurde an ' + email + ' versendet.');
+
+        // Close modal and reload list
+        closeModal();
+        await loadEmployees();
+
+        // Restore button
+        addBtn.disabled = false;
+        addBtn.textContent = originalText;
+
+    } catch (error) {
+        console.error('Add employee error:', error);
+        alert(`❌ Fehler beim Anlegen:\n${error.message}\n\nBitte versuchen Sie es erneut.`);
+
+        // Restore button
+        const addBtn = event.target;
+        addBtn.disabled = false;
+        addBtn.textContent = 'Mitarbeiter hinzufügen';
     }
-    
-    const roleText = role.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    const roleColor = roleColors[role] || 'background: #f0f0f0; color: #666;';
-    const initials = getInitials(name);
-    const gradient = getRandomGradient();
-    const today = new Date().toLocaleDateString('de-DE');
-    
-    const newRow = document.createElement('div');
-    newRow.className = 'employee-row';
-    newRow.style.cssText = 'display: grid; grid-template-columns: 48px 1.2fr 160px 120px 2fr 60px; gap: 8px; padding: 16px 24px; border-bottom: 1px solid #f0f0f0; align-items: center;';
-    
-    newRow.innerHTML = `
-        <div style="width: 40px; height: 40px; border-radius: 50%; background: ${gradient}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">${initials}</div>
-        <div>
-            <div style="font-weight: 500; font-size: 14px;">${name}</div>
-            <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Mitglied seit ${today}</div>
-        </div>
-        <div>
-            <span style="padding: 3px 6px; ${roleColor} border-radius: 6px; font-size: 12px; font-weight: 500;">${roleText}</span>
-        </div>
-        <div>
-            <span class="badge badge-warning">Ausstehend</span>
-        </div>
-        <div style="font-size: 14px; color: #6b7280;">${email}</div>
-        <div style="display: flex; justify-content: flex-end;">
-            <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f0f1f3'" onmouseout="this.style.background='transparent'" title="Bearbeiten">
-                <svg style="width: 16px; height: 16px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                </svg>
-            </button>
-        </div>
-    `;
-    
-    document.getElementById('employeeList').insertBefore(newRow, document.getElementById('employeeList').firstChild);
-    closeModal();
 }
 
 function filterEmployees() {

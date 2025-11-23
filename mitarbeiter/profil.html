@@ -1219,14 +1219,91 @@
             }
         }
 
+        // ================================================================
+        // LOAD USER DATA (if editing existing user)
+        // ================================================================
+
+        async function loadUserData(userId) {
+            try {
+                // Load user data
+                const { data: user, error: userError } = await supabase
+                    .from('user_with_roles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+
+                if (userError) throw userError;
+
+                // Load profile data
+                const { data: profile, error: profileError } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .single();
+
+                if (profileError && profileError.code !== 'PGRST116') throw profileError;
+
+                // Fill form fields
+                if (profile) {
+                    document.getElementById('firstName').value = profile.first_name || '';
+                    document.getElementById('lastName').value = profile.last_name || '';
+                    document.getElementById('phone').value = profile.phone || '';
+                    document.getElementById('street').value = profile.street || '';
+                    document.getElementById('houseNumber').value = profile.house_number || '';
+                    document.getElementById('postalCode').value = profile.postal_code || '';
+                    document.getElementById('city').value = profile.city || '';
+                    document.getElementById('country').value = profile.country || 'Deutschland';
+                    document.getElementById('accountHolder').value = profile.account_holder || '';
+                    document.getElementById('iban').value = profile.iban || '';
+                    document.getElementById('bic').value = profile.bic || '';
+                    document.getElementById('bankName').value = profile.bank_name || '';
+                    document.getElementById('taxNumber').value = profile.tax_number || '';
+                    document.getElementById('clothingSize').value = profile.clothing_size || '';
+
+                    // Select clothing size
+                    if (profile.clothing_size) {
+                        const sizeOption = document.querySelector(`.size-option[data-size="${profile.clothing_size}"]`);
+                        if (sizeOption) {
+                            document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
+                            sizeOption.classList.add('selected');
+                        }
+                    }
+                }
+
+                // Fill email from user
+                document.getElementById('email').value = user.email || '';
+
+                // Fill main role
+                if (user.main_role) {
+                    document.getElementById('mainRole').value = user.main_role;
+                }
+
+                // Check additional roles
+                if (user.additional_roles && user.additional_roles.length > 0) {
+                    user.additional_roles.forEach(role => {
+                        const checkbox = document.getElementById(`role_${role}`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+
+                // Update header
+                const fullName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user.name || user.email;
+                document.getElementById('profileName').textContent = fullName;
+                document.getElementById('employeeId').textContent = userId.substring(0, 8);
+                document.getElementById('createdDate').textContent = new Date(user.created_at).toLocaleDateString('de-DE');
+
+            } catch (error) {
+                console.error('Load user error:', error);
+                alert(`❌ Fehler beim Laden der Benutzerdaten:\n${error.message}`);
+            }
+        }
+
         // Load profile data if ID is provided in URL
         const urlParams = new URLSearchParams(window.location.search);
         const employeeId = urlParams.get('id');
 
         if (employeeId) {
-            document.getElementById('employeeId').textContent = employeeId;
-            // TODO: Load profile from Supabase
-            console.log('Loading employee:', employeeId);
+            loadUserData(employeeId);
         }
     </script>
 </body>
