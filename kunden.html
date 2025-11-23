@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kunden - RB Inside Office</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">Kunden</h1>
+        </div>
+
+        <!-- Aktions-Leiste -->
+        <div class="actions-bar">
+            <div class="search-wrapper">
+                <input type="text" class="form-input search-input" id="searchInput" 
+                       placeholder="Kunde oder Werbegebiet suchen...">
+            </div>
+            <button class="btn-primary" id="addCustomerBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 4v16m8-8H4"/>
+                </svg>
+                Neuer Kunde
+            </button>
+        </div>
+
+        <!-- Filter-Leiste -->
+        <div class="filter-bar">
+            <select class="form-input filter-select" id="typeFilter">
+                <option value="">Alle Typen</option>
+                <option value="kreisverband">Kreisverband</option>
+                <option value="ortsverein">Ortsverein</option>
+            </select>
+            <select class="form-input filter-select" id="statusFilter">
+                <option value="">Alle Status</option>
+                <option value="aktiv">Aktiv</option>
+                <option value="inaktiv">Inaktiv</option>
+            </select>
+        </div>
+
+        <!-- Tabelle -->
+        <div class="table-container">
+            <div class="customers-grid" id="customersGrid">
+                <!-- Header -->
+                <div class="grid-header">
+                    <div>Kunde</div>
+                    <div>Typ</div>
+                    <div>Werbegebiete</div>
+                    <div>Kontakt</div>
+                    <div>Status</div>
+                    <div></div>
+                </div>
+                
+                <!-- Dummy Daten werden hier eingefügt -->
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <p>Keine Kunden gefunden</p>
+        </div>
+    </div>
+
+    <!-- Modal: Neuer Kunde -->
+    <div class="modal" id="addCustomerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Neuer Kunde</h2>
+                <button class="modal-close" id="closeModalBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Kundenname*</label>
+                    <input type="text" class="form-input" id="customerName" 
+                           placeholder="z.B. DRK Kreisverband München">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Typ*</label>
+                    <select class="form-input" id="customerType">
+                        <option value="kreisverband">Kreisverband</option>
+                        <option value="ortsverein">Ortsverein</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kontaktperson</label>
+                    <input type="text" class="form-input" id="contactPerson" 
+                           placeholder="Max Mustermann">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-Mail</label>
+                    <input type="email" class="form-input" id="contactEmail" 
+                           placeholder="kontakt@drk-muenchen.de">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefon</label>
+                    <input type="text" class="form-input" id="contactPhone" 
+                           placeholder="+49 89 123456">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelBtn">Abbrechen</button>
+                <button class="btn-primary" id="saveCustomerBtn">Kunde anlegen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Werbegebiete verwalten -->
+    <div class="modal" id="manageAreasModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2>Werbegebiete verwalten: <span id="customerNameDisplay"></span></h2>
+                <button class="modal-close" id="closeAreasModalBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="areas-section">
+                    <div class="areas-header">
+                        <h3>Aktuelle Werbegebiete</h3>
+                        <button class="btn-primary btn-small" id="addAreaBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Werbegebiet hinzufügen
+                        </button>
+                    </div>
+                    <div id="areasList" class="areas-list">
+                        <!-- Werbegebiete werden hier angezeigt -->
+                    </div>
+                    <div class="add-area-form" id="addAreaForm" style="display: none;">
+                        <input type="text" class="form-input" id="newAreaName" 
+                               placeholder="z.B. Römerberg-Dudenhofen e.V.">
+                        <div class="area-form-buttons">
+                            <button class="btn-secondary btn-small" id="cancelAreaBtn">Abbrechen</button>
+                            <button class="btn-primary btn-small" id="saveAreaBtn">Speichern</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Spezifische Styles für Kunden-Seite */
+        .customers-grid {
+            display: grid;
+            gap: 1px;
+            background-color: var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .grid-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 2.5fr 1.5fr 100px 60px;
+            background-color: var(--bg-secondary);
+            font-weight: 600;
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+
+        .grid-header > div,
+        .customer-row > div {
+            padding: var(--spacing-md);
+            background-color: var(--bg-primary);
+        }
+
+        .customer-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 2.5fr 1.5fr 100px 60px;
+            transition: background-color 0.15s ease;
+        }
+
+        .customer-row:hover > div {
+            background-color: var(--bg-hover);
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .customer-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: var(--text-sm);
+            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .customer-details h3 {
+            margin: 0;
+            font-size: var(--text-base);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .customer-details p {
+            margin: 2px 0 0 0;
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-xs);
+            font-weight: 500;
+        }
+
+        .type-kreisverband {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .type-ortsverein {
+            background-color: #fce7f3;
+            color: #9f1239;
+        }
+
+        .areas-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .area-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background-color: #f3f4f6;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-xs);
+            color: var(--text-primary);
+        }
+
+        .area-count {
+            background-color: #e5e7eb;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .contact-info {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+
+        .contact-info strong {
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-sm);
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .status-aktiv {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-inaktiv {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background-color: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            background-color: var(--bg-secondary);
+            color: var(--accent-color);
+        }
+
+        /* Werbegebiete Modal Styles */
+        .areas-section {
+            padding: var(--spacing-md);
+        }
+
+        .areas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .areas-header h3 {
+            margin: 0;
+            font-size: var(--text-base);
+            color: var(--text-primary);
+        }
+
+        .areas-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .area-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .area-item:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: var(--text-sm);
+        }
+
+        .btn-small svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .add-area-form {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .add-area-form input {
+            flex: 1;
+        }
+
+        .area-form-buttons {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .btn-remove {
+            color: #ef4444;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+        }
+
+        .btn-remove:hover {
+            background-color: #fee2e2;
+        }
+    </style>
+
+    <script>
+        // Dummy-Daten für Kunden
+        let customers = [
+            {
+                id: 1,
+                name: 'DRK Kreisverband Ludwigshafen',
+                type: 'kreisverband',
+                areas: ['Ludwigshafen-Mitte e.V.', 'Ludwigshafen-Süd e.V.', 'Oggersheim e.V.'],
+                contact: 'Dr. Maria Schmidt',
+                email: 'schmidt@drk-ludwigshafen.de',
+                phone: '+49 621 57000',
+                status: 'aktiv'
+            },
+            {
+                id: 2,
+                name: 'DRK Ortsverein Römerberg-Dudenhofen',
+                type: 'ortsverein',
+                areas: ['Römerberg-Dudenhofen e.V.'],
+                contact: 'Thomas Müller',
+                email: 'mueller@drk-roemerberg.de',
+                phone: '+49 6232 81234',
+                status: 'aktiv'
+            },
+            {
+                id: 3,
+                name: 'DRK Kreisverband Rhein-Pfalz',
+                type: 'kreisverband',
+                areas: ['Speyer e.V.', 'Schifferstadt e.V.', 'Waldsee e.V.', 'Neuhofen e.V.'],
+                contact: 'Anna Weber',
+                email: 'weber@drk-rhein-pfalz.de',
+                phone: '+49 6232 60990',
+                status: 'aktiv'
+            },
+            {
+                id: 4,
+                name: 'DRK Ortsverein Mutterstadt',
+                type: 'ortsverein',
+                areas: ['Mutterstadt e.V.'],
+                contact: 'Klaus Fischer',
+                email: 'fischer@drk-mutterstadt.de',
+                phone: '+49 6234 92345',
+                status: 'inaktiv'
+            },
+            {
+                id: 5,
+                name: 'DRK Kreisverband Mannheim',
+                type: 'kreisverband',
+                areas: ['Mannheim-Neckarstadt e.V.', 'Mannheim-Sandhofen e.V.', 'Mannheim-Käfertal e.V.', 'Mannheim-Waldhof e.V.', 'Mannheim-Feudenheim e.V.'],
+                contact: 'Prof. Dr. Hans Meyer',
+                email: 'meyer@drk-mannheim.de',
+                phone: '+49 621 833700',
+                status: 'aktiv'
+            }
+        ];
+
+        let currentCustomerId = null;
+
+        // Funktion zum Rendern der Kunden
+        function renderCustomers() {
+            const grid = document.getElementById('customersGrid');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            // Header beibehalten, nur Rows löschen
+            const rows = grid.querySelectorAll('.customer-row');
+            rows.forEach(row => row.remove());
+
+            const filteredCustomers = customers.filter(customer => {
+                const matchesSearch = customer.name.toLowerCase().includes(searchTerm) ||
+                                     customer.areas.some(area => area.toLowerCase().includes(searchTerm)) ||
+                                     customer.contact.toLowerCase().includes(searchTerm);
+                const matchesType = !typeFilter || customer.type === typeFilter;
+                const matchesStatus = !statusFilter || customer.status === statusFilter;
+                return matchesSearch && matchesType && matchesStatus;
+            });
+
+            if (filteredCustomers.length === 0) {
+                document.getElementById('emptyState').style.display = 'flex';
+                return;
+            } else {
+                document.getElementById('emptyState').style.display = 'none';
+            }
+
+            filteredCustomers.forEach(customer => {
+                const row = document.createElement('div');
+                row.className = 'customer-row';
+                row.innerHTML = `
+                    <div class="customer-info">
+                        <div class="customer-icon">
+                            ${customer.name.split(' ').slice(-1)[0].substring(0, 2).toUpperCase()}
+                        </div>
+                        <div class="customer-details">
+                            <h3>${customer.name}</h3>
+                            <p>Kundennummer: KD-${String(customer.id).padStart(4, '0')}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="type-badge type-${customer.type}">
+                            ${customer.type === 'kreisverband' ? 'Kreisverband' : 'Ortsverein'}
+                        </span>
+                    </div>
+                    <div>
+                        <div class="areas-tags">
+                            ${customer.areas.slice(0, 3).map(area => 
+                                `<span class="area-tag">${area}</span>`
+                            ).join('')}
+                            ${customer.areas.length > 3 ? 
+                                `<span class="area-count">+${customer.areas.length - 3}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="contact-info">
+                        <strong>${customer.contact}</strong>
+                        <span style="font-size: 11px;">${customer.email}</span>
+                    </div>
+                    <div>
+                        <span class="status-badge status-${customer.status}">
+                            ${customer.status === 'aktiv' ? 'Aktiv' : 'Inaktiv'}
+                        </span>
+                    </div>
+                    <div>
+                        <div class="action-buttons">
+                            <button class="btn-icon" onclick="manageAreas(${customer.id})" title="Werbegebiete verwalten">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon" title="Bearbeiten">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(row);
+            });
+        }
+
+        // Funktion zum Verwalten der Werbegebiete
+        function manageAreas(customerId) {
+            currentCustomerId = customerId;
+            const customer = customers.find(c => c.id === customerId);
+            
+            document.getElementById('customerNameDisplay').textContent = customer.name;
+            renderAreasList(customer.areas);
+            
+            document.getElementById('manageAreasModal').style.display = 'flex';
+        }
+
+        // Werbegebiete rendern
+        function renderAreasList(areas) {
+            const areasList = document.getElementById('areasList');
+            areasList.innerHTML = '';
+            
+            areas.forEach((area, index) => {
+                const areaItem = document.createElement('div');
+                areaItem.className = 'area-item';
+                areaItem.innerHTML = `
+                    <span>${area}</span>
+                    <button class="btn-remove" onclick="removeArea(${index})">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                `;
+                areasList.appendChild(areaItem);
+            });
+        }
+
+        // Werbegebiet entfernen
+        function removeArea(index) {
+            const customer = customers.find(c => c.id === currentCustomerId);
+            customer.areas.splice(index, 1);
+            renderAreasList(customer.areas);
+            renderCustomers();
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', renderCustomers);
+        document.getElementById('typeFilter').addEventListener('change', renderCustomers);
+        document.getElementById('statusFilter').addEventListener('change', renderCustomers);
+
+        // Modal für neuen Kunden
+        document.getElementById('addCustomerBtn').addEventListener('click', () => {
+            document.getElementById('addCustomerModal').style.display = 'flex';
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('addCustomerModal').style.display = 'none';
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            document.getElementById('addCustomerModal').style.display = 'none';
+        });
+
+        // Kunde speichern
+        document.getElementById('saveCustomerBtn').addEventListener('click', () => {
+            const name = document.getElementById('customerName').value;
+            const type = document.getElementById('customerType').value;
+            const contact = document.getElementById('contactPerson').value || 'Kein Kontakt';
+            const email = document.getElementById('contactEmail').value || 'keine@email.de';
+            const phone = document.getElementById('contactPhone').value || 'Keine Nummer';
+
+            if (name) {
+                const newCustomer = {
+                    id: customers.length + 1,
+                    name: name,
+                    type: type,
+                    areas: type === 'ortsverein' ? [name.replace('DRK Ortsverein ', '') + ' e.V.'] : [],
+                    contact: contact,
+                    email: email,
+                    phone: phone,
+                    status: 'aktiv'
+                };
+                
+                customers.unshift(newCustomer);
+                renderCustomers();
+                
+                // Modal schließen und Form zurücksetzen
+                document.getElementById('addCustomerModal').style.display = 'none';
+                document.getElementById('customerName').value = '';
+                document.getElementById('contactPerson').value = '';
+                document.getElementById('contactEmail').value = '';
+                document.getElementById('contactPhone').value = '';
+            }
+        });
+
+        // Werbegebiete Modal
+        document.getElementById('closeAreasModalBtn').addEventListener('click', () => {
+            document.getElementById('manageAreasModal').style.display = 'none';
+        });
+
+        // Neues Werbegebiet hinzufügen
+        document.getElementById('addAreaBtn').addEventListener('click', () => {
+            document.getElementById('addAreaForm').style.display = 'flex';
+            document.getElementById('newAreaName').focus();
+        });
+
+        document.getElementById('cancelAreaBtn').addEventListener('click', () => {
+            document.getElementById('addAreaForm').style.display = 'none';
+            document.getElementById('newAreaName').value = '';
+        });
+
+        document.getElementById('saveAreaBtn').addEventListener('click', () => {
+            const areaName = document.getElementById('newAreaName').value;
+            if (areaName) {
+                const customer = customers.find(c => c.id === currentCustomerId);
+                customer.areas.push(areaName);
+                renderAreasList(customer.areas);
+                renderCustomers();
+                
+                document.getElementById('addAreaForm').style.display = 'none';
+                document.getElementById('newAreaName').value = '';
+            }
+        });
+
+        // Modal außerhalb schließen
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+
+        // Initial rendern
+        renderCustomers();
+    </script>
+</body>
+</html>
