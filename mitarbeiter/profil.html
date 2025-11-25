@@ -776,7 +776,8 @@
             if (!file) return null;
 
             const fileExt = file.name.split('.').pop();
-            const fileName = `${userId}/${type}.${fileExt}`;
+            const timestamp = Date.now();
+            const fileName = `${userId}/${type}-${timestamp}.${fileExt}`;
 
             // Delete ALL old versions of this photo (with any extension)
             const { data: existingFiles } = await supabase.storage
