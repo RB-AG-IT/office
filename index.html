@@ -554,9 +554,17 @@
                     .eq('id', currentUser.id)
                     .single();
 
+                // Load profile photo
+                const { data: profileData } = await supabase
+                    .from('user_profiles')
+                    .select('photo_intern_url')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
                 const userName = userData?.name || currentUser.email.split('@')[0];
                 const userRole = rolesData?.main_role || 'user';
                 const initials = getInitials(userName);
+                const photoUrl = profileData?.photo_intern_url;
 
                 // Role labels
                 const roleLabels = {
@@ -570,11 +578,16 @@
 
                 const roleLabel = roleLabels[userRole] || userRole;
 
+                // Avatar HTML - use photo if available, otherwise show initials
+                const avatarHtml = photoUrl
+                    ? `<div class="account-avatar" style="background: none; overflow: hidden;"><img src="${photoUrl}" alt="${userName}" style="width: 100%; height: 100%; object-fit: cover;"></div>`
+                    : `<div class="account-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">${initials}</div>`;
+
                 // Show user info with dropdown
                 accountMenu.style.cursor = 'pointer';
                 accountMenu.onclick = null;
                 accountMenu.innerHTML = `
-                    <div class="account-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">${initials}</div>
+                    ${avatarHtml}
                     <div class="account-info">
                         <div class="account-name">${userName}</div>
                         <div class="account-role">${roleLabel}</div>
