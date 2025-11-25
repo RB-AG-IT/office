@@ -334,9 +334,9 @@
 
         .document-upload-box.has-file {
             border-style: solid;
-            border-color: var(--border-color);
-            background: var(--bg-secondary);
-            padding: var(--spacing-md);
+            border-color: var(--success-text);
+            background: var(--success-bg);
+            padding: var(--spacing-sm);
             aspect-ratio: 1.586 / 1;
             overflow: hidden;
         }
@@ -542,11 +542,11 @@
         }
 
         .cropper-container-wrapper {
-            width: 900px;
-            max-width: 95vw;
-            height: 70vh;
-            min-height: 400px;
-            max-height: 700px;
+            width: 600px;
+            max-width: 90vw;
+            height: 80vh;
+            min-height: 500px;
+            max-height: 800px;
             background: #000;
             border-radius: var(--radius-md);
             overflow: hidden;
@@ -1810,14 +1810,6 @@
                             const nameDisplay = document.getElementById(doc.nameId);
                             const statusBadge = document.getElementById(doc.statusId);
 
-                            box.classList.add('has-file');
-                            nameDisplay.textContent = '';
-
-                            // Show status badge
-                            if (statusBadge) {
-                                statusBadge.classList.add('visible');
-                            }
-
                             // Remove any existing previews first
                             const existingPreviews = box.querySelectorAll('.document-preview');
                             existingPreviews.forEach(p => p.remove());
@@ -1826,6 +1818,25 @@
                             const preview = document.createElement('img');
                             preview.className = 'document-preview';
                             preview.src = doc.url;
+
+                            // Handle successful load
+                            preview.onload = function() {
+                                box.classList.add('has-file');
+                                nameDisplay.textContent = '';
+                                if (statusBadge) {
+                                    statusBadge.classList.add('visible');
+                                }
+                            };
+
+                            // Handle load error - reset to default state
+                            preview.onerror = function() {
+                                preview.remove();
+                                box.classList.remove('has-file');
+                                if (statusBadge) {
+                                    statusBadge.classList.remove('visible');
+                                }
+                            };
+
                             box.appendChild(preview);
                         }
                     });
