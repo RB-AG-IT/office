@@ -750,6 +750,14 @@
             photoExtern: null
         };
 
+        // Store selected document files (will be uploaded when saving)
+        let selectedDocuments = {
+            idFront: null,
+            idBack: null,
+            licenseFront: null,
+            licenseBack: null
+        };
+
         // Photo Upload Handler
         function handlePhotoUpload(type, input) {
             if (input.files && input.files[0]) {
@@ -825,9 +833,77 @@
                 const box = document.getElementById(`${type}Box`);
                 const nameDisplay = document.getElementById(`${type}Name`);
 
+                // Store file for later upload
+                selectedDocuments[type] = file;
+
                 box.classList.add('has-file');
                 nameDisplay.textContent = file.name;
+
+                // Show image preview if it's an image
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Check if preview element exists, create if not
+                        let preview = document.getElementById(`${type}Preview`);
+                        if (!preview) {
+                            preview = document.createElement('img');
+                            preview.id = `${type}Preview`;
+                            preview.className = 'document-preview';
+                            preview.style.cssText = 'width: 100%; height: 120px; object-fit: cover; border-radius: var(--radius-sm); margin-top: var(--spacing-sm);';
+                            box.appendChild(preview);
+                        }
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
             }
+        }
+
+        // Upload document to Supabase Storage
+        async function uploadDocument(userId, type, file) {
+            if (!file) return null;
+
+            const fileExt = file.name.split('.').pop();
+            const timestamp = Date.now();
+            const fileName = `${userId}/${type}-${timestamp}.${fileExt}`;
+
+            // Delete ALL old versions of this document
+            const { data: existingFiles } = await supabase.storage
+                .from('profile-photos')
+                .list(userId);
+
+            if (existingFiles) {
+                const filesToDelete = existingFiles
+                    .filter(f => f.name.startsWith(type))
+                    .map(f => `${userId}/${f.name}`);
+
+                if (filesToDelete.length > 0) {
+                    await supabase.storage
+                        .from('profile-photos')
+                        .remove(filesToDelete);
+                }
+            }
+
+            // Upload new document
+            const { data, error } = await supabase.storage
+                .from('profile-photos')
+                .upload(fileName, file, {
+                    cacheControl: '3600',
+                    upsert: true
+                });
+
+            if (error) {
+                console.error('Document upload error:', error);
+                return null;
+            }
+
+            // Get public URL
+            const { data: urlData } = supabase.storage
+                .from('profile-photos')
+                .getPublicUrl(fileName);
+
+            return urlData.publicUrl;
         }
 
         // Clothing Size Selector
@@ -1187,6 +1263,25 @@
                     photoExternUrl = await uploadPhoto(userId, 'photo-extern', selectedPhotos.photoExtern);
                 }
 
+                // 3b. Upload documents if selected
+                let idFrontUrl = null;
+                let idBackUrl = null;
+                let licenseFrontUrl = null;
+                let licenseBackUrl = null;
+
+                if (selectedDocuments.idFront) {
+                    idFrontUrl = await uploadDocument(userId, 'id-front', selectedDocuments.idFront);
+                }
+                if (selectedDocuments.idBack) {
+                    idBackUrl = await uploadDocument(userId, 'id-back', selectedDocuments.idBack);
+                }
+                if (selectedDocuments.licenseFront) {
+                    licenseFrontUrl = await uploadDocument(userId, 'license-front', selectedDocuments.licenseFront);
+                }
+                if (selectedDocuments.licenseBack) {
+                    licenseBackUrl = await uploadDocument(userId, 'license-back', selectedDocuments.licenseBack);
+                }
+
                 // 4. Update user_profiles
                 const profileData = {
                     user_id: userId,
@@ -1210,6 +1305,12 @@
                 // Add photo URLs if uploaded
                 if (photoInternUrl) profileData.photo_intern_url = photoInternUrl;
                 if (photoExternUrl) profileData.photo_extern_url = photoExternUrl;
+
+                // Add document URLs if uploaded
+                if (idFrontUrl) profileData.id_front_url = idFrontUrl;
+                if (idBackUrl) profileData.id_back_url = idBackUrl;
+                if (licenseFrontUrl) profileData.license_front_url = licenseFrontUrl;
+                if (licenseBackUrl) profileData.license_back_url = licenseBackUrl;
 
                 const { error: profileError } = await supabase
                     .from('user_profiles')
@@ -1369,7 +1470,10 @@
                     document.getElementById('city').value = profile.city || '';
                     document.getElementById('country').value = profile.country || 'Deutschland';
                     document.getElementById('accountHolder').value = profile.account_holder || '';
-                    document.getElementById('iban').value = profile.iban || '';
+                    // Format IBAN with spaces for display
+                    const rawIban = profile.iban || '';
+                    const formattedIban = rawIban.match(/.{1,4}/g)?.join(' ') || rawIban;
+                    document.getElementById('iban').value = formattedIban;
                     document.getElementById('bic').value = profile.bic || '';
                     document.getElementById('bankName').value = profile.bank_name || '';
                     document.getElementById('taxNumber').value = profile.tax_number || '';
@@ -1397,6 +1501,31 @@
                         externPreview.src = profile.photo_extern_url;
                         externBox.classList.add('has-image');
                     }
+
+                    // Load documents
+                    const documentTypes = [
+                        { url: profile.id_front_url, boxId: 'idFrontBox', nameId: 'idFrontName' },
+                        { url: profile.id_back_url, boxId: 'idBackBox', nameId: 'idBackName' },
+                        { url: profile.license_front_url, boxId: 'licenseFrontBox', nameId: 'licenseFrontName' },
+                        { url: profile.license_back_url, boxId: 'licenseBackBox', nameId: 'licenseBackName' }
+                    ];
+
+                    documentTypes.forEach(doc => {
+                        if (doc.url) {
+                            const box = document.getElementById(doc.boxId);
+                            const nameDisplay = document.getElementById(doc.nameId);
+
+                            box.classList.add('has-file');
+                            nameDisplay.textContent = 'Dokument vorhanden';
+
+                            // Create preview image
+                            let preview = document.createElement('img');
+                            preview.className = 'document-preview';
+                            preview.style.cssText = 'width: 100%; height: 120px; object-fit: cover; border-radius: var(--radius-sm); margin-top: var(--spacing-sm);';
+                            preview.src = doc.url;
+                            box.appendChild(preview);
+                        }
+                    });
                 }
 
                 // Fill email from user
