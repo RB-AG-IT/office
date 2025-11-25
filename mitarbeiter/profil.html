@@ -545,6 +545,32 @@
             max-width: 100%;
         }
 
+        .cropper-toolbar {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+
+        .cropper-tool-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .cropper-tool-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
         .cropper-modal-actions {
             display: flex;
             justify-content: flex-end;
@@ -850,6 +876,18 @@
             <div class="cropper-container-wrapper">
                 <img id="cropperImage" src="" alt="Bild zuschneiden">
             </div>
+            <div class="cropper-toolbar">
+                <button class="cropper-tool-btn" onclick="rotateCrop(-90)" title="90° nach links drehen">
+                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                    </svg>
+                </button>
+                <button class="cropper-tool-btn" onclick="rotateCrop(90)" title="90° nach rechts drehen">
+                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"/>
+                    </svg>
+                </button>
+            </div>
             <div class="cropper-modal-actions">
                 <button class="btn btn-secondary" onclick="closeCropperModal()">Abbrechen</button>
                 <button class="btn btn-primary" onclick="applyCrop()">Zuschneiden</button>
@@ -952,6 +990,13 @@
             currentCropFile = null;
         }
 
+        // Rotate image
+        function rotateCrop(degrees) {
+            if (cropper) {
+                cropper.rotate(degrees);
+            }
+        }
+
         // Apply crop and save
         function applyCrop() {
             if (!cropper || !currentCropType) return;
@@ -1034,7 +1079,7 @@
 
             // Delete ALL old versions of this photo (with any extension)
             const { data: existingFiles } = await supabase.storage
-                .from('profile-photos')
+                .from('user-files')
                 .list(userId);
 
             if (existingFiles) {
@@ -1045,14 +1090,14 @@
 
                 if (filesToDelete.length > 0) {
                     await supabase.storage
-                        .from('profile-photos')
+                        .from('user-files')
                         .remove(filesToDelete);
                 }
             }
 
             // Upload new photo
             const { data, error } = await supabase.storage
-                .from('profile-photos')
+                .from('user-files')
                 .upload(fileName, file, {
                     cacheControl: '3600',
                     upsert: true
@@ -1065,7 +1110,7 @@
 
             // Get public URL
             const { data: urlData } = supabase.storage
-                .from('profile-photos')
+                .from('user-files')
                 .getPublicUrl(fileName);
 
             return urlData.publicUrl;
@@ -1106,7 +1151,7 @@
 
             // Delete ALL old versions of this document
             const { data: existingFiles } = await supabase.storage
-                .from('profile-photos')
+                .from('user-files')
                 .list(userId);
 
             if (existingFiles) {
@@ -1116,14 +1161,14 @@
 
                 if (filesToDelete.length > 0) {
                     await supabase.storage
-                        .from('profile-photos')
+                        .from('user-files')
                         .remove(filesToDelete);
                 }
             }
 
             // Upload new document
             const { data, error } = await supabase.storage
-                .from('profile-photos')
+                .from('user-files')
                 .upload(fileName, file, {
                     cacheControl: '3600',
                     upsert: true
@@ -1136,7 +1181,7 @@
 
             // Get public URL
             const { data: urlData } = supabase.storage
-                .from('profile-photos')
+                .from('user-files')
                 .getPublicUrl(fileName);
 
             return urlData.publicUrl;
