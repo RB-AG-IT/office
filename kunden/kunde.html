@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kunde bearbeiten - RB Inside Office</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        body {
+            overflow-y: auto;
+            height: 100%;
+            margin: 0;
+            background: var(--bg-secondary);
+        }
+
+        .page-container {
+            padding: var(--spacing-lg);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .page-header {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: var(--spacing-sm);
+            left: var(--spacing-sm);
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            padding: 0;
+        }
+
+        .back-arrow:hover {
+            color: var(--text-primary);
+            transform: translateX(-2px);
+        }
+
+        .back-arrow svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .header-info h1 {
+            font-size: var(--font-size-heading);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .header-info p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .form-grid.three-col {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        /* Werbegebiete Tags */
+        .areas-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .area-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .area-tag .remove-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .area-tag .remove-btn:hover {
+            color: var(--warning-text);
+        }
+
+        .area-tag .remove-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Kampagnen Grid */
+        .campaigns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .campaign-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            border: 2px solid var(--border-color);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .campaign-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-color);
+        }
+
+        .campaign-card.status-active {
+            border-color: #22c55e;
+        }
+
+        .campaign-card.status-planned {
+            border-color: #3b82f6;
+        }
+
+        .campaign-card.status-completed {
+            border-color: #9ca3af;
+            opacity: 0.8;
+        }
+
+        .campaign-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .campaign-title {
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .campaign-period {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .campaign-status {
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .campaign-status.active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .campaign-status.planned {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .campaign-status.completed {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .campaign-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: var(--font-size-sm);
+        }
+
+        .campaign-info-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .campaign-info-label {
+            color: var(--text-secondary);
+        }
+
+        .campaign-info-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .campaign-badges {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .contract-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .contract-badge.has-contract {
+            background: var(--success-bg);
+            color: var(--success-text);
+        }
+
+        .contract-badge.missing {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+        }
+
+        .contract-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* Add Campaign Card */
+        .add-campaign-card {
+            background: var(--bg-primary);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 180px;
+        }
+
+        .add-campaign-card:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-hover);
+        }
+
+        .add-campaign-card svg {
+            width: 32px;
+            height: 32px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .add-campaign-card span {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+
+        /* Rechnungsstellung Option */
+        .invoice-option {
+            display: flex;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .invoice-option label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+
+        .invoice-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Document Upload */
+        .document-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .document-upload-box {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-secondary);
+        }
+
+        .document-upload-box:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-hover);
+        }
+
+        .document-upload-box.has-file {
+            border-style: solid;
+            border-color: var(--success-text);
+            background: var(--success-bg);
+        }
+
+        .document-upload-box h4 {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .document-upload-box p {
+            margin: 0;
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .document-upload-box svg {
+            width: 32px;
+            height: 32px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .document-upload-box.has-file svg {
+            color: var(--success-text);
+        }
+
+        /* Modal Styles */
+        .modal-large .modal-content {
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-tab {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            background: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .modal-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-tab.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Konditionen Grid */
+        .konditionen-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .konditionen-title {
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .konditionen-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--spacing-sm);
+        }
+
+        .konditionen-grid .form-group {
+            margin-bottom: 0;
+        }
+
+        .konditionen-grid label {
+            font-size: var(--font-size-xs);
+            text-align: center;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .konditionen-grid input {
+            text-align: center;
+        }
+
+        /* Qualitätsbonus */
+        .quality-bonus-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+        }
+
+        .quality-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--accent-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        .storno-rules {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .storno-rule {
+            display: grid;
+            grid-template-columns: 100px 1fr 150px;
+            gap: var(--spacing-sm);
+            align-items: center;
+            padding: var(--spacing-sm);
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+        }
+
+        /* Sticky Footer */
+        .sticky-footer {
+            position: sticky;
+            bottom: 0;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            margin-top: var(--spacing-xl);
+        }
+
+        .footer-info {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        /* Empty State */
+        .empty-campaigns {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+        }
+
+        .empty-campaigns svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <div class="page-header">
+            <button class="back-arrow" onclick="window.location.href='index.html'" title="Zurück">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="header-info">
+                <h1 id="customerName">Neuer Kunde</h1>
+                <p>Kundennummer: <span id="customerId">-</span> • Erstellt am: <span id="createdDate">-</span></p>
+            </div>
+            <div class="header-actions">
+                <span class="campaign-status active" id="customerStatus">Aktiv</span>
+            </div>
+        </div>
+
+        <!-- Allgemeine Informationen -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Allgemeine Informationen</h2>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Kundenname *</label>
+                    <input type="text" class="form-input" id="name" placeholder="z.B. DRK Kreisverband Ludwigshafen">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Typ *</label>
+                    <select class="form-input" id="type">
+                        <option value="kreisverband">Kreisverband</option>
+                        <option value="ortsverein">Ortsverein</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kontaktperson</label>
+                    <input type="text" class="form-input" id="contactPerson" placeholder="Dr. Max Mustermann">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-Mail</label>
+                    <input type="email" class="form-input" id="contactEmail" placeholder="kontakt@drk-example.de">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefon</label>
+                    <input type="tel" class="form-input" id="contactPhone" placeholder="+49 621 12345">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-input" id="status">
+                        <option value="aktiv">Aktiv</option>
+                        <option value="inaktiv">Inaktiv</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Werbegebiete -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Werbegebiete (Ortsvereine)</h2>
+                <button class="btn btn-secondary btn-small" onclick="openAddAreaModal()">
+                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Hinzufügen
+                </button>
+            </div>
+            <div class="areas-container" id="areasContainer">
+                <!-- Areas will be rendered here -->
+            </div>
+            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
+                Werbegebiete sind die Ortsvereine, für die separate Mitgliederformulare verwendet werden.
+            </p>
+        </div>
+
+        <!-- Rechnungsstellung -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Rechnungsstellung</h2>
+            </div>
+            <div class="invoice-option">
+                <label>
+                    <input type="radio" name="invoiceType" value="combined" checked>
+                    Alle Werbegebiete zusammen abrechnen
+                </label>
+                <label>
+                    <input type="radio" name="invoiceType" value="separate">
+                    Pro Werbegebiet separate Rechnung
+                </label>
+            </div>
+        </div>
+
+        <!-- Verträge -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Verträge</h2>
+            </div>
+            <div class="document-grid">
+                <label for="avvInput" class="document-upload-box" id="avvBox">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <h4>AVV (Auftragsverarbeitungsvertrag)</h4>
+                    <p>PDF hochladen</p>
+                </label>
+                <input type="file" id="avvInput" accept=".pdf" style="display: none;" onchange="handleContractUpload('avv', this)">
+
+                <label for="rahmenvertragInput" class="document-upload-box" id="rahmenvertragBox">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <h4>Rahmenvertrag</h4>
+                    <p>PDF hochladen</p>
+                </label>
+                <input type="file" id="rahmenvertragInput" accept=".pdf" style="display: none;" onchange="handleContractUpload('rahmenvertrag', this)">
+            </div>
+        </div>
+
+        <!-- Kampagnen -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Kampagnen</h2>
+            </div>
+            <div class="campaigns-grid" id="campaignsGrid">
+                <!-- Campaigns will be rendered here -->
+                <div class="add-campaign-card" onclick="openCampaignModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Neue Kampagne anlegen</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Footer -->
+    <div class="sticky-footer">
+        <div class="footer-info">
+            <span id="lastSaved">Noch nicht gespeichert</span>
+        </div>
+        <div class="footer-actions">
+            <button class="btn btn-secondary" onclick="window.location.href='index.html'">Abbrechen</button>
+            <button class="btn btn-primary" onclick="saveCustomer()">
+                <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Speichern
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Kampagne bearbeiten -->
+    <div class="modal modal-large" id="campaignModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="campaignModalTitle">Neue Kampagne</h2>
+                <button class="modal-close" onclick="closeCampaignModal()">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="modal-tabs">
+                <button class="modal-tab active" onclick="switchTab('allgemein')">Allgemein</button>
+                <button class="modal-tab" onclick="switchTab('konditionen')">Konditionen</button>
+                <button class="modal-tab" onclick="switchTab('ansprechpartner')">Ansprechpartner</button>
+                <button class="modal-tab" onclick="switchTab('notizen')">Notizen</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Tab: Allgemein -->
+                <div class="tab-content active" id="tab-allgemein">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Kampagnenname *</label>
+                            <input type="text" class="form-input" id="campaignName" placeholder="z.B. Frühjahrskampagne 2024">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-input" id="campaignStatus">
+                                <option value="planned">Geplant</option>
+                                <option value="active">Aktiv</option>
+                                <option value="completed">Abgeschlossen</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Startdatum</label>
+                            <input type="date" class="form-input" id="campaignStart">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Enddatum</label>
+                            <input type="date" class="form-input" id="campaignEnd">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bevölkerungsanzahl im Gebiet</label>
+                            <input type="number" class="form-input" id="population" placeholder="z.B. 150000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Zugeordneter Vertrag</label>
+                            <select class="form-input" id="assignedContract">
+                                <option value="">Vertrag auswählen</option>
+                                <option value="rahmenvertrag-2024">Rahmenvertrag 2024</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Konditionen -->
+                <div class="tab-content" id="tab-konditionen">
+                    <!-- Sondierungskonditionen -->
+                    <div class="konditionen-section">
+                        <h3 class="konditionen-title">Sondierungskonditionen (% pro Jahr)</h3>
+                        <div class="konditionen-grid">
+                            <div class="form-group">
+                                <label>Jahr 1</label>
+                                <input type="number" class="form-input" id="sond1" placeholder="%" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Jahr 2</label>
+                                <input type="number" class="form-input" id="sond2" placeholder="%" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Jahr 3</label>
+                                <input type="number" class="form-input" id="sond3" placeholder="%" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Jahr 4</label>
+                                <input type="number" class="form-input" id="sond4" placeholder="%" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Jahr 5</label>
+                                <input type="number" class="form-input" id="sond5" placeholder="%" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sondierungskonditionen für X Mitglieder -->
+                    <div class="konditionen-section">
+                        <h3 class="konditionen-title">Sondierungskonditionen für Mitglieder</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Direkt: Anzahl Mitglieder</label>
+                                <input type="number" class="form-input" id="sondMembersDirect" placeholder="z.B. 100">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Oder: % der Bevölkerung</label>
+                                <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                                    <input type="number" class="form-input" id="sondMembersPercent" placeholder="%" step="0.01" style="flex: 1;">
+                                    <span style="color: var(--text-secondary); font-size: var(--font-size-sm);">= <span id="calculatedMembers">0</span> Mitglieder</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regular Konditionen -->
+                    <div class="konditionen-section">
+                        <h3 class="konditionen-title">Reguläre Konditionen (% pro Jahr)</h3>
+                        <div class="konditionen-grid">
+                            <div class="form-group">
+                                <label>Jahr 1</label>
+                                <input type="number" class="form-input" id="reg1" placeholder="%" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Jahr 2</label>
+                                <input type="number" class="form-input" id="reg2" placeholder="%" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Jahr 3</label>
+                                <input type="number" class="form-input" id="reg3" placeholder="%" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Jahr 4</label>
+                                <input type="number" class="form-input" id="reg4" placeholder="%" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>Jahr 5</label>
+                                <input type="number" class="form-input" id="reg5" placeholder="%" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Qualitätsbonus -->
+                    <div class="konditionen-section">
+                        <h3 class="konditionen-title">Qualitätsbonus</h3>
+                        <div class="quality-bonus-section">
+                            <div class="quality-toggle">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="qualityBonusEnabled">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Qualitätsbonus aktivieren</span>
+                            </div>
+                            <div class="storno-rules" id="stornoRules">
+                                <div class="storno-rule">
+                                    <span>Storno unter</span>
+                                    <input type="number" class="form-input" value="15" style="width: 80px;">
+                                    <span>% → +<input type="number" class="form-input" value="3" style="width: 60px;"> Prozentpunkte</span>
+                                </div>
+                                <div class="storno-rule">
+                                    <span>Storno unter</span>
+                                    <input type="number" class="form-input" value="12" style="width: 80px;">
+                                    <span>% → +<input type="number" class="form-input" value="3" style="width: 60px;"> Prozentpunkte</span>
+                                </div>
+                                <div class="storno-rule">
+                                    <span>Storno unter</span>
+                                    <input type="number" class="form-input" value="10" style="width: 80px;">
+                                    <span>% → +<input type="number" class="form-input" value="3" style="width: 60px;"> Prozentpunkte</span>
+                                </div>
+                                <div class="storno-rule">
+                                    <span>Storno unter</span>
+                                    <input type="number" class="form-input" value="8" style="width: 80px;">
+                                    <span>% → +<input type="number" class="form-input" value="1" style="width: 60px;"> Prozentpunkt</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sondervereinbarungen -->
+                    <div class="konditionen-section">
+                        <h3 class="konditionen-title">Sondervereinbarungen</h3>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" id="partialPayment" style="width: 18px; height: 18px; margin-right: 8px;">
+                                Teilvergütung aktivieren
+                            </label>
+                            <div style="margin-top: var(--spacing-sm);">
+                                <input type="number" class="form-input" id="partialPaymentPercent" placeholder="% der Teilvergütung" style="max-width: 200px;">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: var(--spacing-md);">
+                            <label class="form-label">Weitere Sondervereinbarungen</label>
+                            <textarea class="form-input" id="specialAgreements" rows="3" placeholder="z.B. Sonderposten, spezielle Kleidungsvereinbarungen..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Ansprechpartner -->
+                <div class="tab-content" id="tab-ansprechpartner">
+                    <p style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-lg);">
+                        Der Ansprechpartner erscheint in der Willkommensmail an neue Mitarbeiter.
+                    </p>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-input" id="contactName" placeholder="Max Mustermann">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Position</label>
+                            <input type="text" class="form-input" id="contactPosition" placeholder="Projektleiter">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">E-Mail</label>
+                            <input type="email" class="form-input" id="contactEmailCampaign" placeholder="ansprechpartner@drk.de">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Telefon</label>
+                            <input type="tel" class="form-input" id="contactPhoneCampaign" placeholder="+49 123 456789">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Notizen -->
+                <div class="tab-content" id="tab-notizen">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">DRK Kleidung - Wer kümmert sich?</label>
+                            <select class="form-input" id="clothingResponsible">
+                                <option value="">Auswählen...</option>
+                                <option value="drk">DRK</option>
+                                <option value="rb">RB</option>
+                            </select>
+                            <textarea class="form-input" id="clothingNotes" rows="2" placeholder="Notizen..." style="margin-top: var(--spacing-sm);"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Auto</label>
+                            <select class="form-input" id="carResponsible">
+                                <option value="">Auswählen...</option>
+                                <option value="drk">DRK</option>
+                                <option value="rb">RB</option>
+                            </select>
+                            <textarea class="form-input" id="carNotes" rows="2" placeholder="Notizen..." style="margin-top: var(--spacing-sm);"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">DRK Ausweise</label>
+                            <select class="form-input" id="idResponsible">
+                                <option value="">Auswählen...</option>
+                                <option value="drk">DRK</option>
+                                <option value="rb">RB</option>
+                            </select>
+                            <textarea class="form-input" id="idNotes" rows="2" placeholder="Notizen..." style="margin-top: var(--spacing-sm);"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Allgemeine Notizen</label>
+                            <textarea class="form-input" id="generalNotes" rows="4" placeholder="Weitere Notizen zur Kampagne..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeCampaignModal()">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="saveCampaign()">Kampagne speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Werbegebiet hinzufügen -->
+    <div class="modal" id="addAreaModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Werbegebiet hinzufügen</h2>
+                <button class="modal-close" onclick="closeAddAreaModal()">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Name des Werbegebiets</label>
+                    <input type="text" class="form-input" id="newAreaName" placeholder="z.B. Ludwigshafen-Mitte e.V.">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddAreaModal()">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="addArea()">Hinzufügen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // DUMMY DATA
+        // ================================================================
+
+        // Current customer data (loaded from URL parameter or new)
+        let currentCustomer = {
+            id: 1,
+            name: 'DRK Kreisverband Ludwigshafen',
+            type: 'kreisverband',
+            contactPerson: 'Dr. Maria Schmidt',
+            contactEmail: 'schmidt@drk-ludwigshafen.de',
+            contactPhone: '+49 621 57000',
+            status: 'aktiv',
+            areas: ['Ludwigshafen-Mitte e.V.', 'Ludwigshafen-Süd e.V.', 'Oggersheim e.V.'],
+            invoiceType: 'combined',
+            hasAVV: true,
+            hasRahmenvertrag: true,
+            campaigns: [
+                {
+                    id: 1,
+                    name: 'Frühjahrskampagne 2024',
+                    status: 'active',
+                    startDate: '2024-03-01',
+                    endDate: '2024-05-31',
+                    population: 175000,
+                    hasContract: true,
+                    sondierung: [5, 4.5, 4, 3.5, 3],
+                    regular: [3, 2.8, 2.5, 2.3, 2],
+                    qualityBonus: true
+                },
+                {
+                    id: 2,
+                    name: 'Herbstkampagne 2024',
+                    status: 'planned',
+                    startDate: '2024-09-01',
+                    endDate: '2024-11-30',
+                    population: 175000,
+                    hasContract: true,
+                    sondierung: [5, 4.5, 4, 3.5, 3],
+                    regular: [3, 2.8, 2.5, 2.3, 2],
+                    qualityBonus: false
+                }
+            ]
+        };
+
+        let editingCampaignId = null;
+
+        // ================================================================
+        // INITIALIZATION
+        // ================================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if editing existing customer
+            const urlParams = new URLSearchParams(window.location.search);
+            const customerId = urlParams.get('id');
+
+            if (customerId) {
+                loadCustomerData(customerId);
+            } else {
+                // New customer
+                currentCustomer = {
+                    id: null,
+                    name: '',
+                    type: 'kreisverband',
+                    contactPerson: '',
+                    contactEmail: '',
+                    contactPhone: '',
+                    status: 'aktiv',
+                    areas: [],
+                    invoiceType: 'combined',
+                    hasAVV: false,
+                    hasRahmenvertrag: false,
+                    campaigns: []
+                };
+            }
+
+            renderCustomerData();
+            renderAreas();
+            renderCampaigns();
+
+            // Setup population calculator
+            document.getElementById('sondMembersPercent').addEventListener('input', calculateMembers);
+            document.getElementById('population').addEventListener('input', calculateMembers);
+        });
+
+        // ================================================================
+        // DATA LOADING
+        // ================================================================
+
+        function loadCustomerData(id) {
+            // In real app, this would fetch from Supabase
+            // For now, use dummy data
+            document.getElementById('customerName').textContent = currentCustomer.name;
+            document.getElementById('customerId').textContent = 'KD-' + String(currentCustomer.id).padStart(4, '0');
+            document.getElementById('createdDate').textContent = '15.01.2024';
+        }
+
+        function renderCustomerData() {
+            document.getElementById('name').value = currentCustomer.name;
+            document.getElementById('type').value = currentCustomer.type;
+            document.getElementById('contactPerson').value = currentCustomer.contactPerson;
+            document.getElementById('contactEmail').value = currentCustomer.contactEmail;
+            document.getElementById('contactPhone').value = currentCustomer.contactPhone;
+            document.getElementById('status').value = currentCustomer.status;
+
+            // Invoice type
+            document.querySelector(`input[name="invoiceType"][value="${currentCustomer.invoiceType}"]`).checked = true;
+
+            // Contracts
+            if (currentCustomer.hasAVV) {
+                document.getElementById('avvBox').classList.add('has-file');
+            }
+            if (currentCustomer.hasRahmenvertrag) {
+                document.getElementById('rahmenvertragBox').classList.add('has-file');
+            }
+
+            // Header
+            if (currentCustomer.name) {
+                document.getElementById('customerName').textContent = currentCustomer.name;
+                document.getElementById('customerId').textContent = 'KD-' + String(currentCustomer.id).padStart(4, '0');
+            }
+        }
+
+        // ================================================================
+        // AREAS (Werbegebiete)
+        // ================================================================
+
+        function renderAreas() {
+            const container = document.getElementById('areasContainer');
+
+            if (currentCustomer.areas.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); font-size: var(--font-size-sm);">Noch keine Werbegebiete hinzugefügt.</p>';
+                return;
+            }
+
+            container.innerHTML = currentCustomer.areas.map((area, index) => `
+                <div class="area-tag">
+                    ${area}
+                    <button class="remove-btn" onclick="removeArea(${index})">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function openAddAreaModal() {
+            document.getElementById('addAreaModal').classList.add('show');
+            document.getElementById('newAreaName').value = '';
+            document.getElementById('newAreaName').focus();
+        }
+
+        function closeAddAreaModal() {
+            document.getElementById('addAreaModal').classList.remove('show');
+        }
+
+        function addArea() {
+            const name = document.getElementById('newAreaName').value.trim();
+            if (name) {
+                currentCustomer.areas.push(name);
+                renderAreas();
+                closeAddAreaModal();
+            }
+        }
+
+        function removeArea(index) {
+            currentCustomer.areas.splice(index, 1);
+            renderAreas();
+        }
+
+        // ================================================================
+        // CAMPAIGNS
+        // ================================================================
+
+        function renderCampaigns() {
+            const grid = document.getElementById('campaignsGrid');
+
+            const campaignCards = currentCustomer.campaigns.map(campaign => {
+                const statusLabels = {
+                    active: 'Aktiv',
+                    planned: 'Geplant',
+                    completed: 'Abgeschlossen'
+                };
+
+                return `
+                    <div class="campaign-card status-${campaign.status}" onclick="openCampaignModal(${campaign.id})">
+                        <div class="campaign-header">
+                            <div>
+                                <div class="campaign-title">${campaign.name}</div>
+                                <div class="campaign-period">${formatDate(campaign.startDate)} - ${formatDate(campaign.endDate)}</div>
+                            </div>
+                            <span class="campaign-status ${campaign.status}">${statusLabels[campaign.status]}</span>
+                        </div>
+                        <div class="campaign-info">
+                            <div class="campaign-info-row">
+                                <span class="campaign-info-label">Bevölkerung:</span>
+                                <span class="campaign-info-value">${campaign.population.toLocaleString('de-DE')}</span>
+                            </div>
+                            <div class="campaign-info-row">
+                                <span class="campaign-info-label">Qualitätsbonus:</span>
+                                <span class="campaign-info-value">${campaign.qualityBonus ? 'Ja' : 'Nein'}</span>
+                            </div>
+                        </div>
+                        <div class="campaign-badges">
+                            <span class="contract-badge ${campaign.hasContract ? 'has-contract' : 'missing'}">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${campaign.hasContract ? 'M5 13l4 4L19 7' : 'M12 9v2m0 4h.01'}"/>
+                                </svg>
+                                ${campaign.hasContract ? 'Vertrag zugeordnet' : 'Kein Vertrag'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add "New Campaign" card at the end
+            grid.innerHTML = campaignCards + `
+                <div class="add-campaign-card" onclick="openCampaignModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Neue Kampagne anlegen</span>
+                </div>
+            `;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        // ================================================================
+        // CAMPAIGN MODAL
+        // ================================================================
+
+        function openCampaignModal(campaignId = null) {
+            editingCampaignId = campaignId;
+
+            if (campaignId) {
+                const campaign = currentCustomer.campaigns.find(c => c.id === campaignId);
+                if (campaign) {
+                    document.getElementById('campaignModalTitle').textContent = 'Kampagne bearbeiten';
+                    document.getElementById('campaignName').value = campaign.name;
+                    document.getElementById('campaignStatus').value = campaign.status;
+                    document.getElementById('campaignStart').value = campaign.startDate;
+                    document.getElementById('campaignEnd').value = campaign.endDate;
+                    document.getElementById('population').value = campaign.population;
+
+                    // Fill konditionen
+                    if (campaign.sondierung) {
+                        for (let i = 0; i < 5; i++) {
+                            document.getElementById('sond' + (i + 1)).value = campaign.sondierung[i] || '';
+                        }
+                    }
+                    if (campaign.regular) {
+                        for (let i = 0; i < 5; i++) {
+                            document.getElementById('reg' + (i + 1)).value = campaign.regular[i] || '';
+                        }
+                    }
+                    document.getElementById('qualityBonusEnabled').checked = campaign.qualityBonus;
+                }
+            } else {
+                document.getElementById('campaignModalTitle').textContent = 'Neue Kampagne';
+                // Clear form
+                document.getElementById('campaignName').value = '';
+                document.getElementById('campaignStatus').value = 'planned';
+                document.getElementById('campaignStart').value = '';
+                document.getElementById('campaignEnd').value = '';
+                document.getElementById('population').value = '';
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById('sond' + i).value = '';
+                    document.getElementById('reg' + i).value = '';
+                }
+                document.getElementById('qualityBonusEnabled').checked = false;
+            }
+
+            // Reset to first tab
+            switchTab('allgemein');
+            document.getElementById('campaignModal').classList.add('show');
+        }
+
+        function closeCampaignModal() {
+            document.getElementById('campaignModal').classList.remove('show');
+            editingCampaignId = null;
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.modal-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(tabName.substring(0, 4))) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        function saveCampaign() {
+            const name = document.getElementById('campaignName').value.trim();
+            if (!name) {
+                alert('Bitte Kampagnennamen eingeben');
+                return;
+            }
+
+            const campaignData = {
+                id: editingCampaignId || Date.now(),
+                name: name,
+                status: document.getElementById('campaignStatus').value,
+                startDate: document.getElementById('campaignStart').value,
+                endDate: document.getElementById('campaignEnd').value,
+                population: parseInt(document.getElementById('population').value) || 0,
+                hasContract: true,
+                sondierung: [
+                    parseFloat(document.getElementById('sond1').value) || 0,
+                    parseFloat(document.getElementById('sond2').value) || 0,
+                    parseFloat(document.getElementById('sond3').value) || 0,
+                    parseFloat(document.getElementById('sond4').value) || 0,
+                    parseFloat(document.getElementById('sond5').value) || 0
+                ],
+                regular: [
+                    parseFloat(document.getElementById('reg1').value) || 0,
+                    parseFloat(document.getElementById('reg2').value) || 0,
+                    parseFloat(document.getElementById('reg3').value) || 0,
+                    parseFloat(document.getElementById('reg4').value) || 0,
+                    parseFloat(document.getElementById('reg5').value) || 0
+                ],
+                qualityBonus: document.getElementById('qualityBonusEnabled').checked
+            };
+
+            if (editingCampaignId) {
+                const index = currentCustomer.campaigns.findIndex(c => c.id === editingCampaignId);
+                if (index !== -1) {
+                    currentCustomer.campaigns[index] = campaignData;
+                }
+            } else {
+                currentCustomer.campaigns.push(campaignData);
+            }
+
+            renderCampaigns();
+            closeCampaignModal();
+        }
+
+        // ================================================================
+        // CALCULATIONS
+        // ================================================================
+
+        function calculateMembers() {
+            const population = parseInt(document.getElementById('population').value) || 0;
+            const percent = parseFloat(document.getElementById('sondMembersPercent').value) || 0;
+            const calculated = Math.floor(population * (percent / 100));
+            document.getElementById('calculatedMembers').textContent = calculated.toLocaleString('de-DE');
+        }
+
+        // ================================================================
+        // CONTRACT UPLOAD
+        // ================================================================
+
+        function handleContractUpload(type, input) {
+            if (input.files && input.files[0]) {
+                const box = document.getElementById(type + 'Box');
+                box.classList.add('has-file');
+
+                if (type === 'avv') {
+                    currentCustomer.hasAVV = true;
+                } else {
+                    currentCustomer.hasRahmenvertrag = true;
+                }
+            }
+        }
+
+        // ================================================================
+        // SAVE CUSTOMER
+        // ================================================================
+
+        function saveCustomer() {
+            // Collect data
+            currentCustomer.name = document.getElementById('name').value.trim();
+            currentCustomer.type = document.getElementById('type').value;
+            currentCustomer.contactPerson = document.getElementById('contactPerson').value.trim();
+            currentCustomer.contactEmail = document.getElementById('contactEmail').value.trim();
+            currentCustomer.contactPhone = document.getElementById('contactPhone').value.trim();
+            currentCustomer.status = document.getElementById('status').value;
+            currentCustomer.invoiceType = document.querySelector('input[name="invoiceType"]:checked').value;
+
+            if (!currentCustomer.name) {
+                alert('Bitte Kundennamen eingeben');
+                return;
+            }
+
+            // In real app, save to Supabase
+            console.log('Saving customer:', currentCustomer);
+
+            document.getElementById('lastSaved').textContent = 'Zuletzt gespeichert: ' + new Date().toLocaleTimeString('de-DE');
+            document.getElementById('customerName').textContent = currentCustomer.name;
+
+            alert('✅ Kunde erfolgreich gespeichert!');
+        }
+
+        // ================================================================
+        // MODAL HELPERS
+        // ================================================================
+
+        // Close modals on background click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('show');
+                }
+            });
+        });
+
+        // Enter key in area input
+        document.getElementById('newAreaName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addArea();
+        });
+    </script>
+</body>
+</html>
