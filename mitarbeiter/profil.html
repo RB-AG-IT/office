@@ -338,6 +338,12 @@
             background: var(--success-bg);
         }
 
+        /* Hide icon and upload text when file is present */
+        .document-upload-box.has-file .document-icon,
+        .document-upload-box.has-file .document-upload-text {
+            display: none;
+        }
+
         .document-icon {
             width: 32px;
             height: 32px;
@@ -532,9 +538,9 @@
         }
 
         .cropper-container-wrapper {
-            width: 500px;
+            width: 800px;
             max-width: 100%;
-            aspect-ratio: 1.586 / 1;
+            height: 500px;
             background: #000;
             border-radius: var(--radius-md);
             overflow: hidden;
@@ -552,23 +558,24 @@
         }
 
         .cropper-tool-btn {
-            width: 40px;
-            height: 40px;
-            border: 1px solid var(--border-color);
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--border-color);
             background: var(--bg-secondary);
             border-radius: var(--radius-md);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-secondary);
+            color: var(--text-primary);
             transition: all 0.2s;
+            font-size: 24px;
         }
 
         .cropper-tool-btn:hover {
-            background: var(--bg-hover);
+            background: var(--accent-color);
             border-color: var(--accent-color);
-            color: var(--accent-color);
+            color: white;
         }
 
         .cropper-modal-actions {
@@ -805,7 +812,7 @@
                             <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
-                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
+                            <div class="document-upload-text" style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
                             <div class="document-name" id="idFrontName"></div>
                         </label>
                         <input type="file" id="idFrontInput" accept="image/*,.pdf" onchange="handleDocumentUpload('idFront', this)">
@@ -820,7 +827,7 @@
                             <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
-                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
+                            <div class="document-upload-text" style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
                             <div class="document-name" id="idBackName"></div>
                         </label>
                         <input type="file" id="idBackInput" accept="image/*,.pdf" onchange="handleDocumentUpload('idBack', this)">
@@ -836,7 +843,7 @@
                             <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
-                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
+                            <div class="document-upload-text" style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
                             <div class="document-name" id="licenseFrontName"></div>
                         </label>
                         <input type="file" id="licenseFrontInput" accept="image/*,.pdf" onchange="handleDocumentUpload('licenseFront', this)">
@@ -851,7 +858,7 @@
                             <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
-                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
+                            <div class="document-upload-text" style="font-size: var(--font-size-xs); color: var(--text-secondary);">Datei hochladen</div>
                             <div class="document-name" id="licenseBackName"></div>
                         </label>
                         <input type="file" id="licenseBackInput" accept="image/*,.pdf" onchange="handleDocumentUpload('licenseBack', this)">
@@ -877,13 +884,13 @@
                 <img id="cropperImage" src="" alt="Bild zuschneiden">
             </div>
             <div class="cropper-toolbar">
-                <button class="cropper-tool-btn" onclick="rotateCrop(-90)" title="90° nach links drehen">
-                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="button" class="cropper-tool-btn" onclick="rotateCrop(-90)" title="90° nach links drehen">
+                    <svg style="width: 28px; height: 28px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                     </svg>
                 </button>
-                <button class="cropper-tool-btn" onclick="rotateCrop(90)" title="90° nach rechts drehen">
-                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="button" class="cropper-tool-btn" onclick="rotateCrop(90)" title="90° nach rechts drehen">
+                    <svg style="width: 28px; height: 28px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"/>
                     </svg>
                 </button>
