@@ -128,39 +128,6 @@
             display: none;
         }
 
-        .photo-delete-btn {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            width: 22px;
-            height: 22px;
-            background: #ef4444;
-            border: 2px solid white;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            transition: all 0.2s;
-            padding: 0;
-        }
-
-        .photo-delete-btn:hover {
-            background: #dc2626;
-            transform: scale(1.1);
-        }
-
-        .photo-delete-btn svg {
-            width: 12px;
-            height: 12px;
-            color: white;
-        }
-
-        .header-photo-upload.has-image .photo-delete-btn {
-            display: flex;
-        }
-
         .header-photo-icon {
             width: 32px;
             height: 32px;
@@ -501,27 +468,17 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
                         <img class="header-photo-preview" id="photoInternPreview" alt="Profilfoto Intern">
-                        <button type="button" class="photo-delete-btn" onclick="deletePhoto('photoIntern', event)" title="Foto löschen">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
                     </label>
                     <input type="file" id="photoInternInput" accept="image/*" onchange="handlePhotoUpload('photoIntern', this)">
                     <span class="header-photo-label">Intern</span>
                 </div>
-
+                
                 <div class="header-photo-box">
                     <label for="photoExternInput" class="header-photo-upload" id="photoExternBox">
                         <svg class="header-photo-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
                         <img class="header-photo-preview" id="photoExternPreview" alt="Profilfoto Extern">
-                        <button type="button" class="photo-delete-btn" onclick="deletePhoto('photoExtern', event)" title="Foto löschen">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
                     </label>
                     <input type="file" id="photoExternInput" accept="image/*" onchange="handlePhotoUpload('photoExtern', this)">
                     <span class="header-photo-label">Extern (DRK)</span>
@@ -793,12 +750,6 @@
             photoExtern: null
         };
 
-        // Track photos marked for deletion
-        let photosToDelete = {
-            photoIntern: false,
-            photoExtern: false
-        };
-
         // Photo Upload Handler
         function handlePhotoUpload(type, input) {
             if (input.files && input.files[0]) {
@@ -806,9 +757,6 @@
 
                 // Store file for later upload
                 selectedPhotos[type] = file;
-
-                // Reset delete flag since user is uploading a new photo
-                photosToDelete[type] = false;
 
                 // Show preview
                 const reader = new FileReader();
@@ -820,83 +768,6 @@
                     box.classList.add('has-image');
                 };
                 reader.readAsDataURL(file);
-            }
-        }
-
-        // Delete photo handler
-        async function deletePhoto(type, event) {
-            // Prevent the label click from opening the file picker
-            event.preventDefault();
-            event.stopPropagation();
-
-            // Confirm deletion
-            if (!confirm('Möchten Sie dieses Foto wirklich löschen?')) {
-                return;
-            }
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const userId = urlParams.get('id');
-
-            // Map type to database column
-            const dbColumn = type === 'photoIntern' ? 'photo_intern_url' : 'photo_extern_url';
-            const storageType = type === 'photoIntern' ? 'photo-intern' : 'photo-extern';
-
-            try {
-                // If we have a user ID, delete from storage and DB immediately
-                if (userId) {
-                    // 1. Delete from storage bucket
-                    const { data: existingFiles } = await supabase.storage
-                        .from('profile-photos')
-                        .list(userId);
-
-                    if (existingFiles) {
-                        const filesToDelete = existingFiles
-                            .filter(f => f.name.startsWith(storageType))
-                            .map(f => `${userId}/${f.name}`);
-
-                        if (filesToDelete.length > 0) {
-                            const { error: storageError } = await supabase.storage
-                                .from('profile-photos')
-                                .remove(filesToDelete);
-
-                            if (storageError) {
-                                console.error('Storage delete error:', storageError);
-                            }
-                        }
-                    }
-
-                    // 2. Update database to set URL to NULL
-                    const updateData = {};
-                    updateData[dbColumn] = null;
-
-                    const { error: dbError } = await supabase
-                        .from('user_profiles')
-                        .update(updateData)
-                        .eq('user_id', userId);
-
-                    if (dbError) {
-                        throw dbError;
-                    }
-                }
-
-                // 3. Update UI
-                const box = document.getElementById(`${type}Box`);
-                const preview = document.getElementById(`${type}Preview`);
-
-                box.classList.remove('has-image');
-                preview.src = '';
-
-                // Clear any pending upload for this type
-                selectedPhotos[type] = null;
-
-                // Mark as deleted (in case user had selected a new photo)
-                photosToDelete[type] = true;
-
-                console.log(`Photo ${type} deleted successfully`);
-
-            } catch (error) {
-                console.error('Delete photo error:', error);
-                alert(`Fehler beim Löschen des Fotos: ${error.message}`);
             }
         }
 
