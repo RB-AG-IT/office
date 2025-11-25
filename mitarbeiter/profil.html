@@ -778,10 +778,23 @@
             const fileExt = file.name.split('.').pop();
             const fileName = `${userId}/${type}.${fileExt}`;
 
-            // Delete old photo if exists
-            await supabase.storage
+            // Delete ALL old versions of this photo (with any extension)
+            const { data: existingFiles } = await supabase.storage
                 .from('profile-photos')
-                .remove([fileName]);
+                .list(userId);
+
+            if (existingFiles) {
+                // Find and delete all files that start with the type name (e.g., "photo-intern")
+                const filesToDelete = existingFiles
+                    .filter(f => f.name.startsWith(type))
+                    .map(f => `${userId}/${f.name}`);
+
+                if (filesToDelete.length > 0) {
+                    await supabase.storage
+                        .from('profile-photos')
+                        .remove(filesToDelete);
+                }
+            }
 
             // Upload new photo
             const { data, error } = await supabase.storage
