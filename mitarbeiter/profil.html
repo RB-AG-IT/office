@@ -8,6 +8,11 @@
 
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Cropper.js for image cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
     <style>
         /* ========================================
            PROFILE-SPEZIFISCHE STYLES
@@ -271,8 +276,39 @@
         .document-upload-item h4 {
             font-size: var(--font-size-sm);
             font-weight: 600;
-            margin-bottom: var(--spacing-md);
+            margin: 0;
             color: var(--text-primary);
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .document-status-badge {
+            display: none;
+            padding: 4px 10px;
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-text);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .document-status-badge.visible {
+            display: inline-block;
+        }
+
+        .document-preview {
+            width: 100%;
+            aspect-ratio: 1.586 / 1;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            margin-top: var(--spacing-sm);
+            border: 1px solid var(--border-color);
         }
 
         .document-upload-box {
@@ -439,6 +475,79 @@
         .iban-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        /* Cropper Modal */
+        .cropper-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cropper-modal-overlay.show {
+            display: flex;
+        }
+
+        .cropper-modal-content {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .cropper-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cropper-modal-header h3 {
+            margin: 0;
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+        }
+
+        .cropper-modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--spacing-xs);
+            color: var(--text-secondary);
+        }
+
+        .cropper-modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .cropper-container-wrapper {
+            width: 500px;
+            max-width: 100%;
+            aspect-ratio: 1.586 / 1;
+            background: #000;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .cropper-container-wrapper img {
+            display: block;
+            max-width: 100%;
+        }
+
+        .cropper-modal-actions {
+            display: flex;
+            justify-content: flex-end;
             gap: var(--spacing-md);
         }
     </style>
@@ -662,7 +771,10 @@
                 <div class="document-upload-grid">
                     <!-- Personalausweis -->
                     <div class="document-upload-item">
-                        <h4>Personalausweis Vorderseite</h4>
+                        <div class="document-header">
+                            <h4>Personalausweis Vorderseite</h4>
+                            <span class="document-status-badge" id="idFrontStatus">Dokument vorhanden</span>
+                        </div>
                         <label for="idFrontInput" class="document-upload-box" id="idFrontBox">
                             <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -674,7 +786,10 @@
                     </div>
 
                     <div class="document-upload-item">
-                        <h4>Personalausweis Rückseite</h4>
+                        <div class="document-header">
+                            <h4>Personalausweis Rückseite</h4>
+                            <span class="document-status-badge" id="idBackStatus">Dokument vorhanden</span>
+                        </div>
                         <label for="idBackInput" class="document-upload-box" id="idBackBox">
                             <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -687,7 +802,10 @@
 
                     <!-- Führerschein -->
                     <div class="document-upload-item">
-                        <h4>Führerschein Vorderseite</h4>
+                        <div class="document-header">
+                            <h4>Führerschein Vorderseite</h4>
+                            <span class="document-status-badge" id="licenseFrontStatus">Dokument vorhanden</span>
+                        </div>
                         <label for="licenseFrontInput" class="document-upload-box" id="licenseFrontBox">
                             <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -699,7 +817,10 @@
                     </div>
 
                     <div class="document-upload-item">
-                        <h4>Führerschein Rückseite</h4>
+                        <div class="document-header">
+                            <h4>Führerschein Rückseite</h4>
+                            <span class="document-status-badge" id="licenseBackStatus">Dokument vorhanden</span>
+                        </div>
                         <label for="licenseBackInput" class="document-upload-box" id="licenseBackBox">
                             <svg class="document-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -712,6 +833,27 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Cropper Modal -->
+    <div class="cropper-modal-overlay" id="cropperModal">
+        <div class="cropper-modal-content">
+            <div class="cropper-modal-header">
+                <h3>Bild zuschneiden</h3>
+                <button class="cropper-modal-close" onclick="closeCropperModal()">
+                    <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="cropper-container-wrapper">
+                <img id="cropperImage" src="" alt="Bild zuschneiden">
+            </div>
+            <div class="cropper-modal-actions">
+                <button class="btn btn-secondary" onclick="closeCropperModal()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="applyCrop()">Zuschneiden</button>
+            </div>
         </div>
     </div>
 
@@ -757,6 +899,109 @@
             licenseFront: null,
             licenseBack: null
         };
+
+        // Cropper instance and current document type
+        let cropper = null;
+        let currentCropType = null;
+        let currentCropFile = null;
+
+        // Open cropper modal
+        function openCropperModal(type, file) {
+            currentCropType = type;
+            currentCropFile = file;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const cropperImage = document.getElementById('cropperImage');
+                cropperImage.src = e.target.result;
+
+                // Show modal
+                document.getElementById('cropperModal').classList.add('show');
+
+                // Initialize cropper after image loads
+                cropperImage.onload = function() {
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 1.586,  // ID card aspect ratio (85.6mm x 54mm)
+                        viewMode: 1,
+                        dragMode: 'move',
+                        autoCropArea: 1,
+                        restore: false,
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: false,
+                    });
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Close cropper modal
+        function closeCropperModal() {
+            document.getElementById('cropperModal').classList.remove('show');
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            currentCropType = null;
+            currentCropFile = null;
+        }
+
+        // Apply crop and save
+        function applyCrop() {
+            if (!cropper || !currentCropType) return;
+
+            // Get cropped canvas
+            const canvas = cropper.getCroppedCanvas({
+                width: 856,   // 10x scale for good quality
+                height: 540,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+
+            // Convert to blob
+            canvas.toBlob(function(blob) {
+                // Create a new file from the blob
+                const croppedFile = new File([blob], currentCropFile.name, {
+                    type: 'image/jpeg',
+                    lastModified: Date.now()
+                });
+
+                // Store the cropped file
+                selectedDocuments[currentCropType] = croppedFile;
+
+                // Update UI
+                const box = document.getElementById(`${currentCropType}Box`);
+                const nameDisplay = document.getElementById(`${currentCropType}Name`);
+                const statusBadge = document.getElementById(`${currentCropType}Status`);
+
+                box.classList.add('has-file');
+                nameDisplay.textContent = currentCropFile.name;
+
+                if (statusBadge) {
+                    statusBadge.classList.add('visible');
+                }
+
+                // Show preview
+                let preview = document.getElementById(`${currentCropType}Preview`);
+                if (!preview) {
+                    preview = document.createElement('img');
+                    preview.id = `${currentCropType}Preview`;
+                    preview.className = 'document-preview';
+                    box.appendChild(preview);
+                }
+                preview.src = canvas.toDataURL('image/jpeg');
+                preview.style.display = 'block';
+
+                // Close modal
+                closeCropperModal();
+            }, 'image/jpeg', 0.9);
+        }
 
         // Photo Upload Handler
         function handlePhotoUpload(type, input) {
@@ -830,32 +1075,23 @@
         function handleDocumentUpload(type, input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                const box = document.getElementById(`${type}Box`);
-                const nameDisplay = document.getElementById(`${type}Name`);
 
-                // Store file for later upload
-                selectedDocuments[type] = file;
-
-                box.classList.add('has-file');
-                nameDisplay.textContent = file.name;
-
-                // Show image preview if it's an image
+                // For images, open the cropper modal
                 if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        // Check if preview element exists, create if not
-                        let preview = document.getElementById(`${type}Preview`);
-                        if (!preview) {
-                            preview = document.createElement('img');
-                            preview.id = `${type}Preview`;
-                            preview.className = 'document-preview';
-                            preview.style.cssText = 'width: 100%; height: 120px; object-fit: cover; border-radius: var(--radius-sm); margin-top: var(--spacing-sm);';
-                            box.appendChild(preview);
-                        }
-                        preview.src = e.target.result;
-                        preview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
+                    openCropperModal(type, file);
+                } else {
+                    // For non-images (PDFs), just store and show status
+                    const box = document.getElementById(`${type}Box`);
+                    const nameDisplay = document.getElementById(`${type}Name`);
+                    const statusBadge = document.getElementById(`${type}Status`);
+
+                    selectedDocuments[type] = file;
+                    box.classList.add('has-file');
+                    nameDisplay.textContent = file.name;
+
+                    if (statusBadge) {
+                        statusBadge.classList.add('visible');
+                    }
                 }
             }
         }
@@ -1504,24 +1740,29 @@
 
                     // Load documents
                     const documentTypes = [
-                        { url: profile.id_front_url, boxId: 'idFrontBox', nameId: 'idFrontName' },
-                        { url: profile.id_back_url, boxId: 'idBackBox', nameId: 'idBackName' },
-                        { url: profile.license_front_url, boxId: 'licenseFrontBox', nameId: 'licenseFrontName' },
-                        { url: profile.license_back_url, boxId: 'licenseBackBox', nameId: 'licenseBackName' }
+                        { url: profile.id_front_url, boxId: 'idFrontBox', nameId: 'idFrontName', statusId: 'idFrontStatus' },
+                        { url: profile.id_back_url, boxId: 'idBackBox', nameId: 'idBackName', statusId: 'idBackStatus' },
+                        { url: profile.license_front_url, boxId: 'licenseFrontBox', nameId: 'licenseFrontName', statusId: 'licenseFrontStatus' },
+                        { url: profile.license_back_url, boxId: 'licenseBackBox', nameId: 'licenseBackName', statusId: 'licenseBackStatus' }
                     ];
 
                     documentTypes.forEach(doc => {
                         if (doc.url) {
                             const box = document.getElementById(doc.boxId);
                             const nameDisplay = document.getElementById(doc.nameId);
+                            const statusBadge = document.getElementById(doc.statusId);
 
                             box.classList.add('has-file');
-                            nameDisplay.textContent = 'Dokument vorhanden';
+                            nameDisplay.textContent = '';
+
+                            // Show status badge
+                            if (statusBadge) {
+                                statusBadge.classList.add('visible');
+                            }
 
                             // Create preview image
                             let preview = document.createElement('img');
                             preview.className = 'document-preview';
-                            preview.style.cssText = 'width: 100%; height: 120px; object-fit: cover; border-radius: var(--radius-sm); margin-top: var(--spacing-sm);';
                             preview.src = doc.url;
                             box.appendChild(preview);
                         }
