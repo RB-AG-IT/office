@@ -304,11 +304,11 @@
 
         .document-preview {
             width: 100%;
-            aspect-ratio: 1.586 / 1;
+            height: 100%;
             object-fit: cover;
             border-radius: var(--radius-sm);
-            margin-top: var(--spacing-sm);
-            border: 1px solid var(--border-color);
+            margin: 0;
+            border: none;
         }
 
         .document-upload-box {
@@ -334,13 +334,17 @@
 
         .document-upload-box.has-file {
             border-style: solid;
-            border-color: var(--success-text);
-            background: var(--success-bg);
+            border-color: var(--border-color);
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            aspect-ratio: 1.586 / 1;
+            overflow: hidden;
         }
 
         /* Hide icon and upload text when file is present */
         .document-upload-box.has-file .document-icon,
-        .document-upload-box.has-file .document-upload-text {
+        .document-upload-box.has-file .document-upload-text,
+        .document-upload-box.has-file .document-name {
             display: none;
         }
 
@@ -538,9 +542,11 @@
         }
 
         .cropper-container-wrapper {
-            width: 800px;
-            max-width: 100%;
-            height: 500px;
+            width: 900px;
+            max-width: 95vw;
+            height: 70vh;
+            min-height: 400px;
+            max-height: 700px;
             background: #000;
             border-radius: var(--radius-md);
             overflow: hidden;
@@ -1039,16 +1045,16 @@
                     statusBadge.classList.add('visible');
                 }
 
-                // Show preview
-                let preview = document.getElementById(`${currentCropType}Preview`);
-                if (!preview) {
-                    preview = document.createElement('img');
-                    preview.id = `${currentCropType}Preview`;
-                    preview.className = 'document-preview';
-                    box.appendChild(preview);
-                }
+                // Remove any existing preview first
+                const existingPreviews = box.querySelectorAll('.document-preview');
+                existingPreviews.forEach(p => p.remove());
+
+                // Create new preview
+                const preview = document.createElement('img');
+                preview.id = `${currentCropType}Preview`;
+                preview.className = 'document-preview';
                 preview.src = canvas.toDataURL('image/jpeg');
-                preview.style.display = 'block';
+                box.appendChild(preview);
 
                 // Close modal
                 closeCropperModal();
@@ -1812,8 +1818,12 @@
                                 statusBadge.classList.add('visible');
                             }
 
+                            // Remove any existing previews first
+                            const existingPreviews = box.querySelectorAll('.document-preview');
+                            existingPreviews.forEach(p => p.remove());
+
                             // Create preview image
-                            let preview = document.createElement('img');
+                            const preview = document.createElement('img');
                             preview.className = 'document-preview';
                             preview.src = doc.url;
                             box.appendChild(preview);
