@@ -1140,13 +1140,25 @@ function renderLevelBadge(levelKey, size = 'mini') {
     const displayName = levelInfo.code || levelInfo.name;
     const starsDisplay = '★'.repeat(levelInfo.stars);
 
+    // For many stars, split into rows of 4
+    const starsVertical = levelInfo.stars > 5;
+    const starsRow1 = starsVertical ? '★'.repeat(Math.ceil(levelInfo.stars / 2)) : starsDisplay;
+    const starsRow2 = starsVertical ? '★'.repeat(Math.floor(levelInfo.stars / 2)) : '';
+
     if (size === 'hero') {
         // Big hero badge for stufe/achievements page
         return `
             <div class="level-hero-display ${glowClass}">
                 <div class="shield-badge-large" style="--badge-color: ${levelInfo.color}">
                     <div class="shield-inner">
-                        <span class="shield-stars">${starsDisplay}</span>
+                        ${starsVertical ? `
+                            <span class="shield-stars stacked">
+                                <span>${starsRow1}</span>
+                                <span>${starsRow2}</span>
+                            </span>
+                        ` : `
+                            <span class="shield-stars">${starsDisplay}</span>
+                        `}
                     </div>
                 </div>
                 <div class="level-hero-info">
@@ -1159,16 +1171,31 @@ function renderLevelBadge(levelKey, size = 'mini') {
         // Small preview for next level hint
         return `
             <div class="shield-badge-preview ${glowClass}" style="--badge-color: ${levelInfo.color}">
-                <span class="preview-stars">${starsDisplay}</span>
+                ${starsVertical ? `
+                    <span class="preview-stars stacked">
+                        <span>${starsRow1}</span>
+                        <span>${starsRow2}</span>
+                    </span>
+                ` : `
+                    <span class="preview-stars">${starsDisplay}</span>
+                `}
             </div>
         `;
     } else {
-        // Mini badge for rankings
+        // Mini badge for rankings - with abbreviation
+        const abbrev = levelInfo.code || levelKey;
         return `
-            <span class="level-badge-shield ${glowClass}" style="--badge-color: ${levelInfo.color}">
-                <span class="shield-stars-mini">${starsDisplay}</span>
+            <span class="level-badge-mini ${glowClass}" style="--badge-color: ${levelInfo.color}">
+                <span class="badge-abbrev">${abbrev}</span>
+                ${starsVertical ? `
+                    <span class="badge-stars stacked">
+                        <span>${starsRow1}</span>
+                        <span>${starsRow2}</span>
+                    </span>
+                ` : `
+                    <span class="badge-stars">${starsDisplay}</span>
+                `}
             </span>
-            ${isTopLevel ? `<span class="level-name-mini ${glowClass}" style="color: ${levelInfo.color}">${levelInfo.name}</span>` : ''}
         `;
     }
 }
