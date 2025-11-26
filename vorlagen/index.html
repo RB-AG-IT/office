@@ -388,6 +388,128 @@
             border-radius: 50%;
             background: currentColor;
         }
+
+        /* Locked Section */
+        .locked-section {
+            text-align: center;
+            padding: 80px 40px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .locked-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .locked-icon svg {
+            width: 40px;
+            height: 40px;
+            color: var(--text-secondary);
+        }
+
+        .locked-section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .locked-section p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .locked-detail {
+            margin-top: 16px !important;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Individual Templates Header */
+        .individual-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background: var(--bg-primary);
+            border-radius: 12px;
+        }
+
+        .individual-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .individual-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Create New Card */
+        .create-new-card {
+            border: 2px dashed var(--border-color);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .create-new-card:hover {
+            border-color: var(--accent-color);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .create-new-content {
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .create-new-content svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+        }
+
+        .create-new-content span {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .create-new-card:hover .create-new-content {
+            color: var(--accent-color);
+        }
+
+        /* Locked Tab Indicator */
+        .template-tab.locked {
+            opacity: 0.6;
+        }
+
+        .template-tab.locked::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            margin-left: 6px;
+        }
     </style>
 </head>
 <body>
@@ -473,6 +595,13 @@
                 </svg>
                 Newsletter
                 <span class="tab-badge">2</span>
+            </button>
+            <button class="template-tab" data-tab="individuell" id="individualTab">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                Individuell
+                <span class="tab-badge">Meine</span>
             </button>
         </div>
 
@@ -724,6 +853,115 @@
                 </div>
             </div>
         </div>
+
+        <!-- Individuelle Vorlagen (ab Stufe III) -->
+        <div class="template-content" id="tab-individuell">
+            <!-- Lock Message for lower levels -->
+            <div class="locked-section" id="lockedMessage">
+                <div class="locked-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h3>Individuelle Vorlagen</h3>
+                <p>Ab Stufe III (JMM) freigeschaltet</p>
+                <p class="locked-detail">Erstelle persönliche E-Mail-Vorlagen für deine Kommunikation mit Mitgliedern.</p>
+            </div>
+
+            <!-- Unlocked Content (shown for Stage III+) -->
+            <div class="unlocked-section" id="unlockedContent" style="display: none;">
+                <div class="individual-header">
+                    <div class="individual-info">
+                        <h3>Deine persönlichen Vorlagen</h3>
+                        <p>Erstelle und verwalte individuelle E-Mail-Vorlagen für deine Kommunikation.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCreateIndividualModal()">
+                        <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Neue Vorlage erstellen
+                    </button>
+                </div>
+
+                <div class="template-grid">
+                    <!-- Example Individual Template 1 -->
+                    <div class="template-card">
+                        <div class="template-preview">
+                            <div class="template-preview-content">
+                                <div class="template-preview-header" style="background: #667eea;">Persönliche Nachricht</div>
+                                <p style="margin: 0; line-height: 1.4;">Liebe/r {vorname},<br><br>
+                                ich möchte mich persönlich bei Ihnen für Ihre Unterstützung bedanken...</p>
+                            </div>
+                        </div>
+                        <div class="template-info">
+                            <h3 class="template-name">
+                                Persönlicher Dank
+                                <span class="info-icon">i
+                                    <div class="info-tooltip">
+                                        <h4>Persönlicher Dank</h4>
+                                        <p>Deine individuelle Vorlage für persönliche Danksagungen an Mitglieder.</p>
+                                    </div>
+                                </span>
+                            </h3>
+                            <p class="template-desc">Persönliche Danksagung an besondere Mitglieder</p>
+                            <div class="template-meta">
+                                <span class="template-badge" style="background: rgba(102, 126, 234, 0.1); color: #667eea;">Individuell</span>
+                                <span class="template-meta-item">
+                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    Erstellt: 15.11.2024
+                                </span>
+                            </div>
+                            <div class="template-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="editIndividualTemplate('personal-thanks')">Bearbeiten</button>
+                                <button class="btn btn-secondary btn-sm" onclick="deleteIndividualTemplate('personal-thanks')">Löschen</button>
+                                <button class="btn btn-primary btn-sm" onclick="useIndividualTemplate('personal-thanks')">Verwenden</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example Individual Template 2 -->
+                    <div class="template-card">
+                        <div class="template-preview">
+                            <div class="template-preview-content">
+                                <div class="template-preview-header" style="background: #667eea;">Einladung</div>
+                                <p style="margin: 0; line-height: 1.4;">Liebe/r {vorname},<br><br>
+                                wir laden Sie herzlich zu unserem nächsten Vereinstreffen ein...</p>
+                            </div>
+                        </div>
+                        <div class="template-info">
+                            <h3 class="template-name">Vereinstreffen-Einladung</h3>
+                            <p class="template-desc">Einladung zu lokalen Veranstaltungen</p>
+                            <div class="template-meta">
+                                <span class="template-badge" style="background: rgba(102, 126, 234, 0.1); color: #667eea;">Individuell</span>
+                                <span class="template-meta-item">
+                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    Erstellt: 20.11.2024
+                                </span>
+                            </div>
+                            <div class="template-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="editIndividualTemplate('event-invite')">Bearbeiten</button>
+                                <button class="btn btn-secondary btn-sm" onclick="deleteIndividualTemplate('event-invite')">Löschen</button>
+                                <button class="btn btn-primary btn-sm" onclick="useIndividualTemplate('event-invite')">Verwenden</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create New Card -->
+                    <div class="template-card create-new-card" onclick="openCreateIndividualModal()">
+                        <div class="create-new-content">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <span>Neue Vorlage erstellen</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Edit Template Modal -->
@@ -913,6 +1151,57 @@ Ihr DRK {werbegebiet}</textarea>
         function openNewTemplateModal() {
             alert('Neue Vorlage erstellen - Coming soon');
         }
+
+        // Individual template functions
+        function openCreateIndividualModal() {
+            document.getElementById('editModalTitle').textContent = 'Neue individuelle Vorlage erstellen';
+            document.getElementById('templateSubject').value = '';
+            document.getElementById('templateContent').value = 'Liebe/r {anrede} {nachname},\n\n[Ihr Text hier]\n\nMit freundlichen Grüßen';
+            document.getElementById('editModal').classList.add('show');
+            updatePreview();
+        }
+
+        function editIndividualTemplate(templateId) {
+            document.getElementById('editModalTitle').textContent = 'Individuelle Vorlage bearbeiten';
+            document.getElementById('editModal').classList.add('show');
+            updatePreview();
+        }
+
+        function deleteIndividualTemplate(templateId) {
+            if (confirm('Möchten Sie diese Vorlage wirklich löschen?')) {
+                alert('Vorlage wird gelöscht...');
+            }
+        }
+
+        function useIndividualTemplate(templateId) {
+            alert('Vorlage wird zum Versenden geöffnet...');
+        }
+
+        // Check user stage for individual templates access
+        // Simulated: In production, this would check the user's actual stage from the session
+        function checkIndividualAccess() {
+            // Demo: Set to true to show unlocked state (Stage III+)
+            // In production: check if user.stage >= 3
+            const userStage = 3; // Demo value - would come from session
+            const hasAccess = userStage >= 3;
+
+            const lockedMessage = document.getElementById('lockedMessage');
+            const unlockedContent = document.getElementById('unlockedContent');
+            const individualTab = document.getElementById('individualTab');
+
+            if (hasAccess) {
+                lockedMessage.style.display = 'none';
+                unlockedContent.style.display = 'block';
+                individualTab.classList.remove('locked');
+            } else {
+                lockedMessage.style.display = 'block';
+                unlockedContent.style.display = 'none';
+                individualTab.classList.add('locked');
+            }
+        }
+
+        // Initialize
+        checkIndividualAccess();
 
         // Initialize preview
         updatePreview();

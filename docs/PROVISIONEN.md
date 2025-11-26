@@ -202,7 +202,9 @@ Motivator: 1000 × 0,1 × 0,5 = 50 EUR  ❌
 
 ## 5. DRK-Provision (Kundenkonditionen)
 
-Die DRK-Provision wird **pro Werbegebiet** und **pro Kampagne** festgelegt.
+Die DRK-Provision wird **pro Werbegebiet** festgelegt. Kampagnen referenzieren das zugehörige Werbegebiet und übernehmen dessen Konditionen.
+
+> **Hinweis:** Seit der Umstellung werden Konditionen zentral im Werbegebiet gepflegt, nicht in der Kampagne. Siehe [KUNDEN.md](KUNDEN.md) für Details.
 
 ### Konditionsarten
 
@@ -358,10 +360,19 @@ Woche 1 (Kampagne)
 
 ## TODO: Offene Punkte
 
-- [ ] Sondervereinbarungen (Teilvergütung %-Anteil)
+- [x] ~~Sondervereinbarungen (Teilvergütung %-Anteil)~~ → In Werbegebiet-Konditionen implementiert
 - [ ] Kleidungs-/Auto-Vereinbarungen und deren Verrechnung
 - [ ] Rechnungsstellung-Intervall (wöchentlich vs. 2-wöchentlich)
 - [ ] Detailregeln für Kampagnen-übergreifende Stornos
+
+---
+
+## Verwandte Dokumentation
+
+- [KARRIERE.md](KARRIERE.md) - Karrierestufen und Aufstiegsanforderungen
+- [KUNDEN.md](KUNDEN.md) - Kundenmanagement, Werbegebiete und Konditionen
+- [KAMPAGNEN.md](KAMPAGNEN.md) - Kampagnenplanung mit KW und Teamchef-Zuweisung
+- [SYSTEM.md](SYSTEM.md) - Systemübersicht aller Module
 
 ---
 
