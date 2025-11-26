@@ -4,20 +4,35 @@
 
 ## Übersicht
 
-Das Kunden-Modul verwaltet DRK-Kunden (z.B. Kreisverbände) mit ihren Werbegebieten und den zugehörigen Konditionen.
+Das Kunden-Modul verwaltet DRK-Kunden (z.B. Kreisverbände) mit ihren Werbegebieten.
+
+> **WICHTIG:** Kampagnen werden **nur im Kampagnen-Modul** angelegt. Bei Kunde werden Kampagnen nur **angezeigt**, in denen dieser Kunde beteiligt ist.
 
 ### Hierarchie
 
 ```
 Kunde (z.B. DRK KV Ludwigshafen e.V.)
+├── Stammdaten (Ansprechpartner, Website, etc.)
 ├── Werbegebiet 1 (z.B. Ludwigshafen-Mitte)
-│   ├── Stammdaten
-│   └── Konditionen
+│   └── Stammdaten + optionaler Ansprechpartner
 ├── Werbegebiet 2 (z.B. Ludwigshafen-Süd)
-│   ├── Stammdaten
-│   └── Konditionen
-└── Kampagnen (referenzieren Werbegebiete)
+│   └── Stammdaten + optionaler Ansprechpartner
+└── Kampagnen (nur Anzeige! Werden im Kampagnen-Modul angelegt)
 ```
+
+---
+
+## Kampagnen bei Kunde
+
+Kampagnen werden **nicht** bei Kunde angelegt, sondern nur **angezeigt**.
+
+| Aktion | Ort |
+|--------|-----|
+| **Kampagne anlegen** | Kampagnen-Modul (`/kampagnen.html`) |
+| **Kampagne anzeigen** | Kunde-Seite (gefiltert nach Kunde) |
+| **Kampagne bearbeiten** | Kampagnen-Modul |
+
+> **Grund:** Konditionen gehören zur Kombination **Kampagne + Einsatzgebiet**, nicht zum Kunden oder Werbegebiet.
 
 ---
 
@@ -31,133 +46,96 @@ Kunde (z.B. DRK KV Ludwigshafen e.V.)
 | **Straße** | Adresse des Standorts | Musterstraße 123 |
 | **PLZ** | Postleitzahl | 67063 |
 | **Stadt** | Ort | Ludwigshafen |
-| **Gruppenfoto** | URL zum Foto | https://... |
+| **Gruppenfoto** | Foto des Ortsvereins | (Upload) |
 | **Website** | Webseite des Ortsverbands | https://... |
 | **Datenschutzinfo** | Link zur Datenschutzerklärung | https://... |
-| **Ansprechpartner** | Name des Kontakts | Herr Müller |
-| **E-Mail** | Kontakt-Email | mueller@drk.de |
-| **Telefon** | Telefonnummer | 0621 123456 |
+| **Ansprechpartner** | Name des Kontakts (optional) | Herr Müller |
+| **E-Mail** | Kontakt-Email (optional) | mueller@drk.de |
+| **Telefon** | Telefonnummer (optional) | 0621 123456 |
 
 ---
 
-## Konditionen (pro Werbegebiet)
+## Ansprechpartner - Fallback-Mechanismus
 
-> **Wichtig:** Konditionen werden zentral im Werbegebiet gepflegt. Kampagnen referenzieren das Werbegebiet und erben dessen Konditionen automatisch.
+Für die Willkommensmail an neue Fördermitglieder wird ein Ansprechpartner benötigt.
 
-### Bevölkerung & Sondierungslimit
+### Hierarchie (Fallback)
 
-| Feld | Beschreibung |
-|------|--------------|
-| **Bevölkerung** | Einwohnerzahl im Werbegebiet |
-| **Sondierungslimit** | Art der Sondierungsberechnung |
-
-**Zwei Varianten für Sondierungslimit:**
-
-| Variante | Beschreibung | Beispiel |
-|----------|--------------|----------|
-| **Feste Anzahl** | Sondierung für X Mitglieder direkt | 50 Mitglieder |
-| **Prozent** | Sondierung für X% der Bevölkerung | 0.15% von 85.000 = 127 MG |
-
-### Provisionsstaffel (5 Jahre)
-
-Beide Staffeln (Sondierung & Regular) werden für 5 Jahre definiert:
-
-| Jahr | Sondierung (%) | Regular (%) |
-|------|----------------|-------------|
-| 1 | z.B. 5.0% | z.B. 3.0% |
-| 2 | z.B. 4.5% | z.B. 2.8% |
-| 3 | z.B. 4.0% | z.B. 2.5% |
-| 4 | z.B. 3.5% | z.B. 2.3% |
-| 5 | z.B. 3.0% | z.B. 2.0% |
-
-**Berechnung:** `Mitglieds-JE × Prozentsatz = DRK-Provision`
-
-### Qualitätsbonus
-
-Aktivierbar pro Werbegebiet. Zusätzliche Prozentpunkte bei niedriger Stornoquote:
-
-| Stornoquote | Bonus | Erklärung |
-|-------------|-------|-----------|
-| < 15% | +3 PP | 3 Prozentpunkte Aufschlag |
-| < 12% | +3 PP | weitere 3 Prozentpunkte |
-| < 10% | +3 PP | weitere 3 Prozentpunkte |
-| < 8% | +1 PP | weiterer 1 Prozentpunkt |
-
-**Beispiel:**
 ```
-Regular-Kondition: 10%
-Stornoquote:       9% (< 10%)
-═══════════════════════════════
-Bonus: 3% + 3% + 3% = 9%
-Effektive Kondition: 10% + 9% = 19%
+1. Ansprechpartner im Werbegebiet (falls vorhanden)
+   ↓ Falls leer:
+2. Ansprechpartner beim Kunden (übergeordnet)
 ```
 
-### Storno-Regeln
+### Beispiel
 
-Konfigurierbare Stornobedingungen:
+| Ebene | Ansprechpartner | E-Mail | Verwendet? |
+|-------|-----------------|--------|------------|
+| **Kunde** | Frau Schmidt | schmidt@drk.de | Fallback |
+| **Werbegebiet Mitte** | Herr Müller | mueller@drk.de | ✅ Wird verwendet |
+| **Werbegebiet Süd** | (leer) | (leer) | ❌ Fallback auf Kunde |
 
-| Feld | Beschreibung |
-|------|--------------|
-| **Storno-Schwellenwert** | Ab welcher Quote der Bonus gilt |
-| **Bonus-Betrag** | Höhe des Bonus in Prozentpunkten |
+> **Für Werbegebiet Süd** wird automatisch Frau Schmidt als Ansprechpartner verwendet.
 
-### Teilvergütung
+---
 
-Für spezielle Vereinbarungen:
+## Konditionen (NEU: pro Kampagne/Einsatzgebiet)
 
-| Feld | Beschreibung | Beispiel |
-|------|--------------|----------|
-| **Aktiviert** | Ob Teilvergütung gilt | Ja/Nein |
-| **Prozentsatz** | Anteil der Vergütung | 80% |
+> **WICHTIG:** Konditionen werden **nicht mehr** im Werbegebiet gepflegt, sondern **pro Einsatzgebiet in der Kampagne**.
 
-### Sondervereinbarungen
+### Warum?
 
-Freitextfeld für besondere Absprachen mit dem Kunden.
+Ein Werbegebiet kann **mehrere Kampagnen/Durchläufe** haben mit **unterschiedlichen Konditionen** je Durchlauf.
+
+### Beispiel
+
+| Kampagne | Werbegebiet | Konditionen Jahr 1 |
+|----------|-------------|-------------------|
+| **Frühjahr 2024** | LU-Mitte | 80% |
+| **Herbst 2024** | LU-Mitte | 85% (bessere Konditionen ausgehandelt) |
+
+→ Die Konditionen werden beim Anlegen/Bearbeiten der **Kampagne** im **Kampagnen-Modul** festgelegt.
+
+Siehe [PROVISIONEN.md](PROVISIONEN.md) für Details zu den Konditionen.
 
 ---
 
 ## Datenstruktur (JavaScript)
 
 ```javascript
-// Werbegebiet mit Konditionen
+// Kunde
+const customer = {
+    id: 1,
+    name: 'DRK Kreisverband Ludwigshafen',
+    type: 'kreisverband',
+
+    // Ansprechpartner (übergeordnet - Fallback)
+    contactPerson: 'Frau Schmidt',
+    contactEmail: 'schmidt@drk-ludwigshafen.de',
+    contactPhone: '+49 621 57000',
+
+    // Links
+    website: 'https://www.drk-ludwigshafen.de',
+    privacyPolicy: 'https://www.drk-ludwigshafen.de/datenschutz',
+
+    // Werbegebiete
+    areas: [...]
+};
+
+// Werbegebiet (nur Stammdaten, keine Konditionen!)
 const area = {
-    // Stammdaten
     name: 'Ludwigshafen-Mitte e.V.',
     street: 'Musterstraße 123',
     zip: '67063',
     city: 'Ludwigshafen',
     groupPhoto: '',
-    website: '',
-    privacyPolicy: '',
+    website: '',           // Falls leer → Kunde-Website verwenden
+    privacyPolicy: '',     // Falls leer → Kunde-Datenschutz verwenden
+
+    // Ansprechpartner (optional - Fallback auf Kunde)
     contact: 'Herr Müller',
-    email: 'mueller@drk.de',
-    phone: '0621 123456',
-
-    // Konditionen
-    population: 85000,
-    sondLimitType: 'percent',  // 'percent' oder 'members'
-    sondMembersDirect: null,    // Bei 'members': Anzahl
-    sondMembersPercent: 0.15,   // Bei 'percent': %-Wert
-
-    // Provisionsstaffel (5 Jahre)
-    sondierung: [5, 4.5, 4, 3.5, 3],     // Sondierungs-Prozentsätze
-    regular: [3, 2.8, 2.5, 2.3, 2],      // Regular-Prozentsätze
-
-    // Qualitätsbonus
-    qualityBonus: true,
-    stornoRules: [
-        { threshold: 15, bonus: 3 },
-        { threshold: 12, bonus: 3 },
-        { threshold: 10, bonus: 3 },
-        { threshold: 8, bonus: 1 }
-    ],
-
-    // Teilvergütung
-    partialPayment: false,
-    partialPaymentPercent: null,
-
-    // Sondervereinbarungen
-    specialAgreements: ''
+    email: 'mueller@drk-mitte.de',
+    phone: '0621 11111'
 };
 ```
 
@@ -165,59 +143,37 @@ const area = {
 
 ## UI-Elemente
 
-### Werbegebiet-Modal (2 Tabs)
+### Werbegebiet-Modal (1 Tab)
 
 | Tab | Inhalt |
 |-----|--------|
-| **Stammdaten** | Alle Adress- und Kontaktfelder |
-| **Konditionen** | Alle Provisions- und Stornoregelungen |
+| **Stammdaten** | Adresse, Kontaktdaten, Links, Ansprechpartner |
 
-### Konditions-Badges
+> **Hinweis:** Der Konditionen-Tab wurde entfernt. Konditionen werden im Kampagnen-Modul festgelegt.
 
-Werbegebiete zeigen Badges an, die den Konditionsstatus anzeigen:
+### Info-Icons
 
-| Badge | Bedeutung |
-|-------|-----------|
-| `S: 5%` | Sondierungs-Prozentsatz Jahr 1 |
-| `R: 3%` | Regular-Prozentsatz Jahr 1 |
-| `QB` | Qualitätsbonus aktiviert |
-| `TV 80%` | Teilvergütung mit 80% |
+| Icon | Bedeutung |
+|------|-----------|
+| 📍 | Adresse hinterlegt |
+| 📷 | Gruppenbild vorhanden |
+| 👤 | Ansprechpartner hinterlegt |
+| 🔗 | Eigene Links (Website/Datenschutz) |
 
-### Info-Icons (ℹ️)
+### Kampagnen-Anzeige bei Kunde
 
-Tooltips erklären Geschäftsregeln direkt im UI:
-
-- **Bevölkerung:** "Die Einwohnerzahl des Werbegebiets dient zur Berechnung des Sondierungslimits in Prozent."
-- **Sondierungslimit:** Erklärt die beiden Varianten (feste Anzahl vs. Prozent)
-- **Qualitätsbonus:** Erklärt die Storno-basierte Bonusberechnung
-
----
-
-## Kampagnen-Referenz
-
-Kampagnen referenzieren das Werbegebiet über `areaIndex`:
-
-```javascript
-const campaign = {
-    id: 1,
-    name: 'Frühjahrskampagne 2024',
-    startDate: '2024-03-01',
-    endDate: '2024-05-31',
-    areaIndex: 0,     // Index des Werbegebiets
-    hasContract: true
-};
-```
-
-In der Kampagnen-Ansicht werden die Konditionen des referenzierten Werbegebiets angezeigt.
+- Nur Kampagnen anzeigen, in denen dieser Kunde beteiligt ist
+- Kein "Neue Kampagne anlegen" Button
+- Link zum Kampagnen-Modul für Neuanlage
 
 ---
 
 ## Verwandte Dokumentation
 
-- [PROVISIONEN.md](PROVISIONEN.md) - Vollständiges Provisionsmodell
-- [KAMPAGNEN.md](KAMPAGNEN.md) - Kampagnenplanung mit KW-Zuweisung
+- [PROVISIONEN.md](PROVISIONEN.md) - Konditionen und Abrechnungs-Timeline
+- [KAMPAGNEN.md](KAMPAGNEN.md) - Kampagnenplanung mit Einsatzgebieten und Konditionen
 - [SYSTEM.md](SYSTEM.md) - Systemübersicht
 
 ---
 
-*Letzte Aktualisierung: November 2024*
+*Letzte Aktualisierung: November 2024 - Konditionen zu Kampagne verschoben, Ansprechpartner-Fallback dokumentiert*
