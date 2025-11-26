@@ -1997,7 +1997,7 @@
                 const hasKonditionen = area && area.sondierung && area.sondierung.some(k => k > 0);
 
                 return `
-                    <div class="campaign-card status-${status}" onclick="window.location.href='/kampagnen.html?view=${campaign.id}'">
+                    <div class="campaign-card status-${status}" onclick="openCampaignInKampagnen(${campaign.id})">
                         <div class="campaign-header">
                             <div>
                                 <div class="campaign-title">${campaign.name}</div>
@@ -2052,6 +2052,24 @@
             if (!dateStr) return '-';
             const date = new Date(dateStr);
             return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        // Open campaign in Kampagnen module (navigates parent window)
+        function openCampaignInKampagnen(campaignId) {
+            // Navigate parent window to campaigns page with view parameter
+            if (window.parent && window.parent !== window) {
+                // We're in an iframe - update parent's hash and navigate
+                window.parent.location.hash = 'campaigns';
+                // Store the campaign ID to view in sessionStorage
+                sessionStorage.setItem('viewCampaignId', campaignId);
+                // Trigger page load in parent
+                if (window.parent.loadPage) {
+                    window.parent.loadPage('campaigns');
+                }
+            } else {
+                // Direct navigation (not in iframe)
+                window.location.href = '/kampagnen.html?view=' + campaignId;
+            }
         }
 
         // ================================================================
