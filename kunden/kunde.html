@@ -450,7 +450,7 @@
 
         .konditionen-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(5, 80px);
             gap: var(--spacing-sm);
         }
 
@@ -459,14 +459,194 @@
         }
 
         .konditionen-grid label {
-            font-size: var(--font-size-xs);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
             text-align: center;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            color: var(--text-primary);
         }
 
         .konditionen-grid input {
             text-align: center;
+            padding: 8px 4px;
+        }
+
+        /* Contract Lists */
+        .contracts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+        }
+
+        .contract-list-section h4 {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .contract-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .contract-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .contract-item-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .contract-item-info:hover {
+            color: var(--accent-color);
+        }
+
+        .contract-item-info svg {
+            width: 20px;
+            height: 20px;
+            color: var(--success-text);
+        }
+
+        .contract-item-name {
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+
+        .contract-item-date {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .contract-delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+        }
+
+        .contract-delete-btn:hover {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+        }
+
+        .contract-delete-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .contract-upload-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            background: none;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .contract-upload-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .contract-upload-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Invoice Table */
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            padding: var(--spacing-sm);
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .invoice-table th {
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .invoice-table td {
+            font-size: var(--font-size-sm);
+        }
+
+        .invoice-table input {
+            width: 100%;
+            padding: 6px 8px;
+        }
+
+        .invoice-table .col-desc {
+            width: 40%;
+        }
+
+        .invoice-table .col-qty {
+            width: 15%;
+        }
+
+        .invoice-table .col-price {
+            width: 20%;
+        }
+
+        .invoice-table .col-total {
+            width: 20%;
+        }
+
+        .invoice-table .col-action {
+            width: 5%;
+            text-align: center;
+        }
+
+        .add-row-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            background: none;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .add-row-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
         }
 
         /* Qualitätsbonus */
@@ -680,24 +860,36 @@
             <div class="section-header">
                 <h2 class="section-title">Verträge</h2>
             </div>
-            <div class="document-grid">
-                <label for="avvInput" class="document-upload-box" id="avvBox">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <h4>AVV (Auftragsverarbeitungsvertrag)</h4>
-                    <p>PDF hochladen</p>
-                </label>
-                <input type="file" id="avvInput" accept=".pdf" style="display: none;" onchange="handleContractUpload('avv', this)">
+            <div class="contracts-grid">
+                <!-- AVV Liste -->
+                <div class="contract-list-section">
+                    <h4>AVV (Auftragsverarbeitungsverträge)</h4>
+                    <div class="contract-list" id="avvList">
+                        <!-- Items will be rendered here -->
+                    </div>
+                    <label class="contract-upload-btn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        AVV hochladen
+                        <input type="file" accept=".pdf" style="display: none;" onchange="handleContractUpload('avv', this)">
+                    </label>
+                </div>
 
-                <label for="rahmenvertragInput" class="document-upload-box" id="rahmenvertragBox">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <h4>Rahmenvertrag</h4>
-                    <p>PDF hochladen</p>
-                </label>
-                <input type="file" id="rahmenvertragInput" accept=".pdf" style="display: none;" onchange="handleContractUpload('rahmenvertrag', this)">
+                <!-- Rahmenvertrag Liste -->
+                <div class="contract-list-section">
+                    <h4>Rahmenverträge</h4>
+                    <div class="contract-list" id="rahmenvertragList">
+                        <!-- Items will be rendered here -->
+                    </div>
+                    <label class="contract-upload-btn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Rahmenvertrag hochladen
+                        <input type="file" accept=".pdf" style="display: none;" onchange="handleContractUpload('rahmenvertrag', this)">
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -764,19 +956,18 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Status</label>
-                            <select class="form-input" id="campaignStatus">
-                                <option value="planned">Geplant</option>
-                                <option value="active">Aktiv</option>
-                                <option value="completed">Abgeschlossen</option>
-                            </select>
+                            <div class="form-input" style="background: var(--bg-secondary); display: flex; align-items: center;">
+                                <span id="campaignStatusDisplay" class="campaign-status planned">Wird automatisch berechnet</span>
+                            </div>
+                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px;">Basierend auf Start- und Enddatum</p>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Startdatum</label>
-                            <input type="date" class="form-input" id="campaignStart">
+                            <label class="form-label">Startdatum *</label>
+                            <input type="date" class="form-input" id="campaignStart" onchange="updateCampaignStatus()">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Enddatum</label>
-                            <input type="date" class="form-input" id="campaignEnd">
+                            <label class="form-label">Enddatum *</label>
+                            <input type="date" class="form-input" id="campaignEnd" onchange="updateCampaignStatus()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Bevölkerungsanzahl im Gebiet</label>
@@ -786,7 +977,6 @@
                             <label class="form-label">Zugeordneter Vertrag</label>
                             <select class="form-input" id="assignedContract">
                                 <option value="">Vertrag auswählen</option>
-                                <option value="rahmenvertrag-2024">Rahmenvertrag 2024</option>
                             </select>
                         </div>
                     </div>
@@ -905,26 +1095,49 @@
                     <!-- Sondervereinbarungen -->
                     <div class="konditionen-section">
                         <h3 class="konditionen-title">Sondervereinbarungen</h3>
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: var(--spacing-lg);">
                             <label class="form-label">
                                 <input type="checkbox" id="partialPayment" style="width: 18px; height: 18px; margin-right: 8px;">
                                 Teilvergütung aktivieren
                             </label>
                             <div style="margin-top: var(--spacing-sm);">
-                                <input type="number" class="form-input" id="partialPaymentPercent" placeholder="% der Teilvergütung" style="max-width: 200px;">
+                                <input type="number" class="form-input" id="partialPaymentPercent" placeholder="%-Anteil der Teilvergütung" style="max-width: 250px;">
                             </div>
                         </div>
-                        <div class="form-group" style="margin-top: var(--spacing-md);">
-                            <label class="form-label">Weitere Sondervereinbarungen</label>
-                            <textarea class="form-input" id="specialAgreements" rows="3" placeholder="z.B. Sonderposten, spezielle Kleidungsvereinbarungen..."></textarea>
+
+                        <label class="form-label">Sonderposten (für Abrechnung)</label>
+                        <table class="invoice-table" id="specialItemsTable">
+                            <thead>
+                                <tr>
+                                    <th class="col-desc">Beschreibung</th>
+                                    <th class="col-qty">Stück</th>
+                                    <th class="col-price">Einzelpreis</th>
+                                    <th class="col-total">Gesamt</th>
+                                    <th class="col-action"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="specialItemsBody">
+                                <!-- Rows will be added dynamically -->
+                            </tbody>
+                        </table>
+                        <button type="button" class="add-row-btn" onclick="addSpecialItem()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Zeile hinzufügen
+                        </button>
+
+                        <div class="form-group" style="margin-top: var(--spacing-lg);">
+                            <label class="form-label">Weitere Notizen</label>
+                            <textarea class="form-input" id="specialAgreements" rows="3" placeholder="Freie Notizen zu Sondervereinbarungen..."></textarea>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tab: Ansprechpartner -->
                 <div class="tab-content" id="tab-ansprechpartner">
-                    <p style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-lg);">
-                        Der Ansprechpartner erscheint in der Willkommensmail an neue Mitarbeiter.
+                    <p style="color: var(--text-secondary); font-size: var(--font-size-xs); margin-bottom: var(--spacing-lg);">
+                        an neue Fördermitglieder / Bei Beitragsanpassungen
                     </p>
                     <div class="form-grid">
                         <div class="form-group">
@@ -948,7 +1161,7 @@
 
                 <!-- Tab: Notizen -->
                 <div class="tab-content" id="tab-notizen">
-                    <div class="form-grid">
+                    <div class="form-grid" style="margin-bottom: var(--spacing-lg);">
                         <div class="form-group">
                             <label class="form-label">DRK Kleidung - Wer kümmert sich?</label>
                             <select class="form-input" id="clothingResponsible">
@@ -976,10 +1189,37 @@
                             </select>
                             <textarea class="form-input" id="idNotes" rows="2" placeholder="Notizen..." style="margin-top: var(--spacing-sm);"></textarea>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Allgemeine Notizen</label>
-                            <textarea class="form-input" id="generalNotes" rows="4" placeholder="Weitere Notizen zur Kampagne..."></textarea>
-                        </div>
+                    </div>
+
+                    <!-- Zusätzliche Kosten für Rechnung -->
+                    <div style="margin-bottom: var(--spacing-lg);">
+                        <label class="form-label">Zusätzliche Kosten (für Abrechnung)</label>
+                        <table class="invoice-table" id="additionalCostsTable">
+                            <thead>
+                                <tr>
+                                    <th class="col-desc">Beschreibung</th>
+                                    <th class="col-qty">Stück</th>
+                                    <th class="col-price">Einzelpreis</th>
+                                    <th class="col-total">Gesamt</th>
+                                    <th class="col-action"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="additionalCostsBody">
+                                <!-- Rows will be added dynamically -->
+                            </tbody>
+                        </table>
+                        <button type="button" class="add-row-btn" onclick="addAdditionalCost()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Zeile hinzufügen
+                        </button>
+                    </div>
+
+                    <!-- Freies Notizfeld -->
+                    <div class="form-group">
+                        <label class="form-label">Allgemeine Notizen</label>
+                        <textarea class="form-input" id="generalNotes" rows="4" placeholder="Weitere Notizen zur Kampagne..."></textarea>
                     </div>
                 </div>
             </div>
@@ -991,11 +1231,11 @@
         </div>
     </div>
 
-    <!-- Modal: Werbegebiet hinzufügen -->
+    <!-- Modal: Werbegebiet hinzufügen/bearbeiten -->
     <div class="modal" id="addAreaModal">
-        <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
-                <h2 class="modal-title">Werbegebiet hinzufügen</h2>
+                <h2 class="modal-title" id="areaModalTitle">Werbegebiet hinzufügen</h2>
                 <button class="modal-close" onclick="closeAddAreaModal()">
                     <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -1004,13 +1244,30 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">Name des Werbegebiets</label>
+                    <label class="form-label">Name des Werbegebiets *</label>
                     <input type="text" class="form-input" id="newAreaName" placeholder="z.B. Ludwigshafen-Mitte e.V.">
+                </div>
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                    Ansprechpartner für dieses Werbegebiet (optional)
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Ansprechpartner</label>
+                    <input type="text" class="form-input" id="areaContact" placeholder="Max Mustermann">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">E-Mail</label>
+                        <input type="email" class="form-input" id="areaEmail" placeholder="email@example.de">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefon</label>
+                        <input type="tel" class="form-input" id="areaPhone" placeholder="+49 123 456789">
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeAddAreaModal()">Abbrechen</button>
-                <button type="button" class="btn btn-primary" onclick="addArea()">Hinzufügen</button>
+                <button type="button" class="btn btn-primary" onclick="addArea()">Speichern</button>
             </div>
         </div>
     </div>
@@ -1029,15 +1286,25 @@
             contactEmail: 'schmidt@drk-ludwigshafen.de',
             contactPhone: '+49 621 57000',
             status: 'aktiv',
-            areas: ['Ludwigshafen-Mitte e.V.', 'Ludwigshafen-Süd e.V.', 'Oggersheim e.V.'],
+            areas: [
+                { name: 'Ludwigshafen-Mitte e.V.', contact: 'Hans Müller', email: 'mueller@drk-mitte.de', phone: '+49 621 11111' },
+                { name: 'Ludwigshafen-Süd e.V.', contact: 'Anna Weber', email: 'weber@drk-sued.de', phone: '+49 621 22222' },
+                { name: 'Oggersheim e.V.', contact: '', email: '', phone: '' }
+            ],
             invoiceType: 'combined',
-            hasAVV: true,
-            hasRahmenvertrag: true,
+            contracts: {
+                avv: [
+                    { id: 1, name: 'AVV_2024_DRK_LU.pdf', date: '2024-01-15', url: '#' },
+                    { id: 2, name: 'AVV_2023_DRK_LU.pdf', date: '2023-02-20', url: '#' }
+                ],
+                rahmenvertrag: [
+                    { id: 1, name: 'Rahmenvertrag_2024.pdf', date: '2024-01-10', url: '#' }
+                ]
+            },
             campaigns: [
                 {
                     id: 1,
                     name: 'Frühjahrskampagne 2024',
-                    status: 'active',
                     startDate: '2024-03-01',
                     endDate: '2024-05-31',
                     population: 175000,
@@ -1049,7 +1316,6 @@
                 {
                     id: 2,
                     name: 'Herbstkampagne 2024',
-                    status: 'planned',
                     startDate: '2024-09-01',
                     endDate: '2024-11-30',
                     population: 175000,
@@ -1086,14 +1352,14 @@
                     status: 'aktiv',
                     areas: [],
                     invoiceType: 'combined',
-                    hasAVV: false,
-                    hasRahmenvertrag: false,
+                    contracts: { avv: [], rahmenvertrag: [] },
                     campaigns: []
                 };
             }
 
             renderCustomerData();
             renderAreas();
+            renderContracts();
             renderCampaigns();
 
             // Setup population calculator
@@ -1119,24 +1385,101 @@
             document.getElementById('contactPerson').value = currentCustomer.contactPerson;
             document.getElementById('contactEmail').value = currentCustomer.contactEmail;
             document.getElementById('contactPhone').value = currentCustomer.contactPhone;
-            document.getElementById('status').value = currentCustomer.status;
 
             // Invoice type
             document.querySelector(`input[name="invoiceType"][value="${currentCustomer.invoiceType}"]`).checked = true;
-
-            // Contracts
-            if (currentCustomer.hasAVV) {
-                document.getElementById('avvBox').classList.add('has-file');
-            }
-            if (currentCustomer.hasRahmenvertrag) {
-                document.getElementById('rahmenvertragBox').classList.add('has-file');
-            }
 
             // Header
             if (currentCustomer.name) {
                 document.getElementById('customerName').textContent = currentCustomer.name;
                 document.getElementById('customerId').textContent = 'KD-' + String(currentCustomer.id).padStart(4, '0');
             }
+        }
+
+        // ================================================================
+        // CONTRACTS
+        // ================================================================
+
+        function renderContracts() {
+            // AVV List
+            const avvList = document.getElementById('avvList');
+            if (currentCustomer.contracts.avv.length === 0) {
+                avvList.innerHTML = '<p style="color: var(--text-secondary); font-size: var(--font-size-sm);">Keine AVV vorhanden</p>';
+            } else {
+                avvList.innerHTML = currentCustomer.contracts.avv.map(contract => `
+                    <div class="contract-item">
+                        <div class="contract-item-info" onclick="openContract('${contract.url}')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <div>
+                                <div class="contract-item-name">${contract.name}</div>
+                                <div class="contract-item-date">${formatDate(contract.date)}</div>
+                            </div>
+                        </div>
+                        <button class="contract-delete-btn" onclick="confirmDeleteContract('avv', ${contract.id})" title="Löschen">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            // Rahmenvertrag List
+            const rahmenvertragList = document.getElementById('rahmenvertragList');
+            if (currentCustomer.contracts.rahmenvertrag.length === 0) {
+                rahmenvertragList.innerHTML = '<p style="color: var(--text-secondary); font-size: var(--font-size-sm);">Keine Rahmenverträge vorhanden</p>';
+            } else {
+                rahmenvertragList.innerHTML = currentCustomer.contracts.rahmenvertrag.map(contract => `
+                    <div class="contract-item">
+                        <div class="contract-item-info" onclick="openContract('${contract.url}')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <div>
+                                <div class="contract-item-name">${contract.name}</div>
+                                <div class="contract-item-date">${formatDate(contract.date)}</div>
+                            </div>
+                        </div>
+                        <button class="contract-delete-btn" onclick="confirmDeleteContract('rahmenvertrag', ${contract.id})" title="Löschen">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            // Update contract dropdown in campaign modal
+            updateContractDropdown();
+        }
+
+        function openContract(url) {
+            window.open(url, '_blank');
+        }
+
+        function confirmDeleteContract(type, id) {
+            const typeName = type === 'avv' ? 'AVV' : 'Rahmenvertrag';
+            if (confirm(`Möchten Sie diesen ${typeName} wirklich löschen?`)) {
+                if (confirm(`Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+                    deleteContract(type, id);
+                }
+            }
+        }
+
+        function deleteContract(type, id) {
+            currentCustomer.contracts[type] = currentCustomer.contracts[type].filter(c => c.id !== id);
+            renderContracts();
+        }
+
+        function updateContractDropdown() {
+            const dropdown = document.getElementById('assignedContract');
+            dropdown.innerHTML = '<option value="">Vertrag auswählen</option>';
+
+            currentCustomer.contracts.rahmenvertrag.forEach(contract => {
+                dropdown.innerHTML += `<option value="rahmen-${contract.id}">${contract.name}</option>`;
+            });
         }
 
         // ================================================================
@@ -1152,9 +1495,10 @@
             }
 
             container.innerHTML = currentCustomer.areas.map((area, index) => `
-                <div class="area-tag">
-                    ${area}
-                    <button class="remove-btn" onclick="removeArea(${index})">
+                <div class="area-tag" onclick="editArea(${index})" style="cursor: pointer;" title="${area.contact ? 'Ansprechpartner: ' + area.contact : 'Klicken zum Bearbeiten'}">
+                    ${area.name}
+                    ${area.contact ? '<span style="color: var(--success-text); margin-left: 4px;">✓</span>' : ''}
+                    <button class="remove-btn" onclick="event.stopPropagation(); removeArea(${index})">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -1163,57 +1507,123 @@
             `).join('');
         }
 
-        function openAddAreaModal() {
+        let editingAreaIndex = null;
+
+        function editArea(index) {
+            editingAreaIndex = index;
+            const area = currentCustomer.areas[index];
+            document.getElementById('newAreaName').value = area.name;
+            document.getElementById('areaContact').value = area.contact || '';
+            document.getElementById('areaEmail').value = area.email || '';
+            document.getElementById('areaPhone').value = area.phone || '';
+            document.getElementById('areaModalTitle').textContent = 'Werbegebiet bearbeiten';
             document.getElementById('addAreaModal').classList.add('show');
+        }
+
+        function openAddAreaModal() {
+            editingAreaIndex = null;
             document.getElementById('newAreaName').value = '';
+            document.getElementById('areaContact').value = '';
+            document.getElementById('areaEmail').value = '';
+            document.getElementById('areaPhone').value = '';
+            document.getElementById('areaModalTitle').textContent = 'Werbegebiet hinzufügen';
+            document.getElementById('addAreaModal').classList.add('show');
             document.getElementById('newAreaName').focus();
         }
 
         function closeAddAreaModal() {
             document.getElementById('addAreaModal').classList.remove('show');
+            editingAreaIndex = null;
         }
 
         function addArea() {
             const name = document.getElementById('newAreaName').value.trim();
-            if (name) {
-                currentCustomer.areas.push(name);
-                renderAreas();
-                closeAddAreaModal();
+            if (!name) return;
+
+            const areaData = {
+                name: name,
+                contact: document.getElementById('areaContact').value.trim(),
+                email: document.getElementById('areaEmail').value.trim(),
+                phone: document.getElementById('areaPhone').value.trim()
+            };
+
+            if (editingAreaIndex !== null) {
+                currentCustomer.areas[editingAreaIndex] = areaData;
+            } else {
+                currentCustomer.areas.push(areaData);
             }
+
+            renderAreas();
+            closeAddAreaModal();
         }
 
         function removeArea(index) {
-            currentCustomer.areas.splice(index, 1);
-            renderAreas();
+            if (confirm('Werbegebiet wirklich entfernen?')) {
+                currentCustomer.areas.splice(index, 1);
+                renderAreas();
+            }
         }
 
         // ================================================================
         // CAMPAIGNS
         // ================================================================
 
+        // Calculate campaign status based on dates
+        function getCampaignStatus(startDate, endDate) {
+            if (!startDate || !endDate) return 'planned';
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            if (today < start) return 'planned';
+            if (today > end) return 'completed';
+            return 'active';
+        }
+
+        function updateCampaignStatus() {
+            const startDate = document.getElementById('campaignStart').value;
+            const endDate = document.getElementById('campaignEnd').value;
+            const status = getCampaignStatus(startDate, endDate);
+
+            const statusLabels = {
+                active: 'Aktiv',
+                planned: 'Anstehend',
+                completed: 'Abgeschlossen'
+            };
+
+            const display = document.getElementById('campaignStatusDisplay');
+            display.textContent = statusLabels[status];
+            display.className = 'campaign-status ' + status;
+        }
+
         function renderCampaigns() {
             const grid = document.getElementById('campaignsGrid');
 
+            const statusLabels = {
+                active: 'Aktiv',
+                planned: 'Anstehend',
+                completed: 'Abgeschlossen'
+            };
+
             const campaignCards = currentCustomer.campaigns.map(campaign => {
-                const statusLabels = {
-                    active: 'Aktiv',
-                    planned: 'Geplant',
-                    completed: 'Abgeschlossen'
-                };
+                // Calculate status based on dates
+                const status = getCampaignStatus(campaign.startDate, campaign.endDate);
 
                 return `
-                    <div class="campaign-card status-${campaign.status}" onclick="openCampaignModal(${campaign.id})">
+                    <div class="campaign-card status-${status}" onclick="openCampaignModal(${campaign.id})">
                         <div class="campaign-header">
                             <div>
                                 <div class="campaign-title">${campaign.name}</div>
                                 <div class="campaign-period">${formatDate(campaign.startDate)} - ${formatDate(campaign.endDate)}</div>
                             </div>
-                            <span class="campaign-status ${campaign.status}">${statusLabels[campaign.status]}</span>
+                            <span class="campaign-status ${status}">${statusLabels[status]}</span>
                         </div>
                         <div class="campaign-info">
                             <div class="campaign-info-row">
                                 <span class="campaign-info-label">Bevölkerung:</span>
-                                <span class="campaign-info-value">${campaign.population.toLocaleString('de-DE')}</span>
+                                <span class="campaign-info-value">${campaign.population ? campaign.population.toLocaleString('de-DE') : '-'}</span>
                             </div>
                             <div class="campaign-info-row">
                                 <span class="campaign-info-label">Qualitätsbonus:</span>
@@ -1382,15 +1792,74 @@
 
         function handleContractUpload(type, input) {
             if (input.files && input.files[0]) {
-                const box = document.getElementById(type + 'Box');
-                box.classList.add('has-file');
+                const file = input.files[0];
+                const newContract = {
+                    id: Date.now(),
+                    name: file.name,
+                    date: new Date().toISOString().split('T')[0],
+                    url: '#' // In real app, upload to storage and get URL
+                };
 
-                if (type === 'avv') {
-                    currentCustomer.hasAVV = true;
-                } else {
-                    currentCustomer.hasRahmenvertrag = true;
-                }
+                currentCustomer.contracts[type].push(newContract);
+                renderContracts();
+
+                // Clear input
+                input.value = '';
             }
+        }
+
+        // ================================================================
+        // INVOICE TABLE FUNCTIONS
+        // ================================================================
+
+        function addSpecialItem() {
+            const tbody = document.getElementById('specialItemsBody');
+            const rowId = Date.now();
+            const row = document.createElement('tr');
+            row.id = 'special-row-' + rowId;
+            row.innerHTML = `
+                <td><input type="text" class="form-input" placeholder="Beschreibung" onchange="calculateRowTotal(${rowId}, 'special')"></td>
+                <td><input type="number" class="form-input" placeholder="1" value="1" onchange="calculateRowTotal(${rowId}, 'special')" id="special-qty-${rowId}"></td>
+                <td><input type="number" class="form-input" placeholder="0,00" step="0.01" onchange="calculateRowTotal(${rowId}, 'special')" id="special-price-${rowId}"></td>
+                <td><span id="special-total-${rowId}">0,00 €</span></td>
+                <td><button type="button" class="contract-delete-btn" onclick="deleteTableRow(${rowId}, 'special')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function addAdditionalCost() {
+            const tbody = document.getElementById('additionalCostsBody');
+            const rowId = Date.now();
+            const row = document.createElement('tr');
+            row.id = 'additional-row-' + rowId;
+            row.innerHTML = `
+                <td><input type="text" class="form-input" placeholder="Beschreibung" onchange="calculateRowTotal(${rowId}, 'additional')"></td>
+                <td><input type="number" class="form-input" placeholder="1" value="1" onchange="calculateRowTotal(${rowId}, 'additional')" id="additional-qty-${rowId}"></td>
+                <td><input type="number" class="form-input" placeholder="0,00" step="0.01" onchange="calculateRowTotal(${rowId}, 'additional')" id="additional-price-${rowId}"></td>
+                <td><span id="additional-total-${rowId}">0,00 €</span></td>
+                <td><button type="button" class="contract-delete-btn" onclick="deleteTableRow(${rowId}, 'additional')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function calculateRowTotal(rowId, type) {
+            const qty = parseFloat(document.getElementById(`${type}-qty-${rowId}`).value) || 0;
+            const price = parseFloat(document.getElementById(`${type}-price-${rowId}`).value) || 0;
+            const total = qty * price;
+            document.getElementById(`${type}-total-${rowId}`).textContent = total.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+        }
+
+        function deleteTableRow(rowId, type) {
+            const row = document.getElementById(`${type}-row-${rowId}`);
+            if (row) row.remove();
         }
 
         // ================================================================
