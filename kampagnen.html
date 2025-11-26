@@ -1174,13 +1174,32 @@ function addEinsatzgebiet() {
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Bevölkerung im Gebiet</label>
-                        <input type="number" class="form-input" id="eg-population-${index}" placeholder="z.B. 150000">
+                        <input type="number" class="form-input" id="eg-population-${index}" placeholder="z.B. 150000" oninput="calculateSondMembers(${index})">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Sondierungslimit (Anzahl MG)</label>
-                        <input type="number" class="form-input" id="eg-sondlimit-${index}" placeholder="z.B. 100">
+                        <label class="form-label">Sondierungslimit</label>
+                        <select class="form-input" id="eg-sondlimit-type-${index}" onchange="toggleSondLimitType(${index})">
+                            <option value="members">Anzahl Mitglieder</option>
+                            <option value="percent">% der Bevölkerung</option>
+                        </select>
                     </div>
                 </div>
+                <div class="form-row" style="margin-top: var(--spacing-sm);">
+                    <div class="form-group" id="eg-sondlimit-members-group-${index}">
+                        <label class="form-label">Anzahl Mitglieder für Sondierung</label>
+                        <input type="number" class="form-input" id="eg-sondlimit-${index}" placeholder="z.B. 100">
+                    </div>
+                    <div class="form-group" id="eg-sondlimit-percent-group-${index}" style="display: none;">
+                        <label class="form-label">% der Bevölkerung</label>
+                        <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                            <input type="number" class="form-input" id="eg-sondlimit-percent-${index}" placeholder="%" step="0.01" style="flex: 1;" oninput="calculateSondMembers(${index})">
+                            <span style="color: var(--text-secondary); font-size: var(--font-size-sm);">= <span id="eg-calculated-members-${index}">0</span> MG</span>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
+                    Die Sondierungskonditionen gelten für die ersten X Mitglieder (oder X% der Bevölkerung). Danach gelten die regulären Konditionen.
+                </p>
             </div>
 
             <!-- Sondierungskonditionen -->
@@ -1342,6 +1361,29 @@ function toggleTeilvergutung(index) {
     const checkbox = document.getElementById(`eg-teilv-${index}`);
     const input = document.getElementById(`eg-teilv-input-${index}`);
     input.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+// Toggle Sondierungslimit Typ (Anzahl MG vs. % der Bevölkerung)
+function toggleSondLimitType(index) {
+    const select = document.getElementById(`eg-sondlimit-type-${index}`);
+    const membersGroup = document.getElementById(`eg-sondlimit-members-group-${index}`);
+    const percentGroup = document.getElementById(`eg-sondlimit-percent-group-${index}`);
+
+    if (select.value === 'percent') {
+        membersGroup.style.display = 'none';
+        percentGroup.style.display = 'block';
+    } else {
+        membersGroup.style.display = 'block';
+        percentGroup.style.display = 'none';
+    }
+}
+
+// Berechnet die Anzahl Mitglieder basierend auf Bevölkerung und %
+function calculateSondMembers(index) {
+    const population = parseFloat(document.getElementById(`eg-population-${index}`).value) || 0;
+    const percent = parseFloat(document.getElementById(`eg-sondlimit-percent-${index}`).value) || 0;
+    const calculated = Math.floor(population * (percent / 100));
+    document.getElementById(`eg-calculated-members-${index}`).textContent = calculated;
 }
 
 // Initial render
