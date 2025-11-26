@@ -3086,12 +3086,18 @@ select.form-input {
     z-index: 1;
 }
 
-.shield-roman {
-    font-size: 2.5rem;
+.shield-stars {
+    font-size: 1.2rem;
     font-weight: 900;
     color: #fff;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    font-family: 'Times New Roman', serif;
+    letter-spacing: -2px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    max-width: 70px;
+    line-height: 1.1;
 }
 
 .level-hero-info {
@@ -3125,25 +3131,19 @@ select.form-input {
     vertical-align: middle;
 }
 
-.shield-roman-mini {
+.shield-stars-mini {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 28px;
-    background: linear-gradient(180deg, var(--badge-color) 0%, color-mix(in srgb, var(--badge-color) 70%, #000) 100%);
-    clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     font-weight: 800;
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    font-family: 'Times New Roman', serif;
+    color: var(--badge-color);
+    text-shadow: 0 0 3px var(--badge-color);
+    letter-spacing: -1px;
 }
 
-.shield-code {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--badge-color);
+.path-stars {
+    font-size: 0.7rem;
 }
 
 .level-name-mini {
@@ -3155,111 +3155,160 @@ select.form-input {
 
 /* Preview Shield (Next Level Hint) */
 .shield-badge-preview {
-    width: 32px;
-    height: 38px;
+    width: 40px;
+    height: 46px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(180deg, var(--badge-color) 0%, color-mix(in srgb, var(--badge-color) 70%, #000) 100%);
     clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
-    font-size: 0.85rem;
+    font-size: 0.7rem;
     font-weight: 800;
     color: #fff;
-    font-family: 'Times New Roman', serif;
-    opacity: 0.7;
+    opacity: 0.8;
+}
+
+.preview-stars {
+    font-size: 0.55rem;
+    letter-spacing: -1px;
+    text-align: center;
+    line-height: 1;
 }
 
 /* ========== GLOW ANIMATIONS ========== */
 
-/* Subtle glow (Level 1) */
+/* Subtle glow (Level 1 - EMM) */
 .glow-1 .shield-badge-large,
-.glow-1 .shield-roman-mini {
+.glow-1 .shield-stars-mini,
+.glow-1.path-node {
     animation: subtleGlow 3s ease-in-out infinite;
 }
 
 @keyframes subtleGlow {
-    0%, 100% { filter: drop-shadow(0 0 5px rgba(255,255,255,0.1)); }
-    50% { filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(156, 39, 176, 0.4)); }
+    50% { filter: drop-shadow(0 0 15px rgba(156, 39, 176, 0.7)); }
 }
 
-/* Medium glow (Level 2) */
+/* Medium glow (Level 2 - CEMM) */
 .glow-2 .shield-badge-large,
-.glow-2 .shield-roman-mini {
+.glow-2 .shield-stars-mini,
+.glow-2.path-node {
     animation: mediumGlow 2.5s ease-in-out infinite;
 }
 
 @keyframes mediumGlow {
-    0%, 100% { filter: drop-shadow(0 0 8px rgba(224, 64, 251, 0.3)); }
-    50% { filter: drop-shadow(0 0 15px rgba(224, 64, 251, 0.5)); }
+    0%, 100% { filter: drop-shadow(0 0 12px rgba(224, 64, 251, 0.5)); }
+    50% { filter: drop-shadow(0 0 25px rgba(224, 64, 251, 0.8)); }
 }
+
+/* ========== TOP 3 LEVELS - EXTRA STRONG GLOW ========== */
 
 /* Warm glow - Spitzen Botschafter (Level 3) */
 .glow-3 .shield-badge-large,
-.glow-3 .shield-roman-mini {
-    animation: warmGlow 2s ease-in-out infinite;
+.glow-3 .shield-stars-mini,
+.glow-3.path-node {
+    animation: warmGlow 1.5s ease-in-out infinite;
 }
 
 .glow-3 .level-hero-name,
 .glow-3.level-name-mini {
-    animation: textGlow3 2s ease-in-out infinite;
+    animation: textGlow3 1.5s ease-in-out infinite;
+}
+
+.glow-3 .shield-stars-mini {
+    text-shadow: 0 0 10px #FFA500, 0 0 20px #FFA500;
 }
 
 @keyframes warmGlow {
-    0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.4)); }
-    50% { filter: drop-shadow(0 0 20px rgba(255, 165, 0, 0.7)); }
+    0%, 100% {
+        filter: drop-shadow(0 0 15px rgba(255, 165, 0, 0.7))
+                drop-shadow(0 0 30px rgba(255, 165, 0, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 0 30px rgba(255, 165, 0, 1))
+                drop-shadow(0 0 50px rgba(255, 165, 0, 0.7));
+    }
 }
 
 @keyframes textGlow3 {
-    0%, 100% { text-shadow: 0 0 5px rgba(255, 165, 0, 0.3); }
-    50% { text-shadow: 0 0 15px rgba(255, 165, 0, 0.6); }
+    0%, 100% { text-shadow: 0 0 10px rgba(255, 165, 0, 0.6), 0 0 20px rgba(255, 165, 0, 0.3); }
+    50% { text-shadow: 0 0 20px rgba(255, 165, 0, 1), 0 0 40px rgba(255, 165, 0, 0.6); }
 }
 
 /* Gold glow - Kadermanager (Level 4) */
 .glow-4 .shield-badge-large,
-.glow-4 .shield-roman-mini {
-    animation: goldGlow 1.5s ease-in-out infinite;
+.glow-4 .shield-stars-mini,
+.glow-4.path-node {
+    animation: goldGlow 1.2s ease-in-out infinite;
 }
 
 .glow-4 .level-hero-name,
 .glow-4.level-name-mini {
-    animation: textGlow4 1.5s ease-in-out infinite;
+    animation: textGlow4 1.2s ease-in-out infinite;
+}
+
+.glow-4 .shield-stars-mini {
+    text-shadow: 0 0 15px #FFD700, 0 0 30px #FFD700;
 }
 
 @keyframes goldGlow {
-    0%, 100% { filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5)); }
-    50% { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8)); }
+    0%, 100% {
+        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))
+                drop-shadow(0 0 40px rgba(255, 215, 0, 0.5))
+                drop-shadow(0 0 60px rgba(255, 165, 0, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 40px rgba(255, 215, 0, 1))
+                drop-shadow(0 0 70px rgba(255, 215, 0, 0.8))
+                drop-shadow(0 0 100px rgba(255, 165, 0, 0.5));
+    }
 }
 
 @keyframes textGlow4 {
-    0%, 100% { text-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
-    50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+    0%, 100% { text-shadow: 0 0 15px rgba(255, 215, 0, 0.7), 0 0 30px rgba(255, 215, 0, 0.4); }
+    50% { text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.7); }
 }
 
-/* Max glow - Führungsebene (Level 5) */
+/* MAX glow - Führungsebene (Level 5) - MOST IMPRESSIVE */
 .glow-5 .shield-badge-large,
-.glow-5 .shield-roman-mini {
-    animation: maxGlow 1s ease-in-out infinite;
+.glow-5 .shield-stars-mini,
+.glow-5.path-node {
+    animation: maxGlow 0.8s ease-in-out infinite;
 }
 
 .glow-5 .level-hero-name,
 .glow-5.level-name-mini {
-    animation: textGlow5 1s ease-in-out infinite;
+    animation: textGlow5 0.8s ease-in-out infinite;
+}
+
+.glow-5 .shield-stars-mini {
+    text-shadow: 0 0 20px #fff, 0 0 40px #FFD700, 0 0 60px #fff;
 }
 
 @keyframes maxGlow {
     0%, 100% {
-        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6))
-                drop-shadow(0 0 40px rgba(255, 215, 0, 0.4));
+        filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.9))
+                drop-shadow(0 0 60px rgba(255, 215, 0, 0.7))
+                drop-shadow(0 0 90px rgba(255, 255, 255, 0.5));
     }
     50% {
-        filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.9))
-                drop-shadow(0 0 60px rgba(255, 215, 0, 0.7));
+        filter: drop-shadow(0 0 50px rgba(255, 255, 255, 1))
+                drop-shadow(0 0 100px rgba(255, 215, 0, 1))
+                drop-shadow(0 0 150px rgba(255, 255, 255, 0.8));
     }
 }
 
 @keyframes textGlow5 {
-    0%, 100% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 215, 0, 0.3); }
-    50% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 215, 0, 0.6); }
+    0%, 100% {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                     0 0 40px rgba(255, 215, 0, 0.6),
+                     0 0 60px rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        text-shadow: 0 0 40px rgba(255, 255, 255, 1),
+                     0 0 80px rgba(255, 215, 0, 0.9),
+                     0 0 120px rgba(255, 255, 255, 0.7);
+    }
 }
 
 /* ========== BENEFITS CARD ========== */

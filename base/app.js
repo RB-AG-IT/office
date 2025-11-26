@@ -55,7 +55,7 @@ const dummyData = {
             SMA: {
                 name: 'Starting Marketing Advisor',
                 code: 'SMA',
-                roman: 'I',
+                stars: 1,
                 factor: 5.0,
                 color: '#78909C',
                 glow: 0,
@@ -64,7 +64,7 @@ const dummyData = {
             EMA: {
                 name: 'Executive Marketing Advisor',
                 code: 'EMA',
-                roman: 'II',
+                stars: 2,
                 factor: 5.5,
                 color: '#4CAF50',
                 glow: 0,
@@ -73,7 +73,7 @@ const dummyData = {
             JMM: {
                 name: 'Junior Marketing Manager',
                 code: 'JMM',
-                roman: 'III',
+                stars: 3,
                 factor: 6.0,
                 color: '#2196F3',
                 glow: 0,
@@ -82,7 +82,7 @@ const dummyData = {
             EMM: {
                 name: 'Executive Marketing Manager',
                 code: 'EMM',
-                roman: 'IV',
+                stars: 4,
                 factor: 6.5,
                 color: '#9C27B0',
                 glow: 1,
@@ -91,7 +91,7 @@ const dummyData = {
             CEMM: {
                 name: 'Chief Executive Marketing Manager',
                 code: 'CEMM',
-                roman: 'V',
+                stars: 5,
                 factor: 6.75,
                 color: '#E040FB',
                 glow: 2,
@@ -100,7 +100,7 @@ const dummyData = {
             SPB: {
                 name: 'Spitzen Botschafter',
                 code: null,
-                roman: 'VI',
+                stars: 6,
                 factor: 7.0,
                 color: '#FFA500',
                 glow: 3,
@@ -109,7 +109,7 @@ const dummyData = {
             KAD: {
                 name: 'Kadermanager',
                 code: null,
-                roman: 'VII',
+                stars: 7,
                 factor: 7.5,
                 color: '#FFD700',
                 glow: 4,
@@ -118,7 +118,7 @@ const dummyData = {
             FUE: {
                 name: 'Führungsebene',
                 code: null,
-                roman: 'VIII',
+                stars: 8,
                 factor: 8.0,
                 color: '#FFFFFF',
                 glow: 5,
@@ -953,9 +953,9 @@ const views = {
             <div class="level-path-container">
                 <div class="level-path">
                     ${dummyData.karriere.levelOrder.map(l => `
-                        <div class="path-node ${l === level ? 'current' : ''} ${isLevelCompleted(l, level) ? 'completed' : ''}"
+                        <div class="path-node ${l === level ? 'current' : ''} ${isLevelCompleted(l, level) ? 'completed' : ''} ${dummyData.karriere.levels[l].glow > 0 ? 'glow-' + dummyData.karriere.levels[l].glow : ''}"
                              style="--level-color: ${dummyData.karriere.levels[l].color}">
-                            <span>${dummyData.karriere.levels[l].roman}</span>
+                            <span class="path-stars">${dummyData.karriere.levels[l].stars}</span>
                         </div>
                     `).join('<div class="path-line"></div>')}
                 </div>
@@ -1130,7 +1130,7 @@ function isLevelCompleted(level, currentLevel) {
     return order.indexOf(level) < order.indexOf(currentLevel);
 }
 
-// Render level badge with shield and Roman numerals
+// Render level badge with stars
 function renderLevelBadge(levelKey, size = 'mini') {
     const levelInfo = dummyData.karriere.levels[levelKey];
     if (!levelInfo) return '';
@@ -1138,6 +1138,7 @@ function renderLevelBadge(levelKey, size = 'mini') {
     const isTopLevel = ['SPB', 'KAD', 'FUE'].includes(levelKey);
     const glowClass = levelInfo.glow > 0 ? `glow-${levelInfo.glow}` : '';
     const displayName = levelInfo.code || levelInfo.name;
+    const starsDisplay = '★'.repeat(levelInfo.stars);
 
     if (size === 'hero') {
         // Big hero badge for stufe/achievements page
@@ -1145,7 +1146,7 @@ function renderLevelBadge(levelKey, size = 'mini') {
             <div class="level-hero-display ${glowClass}">
                 <div class="shield-badge-large" style="--badge-color: ${levelInfo.color}">
                     <div class="shield-inner">
-                        <span class="shield-roman">${levelInfo.roman}</span>
+                        <span class="shield-stars">${starsDisplay}</span>
                     </div>
                 </div>
                 <div class="level-hero-info">
@@ -1157,16 +1158,15 @@ function renderLevelBadge(levelKey, size = 'mini') {
     } else if (size === 'mini-preview') {
         // Small preview for next level hint
         return `
-            <div class="shield-badge-preview" style="--badge-color: ${levelInfo.color}">
-                <span>${levelInfo.roman}</span>
+            <div class="shield-badge-preview ${glowClass}" style="--badge-color: ${levelInfo.color}">
+                <span class="preview-stars">${starsDisplay}</span>
             </div>
         `;
     } else {
         // Mini badge for rankings
         return `
             <span class="level-badge-shield ${glowClass}" style="--badge-color: ${levelInfo.color}">
-                <span class="shield-roman-mini">${levelInfo.roman}</span>
-                <span class="shield-code">${isTopLevel ? '' : levelInfo.code}</span>
+                <span class="shield-stars-mini">${starsDisplay}</span>
             </span>
             ${isTopLevel ? `<span class="level-name-mini ${glowClass}" style="color: ${levelInfo.color}">${levelInfo.name}</span>` : ''}
         `;
