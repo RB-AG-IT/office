@@ -926,15 +926,14 @@
         <div class="section-card">
             <div class="section-header">
                 <h2 class="section-title">Kampagnen</h2>
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px;">Kampagnen werden im Kampagnen-Modul angelegt</p>
             </div>
             <div class="campaigns-grid" id="campaignsGrid">
-                <!-- Campaigns will be rendered here -->
-                <div class="add-campaign-card" onclick="openCampaignModal()">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    <span>Neue Kampagne anlegen</span>
-                </div>
+                <!-- Campaigns will be rendered here (filtered by this customer) -->
+            </div>
+            <div id="noCampaignsMessage" style="display: none; text-align: center; padding: var(--spacing-lg); color: var(--text-secondary);">
+                <p>Dieser Kunde ist aktuell in keiner Kampagne.</p>
+                <a href="/kampagnen.html" style="color: var(--accent-color); text-decoration: none; font-size: var(--font-size-sm);">→ Zum Kampagnen-Modul</a>
             </div>
         </div>
     </div>
@@ -2035,15 +2034,15 @@
                 `;
             }).join('');
 
-            // Add "New Campaign" card at the end
-            grid.innerHTML = campaignCards + `
-                <div class="add-campaign-card" onclick="openCampaignModal()">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    <span>Neue Kampagne anlegen</span>
-                </div>
-            `;
+            // Show campaigns or "no campaigns" message
+            grid.innerHTML = campaignCards;
+
+            const noCampaignsMessage = document.getElementById('noCampaignsMessage');
+            if (currentCustomer.campaigns.length === 0) {
+                noCampaignsMessage.style.display = 'block';
+            } else {
+                noCampaignsMessage.style.display = 'none';
+            }
 
             // Update customer status in header
             updateCustomerStatusDisplay();
