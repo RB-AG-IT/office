@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistik - RB Inside Office</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            overflow-y: auto;
+            height: 100%;
+            margin: 0;
+            background: var(--bg-secondary);
+        }
+
+        .page-container {
+            padding: var(--spacing-lg);
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Info Icon Tooltip */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: help;
+            margin-left: 6px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .info-icon:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .info-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 280px;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            text-align: left;
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .info-icon:hover .info-tooltip {
+            display: block;
+        }
+
+        .info-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--border-color);
+        }
+
+        .info-tooltip h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .info-tooltip p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
+        .info-tooltip code {
+            background: var(--bg-hover);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        /* Period Tabs */
+        .period-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-secondary);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .period-tab {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .period-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .period-tab.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .kpi-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+        }
+
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .kpi-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kpi-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .kpi-icon.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .kpi-icon.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .kpi-icon.purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+        .kpi-icon.orange { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .kpi-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .kpi-change.positive { color: #10b981; }
+        .kpi-change.negative { color: #ef4444; }
+
+        /* Chart Section */
+        .chart-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .chart-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Records Section */
+        .records-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .record-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .record-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .record-card.gold::before { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .record-card.silver::before { background: linear-gradient(90deg, #9ca3af, #6b7280); }
+        .record-card.bronze::before { background: linear-gradient(90deg, #d97706, #b45309); }
+        .record-card.blue::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+
+        .record-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--spacing-md);
+            font-size: 24px;
+        }
+
+        .record-card.gold .record-icon { background: rgba(251, 191, 36, 0.1); }
+        .record-card.silver .record-icon { background: rgba(156, 163, 175, 0.1); }
+        .record-card.bronze .record-icon { background: rgba(217, 119, 6, 0.1); }
+        .record-card.blue .record-icon { background: rgba(59, 130, 246, 0.1); }
+
+        .record-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .record-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .record-holder {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .record-date {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        /* Team Stats Table */
+        .team-section {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .team-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .team-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .team-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .team-table tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .team-member {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .team-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .team-name {
+            font-weight: 500;
+        }
+
+        .team-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .chart-section {
+                grid-template-columns: 1fr;
+            }
+            .records-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            .records-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">Statistik</h1>
+            <button class="btn btn-secondary" onclick="exportStats()">
+                <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                </svg>
+                Export
+            </button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>Zeitraum</label>
+                <div class="period-tabs">
+                    <button class="period-tab" data-period="day">Tag</button>
+                    <button class="period-tab" data-period="week" >Woche</button>
+                    <button class="period-tab active" data-period="month">Monat</button>
+                    <button class="period-tab" data-period="quarter">Quartal</button>
+                    <button class="period-tab" data-period="year">Jahr</button>
+                    <button class="period-tab" data-period="custom">...</button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label>Kunde</label>
+                <select id="filterCustomer">
+                    <option value="">Alle Kunden</option>
+                    <option value="1">DRK KV Ludwigshafen</option>
+                    <option value="2">DRK KV Mannheim</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Werbegebiet</label>
+                <select id="filterArea">
+                    <option value="">Alle Gebiete</option>
+                    <option value="1">Ludwigshafen-Mitte</option>
+                    <option value="2">Ludwigshafen-Süd</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Teamchef</label>
+                <select id="filterTC">
+                    <option value="">Alle TCs</option>
+                    <option value="1">Max Mustermann</option>
+                    <option value="2">Anna Schmidt</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Werber</label>
+                <select id="filterWerber">
+                    <option value="">Alle Werber</option>
+                    <option value="1">Thomas Müller</option>
+                    <option value="2">Julia Fischer</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-label">
+                        Netto MG
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Netto Mitglieder</h4>
+                                <p>Aktive Mitglieder nach Abzug der Stornos.<br><br>
+                                <code>Netto = Brutto - Stornos</code></p>
+                            </div>
+                        </span>
+                    </span>
+                    <div class="kpi-icon blue">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-value">142</div>
+                <div class="kpi-change positive">
+                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                    </svg>
+                    +12% vs. Vormonat
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-label">
+                        Jahreseuros (JE)
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Jahreseuros</h4>
+                                <p>Summe aller Jahresbeiträge.<br><br>
+                                <strong>Einheiten:</strong> 1 EH = JE / 12<br>
+                                Beispiel: 120 JE = 10 EH</p>
+                            </div>
+                        </span>
+                    </span>
+                    <div class="kpi-icon green">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-value">17.040 €</div>
+                <div class="kpi-change positive">
+                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                    </svg>
+                    +18% vs. Vormonat
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-label">
+                        Stornoquote (MG)
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Stornoquote (Anzahl)</h4>
+                                <p>Prozent der stornierten Mitglieder.<br><br>
+                                <code>Stornos / Brutto × 100%</code><br><br>
+                                <strong>13-Monats-Regel:</strong> Nur Stornos innerhalb 13 Monate zählen.</p>
+                            </div>
+                        </span>
+                    </span>
+                    <div class="kpi-icon orange">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-value">8,9%</div>
+                <div class="kpi-change negative">
+                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                    </svg>
+                    +1,2% vs. Vormonat
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-label">
+                        Stornoquote (JE)
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Stornoquote (Summe)</h4>
+                                <p>Prozent der stornierten Jahreseuros.<br><br>
+                                <code>Storno-JE / Brutto-JE × 100%</code><br><br>
+                                Kann abweichen wenn Hochzahler stornieren.</p>
+                            </div>
+                        </span>
+                    </span>
+                    <div class="kpi-icon purple">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-value">7,2%</div>
+                <div class="kpi-change positive">
+                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                    </svg>
+                    -0,5% vs. Vormonat
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-section">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">
+                        Wochenverlauf: MG & JE
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Wochenverlauf</h4>
+                                <p>Zeigt die tägliche Entwicklung von Mitgliedern und Jahreseuros über die aktuelle Woche.</p>
+                            </div>
+                        </span>
+                    </h3>
+                    <select style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary);">
+                        <option>Diese Woche</option>
+                        <option>Letzte Woche</option>
+                        <option>Letzte 4 Wochen</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Typ-Verteilung</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Records -->
+        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: var(--spacing-md); display: flex; align-items: center;">
+            Rekorde
+            <span class="info-icon">i
+                <div class="info-tooltip">
+                    <h4>Rekorde</h4>
+                    <p>Die besten Leistungen im ausgewählten Zeitraum. Rekorde motivieren das Team!</p>
+                </div>
+            </span>
+        </h2>
+        <div class="records-grid">
+            <div class="record-card gold">
+                <div class="record-icon">🏆</div>
+                <div class="record-label">
+                    Höchste MG (Tag)
+                    <span class="info-icon">i
+                        <div class="info-tooltip">
+                            <h4>Höchste Mitgliederzahl</h4>
+                            <p>Meiste geworbene Mitglieder an einem Tag.</p>
+                        </div>
+                    </span>
+                </div>
+                <div class="record-value">28 MG</div>
+                <div class="record-holder">Anna Schmidt</div>
+                <div class="record-date">15.11.2024</div>
+            </div>
+
+            <div class="record-card silver">
+                <div class="record-icon">💰</div>
+                <div class="record-label">
+                    Höchste JE (Tag)
+                    <span class="info-icon">i
+                        <div class="info-tooltip">
+                            <h4>Höchste Jahreseuros</h4>
+                            <p>Höchste Summe an Jahreseuros an einem Tag.</p>
+                        </div>
+                    </span>
+                </div>
+                <div class="record-value">3.840 €</div>
+                <div class="record-holder">Max Mustermann</div>
+                <div class="record-date">18.11.2024</div>
+            </div>
+
+            <div class="record-card bronze">
+                <div class="record-icon">🎯</div>
+                <div class="record-label">
+                    JE von Empfehlung
+                    <span class="info-icon">i
+                        <div class="info-tooltip">
+                            <h4>Empfehlungs-JE</h4>
+                            <p>Höchste JE durch empfohlene Werber.<br><br>
+                            <strong>Empfehlungsprovision:</strong> 0,5 × EH des Empfohlenen</p>
+                        </div>
+                    </span>
+                </div>
+                <div class="record-value">12.600 €</div>
+                <div class="record-holder">Thomas Fischer</div>
+                <div class="record-date">Monat Nov</div>
+            </div>
+
+            <div class="record-card blue">
+                <div class="record-icon">⭐</div>
+                <div class="record-label">
+                    Höchster Einzelbeitrag
+                    <span class="info-icon">i
+                        <div class="info-tooltip">
+                            <h4>Höchster Einzelbeitrag</h4>
+                            <p>Höchster Jahresbeitrag eines einzelnen Mitglieds.</p>
+                        </div>
+                    </span>
+                </div>
+                <div class="record-value">600 €/Jahr</div>
+                <div class="record-holder">Werber: Julia Wagner</div>
+                <div class="record-date">22.11.2024</div>
+            </div>
+        </div>
+
+        <!-- Team Stats -->
+        <div class="team-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    Team-Statistik (KW 47)
+                    <span class="info-icon">i
+                        <div class="info-tooltip">
+                            <h4>Team-Statistik</h4>
+                            <p>Leistung pro Teammitglied in der aktuellen Kalenderwoche.<br><br>
+                            <strong>Durchschnitt:</strong> Gesamtleistung / Anzahl Teammitglieder</p>
+                        </div>
+                    </span>
+                </h2>
+                <select style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary);">
+                    <option>KW 47 (aktuell)</option>
+                    <option>KW 46</option>
+                    <option>KW 45</option>
+                </select>
+            </div>
+            <table class="team-table">
+                <thead>
+                    <tr>
+                        <th>Mitarbeiter</th>
+                        <th>MG</th>
+                        <th>JE</th>
+                        <th>EH</th>
+                        <th>Ø MG/Tag</th>
+                        <th>Ø JE/Tag</th>
+                        <th>Leistung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="team-member">
+                                <div class="team-avatar">AS</div>
+                                <div>
+                                    <div class="team-name">Anna Schmidt</div>
+                                    <div class="team-role">Senior Werber</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>45</td>
+                        <td>5.400 €</td>
+                        <td>450</td>
+                        <td>9,0</td>
+                        <td>1.080 €</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 95%;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="team-member">
+                                <div class="team-avatar">MM</div>
+                                <div>
+                                    <div class="team-name">Max Mustermann</div>
+                                    <div class="team-role">Werber</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>38</td>
+                        <td>4.560 €</td>
+                        <td>380</td>
+                        <td>7,6</td>
+                        <td>912 €</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 80%;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="team-member">
+                                <div class="team-avatar">TF</div>
+                                <div>
+                                    <div class="team-name">Thomas Fischer</div>
+                                    <div class="team-role">Junior Werber</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>32</td>
+                        <td>3.840 €</td>
+                        <td>320</td>
+                        <td>6,4</td>
+                        <td>768 €</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 67%;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="team-member">
+                                <div class="team-avatar">JW</div>
+                                <div>
+                                    <div class="team-name">Julia Wagner</div>
+                                    <div class="team-role">Werber</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>27</td>
+                        <td>3.240 €</td>
+                        <td>270</td>
+                        <td>5,4</td>
+                        <td>648 €</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 57%;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot style="background: var(--bg-secondary); font-weight: 600;">
+                    <tr>
+                        <td>Gesamt / Durchschnitt</td>
+                        <td>142</td>
+                        <td>17.040 €</td>
+                        <td>1.420</td>
+                        <td>7,1</td>
+                        <td>852 €</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Period tabs
+        document.querySelectorAll('.period-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                // Reload data for period
+                updateCharts();
+            });
+        });
+
+        // Weekly Chart
+        const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+        const weeklyChart = new Chart(weeklyCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+                datasets: [
+                    {
+                        label: 'MG',
+                        data: [18, 24, 22, 28, 32, 12, 6],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'JE (€)',
+                        data: [2160, 2880, 2640, 3360, 3840, 1440, 720],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Mitglieder'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Jahreseuros (€)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Type Chart
+        const typeCtx = document.getElementById('typeChart').getContext('2d');
+        const typeChart = new Chart(typeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['NMG (Neumitglied)', 'ERH (Erhöhung)'],
+                datasets: [{
+                    data: [118, 24],
+                    backgroundColor: ['#6366f1', '#f59e0b'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        function updateCharts() {
+            // In real app, fetch new data and update charts
+            console.log('Updating charts...');
+        }
+
+        function exportStats() {
+            alert('Statistik wird als PDF exportiert...');
+        }
+    </script>
+</body>
+</html>
