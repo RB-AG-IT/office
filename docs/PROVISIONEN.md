@@ -343,6 +343,31 @@ DRK-Provision: 5.000 × 18% = 900 EUR
 
 ---
 
+## Abrechnungs-Timeline (Werber-Provision)
+
+> **TODO:** Details noch zu besprechen!
+
+```
+Woche 1 (Kampagne)
+│
+├─ Montag: Vorschuss-Auszahlung (70%)
+├─ Stornorücklage wird einbehalten (30%)
+│
+... 24 Monate später ...
+│
+└─ Quartal X: Freigabe Stornorücklage (minus Stornos)
+```
+
+| Phase | Zeitpunkt | Aktion |
+|-------|-----------|--------|
+| **Vorschuss** | Montag nach der Woche | 70% Auszahlung |
+| **Rücklage** | Sofort | 30% einbehalten |
+| **Freigabe** | Nach 24 Monaten | Quartalsweise, minus Stornos |
+
+> **Hinweis:** Dies ist die Abrechnung **RB → Werber**. Nicht verwechseln mit DRK-Abrechnung!
+
+---
+
 ## Abrechnungs-Timeline (DRK-Abrechnung)
 
 ### Übersicht - Beispiel Kampagne KW 1-6
@@ -500,9 +525,10 @@ Beim Erstellen/Bearbeiten einer Kampagne müssen **pro Einsatzgebiet** folgende 
 ## TODO: Offene Punkte
 
 - [x] ~~Sondervereinbarungen (Teilvergütung %-Anteil)~~ → Dokumentiert
-- [x] ~~Abrechnungs-Timeline mit Phasen~~ → Dokumentiert
+- [x] ~~DRK-Abrechnungs-Timeline mit Phasen~~ → Dokumentiert
 - [x] ~~Qualitätsbonus-Berechnung~~ → Dokumentiert
 - [x] ~~Konditionen pro Kampagne/Einsatzgebiet~~ → Dokumentiert
+- [ ] **Werber-Abrechnungs-Timeline (70%/30%) im Detail besprechen**
 - [ ] Kleidungs-/Auto-Vereinbarungen und deren Verrechnung
 - [ ] Detailregeln für Kampagnen-übergreifende Stornos
 
