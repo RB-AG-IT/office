@@ -202,9 +202,9 @@ Motivator: 1000 × 0,1 × 0,5 = 50 EUR  ❌
 
 ## 5. DRK-Provision (Kundenkonditionen)
 
-Die DRK-Provision wird **pro Werbegebiet** festgelegt. Kampagnen referenzieren das zugehörige Werbegebiet und übernehmen dessen Konditionen.
+Die DRK-Provision wird **pro Kampagne und Einsatzgebiet** festgelegt.
 
-> **Hinweis:** Seit der Umstellung werden Konditionen zentral im Werbegebiet gepflegt, nicht in der Kampagne. Siehe [KUNDEN.md](KUNDEN.md) für Details.
+> **WICHTIG:** Konditionen gehören zur Kombination **Kampagne + Einsatzgebiet**, NICHT zum Werbegebiet allein. Grund: Ein Werbegebiet kann mehrere Kampagnen/Durchläufe haben mit unterschiedlichen Konditionen je Durchlauf.
 
 ### Konditionsarten
 
@@ -343,26 +343,167 @@ DRK-Provision: 5.000 × 18% = 900 EUR
 
 ---
 
-## Abrechnungs-Timeline
+## Abrechnungs-Timeline (DRK-Abrechnung)
+
+### Übersicht - Beispiel Kampagne KW 1-6
 
 ```
-Woche 1 (Kampagne)
-│
-├─ Montag: Vorschuss-Auszahlung (70%)
-├─ Stornorücklage wird einbehalten (30%)
-│
-... 24 Monate später ...
-│
-└─ Quartal X: Freigabe Stornorücklage (minus Stornos)
+KW 1    KW 2    KW 3    KW 4    KW 5    KW 6    │ +4 Wo  │        +12 Mo         │  +12 Mo  │  +12 Mo
+  ↓       ↓       ↓       ↓       ↓       ↓     │        │                       │          │
+ AR1     AR2     AR3     AR4     AR5     AR6    │  END   │    ZWEITJAHRESRATE    │  J3-Rate │  J4-Rate
+(90%)   (90%)   (90%)   (90%)   (90%)   (90%)   │        │    + Qualitätsbonus   │          │
+                                                │        │                       │          │
+                                                └────────┴───────────────────────┴──────────┴──────────→
 ```
+
+### Phase 1: Wöchentliche Abrechnungen
+
+| Eigenschaft | Wert |
+|-------------|------|
+| **Anzahl** | Eine pro Kampagnenwoche |
+| **Zeitpunkt** | Jeweils nach einer Woche |
+| **Fälliger Betrag** | 90% der Rechnungssumme (Standard) |
+| **Puffer** | 10% werden einbehalten (Standard) |
+| **Puffer individuell** | Pro Kampagne einstellbar! |
+
+> **Beispiel:** Kampagne KW 1-6 → 6 wöchentliche Abrechnungen à 90%
+
+### Phase 2: Endabrechnung
+
+| Eigenschaft | Wert |
+|-------------|------|
+| **Zeitpunkt** | X Wochen nach Kampagnenende (Standard: 4 Wochen) |
+| **Wartezeit individuell** | Pro Kampagne einstellbar! |
+| **Inhalt** | Verrechnung aller bisherigen Stornos |
+| **Puffer** | Auszahlung/Verrechnung der einbehaltenen 10% |
+
+> **WICHTIG:** Zeitpunkt der Endabrechnung merken! Ab diesem Datum beginnt der 12-Monats-Zyklus für alle Folgejahre.
+
+### Phase 3: Zweitjahresrate (12 Monate nach Endabrechnung)
+
+| Eigenschaft | Wert |
+|-------------|------|
+| **Zeitpunkt** | Exakt 12 Monate nach Endabrechnung |
+| **Inhalt** | Abrechnung Jahr 2 Konditionen |
+| **Feststellung** | Stornoquote wird ermittelt |
+| **Qualitätsbonus** | Wird berechnet und angewendet |
+
+### Phase 4+: Folgejahre
+
+- Jedes Jahr exakt **12 Monate nach der vorherigen Rate**
+- Abrechnung der jeweiligen Jahres-Kondition
+- Qualitätsbonus gilt weiterhin
+
+---
+
+## Qualitätsbonus - Berechnung & Anwendung
+
+### Feststellung (bei Zweitjahresrate)
+
+Nach 12 Monaten wird die Stornoquote der Kampagne festgestellt:
+
+| Stornoquote | Bonus |
+|-------------|-------|
+| unter 15% | +3 PP |
+| unter 12% | +3 PP |
+| unter 10% | +3 PP |
+| unter 8% | +1 PP |
+
+> **PP = Prozentpunkte** auf die Jahres-Konditionen
+
+### Anwendung des Qualitätsbonus
+
+**Beispiel:** Kampagne hat nach 12 Monaten nur **5% Stornos**
+→ Unter 15%, 12%, 10%, 8% = **+3 +3 +3 +1 = +10 PP**
+
+| Jahr | Original-Kondition | Mit Qualitätsbonus |
+|------|--------------------|--------------------|
+| Jahr 1 | 80% | **90%** |
+| Jahr 2 | 50% | **60%** |
+| Jahr 3 | 30% | **40%** |
+| Jahr 4 | 20% | **30%** |
+| Jahr 5 | 10% | **20%** |
+
+**Wichtig:** Der Qualitätsbonus wird auf die **Zweitjahresrate rückwirkend für Jahr 1 + Jahr 2** angewendet und gilt dann für alle Folgejahre.
+
+---
+
+## Teilvergütung - AN vs. AUS
+
+### Was ist Teilvergütung?
+
+Regelt, was passiert wenn ein Mitglied **vor Ablauf von 12 Monaten storniert**.
+
+### Teilvergütung AUS (Standard)
+
+| Situation | Vergütung |
+|-----------|-----------|
+| Mitglied bleibt 12+ Monate | ✅ Volle Vergütung |
+| Mitglied storniert vorher | ❌ Zählt als Storno, wird vollständig verrechnet |
+
+> **Alles-oder-Nichts-Prinzip:** Nur Mitglieder, die nach 12 Monaten (nach Endabrechnungszeitraum) noch vorhanden sind, werden vergütet.
+
+### Teilvergütung AN (mit %-Satz)
+
+| Situation | Vergütung |
+|-----------|-----------|
+| Mitglied bleibt 12+ Monate | ✅ Volle Vergütung |
+| Mitglied storniert vorher | ✅ Anteilige Vergütung |
+
+**Berechnung bei Storno:**
+```
+Gezahlte Monate nach Aufnahmedatum × Teilvergütungs-Prozentsatz
+```
+
+**Beispiel:**
+```
+Mitglied spendet: 10 EUR/Monat
+Storniert nach:   3 Monaten
+DRK hat erhalten: 30 EUR
+
+Teilvergütung:    50%
+═══════════════════════════
+Vergütung:        30 EUR × 50% = 15 EUR
+```
+
+---
+
+## Kampagnen-Einstellungen (NEU)
+
+Folgende Felder müssen **pro Kampagne** einstellbar sein:
+
+| Feld | Standard | Beschreibung |
+|------|----------|--------------|
+| **Abrechnungs-Puffer %** | 10% | Prozent der wöchentlichen Rechnung, die einbehalten wird |
+| **Wartezeit Endabrechnung** | 4 Wochen | Wochen nach Kampagnenende bis zur Endabrechnung |
+
+---
+
+## Konditionen pro Einsatzgebiet (NEU)
+
+Beim Erstellen/Bearbeiten einer Kampagne müssen **pro Einsatzgebiet** folgende Konditionen festgelegt werden:
+
+| Konditions-Feld | Beschreibung |
+|-----------------|--------------|
+| **Bevölkerung** | Anzahl Einwohner im Gebiet |
+| **Sondierungslimit** | Anzahl MG oder % der Bevölkerung |
+| **Sondierungskonditionen** | Jahr 1-5 (% vom Jahresbeitrag) |
+| **Reguläre Konditionen** | Jahr 1-5 (% vom Jahresbeitrag) |
+| **Qualitätsbonus** | AN/AUS + Storno-Regeln |
+| **Teilvergütung** | AN/AUS + %-Satz |
+| **Vertrag** | Zugeordneter Rahmenvertrag |
+
+> **Grund:** Ein Werbegebiet kann in mehreren Kampagnen mit unterschiedlichen Konditionen vorkommen.
 
 ---
 
 ## TODO: Offene Punkte
 
-- [x] ~~Sondervereinbarungen (Teilvergütung %-Anteil)~~ → In Werbegebiet-Konditionen implementiert
+- [x] ~~Sondervereinbarungen (Teilvergütung %-Anteil)~~ → Dokumentiert
+- [x] ~~Abrechnungs-Timeline mit Phasen~~ → Dokumentiert
+- [x] ~~Qualitätsbonus-Berechnung~~ → Dokumentiert
+- [x] ~~Konditionen pro Kampagne/Einsatzgebiet~~ → Dokumentiert
 - [ ] Kleidungs-/Auto-Vereinbarungen und deren Verrechnung
-- [ ] Rechnungsstellung-Intervall (wöchentlich vs. 2-wöchentlich)
 - [ ] Detailregeln für Kampagnen-übergreifende Stornos
 
 ---
@@ -376,4 +517,4 @@ Woche 1 (Kampagne)
 
 ---
 
-*Letzte Aktualisierung: November 2024*
+*Letzte Aktualisierung: November 2024 - Abrechnungs-Timeline, Qualitätsbonus, Teilvergütung, Konditionen pro Einsatzgebiet ergänzt*
