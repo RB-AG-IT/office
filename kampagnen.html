@@ -453,9 +453,300 @@
             text-align: center;
             padding: 4px;
         }
+
+        /* ============================================
+           KAMPAGNEN-ÜBERSICHT (View Modal)
+           ============================================ */
+        .view-modal .modal-content {
+            max-width: 900px;
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .view-title-section h1 {
+            font-size: var(--font-size-heading);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-xs) 0;
+        }
+
+        .view-title-section .view-meta {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .view-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .info-box.highlight {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .info-box-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .info-box-header svg {
+            width: 20px;
+            height: 20px;
+            color: #8b5cf6;
+        }
+
+        .info-box-header h3 {
+            font-size: var(--font-size-md);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-item-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .info-item-value {
+            font-size: var(--font-size-md);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .konditionen-display {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--spacing-sm);
+            text-align: center;
+        }
+
+        .konditionen-year {
+            background: var(--bg-primary);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .konditionen-year-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .konditionen-year-value {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .einsatzgebiet-view {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            overflow: hidden;
+        }
+
+        .einsatzgebiet-view-header {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.05));
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .einsatzgebiet-view-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .einsatzgebiet-view-title svg {
+            color: #8b5cf6;
+        }
+
+        .einsatzgebiet-view-body {
+            padding: var(--spacing-lg);
+        }
+
+        .badge-row {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-sm);
+        }
+
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .info-badge.green {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .info-badge.blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .info-badge.purple {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .info-badge.gray {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .konditionen-section-view {
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .konditionen-section-view-title {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
     </style>
 </head>
 <body>
+
+<!-- Modal für Kampagnen-Übersicht (View) -->
+<div class="modal view-modal" id="campaignViewModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Kampagnen-Übersicht</h2>
+            <button class="modal-close" onclick="closeViewModal()">
+                <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- Header mit Titel und Edit-Button -->
+            <div class="view-header">
+                <div class="view-title-section">
+                    <h1 id="viewCampaignName">Kampagnenname</h1>
+                    <div class="view-meta">
+                        <span id="viewCampaignStatus" class="campaign-status active">Aktiv</span>
+                        <span style="margin-left: var(--spacing-sm);">KW <span id="viewKwRange">10-15</span></span>
+                    </div>
+                </div>
+                <div class="view-actions">
+                    <button class="btn btn-primary" onclick="editFromView()">
+                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Bearbeiten
+                    </button>
+                </div>
+            </div>
+
+            <!-- Allgemeine Infos -->
+            <div class="info-box">
+                <div class="info-box-header">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <h3>Allgemeine Informationen</h3>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-item-label">Kunde</span>
+                        <span class="info-item-value" id="viewCustomer">DRK Ludwigshafen</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-item-label">Zeitraum</span>
+                        <span class="info-item-value" id="viewPeriod">04.03. - 14.04.2024</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-item-label">Abrechnungs-Puffer</span>
+                        <span class="info-item-value" id="viewPuffer">10%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-item-label">Wartezeit Endabrechnung</span>
+                        <span class="info-item-value" id="viewWartezeit">4 Wochen</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mitarbeiter Übersicht -->
+            <div class="info-box">
+                <div class="info-box-header">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <h3>Mitarbeiter-Einsatz</h3>
+                </div>
+                <div id="viewEmployeeGrid" class="week-employees" style="gap: var(--spacing-md);">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+
+            <!-- Einsatzgebiete mit Konditionen -->
+            <div class="info-box highlight">
+                <div class="info-box-header">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <h3>Einsatzgebiete & Konditionen</h3>
+                </div>
+                <div id="viewEinsatzgebiete">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeViewModal()">Schließen</button>
+        </div>
+    </div>
+</div>
 
 <!-- Modal für neue Kampagne -->
 <div class="modal modal-large" id="campaignModal">
@@ -730,7 +1021,7 @@ function renderCampaigns() {
         }
 
         return `
-            <div class="campaign-card status-${status}" onclick="editCampaign(${campaign.id})">
+            <div class="campaign-card status-${status}" onclick="viewCampaign(${campaign.id})">
                 <div class="campaign-header">
                     <div>
                         <div class="campaign-title">${campaign.name}</div>
@@ -778,6 +1069,182 @@ function openCampaignModal() {
 function closeCampaignModal() {
     document.getElementById('campaignModal').classList.remove('show');
 }
+
+// ============================================
+// VIEW MODAL FUNCTIONS
+// ============================================
+
+let viewingCampaignId = null;
+
+// Open view modal
+function viewCampaign(id) {
+    const campaign = campaigns.find(c => c.id === id);
+    if (!campaign) return;
+
+    viewingCampaignId = id;
+    const status = getCampaignStatus(campaign.kwFrom, campaign.kwTo);
+    const statusLabels = { active: 'Aktiv', planned: 'Geplant', inactive: 'Beendet' };
+
+    // Basic info
+    document.getElementById('viewCampaignName').textContent = campaign.name;
+    document.getElementById('viewCampaignStatus').className = 'campaign-status ' + status;
+    document.getElementById('viewCampaignStatus').textContent = statusLabels[status];
+    document.getElementById('viewKwRange').textContent = `${campaign.kwFrom}-${campaign.kwTo}`;
+    document.getElementById('viewCustomer').textContent = campaign.customer;
+    document.getElementById('viewPuffer').textContent = (campaign.pufferPercent || 10) + '%';
+    document.getElementById('viewWartezeit').textContent = (campaign.wartezeitWochen || 4) + ' Wochen';
+
+    // Calculate period dates (approximate)
+    const year = 2025;
+    const startDate = getKWDateRange(campaign.kwFrom, year).split(' - ')[0];
+    const endDate = getKWDateRange(campaign.kwTo, year).split(' - ')[1];
+    document.getElementById('viewPeriod').textContent = `${startDate} - ${endDate}`;
+
+    // Employee overview
+    renderViewEmployees(campaign);
+
+    // Einsatzgebiete
+    renderViewEinsatzgebiete(campaign);
+
+    document.getElementById('campaignViewModal').classList.add('show');
+}
+
+// Render employee badges in view
+function renderViewEmployees(campaign) {
+    const container = document.getElementById('viewEmployeeGrid');
+    let html = '';
+
+    for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
+        const assignment = campaign.assignments[kw] || {};
+        const tcId = assignment.teamchef;
+        const werberIds = assignment.werber || [];
+        const tc = tcId ? employees.find(e => e.id === tcId) : null;
+        const count = werberIds.length + (tc ? 1 : 0);
+
+        html += `
+            <div class="week-badge" style="padding: 8px 12px;" title="${tc ? 'TC: ' + tc.name : 'Kein TC'}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                KW ${kw}: ${count} Pers.
+            </div>
+        `;
+    }
+
+    container.innerHTML = html || '<p style="color: var(--text-secondary);">Keine Mitarbeiter zugewiesen</p>';
+}
+
+// Render Einsatzgebiete in view (with nice Konditionen display)
+function renderViewEinsatzgebiete(campaign) {
+    const container = document.getElementById('viewEinsatzgebiete');
+
+    // Dummy data for now - will come from Supabase later
+    const dummyEinsatzgebiete = [
+        {
+            name: campaign.area || 'Ludwigshafen-Mitte e.V.',
+            plz: '67059',
+            population: 150000,
+            sondierungslimit: 100,
+            sondierung: [80, 50, 20, 10, 5],
+            regular: [65, 40, 15, 8, 4],
+            qualityBonus: true,
+            stornoRules: [
+                { threshold: 15, bonus: 3 },
+                { threshold: 12, bonus: 3 },
+                { threshold: 10, bonus: 3 },
+                { threshold: 8, bonus: 1 }
+            ],
+            teilvergutung: true,
+            teilvergutungPercent: 80
+        }
+    ];
+
+    let html = '';
+
+    dummyEinsatzgebiete.forEach((eg, index) => {
+        html += `
+            <div class="einsatzgebiet-view">
+                <div class="einsatzgebiet-view-header">
+                    <div class="einsatzgebiet-view-title">
+                        <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        ${eg.name}
+                    </div>
+                    <span class="info-badge gray">${eg.plz}</span>
+                </div>
+                <div class="einsatzgebiet-view-body">
+                    <div class="badge-row" style="margin-bottom: var(--spacing-md);">
+                        <span class="info-badge blue">Bevölkerung: ${eg.population.toLocaleString('de-DE')}</span>
+                        <span class="info-badge purple">Sondierung: ${eg.sondierungslimit} MG</span>
+                        ${eg.qualityBonus ? '<span class="info-badge green">Qualitätsbonus aktiv</span>' : ''}
+                        ${eg.teilvergutung ? '<span class="info-badge green">Teilvergütung: ' + eg.teilvergutungPercent + '%</span>' : ''}
+                    </div>
+
+                    <!-- Sondierungskonditionen -->
+                    <div class="konditionen-section-view">
+                        <div class="konditionen-section-view-title">Sondierungskonditionen (% vom Jahresbeitrag)</div>
+                        <div class="konditionen-display">
+                            ${eg.sondierung.map((val, i) => `
+                                <div class="konditionen-year">
+                                    <div class="konditionen-year-label">Jahr ${i + 1}</div>
+                                    <div class="konditionen-year-value">${val}%</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Reguläre Konditionen -->
+                    <div class="konditionen-section-view">
+                        <div class="konditionen-section-view-title">Reguläre Konditionen (% vom Jahresbeitrag)</div>
+                        <div class="konditionen-display">
+                            ${eg.regular.map((val, i) => `
+                                <div class="konditionen-year">
+                                    <div class="konditionen-year-label">Jahr ${i + 1}</div>
+                                    <div class="konditionen-year-value">${val}%</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    ${eg.qualityBonus ? `
+                    <!-- Qualitätsbonus Staffelung -->
+                    <div class="konditionen-section-view">
+                        <div class="konditionen-section-view-title">Qualitätsbonus-Staffelung</div>
+                        <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                            ${eg.stornoRules.map(rule => `
+                                <span class="info-badge purple">Storno &lt;${rule.threshold}% → +${rule.bonus}PP</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html || '<p style="color: var(--text-secondary);">Keine Einsatzgebiete definiert</p>';
+}
+
+// Close view modal
+function closeViewModal() {
+    document.getElementById('campaignViewModal').classList.remove('show');
+    viewingCampaignId = null;
+}
+
+// Edit from view modal
+function editFromView() {
+    if (viewingCampaignId) {
+        closeViewModal();
+        editCampaign(viewingCampaignId);
+    }
+}
+
+// Close view modal on background click
+document.getElementById('campaignViewModal').addEventListener('click', function(e) {
+    if (e.target === this) closeViewModal();
+});
 
 // Generate KW cards
 function generateKWCards() {
@@ -1388,6 +1855,16 @@ function calculateSondMembers(index) {
 
 // Initial render
 renderCampaigns();
+
+// Check for URL parameter to open view modal
+const urlParams = new URLSearchParams(window.location.search);
+const viewId = urlParams.get('view');
+if (viewId) {
+    const campaignId = parseInt(viewId);
+    if (campaignId && campaigns.find(c => c.id === campaignId)) {
+        viewCampaign(campaignId);
+    }
+}
 </script>
 
 </body>
