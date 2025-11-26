@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vorlagen - RB Inside Office</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        body {
+            overflow-y: auto;
+            height: 100%;
+            margin: 0;
+            background: var(--bg-secondary);
+        }
+
+        .page-container {
+            padding: var(--spacing-lg);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Info Icon Tooltip */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: help;
+            margin-left: 6px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .info-icon:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .info-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 280px;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            text-align: left;
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .info-icon:hover .info-tooltip {
+            display: block;
+        }
+
+        .info-tooltip h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .info-tooltip p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
+        /* Template Tabs */
+        .template-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-primary);
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .template-tab {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .template-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .template-tab.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .template-tab svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .tab-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .template-tab:not(.active) .tab-badge {
+            background: var(--bg-hover);
+        }
+
+        /* Template Content */
+        .template-content {
+            display: none;
+        }
+
+        .template-content.active {
+            display: block;
+        }
+
+        /* Template Grid */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .template-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .template-card:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .template-preview {
+            height: 200px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            position: relative;
+            overflow: hidden;
+            padding: var(--spacing-md);
+        }
+
+        .template-preview-content {
+            background: white;
+            border-radius: 8px;
+            height: 100%;
+            padding: var(--spacing-md);
+            font-size: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .template-preview-header {
+            background: #e01e26;
+            color: white;
+            padding: 8px;
+            margin: -12px -12px 8px -12px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .template-info {
+            padding: var(--spacing-lg);
+        }
+
+        .template-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .template-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .template-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .template-meta-item {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .template-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .template-badge.auto {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .template-badge.manual {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* Placeholders Section */
+        .placeholders-section {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+        }
+
+        .placeholders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-sm);
+        }
+
+        .placeholder-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .placeholder-code {
+            font-family: monospace;
+            color: var(--accent-color);
+        }
+
+        .placeholder-copy {
+            padding: 4px 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .placeholder-copy:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* Editor Modal */
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+            height: 500px;
+        }
+
+        .editor-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .editor-textarea {
+            flex: 1;
+            padding: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            resize: none;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .preview-panel {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .preview-header {
+            background: var(--bg-secondary);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .preview-content {
+            padding: var(--spacing-md);
+            height: calc(100% - 40px);
+            overflow-y: auto;
+        }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-pill.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .status-pill.inactive {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">E-Mail Vorlagen</h1>
+            <button class="btn btn-primary" onclick="openNewTemplateModal()">
+                <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Neue Vorlage
+            </button>
+        </div>
+
+        <!-- Placeholders Section -->
+        <div class="placeholders-section">
+            <h2 class="section-title">
+                Verfügbare Platzhalter
+                <span class="info-icon">i
+                    <div class="info-tooltip">
+                        <h4>Platzhalter</h4>
+                        <p>Platzhalter werden beim Versand automatisch durch die echten Daten ersetzt.<br><br>
+                        Klicken Sie auf einen Platzhalter um ihn zu kopieren.</p>
+                    </div>
+                </span>
+            </h2>
+            <div class="placeholders-grid">
+                <div class="placeholder-item">
+                    <span class="placeholder-code">{vorname}</span>
+                    <button class="placeholder-copy" onclick="copyPlaceholder('{vorname}')">📋</button>
+                </div>
+                <div class="placeholder-item">
+                    <span class="placeholder-code">{nachname}</span>
+                    <button class="placeholder-copy" onclick="copyPlaceholder('{nachname}')">📋</button>
+                </div>
+                <div class="placeholder-item">
+                    <span class="placeholder-code">{anrede}</span>
+                    <button class="placeholder-copy" onclick="copyPlaceholder('{anrede}')">📋</button>
+                </div>
+                <div class="placeholder-item">
+                    <span class="placeholder-code">{werbegebiet}</span>
+                    <button class="placeholder-copy" onclick="copyPlaceholder('{werbegebiet}')">📋</button>
+                </div>
+                <div class="placeholder-item">
+                    <span class="placeholder-code">{ansprechpartner}</span>
+                    <button class="placeholder-copy" onclick="copyPlaceholder('{ansprechpartner}')">📋</button>
+                </div>
+                <div class="placeholder-item">
+                    <span class="placeholder-code">{beitrag}</span>
+                    <button class="placeholder-copy" onclick="copyPlaceholder('{beitrag}')">📋</button>
+                </div>
+                <div class="placeholder-item">
+                    <span class="placeholder-code">{intervall}</span>
+                    <button class="placeholder-copy" onclick="copyPlaceholder('{intervall}')">📋</button>
+                </div>
+                <div class="placeholder-item">
+                    <span class="placeholder-code">{iban_link}</span>
+                    <button class="placeholder-copy" onclick="copyPlaceholder('{iban_link}')">📋</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template Tabs -->
+        <div class="template-tabs">
+            <button class="template-tab active" data-tab="automatisch">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Automatisch
+                <span class="tab-badge">3</span>
+            </button>
+            <button class="template-tab" data-tab="manuell">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+                Manuell
+                <span class="tab-badge">2</span>
+            </button>
+            <button class="template-tab" data-tab="newsletter">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                </svg>
+                Newsletter
+                <span class="tab-badge">2</span>
+            </button>
+        </div>
+
+        <!-- Automatische Vorlagen -->
+        <div class="template-content active" id="tab-automatisch">
+            <div class="template-grid">
+                <!-- Willkommensmail -->
+                <div class="template-card">
+                    <div class="template-preview">
+                        <div class="template-preview-content">
+                            <div class="template-preview-header">🎉 Willkommen beim DRK!</div>
+                            <p style="margin: 0; line-height: 1.4;">Liebe/r {vorname},<br><br>
+                            herzlich willkommen als neues Fördermitglied beim DRK {werbegebiet}!<br><br>
+                            Ihr Ansprechpartner: {ansprechpartner}</p>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">
+                            Willkommensmail
+                            <span class="info-icon">i
+                                <div class="info-tooltip">
+                                    <h4>Willkommensmail</h4>
+                                    <p>Wird automatisch nach Absenden eines NMG-Formulars versendet.<br><br>
+                                    <strong>Trigger:</strong> Neues Mitglied (NMG)</p>
+                                </div>
+                            </span>
+                        </h3>
+                        <p class="template-desc">Begrüßung neuer Fördermitglieder nach NMG-Formular</p>
+                        <div class="template-meta">
+                            <span class="template-badge auto">Automatisch</span>
+                            <span class="template-meta-item">
+                                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Nach Formular
+                            </span>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('willkommen')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('willkommen')">Vorschau</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Erhöhungsmail -->
+                <div class="template-card">
+                    <div class="template-preview">
+                        <div class="template-preview-content">
+                            <div class="template-preview-header">💪 Danke für Ihre Erhöhung!</div>
+                            <p style="margin: 0; line-height: 1.4;">Liebe/r {vorname},<br><br>
+                            vielen Dank, dass Sie Ihren Beitrag auf {beitrag}€ {intervall} erhöht haben!<br><br>
+                            Mit herzlichen Grüßen</p>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">
+                            Erhöhungsmail
+                            <span class="info-icon">i
+                                <div class="info-tooltip">
+                                    <h4>Erhöhungsmail</h4>
+                                    <p>Wird automatisch nach einer Beitragserhöhung (ERH) versendet.<br><br>
+                                    <strong>Trigger:</strong> Erhöhung (ERH)</p>
+                                </div>
+                            </span>
+                        </h3>
+                        <p class="template-desc">Bestätigung bei Beitragsanpassung nach ERH-Formular</p>
+                        <div class="template-meta">
+                            <span class="template-badge auto">Automatisch</span>
+                            <span class="template-meta-item">
+                                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Nach ERH
+                            </span>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('erhoehung')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('erhoehung')">Vorschau</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IBAN-Nachtragen Mail -->
+                <div class="template-card">
+                    <div class="template-preview">
+                        <div class="template-preview-content">
+                            <div class="template-preview-header">🏦 IBAN nachtragen</div>
+                            <p style="margin: 0; line-height: 1.4;">Liebe/r {vorname},<br><br>
+                            bitte tragen Sie Ihre IBAN nach über folgenden Link:<br><br>
+                            {iban_link}</p>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">
+                            IBAN-Nachtragen
+                            <span class="info-icon">i
+                                <div class="info-tooltip">
+                                    <h4>IBAN-Nachtragen</h4>
+                                    <p>Wird automatisch versendet wenn im Formular "IBAN später" gewählt wurde.<br><br>
+                                    <strong>Trigger:</strong> IBAN später Option</p>
+                                </div>
+                            </span>
+                        </h3>
+                        <p class="template-desc">Link zum Nachtragen der Bankverbindung</p>
+                        <div class="template-meta">
+                            <span class="template-badge auto">Automatisch</span>
+                            <span class="template-meta-item">
+                                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Nach Formular
+                            </span>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('iban')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('iban')">Vorschau</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manuelle Vorlagen -->
+        <div class="template-content" id="tab-manuell">
+            <div class="template-grid">
+                <!-- Storno-Bestätigung -->
+                <div class="template-card">
+                    <div class="template-preview">
+                        <div class="template-preview-content">
+                            <div class="template-preview-header">📋 Kündigungsbestätigung</div>
+                            <p style="margin: 0; line-height: 1.4;">Liebe/r {vorname},<br><br>
+                            wir bestätigen Ihre Kündigung zum ...<br><br>
+                            Möchten Sie uns mit einer Einmalspende unterstützen?</p>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">
+                            Storno-Bestätigung
+                            <span class="info-icon">i
+                                <div class="info-tooltip">
+                                    <h4>Storno-Bestätigung</h4>
+                                    <p>Wird manuell nach Eintrag eines Stornos versendet.<br><br>
+                                    Enthält freundliche Bitte um Einmalspende.</p>
+                                </div>
+                            </span>
+                        </h3>
+                        <p class="template-desc">Bestätigung der Kündigung mit Einmalspende-Anfrage</p>
+                        <div class="template-meta">
+                            <span class="template-badge manual">Manuell</span>
+                            <span class="template-meta-item">
+                                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                </svg>
+                                Nach Storno
+                            </span>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('storno')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('storno')">Vorschau</button>
+                            <button class="btn btn-primary btn-sm" onclick="sendManual('storno')">Versenden</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Erneut senden -->
+                <div class="template-card">
+                    <div class="template-preview">
+                        <div class="template-preview-content">
+                            <div class="template-preview-header">🔄 E-Mail erneut senden</div>
+                            <p style="margin: 0; line-height: 1.4;">Wählen Sie eine automatische E-Mail aus, die erneut an ein Mitglied gesendet werden soll.</p>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">
+                            Erneut versenden
+                            <span class="info-icon">i
+                                <div class="info-tooltip">
+                                    <h4>Erneut versenden</h4>
+                                    <p>Ermöglicht das erneute Versenden einer automatischen E-Mail bei Fehlern oder Tippfehlern.</p>
+                                </div>
+                            </span>
+                        </h3>
+                        <p class="template-desc">Automatische E-Mail erneut an ein Mitglied senden</p>
+                        <div class="template-meta">
+                            <span class="template-badge manual">Manuell</span>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn btn-primary btn-sm" onclick="openResendModal()">Mitglied auswählen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="template-content" id="tab-newsletter">
+            <div class="template-grid">
+                <!-- Newsletter 1 -->
+                <div class="template-card">
+                    <div class="template-preview">
+                        <div class="template-preview-content">
+                            <div class="template-preview-header">📰 DRK Newsletter</div>
+                            <p style="margin: 0; line-height: 1.4;">Liebe Fördermitglieder,<br><br>
+                            in dieser Ausgabe informieren wir Sie über aktuelle Projekte und Neuigkeiten...</p>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">Newsletter - Standard</h3>
+                        <p class="template-desc">Allgemeiner Newsletter für alle Fördermitglieder</p>
+                        <div class="template-meta">
+                            <span class="template-badge manual">Manuell</span>
+                            <span class="status-pill active">
+                                <span class="status-dot"></span>
+                                Aktiv
+                            </span>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('newsletter1')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('newsletter1')">Vorschau</button>
+                            <button class="btn btn-primary btn-sm" onclick="sendNewsletter('newsletter1')">Newsletter senden</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Newsletter 2 -->
+                <div class="template-card">
+                    <div class="template-preview">
+                        <div class="template-preview-content">
+                            <div class="template-preview-header">🎄 Weihnachtsgrüße</div>
+                            <p style="margin: 0; line-height: 1.4;">Liebe/r {vorname},<br><br>
+                            das DRK {werbegebiet} wünscht Ihnen frohe Weihnachten und ein gutes neues Jahr!</p>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">Newsletter - Saisonal</h3>
+                        <p class="template-desc">Saisonale Grüße (Weihnachten, Ostern, etc.)</p>
+                        <div class="template-meta">
+                            <span class="template-badge manual">Manuell</span>
+                            <span class="status-pill inactive">
+                                <span class="status-dot"></span>
+                                Entwurf
+                            </span>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('newsletter2')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('newsletter2')">Vorschau</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Template Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="editModalTitle">Vorlage bearbeiten</h2>
+                <button class="modal-close" onclick="closeEditModal()">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Betreff</label>
+                    <input type="text" class="form-input" id="templateSubject" value="Willkommen beim DRK {werbegebiet}!">
+                </div>
+                <div class="editor-container">
+                    <div class="editor-panel">
+                        <span class="editor-label">HTML-Inhalt</span>
+                        <textarea class="editor-textarea" id="templateContent">Liebe/r {anrede} {nachname},
+
+herzlich willkommen als neues Fördermitglied beim DRK {werbegebiet}!
+
+Wir freuen uns sehr, dass Sie sich entschieden haben, unsere wichtige Arbeit mit {beitrag}€ {intervall} zu unterstützen.
+
+Bei Fragen steht Ihnen unser Ansprechpartner {ansprechpartner} gerne zur Verfügung.
+
+Mit herzlichen Grüßen
+Ihr DRK {werbegebiet}</textarea>
+                    </div>
+                    <div class="editor-panel">
+                        <span class="editor-label">Vorschau</span>
+                        <div class="preview-panel">
+                            <div class="preview-header">Vorschau mit Beispieldaten</div>
+                            <div class="preview-content" id="previewContent">
+                                <!-- Preview will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Abbrechen</button>
+                <button type="button" class="btn btn-secondary" onclick="testEmail()">Test-Mail senden</button>
+                <button type="button" class="btn btn-primary" onclick="saveTemplate()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resend Modal -->
+    <div class="modal" id="resendModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title">E-Mail erneut senden</h2>
+                <button class="modal-close" onclick="closeResendModal()">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Mitglied suchen</label>
+                    <input type="text" class="form-input" id="memberSearch" placeholder="Name oder E-Mail eingeben...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-Mail auswählen</label>
+                    <select class="form-input" id="resendType">
+                        <option value="">Bitte auswählen...</option>
+                        <option value="willkommen">Willkommensmail</option>
+                        <option value="erhoehung">Erhöhungsmail</option>
+                        <option value="iban">IBAN-Nachtragen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-Mail-Adresse korrigieren (optional)</label>
+                    <input type="email" class="form-input" id="correctedEmail" placeholder="Neue E-Mail-Adresse">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeResendModal()">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="resendEmail()">Erneut senden</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.template-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.template-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.template-content').forEach(c => c.classList.remove('active'));
+
+                this.classList.add('active');
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Copy placeholder
+        function copyPlaceholder(text) {
+            navigator.clipboard.writeText(text);
+            // Show toast or feedback
+            alert('Kopiert: ' + text);
+        }
+
+        // Edit template
+        function editTemplate(templateId) {
+            document.getElementById('editModalTitle').textContent = 'Vorlage bearbeiten: ' + templateId;
+            document.getElementById('editModal').classList.add('show');
+            updatePreview();
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        // Preview template
+        function previewTemplate(templateId) {
+            alert('Vorschau für: ' + templateId);
+        }
+
+        // Update preview
+        function updatePreview() {
+            const content = document.getElementById('templateContent').value;
+            const preview = document.getElementById('previewContent');
+
+            // Replace placeholders with example data
+            let previewHtml = content
+                .replace(/{vorname}/g, 'Max')
+                .replace(/{nachname}/g, 'Mustermann')
+                .replace(/{anrede}/g, 'Herr')
+                .replace(/{werbegebiet}/g, 'Ludwigshafen-Mitte e.V.')
+                .replace(/{ansprechpartner}/g, 'Frau Schmidt')
+                .replace(/{beitrag}/g, '10')
+                .replace(/{intervall}/g, 'monatlich')
+                .replace(/{iban_link}/g, '<a href="#">IBAN-Link</a>')
+                .replace(/\n/g, '<br>');
+
+            preview.innerHTML = previewHtml;
+        }
+
+        document.getElementById('templateContent').addEventListener('input', updatePreview);
+
+        // Save template
+        function saveTemplate() {
+            alert('Vorlage gespeichert!');
+            closeEditModal();
+        }
+
+        // Test email
+        function testEmail() {
+            const email = prompt('Test-E-Mail senden an:', 'test@example.com');
+            if (email) {
+                alert('Test-E-Mail wird gesendet an: ' + email);
+            }
+        }
+
+        // Send manual email
+        function sendManual(templateId) {
+            alert('Manuelle E-Mail senden: ' + templateId);
+        }
+
+        // Send newsletter
+        function sendNewsletter(templateId) {
+            if (confirm('Newsletter an alle Fördermitglieder senden?')) {
+                alert('Newsletter wird versendet...');
+            }
+        }
+
+        // Resend modal
+        function openResendModal() {
+            document.getElementById('resendModal').classList.add('show');
+        }
+
+        function closeResendModal() {
+            document.getElementById('resendModal').classList.remove('show');
+        }
+
+        function resendEmail() {
+            alert('E-Mail wird erneut gesendet...');
+            closeResendModal();
+        }
+
+        // New template modal
+        function openNewTemplateModal() {
+            alert('Neue Vorlage erstellen - Coming soon');
+        }
+
+        // Initialize preview
+        updatePreview();
+    </script>
+</body>
+</html>
