@@ -162,9 +162,18 @@
 
 ## TODO: Weitere Provisionen
 
-- [ ] Teamleitung Provisionen
-- [ ] Qualitätsmanagement Boni
-- [ ] Recruiting Provisionen
+- [x] ~~Teamleitung Provisionen~~ → Siehe [PROVISIONEN.md](PROVISIONEN.md)
+- [x] ~~Qualitätsmanagement Boni~~ → Siehe [PROVISIONEN.md](PROVISIONEN.md)
+- [x] ~~Recruiting Provisionen~~ → Siehe [PROVISIONEN.md](PROVISIONEN.md)
+
+---
+
+## Verwandte Dokumentation
+
+- [PROVISIONEN.md](PROVISIONEN.md) - Vollständiges Provisionsmodell
+- [KUNDEN.md](KUNDEN.md) - Kundenmanagement und Werbegebiete
+- [KAMPAGNEN.md](KAMPAGNEN.md) - Kampagnenplanung mit TC-Zuweisung
+- [SYSTEM.md](SYSTEM.md) - Systemübersicht
 
 ---
 
