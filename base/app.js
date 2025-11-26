@@ -8,8 +8,8 @@ const dummyData = {
         phone: '+49 123 456789',
         campaign: 'DRK Herbstkampagne 2024',
         team: 'Team Nord',
-        level: 'F',
-        factor: 5.5
+        level: 'JMM',
+        factor: 6.0
     },
     stats: {
         today: 3,
@@ -25,14 +25,14 @@ const dummyData = {
         { id: 3, name: 'Ortsverein Altstadt', today: 0, week: 0, active: false }
     ],
     ranking: [
-        { position: 1, name: 'Anna Schmidt', team: 'Team Süd', score: 89, level: 'D' },
-        { position: 2, name: 'Tom Müller', team: 'Team Ost', score: 67, level: 'E' },
-        { position: 3, name: 'Max Mustermann', team: 'Team Nord', score: 48, isCurrentUser: true, level: 'F' },
-        { position: 4, name: 'Lisa Weber', team: 'Team West', score: 42, level: 'E' },
-        { position: 5, name: 'Paul Klein', team: 'Team Nord', score: 38, level: 'F' },
-        { position: 6, name: 'Sarah Berg', team: 'Team Süd', score: 35, level: 'G' },
-        { position: 7, name: 'Mike Fischer', team: 'Team Ost', score: 31, level: 'F' },
-        { position: 8, name: 'Julia Koch', team: 'Team West', score: 28, level: 'G' }
+        { position: 1, name: 'Anna Schmidt', team: 'Team Süd', score: 89, level: 'SPB' },
+        { position: 2, name: 'Tom Müller', team: 'Team Ost', score: 67, level: 'CEMM' },
+        { position: 3, name: 'Max Mustermann', team: 'Team Nord', score: 48, isCurrentUser: true, level: 'JMM' },
+        { position: 4, name: 'Lisa Weber', team: 'Team West', score: 42, level: 'EMM' },
+        { position: 5, name: 'Paul Klein', team: 'Team Nord', score: 38, level: 'JMM' },
+        { position: 6, name: 'Sarah Berg', team: 'Team Süd', score: 35, level: 'EMA' },
+        { position: 7, name: 'Mike Fischer', team: 'Team Ost', score: 31, level: 'EMA' },
+        { position: 8, name: 'Julia Koch', team: 'Team West', score: 28, level: 'SMA' }
     ],
     offline: [
         { id: 1, name: 'Schmidt, Hans', area: 'Musterstadt', timestamp: '2024-11-23 14:30' },
@@ -50,15 +50,80 @@ const dummyData = {
         { id: 3, name: 'DRK Frühjahrskampagne', kw: 'KW 10-15', status: 'draft', members: 0 }
     ],
     karriere: {
+        levelOrder: ['SMA', 'EMA', 'JMM', 'EMM', 'CEMM', 'SPB', 'KAD', 'FUE'],
         levels: {
-            G: { name: 'Starting Marketing Advisor', factor: 5.0, color: '#4a5568' },
-            F: { name: 'Executive Marketing Advisor', factor: 5.5, color: '#48bb78' },
-            E: { name: 'Executive Marketing Manager', factor: 6.0, color: '#4299e1' },
-            D: { name: 'Senior Executive Marketing Manager', factor: 6.5, color: '#9f7aea' },
-            D2: { name: 'Elite Marketing Manager', factor: 6.75, color: '#ed64a6' },
-            C: { name: 'Spitzen Botschafter', factor: 7.0, color: '#ffd700' },
-            B: { name: 'Kadermanager', factor: 7.5, color: '#f6e05e' },
-            A: { name: 'Führungsebene', factor: 8.0, color: '#ffffff' }
+            SMA: {
+                name: 'Starting Marketing Advisor',
+                code: 'SMA',
+                roman: 'I',
+                factor: 5.0,
+                color: '#78909C',
+                glow: 0,
+                benefits: ['Einstieg ins Team', 'Grundprovision', 'Schulungszugang']
+            },
+            EMA: {
+                name: 'Executive Marketing Advisor',
+                code: 'EMA',
+                roman: 'II',
+                factor: 5.5,
+                color: '#4CAF50',
+                glow: 0,
+                benefits: ['Erhöhte Provision', 'Bonus-Berechtigung', 'Erweiterte Schulungen']
+            },
+            JMM: {
+                name: 'Junior Marketing Manager',
+                code: 'JMM',
+                roman: 'III',
+                factor: 6.0,
+                color: '#2196F3',
+                glow: 0,
+                benefits: ['Factor 6.0', 'Team-Events Zugang', 'Mentoring-Programm']
+            },
+            EMM: {
+                name: 'Executive Marketing Manager',
+                code: 'EMM',
+                roman: 'IV',
+                factor: 6.5,
+                color: '#9C27B0',
+                glow: 1,
+                benefits: ['Factor 6.5', 'Leadership-Training', 'Bonus-Pool Zugang']
+            },
+            CEMM: {
+                name: 'Chief Executive Marketing Manager',
+                code: 'CEMM',
+                roman: 'V',
+                factor: 6.75,
+                color: '#E040FB',
+                glow: 2,
+                benefits: ['Factor 6.75', 'Premium Events', 'Karriere-Coaching']
+            },
+            SPB: {
+                name: 'Spitzen Botschafter',
+                code: null,
+                roman: 'VI',
+                factor: 7.0,
+                color: '#FFA500',
+                glow: 3,
+                benefits: ['Factor 7.0', 'VIP Status', 'Exklusive Boni', 'Reise-Incentives']
+            },
+            KAD: {
+                name: 'Kadermanager',
+                code: null,
+                roman: 'VII',
+                factor: 7.5,
+                color: '#FFD700',
+                glow: 4,
+                benefits: ['Factor 7.5', 'Team-Provision', 'Management-Boni', 'Premium Support']
+            },
+            FUE: {
+                name: 'Führungsebene',
+                code: null,
+                roman: 'VIII',
+                factor: 8.0,
+                color: '#FFFFFF',
+                glow: 5,
+                benefits: ['Factor 8.0 MAX', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
+            }
         },
         currentProgress: {
             // Weekly targets for F→E (reset each week)
@@ -372,7 +437,7 @@ const views = {
                             <div class="rank-info">
                                 <div class="rank-name">
                                     ${item.name}
-                                    <span class="level-badge-mini" style="background: ${dummyData.karriere.levels[item.level]?.color || '#666'}">${item.level}</span>
+                                    ${renderLevelBadge(item.level, 'mini')}
                                     ${item.isCurrentUser ? '<span class="you-badge">Du</span>' : ''}
                                 </div>
                                 <div class="rank-team">${item.team}</div>
@@ -881,26 +946,31 @@ const views = {
 
         return `
         <div class="view-container karriere-view">
-            <!-- Current Level Card -->
-            <div class="level-hero-card" style="background: linear-gradient(135deg, ${levelInfo.color}22, ${levelInfo.color}44);">
-                <div class="level-badge-large" style="background: linear-gradient(135deg, ${levelInfo.color}, ${levelInfo.color}cc);">
-                    ${level}
-                </div>
-                <div class="level-info">
-                    <div class="level-name">${levelInfo.name}</div>
-                    <div class="level-factor">Factor ${levelInfo.factor}</div>
-                </div>
-            </div>
+            <!-- Big Level Display with Shield -->
+            ${renderLevelBadge(level, 'hero')}
 
             <!-- Level Path -->
             <div class="level-path-container">
                 <div class="level-path">
-                    ${['G', 'F', 'E', 'D', 'D2', 'C', 'B', 'A'].map(l => `
+                    ${dummyData.karriere.levelOrder.map(l => `
                         <div class="path-node ${l === level ? 'current' : ''} ${isLevelCompleted(l, level) ? 'completed' : ''}"
                              style="--level-color: ${dummyData.karriere.levels[l].color}">
-                            <span>${l}</span>
+                            <span>${dummyData.karriere.levels[l].roman}</span>
                         </div>
                     `).join('<div class="path-line"></div>')}
+                </div>
+            </div>
+
+            <!-- Benefits Section -->
+            <div class="benefits-card">
+                <div class="benefits-title">Deine Vorteile</div>
+                <div class="benefits-list">
+                    ${levelInfo.benefits.map(b => `
+                        <div class="benefit-item">
+                            <span class="benefit-check">✓</span>
+                            <span>${b}</span>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
 
@@ -908,7 +978,7 @@ const views = {
             <!-- Progress to Next Level -->
             <div class="next-level-section">
                 <div class="section-header-karriere">
-                    <span>Fortschritt zu Stufe ${nextLevel}</span>
+                    <span>Fortschritt zu ${nextLevelInfo.code || nextLevelInfo.name}</span>
                     <span class="progress-badge">${completedCount}/${totalCount}</span>
                 </div>
 
@@ -975,23 +1045,56 @@ const views = {
     },
 
     achievements: () => {
+        const level = dummyData.user.level;
+        const levelInfo = dummyData.karriere.levels[level];
+        const nextLevel = getNextLevel(level);
+        const nextLevelInfo = nextLevel ? dummyData.karriere.levels[nextLevel] : null;
         const achievements = dummyData.karriere.achievements;
         const unlockedCount = achievements.filter(a => a.unlocked).length;
+        const lockedCount = achievements.length - unlockedCount;
 
         return `
         <div class="view-container karriere-view">
-            <!-- Achievement Header -->
-            <div class="achievement-header">
-                <h1 class="view-title">Achievements</h1>
-                <div class="achievement-counter">
-                    <span class="counter-value">${unlockedCount}</span>
-                    <span class="counter-total">/ ${achievements.length}</span>
+            <!-- Big Level Display -->
+            ${renderLevelBadge(level, 'hero')}
+
+            <!-- Next Level Hint -->
+            ${nextLevelInfo ? `
+            <div class="next-level-hint">
+                <div class="hint-arrow">→</div>
+                <div class="hint-content">
+                    <span class="hint-label">Nächste Stufe:</span>
+                    <span class="hint-level" style="color: ${nextLevelInfo.color}">${nextLevelInfo.code || nextLevelInfo.name}</span>
+                </div>
+                ${renderLevelBadge(nextLevel, 'mini-preview')}
+            </div>
+            ` : ''}
+
+            <!-- Benefits Section -->
+            <div class="benefits-card compact">
+                <div class="benefits-title">Vorteile Stufe ${levelInfo.roman}</div>
+                <div class="benefits-list horizontal">
+                    ${levelInfo.benefits.map(b => `
+                        <div class="benefit-tag">✓ ${b}</div>
+                    `).join('')}
                 </div>
             </div>
 
-            <!-- Achievement Progress -->
-            <div class="achievement-progress-bar">
-                <div class="achievement-progress-fill" style="width: ${(unlockedCount / achievements.length) * 100}%"></div>
+            <!-- Locked Achievements (on top now) -->
+            <div class="achievements-section">
+                <div class="section-header-karriere">
+                    <span>Noch zu erreichen</span>
+                    <span class="badge-count locked">${lockedCount}</span>
+                </div>
+                <div class="achievements-grid compact">
+                    ${achievements.filter(a => !a.unlocked).map(a => `
+                        <div class="achievement-card-mini locked">
+                            <div class="ach-icon">${a.icon}</div>
+                            <div class="ach-name">${a.name}</div>
+                            <div class="ach-lock">🔒</div>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
 
             <!-- Unlocked Achievements -->
@@ -1000,44 +1103,14 @@ const views = {
                     <span>Freigeschaltet</span>
                     <span class="badge-count">${unlockedCount}</span>
                 </div>
-                <div class="achievements-grid">
+                <div class="achievements-grid compact">
                     ${achievements.filter(a => a.unlocked).map(a => `
-                        <div class="achievement-card unlocked">
-                            <div class="achievement-icon">${a.icon}</div>
-                            <div class="achievement-info">
-                                <div class="achievement-name">${a.name}</div>
-                                <div class="achievement-desc">${a.desc}</div>
-                            </div>
+                        <div class="achievement-card-mini unlocked">
+                            <div class="ach-icon">${a.icon}</div>
+                            <div class="ach-name">${a.name}</div>
+                            <div class="ach-check">✓</div>
                         </div>
                     `).join('')}
-                </div>
-            </div>
-
-            <!-- Locked Achievements -->
-            <div class="achievements-section">
-                <div class="section-header-karriere">
-                    <span>Noch zu erreichen</span>
-                    <span class="badge-count locked">${achievements.length - unlockedCount}</span>
-                </div>
-                <div class="achievements-grid">
-                    ${achievements.filter(a => !a.unlocked).map(a => `
-                        <div class="achievement-card locked">
-                            <div class="achievement-icon locked">${a.icon}</div>
-                            <div class="achievement-info">
-                                <div class="achievement-name">${a.name}</div>
-                                <div class="achievement-desc">${a.desc}</div>
-                            </div>
-                            <div class="lock-overlay">🔒</div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-
-            <!-- Level-based Achievements Hint -->
-            <div class="level-hint-card">
-                <div class="hint-icon">💡</div>
-                <div class="hint-text">
-                    Erreiche neue Stufen um exklusive Achievements freizuschalten!
                 </div>
             </div>
         </div>
@@ -1047,14 +1120,57 @@ const views = {
 
 // Helper functions for karriere
 function getNextLevel(current) {
-    const order = ['G', 'F', 'E', 'D', 'D2', 'C', 'B', 'A'];
+    const order = dummyData.karriere.levelOrder;
     const idx = order.indexOf(current);
     return idx < order.length - 1 ? order[idx + 1] : null;
 }
 
 function isLevelCompleted(level, currentLevel) {
-    const order = ['G', 'F', 'E', 'D', 'D2', 'C', 'B', 'A'];
+    const order = dummyData.karriere.levelOrder;
     return order.indexOf(level) < order.indexOf(currentLevel);
+}
+
+// Render level badge with shield and Roman numerals
+function renderLevelBadge(levelKey, size = 'mini') {
+    const levelInfo = dummyData.karriere.levels[levelKey];
+    if (!levelInfo) return '';
+
+    const isTopLevel = ['SPB', 'KAD', 'FUE'].includes(levelKey);
+    const glowClass = levelInfo.glow > 0 ? `glow-${levelInfo.glow}` : '';
+    const displayName = levelInfo.code || levelInfo.name;
+
+    if (size === 'hero') {
+        // Big hero badge for stufe/achievements page
+        return `
+            <div class="level-hero-display ${glowClass}">
+                <div class="shield-badge-large" style="--badge-color: ${levelInfo.color}">
+                    <div class="shield-inner">
+                        <span class="shield-roman">${levelInfo.roman}</span>
+                    </div>
+                </div>
+                <div class="level-hero-info">
+                    <div class="level-hero-name ${isTopLevel ? 'written-out' : ''}">${displayName}</div>
+                    <div class="level-hero-factor">Factor ${levelInfo.factor}</div>
+                </div>
+            </div>
+        `;
+    } else if (size === 'mini-preview') {
+        // Small preview for next level hint
+        return `
+            <div class="shield-badge-preview" style="--badge-color: ${levelInfo.color}">
+                <span>${levelInfo.roman}</span>
+            </div>
+        `;
+    } else {
+        // Mini badge for rankings
+        return `
+            <span class="level-badge-shield ${glowClass}" style="--badge-color: ${levelInfo.color}">
+                <span class="shield-roman-mini">${levelInfo.roman}</span>
+                <span class="shield-code">${isTopLevel ? '' : levelInfo.code}</span>
+            </span>
+            ${isTopLevel ? `<span class="level-name-mini ${glowClass}" style="color: ${levelInfo.color}">${levelInfo.name}</span>` : ''}
+        `;
+    }
 }
 
 // ========== HELPER FUNCTIONS ==========
