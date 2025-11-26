@@ -10,8 +10,36 @@ RB Inside Office ist ein umfassendes Verwaltungssystem für ein Direktmarketing-
 
 ## Module
 
-### Dashboard (index.html)
-Startseite mit Übersicht aller wichtigen Kennzahlen und schnellem Zugriff auf alle Module.
+### Dashboard (dashboard.html)
+Zentrale Übersichtsseite mit:
+- **Statistik-Karten:** Aktive Mitarbeiter, Neue Mitglieder (KW), EH, Provisionen, Stornoquote
+- **Aktive Kampagnen:** Fortschrittsbalken mit MG-Zielen
+- **Letzte Aktivitäten:** Feed mit Schrieben, Aufstiegen, TC-Ernennungen
+- **Top Performer:** Wöchentliches Leaderboard (Gold/Silber/Bronze)
+- **Auffälligkeiten-Preview:** Schnellansicht der wichtigsten Alerts
+- **Schnellzugriff:** Buttons für häufige Aktionen
+
+### Auffälligkeiten (auffaelligkeiten/)
+Automatische Erkennung von Qualitätsproblemen und besonderen Ereignissen:
+
+**Quality-Warnungen:**
+- Stornoquote über 8%, 10%, 12%, 15%
+- Visuelle Schwellenwert-Anzeige
+- Auswirkung auf Qualitätsbonus
+
+**Hohe Schriebe:**
+- Schriebe ab 360 JE
+- JE und EH-Wert, Mitgliedsdaten
+
+**Anomalien:**
+- Ungewöhnliche Leistungssteigerungen (+300% etc.)
+- Starke Leistungsabfälle
+- Tag-zu-Tag und Wochendurchschnitt-Vergleich
+
+**Features:**
+- Filter-Tabs (Alle/Quality/Schriebe/Anomalien)
+- Status-Indikatoren (Neu/In Prüfung/Geprüft)
+- Export-Funktion
 
 ### Mitarbeiter (mitarbeiter.html)
 Vollständige Mitarbeiterverwaltung:
@@ -65,10 +93,30 @@ Auswertungen und Berichte:
 - Team-Statistiken
 
 ### Vorlagen (vorlagen/)
-Template-Verwaltung:
-- Dokumentvorlagen
-- E-Mail-Templates
-- Vertragsvorlagen
+E-Mail-Template-Verwaltung:
+
+**Automatische Vorlagen:**
+- Willkommensmail (nach NMG-Formular)
+- Erhöhungsmail (nach ERH)
+- IBAN-Nachtragen
+
+**Manuelle Vorlagen:**
+- Storno-Bestätigung
+- Erneut versenden
+
+**Newsletter:**
+- Standard-Newsletter
+- Saisonale Grüße
+
+**Individuelle Vorlagen (ab Stufe III):**
+- Persönliche E-Mail-Vorlagen erstellen
+- Nur für JMM und höher freigeschaltet
+- Erstellen, Bearbeiten, Löschen eigener Vorlagen
+
+**Features:**
+- Platzhalter-System ({vorname}, {nachname}, etc.)
+- Live-Vorschau
+- Test-Mail versenden
 
 ### Abrechnungen (abrechnungen/)
 Finanzverwaltung:
@@ -145,15 +193,15 @@ Finanzverwaltung:
 
 ```
 ├── Dashboard
-├── Mitarbeiter
-├── Kunden
-│   └── [Einzelkunde]
 ├── Kampagnen
-├── Provisionen
+├── Auffälligkeiten    ← NEU
+├── Mitarbeiter
 ├── Datensätze
 ├── Statistik
-├── Vorlagen
+├── Kunden
+│   └── [Einzelkunde]
 ├── Abrechnungen
+├── Vorlagen
 └── Einstellungen
 ```
 
@@ -181,12 +229,15 @@ Werbegebiete zeigen Konditions-Status:
 
 ## Berechtigungen
 
-| Stufe | TC möglich | QM möglich | Provisionen |
-|-------|------------|------------|-------------|
-| I-III | Nein | Nein | Eigene + Empfehlung |
-| IV-V | Ja | Nein | + Teamleiter |
-| VI-VII | Ja | Ja | + Quality Manager |
-| VIII | Nein | Nein | Nur Eigene |
+| Stufe | TC möglich | QM möglich | Ind. Vorlagen | Provisionen |
+|-------|------------|------------|---------------|-------------|
+| I-II | Nein | Nein | Nein | Eigene + Empfehlung |
+| III | Nein | Nein | **Ja** | Eigene + Empfehlung |
+| IV-V | Ja | Nein | Ja | + Teamleiter |
+| VI-VII | Ja | Ja | Ja | + Quality Manager |
+| VIII | Nein | Nein | Ja | Nur Eigene |
+
+> **Individuelle Vorlagen:** Ab Stufe III (JMM) können Mitarbeiter eigene E-Mail-Vorlagen erstellen.
 
 ---
 
@@ -224,9 +275,12 @@ Eingaben werden validiert, Warnungen werden angezeigt aber blockieren nicht imme
 
 ```
 office/
-├── index.html              # Dashboard
+├── index.html              # Haupt-Navigation (Sidebar + iFrame)
+├── dashboard.html          # Dashboard-Übersicht
 ├── mitarbeiter.html        # Mitarbeiter-Verwaltung
 ├── kampagnen.html          # Kampagnen-Planung
+├── auffaelligkeiten/
+│   └── index.html          # Auffälligkeiten (Quality, Schriebe, Anomalien)
 ├── kunden/
 │   ├── index.html          # Kunden-Übersicht
 │   └── kunde.html          # Einzelkunde mit Werbegebieten
@@ -235,13 +289,10 @@ office/
 ├── statistik/
 │   └── index.html          # Auswertungen
 ├── vorlagen/
-│   └── index.html          # Template-Verwaltung
+│   └── index.html          # Template-Verwaltung (inkl. Individuell ab Stufe III)
 ├── abrechnungen/
 │   └── index.html          # Finanzverwaltung
-├── css/
-│   └── ...                 # Stylesheets
-├── js/
-│   └── ...                 # JavaScript-Module
+├── styles.css              # Globale Styles
 └── docs/
     ├── SYSTEM.md           # Diese Datei
     ├── KARRIERE.md
