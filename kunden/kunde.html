@@ -816,6 +816,14 @@
                         <option value="inaktiv">Inaktiv</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Website</label>
+                    <input type="url" class="form-input" id="customerWebsite" placeholder="https://www.drk-example.de">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Datenschutzerklärung (Link)</label>
+                    <input type="url" class="form-input" id="customerPrivacyPolicy" placeholder="https://www.drk-example.de/datenschutz">
+                </div>
             </div>
         </div>
 
@@ -1233,7 +1241,7 @@
 
     <!-- Modal: Werbegebiet hinzufügen/bearbeiten -->
     <div class="modal" id="addAreaModal">
-        <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
                 <h2 class="modal-title" id="areaModalTitle">Werbegebiet hinzufügen</h2>
                 <button class="modal-close" onclick="closeAddAreaModal()">
@@ -1247,6 +1255,55 @@
                     <label class="form-label">Name des Werbegebiets *</label>
                     <input type="text" class="form-input" id="newAreaName" placeholder="z.B. Ludwigshafen-Mitte e.V.">
                 </div>
+
+                <!-- Adresse -->
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                    Adresse des Ortsvereins
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Straße</label>
+                    <input type="text" class="form-input" id="areaStreet" placeholder="Musterstraße 123">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">PLZ</label>
+                        <input type="text" class="form-input" id="areaZip" placeholder="67059">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ort</label>
+                        <input type="text" class="form-input" id="areaCity" placeholder="Ludwigshafen">
+                    </div>
+                </div>
+
+                <!-- Gruppenbild -->
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                    Gruppenbild
+                </p>
+                <div class="form-group">
+                    <label class="document-upload-box" id="groupPhotoBox" style="display: flex; flex-direction: column; align-items: center; padding: var(--spacing-lg);">
+                        <input type="file" id="areaGroupPhoto" accept="image/*" style="display: none;" onchange="handleGroupPhotoUpload(this)">
+                        <img id="groupPhotoPreview" src="" alt="Gruppenbild" style="display: none; max-width: 100%; max-height: 150px; border-radius: var(--radius-md); margin-bottom: var(--spacing-sm);">
+                        <svg id="groupPhotoIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 32px; height: 32px; color: var(--text-secondary);">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span id="groupPhotoText" style="font-size: var(--font-size-sm); color: var(--text-secondary);">Gruppenbild hochladen</span>
+                    </label>
+                </div>
+
+                <!-- Website & Datenschutz -->
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                    Links (werden vom Kunden übernommen, falls leer)
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Website</label>
+                    <input type="url" class="form-input" id="areaWebsite" placeholder="https://www.ortsverein-example.de">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Datenschutzerklärung (Link)</label>
+                    <input type="url" class="form-input" id="areaPrivacyPolicy" placeholder="https://www.ortsverein-example.de/datenschutz">
+                </div>
+
+                <!-- Ansprechpartner -->
                 <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
                     Ansprechpartner für dieses Werbegebiet (optional)
                 </p>
@@ -1286,10 +1343,45 @@
             contactEmail: 'schmidt@drk-ludwigshafen.de',
             contactPhone: '+49 621 57000',
             status: 'aktiv',
+            website: 'https://www.drk-ludwigshafen.de',
+            privacyPolicy: 'https://www.drk-ludwigshafen.de/datenschutz',
             areas: [
-                { name: 'Ludwigshafen-Mitte e.V.', contact: 'Hans Müller', email: 'mueller@drk-mitte.de', phone: '+49 621 11111' },
-                { name: 'Ludwigshafen-Süd e.V.', contact: 'Anna Weber', email: 'weber@drk-sued.de', phone: '+49 621 22222' },
-                { name: 'Oggersheim e.V.', contact: '', email: '', phone: '' }
+                {
+                    name: 'Ludwigshafen-Mitte e.V.',
+                    street: 'Bahnhofstr. 45',
+                    zip: '67059',
+                    city: 'Ludwigshafen',
+                    groupPhoto: '',
+                    website: 'https://www.drk-mitte-lu.de',
+                    privacyPolicy: '',
+                    contact: 'Hans Müller',
+                    email: 'mueller@drk-mitte.de',
+                    phone: '+49 621 11111'
+                },
+                {
+                    name: 'Ludwigshafen-Süd e.V.',
+                    street: 'Südring 12',
+                    zip: '67065',
+                    city: 'Ludwigshafen',
+                    groupPhoto: '',
+                    website: '',
+                    privacyPolicy: '',
+                    contact: 'Anna Weber',
+                    email: 'weber@drk-sued.de',
+                    phone: '+49 621 22222'
+                },
+                {
+                    name: 'Oggersheim e.V.',
+                    street: '',
+                    zip: '',
+                    city: '',
+                    groupPhoto: '',
+                    website: '',
+                    privacyPolicy: '',
+                    contact: '',
+                    email: '',
+                    phone: ''
+                }
             ],
             invoiceType: 'combined',
             contracts: {
@@ -1350,6 +1442,8 @@
                     contactEmail: '',
                     contactPhone: '',
                     status: 'aktiv',
+                    website: '',
+                    privacyPolicy: '',
                     areas: [],
                     invoiceType: 'combined',
                     contracts: { avv: [], rahmenvertrag: [] },
@@ -1385,6 +1479,8 @@
             document.getElementById('contactPerson').value = currentCustomer.contactPerson;
             document.getElementById('contactEmail').value = currentCustomer.contactEmail;
             document.getElementById('contactPhone').value = currentCustomer.contactPhone;
+            document.getElementById('customerWebsite').value = currentCustomer.website || '';
+            document.getElementById('customerPrivacyPolicy').value = currentCustomer.privacyPolicy || '';
 
             // Invoice type
             document.querySelector(`input[name="invoiceType"][value="${currentCustomer.invoiceType}"]`).checked = true;
@@ -1494,17 +1590,36 @@
                 return;
             }
 
-            container.innerHTML = currentCustomer.areas.map((area, index) => `
-                <div class="area-tag" onclick="editArea(${index})" style="cursor: pointer;" title="${area.contact ? 'Ansprechpartner: ' + area.contact : 'Klicken zum Bearbeiten'}">
-                    ${area.name}
-                    ${area.contact ? '<span style="color: var(--success-text); margin-left: 4px;">✓</span>' : ''}
-                    <button class="remove-btn" onclick="event.stopPropagation(); removeArea(${index})">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-            `).join('');
+            container.innerHTML = currentCustomer.areas.map((area, index) => {
+                // Build tooltip
+                let tooltipParts = [];
+                if (area.street) tooltipParts.push(`Adresse: ${area.street}, ${area.zip} ${area.city}`);
+                if (area.contact) tooltipParts.push(`Ansprechpartner: ${area.contact}`);
+                if (area.groupPhoto) tooltipParts.push('Gruppenbild vorhanden');
+                const effectiveWebsite = getEffectiveLink(area, 'website');
+                const effectivePrivacy = getEffectiveLink(area, 'privacyPolicy');
+                if (effectiveWebsite) tooltipParts.push(`Website: ${effectiveWebsite}`);
+                if (tooltipParts.length === 0) tooltipParts.push('Klicken zum Bearbeiten');
+
+                // Build info icons
+                let icons = [];
+                if (area.street) icons.push('<span title="Adresse hinterlegt" style="color: var(--success-text);">📍</span>');
+                if (area.groupPhoto) icons.push('<span title="Gruppenbild vorhanden" style="color: var(--success-text);">📷</span>');
+                if (area.contact) icons.push('<span title="Ansprechpartner hinterlegt" style="color: var(--success-text);">👤</span>');
+                if (area.website || area.privacyPolicy) icons.push('<span title="Eigene Links" style="color: var(--success-text);">🔗</span>');
+
+                return `
+                    <div class="area-tag" onclick="editArea(${index})" style="cursor: pointer;" title="${tooltipParts.join('\n')}">
+                        ${area.name}
+                        ${icons.length > 0 ? '<span style="margin-left: 6px; display: inline-flex; gap: 2px;">' + icons.join('') + '</span>' : ''}
+                        <button class="remove-btn" onclick="event.stopPropagation(); removeArea(${index})">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
         }
 
         let editingAreaIndex = null;
@@ -1513,23 +1628,70 @@
             editingAreaIndex = index;
             const area = currentCustomer.areas[index];
             document.getElementById('newAreaName').value = area.name;
+            document.getElementById('areaStreet').value = area.street || '';
+            document.getElementById('areaZip').value = area.zip || '';
+            document.getElementById('areaCity').value = area.city || '';
+            document.getElementById('areaWebsite').value = area.website || '';
+            document.getElementById('areaPrivacyPolicy').value = area.privacyPolicy || '';
             document.getElementById('areaContact').value = area.contact || '';
             document.getElementById('areaEmail').value = area.email || '';
             document.getElementById('areaPhone').value = area.phone || '';
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet bearbeiten';
+
+            // Handle group photo
+            const preview = document.getElementById('groupPhotoPreview');
+            const icon = document.getElementById('groupPhotoIcon');
+            const text = document.getElementById('groupPhotoText');
+            const box = document.getElementById('groupPhotoBox');
+
+            if (area.groupPhoto) {
+                preview.src = area.groupPhoto;
+                preview.style.display = 'block';
+                icon.style.display = 'none';
+                text.textContent = 'Klicken zum Ändern';
+                box.classList.add('has-file');
+            } else {
+                preview.style.display = 'none';
+                icon.style.display = 'block';
+                text.textContent = 'Gruppenbild hochladen';
+                box.classList.remove('has-file');
+            }
+
             document.getElementById('addAreaModal').classList.add('show');
         }
 
         function openAddAreaModal() {
             editingAreaIndex = null;
             document.getElementById('newAreaName').value = '';
+            document.getElementById('areaStreet').value = '';
+            document.getElementById('areaZip').value = '';
+            document.getElementById('areaCity').value = '';
+            document.getElementById('areaWebsite').value = '';
+            document.getElementById('areaPrivacyPolicy').value = '';
             document.getElementById('areaContact').value = '';
             document.getElementById('areaEmail').value = '';
             document.getElementById('areaPhone').value = '';
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet hinzufügen';
+
+            // Reset group photo
+            const preview = document.getElementById('groupPhotoPreview');
+            const icon = document.getElementById('groupPhotoIcon');
+            const text = document.getElementById('groupPhotoText');
+            const box = document.getElementById('groupPhotoBox');
+            preview.style.display = 'none';
+            preview.src = '';
+            icon.style.display = 'block';
+            text.textContent = 'Gruppenbild hochladen';
+            box.classList.remove('has-file');
+            document.getElementById('areaGroupPhoto').value = '';
+            currentGroupPhotoData = null;
+
             document.getElementById('addAreaModal').classList.add('show');
             document.getElementById('newAreaName').focus();
         }
+
+        // Temporary storage for group photo
+        let currentGroupPhotoData = null;
 
         function closeAddAreaModal() {
             document.getElementById('addAreaModal').classList.remove('show');
@@ -1542,6 +1704,12 @@
 
             const areaData = {
                 name: name,
+                street: document.getElementById('areaStreet').value.trim(),
+                zip: document.getElementById('areaZip').value.trim(),
+                city: document.getElementById('areaCity').value.trim(),
+                groupPhoto: currentGroupPhotoData || (editingAreaIndex !== null ? currentCustomer.areas[editingAreaIndex].groupPhoto : ''),
+                website: document.getElementById('areaWebsite').value.trim(),
+                privacyPolicy: document.getElementById('areaPrivacyPolicy').value.trim(),
                 contact: document.getElementById('areaContact').value.trim(),
                 email: document.getElementById('areaEmail').value.trim(),
                 phone: document.getElementById('areaPhone').value.trim()
@@ -1553,8 +1721,43 @@
                 currentCustomer.areas.push(areaData);
             }
 
+            currentGroupPhotoData = null;
             renderAreas();
             closeAddAreaModal();
+        }
+
+        // Handle group photo upload
+        function handleGroupPhotoUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    currentGroupPhotoData = e.target.result;
+
+                    const preview = document.getElementById('groupPhotoPreview');
+                    const icon = document.getElementById('groupPhotoIcon');
+                    const text = document.getElementById('groupPhotoText');
+                    const box = document.getElementById('groupPhotoBox');
+
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    icon.style.display = 'none';
+                    text.textContent = 'Klicken zum Ändern';
+                    box.classList.add('has-file');
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Helper function to get effective website/privacyPolicy with fallback
+        function getEffectiveLink(area, linkType) {
+            if (area[linkType] && area[linkType].trim() !== '') {
+                return area[linkType];
+            }
+            // Fallback to customer links
+            return currentCustomer[linkType] || '';
         }
 
         function removeArea(index) {
@@ -1874,6 +2077,8 @@
             currentCustomer.contactEmail = document.getElementById('contactEmail').value.trim();
             currentCustomer.contactPhone = document.getElementById('contactPhone').value.trim();
             currentCustomer.status = document.getElementById('status').value;
+            currentCustomer.website = document.getElementById('customerWebsite').value.trim();
+            currentCustomer.privacyPolicy = document.getElementById('customerPrivacyPolicy').value.trim();
             currentCustomer.invoiceType = document.querySelector('input[name="invoiceType"]:checked').value;
 
             if (!currentCustomer.name) {
@@ -1887,7 +2092,7 @@
             document.getElementById('lastSaved').textContent = 'Zuletzt gespeichert: ' + new Date().toLocaleTimeString('de-DE');
             document.getElementById('customerName').textContent = currentCustomer.name;
 
-            alert('✅ Kunde erfolgreich gespeichert!');
+            alert('Kunde erfolgreich gespeichert!');
         }
 
         // ================================================================
