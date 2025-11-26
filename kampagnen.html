@@ -300,6 +300,159 @@
             font-weight: 600;
             margin-bottom: var(--spacing-sm);
         }
+
+        /* Einsatzgebiet Styles */
+        .einsatzgebiet-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .einsatzgebiet-card.expanded {
+            border-color: var(--accent-color);
+        }
+
+        .einsatzgebiet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .einsatzgebiet-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .einsatzgebiet-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .einsatzgebiet-content {
+            display: none;
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .einsatzgebiet-card.expanded .einsatzgebiet-content {
+            display: block;
+        }
+
+        .konditionen-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .konditionen-grid label {
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-align: center;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .konditionen-grid input {
+            text-align: center;
+            padding: 6px 4px;
+            font-size: var(--font-size-sm);
+        }
+
+        .konditionen-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .konditionen-section-title {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--accent-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .storno-rules {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-sm);
+        }
+
+        .storno-rule {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        .storno-rule:last-child {
+            margin-bottom: 0;
+        }
+
+        .storno-rule input {
+            width: 60px;
+            text-align: center;
+            padding: 4px;
+        }
     </style>
 </head>
 <body>
@@ -332,30 +485,52 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Kunde *</label>
-                    <select class="form-input" id="customer">
-                        <option value="">Kunde auswählen</option>
-                        <option value="drk">DRK - Deutsches Rotes Kreuz</option>
-                        <option value="unicef">UNICEF Deutschland</option>
-                        <option value="wwf">WWF Deutschland</option>
-                        <option value="greenpeace">Greenpeace e.V.</option>
-                        <option value="aerzte">Ärzte ohne Grenzen</option>
-                    </select>
+            <div class="form-group">
+                <label class="form-label">Kunde *</label>
+                <select class="form-input" id="customer" onchange="loadCustomerAreas()">
+                    <option value="">Kunde auswählen</option>
+                    <option value="drk">DRK - Deutsches Rotes Kreuz</option>
+                    <option value="unicef">UNICEF Deutschland</option>
+                    <option value="wwf">WWF Deutschland</option>
+                    <option value="greenpeace">Greenpeace e.V.</option>
+                    <option value="aerzte">Ärzte ohne Grenzen</option>
+                </select>
+            </div>
+
+            <!-- Abrechnungs-Einstellungen -->
+            <div style="background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0;">
+                <h4 style="font-size: var(--font-size-sm); font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">
+                    Abrechnungs-Einstellungen
+                </h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Abrechnungs-Puffer %</label>
+                        <input type="number" class="form-input" id="pufferPercent" value="10" min="0" max="50" step="1">
+                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px;">% der wöchentlichen Rechnung einbehalten</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Wartezeit Endabrechnung</label>
+                        <input type="number" class="form-input" id="wartezeitWochen" value="4" min="1" max="12">
+                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px;">Wochen nach Kampagnenende</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Werbegebiet *</label>
-                    <select class="form-input" id="area">
-                        <option value="">Werbegebiet auswählen</option>
-                        <option value="berlin">Berlin & Umgebung</option>
-                        <option value="muenchen">München & Südbayern</option>
-                        <option value="hamburg">Hamburg & Norddeutschland</option>
-                        <option value="koeln">Köln & Rheinland</option>
-                        <option value="frankfurt">Frankfurt & Hessen</option>
-                        <option value="stuttgart">Stuttgart & Baden-Württemberg</option>
-                    </select>
+            </div>
+
+            <!-- Einsatzgebiete -->
+            <div class="form-group">
+                <label class="form-label">Einsatzgebiete *</label>
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-sm);">
+                    Wählen Sie die Werbegebiete für diese Kampagne. Pro Einsatzgebiet können separate Konditionen festgelegt werden.
+                </p>
+                <div id="einsatzgebieteContainer">
+                    <!-- Einsatzgebiete werden hier dynamisch hinzugefügt -->
                 </div>
+                <button type="button" class="btn btn-secondary" onclick="addEinsatzgebiet()" style="margin-top: var(--spacing-sm);">
+                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Einsatzgebiet hinzufügen
+                </button>
             </div>
 
             <div class="form-group" id="kwAssignmentSection" style="display: none;">
@@ -590,7 +765,10 @@ function openCampaignModal() {
     document.getElementById('kwFrom').value = '';
     document.getElementById('kwTo').value = '';
     document.getElementById('customer').value = '';
-    document.getElementById('area').value = '';
+    document.getElementById('pufferPercent').value = '10';
+    document.getElementById('wartezeitWochen').value = '4';
+    document.getElementById('einsatzgebieteContainer').innerHTML = '';
+    einsatzgebietCounter = 0;
     document.getElementById('kwAssignmentSection').style.display = 'none';
     document.getElementById('generateKWBtn').style.display = 'inline-flex';
     document.getElementById('saveCampaignBtn').style.display = 'none';
@@ -852,14 +1030,14 @@ function editCampaign(id) {
         }
     }
 
-    // Set area
-    const areaSelect = document.getElementById('area');
-    for (let option of areaSelect.options) {
-        if (option.text === campaign.area) {
-            option.selected = true;
-            break;
-        }
-    }
+    // Set Abrechnungs-Einstellungen
+    document.getElementById('pufferPercent').value = campaign.pufferPercent || 10;
+    document.getElementById('wartezeitWochen').value = campaign.wartezeitWochen || 4;
+
+    // Load Einsatzgebiete (TODO: Load from campaign data when connected to Supabase)
+    document.getElementById('einsatzgebieteContainer').innerHTML = '';
+    einsatzgebietCounter = 0;
+    loadCustomerAreas();
 
     // Generate KW cards with assignments (including teamchef per KW)
     const grid = document.getElementById('kwAssignmentGrid');
@@ -884,6 +1062,287 @@ document.getElementById('campaignModal').addEventListener('click', function(e) {
 
 // Status filter
 document.getElementById('statusFilter').addEventListener('change', renderCampaigns);
+
+// ============================================
+// EINSATZGEBIETE & KONDITIONEN
+// ============================================
+
+// Dummy Werbegebiete pro Kunde
+const customerAreas = {
+    drk: [
+        { id: 'lu-mitte', name: 'Ludwigshafen-Mitte e.V.', plz: '67059' },
+        { id: 'lu-sued', name: 'Ludwigshafen-Süd e.V.', plz: '67061' },
+        { id: 'ma-zentrum', name: 'Mannheim-Zentrum e.V.', plz: '68161' }
+    ],
+    unicef: [
+        { id: 'muc-zentrum', name: 'München-Zentrum', plz: '80331' },
+        { id: 'muc-nord', name: 'München-Nord', plz: '80933' }
+    ],
+    wwf: [
+        { id: 'hh-city', name: 'Hamburg-City', plz: '20095' }
+    ],
+    greenpeace: [
+        { id: 'koeln-mitte', name: 'Köln-Mitte', plz: '50667' }
+    ],
+    aerzte: [
+        { id: 'ffm-zentrum', name: 'Frankfurt-Zentrum', plz: '60311' }
+    ]
+};
+
+// Dummy Verträge pro Kunde
+const customerContracts = {
+    drk: [
+        { id: 'rv-2024-001', name: 'Rahmenvertrag 2024' },
+        { id: 'rv-2023-001', name: 'Rahmenvertrag 2023' }
+    ],
+    unicef: [
+        { id: 'rv-unicef-2024', name: 'Rahmenvertrag UNICEF 2024' }
+    ]
+};
+
+let einsatzgebietCounter = 0;
+
+// Lädt Werbegebiete wenn Kunde ausgewählt wird
+function loadCustomerAreas() {
+    const customerId = document.getElementById('customer').value;
+    const container = document.getElementById('einsatzgebieteContainer');
+    container.innerHTML = '';
+    einsatzgebietCounter = 0;
+
+    if (customerId) {
+        // Automatisch erstes Einsatzgebiet hinzufügen
+        addEinsatzgebiet();
+    }
+}
+
+// Fügt ein neues Einsatzgebiet hinzu
+function addEinsatzgebiet() {
+    const customerId = document.getElementById('customer').value;
+    if (!customerId) {
+        alert('Bitte zuerst einen Kunden auswählen');
+        return;
+    }
+
+    const areas = customerAreas[customerId] || [];
+    const contracts = customerContracts[customerId] || [];
+    const container = document.getElementById('einsatzgebieteContainer');
+    const index = einsatzgebietCounter++;
+
+    const card = document.createElement('div');
+    card.className = 'einsatzgebiet-card expanded';
+    card.id = `einsatzgebiet-${index}`;
+
+    card.innerHTML = `
+        <div class="einsatzgebiet-header" onclick="toggleEinsatzgebiet(${index})">
+            <div class="einsatzgebiet-title">
+                <svg style="width: 18px; height: 18px; color: var(--accent-color);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span id="einsatzgebiet-title-${index}">Einsatzgebiet ${index + 1}</span>
+            </div>
+            <div class="einsatzgebiet-actions">
+                <button type="button" class="btn btn-secondary btn-small" onclick="event.stopPropagation(); removeEinsatzgebiet(${index})">
+                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="einsatzgebiet-content">
+            <!-- Werbegebiet & Vertrag -->
+            <div class="form-row" style="margin-bottom: var(--spacing-lg);">
+                <div class="form-group">
+                    <label class="form-label">Werbegebiet *</label>
+                    <select class="form-input" id="eg-area-${index}" onchange="updateEinsatzgebietTitle(${index})">
+                        <option value="">Werbegebiet auswählen</option>
+                        ${areas.map(a => `<option value="${a.id}">${a.name} (${a.plz})</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Vertrag</label>
+                    <select class="form-input" id="eg-contract-${index}">
+                        <option value="">Vertrag auswählen</option>
+                        ${contracts.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Bevölkerung & Sondierungslimit -->
+            <div class="konditionen-section">
+                <div class="konditionen-section-title">Bevölkerung & Sondierungslimit</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Bevölkerung im Gebiet</label>
+                        <input type="number" class="form-input" id="eg-population-${index}" placeholder="z.B. 150000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sondierungslimit (Anzahl MG)</label>
+                        <input type="number" class="form-input" id="eg-sondlimit-${index}" placeholder="z.B. 100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sondierungskonditionen -->
+            <div class="konditionen-section">
+                <div class="konditionen-section-title">Sondierungskonditionen (% vom Jahresbeitrag)</div>
+                <div class="konditionen-grid">
+                    <div class="form-group">
+                        <label>Jahr 1</label>
+                        <input type="number" class="form-input" id="eg-sond1-${index}" placeholder="%" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Jahr 2</label>
+                        <input type="number" class="form-input" id="eg-sond2-${index}" placeholder="%" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Jahr 3</label>
+                        <input type="number" class="form-input" id="eg-sond3-${index}" placeholder="%" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Jahr 4</label>
+                        <input type="number" class="form-input" id="eg-sond4-${index}" placeholder="%" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Jahr 5</label>
+                        <input type="number" class="form-input" id="eg-sond5-${index}" placeholder="%" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reguläre Konditionen -->
+            <div class="konditionen-section">
+                <div class="konditionen-section-title">Reguläre Konditionen (% vom Jahresbeitrag)</div>
+                <div class="konditionen-grid">
+                    <div class="form-group">
+                        <label>Jahr 1</label>
+                        <input type="number" class="form-input" id="eg-reg1-${index}" placeholder="%" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Jahr 2</label>
+                        <input type="number" class="form-input" id="eg-reg2-${index}" placeholder="%" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Jahr 3</label>
+                        <input type="number" class="form-input" id="eg-reg3-${index}" placeholder="%" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Jahr 4</label>
+                        <input type="number" class="form-input" id="eg-reg4-${index}" placeholder="%" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Jahr 5</label>
+                        <input type="number" class="form-input" id="eg-reg5-${index}" placeholder="%" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Qualitätsbonus -->
+            <div class="konditionen-section">
+                <div class="konditionen-section-title">Qualitätsbonus</div>
+                <div class="toggle-row">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="eg-qbonus-${index}" onchange="toggleQualityBonus(${index})">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>Qualitätsbonus aktivieren</span>
+                </div>
+                <div class="storno-rules" id="eg-storno-rules-${index}" style="display: none;">
+                    <div class="storno-rule">
+                        <span>Storno unter</span>
+                        <input type="number" class="form-input" id="eg-st1-${index}" value="15">
+                        <span>% → +</span>
+                        <input type="number" class="form-input" id="eg-sb1-${index}" value="3">
+                        <span>PP</span>
+                    </div>
+                    <div class="storno-rule">
+                        <span>Storno unter</span>
+                        <input type="number" class="form-input" id="eg-st2-${index}" value="12">
+                        <span>% → +</span>
+                        <input type="number" class="form-input" id="eg-sb2-${index}" value="3">
+                        <span>PP</span>
+                    </div>
+                    <div class="storno-rule">
+                        <span>Storno unter</span>
+                        <input type="number" class="form-input" id="eg-st3-${index}" value="10">
+                        <span>% → +</span>
+                        <input type="number" class="form-input" id="eg-sb3-${index}" value="3">
+                        <span>PP</span>
+                    </div>
+                    <div class="storno-rule">
+                        <span>Storno unter</span>
+                        <input type="number" class="form-input" id="eg-st4-${index}" value="8">
+                        <span>% → +</span>
+                        <input type="number" class="form-input" id="eg-sb4-${index}" value="1">
+                        <span>PP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teilvergütung -->
+            <div class="konditionen-section">
+                <div class="konditionen-section-title">Teilvergütung</div>
+                <div class="toggle-row">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="eg-teilv-${index}" onchange="toggleTeilvergutung(${index})">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span>Teilvergütung aktivieren</span>
+                </div>
+                <div id="eg-teilv-input-${index}" style="display: none; margin-top: var(--spacing-sm);">
+                    <div class="form-group" style="max-width: 200px;">
+                        <label class="form-label">Teilvergütungs-Prozentsatz</label>
+                        <input type="number" class="form-input" id="eg-teilv-percent-${index}" placeholder="%" step="1">
+                    </div>
+                    <p style="font-size: var(--font-size-xs); color: var(--text-secondary);">
+                        % der eingezogenen Beiträge bei vorzeitigem Storno
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(card);
+}
+
+// Toggle Einsatzgebiet Karte
+function toggleEinsatzgebiet(index) {
+    const card = document.getElementById(`einsatzgebiet-${index}`);
+    card.classList.toggle('expanded');
+}
+
+// Entfernt ein Einsatzgebiet
+function removeEinsatzgebiet(index) {
+    const card = document.getElementById(`einsatzgebiet-${index}`);
+    if (card) {
+        card.remove();
+    }
+}
+
+// Aktualisiert den Titel des Einsatzgebiets
+function updateEinsatzgebietTitle(index) {
+    const select = document.getElementById(`eg-area-${index}`);
+    const title = document.getElementById(`einsatzgebiet-title-${index}`);
+    if (select.selectedIndex > 0) {
+        title.textContent = select.options[select.selectedIndex].text;
+    } else {
+        title.textContent = `Einsatzgebiet ${index + 1}`;
+    }
+}
+
+// Toggle Qualitätsbonus
+function toggleQualityBonus(index) {
+    const checkbox = document.getElementById(`eg-qbonus-${index}`);
+    const rules = document.getElementById(`eg-storno-rules-${index}`);
+    rules.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+// Toggle Teilvergütung
+function toggleTeilvergutung(index) {
+    const checkbox = document.getElementById(`eg-teilv-${index}`);
+    const input = document.getElementById(`eg-teilv-input-${index}`);
+    input.style.display = checkbox.checked ? 'block' : 'none';
+}
 
 // Initial render
 renderCampaigns();
