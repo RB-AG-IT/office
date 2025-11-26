@@ -810,13 +810,6 @@
                     <input type="tel" class="form-input" id="contactPhone" placeholder="+49 621 12345">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Status</label>
-                    <select class="form-input" id="status">
-                        <option value="aktiv">Aktiv</option>
-                        <option value="inaktiv">Inaktiv</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label class="form-label">Website</label>
                     <input type="url" class="form-input" id="customerWebsite" placeholder="https://www.drk-example.de">
                 </div>
@@ -1239,6 +1232,30 @@
         </div>
     </div>
 
+    <!-- Modal: Bestätigung Löschen -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="deleteConfirmTitle">Löschen bestätigen</h2>
+                <button class="modal-close" onclick="closeDeleteConfirmModal()">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteConfirmMessage" style="margin-bottom: var(--spacing-md);"></p>
+                <p id="deleteConfirmWarning" style="color: var(--warning-text); font-size: var(--font-size-sm); display: none;">
+                    Diese Aktion kann nicht rückgängig gemacht werden.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirmModal()">Abbrechen</button>
+                <button type="button" class="btn" style="background: var(--warning-text); color: white;" id="deleteConfirmBtn" onclick="executeDelete()">Löschen</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Werbegebiet hinzufügen/bearbeiten -->
     <div class="modal" id="addAreaModal">
         <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
@@ -1342,7 +1359,6 @@
             contactPerson: 'Dr. Maria Schmidt',
             contactEmail: 'schmidt@drk-ludwigshafen.de',
             contactPhone: '+49 621 57000',
-            status: 'aktiv',
             website: 'https://www.drk-ludwigshafen.de',
             privacyPolicy: 'https://www.drk-ludwigshafen.de/datenschutz',
             areas: [
@@ -1441,7 +1457,6 @@
                     contactPerson: '',
                     contactEmail: '',
                     contactPhone: '',
-                    status: 'aktiv',
                     website: '',
                     privacyPolicy: '',
                     areas: [],
@@ -1555,12 +1570,42 @@
             window.open(url, '_blank');
         }
 
+        // Delete confirmation state
+        let pendingDelete = null;
+        let deleteStep = 1;
+
         function confirmDeleteContract(type, id) {
             const typeName = type === 'avv' ? 'AVV' : 'Rahmenvertrag';
-            if (confirm(`Möchten Sie diesen ${typeName} wirklich löschen?`)) {
-                if (confirm(`Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
-                    deleteContract(type, id);
-                }
+            pendingDelete = { type, id };
+            deleteStep = 1;
+
+            document.getElementById('deleteConfirmTitle').textContent = 'Löschen bestätigen';
+            document.getElementById('deleteConfirmMessage').textContent = `Möchten Sie diesen ${typeName} wirklich löschen?`;
+            document.getElementById('deleteConfirmWarning').style.display = 'none';
+            document.getElementById('deleteConfirmBtn').textContent = 'Löschen';
+            document.getElementById('deleteConfirmModal').classList.add('show');
+        }
+
+        function closeDeleteConfirmModal() {
+            document.getElementById('deleteConfirmModal').classList.remove('show');
+            pendingDelete = null;
+            deleteStep = 1;
+        }
+
+        function executeDelete() {
+            if (!pendingDelete) return;
+
+            if (deleteStep === 1) {
+                // Second confirmation
+                deleteStep = 2;
+                document.getElementById('deleteConfirmTitle').textContent = 'Sind Sie sicher?';
+                document.getElementById('deleteConfirmMessage').textContent = 'Der Vertrag wird unwiderruflich gelöscht.';
+                document.getElementById('deleteConfirmWarning').style.display = 'block';
+                document.getElementById('deleteConfirmBtn').textContent = 'Endgültig löschen';
+            } else {
+                // Actually delete
+                deleteContract(pendingDelete.type, pendingDelete.id);
+                closeDeleteConfirmModal();
             }
         }
 
@@ -1605,7 +1650,8 @@
                 let icons = [];
                 if (area.street) icons.push('<span title="Adresse hinterlegt" style="color: var(--success-text);">📍</span>');
                 if (area.groupPhoto) icons.push('<span title="Gruppenbild vorhanden" style="color: var(--success-text);">📷</span>');
-                if (area.contact) icons.push('<span title="Ansprechpartner hinterlegt" style="color: var(--success-text);">👤</span>');
+                // Show contact icon if ANY contact info is filled (name, email, or phone)
+                if (area.contact || area.email || area.phone) icons.push('<span title="Ansprechpartner hinterlegt" style="color: var(--success-text);">👤</span>');
                 if (area.website || area.privacyPolicy) icons.push('<span title="Eigene Links" style="color: var(--success-text);">🔗</span>');
 
                 return `
@@ -1785,6 +1831,38 @@
             return 'active';
         }
 
+        // Calculate overall customer status based on campaigns
+        function getCustomerStatus() {
+            if (!currentCustomer.campaigns || currentCustomer.campaigns.length === 0) {
+                return { status: 'none', label: 'Nichts geplant', class: 'completed' };
+            }
+
+            let hasActive = false;
+            let hasPlanned = false;
+
+            currentCustomer.campaigns.forEach(campaign => {
+                const status = getCampaignStatus(campaign.startDate, campaign.endDate);
+                if (status === 'active') hasActive = true;
+                if (status === 'planned') hasPlanned = true;
+            });
+
+            if (hasActive) {
+                return { status: 'active', label: 'Aktiv', class: 'active' };
+            }
+            if (hasPlanned) {
+                return { status: 'planned', label: 'Anstehend', class: 'planned' };
+            }
+            return { status: 'none', label: 'Nichts geplant', class: 'completed' };
+        }
+
+        // Update customer status display in header
+        function updateCustomerStatusDisplay() {
+            const statusInfo = getCustomerStatus();
+            const statusEl = document.getElementById('customerStatus');
+            statusEl.textContent = statusInfo.label;
+            statusEl.className = 'campaign-status ' + statusInfo.class;
+        }
+
         function updateCampaignStatus() {
             const startDate = document.getElementById('campaignStart').value;
             const endDate = document.getElementById('campaignEnd').value;
@@ -1854,6 +1932,9 @@
                     <span>Neue Kampagne anlegen</span>
                 </div>
             `;
+
+            // Update customer status in header
+            updateCustomerStatusDisplay();
         }
 
         function formatDate(dateStr) {
@@ -1874,7 +1955,6 @@
                 if (campaign) {
                     document.getElementById('campaignModalTitle').textContent = 'Kampagne bearbeiten';
                     document.getElementById('campaignName').value = campaign.name;
-                    document.getElementById('campaignStatus').value = campaign.status;
                     document.getElementById('campaignStart').value = campaign.startDate;
                     document.getElementById('campaignEnd').value = campaign.endDate;
                     document.getElementById('population').value = campaign.population;
@@ -1891,12 +1971,14 @@
                         }
                     }
                     document.getElementById('qualityBonusEnabled').checked = campaign.qualityBonus;
+
+                    // Update status display
+                    updateCampaignStatus();
                 }
             } else {
                 document.getElementById('campaignModalTitle').textContent = 'Neue Kampagne';
                 // Clear form
                 document.getElementById('campaignName').value = '';
-                document.getElementById('campaignStatus').value = 'planned';
                 document.getElementById('campaignStart').value = '';
                 document.getElementById('campaignEnd').value = '';
                 document.getElementById('population').value = '';
@@ -1905,6 +1987,11 @@
                     document.getElementById('reg' + i).value = '';
                 }
                 document.getElementById('qualityBonusEnabled').checked = false;
+
+                // Reset status display
+                const display = document.getElementById('campaignStatusDisplay');
+                display.textContent = 'Wird automatisch berechnet';
+                display.className = 'campaign-status planned';
             }
 
             // Reset to first tab
@@ -1943,7 +2030,6 @@
             const campaignData = {
                 id: editingCampaignId || Date.now(),
                 name: name,
-                status: document.getElementById('campaignStatus').value,
                 startDate: document.getElementById('campaignStart').value,
                 endDate: document.getElementById('campaignEnd').value,
                 population: parseInt(document.getElementById('population').value) || 0,
@@ -2076,7 +2162,6 @@
             currentCustomer.contactPerson = document.getElementById('contactPerson').value.trim();
             currentCustomer.contactEmail = document.getElementById('contactEmail').value.trim();
             currentCustomer.contactPhone = document.getElementById('contactPhone').value.trim();
-            currentCustomer.status = document.getElementById('status').value;
             currentCustomer.website = document.getElementById('customerWebsite').value.trim();
             currentCustomer.privacyPolicy = document.getElementById('customerPrivacyPolicy').value.trim();
             currentCustomer.invoiceType = document.querySelector('input[name="invoiceType"]:checked').value;
