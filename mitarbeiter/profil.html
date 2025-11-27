@@ -853,6 +853,198 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Visibility Settings Styles */
+        .visibility-settings {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .visibility-setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .visibility-setting-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--spacing-lg);
+        }
+
+        .visibility-setting-info {
+            flex: 1;
+        }
+
+        .visibility-setting-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .visibility-setting-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .visibility-setting-description {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .visibility-icon {
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .visibility-icon.ghost-icon {
+            color: #9333ea;
+        }
+
+        .visibility-icon.ranking-icon {
+            color: #f59e0b;
+        }
+
+        .visibility-sub-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin-left: var(--spacing-xl);
+            border-left: 3px solid #9333ea;
+        }
+
+        .visibility-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--spacing-sm) 0;
+        }
+
+        /* Locked Section Overlay */
+        .section-card {
+            position: relative;
+        }
+
+        .section-locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(var(--bg-primary-rgb, 255, 255, 255), 0.95);
+            backdrop-filter: blur(4px);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-lg);
+        }
+
+        .section-locked-overlay.unlocked {
+            display: none;
+        }
+
+        .locked-content {
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+
+        .locked-icon {
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+            opacity: 0.6;
+        }
+
+        .locked-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .locked-description {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+            max-width: 300px;
+        }
+
+        .locked-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            border-radius: var(--radius-full);
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            border-radius: var(--radius-full);
+            margin-left: var(--spacing-sm);
+            vertical-align: middle;
+        }
+
+        .section-badge.emm-badge {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+        }
+
+        .section-description {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .preisvorlage-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--accent-color);
+            margin-bottom: var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .preisvorlage-placeholder {
+            padding: var(--spacing-md);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+        }
+
+        .placeholder-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .placeholder-label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .placeholder-value {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
         /* Additional Roles Checkboxes */
         .additional-role-checkbox {
             display: flex;
@@ -1792,6 +1984,131 @@
                 </div>
             </div>
 
+            <!-- Sichtbarkeits-Einstellungen -->
+            <div class="section-card">
+                <h2 class="section-title">Sichtbarkeit & Ranking</h2>
+
+                <div class="visibility-settings">
+                    <!-- Ghost-Modus -->
+                    <div class="visibility-setting-item">
+                        <div class="visibility-setting-main">
+                            <div class="visibility-setting-info">
+                                <div class="visibility-setting-header">
+                                    <svg class="visibility-icon ghost-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                    </svg>
+                                    <span class="visibility-setting-title">Ghost-Modus</span>
+                                </div>
+                                <p class="visibility-setting-description">
+                                    Wenn aktiviert, ist dieser Mitarbeiter für andere unsichtbar. Nur das Office (Admins) kann diesen Mitarbeiter sehen.
+                                </p>
+                            </div>
+                            <div class="toggle-switch-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="isGhost" onchange="updateGhostMode()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" id="ghostLabel">Aus - Mitarbeiter ist sichtbar</span>
+                            </div>
+                        </div>
+
+                        <!-- Sub-Option: Andere sehen -->
+                        <div class="visibility-sub-option" id="canSeeOthersOption" style="display: none;">
+                            <div class="visibility-setting-info">
+                                <div class="visibility-setting-header">
+                                    <svg class="visibility-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; margin-left: 28px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <span class="visibility-setting-title" style="font-size: var(--font-size-sm);">Darf andere sehen</span>
+                                </div>
+                                <p class="visibility-setting-description" style="margin-left: 46px;">
+                                    Legt fest, ob dieser Ghost-Mitarbeiter andere Mitarbeiter in der Liste sehen darf.
+                                </p>
+                            </div>
+                            <div class="toggle-switch-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="canSeeOthers" checked onchange="updateCanSeeOthers()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" id="canSeeOthersLabel">Ja - Kann andere sehen</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visibility-divider"></div>
+
+                    <!-- Ranking-Teilnahme -->
+                    <div class="visibility-setting-item">
+                        <div class="visibility-setting-main">
+                            <div class="visibility-setting-info">
+                                <div class="visibility-setting-header">
+                                    <svg class="visibility-icon ranking-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                    <span class="visibility-setting-title">Ranking-Teilnahme</span>
+                                </div>
+                                <p class="visibility-setting-description">
+                                    Wenn deaktiviert, erscheint dieser Mitarbeiter nicht im Base-Ranking (Leaderboard).
+                                </p>
+                            </div>
+                            <div class="toggle-switch-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="participateRanking" checked onchange="updateRankingParticipation()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" id="rankingLabel">An - Nimmt am Ranking teil</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preisvorlagen (ab EMM freigeschaltet) -->
+            <div class="section-card" id="preisvorlagenSection">
+                <div class="section-locked-overlay" id="preisvorlagenLock">
+                    <div class="locked-content">
+                        <svg class="locked-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 48px; height: 48px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <h3 class="locked-title">Preisvorlagen gesperrt</h3>
+                        <p class="locked-description">Diese Funktion ist ab der Karrierestufe <strong>EMM</strong> (Executive Marketing Manager) verfügbar.</p>
+                        <div class="locked-badge">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            Erreiche EMM um freizuschalten
+                        </div>
+                    </div>
+                </div>
+                <h2 class="section-title">
+                    <svg class="section-title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 22px; height: 22px; margin-right: 8px; vertical-align: middle;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Preisvorlagen
+                    <span class="section-badge emm-badge">ab EMM</span>
+                </h2>
+                <p class="section-description">
+                    Individuelle Preisvorlagen für Formulare. Diese werden bei der Mitglieder-Erfassung verwendet.
+                </p>
+
+                <div class="preisvorlagen-content" id="preisvorlagenContent">
+                    <div class="preisvorlage-info">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Preisvorlagen werden in einer zukünftigen Version konfigurierbar sein.</span>
+                    </div>
+                    <!-- Placeholder für zukünftige Preisvorlagen-Konfiguration -->
+                    <div class="preisvorlage-placeholder">
+                        <div class="placeholder-item">
+                            <span class="placeholder-label">Standard-Preisvorlage</span>
+                            <span class="placeholder-value">Wird automatisch verwendet</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Dokumente -->
             <div class="section-card">
                 <h2 class="section-title">Dokumente</h2>
@@ -2584,7 +2901,11 @@
                     clothing_size: document.getElementById('clothingSize').value,
                     // Provisions-Einstellungen
                     vorschuss_anteil: parseInt(document.getElementById('vorschussAnteil').value) || 70,
-                    umsatzsteuerpflichtig: document.getElementById('umsatzsteuerpflichtig').checked
+                    umsatzsteuerpflichtig: document.getElementById('umsatzsteuerpflichtig').checked,
+                    // Sichtbarkeits-Einstellungen
+                    is_ghost: document.getElementById('isGhost').checked,
+                    can_see_others: document.getElementById('canSeeOthers').checked,
+                    participate_ranking: document.getElementById('participateRanking').checked
                 };
 
                 // Add photo URLs if uploaded
@@ -2720,6 +3041,71 @@
 
             if (firstName || lastName) {
                 document.getElementById('profileName').textContent = `${firstName} ${lastName}`.trim() || 'Neuer Mitarbeiter';
+            }
+        }
+
+        // ================================================================
+        // SICHTBARKEITS-EINSTELLUNGEN
+        // ================================================================
+
+        // Ghost-Modus Toggle
+        function updateGhostMode() {
+            const isGhost = document.getElementById('isGhost').checked;
+            const ghostLabel = document.getElementById('ghostLabel');
+            const canSeeOthersOption = document.getElementById('canSeeOthersOption');
+
+            if (isGhost) {
+                ghostLabel.textContent = 'An - Mitarbeiter ist unsichtbar (Ghost)';
+                canSeeOthersOption.style.display = 'flex';
+            } else {
+                ghostLabel.textContent = 'Aus - Mitarbeiter ist sichtbar';
+                canSeeOthersOption.style.display = 'none';
+            }
+        }
+
+        // Andere sehen Toggle (für Ghosts)
+        function updateCanSeeOthers() {
+            const canSeeOthers = document.getElementById('canSeeOthers').checked;
+            const canSeeOthersLabel = document.getElementById('canSeeOthersLabel');
+
+            if (canSeeOthers) {
+                canSeeOthersLabel.textContent = 'Ja - Kann andere sehen';
+            } else {
+                canSeeOthersLabel.textContent = 'Nein - Kann andere nicht sehen';
+            }
+        }
+
+        // Ranking-Teilnahme Toggle
+        function updateRankingParticipation() {
+            const participateRanking = document.getElementById('participateRanking').checked;
+            const rankingLabel = document.getElementById('rankingLabel');
+
+            if (participateRanking) {
+                rankingLabel.textContent = 'An - Nimmt am Ranking teil';
+            } else {
+                rankingLabel.textContent = 'Aus - Nicht im Ranking sichtbar';
+            }
+        }
+
+        // ================================================================
+        // PREISVORLAGEN - ROLE-BASED UNLOCK
+        // ================================================================
+
+        // Rollen die Preisvorlagen freischalten (EMM und höher)
+        const PREISVORLAGEN_ALLOWED_ROLES = ['emm', 'cemm', 'spb', 'kad', 'fue'];
+
+        // Preisvorlagen-Lock basierend auf Rolle aktualisieren
+        function updatePreisvorlagenLock(mainRole) {
+            const lockOverlay = document.getElementById('preisvorlagenLock');
+            if (!lockOverlay) return;
+
+            const roleLower = (mainRole || '').toLowerCase();
+            const isUnlocked = PREISVORLAGEN_ALLOWED_ROLES.includes(roleLower);
+
+            if (isUnlocked) {
+                lockOverlay.classList.add('unlocked');
+            } else {
+                lockOverlay.classList.remove('unlocked');
             }
         }
 
@@ -3108,6 +3494,7 @@
             const roleKey = this.value;
             updateRoleFaktorAndBenefits(roleKey);
             updateCurrentRoleDisplay(roleKey);
+            updatePreisvorlagenLock(roleKey);
             checkRoleCanBeSaved();
             checkKwOverlap();
         });
@@ -3428,6 +3815,9 @@
             }
         }
 
+        // Initial aufrufen für den Fall dass Checkboxen schon gesetzt sind
+        updateAdditionalRoleBenefits();
+
         // Faktor und Benefits im Provisions-Bereich anzeigen
         function updateRoleFaktorAndBenefits(roleKey) {
             const config = ROLE_CONFIG[roleKey];
@@ -3699,6 +4089,7 @@
                 if (user.main_role) {
                     document.getElementById('mainRole').value = user.main_role;
                     updateRoleFaktorAndBenefits(user.main_role);
+                    updatePreisvorlagenLock(user.main_role);
                 }
 
                 // Check additional roles
@@ -3728,6 +4119,20 @@
                     if (profile.umsatzsteuerpflichtig) {
                         ustCheckbox.checked = true;
                         ustLabel.textContent = 'Ja - Umsatzsteuer wird ausgewiesen';
+                    }
+
+                    // Sichtbarkeits-Einstellungen laden
+                    if (profile.is_ghost) {
+                        document.getElementById('isGhost').checked = true;
+                        updateGhostMode();
+                    }
+                    if (profile.can_see_others === false) {
+                        document.getElementById('canSeeOthers').checked = false;
+                        updateCanSeeOthers();
+                    }
+                    if (profile.participate_ranking === false) {
+                        document.getElementById('participateRanking').checked = false;
+                        updateRankingParticipation();
                     }
                 }
 
