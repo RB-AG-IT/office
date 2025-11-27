@@ -65,6 +65,18 @@ Detailliertes Profil-Formular mit:
 - Vorschuss/Stornorücklage Aufteilung
 - USt-Pflichtig Toggle
 
+**Sichtbarkeit & Ranking:** *(NEU)*
+- **Ghost-Modus:** Mitarbeiter ist für andere unsichtbar (nur Office/Admins sehen)
+  - Sub-Option: Ob der Ghost-Mitarbeiter andere Mitarbeiter sehen darf
+- **Ranking-Teilnahme:** An/Aus für Base-Leaderboard
+  - Wenn deaktiviert, erscheint Mitarbeiter nicht im öffentlichen Ranking
+
+**Preisvorlagen (ab EMM):** *(NEU)*
+- Gesperrte Sektion für niedrigere Stufen (SMA, EMA, JMM)
+- Ab EMM (Stufe IV) freigeschaltet
+- Individuelle Preisvorlagen für Formulare
+- Überschreibt Firmen-Standard bei der Mitglieder-Erfassung
+
 **Dokumentation:** [KARRIERE.md](KARRIERE.md)
 
 ### Kunden (kunden/)
@@ -120,6 +132,28 @@ Auswertungen und Berichte:
 - Team-Statistiken
 
 ### Vorlagen (vorlagen/)
+Verwaltung von Preis- und E-Mail-Vorlagen:
+
+**Haupt-Tabs:**
+1. **Preisvorlagen** *(NEU)*
+2. **E-Mails**
+
+---
+
+#### Tab: Preisvorlagen *(NEU)*
+Firmenweite Preisvorlagen für Rhodenburg:
+
+- **Standard-Preisvorlage:** Basis für alle Formulare (nicht löschbar)
+  - Monatlich: 5€ / 7€ / 10€ / 15€ / 20€
+  - Jährlich: 60€ / 84€ / 120€
+  - Einmalig: 50€ / 100€ / 200€
+- **Premium-Preisvorlage:** Höhere Beiträge
+- Neue Preisvorlagen erstellen
+- Bearbeiten und Löschen (außer Standard)
+
+---
+
+#### Tab: E-Mails
 E-Mail-Template-Verwaltung:
 
 **Automatische Vorlagen:**
@@ -258,15 +292,17 @@ Werbegebiete zeigen Konditions-Status:
 
 ## Berechtigungen
 
-| Stufe | TC möglich | QM möglich | Ind. Vorlagen | Provisionen |
-|-------|------------|------------|---------------|-------------|
-| I-II | Nein | Nein | Nein | Eigene + Empfehlung |
-| III | Nein | Nein | **Ja** | Eigene + Empfehlung |
-| IV-V | Ja | Nein | Ja | + Teamleiter |
-| VI-VII | Ja | Ja | Ja | + Quality Manager |
-| VIII | Nein | Nein | Ja | Nur Eigene |
+| Stufe | TC möglich | QM möglich | Ind. Vorlagen | Preisvorlagen | Provisionen |
+|-------|------------|------------|---------------|---------------|-------------|
+| I-II | Nein | Nein | Nein | Nein | Eigene + Empfehlung |
+| III | Nein | Nein | **Ja** | Nein | Eigene + Empfehlung |
+| IV-V | Ja | Nein | Ja | **Ja** | + Teamleiter |
+| VI-VII | Ja | Ja | Ja | Ja | + Quality Manager |
+| VIII | Nein | Nein | Ja | Ja | Nur Eigene |
 
 > **Individuelle Vorlagen:** Ab Stufe III (JMM) können Mitarbeiter eigene E-Mail-Vorlagen erstellen.
+
+> **Preisvorlagen:** Ab Stufe IV (EMM) können Mitarbeiter individuelle Preisvorlagen im Profil verwenden.
 
 ---
 
@@ -360,4 +396,21 @@ office/
 
 ---
 
-*Letzte Aktualisierung: November 2025 - Karrierestufen-Speicherung mit KW-Überlappungsprüfung, neue Aufstiegsanforderungen*
+*Letzte Aktualisierung: November 2025*
+
+---
+
+## Changelog
+
+### November 2025 (2)
+- **Ghost-Modus:** Mitarbeiter können als "Ghost" markiert werden (nur Office sichtbar)
+- **Andere sehen:** Option ob Ghost-Mitarbeiter andere sehen darf
+- **Ranking-Teilnahme:** An/Aus für Base-Leaderboard
+- **Preisvorlagen im Profil:** Ab EMM freigeschaltet, für individuelle Formular-Preise
+- **Vorlagen-Seite:** Neue Haupt-Tabs für Preisvorlagen und E-Mails
+- **Stufen-Page:** Gesamtzahlen bei Sammlungen entfernt (redundant mit Wochenleistung)
+- **EMM:** 10 ERH statt 5 ERH in einer Woche als Anforderung
+
+### November 2025 (1)
+- Karrierestufen-Speicherung mit KW-Überlappungsprüfung
+- Neue Aufstiegsanforderungen (JE statt EH)
