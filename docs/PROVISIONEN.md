@@ -693,8 +693,11 @@ Im Provisions-Bereich können zusätzliche Rollen vergeben werden, die weitere B
 | Einstellung | Beschreibung |
 |-------------|--------------|
 | **Individueller Faktor** | Optional - überschreibt den Standard-Faktor der Karrierestufe |
+| **Gültig ab KW** | Kalenderwoche ab der der individuelle Faktor gilt |
 
 > **Hinweis:** Nur ausfüllen wenn abweichend vom Standard. Z.B. für Sondervereinbarungen.
+>
+> **Pro KW gilt immer nur ein Faktor** - bei erneuter Änderung für dieselbe KW wird der vorherige Wert überschrieben.
 
 #### Vorschuss/Rücklage Aufteilung
 
@@ -719,7 +722,17 @@ Im Profil wird auch die **Rollen-Historie** angezeigt:
 | Element | Beschreibung |
 |---------|--------------|
 | **Aktuelle Karrierestufe** | Hero-Anzeige mit Faktor, "Seit"-Datum und Dauer |
-| **Rollen-Historie** | Timeline aller vergangenen Rollen mit Zeitraum und Dauer |
+
+#### Zwei Ansichten (Tabs)
+
+| Tab | Beschreibung |
+|-----|--------------|
+| **Rollen-Historie** | Zeigt den gültigen Faktor pro KW (nur neuester Wert pro KW) |
+| **Audit-Log** | Zeigt alle Änderungen inkl. überschriebener Werte (vollständiges Protokoll) |
+
+> **Rollen-Historie**: Konsolidierte Ansicht - zeigt nur was für die Provisionsberechnung relevant ist (ein Faktor pro KW)
+>
+> **Audit-Log**: Vollständiges Protokoll aller Änderungen mit Zeitstempel, auch wenn Werte überschrieben wurden
 
 > Die Historie wird automatisch geführt sobald Rollenwechsel vorgenommen werden.
 

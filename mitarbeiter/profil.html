@@ -1073,6 +1073,122 @@
         .role-history-empty span {
             font-size: var(--font-size-xs);
         }
+
+        /* History Tabs */
+        .history-tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            padding: 4px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .history-tab {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .history-tab.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-tab-content {
+            display: none;
+        }
+
+        .history-tab-content.active {
+            display: block;
+        }
+
+        /* Audit Log */
+        .audit-log-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .audit-log-item {
+            display: flex;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+            font-size: var(--font-size-sm);
+        }
+
+        .audit-log-item:last-child {
+            border-bottom: none;
+        }
+
+        .audit-log-timestamp {
+            flex-shrink: 0;
+            width: 140px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .audit-log-content {
+            flex: 1;
+        }
+
+        .audit-log-action {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .audit-log-detail {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .audit-log-kw {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .audit-log-item.overwritten {
+            opacity: 0.6;
+        }
+
+        .audit-log-item.overwritten .audit-log-action {
+            text-decoration: line-through;
+        }
+
+        .audit-log-empty {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+        }
+
+        .audit-log-empty p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -1319,19 +1435,47 @@
 
                 <!-- Manuelle Provision -->
                 <div class="manual-provision-section">
-                    <div class="form-group">
-                        <label class="form-label">
-                            Individuelle Provision
-                            <span class="optional-badge">Optional</span>
-                        </label>
-                        <div class="provision-input-wrapper">
-                            <input type="number" class="form-input" id="customCommission" placeholder="z.B. 6.5" min="0" max="15" step="0.1">
-                            <span class="provision-unit">Faktor</span>
+                    <div style="display: flex; gap: var(--spacing-lg); align-items: flex-start; flex-wrap: wrap;">
+                        <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                            <label class="form-label">
+                                Individuelle Provision
+                                <span class="optional-badge">Optional</span>
+                            </label>
+                            <div class="provision-input-wrapper">
+                                <input type="number" class="form-input" id="customCommission" placeholder="z.B. 6.5" min="0" max="15" step="0.1">
+                                <span class="provision-unit">Faktor</span>
+                            </div>
                         </div>
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
-                            Nur ausfüllen wenn abweichend vom Standard-Faktor der Karrierestufe
-                        </p>
+                        <div class="form-group kw-select-group" style="margin-bottom: 0;">
+                            <label class="form-label">Gültig ab KW</label>
+                            <div class="kw-selector" id="customKwSelector">
+                                <button type="button" class="kw-nav-btn" id="customKwPrev">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="kw-display">
+                                    <span class="kw-number" id="customKwNumber">KW 48</span>
+                                    <span class="kw-year" id="customKwYear">2025</span>
+                                </div>
+                                <button type="button" class="kw-nav-btn" id="customKwNext">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <input type="hidden" id="customEffectiveDate" value="">
+                        </div>
                     </div>
+                    <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
+                        Nur ausfüllen wenn abweichend vom Standard-Faktor. Pro KW gilt immer nur ein Faktor.
+                    </p>
+                    <p class="kw-hint" id="customKwHint" style="display: none; font-size: var(--font-size-xs); color: var(--warning-color); margin-top: var(--spacing-xs);">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <span id="customKwHintText"></span>
+                    </p>
                 </div>
 
                 <div class="provision-divider"></div>
@@ -1415,19 +1559,47 @@
                     </div>
                 </div>
 
-                <!-- Rollen-Historie -->
-                <div class="role-history-section">
-                    <h4 class="role-history-title">
-                        <svg style="width: 18px; height: 18px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Tab Navigation -->
+                <div class="history-tabs">
+                    <button type="button" class="history-tab active" data-tab="historie">
+                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         Rollen-Historie
-                    </h4>
-                    <div class="role-history-timeline" id="roleHistoryTimeline">
-                        <!-- Wird dynamisch gefüllt -->
-                        <div class="role-history-empty">
-                            <p>Noch keine Historie vorhanden</p>
-                            <span>Die Rollen-Historie wird automatisch geführt sobald Änderungen vorgenommen werden.</span>
+                    </button>
+                    <button type="button" class="history-tab" data-tab="audit">
+                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                        Audit-Log
+                    </button>
+                </div>
+
+                <!-- Rollen-Historie Tab -->
+                <div class="history-tab-content active" id="historieTab">
+                    <div class="role-history-section">
+                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                            Zeigt den gültigen Faktor pro Kalenderwoche (nur neuester Wert pro KW)
+                        </p>
+                        <div class="role-history-timeline" id="roleHistoryTimeline">
+                            <div class="role-history-empty">
+                                <p>Noch keine Historie vorhanden</p>
+                                <span>Die Rollen-Historie wird automatisch geführt sobald Änderungen vorgenommen werden.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit-Log Tab -->
+                <div class="history-tab-content" id="auditTab">
+                    <div class="audit-log-section">
+                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                            Zeigt alle Änderungen inkl. überschriebener Werte (vollständiges Protokoll)
+                        </p>
+                        <div class="audit-log-list" id="auditLogList">
+                            <div class="audit-log-empty">
+                                <p>Noch keine Änderungen protokolliert</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2533,6 +2705,68 @@
         // Initial KW setzen
         updateKwDisplay();
 
+        // ================================================================
+        // KW FÜR INDIVIDUELLE PROVISION
+        // ================================================================
+
+        let customKwYear = new Date().getFullYear();
+        let customKwWeek = getWeekNumber(new Date());
+        let originalCustomKwYear = customKwYear;
+        let originalCustomKwWeek = customKwWeek;
+
+        function updateCustomKwDisplay() {
+            document.getElementById('customKwNumber').textContent = `KW ${customKwWeek}`;
+            document.getElementById('customKwYear').textContent = customKwYear;
+
+            const selector = document.getElementById('customKwSelector');
+            const hint = document.getElementById('customKwHint');
+            const hintText = document.getElementById('customKwHintText');
+
+            if (customKwWeek !== originalCustomKwWeek || customKwYear !== originalCustomKwYear) {
+                selector.classList.add('changed');
+                hint.style.display = 'block';
+
+                const mondayDate = getMondayOfWeek(customKwWeek, customKwYear);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (mondayDate < today) {
+                    hintText.textContent = `Rückwirkende Änderung ab ${mondayDate.toLocaleDateString('de-DE')}`;
+                } else if (mondayDate > today) {
+                    hintText.textContent = `Zukünftige Änderung ab ${mondayDate.toLocaleDateString('de-DE')}`;
+                } else {
+                    hintText.textContent = `Änderung ab dieser Woche`;
+                }
+            } else {
+                selector.classList.remove('changed');
+                hint.style.display = 'none';
+            }
+
+            const effectiveDate = getMondayOfWeek(customKwWeek, customKwYear);
+            document.getElementById('customEffectiveDate').value = effectiveDate.toISOString().split('T')[0];
+        }
+
+        document.getElementById('customKwPrev').addEventListener('click', function() {
+            customKwWeek--;
+            if (customKwWeek < 1) {
+                customKwYear--;
+                customKwWeek = getWeeksInYear(customKwYear);
+            }
+            updateCustomKwDisplay();
+        });
+
+        document.getElementById('customKwNext').addEventListener('click', function() {
+            const maxWeeks = getWeeksInYear(customKwYear);
+            customKwWeek++;
+            if (customKwWeek > maxWeeks) {
+                customKwYear++;
+                customKwWeek = 1;
+            }
+            updateCustomKwDisplay();
+        });
+
+        updateCustomKwDisplay();
+
         // Vorschau aktualisieren
         function updateProvisionPreview() {
             const vorschuss = parseInt(document.getElementById('vorschussAnteil').value) || 70;
@@ -2705,6 +2939,101 @@
         }
 
         // ================================================================
+        // HISTORY TAB SWITCHING
+        // ================================================================
+
+        document.querySelectorAll('.history-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active from all tabs
+                document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.history-tab-content').forEach(c => c.classList.remove('active'));
+
+                // Add active to clicked tab
+                this.classList.add('active');
+                const tabName = this.getAttribute('data-tab');
+                document.getElementById(tabName + 'Tab').classList.add('active');
+            });
+        });
+
+        // Audit-Log laden
+        async function loadAuditLog(userId) {
+            try {
+                // Lade alle Rollen-Änderungen (auch überschriebene)
+                // In einer echten Implementierung würde man hier eine audit_log Tabelle abfragen
+                // Für jetzt zeigen wir alle Rollen-Einträge chronologisch
+                const { data: roles, error } = await supabase
+                    .from('user_roles')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const auditList = document.getElementById('auditLogList');
+
+                if (!roles || roles.length === 0) {
+                    auditList.innerHTML = `
+                        <div class="audit-log-empty">
+                            <p>Noch keine Änderungen protokolliert</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Gruppiere nach KW um überschriebene Einträge zu markieren
+                const kwMap = new Map();
+                roles.forEach(role => {
+                    if (role.role_type === 'main') {
+                        const date = new Date(role.assigned_at);
+                        const kw = `${date.getFullYear()}-${getWeekNumber(date)}`;
+                        if (!kwMap.has(kw)) {
+                            kwMap.set(kw, []);
+                        }
+                        kwMap.get(kw).push(role);
+                    }
+                });
+
+                auditList.innerHTML = roles.map(role => {
+                    const config = ROLE_CONFIG[role.role_name] || { name: role.role_name };
+                    const createdAt = new Date(role.created_at || role.assigned_at);
+                    const assignedDate = new Date(role.assigned_at);
+                    const kw = getWeekNumber(assignedDate);
+                    const year = assignedDate.getFullYear();
+
+                    // Check if overwritten (same KW, but not the latest)
+                    const kwKey = `${year}-${kw}`;
+                    const kwEntries = kwMap.get(kwKey) || [];
+                    const isOverwritten = role.role_type === 'main' && kwEntries.length > 1 && kwEntries[0].id !== role.id;
+
+                    const actionText = role.role_type === 'main'
+                        ? `Karrierestufe: ${config.name}`
+                        : `Zusatz-Rolle: ${config.name || role.role_name}`;
+
+                    const statusText = role.is_active ? 'aktiviert' : 'deaktiviert';
+
+                    return `
+                        <div class="audit-log-item ${isOverwritten ? 'overwritten' : ''}">
+                            <div class="audit-log-timestamp">
+                                ${createdAt.toLocaleDateString('de-DE')} ${createdAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            <div class="audit-log-content">
+                                <div class="audit-log-action">${actionText}</div>
+                                <div class="audit-log-detail">
+                                    ${statusText}
+                                    <span class="audit-log-kw">KW ${kw}/${year}</span>
+                                    ${isOverwritten ? '(überschrieben)' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading audit log:', error);
+            }
+        }
+
+        // ================================================================
         // LOAD USER DATA (if editing existing user)
         // ================================================================
 
@@ -2872,8 +3201,9 @@
                     updateCurrentRoleDisplay(user.main_role);
                 }
 
-                // Load role history
+                // Load role history and audit log
                 await loadRoleHistory(userId);
+                await loadAuditLog(userId);
 
             } catch (error) {
                 console.error('Load user error:', error);
