@@ -898,11 +898,6 @@
         .kw-info-tooltip-pill.red { background: #ef4444; }
         .kw-info-tooltip-pill.white { background: #e5e7eb; border: 1px solid #d1d5db; }
 
-        /* Hide team pills when expanded */
-        .kw-detail-card.expanded .kw-header-team {
-            display: none;
-        }
-
         .kw-badge {
             padding: 3px 8px;
             border-radius: 4px;
@@ -1041,6 +1036,13 @@
             margin-bottom: 6px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+        }
+
+        .kw-section-header-left {
+            display: flex;
+            align-items: center;
             gap: 4px;
         }
 
@@ -1049,67 +1051,60 @@
             height: 14px;
         }
 
-        .kw-tc-faktor-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 8px;
-            background: var(--bg-primary);
-            border-radius: var(--radius-sm);
-            margin-bottom: 6px;
-            font-size: 11px;
-        }
-
-        .kw-tc-faktor-value {
+        .kw-tc-behaelt {
             font-weight: 700;
-            color: var(--text-primary);
+            color: #f59e0b;
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
         }
 
         .kw-dienst-add-row {
             display: flex;
             gap: 4px;
             align-items: center;
-            margin-bottom: 6px;
-            flex-wrap: wrap;
+            margin-bottom: 4px;
         }
 
         .kw-dienst-add-row select,
         .kw-dienst-add-row input {
-            padding: 4px 6px;
-            font-size: 11px;
+            padding: 6px 8px;
+            font-size: 12px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
-            height: 26px;
+            height: 32px;
         }
 
         .kw-dienst-add-row input[type="number"] {
-            width: 55px;
+            width: 60px;
             text-align: center;
         }
 
         .kw-dienst-add-row .btn {
-            height: 26px;
-            padding: 0 8px;
-            font-size: 11px;
+            height: 32px;
+            padding: 0 10px;
+            font-size: 12px;
             display: inline-flex;
             align-items: center;
             gap: 2px;
         }
 
         .kw-dienste-list {
-            margin-top: var(--spacing-sm);
+            margin-top: 0;
         }
 
         .kw-dienst-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 4px 8px;
+            padding: 0 8px;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             margin-bottom: 4px;
             font-size: 12px;
+            height: 32px;
         }
 
         .kw-dienst-item-info {
@@ -1182,12 +1177,13 @@
             align-items: center;
             justify-content: space-between;
             gap: 6px;
-            padding: 4px 8px;
+            padding: 0 8px;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             margin-bottom: 4px;
             font-size: 12px;
+            height: 32px;
         }
 
         .kw-team-member:last-child {
@@ -1253,23 +1249,21 @@
             display: flex;
             gap: 4px;
             align-items: center;
-            margin-top: 6px;
-            padding-top: 6px;
-            border-top: 1px dashed var(--border-color);
+            margin-top: 4px;
         }
 
         .kw-add-member-row select {
             flex: 1;
-            padding: 4px 6px;
-            font-size: 11px;
+            padding: 6px 8px;
+            font-size: 12px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
-            height: 26px;
+            height: 32px;
         }
 
         .kw-add-member-row .btn {
-            height: 26px;
-            padding: 0 8px;
+            height: 32px;
+            padding: 0 10px;
         }
 
         /* Werbegebiete Section */
@@ -3276,15 +3270,13 @@ function renderKWDetails(campaign) {
                     <div class="kw-two-columns">
                     <div class="kw-dienste-section">
                         <div class="kw-section-header">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                            </svg>
-                            Dienste
-                        </div>
-
-                        <div class="kw-tc-faktor-info">
-                            <span>TC-Faktor verbleibend:</span>
-                            <span class="kw-tc-faktor-value" id="tc-faktor-kw-${kw}">${tcFaktorVerbleibend.toFixed(2)} / 1.00</span>
+                            <div class="kw-section-header-left">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Dienste
+                            </div>
+                            <span class="kw-tc-behaelt" id="tc-faktor-kw-${kw}">TC: ${tcFaktorVerbleibend.toFixed(2)}</span>
                         </div>
 
                         <div class="kw-dienst-add-row">
@@ -3323,22 +3315,20 @@ function renderKWDetails(campaign) {
                                         </button>
                                     </div>
                                 `;
-                            }).join('') : '<p style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 8px;">Keine Dienste vergeben</p>'}
-                        </div>
-
-                        <div class="kw-dienste-summary">
-                            <span>Vergeben: ${vergebenerFaktor.toFixed(2)}</span>
-                            <span>TC behält: ${tcFaktorVerbleibend.toFixed(2)}</span>
+                            }).join('') : '<p style="color: var(--text-secondary); font-size: 12px; text-align: center; padding: 8px;">Keine Dienste</p>'}
                         </div>
                     </div>
 
                     <!-- Team-Mitglieder (rechte Spalte) -->
                     <div class="kw-team-section">
                         <div class="kw-section-header">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                            Team-Mitglieder (${werberList.length})
+                            <div class="kw-section-header-left">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                                Team-Mitglieder
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-secondary);">(${werberList.length})</span>
                         </div>
 
                         <div class="kw-team-list">
