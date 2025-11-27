@@ -770,6 +770,12 @@
             border: 1px solid #ef4444;
         }
 
+        .kw-header-pill.beide {
+            background: linear-gradient(135deg, #dcfce7 50%, #fee2e2 50%);
+            color: #374151;
+            border: 1px solid #9ca3af;
+        }
+
         .kw-header-pill.normal {
             background: var(--bg-primary);
             color: var(--text-primary);
@@ -999,7 +1005,7 @@
 
         .kw-tc-faktor-value {
             font-weight: 700;
-            color: #f59e0b;
+            color: var(--text-primary);
         }
 
         .kw-dienst-add-row {
@@ -1016,11 +1022,21 @@
             font-size: var(--font-size-sm);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
+            height: 32px;
         }
 
         .kw-dienst-add-row input[type="number"] {
             width: 70px;
             text-align: center;
+        }
+
+        .kw-dienst-add-row .btn {
+            height: 32px;
+            padding: 0 12px;
+            font-size: var(--font-size-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .kw-dienste-list {
@@ -1081,11 +1097,13 @@
             display: flex;
             justify-content: space-between;
             padding: var(--spacing-sm);
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             font-size: var(--font-size-sm);
             font-weight: 600;
             margin-top: var(--spacing-sm);
+            color: var(--text-primary);
         }
 
         /* Team Mitglieder Section */
@@ -1140,6 +1158,11 @@
         .kw-member-label.abreise {
             background: #fee2e2;
             color: #dc2626;
+        }
+
+        .kw-member-label.beide {
+            background: linear-gradient(135deg, #dcfce7 50%, #fee2e2 50%);
+            color: #374151;
         }
 
         .kw-team-member-remove {
@@ -2214,11 +2237,39 @@
 
                         <!-- KW-Einsatzplanung mit TC-Provision pro KW -->
                         <div class="info-box">
-                            <div class="info-box-header">
+                            <div class="info-box-header" style="display: flex; align-items: center; gap: 8px;">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                                 <h3>KW-Einsatzplanung</h3>
+                                <div class="kw-info-icon" style="margin-left: 4px;">
+                                    i
+                                    <div class="kw-info-tooltip" style="left: 0; right: auto;">
+                                        <div class="kw-info-tooltip-row">
+                                            <span class="kw-info-tooltip-pill yellow"></span>
+                                            <span>Teamchef (TC)</span>
+                                        </div>
+                                        <div class="kw-info-tooltip-row">
+                                            <span class="kw-info-tooltip-pill green"></span>
+                                            <span>Neuanreise (neu in dieser KW)</span>
+                                        </div>
+                                        <div class="kw-info-tooltip-row">
+                                            <span class="kw-info-tooltip-pill red"></span>
+                                            <span>Abreise (letzte KW im Team)</span>
+                                        </div>
+                                        <div class="kw-info-tooltip-row">
+                                            <span class="kw-info-tooltip-pill white"></span>
+                                            <span>Normales Teammitglied</span>
+                                        </div>
+                                        <div class="kw-info-tooltip-row" style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-color);">
+                                            <span style="width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #22c55e 50%, #ef4444 50%); flex-shrink: 0;"></span>
+                                            <span>An- & Abreise in einer KW</span>
+                                        </div>
+                                        <div class="kw-info-tooltip-row" style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-color);">
+                                            <span style="font-size: 10px; color: var(--text-secondary);">TC-Provision: Aufteilung des TC-Faktors (max 1.0) auf verschiedene Dienste pro KW</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: var(--spacing-md);">
                                 Klicken Sie auf eine KW, um Details anzuzeigen. Pro KW können TC-Provision/Dienste, Anreisen und Abreisen eingetragen werden.
@@ -2484,13 +2535,13 @@ function showConfirm(message, title = 'Bestätigung', type = 'warning') {
 
 // Dummy employee data
 const employees = [
-    { id: 1, name: 'Max Kellermann' },
-    { id: 2, name: 'Anna Schmidt' },
-    { id: 3, name: 'Thomas Müller' },
-    { id: 4, name: 'Lisa Weber' },
-    { id: 5, name: 'Peter Fischer' },
-    { id: 6, name: 'Sarah Klein' },
-    { id: 7, name: 'Michael Becker' }
+    { id: 1, name: 'Max Kellermann', role: 'EMM' },
+    { id: 2, name: 'Anna Schmidt', role: 'CEMM' },
+    { id: 3, name: 'Thomas Müller', role: 'SMA' },
+    { id: 4, name: 'Lisa Weber', role: 'SMA' },
+    { id: 5, name: 'Peter Fischer', role: 'SPB' },
+    { id: 6, name: 'Sarah Klein', role: 'SMA' },
+    { id: 7, name: 'Michael Becker', role: 'SMA' }
 ];
 
 // Campaign storage
@@ -3026,19 +3077,25 @@ function renderKWDetails(campaign) {
         if (tc) {
             const tcWasInPrevKW = prevTcId === tcId || prevWerberIds.includes(tcId);
             const tcIsInNextKW = nextTcId === tcId || nextWerberIds.includes(tcId);
-            // Erste KW = alle sind Neuanreise, danach nur wenn nicht in vorheriger KW
-            if (isFirstKW || !tcWasInPrevKW) tcLabel = 'neuanreise';
-            else if (!tcIsInNextKW && !isLastKW) tcLabel = 'abreise';
+            const isNew = isFirstKW || !tcWasInPrevKW;
+            const isLeaving = !tcIsInNextKW && !isLastKW;
+            // Beide = An- und Abreise in einer KW
+            if (isNew && isLeaving) tcLabel = 'beide';
+            else if (isNew) tcLabel = 'neuanreise';
+            else if (isLeaving) tcLabel = 'abreise';
         }
 
         // Berechne Labels für Werber
         const werberWithLabels = werberList.map(w => {
             const wasInPrevKW = prevWerberIds.includes(w.id) || prevTcId === w.id;
             const isInNextKW = nextWerberIds.includes(w.id) || nextTcId === w.id;
+            const isNew = isFirstKW || !wasInPrevKW;
+            const isLeaving = !isInNextKW && !isLastKW;
             let label = '';
-            // Erste KW = alle sind Neuanreise, danach nur wenn nicht in vorheriger KW
-            if (isFirstKW || !wasInPrevKW) label = 'neuanreise';
-            else if (!isInNextKW && !isLastKW) label = 'abreise';
+            // Beide = An- und Abreise in einer KW
+            if (isNew && isLeaving) label = 'beide';
+            else if (isNew) label = 'neuanreise';
+            else if (isLeaving) label = 'abreise';
             return { ...w, label };
         });
 
@@ -3070,18 +3127,17 @@ function renderKWDetails(campaign) {
         if (isCurrentWeek) classes += ' current-week expanded';
         if (hasTc) classes += ' has-tc';
 
-        // Generiere Header Team Pills HTML
+        // Generiere Header Team Pills HTML (volle Namen, von links nach rechts)
         const headerTeamPillsHtml = (() => {
             let pills = '';
             // TC zuerst (gelb)
             if (tc) {
-                pills += '<span class="kw-header-pill tc">' + tc.name.split(' ').map(n => n[0]).join('') + '</span>';
+                pills += '<span class="kw-header-pill tc">' + tc.name + '</span>';
             }
             // Dann Werber alphabetisch sortiert
             werberSorted.forEach(w => {
                 const pillClass = w.label || 'normal';
-                const initials = w.name.split(' ').map(n => n[0]).join('');
-                pills += '<span class="kw-header-pill ' + pillClass + '" title="' + w.name + '">' + initials + '</span>';
+                pills += '<span class="kw-header-pill ' + pillClass + '">' + w.name + '</span>';
             });
             return pills;
         })();
@@ -3097,27 +3153,6 @@ function renderKWDetails(campaign) {
                         ${isCurrentWeek ? '<span class="kw-badge current">Aktuelle Woche</span>' : ''}
                         <div class="kw-header-team">
                             ${headerTeamPillsHtml}
-                        </div>
-                        <div class="kw-info-icon">
-                            i
-                            <div class="kw-info-tooltip">
-                                <div class="kw-info-tooltip-row">
-                                    <span class="kw-info-tooltip-pill yellow"></span>
-                                    <span>Teamchef (TC)</span>
-                                </div>
-                                <div class="kw-info-tooltip-row">
-                                    <span class="kw-info-tooltip-pill green"></span>
-                                    <span>Neuanreise (neu in dieser KW)</span>
-                                </div>
-                                <div class="kw-info-tooltip-row">
-                                    <span class="kw-info-tooltip-pill red"></span>
-                                    <span>Abreise (letzte KW)</span>
-                                </div>
-                                <div class="kw-info-tooltip-row">
-                                    <span class="kw-info-tooltip-pill white"></span>
-                                    <span>Normales Teammitglied</span>
-                                </div>
-                            </div>
                         </div>
                         <span class="kw-badge count">${totalCount} Pers.</span>
                     </div>
@@ -3140,7 +3175,7 @@ function renderKWDetails(campaign) {
                             </select>
                             ${tc ? `
                                 ${getStufeLabel(tc.role || 'EMM')}
-                                ${tcLabel ? `<span class="kw-member-label ${tcLabel}">${tcLabel === 'neuanreise' ? 'Neuanreise' : 'Abreise'}</span>` : ''}
+                                ${tcLabel ? `<span class="kw-member-label ${tcLabel}">${tcLabel === 'neuanreise' ? 'Neuanreise' : tcLabel === 'abreise' ? 'Abreise' : 'An/Ab'}</span>` : ''}
                             ` : ''}
                         </div>
                     </div>
@@ -3219,7 +3254,7 @@ function renderKWDetails(campaign) {
                                     <span class="kw-team-member-name">${w.name}</span>
                                     ${getStufeLabel(w.role || 'SMA')}
                                     ${w.isQM ? '<span class="stufen-label stufen-label-qm">QM</span>' : ''}
-                                    ${w.label ? `<span class="kw-member-label ${w.label}">${w.label === 'neuanreise' ? 'Neuanreise' : 'Abreise'}</span>` : ''}
+                                    ${w.label ? `<span class="kw-member-label ${w.label}">${w.label === 'neuanreise' ? 'Neuanreise' : w.label === 'abreise' ? 'Abreise' : 'An/Ab'}</span>` : ''}
                                     <button class="kw-team-member-remove" onclick="removeKWMember(${kw}, ${w.id})" title="Entfernen">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
