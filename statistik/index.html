@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistik - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -16,7 +15,7 @@
 
         .page-container {
             padding: var(--spacing-lg);
-            max-width: 1600px;
+            max-width: 1800px;
             margin: 0 auto;
         }
 
@@ -24,333 +23,102 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
         }
 
         .page-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 600;
             color: var(--text-primary);
-        }
-
-        /* Info Icon Tooltip */
-        .info-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--bg-hover);
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: help;
-            margin-left: 6px;
-            position: relative;
-            transition: all 0.2s;
-        }
-
-        .info-icon:hover {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        .info-tooltip {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px 16px;
-            min-width: 280px;
-            max-width: 400px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            z-index: 1000;
-            display: none;
-            text-align: left;
-            font-weight: 400;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .info-icon:hover .info-tooltip {
-            display: block;
-        }
-
-        .info-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: var(--border-color);
-        }
-
-        .info-tooltip h4 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .info-tooltip p {
-            margin: 0;
-            color: var(--text-secondary);
-        }
-
-        .info-tooltip code {
-            background: var(--bg-hover);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
         }
 
         /* Filter Bar */
         .filter-bar {
             background: var(--bg-primary);
-            border-radius: 12px;
+            border-radius: 10px;
             padding: var(--spacing-md);
             margin-bottom: var(--spacing-lg);
             display: flex;
             flex-wrap: wrap;
-            gap: var(--spacing-md);
-            align-items: flex-end;
+            gap: var(--spacing-sm);
+            align-items: center;
         }
 
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
         }
 
         .filter-group label {
-            font-size: 12px;
+            font-size: 10px;
             color: var(--text-secondary);
             font-weight: 500;
+            text-transform: uppercase;
         }
 
-        .filter-group select,
-        .filter-group input {
-            padding: 8px 12px;
+        .filter-group select {
+            padding: 6px 10px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             background: var(--bg-secondary);
             color: var(--text-primary);
-            font-size: 14px;
-            min-width: 150px;
+            font-size: 13px;
+            min-width: 140px;
         }
 
-        /* Period Tabs */
-        .period-tabs {
+        .filter-divider {
+            width: 1px;
+            height: 40px;
+            background: var(--border-color);
+            margin: 0 8px;
+        }
+
+        /* Category Tabs */
+        .category-tabs {
             display: flex;
             gap: 4px;
-            background: var(--bg-secondary);
+            background: var(--bg-primary);
             padding: 4px;
-            border-radius: 8px;
+            border-radius: 10px;
+            margin-bottom: var(--spacing-lg);
         }
 
-        .period-tab {
-            padding: 8px 16px;
+        .category-tab {
+            padding: 10px 20px;
             border: none;
             background: transparent;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .period-tab:hover {
+        .category-tab:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
         }
 
-        .period-tab.active {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .category-tab.active {
+            background: var(--accent-color);
+            color: white;
         }
 
-        /* KPI Cards */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: var(--spacing-md);
+        .category-tab svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Section */
+        .section {
+            background: var(--bg-primary);
+            border-radius: 10px;
             margin-bottom: var(--spacing-lg);
-        }
-
-        .kpi-card {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: var(--spacing-lg);
-        }
-
-        .kpi-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .kpi-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-        }
-
-        .kpi-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .kpi-icon svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .kpi-icon.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-        .kpi-icon.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-        .kpi-icon.purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-        .kpi-icon.orange { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-
-        .kpi-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .kpi-change {
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .kpi-change.positive { color: #10b981; }
-        .kpi-change.negative { color: #ef4444; }
-
-        /* Chart Section */
-        .chart-section {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .chart-card {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: var(--spacing-lg);
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .chart-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-        }
-
-        /* Records Section */
-        .records-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .record-card {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: var(--spacing-lg);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .record-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-        }
-
-        .record-card.gold::before { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
-        .record-card.silver::before { background: linear-gradient(90deg, #9ca3af, #6b7280); }
-        .record-card.bronze::before { background: linear-gradient(90deg, #d97706, #b45309); }
-        .record-card.blue::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
-
-        .record-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: var(--spacing-md);
-            font-size: 24px;
-        }
-
-        .record-card.gold .record-icon { background: rgba(251, 191, 36, 0.1); }
-        .record-card.silver .record-icon { background: rgba(156, 163, 175, 0.1); }
-        .record-card.bronze .record-icon { background: rgba(217, 119, 6, 0.1); }
-        .record-card.blue .record-icon { background: rgba(59, 130, 246, 0.1); }
-
-        .record-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-        }
-
-        .record-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .record-holder {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .record-date {
-            font-size: 12px;
-            color: var(--text-tertiary);
-            margin-top: 4px;
-        }
-
-        /* Team Stats Table */
-        .team-section {
-            background: var(--bg-primary);
-            border-radius: 12px;
             overflow: hidden;
         }
 
@@ -360,105 +128,276 @@
             align-items: center;
             padding: var(--spacing-md) var(--spacing-lg);
             border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
         }
 
         .section-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--text-primary);
             display: flex;
             align-items: center;
+            gap: 8px;
         }
 
-        .team-table {
+        .section-title svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent-color);
+        }
+
+        .section-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        /* Stats Table */
+        .stats-table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 13px;
         }
 
-        .team-table th {
+        .stats-table th {
             text-align: left;
-            padding: 12px 16px;
-            font-size: 12px;
+            padding: 10px 14px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
         }
 
-        .team-table td {
-            padding: 12px 16px;
-            font-size: 14px;
+        .stats-table th.right,
+        .stats-table td.right {
+            text-align: right;
+        }
+
+        .stats-table td {
+            padding: 10px 14px;
             color: var(--text-primary);
             border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
         }
 
-        .team-table tr:hover {
+        .stats-table tr:hover {
             background: var(--bg-hover);
         }
 
-        .team-member {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .stats-table tfoot td {
+            font-weight: 600;
+            background: var(--bg-secondary);
         }
 
-        .team-avatar {
-            width: 36px;
-            height: 36px;
+        /* Name Cell */
+        .name-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 600;
+            flex-shrink: 0;
         }
 
-        .team-name {
+        .name-info {
+            min-width: 0;
+        }
+
+        .name-main {
             font-weight: 500;
         }
 
-        .team-role {
-            font-size: 12px;
+        .name-sub {
+            font-size: 11px;
             color: var(--text-secondary);
         }
 
-        .progress-bar {
+        /* Value styles */
+        .value-positive { color: #10b981; }
+        .value-negative { color: #ef4444; }
+        .value-warning { color: #f59e0b; }
+        .value-muted { color: var(--text-secondary); }
+        .value-highlight {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .value-money {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Mini badges */
+        .mini-badge {
+            display: inline-flex;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .mini-badge.storno {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .mini-badge.open {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .mini-badge.paid {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        /* Marge indicator */
+        .marge-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .marge-visual {
+            width: 60px;
             height: 6px;
             background: var(--bg-secondary);
             border-radius: 3px;
             overflow: hidden;
-            width: 100px;
         }
 
-        .progress-fill {
+        .marge-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
             border-radius: 3px;
         }
 
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .chart-section {
-                grid-template-columns: 1fr;
-            }
-            .records-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .marge-fill.positive { background: #10b981; }
+        .marge-fill.negative { background: #ef4444; }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
         }
 
-        @media (max-width: 768px) {
-            .kpi-grid {
-                grid-template-columns: 1fr;
-            }
-            .records-grid {
-                grid-template-columns: 1fr;
+        .summary-card {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+        }
+
+        .summary-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .summary-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .summary-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Expandable row */
+        .expandable-row {
+            cursor: pointer;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s;
+        }
+
+        .expandable-row.expanded .expand-icon {
+            transform: rotate(90deg);
+        }
+
+        .detail-row {
+            display: none;
+        }
+
+        .detail-row.show {
+            display: table-row;
+        }
+
+        .detail-row td {
+            padding: 0;
+            background: var(--bg-secondary);
+        }
+
+        .detail-content {
+            padding: var(--spacing-md);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .detail-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Storno indicator */
+        .storno-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .storno-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .storno-dot.low { background: #10b981; }
+        .storno-dot.medium { background: #f59e0b; }
+        .storno-dot.high { background: #ef4444; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .detail-content {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -467,31 +406,41 @@
     <div class="page-container">
         <!-- Header -->
         <div class="page-header">
-            <h1 class="page-title">Statistik</h1>
-            <button class="btn btn-secondary" onclick="exportStats()">
-                <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                </svg>
-                Export
-            </button>
+            <h1 class="page-title">Statistik & Provisionen</h1>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary btn-sm" onclick="exportStats()">
+                    <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Export
+                </button>
+            </div>
         </div>
 
         <!-- Filter Bar -->
         <div class="filter-bar">
             <div class="filter-group">
                 <label>Zeitraum</label>
-                <div class="period-tabs">
-                    <button class="period-tab" data-period="day">Tag</button>
-                    <button class="period-tab" data-period="week" >Woche</button>
-                    <button class="period-tab active" data-period="month">Monat</button>
-                    <button class="period-tab" data-period="quarter">Quartal</button>
-                    <button class="period-tab" data-period="year">Jahr</button>
-                    <button class="period-tab" data-period="custom">...</button>
-                </div>
+                <select id="filterPeriod" onchange="applyFilters()">
+                    <option value="week">Diese Woche</option>
+                    <option value="month" selected>Dieser Monat</option>
+                    <option value="quarter">Dieses Quartal</option>
+                    <option value="year">Dieses Jahr</option>
+                    <option value="all">Gesamt</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Kampagne</label>
+                <select id="filterCampaign" onchange="applyFilters()">
+                    <option value="">Alle Kampagnen</option>
+                    <option value="1">Frühjahrskampagne 2024</option>
+                    <option value="2">Sommerkampagne 2024</option>
+                    <option value="3">Herbstkampagne 2024</option>
+                </select>
             </div>
             <div class="filter-group">
                 <label>Kunde</label>
-                <select id="filterCustomer">
+                <select id="filterCustomer" onchange="applyFilters()">
                     <option value="">Alle Kunden</option>
                     <option value="1">DRK KV Ludwigshafen</option>
                     <option value="2">DRK KV Mannheim</option>
@@ -499,499 +448,1195 @@
             </div>
             <div class="filter-group">
                 <label>Werbegebiet</label>
-                <select id="filterArea">
+                <select id="filterArea" onchange="applyFilters()">
                     <option value="">Alle Gebiete</option>
                     <option value="1">Ludwigshafen-Mitte</option>
                     <option value="2">Ludwigshafen-Süd</option>
                 </select>
             </div>
+            <div class="filter-divider"></div>
             <div class="filter-group">
                 <label>Teamchef</label>
-                <select id="filterTC">
-                    <option value="">Alle TCs</option>
-                    <option value="1">Max Mustermann</option>
-                    <option value="2">Anna Schmidt</option>
+                <select id="filterTeamchef" onchange="applyFilters()">
+                    <option value="">Alle Teamchefs</option>
+                    <option value="1">Michael Wagner</option>
+                    <option value="2">Sandra Hoffmann</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>Werber</label>
-                <select id="filterWerber">
+                <select id="filterWerber" onchange="applyFilters()">
                     <option value="">Alle Werber</option>
-                    <option value="1">Thomas Müller</option>
-                    <option value="2">Julia Fischer</option>
+                    <option value="1">Anna Schmidt</option>
+                    <option value="2">Max Müller</option>
                 </select>
             </div>
         </div>
 
-        <!-- KPI Cards -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-header">
-                    <span class="kpi-label">
-                        Netto MG
-                        <span class="info-icon">i
-                            <div class="info-tooltip">
-                                <h4>Netto Mitglieder</h4>
-                                <p>Aktive Mitglieder nach Abzug der Stornos.<br><br>
-                                <code>Netto = Brutto - Stornos</code></p>
-                            </div>
-                        </span>
-                    </span>
-                    <div class="kpi-icon blue">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="kpi-value">142</div>
-                <div class="kpi-change positive">
-                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                    </svg>
-                    +12% vs. Vormonat
-                </div>
-            </div>
+        <!-- Category Tabs -->
+        <div class="category-tabs">
+            <button class="category-tab active" onclick="showCategory('werber')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Werber
+            </button>
+            <button class="category-tab" onclick="showCategory('teamleiter')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                Teamleiter
+            </button>
+            <button class="category-tab" onclick="showCategory('kunden')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                Kunden / Gebiete
+            </button>
+            <button class="category-tab" onclick="showCategory('kampagnen')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Kampagnen
+            </button>
+        </div>
 
-            <div class="kpi-card">
-                <div class="kpi-header">
-                    <span class="kpi-label">
-                        Jahreseuros (JE)
-                        <span class="info-icon">i
-                            <div class="info-tooltip">
-                                <h4>Jahreseuros</h4>
-                                <p>Summe aller Jahresbeiträge.<br><br>
-                                <strong>Einheiten:</strong> 1 EH = JE / 12<br>
-                                Beispiel: 120 JE = 10 EH</p>
-                            </div>
-                        </span>
-                    </span>
-                    <div class="kpi-icon green">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+        <!-- WERBER SECTION -->
+        <div id="section-werber" class="category-section">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Werber-Provisionen & Finanzen
+                        <span class="section-badge">5 Werber</span>
                     </div>
                 </div>
-                <div class="kpi-value">17.040 €</div>
-                <div class="kpi-change positive">
-                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                    </svg>
-                    +18% vs. Vormonat
-                </div>
-            </div>
+                <div style="overflow-x: auto;">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Werber</th>
+                                <th class="right">Brutto MG</th>
+                                <th class="right">Storno</th>
+                                <th class="right">Netto MG</th>
+                                <th class="right">JE</th>
+                                <th class="right">EH</th>
+                                <th class="right">Provision</th>
+                                <th class="right">Stornorücklage</th>
+                                <th class="right">Vorschuss</th>
+                                <th class="right">Empf.-Prov.</th>
+                                <th class="right">Ausgezahlt</th>
+                                <th class="right">Offen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar">AS</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Anna Schmidt</div>
+                                            <div class="name-sub">TC: M. Wagner</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right">52</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot low"></span>
+                                        <span>4 (7,7%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">48</td>
+                                <td class="right value-money">6.240 €</td>
+                                <td class="right">520</td>
+                                <td class="right value-money value-positive">2.080 €</td>
+                                <td class="right">
+                                    <span class="mini-badge open">416 € offen</span>
+                                </td>
+                                <td class="right">
+                                    <span class="value-warning">500 € offen</span>
+                                </td>
+                                <td class="right value-money">180 €</td>
+                                <td class="right value-money">1.344 €</td>
+                                <td class="right value-money value-highlight">916 €</td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="12">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Provision/EH</span>
+                                            <span class="detail-value">4,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Stornorücklage %</span>
+                                            <span class="detail-value">20%</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage gesamt</span>
+                                            <span class="detail-value">1.248 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage ausgezahlt</span>
+                                            <span class="detail-value">832 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Vorschuss gesamt</span>
+                                            <span class="detail-value">1.500 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Vorschuss getilgt</span>
+                                            <span class="detail-value">1.000 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empfohlene Werber</span>
+                                            <span class="detail-value">2 (Max M., Tim K.)</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empf.-EH gesamt</span>
+                                            <span class="detail-value">360 EH</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
 
-            <div class="kpi-card">
-                <div class="kpi-header">
-                    <span class="kpi-label">
-                        Stornoquote (MG)
-                        <span class="info-icon">i
-                            <div class="info-tooltip">
-                                <h4>Stornoquote (Anzahl)</h4>
-                                <p>Prozent der stornierten Mitglieder.<br><br>
-                                <code>Stornos / Brutto × 100%</code><br><br>
-                                <strong>13-Monats-Regel:</strong> Nur Stornos innerhalb 13 Monate zählen.</p>
-                            </div>
-                        </span>
-                    </span>
-                    <div class="kpi-icon orange">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="kpi-value">8,9%</div>
-                <div class="kpi-change negative">
-                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                    </svg>
-                    +1,2% vs. Vormonat
-                </div>
-            </div>
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar">MM</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Max Müller</div>
+                                            <div class="name-sub">TC: S. Hoffmann</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right">38</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot medium"></span>
+                                        <span>5 (13,2%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">33</td>
+                                <td class="right value-money">4.560 €</td>
+                                <td class="right">380</td>
+                                <td class="right value-money value-positive">1.520 €</td>
+                                <td class="right">
+                                    <span class="mini-badge open">304 € offen</span>
+                                </td>
+                                <td class="right value-muted">0 €</td>
+                                <td class="right value-money">0 €</td>
+                                <td class="right value-money">1.216 €</td>
+                                <td class="right value-money value-highlight">304 €</td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="12">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Provision/EH</span>
+                                            <span class="detail-value">4,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Stornorücklage %</span>
+                                            <span class="detail-value">20%</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage gesamt</span>
+                                            <span class="detail-value">912 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage ausgezahlt</span>
+                                            <span class="detail-value">608 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Vorschuss gesamt</span>
+                                            <span class="detail-value">0 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Vorschuss getilgt</span>
+                                            <span class="detail-value">0 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empfohlen von</span>
+                                            <span class="detail-value">Anna Schmidt</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empf.-Prov. an Empf.</span>
+                                            <span class="detail-value">190 €</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
 
-            <div class="kpi-card">
-                <div class="kpi-header">
-                    <span class="kpi-label">
-                        Stornoquote (JE)
-                        <span class="info-icon">i
-                            <div class="info-tooltip">
-                                <h4>Stornoquote (Summe)</h4>
-                                <p>Prozent der stornierten Jahreseuros.<br><br>
-                                <code>Storno-JE / Brutto-JE × 100%</code><br><br>
-                                Kann abweichen wenn Hochzahler stornieren.</p>
-                            </div>
-                        </span>
-                    </span>
-                    <div class="kpi-icon purple">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="kpi-value">7,2%</div>
-                <div class="kpi-change positive">
-                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                    </svg>
-                    -0,5% vs. Vormonat
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar">TK</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Tim Krause</div>
+                                            <div class="name-sub">TC: M. Wagner</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right">28</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot high"></span>
+                                        <span>6 (21,4%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">22</td>
+                                <td class="right value-money">3.360 €</td>
+                                <td class="right">280</td>
+                                <td class="right value-money value-positive">1.120 €</td>
+                                <td class="right">
+                                    <span class="mini-badge storno">672 € offen</span>
+                                </td>
+                                <td class="right">
+                                    <span class="value-warning">800 € offen</span>
+                                </td>
+                                <td class="right value-money">0 €</td>
+                                <td class="right value-money">0 €</td>
+                                <td class="right value-money value-negative">-352 €</td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="12">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Provision/EH</span>
+                                            <span class="detail-value">4,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Stornorücklage %</span>
+                                            <span class="detail-value">20%</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage gesamt</span>
+                                            <span class="detail-value">672 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage ausgezahlt</span>
+                                            <span class="detail-value">0 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Vorschuss gesamt</span>
+                                            <span class="detail-value">800 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Vorschuss getilgt</span>
+                                            <span class="detail-value">0 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empfohlen von</span>
+                                            <span class="detail-value">Anna Schmidt</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Hinweis</span>
+                                            <span class="detail-value value-negative">Hohe Stornoquote!</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar">LB</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Lisa Bauer</div>
+                                            <div class="name-sub">TC: S. Hoffmann</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right">45</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot low"></span>
+                                        <span>2 (4,4%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">43</td>
+                                <td class="right value-money">5.400 €</td>
+                                <td class="right">450</td>
+                                <td class="right value-money value-positive">1.800 €</td>
+                                <td class="right">
+                                    <span class="mini-badge paid">0 € offen</span>
+                                </td>
+                                <td class="right value-muted">0 €</td>
+                                <td class="right value-money">95 €</td>
+                                <td class="right value-money">1.535 €</td>
+                                <td class="right value-money value-highlight">360 €</td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="12">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Provision/EH</span>
+                                            <span class="detail-value">4,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Stornorücklage %</span>
+                                            <span class="detail-value">20%</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage gesamt</span>
+                                            <span class="detail-value">1.080 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage ausgezahlt</span>
+                                            <span class="detail-value">1.080 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empfohlene Werber</span>
+                                            <span class="detail-value">1 (Jan S.)</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empf.-EH gesamt</span>
+                                            <span class="detail-value">190 EH</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø JE/MG</span>
+                                            <span class="detail-value">125,58 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Einsatztage</span>
+                                            <span class="detail-value">12 Tage</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar">JS</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Jan Schulz</div>
+                                            <div class="name-sub">TC: S. Hoffmann</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right">18</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot low"></span>
+                                        <span>1 (5,6%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">17</td>
+                                <td class="right value-money">2.280 €</td>
+                                <td class="right">190</td>
+                                <td class="right value-money value-positive">760 €</td>
+                                <td class="right">
+                                    <span class="mini-badge open">152 € offen</span>
+                                </td>
+                                <td class="right">
+                                    <span class="value-warning">300 € offen</span>
+                                </td>
+                                <td class="right value-money">0 €</td>
+                                <td class="right value-money">308 €</td>
+                                <td class="right value-money value-highlight">152 €</td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="12">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Provision/EH</span>
+                                            <span class="detail-value">4,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Stornorücklage %</span>
+                                            <span class="detail-value">20%</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage gesamt</span>
+                                            <span class="detail-value">456 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage ausgezahlt</span>
+                                            <span class="detail-value">304 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Vorschuss gesamt</span>
+                                            <span class="detail-value">300 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Vorschuss getilgt</span>
+                                            <span class="detail-value">0 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empfohlen von</span>
+                                            <span class="detail-value">Lisa Bauer</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Neuer Werber seit</span>
+                                            <span class="detail-value">01.11.2024</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>Gesamt</strong></td>
+                                <td class="right">181</td>
+                                <td class="right">18 (9,9%)</td>
+                                <td class="right value-highlight">163</td>
+                                <td class="right value-money">21.840 €</td>
+                                <td class="right">1.820</td>
+                                <td class="right value-money value-positive">7.280 €</td>
+                                <td class="right">1.544 € offen</td>
+                                <td class="right">1.600 € offen</td>
+                                <td class="right value-money">275 €</td>
+                                <td class="right value-money">4.403 €</td>
+                                <td class="right value-money value-highlight">1.380 €</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Charts -->
-        <div class="chart-section">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">
-                        Wochenverlauf: MG & JE
-                        <span class="info-icon">i
-                            <div class="info-tooltip">
-                                <h4>Wochenverlauf</h4>
-                                <p>Zeigt die tägliche Entwicklung von Mitgliedern und Jahreseuros über die aktuelle Woche.</p>
-                            </div>
-                        </span>
-                    </h3>
-                    <select style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary);">
-                        <option>Diese Woche</option>
-                        <option>Letzte Woche</option>
-                        <option>Letzte 4 Wochen</option>
-                    </select>
+        <!-- TEAMLEITER SECTION -->
+        <div id="section-teamleiter" class="category-section" style="display: none;">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                        Teamleiter-Provisionen & Statistiken
+                        <span class="section-badge">2 TCs</span>
+                    </div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="weeklyChart"></canvas>
-                </div>
-            </div>
+                <div style="overflow-x: auto;">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Teamleiter</th>
+                                <th class="right">Team</th>
+                                <th class="right">Brutto MG</th>
+                                <th class="right">Storno</th>
+                                <th class="right">Netto MG</th>
+                                <th class="right">Team-JE</th>
+                                <th class="right">Team-EH</th>
+                                <th class="right">TC-Provision</th>
+                                <th class="right">TC-Rücklage</th>
+                                <th class="right">TC-Vorschuss</th>
+                                <th class="right">Ausgezahlt</th>
+                                <th class="right">Offen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">MW</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Michael Wagner</div>
+                                            <div class="name-sub">Senior TC</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right">3 Werber</td>
+                                <td class="right">98</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot medium"></span>
+                                        <span>11 (11,2%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">87</td>
+                                <td class="right value-money">12.960 €</td>
+                                <td class="right">1.080</td>
+                                <td class="right value-money value-positive">1.080 €</td>
+                                <td class="right">
+                                    <span class="mini-badge open">216 € offen</span>
+                                </td>
+                                <td class="right">
+                                    <span class="value-warning">400 € offen</span>
+                                </td>
+                                <td class="right value-money">464 €</td>
+                                <td class="right value-money value-highlight">616 €</td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="12">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">TC-Provision/EH</span>
+                                            <span class="detail-value">1,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">TC-Rücklage %</span>
+                                            <span class="detail-value">20%</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage gesamt</span>
+                                            <span class="detail-value">648 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage ausgezahlt</span>
+                                            <span class="detail-value">432 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø MG/Werber</span>
+                                            <span class="detail-value">32,7</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø JE/Werber</span>
+                                            <span class="detail-value">4.320 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø Storno Team</span>
+                                            <span class="detail-value">11,2%</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Bester Werber</span>
+                                            <span class="detail-value">Anna Schmidt</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
 
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">Typ-Verteilung</h3>
-                </div>
-                <div class="chart-container">
-                    <canvas id="typeChart"></canvas>
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">SH</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Sandra Hoffmann</div>
+                                            <div class="name-sub">TC</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right">2 Werber</td>
+                                <td class="right">83</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot low"></span>
+                                        <span>7 (8,4%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">76</td>
+                                <td class="right value-money">8.880 €</td>
+                                <td class="right">740</td>
+                                <td class="right value-money value-positive">740 €</td>
+                                <td class="right">
+                                    <span class="mini-badge paid">0 € offen</span>
+                                </td>
+                                <td class="right value-muted">0 €</td>
+                                <td class="right value-money">592 €</td>
+                                <td class="right value-money value-highlight">148 €</td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="12">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">TC-Provision/EH</span>
+                                            <span class="detail-value">1,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">TC-Rücklage %</span>
+                                            <span class="detail-value">20%</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage gesamt</span>
+                                            <span class="detail-value">444 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Rücklage ausgezahlt</span>
+                                            <span class="detail-value">444 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø MG/Werber</span>
+                                            <span class="detail-value">41,5</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø JE/Werber</span>
+                                            <span class="detail-value">4.440 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø Storno Team</span>
+                                            <span class="detail-value">8,4%</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Bester Werber</span>
+                                            <span class="detail-value">Lisa Bauer</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>Gesamt</strong></td>
+                                <td class="right">5 Werber</td>
+                                <td class="right">181</td>
+                                <td class="right">18 (9,9%)</td>
+                                <td class="right value-highlight">163</td>
+                                <td class="right value-money">21.840 €</td>
+                                <td class="right">1.820</td>
+                                <td class="right value-money value-positive">1.820 €</td>
+                                <td class="right">216 € offen</td>
+                                <td class="right">400 € offen</td>
+                                <td class="right value-money">1.056 €</td>
+                                <td class="right value-money value-highlight">764 €</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Records -->
-        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: var(--spacing-md); display: flex; align-items: center;">
-            Rekorde
-            <span class="info-icon">i
-                <div class="info-tooltip">
-                    <h4>Rekorde</h4>
-                    <p>Die besten Leistungen im ausgewählten Zeitraum. Rekorde motivieren das Team!</p>
+        <!-- KUNDEN SECTION -->
+        <div id="section-kunden" class="category-section" style="display: none;">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        Kunden & Werbegebiete - Kosten / Einnahmen / Marge
+                        <span class="section-badge">2 Kunden</span>
+                    </div>
                 </div>
-            </span>
-        </h2>
-        <div class="records-grid">
-            <div class="record-card gold">
-                <div class="record-icon">🏆</div>
-                <div class="record-label">
-                    Höchste MG (Tag)
-                    <span class="info-icon">i
-                        <div class="info-tooltip">
-                            <h4>Höchste Mitgliederzahl</h4>
-                            <p>Meiste geworbene Mitglieder an einem Tag.</p>
-                        </div>
-                    </span>
-                </div>
-                <div class="record-value">28 MG</div>
-                <div class="record-holder">Anna Schmidt</div>
-                <div class="record-date">15.11.2024</div>
-            </div>
+                <div style="overflow-x: auto;">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Kunde / Gebiet</th>
+                                <th class="right">Netto MG</th>
+                                <th class="right">Storno</th>
+                                <th class="right">Netto JE</th>
+                                <th class="right">Einnahmen</th>
+                                <th class="right">Kosten Werber</th>
+                                <th class="right">Kosten TC</th>
+                                <th class="right">Kosten Empf.</th>
+                                <th class="right">Kosten Recr.</th>
+                                <th class="right">Kosten Ges.</th>
+                                <th class="right">Marge</th>
+                                <th class="right">Marge %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: var(--bg-hover);">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">KV</div>
+                                        <div class="name-info">
+                                            <div class="name-main">DRK KV Ludwigshafen</div>
+                                            <div class="name-sub">3 Werbegebiete</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">118</td>
+                                <td class="right">13 (9,9%)</td>
+                                <td class="right value-money">15.340 €</td>
+                                <td class="right value-money value-positive">9.204 €</td>
+                                <td class="right value-money value-negative">-5.112 €</td>
+                                <td class="right value-money value-negative">-1.278 €</td>
+                                <td class="right value-money value-negative">-180 €</td>
+                                <td class="right value-money value-negative">-250 €</td>
+                                <td class="right value-money">-6.820 €</td>
+                                <td class="right value-money value-positive">+2.384 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 26%;"></div>
+                                        </div>
+                                        <span class="value-positive">+26%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 40px;">
+                                    <div class="name-info">
+                                        <div class="name-main">→ Ludwigshafen-Mitte e.V.</div>
+                                    </div>
+                                </td>
+                                <td class="right">52</td>
+                                <td class="right">5 (8,8%)</td>
+                                <td class="right value-money">6.760 €</td>
+                                <td class="right value-money">4.056 €</td>
+                                <td class="right value-money">-2.253 €</td>
+                                <td class="right value-money">-563 €</td>
+                                <td class="right value-money">-80 €</td>
+                                <td class="right value-money">-100 €</td>
+                                <td class="right value-money">-2.996 €</td>
+                                <td class="right value-money value-positive">+1.060 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 26%;"></div>
+                                        </div>
+                                        <span class="value-positive">+26%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 40px;">
+                                    <div class="name-info">
+                                        <div class="name-main">→ Ludwigshafen-Süd e.V.</div>
+                                    </div>
+                                </td>
+                                <td class="right">38</td>
+                                <td class="right">5 (11,6%)</td>
+                                <td class="right value-money">4.940 €</td>
+                                <td class="right value-money">2.964 €</td>
+                                <td class="right value-money">-1.647 €</td>
+                                <td class="right value-money">-412 €</td>
+                                <td class="right value-money">-60 €</td>
+                                <td class="right value-money">-80 €</td>
+                                <td class="right value-money">-2.199 €</td>
+                                <td class="right value-money value-positive">+765 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 26%;"></div>
+                                        </div>
+                                        <span class="value-positive">+26%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 40px;">
+                                    <div class="name-info">
+                                        <div class="name-main">→ Oggersheim e.V.</div>
+                                    </div>
+                                </td>
+                                <td class="right">28</td>
+                                <td class="right">3 (9,7%)</td>
+                                <td class="right value-money">3.640 €</td>
+                                <td class="right value-money">2.184 €</td>
+                                <td class="right value-money">-1.213 €</td>
+                                <td class="right value-money">-303 €</td>
+                                <td class="right value-money">-40 €</td>
+                                <td class="right value-money">-70 €</td>
+                                <td class="right value-money">-1.626 €</td>
+                                <td class="right value-money value-positive">+558 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 26%;"></div>
+                                        </div>
+                                        <span class="value-positive">+26%</span>
+                                    </div>
+                                </td>
+                            </tr>
 
-            <div class="record-card silver">
-                <div class="record-icon">💰</div>
-                <div class="record-label">
-                    Höchste JE (Tag)
-                    <span class="info-icon">i
-                        <div class="info-tooltip">
-                            <h4>Höchste Jahreseuros</h4>
-                            <p>Höchste Summe an Jahreseuros an einem Tag.</p>
-                        </div>
-                    </span>
+                            <tr style="background: var(--bg-hover);">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">KV</div>
+                                        <div class="name-info">
+                                            <div class="name-main">DRK KV Mannheim</div>
+                                            <div class="name-sub">2 Werbegebiete</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">45</td>
+                                <td class="right">5 (10,0%)</td>
+                                <td class="right value-money">6.500 €</td>
+                                <td class="right value-money value-positive">3.575 €</td>
+                                <td class="right value-money value-negative">-2.167 €</td>
+                                <td class="right value-money value-negative">-542 €</td>
+                                <td class="right value-money value-negative">-95 €</td>
+                                <td class="right value-money value-negative">-150 €</td>
+                                <td class="right value-money">-2.954 €</td>
+                                <td class="right value-money value-positive">+621 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 17%;"></div>
+                                        </div>
+                                        <span class="value-positive">+17%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 40px;">
+                                    <div class="name-info">
+                                        <div class="name-main">→ Mannheim-Nord e.V.</div>
+                                    </div>
+                                </td>
+                                <td class="right">28</td>
+                                <td class="right">3 (9,7%)</td>
+                                <td class="right value-money">4.060 €</td>
+                                <td class="right value-money">2.233 €</td>
+                                <td class="right value-money">-1.353 €</td>
+                                <td class="right value-money">-338 €</td>
+                                <td class="right value-money">-60 €</td>
+                                <td class="right value-money">-80 €</td>
+                                <td class="right value-money">-1.831 €</td>
+                                <td class="right value-money value-positive">+402 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 18%;"></div>
+                                        </div>
+                                        <span class="value-positive">+18%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 40px;">
+                                    <div class="name-info">
+                                        <div class="name-main">→ Mannheim-Süd e.V.</div>
+                                    </div>
+                                </td>
+                                <td class="right">17</td>
+                                <td class="right">2 (10,5%)</td>
+                                <td class="right value-money">2.440 €</td>
+                                <td class="right value-money">1.342 €</td>
+                                <td class="right value-money">-813 €</td>
+                                <td class="right value-money">-203 €</td>
+                                <td class="right value-money">-35 €</td>
+                                <td class="right value-money">-70 €</td>
+                                <td class="right value-money">-1.121 €</td>
+                                <td class="right value-money value-positive">+221 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 16%;"></div>
+                                        </div>
+                                        <span class="value-positive">+16%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>Gesamt</strong></td>
+                                <td class="right value-highlight">163</td>
+                                <td class="right">18 (9,9%)</td>
+                                <td class="right value-money">21.840 €</td>
+                                <td class="right value-money value-positive">12.779 €</td>
+                                <td class="right value-money">-7.280 €</td>
+                                <td class="right value-money">-1.820 €</td>
+                                <td class="right value-money">-275 €</td>
+                                <td class="right value-money">-400 €</td>
+                                <td class="right value-money">-9.775 €</td>
+                                <td class="right value-money value-positive">+3.004 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 24%;"></div>
+                                        </div>
+                                        <span class="value-positive">+24%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-                <div class="record-value">3.840 €</div>
-                <div class="record-holder">Max Mustermann</div>
-                <div class="record-date">18.11.2024</div>
-            </div>
-
-            <div class="record-card bronze">
-                <div class="record-icon">🎯</div>
-                <div class="record-label">
-                    JE von Empfehlung
-                    <span class="info-icon">i
-                        <div class="info-tooltip">
-                            <h4>Empfehlungs-JE</h4>
-                            <p>Höchste JE durch empfohlene Werber.<br><br>
-                            <strong>Empfehlungsprovision:</strong> 0,5 × EH des Empfohlenen</p>
-                        </div>
-                    </span>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-label">Einnahmen (Konditionen)</div>
+                        <div class="summary-value value-positive">12.779 €</div>
+                        <div class="summary-sub">0,60 € × 21.298 EH (Netto)</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Kosten Werber</div>
+                        <div class="summary-value">7.280 €</div>
+                        <div class="summary-sub">4,00 € × 1.820 EH</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Kosten TC</div>
+                        <div class="summary-value">1.820 €</div>
+                        <div class="summary-sub">1,00 € × 1.820 EH</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Netto Marge</div>
+                        <div class="summary-value value-positive">+3.004 €</div>
+                        <div class="summary-sub">23,5% Marge</div>
+                    </div>
                 </div>
-                <div class="record-value">12.600 €</div>
-                <div class="record-holder">Thomas Fischer</div>
-                <div class="record-date">Monat Nov</div>
-            </div>
-
-            <div class="record-card blue">
-                <div class="record-icon">⭐</div>
-                <div class="record-label">
-                    Höchster Einzelbeitrag
-                    <span class="info-icon">i
-                        <div class="info-tooltip">
-                            <h4>Höchster Einzelbeitrag</h4>
-                            <p>Höchster Jahresbeitrag eines einzelnen Mitglieds.</p>
-                        </div>
-                    </span>
-                </div>
-                <div class="record-value">600 €/Jahr</div>
-                <div class="record-holder">Werber: Julia Wagner</div>
-                <div class="record-date">22.11.2024</div>
             </div>
         </div>
 
-        <!-- Team Stats -->
-        <div class="team-section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    Team-Statistik (KW 47)
-                    <span class="info-icon">i
-                        <div class="info-tooltip">
-                            <h4>Team-Statistik</h4>
-                            <p>Leistung pro Teammitglied in der aktuellen Kalenderwoche.<br><br>
-                            <strong>Durchschnitt:</strong> Gesamtleistung / Anzahl Teammitglieder</p>
-                        </div>
-                    </span>
-                </h2>
-                <select style="padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary);">
-                    <option>KW 47 (aktuell)</option>
-                    <option>KW 46</option>
-                    <option>KW 45</option>
-                </select>
+        <!-- KAMPAGNEN SECTION -->
+        <div id="section-kampagnen" class="category-section" style="display: none;">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        Kampagnen-Übersicht
+                        <span class="section-badge">3 Kampagnen</span>
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Kampagne</th>
+                                <th class="right">Zeitraum</th>
+                                <th class="right">Brutto MG</th>
+                                <th class="right">Storno</th>
+                                <th class="right">Netto MG</th>
+                                <th class="right">Netto JE</th>
+                                <th class="right">Einnahmen</th>
+                                <th class="right">Kosten Ges.</th>
+                                <th class="right">Marge</th>
+                                <th class="right">Marge %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">FK</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Frühjahrskampagne 2024</div>
+                                            <div class="name-sub">DRK KV Ludwigshafen</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right value-muted">01.03 - 30.04</td>
+                                <td class="right">85</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot low"></span>
+                                        <span>6 (7,1%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">79</td>
+                                <td class="right value-money">10.270 €</td>
+                                <td class="right value-money value-positive">5.648 €</td>
+                                <td class="right value-money">-4.567 €</td>
+                                <td class="right value-money value-positive">+1.081 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 19%;"></div>
+                                        </div>
+                                        <span class="value-positive">+19%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="10">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Kondition/EH</span>
+                                            <span class="detail-value">0,55 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Werber-Prov./EH</span>
+                                            <span class="detail-value">4,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">TC-Prov./EH</span>
+                                            <span class="detail-value">1,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empf.-Prov./EH</span>
+                                            <span class="detail-value">0,50 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Werber eingesetzt</span>
+                                            <span class="detail-value">4</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Einsatztage gesamt</span>
+                                            <span class="detail-value">42</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø MG/Tag</span>
+                                            <span class="detail-value">2,0</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø JE/MG</span>
+                                            <span class="detail-value">130 €</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">SK</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Sommerkampagne 2024</div>
+                                            <div class="name-sub">DRK KV Mannheim</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right value-muted">01.06 - 31.07</td>
+                                <td class="right">50</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot medium"></span>
+                                        <span>6 (12,0%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">44</td>
+                                <td class="right value-money">6.380 €</td>
+                                <td class="right value-money value-positive">3.509 €</td>
+                                <td class="right value-money">-2.924 €</td>
+                                <td class="right value-money value-positive">+585 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 17%;"></div>
+                                        </div>
+                                        <span class="value-positive">+17%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="10">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Kondition/EH</span>
+                                            <span class="detail-value">0,55 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Werber-Prov./EH</span>
+                                            <span class="detail-value">4,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">TC-Prov./EH</span>
+                                            <span class="detail-value">1,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empf.-Prov./EH</span>
+                                            <span class="detail-value">0,50 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Werber eingesetzt</span>
+                                            <span class="detail-value">3</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Einsatztage gesamt</span>
+                                            <span class="detail-value">28</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø MG/Tag</span>
+                                            <span class="detail-value">1,8</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Hinweis</span>
+                                            <span class="detail-value value-warning">Stornoquote beobachten</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="expandable-row" onclick="toggleDetail(this)">
+                                <td>
+                                    <div class="name-cell">
+                                        <div class="avatar" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">HK</div>
+                                        <div class="name-info">
+                                            <div class="name-main">Herbstkampagne 2024</div>
+                                            <div class="name-sub">DRK KV Ludwigshafen</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="right value-muted">01.09 - laufend</td>
+                                <td class="right">46</td>
+                                <td class="right">
+                                    <div class="storno-indicator">
+                                        <span class="storno-dot medium"></span>
+                                        <span>6 (13,0%)</span>
+                                    </div>
+                                </td>
+                                <td class="right value-highlight">40</td>
+                                <td class="right value-money">5.190 €</td>
+                                <td class="right value-money value-positive">3.114 €</td>
+                                <td class="right value-money">-2.284 €</td>
+                                <td class="right value-money value-positive">+830 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 27%;"></div>
+                                        </div>
+                                        <span class="value-positive">+27%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="detail-row">
+                                <td colspan="10">
+                                    <div class="detail-content">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Kondition/EH</span>
+                                            <span class="detail-value">0,60 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Werber-Prov./EH</span>
+                                            <span class="detail-value">4,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">TC-Prov./EH</span>
+                                            <span class="detail-value">1,00 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Empf.-Prov./EH</span>
+                                            <span class="detail-value">0,50 €</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Werber eingesetzt</span>
+                                            <span class="detail-value">5</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Einsatztage gesamt</span>
+                                            <span class="detail-value">18 (laufend)</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Ø MG/Tag</span>
+                                            <span class="detail-value">2,6</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Status</span>
+                                            <span class="detail-value value-positive">Aktiv</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>Gesamt</strong></td>
+                                <td class="right"></td>
+                                <td class="right">181</td>
+                                <td class="right">18 (9,9%)</td>
+                                <td class="right value-highlight">163</td>
+                                <td class="right value-money">21.840 €</td>
+                                <td class="right value-money value-positive">12.271 €</td>
+                                <td class="right value-money">-9.775 €</td>
+                                <td class="right value-money value-positive">+2.496 €</td>
+                                <td class="right">
+                                    <div class="marge-bar">
+                                        <div class="marge-visual">
+                                            <div class="marge-fill positive" style="width: 20%;"></div>
+                                        </div>
+                                        <span class="value-positive">+20%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
-            <table class="team-table">
-                <thead>
-                    <tr>
-                        <th>Mitarbeiter</th>
-                        <th>MG</th>
-                        <th>JE</th>
-                        <th>EH</th>
-                        <th>Ø MG/Tag</th>
-                        <th>Ø JE/Tag</th>
-                        <th>Leistung</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="team-member">
-                                <div class="team-avatar">AS</div>
-                                <div>
-                                    <div class="team-name">Anna Schmidt</div>
-                                    <div class="team-role">Senior Werber</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>45</td>
-                        <td>5.400 €</td>
-                        <td>450</td>
-                        <td>9,0</td>
-                        <td>1.080 €</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 95%;"></div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="team-member">
-                                <div class="team-avatar">MM</div>
-                                <div>
-                                    <div class="team-name">Max Mustermann</div>
-                                    <div class="team-role">Werber</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>38</td>
-                        <td>4.560 €</td>
-                        <td>380</td>
-                        <td>7,6</td>
-                        <td>912 €</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 80%;"></div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="team-member">
-                                <div class="team-avatar">TF</div>
-                                <div>
-                                    <div class="team-name">Thomas Fischer</div>
-                                    <div class="team-role">Junior Werber</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>32</td>
-                        <td>3.840 €</td>
-                        <td>320</td>
-                        <td>6,4</td>
-                        <td>768 €</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 67%;"></div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="team-member">
-                                <div class="team-avatar">JW</div>
-                                <div>
-                                    <div class="team-name">Julia Wagner</div>
-                                    <div class="team-role">Werber</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>27</td>
-                        <td>3.240 €</td>
-                        <td>270</td>
-                        <td>5,4</td>
-                        <td>648 €</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 57%;"></div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-                <tfoot style="background: var(--bg-secondary); font-weight: 600;">
-                    <tr>
-                        <td>Gesamt / Durchschnitt</td>
-                        <td>142</td>
-                        <td>17.040 €</td>
-                        <td>1.420</td>
-                        <td>7,1</td>
-                        <td>852 €</td>
-                        <td></td>
-                    </tr>
-                </tfoot>
-            </table>
         </div>
+
     </div>
 
     <script>
-        // Period tabs
-        document.querySelectorAll('.period-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                // Reload data for period
-                updateCharts();
-            });
-        });
+        // Category tabs
+        function showCategory(category) {
+            // Update tabs
+            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+            event.target.closest('.category-tab').classList.add('active');
 
-        // Weekly Chart
-        const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-        const weeklyChart = new Chart(weeklyCtx, {
-            type: 'line',
-            data: {
-                labels: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
-                datasets: [
-                    {
-                        label: 'MG',
-                        data: [18, 24, 22, 28, 32, 12, 6],
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'JE (€)',
-                        data: [2160, 2880, 2640, 3360, 3840, 1440, 720],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Mitglieder'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Jahreseuros (€)'
-                        },
-                        grid: {
-                            drawOnChartArea: false
-                        }
-                    }
-                }
-            }
-        });
-
-        // Type Chart
-        const typeCtx = document.getElementById('typeChart').getContext('2d');
-        const typeChart = new Chart(typeCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['NMG (Neumitglied)', 'ERH (Erhöhung)'],
-                datasets: [{
-                    data: [118, 24],
-                    backgroundColor: ['#6366f1', '#f59e0b'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    }
-                }
-            }
-        });
-
-        function updateCharts() {
-            // In real app, fetch new data and update charts
-            console.log('Updating charts...');
+            // Show/hide sections
+            document.querySelectorAll('.category-section').forEach(s => s.style.display = 'none');
+            document.getElementById('section-' + category).style.display = 'block';
         }
 
+        // Toggle detail row
+        function toggleDetail(row) {
+            row.classList.toggle('expanded');
+            const detailRow = row.nextElementSibling;
+            if (detailRow && detailRow.classList.contains('detail-row')) {
+                detailRow.classList.toggle('show');
+            }
+        }
+
+        // Filter function
+        function applyFilters() {
+            console.log('Applying filters...');
+            // In real app: reload data based on filters
+        }
+
+        // Export function
         function exportStats() {
             alert('Statistik wird als PDF exportiert...');
         }
