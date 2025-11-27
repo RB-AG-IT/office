@@ -1539,7 +1539,7 @@
                 <!-- Karrierestufe mit Von/Bis und Faktor -->
                 <div class="role-provision-section">
                     <div class="role-select-row">
-                        <div class="form-group" style="width: 200px; margin-bottom: 0;">
+                        <div class="form-group" style="width: 180px; margin-bottom: 0;">
                             <label class="form-label">Karrierestufe *</label>
                             <select class="form-input" id="mainRole">
                                 <option value="">Bitte auswählen</option>
@@ -1552,6 +1552,16 @@
                                 <option value="kad">KAD</option>
                                 <option value="fue">FUE</option>
                             </select>
+                        </div>
+                        <div class="form-group" style="width: 100px; margin-bottom: 0;">
+                            <label class="form-label">
+                                Ind. Faktor
+                                <span class="optional-badge" style="font-size: 9px;">Optional</span>
+                            </label>
+                            <div class="provision-input-wrapper" style="height: 42px;">
+                                <input type="number" class="form-input" id="customFactor" placeholder="-" min="0" max="15" step="0.1" style="text-align: center;">
+                                <span class="provision-unit">×</span>
+                            </div>
                         </div>
                         <div class="form-group" style="margin-bottom: 0;">
                             <label class="form-label">Gültig von - bis</label>
@@ -1633,71 +1643,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Individueller Faktor (gleiches Design) -->
-                <div class="role-provision-section" style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--border-color);">
-                    <div class="role-select-row">
-                        <div class="form-group" style="width: 200px; margin-bottom: 0;">
-                            <label class="form-label">
-                                Individueller Faktor
-                                <span class="optional-badge">Optional</span>
-                            </label>
-                            <div class="provision-input-wrapper" style="height: 42px;">
-                                <input type="number" class="form-input" id="customCommission" placeholder="6.5" min="0" max="15" step="0.1" style="text-align: center;">
-                                <span class="provision-unit">×</span>
-                            </div>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label">Gültig von - bis</label>
-                            <div class="kw-range-selector">
-                                <div class="kw-selector kw-selector-compact" id="customKwFromSelector">
-                                    <button type="button" class="kw-nav-btn" id="customKwFromPrev">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                        </svg>
-                                    </button>
-                                    <div class="kw-display">
-                                        <span class="kw-number" id="customKwFromNumber">KW 48</span>
-                                        <span class="kw-year" id="customKwFromYear">2025</span>
-                                    </div>
-                                    <button type="button" class="kw-nav-btn" id="customKwFromNext">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <span class="kw-range-separator">–</span>
-                                <div class="kw-selector kw-selector-compact" id="customKwToSelector">
-                                    <button type="button" class="kw-nav-btn" id="customKwToPrev">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                        </svg>
-                                    </button>
-                                    <div class="kw-display">
-                                        <span class="kw-number" id="customKwToNumber">KW 52</span>
-                                        <span class="kw-year" id="customKwToYear">2025</span>
-                                    </div>
-                                    <button type="button" class="kw-nav-btn" id="customKwToNext">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            <input type="hidden" id="customEffectiveDateFrom" value="">
-                            <input type="hidden" id="customEffectiveDateTo" value="">
-                        </div>
-                    </div>
-                    <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
-                        Überschreibt den Karrierestufen-Faktor für den gewählten Zeitraum
-                    </p>
-                    <p class="kw-hint" id="customKwHint" style="display: none; font-size: var(--font-size-xs); color: var(--warning-color); margin-top: var(--spacing-xs);">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
-                        <span id="customKwHintText"></span>
-                    </p>
                 </div>
 
                 <!-- Zusatz-Rollen mit Benefits -->
@@ -3145,150 +3090,6 @@
         updateKwDisplay();
         updateRoleKwToDisplay();
 
-        // ================================================================
-        // KW FÜR INDIVIDUELLE PROVISION (VON - BIS)
-        // ================================================================
-
-        // Von-Datum
-        let customKwFromYear = new Date().getFullYear();
-        let customKwFromWeek = getWeekNumber(new Date());
-
-        // Bis-Datum (default: Ende des Jahres)
-        let customKwToYear = new Date().getFullYear();
-        let customKwToWeek = 52;
-
-        function updateCustomKwFromDisplay() {
-            document.getElementById('customKwFromNumber').textContent = `KW ${customKwFromWeek}`;
-            document.getElementById('customKwFromYear').textContent = customKwFromYear;
-
-            const effectiveDate = getMondayOfWeek(customKwFromWeek, customKwFromYear);
-            document.getElementById('customEffectiveDateFrom').value = effectiveDate.toISOString().split('T')[0];
-
-            // Validate: "from" should not be after "to"
-            validateKwRange();
-        }
-
-        function updateCustomKwToDisplay() {
-            document.getElementById('customKwToNumber').textContent = `KW ${customKwToWeek}`;
-            document.getElementById('customKwToYear').textContent = customKwToYear;
-
-            const effectiveDate = getMondayOfWeek(customKwToWeek, customKwToYear);
-            document.getElementById('customEffectiveDateTo').value = effectiveDate.toISOString().split('T')[0];
-
-            // Validate: "to" should not be before "from"
-            validateKwRange();
-        }
-
-        function validateKwRange() {
-            const fromSelector = document.getElementById('customKwFromSelector');
-            const toSelector = document.getElementById('customKwToSelector');
-            const hint = document.getElementById('customKwHint');
-            const hintText = document.getElementById('customKwHintText');
-
-            const fromDate = getMondayOfWeek(customKwFromWeek, customKwFromYear);
-            const toDate = getMondayOfWeek(customKwToWeek, customKwToYear);
-
-            if (fromDate > toDate) {
-                fromSelector.classList.add('changed');
-                toSelector.classList.add('changed');
-                hint.style.display = 'block';
-                hintText.textContent = 'Fehler: "Von" darf nicht nach "Bis" liegen';
-            } else {
-                fromSelector.classList.remove('changed');
-                toSelector.classList.remove('changed');
-                hint.style.display = 'none';
-            }
-        }
-
-        // From Navigation
-        document.getElementById('customKwFromPrev').addEventListener('click', function() {
-            customKwFromWeek--;
-            if (customKwFromWeek < 1) {
-                customKwFromYear--;
-                customKwFromWeek = getWeeksInYear(customKwFromYear);
-            }
-            updateCustomKwFromDisplay();
-        });
-
-        document.getElementById('customKwFromNext').addEventListener('click', function() {
-            const maxWeeks = getWeeksInYear(customKwFromYear);
-            customKwFromWeek++;
-            if (customKwFromWeek > maxWeeks) {
-                customKwFromYear++;
-                customKwFromWeek = 1;
-            }
-            updateCustomKwFromDisplay();
-        });
-
-        // To Navigation
-        document.getElementById('customKwToPrev').addEventListener('click', function() {
-            customKwToWeek--;
-            if (customKwToWeek < 1) {
-                customKwToYear--;
-                customKwToWeek = getWeeksInYear(customKwToYear);
-            }
-            updateCustomKwToDisplay();
-        });
-
-        document.getElementById('customKwToNext').addEventListener('click', function() {
-            const maxWeeks = getWeeksInYear(customKwToYear);
-            customKwToWeek++;
-            if (customKwToWeek > maxWeeks) {
-                customKwToYear++;
-                customKwToWeek = 1;
-            }
-            updateCustomKwToDisplay();
-        });
-
-        // Manuelle KW-Eingabe für individuelle Provision (Von)
-        document.getElementById('customKwFromNumber').addEventListener('click', function() {
-            const input = prompt('Kalenderwoche eingeben (1-52):', customKwFromWeek);
-            if (input !== null) {
-                const week = parseInt(input);
-                if (week >= 1 && week <= getWeeksInYear(customKwFromYear)) {
-                    customKwFromWeek = week;
-                    updateCustomKwFromDisplay();
-                }
-            }
-        });
-
-        document.getElementById('customKwFromYear').addEventListener('click', function() {
-            const input = prompt('Jahr eingeben:', customKwFromYear);
-            if (input !== null) {
-                const year = parseInt(input);
-                if (year >= 2020 && year <= 2100) {
-                    customKwFromYear = year;
-                    updateCustomKwFromDisplay();
-                }
-            }
-        });
-
-        // Manuelle KW-Eingabe für individuelle Provision (Bis)
-        document.getElementById('customKwToNumber').addEventListener('click', function() {
-            const input = prompt('Kalenderwoche eingeben (1-52):', customKwToWeek);
-            if (input !== null) {
-                const week = parseInt(input);
-                if (week >= 1 && week <= getWeeksInYear(customKwToYear)) {
-                    customKwToWeek = week;
-                    updateCustomKwToDisplay();
-                }
-            }
-        });
-
-        document.getElementById('customKwToYear').addEventListener('click', function() {
-            const input = prompt('Jahr eingeben:', customKwToYear);
-            if (input !== null) {
-                const year = parseInt(input);
-                if (year >= 2020 && year <= 2100) {
-                    customKwToYear = year;
-                    updateCustomKwToDisplay();
-                }
-            }
-        });
-
-        updateCustomKwFromDisplay();
-        updateCustomKwToDisplay();
-
         // Vorschau aktualisieren
         function updateProvisionPreview() {
             const vorschuss = parseInt(document.getElementById('vorschussAnteil').value) || 70;
@@ -3311,6 +3112,39 @@
             checkKwOverlap();
         });
 
+        // Individueller Faktor Änderung → Anzeige aktualisieren
+        document.getElementById('customFactor').addEventListener('input', function() {
+            updateFactorDisplay();
+            checkRoleCanBeSaved();
+        });
+
+        // Faktor-Anzeige aktualisieren (mit individuellem Faktor)
+        function updateFactorDisplay() {
+            const customFactor = document.getElementById('customFactor').value;
+            const roleSelect = document.getElementById('mainRole');
+            const faktorDisplay = document.getElementById('displayFaktor');
+            const faktorLabel = faktorDisplay.previousElementSibling;
+
+            if (customFactor && parseFloat(customFactor) > 0) {
+                // Individueller Faktor eingetragen
+                faktorDisplay.textContent = parseFloat(customFactor).toFixed(1);
+                faktorLabel.textContent = 'Individuell';
+                faktorDisplay.parentElement.style.background = 'linear-gradient(135deg, #FF6B6B 0%, #ee5a5a 100%)';
+            } else if (roleSelect.value) {
+                // Karrierestufe-Faktor verwenden
+                const config = ROLE_CONFIG[roleSelect.value];
+                if (config) {
+                    faktorDisplay.textContent = config.faktor.toFixed(1);
+                    faktorLabel.textContent = 'Faktor';
+                    faktorDisplay.parentElement.style.background = 'linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%)';
+                }
+            } else {
+                faktorDisplay.textContent = '-';
+                faktorLabel.textContent = 'Faktor';
+                faktorDisplay.parentElement.style.background = 'linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%)';
+            }
+        }
+
         // ================================================================
         // KARRIERESTUFE SEPARAT SPEICHERN
         // ================================================================
@@ -3321,15 +3155,17 @@
         // Prüfen ob Speicherbutton aktiviert werden soll
         function checkRoleCanBeSaved() {
             const roleSelect = document.getElementById('mainRole');
+            const customFactor = document.getElementById('customFactor').value;
             const saveBtn = document.getElementById('saveRoleBtn');
             const hint = document.getElementById('roleSaveHint');
 
-            if (roleSelect.value) {
+            // Button aktivieren wenn Karrierestufe ODER individueller Faktor ausgefüllt
+            if (roleSelect.value || (customFactor && parseFloat(customFactor) > 0)) {
                 saveBtn.disabled = false;
                 hint.textContent = '';
             } else {
                 saveBtn.disabled = true;
-                hint.textContent = 'Bitte eine Karrierestufe auswählen';
+                hint.textContent = 'Bitte eine Karrierestufe oder individuellen Faktor eingeben';
             }
         }
 
@@ -3364,8 +3200,10 @@
                 warningEl.style.display = 'block';
                 const overlapDetails = overlaps.map(entry => {
                     const config = ROLE_CONFIG[entry.role] || { name: entry.role, faktor: '-' };
+                    const faktor = entry.customFactor ? entry.customFactor.toFixed(1) : config.faktor;
+                    const roleName = entry.customFactor ? 'Individuell' : (config.short || config.name);
                     const toText = entry.toKw ? `KW ${entry.toKw}/${entry.toYear}` : '∞';
-                    return `<div style="margin-top: 4px;">• <strong>${config.short || config.name}</strong> (Faktor ${config.faktor}) in KW ${entry.fromKw}/${entry.fromYear} - ${toText}</div>`;
+                    return `<div style="margin-top: 4px;">• <strong>${roleName}</strong> (Faktor ${faktor}) in KW ${entry.fromKw}/${entry.fromYear} - ${toText}</div>`;
                 }).join('');
                 detailsEl.innerHTML = `Diese KW überschneidet sich mit vorhandenen Einträgen:<br>${overlapDetails}<br><em style="margin-top: 8px; display: block;">Die neue Stufe überschreibt die überlappenden Zeiträume.</em>`;
             } else {
@@ -3384,10 +3222,13 @@
         // Karrierestufe speichern
         async function saveRoleEntry() {
             const roleSelect = document.getElementById('mainRole');
+            const customFactorInput = document.getElementById('customFactor');
+            const customFactor = customFactorInput.value ? parseFloat(customFactorInput.value) : null;
             const saveBtn = document.getElementById('saveRoleBtn');
             const hint = document.getElementById('roleSaveHint');
 
-            if (!roleSelect.value) return;
+            // Mindestens Rolle oder individueller Faktor muss ausgefüllt sein
+            if (!roleSelect.value && !customFactor) return;
 
             saveBtn.disabled = true;
             saveBtn.classList.add('saving');
@@ -3400,7 +3241,8 @@
 
             const newEntry = {
                 id: Date.now(),
-                role: roleSelect.value,
+                role: roleSelect.value || 'individuell',
+                customFactor: customFactor,
                 fromKw: currentKwWeek,
                 fromYear: currentKwYear,
                 toKw: roleKwToWeek,
@@ -3456,9 +3298,15 @@
                     Gespeichert!
                 `;
 
-                const config = ROLE_CONFIG[roleSelect.value];
                 const toText = newEntry.toKw ? `KW ${newEntry.toKw}/${newEntry.toYear}` : '∞';
-                hint.innerHTML = `<span style="color: var(--success-color);">✓ ${config.short || config.name} für KW ${newEntry.fromKw}/${newEntry.fromYear} - ${toText} gespeichert</span>`;
+                let displayName;
+                if (newEntry.customFactor) {
+                    displayName = `Individuell (${newEntry.customFactor.toFixed(1)}×)`;
+                } else {
+                    const config = ROLE_CONFIG[roleSelect.value];
+                    displayName = config ? (config.short || config.name) : roleSelect.value;
+                }
+                hint.innerHTML = `<span style="color: var(--success-color);">✓ ${displayName} für KW ${newEntry.fromKw}/${newEntry.fromYear} - ${toText} gespeichert</span>`;
 
                 // Historie aktualisieren
                 renderRoleHistoryLocal();
@@ -3497,11 +3345,21 @@
                 const toText = entry.toKw ? `KW ${entry.toKw}/${entry.toYear}` : '∞ (unbegrenzt)';
                 const isFirst = index === 0;
 
+                // Name und Faktor bestimmen (mit individuellem Faktor wenn vorhanden)
+                let displayName, displayFactor;
+                if (entry.customFactor) {
+                    displayName = entry.role !== 'individuell' ? `${config.name} (Ind.)` : 'Individuell';
+                    displayFactor = entry.customFactor.toFixed(1);
+                } else {
+                    displayName = `${config.name} (${config.short || entry.role.toUpperCase()})`;
+                    displayFactor = config.faktor;
+                }
+
                 return `
-                    <div class="role-history-item ${isFirst ? 'current' : 'inactive'}">
+                    <div class="role-history-item ${isFirst ? 'current' : 'inactive'}" ${entry.customFactor ? 'style="border-left-color: #FF6B6B;"' : ''}>
                         <div class="role-history-header">
-                            <span class="role-history-name">${config.name} (${config.short || entry.role.toUpperCase()})</span>
-                            <span class="role-history-duration-badge">Faktor ${config.faktor}</span>
+                            <span class="role-history-name">${displayName}</span>
+                            <span class="role-history-duration-badge" ${entry.customFactor ? 'style="background: #FF6B6B;"' : ''}>Faktor ${displayFactor}</span>
                         </div>
                         <div class="role-history-dates">KW ${entry.fromKw}/${entry.fromYear} - ${toText}</div>
                     </div>
@@ -3573,13 +3431,12 @@
         // Faktor und Benefits im Provisions-Bereich anzeigen
         function updateRoleFaktorAndBenefits(roleKey) {
             const config = ROLE_CONFIG[roleKey];
-            const faktorDisplay = document.getElementById('displayFaktor');
             const benefitsContainer = document.getElementById('roleBenefits');
 
-            if (config) {
-                // Faktor anzeigen
-                faktorDisplay.textContent = config.faktor.toFixed(1);
+            // Faktor aktualisieren (berücksichtigt individuellen Faktor)
+            updateFactorDisplay();
 
+            if (config) {
                 // Benefits anzeigen
                 benefitsContainer.innerHTML = `
                     <div class="benefits-list">
@@ -3588,7 +3445,6 @@
                 `;
             } else {
                 // Zurücksetzen
-                faktorDisplay.textContent = '-';
                 benefitsContainer.innerHTML = '<span class="benefits-placeholder">Wähle eine Karrierestufe um die Benefits zu sehen</span>';
             }
         }
