@@ -21,66 +21,126 @@
 
 ## Aufstiegsanforderungen
 
+> **Hinweis zu Empfehlungen:** Eine Empfehlung gilt erst als erfüllt, wenn die **Anreise vom TC (Tour Coordinator) bestätigt** wurde. Nur bestätigte Anreisen zählen für den Karriereaufstieg.
+
 ### Stufe I → II (SMA → EMA)
 **Typ: Gesamtzahlen (kumulativ)**
 
+#### Wochenleistung (einmalig erreichen)
+| Anforderung | Ziel |
+|-------------|------|
+| MG in einer Woche | 20 |
+| EH in einer Woche | 90 |
+
+#### Einmalig
+| Anforderung | Ziel |
+|-------------|------|
+| Wochen aktiv | 1 |
+
+#### Stornoquote
+| Anforderung | Ziel |
+|-------------|------|
+| Stornoquote | < 15% |
+
+#### Sammel-Anforderungen
 | Anforderung | Ziel |
 |-------------|------|
 | Mitglieder insgesamt | 20 |
-| Wochen aktiv | 1 |
+| EH insgesamt | 90 |
 | 120 JE Mitglied | 1× |
 | 60 JE Mitglied | 1× |
 | 50 JE Mitglied | 1× |
 | 30 JE Mitglied | 1× |
-| EH insgesamt | 90 |
 
 ---
 
 ### Stufe II → III (EMA → JMM)
 **Typ: Gesamtzahlen (kumulativ)**
 
+#### Wochenleistung (einmalig erreichen)
+| Anforderung | Ziel |
+|-------------|------|
+| MG in einer Woche | 30 |
+| EH in einer Woche | 130 |
+| ERH in einer Woche | 5 |
+
+#### Stornoquote
+| Anforderung | Ziel |
+|-------------|------|
+| Stornoquote | < 12% |
+
+#### Sammel-Anforderungen
 | Anforderung | Ziel |
 |-------------|------|
 | Mitglieder insgesamt | 50 |
+| EH insgesamt | 220 |
+| ERH insgesamt | 5 |
 | 120 JE Mitglied | 4× |
 | 150 JE Mitglied | 2× |
 | 100 JE Mitglied | 3× |
 | 60 JE Mitglied | 7× |
 | 50 JE Mitglied | 5× |
 | 30 JE Mitglied | 5× |
-| EH insgesamt | 220 |
-| ERH insgesamt | 5 |
-| Stornoquote | < 12% |
 
 ---
 
 ### Stufe III → IV (JMM → EMM)
 **Typ: Achievements (Reset bei Stufenaufstieg!)**
 
-#### Schriebe (kumulativ innerhalb der Stufe)
+#### Wochenleistung (einmalig erreichen)
+| Achievement | Beschreibung |
+|-------------|--------------|
+| 350 EH Woche | 350 EH in einer Woche |
+| 100 EH Tag | 100 EH an einem Tag |
+| 40 MG Woche | 40 Mitglieder in einer Woche |
+| 5 ERH Woche | 5 ERH in einer Woche |
+| 10 MG Tag | 10 Mitglieder an einem Tag |
+
+#### Einmalig
+| Anforderung | Beschreibung |
+|-------------|--------------|
+| **Empfehlung** | **1 Empfehlung (Anreise vom TC bestätigt)** |
+| 30 EH Schrieb | 1× 30 EH Schrieb |
+
+#### Stornoquote
+| Anforderung | Ziel |
+|-------------|------|
+| Stornoquote | < 9% |
+
+#### Sammel-Anforderungen (kumulativ innerhalb der Stufe)
 | Anforderung | Ziel |
 |-------------|------|
 | 50 JE Schriebe | 10× |
 | 120 JE Schriebe | 10× |
 | 240 JE Schriebe | 2× |
 
-#### Achievements (einmalig erreichen)
-| Achievement | Beschreibung |
-|-------------|--------------|
-| 350 EH Woche | 350 EH in einer Woche |
-| 100 EH Tag | 100 EH an einem Tag |
-| 30 EH Schrieb | 1× 30 EH Schrieb |
-| 40 MG Woche | 40 Mitglieder in einer Woche |
-| 5 ERH Woche | 5 ERH in einer Woche |
-| 10 MG Tag | 10 Mitglieder an einem Tag |
-| Stornoquote | < 10% |
-
 ---
 
 ### Stufe IV → V (EMM → CEMM)
 **Typ: Achievements (Reset bei Stufenaufstieg!)**
 
-#### Schriebe (kumulativ innerhalb der Stufe)
+#### Wochenleistung (einmalig erreichen)
+| Achievement | Beschreibung |
+|-------------|--------------|
+| 450 EH Woche | 450 EH in einer Woche |
+| 130 EH Tag | 130 EH an einem Tag |
+| 60 MG Woche | 60 Mitglieder in einer Woche |
+| 5 ERH Woche | 5 ERH in einer Woche |
+| 13 MG Tag | 13 Mitglieder an einem Tag |
+
+#### Einmalig
+| Anforderung | Beschreibung |
+|-------------|--------------|
+| **Empfehlungen** | **2 Empfehlungen (Anreise vom TC bestätigt)** |
+| Teamleitung | 3 Wochen Teamleitung |
+| 30 EH Schrieb | 5× 30 EH Schrieb |
+
+#### Stornoquote
+| Anforderung | Ziel |
+|-------------|------|
+| Stornoquote | < 8% |
+
+#### Sammel-Anforderungen (kumulativ innerhalb der Stufe)
 | Anforderung | Ziel |
 |-------------|------|
 | 60 JE Schriebe | 50× |
@@ -88,24 +148,36 @@
 | 120 JE Schriebe | 25× |
 | 240 JE Schriebe | 10× |
 
-#### Achievements (einmalig erreichen)
-| Achievement | Beschreibung |
-|-------------|--------------|
-| 450 EH Woche | 450 EH in einer Woche |
-| 130 EH Tag | 130 EH an einem Tag |
-| 30 EH Schrieb | 5× 30 EH Schrieb |
-| 60 MG Woche | 60 Mitglieder in einer Woche |
-| 5 ERH Woche | 5 ERH in einer Woche |
-| 13 MG Tag | 13 Mitglieder an einem Tag |
-| Teamleitung | 3 Wochen Teamleitung |
-| Stornoquote | < 8% |
-
 ---
 
 ### Stufe V → VI (CEMM → Spitzen Botschafter)
 **Typ: Achievements (Reset bei Stufenaufstieg!)**
 
-#### Schriebe (kumulativ innerhalb der Stufe)
+#### Wochenleistung (einmalig erreichen)
+| Achievement | Beschreibung |
+|-------------|--------------|
+| 600 EH Woche | 600 EH in einer Woche |
+| 150 EH Tag | 150 EH an einem Tag |
+| 80 MG Woche | 80 Mitglieder in einer Woche |
+| 15 ERH Woche | 15 ERH in einer Woche |
+| 17 MG Tag | 17 Mitglieder an einem Tag |
+
+#### Einmalig
+| Anforderung | Beschreibung |
+|-------------|--------------|
+| **Empfehlungen** | **3 Empfehlungen (Anreise vom TC bestätigt)** |
+| Teamleitung | 3 Wochen Teamleitung |
+| 50 EH Schrieb (netto) | 50 EH Schrieb netto |
+| 100 EH Tage | 10× einen 100 EH Tag |
+| 300 EH Wochen | 5× eine 300 EH Woche |
+| 400 EH Wochen | 3× eine 400 EH Woche |
+
+#### Stornoquote
+| Anforderung | Ziel |
+|-------------|------|
+| Stornoquote | < 8% |
+
+#### Sammel-Anforderungen (kumulativ innerhalb der Stufe)
 | Anforderung | Ziel |
 |-------------|------|
 | 60 JE Schriebe | 75× |
@@ -113,27 +185,18 @@
 | 120 JE Schriebe | 75× |
 | 240 JE Schriebe | 25× |
 
-#### Achievements (einmalig erreichen)
-| Achievement | Beschreibung |
-|-------------|--------------|
-| 600 EH Woche | 600 EH in einer Woche |
-| 150 EH Tag | 150 EH an einem Tag |
-| 50 EH Schrieb (netto) | 50 EH Schrieb netto |
-| 80 MG Woche | 80 Mitglieder in einer Woche |
-| 15 ERH Woche | 15 ERH in einer Woche |
-| 17 MG Tag | 17 Mitglieder an einem Tag |
-| Teamleitung | 3 Wochen Teamleitung |
-| 100 EH Tage | 10× einen 100 EH Tag |
-| 300 EH Wochen | 5× eine 300 EH Woche |
-| 400 EH Wochen | 3× eine 400 EH Woche |
-| Stornoquote | < 8% |
-
 ---
 
 ### Stufe VI → VII (Spitzen Botschafter → Kadermanager)
 **Typ: Ernennung**
 
-> Ernennung für besondere Leistung und Engagement.
+#### Einmalig
+| Anforderung | Beschreibung |
+|-------------|--------------|
+| **Empfehlungen** | **3 Empfehlungen (Anreise vom TC bestätigt)** |
+| Ernennung | Ernennung durch Führungsebene |
+| Leistung | Besondere Leistung und Engagement |
+| Führung | Nachgewiesene Führungsqualitäten |
 
 ---
 
