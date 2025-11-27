@@ -177,4 +177,4 @@
 
 ---
 
-*Letzte Aktualisierung: November 2024*
+*Letzte Aktualisierung: November 2025*

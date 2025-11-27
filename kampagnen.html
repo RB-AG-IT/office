@@ -656,18 +656,19 @@
         /* KW Blocks (vertical) */
         .kw-blocks-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-            gap: var(--spacing-sm);
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: var(--spacing-xs);
         }
 
         .kw-block {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: var(--spacing-sm) var(--spacing-md);
+            padding: var(--spacing-xs) var(--spacing-sm);
             text-align: center;
             cursor: default;
             transition: border-color 0.2s;
+            min-width: 60px;
         }
 
         .kw-block:hover {
@@ -675,16 +676,18 @@
         }
 
         .kw-block-label {
-            font-size: var(--font-size-xs);
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-secondary);
             margin-bottom: 2px;
+            white-space: nowrap;
         }
 
         .kw-block-value {
-            font-size: var(--font-size-md);
+            font-size: 13px;
             font-weight: 600;
             color: var(--accent-color);
+            white-space: nowrap;
         }
 
         /* Unified Campaign Card */
@@ -737,9 +740,180 @@
             background: #fef2f2;
             color: #dc2626;
         }
+
+        /* ============================================
+           POPUP / TOAST NOTIFICATIONS
+           ============================================ */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 450px;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .toast.success {
+            border-left-color: #22c55e;
+        }
+
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+
+        .toast.warning {
+            border-left-color: #f59e0b;
+        }
+
+        .toast.info {
+            border-left-color: #3b82f6;
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon { color: #22c55e; }
+        .toast.error .toast-icon { color: #ef4444; }
+        .toast.warning .toast-icon { color: #f59e0b; }
+        .toast.info .toast-icon { color: #3b82f6; }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+        }
+
+        .toast-close:hover {
+            color: var(--text-primary);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Confirm Modal */
+        .confirm-modal .modal-content {
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .confirm-modal .modal-body {
+            padding: var(--spacing-xl);
+        }
+
+        .confirm-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto var(--spacing-lg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-icon.warning {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .confirm-icon.error {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .confirm-icon.info {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .confirm-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .confirm-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .confirm-message {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            line-height: 1.5;
+        }
+
+        .confirm-modal .modal-footer {
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
     </style>
 </head>
 <body>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Confirm Modal -->
+<div class="modal confirm-modal" id="confirmModal">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div class="confirm-icon warning" id="confirmIcon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <div class="confirm-title" id="confirmTitle">Bestätigung</div>
+            <div class="confirm-message" id="confirmMessage">Sind Sie sicher?</div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="confirmCancelBtn">Abbrechen</button>
+            <button type="button" class="btn btn-primary" id="confirmOkBtn">Bestätigen</button>
+        </div>
+    </div>
+</div>
 
 <!-- Modal für Kampagnen-Übersicht (View) -->
 <div class="modal view-modal" id="campaignViewModal">
@@ -964,6 +1138,101 @@
 </div>
 
 <script>
+// ============================================
+// TOAST & CONFIRM FUNCTIONS
+// ============================================
+
+// Show toast notification
+function showToast(message, type = 'info', title = null) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const icons = {
+        success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>',
+        error: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>',
+        warning: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>',
+        info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+    };
+
+    const titles = {
+        success: 'Erfolg',
+        error: 'Fehler',
+        warning: 'Warnung',
+        info: 'Info'
+    };
+
+    toast.innerHTML = `
+        <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            ${icons[type]}
+        </svg>
+        <div class="toast-content">
+            <div class="toast-title">${title || titles[type]}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// Show confirm modal (returns Promise)
+function showConfirm(message, title = 'Bestätigung', type = 'warning') {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('confirmModal');
+        const iconEl = document.getElementById('confirmIcon');
+        const titleEl = document.getElementById('confirmTitle');
+        const messageEl = document.getElementById('confirmMessage');
+        const okBtn = document.getElementById('confirmOkBtn');
+        const cancelBtn = document.getElementById('confirmCancelBtn');
+
+        // Set content
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+
+        // Set icon type
+        iconEl.className = `confirm-icon ${type}`;
+        const icons = {
+            warning: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+            error: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>',
+            info: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+        };
+        iconEl.innerHTML = icons[type] || icons.warning;
+
+        // Show modal
+        modal.classList.add('show');
+
+        // Handle buttons
+        const cleanup = () => {
+            modal.classList.remove('show');
+            okBtn.onclick = null;
+            cancelBtn.onclick = null;
+        };
+
+        okBtn.onclick = () => { cleanup(); resolve(true); };
+        cancelBtn.onclick = () => { cleanup(); resolve(false); };
+
+        // Close on background click
+        modal.onclick = (e) => {
+            if (e.target === modal) { cleanup(); resolve(false); }
+        };
+    });
+}
+
+// ============================================
+// DATA
+// ============================================
+
 // Dummy employee data
 const employees = [
     { id: 1, name: 'Max Kellermann' },
@@ -1344,8 +1613,9 @@ function closeViewModal() {
 // Edit from view modal
 function editFromView() {
     if (viewingCampaignId) {
+        const campaignIdToEdit = viewingCampaignId; // Speichere ID bevor closeViewModal sie löscht
         closeViewModal();
-        editCampaign(viewingCampaignId);
+        editCampaign(campaignIdToEdit);
     }
 }
 
@@ -1360,7 +1630,7 @@ function generateKWCards() {
     const kwTo = parseInt(document.getElementById('kwTo').value);
 
     if (!kwFrom || !kwTo || kwFrom > kwTo) {
-        alert('Bitte gültige KW-Werte eingeben (Von muss kleiner als Bis sein)');
+        showToast('Bitte gültige KW-Werte eingeben (Von muss kleiner als Bis sein)', 'error');
         return;
     }
 
@@ -1510,7 +1780,7 @@ function removeEmployeeFromKW(kw, employeeId) {
 }
 
 // Save campaign
-function saveCampaign() {
+async function saveCampaign() {
     const name = document.getElementById('campaignName').value;
     const kwFrom = parseInt(document.getElementById('kwFrom').value);
     const kwTo = parseInt(document.getElementById('kwTo').value);
@@ -1518,7 +1788,7 @@ function saveCampaign() {
     const area = document.getElementById('area').selectedOptions[0]?.text;
 
     if (!name || !kwFrom || !kwTo || !customer || !area) {
-        alert('Bitte alle Pflichtfelder ausfüllen');
+        showToast('Bitte alle Pflichtfelder ausfüllen', 'error');
         return;
     }
 
@@ -1532,9 +1802,12 @@ function saveCampaign() {
     }
 
     if (missingTC.length > 0) {
-        if (!confirm(`Folgende KW haben keinen Teamchef: ${missingTC.join(', ')}. Trotzdem speichern?`)) {
-            return;
-        }
+        const confirmed = await showConfirm(
+            `Folgende KW haben keinen Teamchef: ${missingTC.join(', ')}. Trotzdem speichern?`,
+            'Fehlende Teamchefs',
+            'warning'
+        );
+        if (!confirmed) return;
     }
 
     // Collect assignments
@@ -1694,7 +1967,7 @@ function loadCustomerAreas() {
 function addEinsatzgebiet() {
     const customerId = document.getElementById('customer').value;
     if (!customerId) {
-        alert('Bitte zuerst einen Kunden auswählen');
+        showToast('Bitte zuerst einen Kunden auswählen', 'warning');
         return;
     }
 

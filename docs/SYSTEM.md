@@ -53,10 +53,10 @@ Vollständige Mitarbeiterverwaltung:
 
 ### Kunden (kunden/)
 Kundenverwaltung mit Werbegebieten:
-- Übersicht aller Kunden (`kunden/index.html`)
+- Übersicht aller Kunden mit KV/OV Abkürzungen (`kunden/index.html`)
 - Einzelkunde mit Werbegebieten (`kunden/kunde.html`)
-- Konditionen pro Werbegebiet
-- Kampagnen-Referenzen
+- Werbegebiete werden in der Detailseite bearbeitet (klickbar)
+- Fallback-System: Ansprechpartner, Website, Datenschutz vom Kunden wenn leer
 
 **Dokumentation:** [KUNDEN.md](KUNDEN.md)
 
@@ -255,6 +255,18 @@ Farbcodierte Tags zeigen Status und Kategorien an.
 ### Validierung
 Eingaben werden validiert, Warnungen werden angezeigt aber blockieren nicht immer.
 
+### Toast-Benachrichtigungen
+Statt Browser-Alerts werden schöne Toast-Meldungen angezeigt:
+- Erscheinen rechts oben
+- Auto-Entfernung nach 4 Sekunden
+- Typen: success (grün), error (rot), warning (gelb), info (blau)
+
+### Confirm-Dialoge
+Statt Browser-Confirm werden modale Dialoge verwendet:
+- Async/Await kompatibel (`const confirmed = await showConfirm(...)`)
+- Optionaler Titel und Typ
+- Abbrechen/Bestätigen Buttons
+
 ---
 
 ## Dokumentation
@@ -315,4 +327,4 @@ office/
 
 ---
 
-*Letzte Aktualisierung: November 2024*
+*Letzte Aktualisierung: November 2025 - Toast/Confirm System, Fallback-System für Werbegebiete*
