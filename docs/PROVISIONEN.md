@@ -17,10 +17,13 @@
 
 | Regel | Wert |
 |-------|------|
-| **Vorschuss** | 70% der Provision |
-| **Stornorücklage** | 30% der Provision |
+| **Vorschuss** | 70% der Provision (Standard) |
+| **Stornorücklage** | 30% der Provision (Standard) |
 | **Auszahlung Vorschuss** | Wöchentlich (Montag) |
 | **Freigabe Stornorücklage** | Nach 24 Monaten, quartalsweise |
+| **Individuell anpassbar** | Ja, pro Werber im Profil einstellbar |
+
+> **WICHTIG:** Die Aufteilung 70%/30% ist der Standard, kann aber pro Werber individuell angepasst werden. Diese Einstellung befindet sich im Werber-Profil unter "Provisions- und Abrechnungsmodalitäten".
 
 ---
 
@@ -55,10 +58,100 @@ Abzug von Stornorücklage:
 | Eigenschaft | Wert |
 |-------------|------|
 | **Zeitpunkt** | 24 Monate nach Ersterfassung |
-| **Rhythmus** | Quartalsweise |
+| **Rhythmus** | Quartalsweise, zum Anfang des nächsten Quartals |
 | **Berechnung** | Rücklage minus tatsächliche Stornos |
+| **Verrechnungszeitraum** | Immer nur 1 Jahr (4 Quartale) pro Abrechnung |
+
+#### Feste Regel: 2-Jahre + Quartalsanfang
+
+Die Stornorücklage wird **exakt 2 Jahre** nach dem Ursprungsquartal zum **Anfang des nächsten Quartals** ausgeschüttet:
+
+| Ursprungs-Quartal | Ausschüttung |
+|-------------------|--------------|
+| Q1 2020 (Jan-Mär) | Anfang Q2 2022 (April) |
+| Q2 2020 (Apr-Jun) | Anfang Q3 2022 (Juli) |
+| Q3 2020 (Jul-Sep) | Anfang Q4 2022 (Oktober) |
+| Q4 2020 (Okt-Dez) | Anfang Q1 2023 (Januar) |
+
+#### Quartalsgetrennte Verrechnung
+
+> **WICHTIG:** Stornierungen werden **quartalsgetrennt** zugeordnet und verrechnet!
+
+**Beispiel:**
+```
+Mitglied wird im Q2 2022 storniert
+→ Abzug erfolgt von der Stornorücklage Q2 2022
+→ Ausschüttung dieser Rücklage: Anfang Q3 2024
+```
+
+Die Verrechnung erfolgt **nur für Stornos bis zum Zeitpunkt der Stornorücklagen-Abrechnung**.
 
 > **Beispiel:** Stornorücklage 300 EUR, 100 EUR Stornos → 200 EUR Auszahlung nach 24 Monaten
+
+#### Einfrieren nach Stornoabrechnung
+
+> **WICHTIG:** Sobald eine Stornoabrechnung für einen Zeitraum erfolgt ist, ist dieser Zeitraum **eingefroren** - keine weitere Verrechnung möglich!
+
+| Regel | Beschreibung |
+|-------|--------------|
+| **Abschluss** | Mit der Stornoabrechnung ist das Quartal abgeschlossen |
+| **Stornos danach** | Können noch eingetragen werden, aber sind für die Abrechnung irrelevant |
+| **Keine Rückwirkung** | Nachträgliche Stornos haben keinen Einfluss auf bereits abgerechnete Zeiträume |
+
+**Beispiel:**
+```
+Q1 2020 Rücklage:         500 EUR
+Q2 2022: Stornoabrechnung erfolgt
+         Stornos bis dahin: 120 EUR
+         → Auszahlung:      380 EUR
+         → Q1 2020 ist ERLEDIGT
+
+Später eingetragene Stornos für Q1 2020:
+→ Werden gespeichert (Dokumentation)
+→ Aber KEINE Verrechnung mehr!
+```
+
+#### Kaskadenlogik bei unzureichender Rücklage
+
+Wenn die Stornorücklage eines Quartals nicht ausreicht, greift folgende Kaskade:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Stornos anfallen                                            │
+│        ↓                                                    │
+│ Rücklage des Quartals reicht aus?                          │
+│        ├── JA → Von Rücklage abziehen ✓                    │
+│        │                                                    │
+│        └── NEIN ↓                                          │
+│                                                             │
+│ Nächstes verfügbares Quartal heranziehen                   │
+│        ↓                                                    │
+│ Immer noch nicht ausreichend?                              │
+│        ├── JA → Weiteres Quartal heranziehen               │
+│        │                                                    │
+│        └── KEINE Rücklage mehr vorhanden?                  │
+│                   ↓                                         │
+│ ⚠️ VOM VORSCHUSS ABZIEHEN!                                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Schritt | Aktion |
+|---------|--------|
+| 1 | Stornos vom aktuellen Quartal abziehen |
+| 2 | Bei Überschreitung: Nächstes Quartal verwenden |
+| 3 | Bei völliger Erschöpfung: **Vom Vorschuss abziehen** |
+
+> **KRITISCH:** Wenn keine Stornorücklage mehr vorhanden ist, muss die Provision direkt vom Vorschuss abgezogen werden!
+
+#### Frühwarnung bei geringer Stornorücklage
+
+> **Auffälligkeiten-Panel:** Sobald die Stornorücklage sehr gering wird (weil zu viele Stornos reinkommen), wird automatisch eine **Warnung im System** angezeigt.
+
+| Schwellenwert | Warnstufe | Aktion |
+|---------------|-----------|--------|
+| < 30% der ursprünglichen Rücklage | ⚠️ Warnung | Gelbe Markierung im Auffälligkeiten-Panel |
+| < 15% der ursprünglichen Rücklage | 🔴 Kritisch | Rote Markierung + Benachrichtigung |
+| 0% (aufgebraucht) | ❌ Erschöpft | Vorschuss-Abzug wird aktiviert |
 
 ---
 
@@ -88,6 +181,40 @@ Brutto-Provision: 150 × 6.0 = 900 EUR
 Vorschuss (70%):  630 EUR
 Rücklage (30%):   270 EUR
 ```
+
+### Erhöhungs-Provision (Beitragserhöhung)
+
+Bei Beitragserhöhungen zählt **die Differenz** zwischen altem und neuem Beitrag als Basis.
+
+**Berechnung:**
+```
+1. Differenz in JE berechnen: Neuer Beitrag - Alter Beitrag
+2. Differenz in EH umrechnen: Differenz JE ÷ 12
+3. Provision berechnen: Differenz EH × Faktor
+4. Aufteilung: 70% Vorschuss / 30% Rücklage (oder individuell)
+```
+
+**Beispiel Erhöhung:**
+```
+Alter Beitrag:   84 JE (Jahresbeitrag)
+Neuer Beitrag:  120 JE
+═══════════════════════════════════════
+Differenz:       36 JE
+Einheiten:       36 ÷ 12 = 3 EH
+
+Faktor (z.B. Stufe III): 6.0
+Provision:       3 EH × 6.0 = 18 EUR
+
+Aufteilung (Standard 70/30):
+- Vorschuss:  12,60 EUR
+- Rücklage:    5,40 EUR
+
+Oder individuell (z.B. 80/20):
+- Vorschuss:  14,40 EUR
+- Rücklage:    3,60 EUR
+```
+
+> **WICHTIG:** Die Erhöhungs-Provision wird genauso behandelt wie eine Neuanwerbung - mit voller Stornorücklage-Haltedauer von 24 Monaten.
 
 ---
 
@@ -522,13 +649,56 @@ Beim Erstellen/Bearbeiten einer Kampagne müssen **pro Einsatzgebiet** folgende 
 
 ---
 
+## Abrechnungs-Verwaltung
+
+### Werber-Profil: Provisions- und Abrechnungsmodalitäten
+
+Im Werber-Profil gibt es einen eigenen Bereich für individuelle Abrechnungseinstellungen:
+
+| Einstellung | Standard | Beschreibung |
+|-------------|----------|--------------|
+| **Vorschuss-Anteil** | 70% | Anteil der sofortigen Auszahlung |
+| **Rücklage-Anteil** | 30% | Anteil für Stornorücklage |
+| **Umsatzsteuerpflichtig** | Nein | Ob USt auf Abrechnungen ausgewiesen wird |
+
+> **WICHTIG:** Die Aufteilung 70%/30% ist der Standard, kann aber pro Werber individuell angepasst werden (z.B. 80/20, 60/40).
+
+### Abrechnungen bearbeiten
+
+> **Absegnen/Freigeben darf NUR die Verwaltung im Office!**
+
+**Bei Fehlern in einer bereits erstellten Abrechnung:**
+
+1. System zeigt **doppelte Sicherheitsabfrage**: "Möchten Sie diese Abrechnung wirklich bearbeiten?"
+2. Bei Bestätigung: Abrechnung kann bearbeitet werden
+3. System erstellt die **PDF automatisch neu**
+4. System übernimmt die **neuen Zahlen**
+5. Im Mitarbeiter-Profil erscheint eine **Notiz**: "Datum:XX bearbeitet"
+
+### Export-Formate
+
+Abrechnungen können in folgenden Formaten exportiert werden:
+- **Excel** (.xlsx)
+- **CSV** (.csv)
+- **ODT** (.odt)
+
+### Ansichtszeitraum
+
+Standard-Ansicht: **4 Wochen zurück**
+
+---
+
 ## TODO: Offene Punkte
 
 - [x] ~~Sondervereinbarungen (Teilvergütung %-Anteil)~~ → Dokumentiert
 - [x] ~~DRK-Abrechnungs-Timeline mit Phasen~~ → Dokumentiert
 - [x] ~~Qualitätsbonus-Berechnung~~ → Dokumentiert
 - [x] ~~Konditionen pro Kampagne/Einsatzgebiet~~ → Dokumentiert
-- [ ] **Werber-Abrechnungs-Timeline (70%/30%) im Detail besprechen**
+- [x] ~~Individuelle Provisionsaufteilung (70/30)~~ → Dokumentiert
+- [x] ~~Stornorücklage-Freigabe-Regel (2 Jahre + Quartalsanfang)~~ → Dokumentiert
+- [x] ~~Erhöhungs-Provision~~ → Dokumentiert
+- [x] ~~Abrechnungen bearbeiten mit doppelter Bestätigung~~ → Dokumentiert
+- [x] ~~Umsatzsteuerpflichtig-Option~~ → Dokumentiert
 - [ ] Kleidungs-/Auto-Vereinbarungen und deren Verrechnung
 - [ ] Detailregeln für Kampagnen-übergreifende Stornos
 
