@@ -715,6 +715,102 @@
             color: #10b981;
         }
 
+        /* Role Selection mit Faktor */
+        .role-provision-section {
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .role-select-row {
+            display: flex;
+            gap: var(--spacing-lg);
+            align-items: flex-end;
+        }
+
+        .role-factor-display {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            text-align: center;
+            min-width: 100px;
+            color: white;
+        }
+
+        .factor-label {
+            display: block;
+            font-size: 11px;
+            opacity: 0.9;
+            margin-bottom: 2px;
+        }
+
+        .factor-value {
+            display: block;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .role-benefits {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            min-height: 40px;
+        }
+
+        .benefits-placeholder {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            font-style: italic;
+        }
+
+        .benefits-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .benefit-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: var(--font-size-xs);
+            color: var(--text-primary);
+        }
+
+        .benefit-item::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        /* Manual Provision Section */
+        .manual-provision-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .optional-badge {
+            font-size: 10px;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: 500;
+        }
+
+        .provision-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: var(--spacing-lg) 0;
+        }
+
         /* ========================================
            KARRIERE & ROLLEN-HISTORIE
            ======================================== */
@@ -944,17 +1040,6 @@
                         <input type="tel" class="form-input" id="phone" placeholder="+49 123 456789">
                     </div>
                     <div class="form-group form-group-full">
-                        <label class="form-label">Haupt-Rolle (Karriere-Stufe) *</label>
-                        <select class="form-input" id="mainRole">
-                            <option value="">Bitte auswählen</option>
-                            <option value="junior_marketing_manager">Junior Marketing Manager (erste 4 Wochen)</option>
-                            <option value="senior_marketing_manager">Senior Marketing Manager</option>
-                            <option value="spitzenbotschafter">Spitzenbotschafter</option>
-                            <option value="kader_manager">Kader Manager</option>
-                            <option value="führungsebene">Führungsebene</option>
-                        </select>
-                    </div>
-                    <div class="form-group form-group-full">
                         <label class="form-label">Zusatz-Rollen (Berechtigungen)</label>
                         <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
                             <label style="display: flex; align-items: center; gap: var(--spacing-sm); cursor: pointer;">
@@ -1062,6 +1147,53 @@
             <!-- Provisions- und Abrechnungsmodalitäten -->
             <div class="section-card">
                 <h2 class="section-title">Provisions- und Abrechnungsmodalitäten</h2>
+
+                <!-- Karrierestufe mit Faktor und Benefits -->
+                <div class="role-provision-section">
+                    <div class="role-select-row">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label class="form-label">Karrierestufe *</label>
+                            <select class="form-input" id="mainRole">
+                                <option value="">Bitte auswählen</option>
+                                <option value="junior_marketing_manager">Junior Marketing Manager</option>
+                                <option value="senior_marketing_manager">Senior Marketing Manager</option>
+                                <option value="spitzenbotschafter">Spitzenbotschafter</option>
+                                <option value="kader_manager">Kader Manager</option>
+                                <option value="führungsebene">Führungsebene</option>
+                            </select>
+                        </div>
+                        <div class="role-factor-display" id="roleFaktorDisplay">
+                            <span class="factor-label">Faktor</span>
+                            <span class="factor-value" id="displayFaktor">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Benefits Liste -->
+                    <div class="role-benefits" id="roleBenefits">
+                        <span class="benefits-placeholder">Wähle eine Karrierestufe um die Benefits zu sehen</span>
+                    </div>
+                </div>
+
+                <!-- Manuelle Provision -->
+                <div class="manual-provision-section">
+                    <div class="form-group">
+                        <label class="form-label">
+                            Individuelle Provision
+                            <span class="optional-badge">Optional</span>
+                        </label>
+                        <div class="provision-input-wrapper">
+                            <input type="number" class="form-input" id="customCommission" placeholder="z.B. 6.5" min="0" max="15" step="0.1">
+                            <span class="provision-unit">Faktor</span>
+                        </div>
+                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
+                            Nur ausfüllen wenn abweichend vom Standard-Faktor der Karrierestufe
+                        </p>
+                    </div>
+                </div>
+
+                <div class="provision-divider"></div>
+
+                <!-- Vorschuss / Rücklage -->
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Vorschuss-Anteil (%)</label>
@@ -1161,7 +1293,7 @@
             <!-- Weitere Informationen -->
             <div class="section-card">
                 <h2 class="section-title">Weitere Informationen</h2>
-                <div class="form-grid">
+                <div class="form-grid single">
                     <div class="form-group">
                         <label class="form-label">Kleidergröße</label>
                         <div class="size-selector">
@@ -1174,13 +1306,6 @@
                             <div class="size-option" data-size="XXL">XXL</div>
                         </div>
                         <input type="hidden" id="clothingSize">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Individuelle Provision (%)</label>
-                        <input type="number" class="form-input" id="customCommission" placeholder="z.B. 15" min="0" max="100" step="0.1">
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
-                            Nur für Sonderfälle - überschreibt den Standard-Faktor
-                        </p>
                     </div>
                 </div>
             </div>
@@ -2116,13 +2241,38 @@
         // PROVISIONS-EINSTELLUNGEN
         // ================================================================
 
-        // Rollen-Mapping für Display-Namen und Faktoren
+        // Rollen-Mapping für Display-Namen, Faktoren und Benefits
         const ROLE_CONFIG = {
-            'junior_marketing_manager': { name: 'Junior Marketing Manager', short: 'JMM', faktor: 6.0 },
-            'senior_marketing_manager': { name: 'Senior Marketing Manager', short: 'SMM', faktor: 6.5 },
-            'spitzenbotschafter': { name: 'Spitzenbotschafter', short: 'SPB', faktor: 7.0 },
-            'kader_manager': { name: 'Kader Manager', short: 'KAD', faktor: 7.5 },
-            'führungsebene': { name: 'Führungsebene', short: 'FUE', faktor: 8.0 }
+            'junior_marketing_manager': {
+                name: 'Junior Marketing Manager',
+                short: 'JMM',
+                faktor: 6.0,
+                benefits: ['Einstieg ins Team', 'Grundprovision', 'Schulungszugang', 'Mentoring-Programm']
+            },
+            'senior_marketing_manager': {
+                name: 'Senior Marketing Manager',
+                short: 'SMM',
+                faktor: 6.5,
+                benefits: ['Erhöhte Provision', 'Bonus-Berechtigung', 'Erweiterte Schulungen', 'Team-Events']
+            },
+            'spitzenbotschafter': {
+                name: 'Spitzenbotschafter',
+                short: 'SPB',
+                faktor: 7.0,
+                benefits: ['VIP Status', 'Exklusive Boni', 'Reise-Incentives', 'Premium Events']
+            },
+            'kader_manager': {
+                name: 'Kader Manager',
+                short: 'KAD',
+                faktor: 7.5,
+                benefits: ['Team-Provision', 'Management-Boni', 'Premium Support', 'Führungskräfte-Training']
+            },
+            'führungsebene': {
+                name: 'Führungsebene',
+                short: 'FUE',
+                faktor: 8.0,
+                benefits: ['Maximaler Faktor', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
+            }
         };
 
         // Vorschuss-Anteil Änderung → Rücklage automatisch berechnen
@@ -2156,10 +2306,35 @@
             document.getElementById('previewRuecklage').textContent = `${ruecklageAmount.toLocaleString('de-DE')} €`;
         }
 
-        // Haupt-Rolle Änderung → Karriere-Display aktualisieren
+        // Haupt-Rolle Änderung → Faktor, Benefits und Karriere-Display aktualisieren
         document.getElementById('mainRole').addEventListener('change', function() {
-            updateCurrentRoleDisplay(this.value);
+            const roleKey = this.value;
+            updateRoleFaktorAndBenefits(roleKey);
+            updateCurrentRoleDisplay(roleKey);
         });
+
+        // Faktor und Benefits im Provisions-Bereich anzeigen
+        function updateRoleFaktorAndBenefits(roleKey) {
+            const config = ROLE_CONFIG[roleKey];
+            const faktorDisplay = document.getElementById('displayFaktor');
+            const benefitsContainer = document.getElementById('roleBenefits');
+
+            if (config) {
+                // Faktor anzeigen
+                faktorDisplay.textContent = config.faktor.toFixed(1);
+
+                // Benefits anzeigen
+                benefitsContainer.innerHTML = `
+                    <div class="benefits-list">
+                        ${config.benefits.map(benefit => `<span class="benefit-item">${benefit}</span>`).join('')}
+                    </div>
+                `;
+            } else {
+                // Zurücksetzen
+                faktorDisplay.textContent = '-';
+                benefitsContainer.innerHTML = '<span class="benefits-placeholder">Wähle eine Karrierestufe um die Benefits zu sehen</span>';
+            }
+        }
 
         // Aktuelle Rolle im Display aktualisieren
         function updateCurrentRoleDisplay(roleKey, assignedAt = null) {
@@ -2406,9 +2581,10 @@
                 // Fill email from user
                 document.getElementById('email').value = user.email || '';
 
-                // Fill main role
+                // Fill main role and update Faktor/Benefits display
                 if (user.main_role) {
                     document.getElementById('mainRole').value = user.main_role;
+                    updateRoleFaktorAndBenefits(user.main_role);
                 }
 
                 // Check additional roles
