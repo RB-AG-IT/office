@@ -709,39 +709,38 @@
             width: 100%;
         }
 
-        .kw-header-row2 {
+        .kw-header-left {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding-left: 140px;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 200px;
         }
 
-        .kw-header-wg-list {
+        .kw-header-wg-line {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
-            flex: 1;
         }
 
         .kw-header-wg {
-            font-size: 11px;
+            font-size: 10px;
             color: #8b5cf6;
             background: rgba(139, 92, 246, 0.1);
-            padding: 2px 8px;
-            border-radius: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            white-space: nowrap;
         }
 
         .kw-header-einwohner {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--text-secondary);
             white-space: nowrap;
         }
 
-        /* Hide row2 when expanded */
-        .kw-detail-card.expanded .kw-header-row2 {
+        /* Hide WG line when expanded */
+        .kw-detail-card.expanded .kw-header-wg-line {
             display: none;
         }
 
@@ -3214,9 +3213,15 @@ function renderKWDetails(campaign) {
             <div class="${classes}" data-kw="${kw}">
                 <div class="kw-detail-header" onclick="toggleKWDetail(${kw})">
                     <div class="kw-header-row1">
-                        <div class="kw-detail-title">
-                            <strong>KW ${kw}</strong>
-                            <span class="kw-detail-date">${dateRange}</span>
+                        <div class="kw-header-left">
+                            <div class="kw-detail-title">
+                                <strong>KW ${kw}</strong>
+                                <span class="kw-detail-date">${dateRange}</span>
+                            </div>
+                            <div class="kw-header-wg-line">
+                                ${wgNamesHtml || '<span style="color: var(--text-secondary); font-size: 10px;">Keine WG</span>'}
+                                <span class="kw-header-einwohner">(${einwohnerFormatted} EW)</span>
+                            </div>
                         </div>
                         <div class="kw-detail-badges">
                             ${isCurrentWeek ? '<span class="kw-badge current">Aktuelle Woche</span>' : ''}
@@ -3225,12 +3230,6 @@ function renderKWDetails(campaign) {
                             </div>
                         </div>
                         <span class="kw-badge count">${totalCount} Pers.</span>
-                    </div>
-                    <div class="kw-header-row2">
-                        <div class="kw-header-wg-list">
-                            ${wgNamesHtml || '<span style="color: var(--text-secondary); font-size: 11px;">Keine Werbegebiete</span>'}
-                        </div>
-                        <span class="kw-header-einwohner">${einwohnerFormatted} EW</span>
                     </div>
                 </div>
                 <div class="kw-detail-body">
@@ -3612,8 +3611,12 @@ function toggleKWWerbegebiet(kw, wgId) {
         campaign.assignments[kw] = {};
     }
 
-    // Default: alle WGs der Kampagne sind aktiv
-    const campaignWerbegebiete = campaign.werbegebiete || [];
+    // Default: alle WGs der Kampagne sind aktiv (gleiche Datenquelle wie beim Rendern!)
+    const campaignWerbegebiete = campaign.einsatzgebiete || [
+        { id: 'lu-mitte', name: 'Ludwigshafen-Mitte e.V.', plz: '67059', einwohner: 45000 },
+        { id: 'lu-sued', name: 'Ludwigshafen-Süd e.V.', plz: '67061', einwohner: 32000 },
+        { id: 'ma-zentrum', name: 'Mannheim-Zentrum e.V.', plz: '68161', einwohner: 58000 }
+    ];
     const currentWGs = campaign.assignments[kw].werbegebiete || campaignWerbegebiete.map(wg => wg.id);
 
     if (currentWGs.includes(wgId)) {
