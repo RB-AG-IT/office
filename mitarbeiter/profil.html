@@ -601,7 +601,15 @@
         }
 
         .provision-input-wrapper .form-input {
-            padding-right: 40px;
+            padding-right: 60px;
+            /* Verstecke die Spinner-Buttons bei number inputs */
+            -moz-appearance: textfield;
+        }
+
+        .provision-input-wrapper .form-input::-webkit-outer-spin-button,
+        .provision-input-wrapper .form-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         .provision-unit {
@@ -894,6 +902,40 @@
 
         .kw-selector.changed .kw-number {
             color: var(--warning-color);
+        }
+
+        /* KW Range Selector (von - bis) */
+        .kw-range-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kw-range-separator {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .kw-selector-compact {
+            padding: 2px;
+        }
+
+        .kw-selector-compact .kw-nav-btn {
+            width: 24px;
+            height: 24px;
+        }
+
+        .kw-selector-compact .kw-display {
+            padding: 0 4px;
+            min-width: 50px;
+        }
+
+        .kw-selector-compact .kw-number {
+            font-size: 12px;
+        }
+
+        .kw-selector-compact .kw-year {
+            font-size: 9px;
         }
 
         /* Manual Provision Section */
@@ -1506,39 +1548,59 @@
                 <!-- Manuelle Provision -->
                 <div class="manual-provision-section">
                     <div style="display: flex; gap: var(--spacing-lg); align-items: flex-start; flex-wrap: wrap;">
-                        <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                        <div class="form-group" style="width: 120px; margin-bottom: 0;">
                             <label class="form-label">
-                                Individuelle Provision
+                                Ind. Faktor
                                 <span class="optional-badge">Optional</span>
                             </label>
                             <div class="provision-input-wrapper">
-                                <input type="number" class="form-input" id="customCommission" placeholder="z.B. 6.5" min="0" max="15" step="0.1">
-                                <span class="provision-unit">Faktor</span>
+                                <input type="number" class="form-input" id="customCommission" placeholder="6.5" min="0" max="15" step="0.1" style="text-align: center;">
+                                <span class="provision-unit">×</span>
                             </div>
                         </div>
-                        <div class="form-group kw-select-group" style="margin-bottom: 0;">
-                            <label class="form-label">Gültig ab KW</label>
-                            <div class="kw-selector" id="customKwSelector">
-                                <button type="button" class="kw-nav-btn" id="customKwPrev">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                    </svg>
-                                </button>
-                                <div class="kw-display">
-                                    <span class="kw-number" id="customKwNumber">KW 48</span>
-                                    <span class="kw-year" id="customKwYear">2025</span>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Gültig von - bis</label>
+                            <div class="kw-range-selector">
+                                <div class="kw-selector kw-selector-compact" id="customKwFromSelector">
+                                    <button type="button" class="kw-nav-btn" id="customKwFromPrev">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div class="kw-display">
+                                        <span class="kw-number" id="customKwFromNumber">KW 48</span>
+                                        <span class="kw-year" id="customKwFromYear">2025</span>
+                                    </div>
+                                    <button type="button" class="kw-nav-btn" id="customKwFromNext">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                                <button type="button" class="kw-nav-btn" id="customKwNext">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </button>
+                                <span class="kw-range-separator">–</span>
+                                <div class="kw-selector kw-selector-compact" id="customKwToSelector">
+                                    <button type="button" class="kw-nav-btn" id="customKwToPrev">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div class="kw-display">
+                                        <span class="kw-number" id="customKwToNumber">KW 52</span>
+                                        <span class="kw-year" id="customKwToYear">2025</span>
+                                    </div>
+                                    <button type="button" class="kw-nav-btn" id="customKwToNext">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                            <input type="hidden" id="customEffectiveDate" value="">
+                            <input type="hidden" id="customEffectiveDateFrom" value="">
+                            <input type="hidden" id="customEffectiveDateTo" value="">
                         </div>
                     </div>
                     <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
-                        Nur ausfüllen wenn abweichend vom Standard-Faktor. Pro KW gilt immer nur ein Faktor.
+                        Überschreibt den Karrierestufen-Faktor für den gewählten Zeitraum
                     </p>
                     <p class="kw-hint" id="customKwHint" style="display: none; font-size: var(--font-size-xs); color: var(--warning-color); margin-top: var(--spacing-xs);">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;">
@@ -2776,66 +2838,102 @@
         updateKwDisplay();
 
         // ================================================================
-        // KW FÜR INDIVIDUELLE PROVISION
+        // KW FÜR INDIVIDUELLE PROVISION (VON - BIS)
         // ================================================================
 
-        let customKwYear = new Date().getFullYear();
-        let customKwWeek = getWeekNumber(new Date());
-        let originalCustomKwYear = customKwYear;
-        let originalCustomKwWeek = customKwWeek;
+        // Von-Datum
+        let customKwFromYear = new Date().getFullYear();
+        let customKwFromWeek = getWeekNumber(new Date());
 
-        function updateCustomKwDisplay() {
-            document.getElementById('customKwNumber').textContent = `KW ${customKwWeek}`;
-            document.getElementById('customKwYear').textContent = customKwYear;
+        // Bis-Datum (default: Ende des Jahres)
+        let customKwToYear = new Date().getFullYear();
+        let customKwToWeek = 52;
 
-            const selector = document.getElementById('customKwSelector');
+        function updateCustomKwFromDisplay() {
+            document.getElementById('customKwFromNumber').textContent = `KW ${customKwFromWeek}`;
+            document.getElementById('customKwFromYear').textContent = customKwFromYear;
+
+            const effectiveDate = getMondayOfWeek(customKwFromWeek, customKwFromYear);
+            document.getElementById('customEffectiveDateFrom').value = effectiveDate.toISOString().split('T')[0];
+
+            // Validate: "from" should not be after "to"
+            validateKwRange();
+        }
+
+        function updateCustomKwToDisplay() {
+            document.getElementById('customKwToNumber').textContent = `KW ${customKwToWeek}`;
+            document.getElementById('customKwToYear').textContent = customKwToYear;
+
+            const effectiveDate = getMondayOfWeek(customKwToWeek, customKwToYear);
+            document.getElementById('customEffectiveDateTo').value = effectiveDate.toISOString().split('T')[0];
+
+            // Validate: "to" should not be before "from"
+            validateKwRange();
+        }
+
+        function validateKwRange() {
+            const fromSelector = document.getElementById('customKwFromSelector');
+            const toSelector = document.getElementById('customKwToSelector');
             const hint = document.getElementById('customKwHint');
             const hintText = document.getElementById('customKwHintText');
 
-            if (customKwWeek !== originalCustomKwWeek || customKwYear !== originalCustomKwYear) {
-                selector.classList.add('changed');
+            const fromDate = getMondayOfWeek(customKwFromWeek, customKwFromYear);
+            const toDate = getMondayOfWeek(customKwToWeek, customKwToYear);
+
+            if (fromDate > toDate) {
+                fromSelector.classList.add('changed');
+                toSelector.classList.add('changed');
                 hint.style.display = 'block';
-
-                const mondayDate = getMondayOfWeek(customKwWeek, customKwYear);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                if (mondayDate < today) {
-                    hintText.textContent = `Rückwirkende Änderung ab ${mondayDate.toLocaleDateString('de-DE')}`;
-                } else if (mondayDate > today) {
-                    hintText.textContent = `Zukünftige Änderung ab ${mondayDate.toLocaleDateString('de-DE')}`;
-                } else {
-                    hintText.textContent = `Änderung ab dieser Woche`;
-                }
+                hintText.textContent = 'Fehler: "Von" darf nicht nach "Bis" liegen';
             } else {
-                selector.classList.remove('changed');
+                fromSelector.classList.remove('changed');
+                toSelector.classList.remove('changed');
                 hint.style.display = 'none';
             }
-
-            const effectiveDate = getMondayOfWeek(customKwWeek, customKwYear);
-            document.getElementById('customEffectiveDate').value = effectiveDate.toISOString().split('T')[0];
         }
 
-        document.getElementById('customKwPrev').addEventListener('click', function() {
-            customKwWeek--;
-            if (customKwWeek < 1) {
-                customKwYear--;
-                customKwWeek = getWeeksInYear(customKwYear);
+        // From Navigation
+        document.getElementById('customKwFromPrev').addEventListener('click', function() {
+            customKwFromWeek--;
+            if (customKwFromWeek < 1) {
+                customKwFromYear--;
+                customKwFromWeek = getWeeksInYear(customKwFromYear);
             }
-            updateCustomKwDisplay();
+            updateCustomKwFromDisplay();
         });
 
-        document.getElementById('customKwNext').addEventListener('click', function() {
-            const maxWeeks = getWeeksInYear(customKwYear);
-            customKwWeek++;
-            if (customKwWeek > maxWeeks) {
-                customKwYear++;
-                customKwWeek = 1;
+        document.getElementById('customKwFromNext').addEventListener('click', function() {
+            const maxWeeks = getWeeksInYear(customKwFromYear);
+            customKwFromWeek++;
+            if (customKwFromWeek > maxWeeks) {
+                customKwFromYear++;
+                customKwFromWeek = 1;
             }
-            updateCustomKwDisplay();
+            updateCustomKwFromDisplay();
         });
 
-        updateCustomKwDisplay();
+        // To Navigation
+        document.getElementById('customKwToPrev').addEventListener('click', function() {
+            customKwToWeek--;
+            if (customKwToWeek < 1) {
+                customKwToYear--;
+                customKwToWeek = getWeeksInYear(customKwToYear);
+            }
+            updateCustomKwToDisplay();
+        });
+
+        document.getElementById('customKwToNext').addEventListener('click', function() {
+            const maxWeeks = getWeeksInYear(customKwToYear);
+            customKwToWeek++;
+            if (customKwToWeek > maxWeeks) {
+                customKwToYear++;
+                customKwToWeek = 1;
+            }
+            updateCustomKwToDisplay();
+        });
+
+        updateCustomKwFromDisplay();
+        updateCustomKwToDisplay();
 
         // Vorschau aktualisieren
         function updateProvisionPreview() {
