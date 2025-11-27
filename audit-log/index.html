@@ -416,6 +416,31 @@
             white-space: nowrap;
         }
 
+        /* ERH/NMG Badges */
+        .mitglied-badges {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .mitglied-typ-pill {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .mitglied-typ-pill.nmg {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .mitglied-typ-pill.erh {
+            background: rgba(139, 92, 246, 0.15);
+            color: #8b5cf6;
+        }
+
         .mitglied-details {
             margin-bottom: 10px;
         }
@@ -1038,12 +1063,14 @@
 
             try {
                 // Load last 25 records ordered by created_at
+                // typ: 'NMG' (Neumitglied) oder 'ERH' (Erhöhung)
                 const { data: records, error } = await supabase
                     .from('records')
                     .select(`
                         id,
                         name,
                         eh,
+                        typ,
                         strasse,
                         hausnr,
                         email,
@@ -1074,11 +1101,19 @@
                     const werbegebiet = m.werbegebiet?.name || 'Kein WG';
                     const botschafter = m.botschafter?.name || '-';
 
+                    // Typ-Pill (NMG oder ERH)
+                    const typPill = m.typ
+                        ? `<span class="mitglied-typ-pill ${m.typ.toLowerCase()}">${m.typ}</span>`
+                        : '';
+
                     return `
                         <div class="mitglied-card">
                             <div class="mitglied-header">
                                 <span class="mitglied-name">${m.name || 'Unbekannt'}</span>
-                                <span class="mitglied-eh">${m.eh || 0} EH</span>
+                                <div class="mitglied-badges">
+                                    <span class="mitglied-eh">${m.eh || 0} EH</span>
+                                    ${typPill}
+                                </div>
                             </div>
                             <div class="mitglied-details">
                                 <div class="mitglied-wg">${werbegebiet}</div>

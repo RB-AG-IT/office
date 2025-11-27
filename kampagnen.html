@@ -1543,6 +1543,31 @@
             white-space: nowrap;
         }
 
+        /* ERH/NMG Type Pill */
+        .schrieb-compact-badges {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .schrieb-typ-pill {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .schrieb-typ-pill.nmg {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .schrieb-typ-pill.erh {
+            background: rgba(139, 92, 246, 0.15);
+            color: #8b5cf6;
+        }
+
         /* Mitte: Werbegebiet + Adresse */
         .schrieb-compact-middle {
             flex: 1;
@@ -2413,6 +2438,15 @@
         .mitglied-email-btn.erhoehung { color: #8b5cf6; }
         .mitglied-email-btn.erhoehung:hover { border-color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
 
+        .mitglied-email-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            border-color: var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
         .mitglied-modal .modal-footer {
             border-top: 1px solid var(--border-color);
             padding: var(--spacing-md) var(--spacing-lg);
@@ -2592,19 +2626,19 @@
             <div class="mitglied-form-section">
                 <div class="mitglied-form-section-title">E-Mail senden</div>
                 <div class="mitglied-email-buttons">
-                    <button class="mitglied-email-btn welcome" onclick="sendMitgliedEmail('welcome')" title="Willkommensmail senden">
+                    <button id="btnWelcomeMail" class="mitglied-email-btn welcome" onclick="sendMitgliedEmail('welcome')" title="Willkommensmail senden">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
                         Willkommensmail
                     </button>
-                    <button class="mitglied-email-btn iban" onclick="sendMitgliedEmail('iban')" title="IBAN-Aufforderung senden">
+                    <button id="btnIbanMail" class="mitglied-email-btn iban" onclick="sendMitgliedEmail('iban')" title="IBAN nachtragen Mail senden">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                         </svg>
-                        IBAN-Mail
+                        IBAN nachtragen Mail
                     </button>
-                    <button class="mitglied-email-btn erhoehung" onclick="sendMitgliedEmail('erhoehung')" title="Erhöhungsmail senden">
+                    <button id="btnErhoehungMail" class="mitglied-email-btn erhoehung" onclick="sendMitgliedEmail('erhoehung')" title="Erhöhungsmail senden">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                         </svg>
@@ -4319,17 +4353,18 @@ function renderLastSchriebe(campaign) {
 
     // Dummy data - wird später aus Datenbank kommen
     // emailStatus: 'sent' (versendet), 'opened' (geöffnet), 'not_sent' (nicht gesendet)
+    // typ: 'NMG' (Neumitglied) oder 'ERH' (Erhöhung)
     const dummySchriebe = [
-        { id: 1, memberName: 'Klaus Reichert', eh: 40, werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Hauptstraße', hausnr: '12', uhrzeit: '14:32', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
-        { id: 2, memberName: 'Dr. Werner Braun', eh: 50, werbegebiet: 'Heidelberg-Altstadt', strasse: 'Bergstraße', hausnr: '45a', uhrzeit: '13:15', botschafter: 'L. Bauer', emailStatus: 'sent', ibanFilled: false },
-        { id: 3, memberName: 'Maria Gruber', eh: 30, werbegebiet: 'Mannheim-Neckarau', strasse: 'Rheinauer Str.', hausnr: '78', uhrzeit: '11:48', botschafter: 'M. Klein', emailStatus: 'not_sent', ibanFilled: false },
-        { id: 4, memberName: 'Hans Müller', eh: 20, werbegebiet: 'Ludwigshafen-Süd', strasse: 'Bahnhofstr.', hausnr: '3', uhrzeit: '10:22', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
-        { id: 5, memberName: 'Petra Schmidt', eh: 15, werbegebiet: 'Heidelberg-Neuenheim', strasse: 'Uferweg', hausnr: '91', uhrzeit: '16:05', botschafter: 'P. Hoffmann', emailStatus: 'sent', ibanFilled: false },
-        { id: 6, memberName: 'Michael Weber', eh: 10, werbegebiet: 'Mannheim-Käfertal', strasse: 'Waldpfad', hausnr: '17', uhrzeit: '09:33', botschafter: 'M. Klein', emailStatus: 'sent', ibanFilled: true },
-        { id: 7, memberName: 'Sabine Fischer', eh: 25, werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Marktplatz', hausnr: '5', uhrzeit: '15:47', botschafter: 'L. Bauer', emailStatus: 'opened', ibanFilled: true },
-        { id: 8, memberName: 'Thomas Koch', eh: 35, werbegebiet: 'Heidelberg-Altstadt', strasse: 'Schlossberg', hausnr: '22', uhrzeit: '12:19', botschafter: 'A. Schneider', emailStatus: 'sent', ibanFilled: false },
-        { id: 9, memberName: 'Andrea Wagner', eh: 13, werbegebiet: 'Mannheim-Neckarau', strasse: 'Industriestr.', hausnr: '8b', uhrzeit: '17:55', botschafter: 'P. Hoffmann', emailStatus: 'not_sent', ibanFilled: false },
-        { id: 10, memberName: 'Frank Becker', eh: 7, werbegebiet: 'Ludwigshafen-Süd', strasse: 'Gartenweg', hausnr: '34', uhrzeit: '08:41', botschafter: 'M. Klein', emailStatus: 'opened', ibanFilled: true }
+        { id: 1, memberName: 'Klaus Reichert', eh: 40, typ: 'ERH', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Hauptstraße', hausnr: '12', uhrzeit: '14:32', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
+        { id: 2, memberName: 'Dr. Werner Braun', eh: 50, typ: 'NMG', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Bergstraße', hausnr: '45a', uhrzeit: '13:15', botschafter: 'L. Bauer', emailStatus: 'sent', ibanFilled: false },
+        { id: 3, memberName: 'Maria Gruber', eh: 30, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', strasse: 'Rheinauer Str.', hausnr: '78', uhrzeit: '11:48', botschafter: 'M. Klein', emailStatus: 'not_sent', ibanFilled: false },
+        { id: 4, memberName: 'Hans Müller', eh: 20, typ: 'ERH', werbegebiet: 'Ludwigshafen-Süd', strasse: 'Bahnhofstr.', hausnr: '3', uhrzeit: '10:22', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
+        { id: 5, memberName: 'Petra Schmidt', eh: 15, typ: 'NMG', werbegebiet: 'Heidelberg-Neuenheim', strasse: 'Uferweg', hausnr: '91', uhrzeit: '16:05', botschafter: 'P. Hoffmann', emailStatus: 'sent', ibanFilled: false },
+        { id: 6, memberName: 'Michael Weber', eh: 10, typ: 'NMG', werbegebiet: 'Mannheim-Käfertal', strasse: 'Waldpfad', hausnr: '17', uhrzeit: '09:33', botschafter: 'M. Klein', emailStatus: 'sent', ibanFilled: true },
+        { id: 7, memberName: 'Sabine Fischer', eh: 25, typ: 'ERH', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Marktplatz', hausnr: '5', uhrzeit: '15:47', botschafter: 'L. Bauer', emailStatus: 'opened', ibanFilled: true },
+        { id: 8, memberName: 'Thomas Koch', eh: 35, typ: 'NMG', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Schlossberg', hausnr: '22', uhrzeit: '12:19', botschafter: 'A. Schneider', emailStatus: 'sent', ibanFilled: false },
+        { id: 9, memberName: 'Andrea Wagner', eh: 13, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', strasse: 'Industriestr.', hausnr: '8b', uhrzeit: '17:55', botschafter: 'P. Hoffmann', emailStatus: 'not_sent', ibanFilled: false },
+        { id: 10, memberName: 'Frank Becker', eh: 7, typ: 'ERH', werbegebiet: 'Ludwigshafen-Süd', strasse: 'Gartenweg', hausnr: '34', uhrzeit: '08:41', botschafter: 'M. Klein', emailStatus: 'opened', ibanFilled: true }
     ];
 
     let html = '';
@@ -4357,11 +4392,19 @@ function renderLastSchriebe(campaign) {
             ? '<span class="schrieb-iban filled" title="IBAN nachgetragen">IBAN</span>'
             : '<span class="schrieb-iban missing" title="IBAN fehlt noch">IBAN</span>';
 
+        // Typ-Pill (NMG oder ERH)
+        const typPill = schrieb.typ
+            ? `<span class="schrieb-typ-pill ${schrieb.typ.toLowerCase()}">${schrieb.typ}</span>`
+            : '';
+
         html += `
             <div class="schrieb-compact" onclick="openSchriebDetails(${schrieb.id})" title="${schrieb.memberName} - ${schrieb.eh} EH">
                 <div class="schrieb-compact-header">
                     <span class="schrieb-compact-name">${schrieb.memberName}</span>
-                    <span class="schrieb-compact-eh">${schrieb.eh} EH</span>
+                    <div class="schrieb-compact-badges">
+                        <span class="schrieb-compact-eh">${schrieb.eh} EH</span>
+                        ${typPill}
+                    </div>
                 </div>
                 <div class="schrieb-compact-middle">
                     <div class="schrieb-compact-wg">${schrieb.werbegebiet}</div>
@@ -4393,17 +4436,18 @@ function renderLastSchriebe(campaign) {
 let currentMitglied = null;
 
 // Dummy Mitglieder-Daten (später aus DB)
+// typ: 'NMG' (Neumitglied) oder 'ERH' (Erhöhung)
 const mitgliederData = {
-    1: { id: 1, name: 'Klaus Reichert', eh: 40, werbegebiet: 'Ludwigshafen-Mitte', werbegebietId: 'lu-mitte', strasse: 'Hauptstraße', hausnr: '12', plz: '67059', ort: 'Ludwigshafen', email: 'k.reichert@email.de', uhrzeit: '14:32', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
-    2: { id: 2, name: 'Dr. Werner Braun', eh: 50, werbegebiet: 'Heidelberg-Altstadt', werbegebietId: 'hd-altstadt', strasse: 'Bergstraße', hausnr: '45a', plz: '69117', ort: 'Heidelberg', email: 'w.braun@praxis.de', uhrzeit: '13:15', botschafter: 'L. Bauer', emailStatus: 'sent', ibanFilled: false },
-    3: { id: 3, name: 'Maria Gruber', eh: 30, werbegebiet: 'Mannheim-Neckarau', werbegebietId: 'ma-neckarau', strasse: 'Rheinauer Str.', hausnr: '78', plz: '68199', ort: 'Mannheim', email: 'm.gruber@web.de', uhrzeit: '11:48', botschafter: 'M. Klein', emailStatus: 'not_sent', ibanFilled: false },
-    4: { id: 4, name: 'Hans Müller', eh: 20, werbegebiet: 'Ludwigshafen-Süd', werbegebietId: 'lu-sued', strasse: 'Bahnhofstr.', hausnr: '3', plz: '67063', ort: 'Ludwigshafen', email: 'hans.mueller@gmx.de', uhrzeit: '10:22', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
-    5: { id: 5, name: 'Petra Schmidt', eh: 15, werbegebiet: 'Heidelberg-Neuenheim', werbegebietId: 'hd-neuenheim', strasse: 'Uferweg', hausnr: '91', plz: '69120', ort: 'Heidelberg', email: 'petra.schmidt@outlook.de', uhrzeit: '16:05', botschafter: 'P. Hoffmann', emailStatus: 'sent', ibanFilled: false },
-    6: { id: 6, name: 'Michael Weber', eh: 10, werbegebiet: 'Mannheim-Käfertal', werbegebietId: 'ma-kaefertal', strasse: 'Waldpfad', hausnr: '17', plz: '68309', ort: 'Mannheim', email: 'm.weber@firma.de', uhrzeit: '09:33', botschafter: 'M. Klein', emailStatus: 'sent', ibanFilled: true },
-    7: { id: 7, name: 'Sabine Fischer', eh: 25, werbegebiet: 'Ludwigshafen-Mitte', werbegebietId: 'lu-mitte', strasse: 'Marktplatz', hausnr: '5', plz: '67059', ort: 'Ludwigshafen', email: 's.fischer@yahoo.de', uhrzeit: '15:47', botschafter: 'L. Bauer', emailStatus: 'opened', ibanFilled: true },
-    8: { id: 8, name: 'Thomas Koch', eh: 35, werbegebiet: 'Heidelberg-Altstadt', werbegebietId: 'hd-altstadt', strasse: 'Schlossberg', hausnr: '22', plz: '69117', ort: 'Heidelberg', email: 't.koch@email.de', uhrzeit: '12:19', botschafter: 'A. Schneider', emailStatus: 'sent', ibanFilled: false },
-    9: { id: 9, name: 'Andrea Wagner', eh: 13, werbegebiet: 'Mannheim-Neckarau', werbegebietId: 'ma-neckarau', strasse: 'Industriestr.', hausnr: '8b', plz: '68199', ort: 'Mannheim', email: 'a.wagner@provider.de', uhrzeit: '17:55', botschafter: 'P. Hoffmann', emailStatus: 'not_sent', ibanFilled: false },
-    10: { id: 10, name: 'Frank Becker', eh: 7, werbegebiet: 'Ludwigshafen-Süd', werbegebietId: 'lu-sued', strasse: 'Gartenweg', hausnr: '34', plz: '67063', ort: 'Ludwigshafen', email: 'f.becker@mail.de', uhrzeit: '08:41', botschafter: 'M. Klein', emailStatus: 'opened', ibanFilled: true }
+    1: { id: 1, name: 'Klaus Reichert', eh: 40, typ: 'ERH', werbegebiet: 'Ludwigshafen-Mitte', werbegebietId: 'lu-mitte', strasse: 'Hauptstraße', hausnr: '12', plz: '67059', ort: 'Ludwigshafen', email: 'k.reichert@email.de', uhrzeit: '14:32', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
+    2: { id: 2, name: 'Dr. Werner Braun', eh: 50, typ: 'NMG', werbegebiet: 'Heidelberg-Altstadt', werbegebietId: 'hd-altstadt', strasse: 'Bergstraße', hausnr: '45a', plz: '69117', ort: 'Heidelberg', email: 'w.braun@praxis.de', uhrzeit: '13:15', botschafter: 'L. Bauer', emailStatus: 'sent', ibanFilled: false },
+    3: { id: 3, name: 'Maria Gruber', eh: 30, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', werbegebietId: 'ma-neckarau', strasse: 'Rheinauer Str.', hausnr: '78', plz: '68199', ort: 'Mannheim', email: 'm.gruber@web.de', uhrzeit: '11:48', botschafter: 'M. Klein', emailStatus: 'not_sent', ibanFilled: false },
+    4: { id: 4, name: 'Hans Müller', eh: 20, typ: 'ERH', werbegebiet: 'Ludwigshafen-Süd', werbegebietId: 'lu-sued', strasse: 'Bahnhofstr.', hausnr: '3', plz: '67063', ort: 'Ludwigshafen', email: 'hans.mueller@gmx.de', uhrzeit: '10:22', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
+    5: { id: 5, name: 'Petra Schmidt', eh: 15, typ: 'NMG', werbegebiet: 'Heidelberg-Neuenheim', werbegebietId: 'hd-neuenheim', strasse: 'Uferweg', hausnr: '91', plz: '69120', ort: 'Heidelberg', email: 'petra.schmidt@outlook.de', uhrzeit: '16:05', botschafter: 'P. Hoffmann', emailStatus: 'sent', ibanFilled: false },
+    6: { id: 6, name: 'Michael Weber', eh: 10, typ: 'NMG', werbegebiet: 'Mannheim-Käfertal', werbegebietId: 'ma-kaefertal', strasse: 'Waldpfad', hausnr: '17', plz: '68309', ort: 'Mannheim', email: 'm.weber@firma.de', uhrzeit: '09:33', botschafter: 'M. Klein', emailStatus: 'sent', ibanFilled: true },
+    7: { id: 7, name: 'Sabine Fischer', eh: 25, typ: 'ERH', werbegebiet: 'Ludwigshafen-Mitte', werbegebietId: 'lu-mitte', strasse: 'Marktplatz', hausnr: '5', plz: '67059', ort: 'Ludwigshafen', email: 's.fischer@yahoo.de', uhrzeit: '15:47', botschafter: 'L. Bauer', emailStatus: 'opened', ibanFilled: true },
+    8: { id: 8, name: 'Thomas Koch', eh: 35, typ: 'NMG', werbegebiet: 'Heidelberg-Altstadt', werbegebietId: 'hd-altstadt', strasse: 'Schlossberg', hausnr: '22', plz: '69117', ort: 'Heidelberg', email: 't.koch@email.de', uhrzeit: '12:19', botschafter: 'A. Schneider', emailStatus: 'sent', ibanFilled: false },
+    9: { id: 9, name: 'Andrea Wagner', eh: 13, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', werbegebietId: 'ma-neckarau', strasse: 'Industriestr.', hausnr: '8b', plz: '68199', ort: 'Mannheim', email: 'a.wagner@provider.de', uhrzeit: '17:55', botschafter: 'P. Hoffmann', emailStatus: 'not_sent', ibanFilled: false },
+    10: { id: 10, name: 'Frank Becker', eh: 7, typ: 'ERH', werbegebiet: 'Ludwigshafen-Süd', werbegebietId: 'lu-sued', strasse: 'Gartenweg', hausnr: '34', plz: '67063', ort: 'Ludwigshafen', email: 'f.becker@mail.de', uhrzeit: '08:41', botschafter: 'M. Klein', emailStatus: 'opened', ibanFilled: true }
 };
 
 // Verfügbare Werbegebiete (später aus Kampagne)
@@ -4429,10 +4473,18 @@ function renderMitgliedCardLarge(mitglied) {
         emailTitle = 'E-Mail nicht gesendet';
     }
 
+    // Typ-Pill (NMG oder ERH)
+    const typPill = mitglied.typ
+        ? `<span class="schrieb-typ-pill ${mitglied.typ.toLowerCase()}">${mitglied.typ}</span>`
+        : '';
+
     return `
         <div class="mitglied-card-large-header">
             <span class="mitglied-card-large-name">${mitglied.name}</span>
-            <span class="mitglied-card-large-eh">${mitglied.eh} EH</span>
+            <div class="schrieb-compact-badges">
+                <span class="mitglied-card-large-eh">${mitglied.eh} EH</span>
+                ${typPill}
+            </div>
         </div>
         <div class="mitglied-card-large-details">
             <div class="mitglied-card-large-row">
@@ -4483,6 +4535,22 @@ function openSchriebDetails(id) {
     wgSelect.innerHTML = verfuegbareWerbegebiete.map(wg =>
         `<option value="${wg.id}" ${wg.id === mitglied.werbegebietId ? 'selected' : ''}>${wg.name}</option>`
     ).join('');
+
+    // Button disabled states setzen
+    const btnIban = document.getElementById('btnIbanMail');
+    const btnErhoehung = document.getElementById('btnErhoehungMail');
+
+    // IBAN nachtragen Mail: disabled wenn IBAN bereits vorhanden
+    btnIban.disabled = mitglied.ibanFilled === true;
+    btnIban.title = mitglied.ibanFilled
+        ? 'IBAN bereits vorhanden'
+        : 'IBAN nachtragen Mail senden';
+
+    // Erhöhungsmail: disabled bei NMG (nur ERH kann Erhöhung haben)
+    btnErhoehung.disabled = mitglied.typ === 'NMG';
+    btnErhoehung.title = mitglied.typ === 'NMG'
+        ? 'Nicht verfügbar für Neumitglieder'
+        : 'Erhöhungsmail senden';
 
     // Modal öffnen
     document.getElementById('mitgliedModal').classList.add('show');
