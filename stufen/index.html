@@ -49,24 +49,29 @@
             gap: var(--spacing-md);
         }
 
-        /* Stufen-Card */
-        .level-card {
+        /* Stufen-Card Container */
+        .level-card-wrapper {
             background: var(--bg-primary);
             border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Stufen-Card */
+        .level-card {
             padding: var(--spacing-lg);
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            grid-template-columns: auto 1fr auto auto;
             gap: var(--spacing-lg);
             align-items: center;
             transition: all 0.3s ease;
             border: 2px solid transparent;
             position: relative;
-            overflow: hidden;
+            cursor: pointer;
         }
 
         .level-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            background: var(--bg-hover);
         }
 
         .level-card::before {
@@ -79,12 +84,12 @@
             background: var(--level-color);
         }
 
-        /* Glow Effect */
-        .level-card.glow-1 { box-shadow: 0 0 15px var(--level-color-alpha); }
-        .level-card.glow-2 { box-shadow: 0 0 20px var(--level-color-alpha); }
-        .level-card.glow-3 { box-shadow: 0 0 25px var(--level-color-alpha); }
-        .level-card.glow-4 { box-shadow: 0 0 30px var(--level-color-alpha); }
-        .level-card.glow-5 { box-shadow: 0 0 40px var(--level-color-alpha), 0 0 60px var(--level-color-alpha); }
+        /* Glow Effect on wrapper */
+        .level-card-wrapper.glow-1 { box-shadow: 0 0 15px var(--level-color-alpha); }
+        .level-card-wrapper.glow-2 { box-shadow: 0 0 20px var(--level-color-alpha); }
+        .level-card-wrapper.glow-3 { box-shadow: 0 0 25px var(--level-color-alpha); }
+        .level-card-wrapper.glow-4 { box-shadow: 0 0 30px var(--level-color-alpha); }
+        .level-card-wrapper.glow-5 { box-shadow: 0 0 40px var(--level-color-alpha), 0 0 60px var(--level-color-alpha); }
 
         /* Badge/Wappen */
         .level-badge {
@@ -195,24 +200,183 @@
             margin-top: 4px;
         }
 
-        /* Section Headers */
-        .section-header {
+        /* Toggle Button */
+        .level-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .level-toggle:hover {
+            background: var(--level-color);
+        }
+
+        .level-toggle:hover svg {
+            color: white;
+        }
+
+        .level-toggle svg {
+            width: 20px;
+            height: 20px;
+            color: var(--text-secondary);
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .level-toggle.expanded svg {
+            transform: rotate(180deg);
+        }
+
+        /* Requirements Panel */
+        .requirements-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .requirements-panel.expanded {
+            max-height: 1000px;
+        }
+
+        .requirements-content {
+            padding: var(--spacing-lg);
+        }
+
+        .requirements-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .requirements-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .requirements-title svg {
+            width: 20px;
+            height: 20px;
+            color: var(--level-color);
+        }
+
+        /* Requirements List */
+        .requirements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .requirement-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin: var(--spacing-xl) 0 var(--spacing-lg);
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border-left: 3px solid var(--level-color);
         }
 
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
+        .requirement-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--level-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .requirement-icon svg {
+            width: 14px;
+            height: 14px;
+            color: white;
+        }
+
+        .requirement-text {
+            flex: 1;
+            font-size: 14px;
             color: var(--text-primary);
         }
 
-        .section-line {
+        .requirement-delete {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+
+        .requirement-item:hover .requirement-delete {
+            opacity: 1;
+        }
+
+        .requirement-delete:hover {
+            background: #fee2e2;
+        }
+
+        .requirement-delete svg {
+            width: 16px;
+            height: 16px;
+            color: #ef4444;
+        }
+
+        /* Add Requirement */
+        .add-requirement {
+            display: flex;
+            gap: 8px;
+            margin-top: var(--spacing-md);
+        }
+
+        .add-requirement input {
             flex: 1;
-            height: 1px;
-            background: var(--border-color);
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .add-requirement input:focus {
+            outline: none;
+            border-color: var(--level-color);
+        }
+
+        .add-requirement button {
+            padding: 10px 20px;
+            background: var(--level-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-requirement button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         /* Info Box */
@@ -237,6 +401,14 @@
             line-height: 1.6;
         }
 
+        /* Empty State */
+        .empty-requirements {
+            text-align: center;
+            padding: var(--spacing-lg);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .level-card {
@@ -254,6 +426,12 @@
 
             .level-factor {
                 margin-top: var(--spacing-md);
+            }
+
+            .level-toggle {
+                position: absolute;
+                top: var(--spacing-md);
+                right: var(--spacing-md);
             }
         }
     </style>
@@ -275,8 +453,7 @@
             <div class="info-box-title">Karrieresystem</div>
             <div class="info-box-text">
                 Das Karrieresystem besteht aus 8 Stufen mit aufsteigenden Faktoren (5.0 - 8.0).
-                Jede Stufe hat eigene Benefits, visuelle Merkmale (Sterne, Farben) und ab Stufe IV einen leuchtenden Glow-Effekt.
-                Der Faktor bestimmt die Provision: <strong>Eigene Netto-EH × Faktor = Brutto-Provision</strong>
+                Klicke auf eine Stufe um die <strong>Anforderungen</strong> für den Aufstieg zu sehen und zu bearbeiten.
             </div>
         </div>
 
@@ -367,12 +544,112 @@
                     stufe: 'VIII',
                     stars: 8,
                     factor: 8.0,
-                    color: '#FFFFFF',
+                    color: '#2C3E50',
                     glow: 5,
                     benefits: ['Factor 8.0 MAX', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
                 }
             }
         };
+
+        // Standard-Anforderungen für jede Stufe
+        // Anforderungen aus KARRIERE.md - Aufstieg zur jeweiligen Stufe
+        const DEFAULT_REQUIREMENTS = {
+            SMA: [
+                'Einstiegsstufe - keine Anforderungen',
+                'Einstellung als Mitarbeiter',
+                'Arbeitsvertrag unterschrieben'
+            ],
+            EMA: [
+                '20 Mitglieder insgesamt',
+                '1 Woche aktiv',
+                '1× 120 JE Mitglied',
+                '1× 60 JE Mitglied',
+                '1× 50 JE Mitglied',
+                '1× 30 JE Mitglied',
+                '90 EH insgesamt'
+            ],
+            JMM: [
+                '50 Mitglieder insgesamt',
+                '4× 120 JE Mitglied',
+                '2× 150 JE Mitglied',
+                '3× 100 JE Mitglied',
+                '7× 60 JE Mitglied',
+                '5× 50 JE Mitglied',
+                '5× 30 JE Mitglied',
+                '220 EH insgesamt',
+                '5 ERH insgesamt',
+                'Stornoquote < 12%'
+            ],
+            EMM: [
+                '10× 50 JE Schriebe',
+                '10× 120 JE Schriebe',
+                '2× 240 JE Schriebe',
+                '🏆 350 EH in einer Woche',
+                '🏆 100 EH an einem Tag',
+                '🏆 30 EH Schrieb',
+                '🏆 40 Mitglieder in einer Woche',
+                '🏆 5 ERH in einer Woche',
+                '🏆 10 Mitglieder an einem Tag',
+                'Stornoquote < 10%'
+            ],
+            CEMM: [
+                '50× 60 JE Schriebe',
+                '25× 50 JE Schriebe',
+                '25× 120 JE Schriebe',
+                '10× 240 JE Schriebe',
+                '🏆 450 EH in einer Woche',
+                '🏆 130 EH an einem Tag',
+                '🏆 5× 30 EH Schrieb',
+                '🏆 60 Mitglieder in einer Woche',
+                '🏆 5 ERH in einer Woche',
+                '🏆 13 Mitglieder an einem Tag',
+                '3 Wochen Teamleitung',
+                'Stornoquote < 8%'
+            ],
+            SPB: [
+                '75× 60 JE Schriebe',
+                '75× 50 JE Schriebe',
+                '75× 120 JE Schriebe',
+                '25× 240 JE Schriebe',
+                '🏆 600 EH in einer Woche',
+                '🏆 150 EH an einem Tag',
+                '🏆 50 EH Schrieb (netto)',
+                '🏆 80 Mitglieder in einer Woche',
+                '🏆 15 ERH in einer Woche',
+                '🏆 17 Mitglieder an einem Tag',
+                '3 Wochen Teamleitung',
+                '🏆 10× einen 100 EH Tag',
+                '🏆 5× eine 300 EH Woche',
+                '🏆 3× eine 400 EH Woche',
+                'Stornoquote < 8%'
+            ],
+            KAD: [
+                '⭐ Ernennung durch Führungsebene',
+                'Besondere Leistung und Engagement',
+                'Nachgewiesene Führungsqualitäten'
+            ],
+            FUE: [
+                '🔒 Nur interne Ernennung',
+                'Nicht verfügbar für Werber',
+                'Vorstandsbeschluss erforderlich'
+            ]
+        };
+
+        // Anforderungen aus localStorage laden oder Standard verwenden
+        function loadRequirements() {
+            const saved = localStorage.getItem('careerRequirements');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return { ...DEFAULT_REQUIREMENTS };
+        }
+
+        // Anforderungen speichern
+        function saveRequirements(requirements) {
+            localStorage.setItem('careerRequirements', JSON.stringify(requirements));
+        }
+
+        let requirements = loadRequirements();
 
         // Sterne SVG generieren
         function generateStars(count, maxStars = 8) {
@@ -394,6 +671,71 @@
             return `rgba(${r}, ${g}, ${b}, ${alpha})`;
         }
 
+        // Anforderungen für eine Stufe rendern
+        function renderRequirements(levelKey) {
+            const levelReqs = requirements[levelKey] || [];
+            const level = CAREER_LEVELS.levels[levelKey];
+
+            if (levelReqs.length === 0) {
+                return `<div class="empty-requirements">Keine Anforderungen definiert</div>`;
+            }
+
+            return levelReqs.map((req, index) => `
+                <div class="requirement-item" style="--level-color: ${level.color};">
+                    <div class="requirement-icon" style="background: ${level.color};">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <span class="requirement-text">${req}</span>
+                    <button class="requirement-delete" onclick="deleteRequirement('${levelKey}', ${index})" title="Löschen">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Anforderung hinzufügen
+        function addRequirement(levelKey) {
+            const input = document.getElementById(`req-input-${levelKey}`);
+            const value = input.value.trim();
+
+            if (!value) return;
+
+            if (!requirements[levelKey]) {
+                requirements[levelKey] = [];
+            }
+
+            requirements[levelKey].push(value);
+            saveRequirements(requirements);
+
+            // Liste aktualisieren
+            document.getElementById(`req-list-${levelKey}`).innerHTML = renderRequirements(levelKey);
+            input.value = '';
+        }
+
+        // Anforderung löschen
+        function deleteRequirement(levelKey, index) {
+            if (!confirm('Anforderung wirklich löschen?')) return;
+
+            requirements[levelKey].splice(index, 1);
+            saveRequirements(requirements);
+
+            // Liste aktualisieren
+            document.getElementById(`req-list-${levelKey}`).innerHTML = renderRequirements(levelKey);
+        }
+
+        // Panel ein-/ausklappen
+        function togglePanel(levelKey) {
+            const panel = document.getElementById(`panel-${levelKey}`);
+            const toggle = document.getElementById(`toggle-${levelKey}`);
+
+            panel.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
+        }
+
         // Karriere-Leiter rendern
         function renderCareerLadder() {
             const container = document.getElementById('careerLadder');
@@ -408,43 +750,80 @@
                 const nameGlowClass = level.glow >= 3 ? 'level-name-glow' : '';
 
                 html += `
-                    <div class="level-card ${glowClass}"
+                    <div class="level-card-wrapper ${glowClass}"
                          style="--level-color: ${level.color}; --level-color-alpha: ${hexToRgba(level.color, 0.4)}">
 
-                        <!-- Badge -->
-                        <div class="level-badge" style="background: ${level.color};">
-                            <span class="level-badge-code">${level.code}</span>
-                            <span class="level-badge-number">Stufe ${level.stufe}</span>
-                            <div class="level-stars">
-                                ${generateStars(level.stars, level.stars)}
+                        <div class="level-card" onclick="togglePanel('${levelKey}')">
+                            <!-- Badge -->
+                            <div class="level-badge" style="background: ${level.color};">
+                                <span class="level-badge-code">${level.code}</span>
+                                <span class="level-badge-number">Stufe ${level.stufe}</span>
+                                <div class="level-stars">
+                                    ${generateStars(level.stars, level.stars)}
+                                </div>
                             </div>
+
+                            <!-- Info -->
+                            <div class="level-info">
+                                <div class="level-name ${nameGlowClass}" style="--level-color: ${level.color};">
+                                    ${level.name}
+                                </div>
+                                <div class="level-description">
+                                    Karrierestufe ${level.stufe} mit ${level.stars} ${level.stars === 1 ? 'Stern' : 'Sternen'}
+                                    ${level.glow > 0 ? ` und Glow-Level ${level.glow}` : ''}
+                                </div>
+                                <div class="level-benefits">
+                                    ${level.benefits.map((b, i) => `
+                                        <span class="benefit-tag ${i === 0 ? 'highlight' : ''}"
+                                              ${i === 0 ? `style="background: ${level.color};"` : ''}>
+                                            ${b}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Faktor -->
+                            <div class="level-factor">
+                                <div class="factor-value" style="color: ${level.color};">
+                                    ${level.factor.toFixed(level.factor % 1 === 0 ? 1 : 2)}
+                                </div>
+                                <div class="factor-label">Faktor</div>
+                            </div>
+
+                            <!-- Toggle -->
+                            <button class="level-toggle" id="toggle-${levelKey}" onclick="event.stopPropagation(); togglePanel('${levelKey}')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
                         </div>
 
-                        <!-- Info -->
-                        <div class="level-info">
-                            <div class="level-name ${nameGlowClass}" style="--level-color: ${level.color};">
-                                ${level.name}
-                            </div>
-                            <div class="level-description">
-                                Karrierestufe ${level.stufe} mit ${level.stars} ${level.stars === 1 ? 'Stern' : 'Sternen'}
-                                ${level.glow > 0 ? ` und Glow-Level ${level.glow}` : ''}
-                            </div>
-                            <div class="level-benefits">
-                                ${level.benefits.map((b, i) => `
-                                    <span class="benefit-tag ${i === 0 ? 'highlight' : ''}"
-                                          ${i === 0 ? `style="background: ${level.color};"` : ''}>
-                                        ${b}
-                                    </span>
-                                `).join('')}
-                            </div>
-                        </div>
+                        <!-- Requirements Panel -->
+                        <div class="requirements-panel" id="panel-${levelKey}">
+                            <div class="requirements-content">
+                                <div class="requirements-header">
+                                    <div class="requirements-title" style="--level-color: ${level.color};">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        Anforderungen für ${level.code}
+                                    </div>
+                                </div>
 
-                        <!-- Faktor -->
-                        <div class="level-factor">
-                            <div class="factor-value" style="color: ${level.color};">
-                                ${level.factor.toFixed(level.factor % 1 === 0 ? 1 : 2)}
+                                <div class="requirements-list" id="req-list-${levelKey}">
+                                    ${renderRequirements(levelKey)}
+                                </div>
+
+                                <div class="add-requirement" style="--level-color: ${level.color};">
+                                    <input type="text"
+                                           id="req-input-${levelKey}"
+                                           placeholder="Neue Anforderung hinzufügen..."
+                                           onkeypress="if(event.key==='Enter') addRequirement('${levelKey}')">
+                                    <button onclick="addRequirement('${levelKey}')" style="background: ${level.color};">
+                                        Hinzufügen
+                                    </button>
+                                </div>
                             </div>
-                            <div class="factor-label">Faktor</div>
                         </div>
                     </div>
                 `;

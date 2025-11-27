@@ -120,7 +120,7 @@ const dummyData = {
                 code: null,
                 stars: 8,
                 factor: 8.0,
-                color: '#FFFFFF',
+                color: '#2C3E50',
                 glow: 5,
                 benefits: ['Factor 8.0 MAX', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
             }

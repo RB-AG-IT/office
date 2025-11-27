@@ -1465,43 +1465,62 @@
             <div class="section-card">
                 <h2 class="section-title">Provisions- und Abrechnungsmodalitäten</h2>
 
-                <!-- Karrierestufe mit Faktor und Benefits -->
+                <!-- Karrierestufe mit Von/Bis und Faktor -->
                 <div class="role-provision-section">
                     <div class="role-select-row">
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <div class="form-group" style="width: 200px; margin-bottom: 0;">
                             <label class="form-label">Karrierestufe *</label>
                             <select class="form-input" id="mainRole">
                                 <option value="">Bitte auswählen</option>
-                                <option value="sma">SMA - Starting Marketing Advisor</option>
-                                <option value="ema">EMA - Executive Marketing Advisor</option>
-                                <option value="jmm">JMM - Junior Marketing Manager</option>
-                                <option value="emm">EMM - Executive Marketing Manager</option>
-                                <option value="cemm">CEMM - Chief Executive Marketing Manager</option>
-                                <option value="spb">SPB - Spitzen Botschafter</option>
-                                <option value="kad">KAD - Kadermanager</option>
-                                <option value="fue">FUE - Führungsebene</option>
-                                <option value="admin">Admin - Administrator</option>
+                                <option value="sma">SMA</option>
+                                <option value="ema">EMA</option>
+                                <option value="jmm">JMM</option>
+                                <option value="emm">EMM</option>
+                                <option value="cemm">CEMM</option>
+                                <option value="spb">SPB</option>
+                                <option value="kad">KAD</option>
+                                <option value="fue">FUE</option>
                             </select>
                         </div>
-                        <div class="form-group kw-select-group" style="margin-bottom: 0;">
-                            <label class="form-label">Gültig ab KW</label>
-                            <div class="kw-selector">
-                                <button type="button" class="kw-nav-btn" id="kwPrev">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                    </svg>
-                                </button>
-                                <div class="kw-display">
-                                    <span class="kw-number" id="kwNumber">KW 48</span>
-                                    <span class="kw-year" id="kwYear">2025</span>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Gültig von - bis</label>
+                            <div class="kw-range-selector">
+                                <div class="kw-selector kw-selector-compact" id="roleKwFromSelector">
+                                    <button type="button" class="kw-nav-btn" id="kwPrev">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div class="kw-display">
+                                        <span class="kw-number" id="kwNumber">KW 48</span>
+                                        <span class="kw-year" id="kwYear">2025</span>
+                                    </div>
+                                    <button type="button" class="kw-nav-btn" id="kwNext">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                                <button type="button" class="kw-nav-btn" id="kwNext">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </button>
+                                <span class="kw-range-separator">–</span>
+                                <div class="kw-selector kw-selector-compact" id="roleKwToSelector">
+                                    <button type="button" class="kw-nav-btn" id="roleKwToPrev">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div class="kw-display">
+                                        <span class="kw-number" id="roleKwToNumber">∞</span>
+                                        <span class="kw-year" id="roleKwToYear"></span>
+                                    </div>
+                                    <button type="button" class="kw-nav-btn" id="roleKwToNext">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             <input type="hidden" id="roleEffectiveDate" value="">
+                            <input type="hidden" id="roleEffectiveDateTo" value="">
                         </div>
                         <div class="role-factor-display" id="roleFaktorDisplay">
                             <span class="factor-label">Faktor</span>
@@ -1521,43 +1540,15 @@
                     </div>
                 </div>
 
-                <!-- Zusatz-Rollen -->
-                <div class="additional-roles-section" style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--border-color);">
-                    <label class="form-label" style="margin-bottom: var(--spacing-sm);">Zusatz-Rollen (Berechtigungen)</label>
-                    <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-md);">
-                        <label class="additional-role-checkbox">
-                            <input type="checkbox" id="role_quality_manager" value="quality_manager">
-                            <span class="role-checkbox-label">
-                                <svg class="role-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                Quality Manager
-                            </span>
-                        </label>
-                        <label class="additional-role-checkbox">
-                            <input type="checkbox" id="role_recruiting_manager" value="recruiting_manager">
-                            <span class="role-checkbox-label">
-                                <svg class="role-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                                </svg>
-                                Recruiting Manager
-                            </span>
-                        </label>
-                    </div>
-                    <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
-                        Zusätzliche Berechtigungen und Provisionsansprüche
-                    </p>
-                </div>
-
-                <!-- Manuelle Provision -->
-                <div class="manual-provision-section">
-                    <div style="display: flex; gap: var(--spacing-lg); align-items: flex-start; flex-wrap: wrap;">
-                        <div class="form-group" style="width: 120px; margin-bottom: 0;">
+                <!-- Individueller Faktor (gleiches Design) -->
+                <div class="role-provision-section" style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--border-color);">
+                    <div class="role-select-row">
+                        <div class="form-group" style="width: 200px; margin-bottom: 0;">
                             <label class="form-label">
-                                Ind. Faktor
+                                Individueller Faktor
                                 <span class="optional-badge">Optional</span>
                             </label>
-                            <div class="provision-input-wrapper">
+                            <div class="provision-input-wrapper" style="height: 42px;">
                                 <input type="number" class="form-input" id="customCommission" placeholder="6.5" min="0" max="15" step="0.1" style="text-align: center;">
                                 <span class="provision-unit">×</span>
                             </div>
@@ -1612,6 +1603,35 @@
                         </svg>
                         <span id="customKwHintText"></span>
                     </p>
+                </div>
+
+                <!-- Zusatz-Rollen mit Benefits -->
+                <div class="additional-roles-section" style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--border-color);">
+                    <label class="form-label" style="margin-bottom: var(--spacing-sm);">Zusatz-Rollen (Berechtigungen)</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-md);">
+                        <label class="additional-role-checkbox">
+                            <input type="checkbox" id="role_quality_manager" value="quality_manager">
+                            <span class="role-checkbox-label">
+                                <svg class="role-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Quality Manager
+                            </span>
+                        </label>
+                        <label class="additional-role-checkbox">
+                            <input type="checkbox" id="role_recruiting_manager" value="recruiting_manager">
+                            <span class="role-checkbox-label">
+                                <svg class="role-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                </svg>
+                                Recruiting Manager
+                            </span>
+                        </label>
+                    </div>
+                    <!-- Benefits für Zusatz-Rollen -->
+                    <div class="role-benefits" id="additionalRoleBenefits" style="margin-top: var(--spacing-sm); display: none;">
+                        <span class="benefits-placeholder">Benefits der ausgewählten Zusatz-Rollen</span>
+                    </div>
                 </div>
 
                 <div class="provision-divider"></div>
@@ -2774,7 +2794,7 @@
                 short: 'FUE',
                 faktor: 8.0,
                 stars: 8,
-                color: '#FFFFFF',
+                color: '#2C3E50',
                 glow: 5,
                 benefits: ['Factor 8.0 MAX', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
             },
@@ -2783,7 +2803,7 @@
                 short: 'FUE',
                 faktor: 8.0,
                 stars: 8,
-                color: '#FFFFFF',
+                color: '#2C3E50',
                 glow: 5,
                 benefits: ['Factor 8.0 MAX', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
             },
@@ -2792,7 +2812,7 @@
                 short: 'ADM',
                 faktor: 8.0,
                 stars: 8,
-                color: '#FFFFFF',
+                color: '#2C3E50',
                 glow: 5,
                 benefits: ['Volle System-Rechte', 'Alle Bereiche', 'Verwaltungs-Zugang', 'Elite Status']
             }
@@ -3026,6 +3046,48 @@
             updateRoleFaktorAndBenefits(roleKey);
             updateCurrentRoleDisplay(roleKey);
         });
+
+        // Zusatz-Rollen Benefits Configuration
+        const ADDITIONAL_ROLE_BENEFITS = {
+            quality_manager: {
+                name: 'Quality Manager',
+                benefits: ['Zugriff Qualitätsmodul', 'Datensatz-Prüfung', 'Auffälligkeiten markieren']
+            },
+            recruiting_manager: {
+                name: 'Recruiting Manager',
+                benefits: ['Zugriff Recruiting Portal', 'Empfehlungsprovision', 'Mitarbeiter werben']
+            }
+        };
+
+        // Zusatz-Rollen Checkboxen Event Listener
+        document.getElementById('role_quality_manager').addEventListener('change', updateAdditionalRoleBenefits);
+        document.getElementById('role_recruiting_manager').addEventListener('change', updateAdditionalRoleBenefits);
+
+        // Zusatz-Rollen Benefits anzeigen
+        function updateAdditionalRoleBenefits() {
+            const benefitsContainer = document.getElementById('additionalRoleBenefits');
+            const qualityChecked = document.getElementById('role_quality_manager').checked;
+            const recruitingChecked = document.getElementById('role_recruiting_manager').checked;
+
+            const selectedBenefits = [];
+            if (qualityChecked) {
+                selectedBenefits.push(...ADDITIONAL_ROLE_BENEFITS.quality_manager.benefits);
+            }
+            if (recruitingChecked) {
+                selectedBenefits.push(...ADDITIONAL_ROLE_BENEFITS.recruiting_manager.benefits);
+            }
+
+            if (selectedBenefits.length > 0) {
+                benefitsContainer.style.display = 'block';
+                benefitsContainer.innerHTML = `
+                    <div class="benefits-list">
+                        ${selectedBenefits.map(benefit => `<span class="benefit-item">${benefit}</span>`).join('')}
+                    </div>
+                `;
+            } else {
+                benefitsContainer.style.display = 'none';
+            }
+        }
 
         // Faktor und Benefits im Provisions-Bereich anzeigen
         function updateRoleFaktorAndBenefits(roleKey) {
