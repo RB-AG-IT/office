@@ -672,6 +672,18 @@ Im Mitarbeiter-Profil (`/mitarbeiter/profil.html`) gibt es einen eigenen Bereich
 | KAD | 7.5 | Team-Provision, Management-Boni, Premium Support, Führungskräfte-Training |
 | FUE | 8.0 | Maximaler Faktor, Unternehmens-Beteiligung, Unbegrenzte Boni, Elite Status |
 
+#### Zusatz-Rollen (Berechtigungen)
+
+Im Provisions-Bereich können zusätzliche Rollen vergeben werden, die weitere Berechtigungen und Provisionsansprüche ermöglichen:
+
+| Rolle | Beschreibung |
+|-------|--------------|
+| **Quality Manager** | Prüft Datensätze auf Qualität, kann Auffälligkeiten markieren |
+| **Teamleiter** | Führt ein Team in einer Kampagne, erhält Kopfprovision |
+| **Recruiting Manager** | Wirbt neue Mitarbeiter, erhält Empfehlungsprovision |
+
+> **Hinweis:** Diese Rollen sind zusätzlich zur Karrierestufe und können kombiniert werden.
+
 #### Individuelle Provision
 
 | Einstellung | Beschreibung |
