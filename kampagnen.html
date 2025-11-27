@@ -1507,7 +1507,7 @@
             padding: var(--spacing-sm);
             transition: all 0.2s;
             cursor: pointer;
-            min-height: 70px;
+            min-height: 95px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -1518,6 +1518,7 @@
             box-shadow: var(--shadow-sm);
         }
 
+        /* Oben: Name links, EH rechts */
         .schrieb-compact-header {
             display: flex;
             justify-content: space-between;
@@ -1535,61 +1536,93 @@
             flex: 1;
         }
 
-        .schrieb-compact-je {
+        .schrieb-compact-eh {
             font-size: 10px;
             font-weight: 700;
             color: var(--accent-color);
             white-space: nowrap;
         }
 
-        .schrieb-compact-details {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
+        /* Mitte: Werbegebiet + Adresse */
+        .schrieb-compact-middle {
+            flex: 1;
             font-size: 9px;
             color: var(--text-secondary);
+            line-height: 1.4;
+            margin-top: 4px;
         }
 
-        .schrieb-compact-row {
+        .schrieb-compact-wg {
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .schrieb-compact-adresse {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Unten: Status links, Uhrzeit mitte, Botschafter rechts */
+        .schrieb-compact-footer {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid var(--border-color);
+            font-size: 9px;
             gap: 4px;
-        }
-
-        .schrieb-compact-row svg {
-            width: 10px;
-            height: 10px;
-            flex-shrink: 0;
         }
 
         .schrieb-compact-status {
             display: flex;
+            align-items: center;
             gap: 4px;
-            margin-top: 4px;
         }
 
-        .schrieb-mini-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 2px 4px;
-            border-radius: 3px;
+        .schrieb-status-icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        .schrieb-status-icon.email-sent { color: #9ca3af; }
+        .schrieb-status-icon.email-opened { color: #22c55e; }
+        .schrieb-status-icon.email-not-sent { color: #ef4444; }
+
+        .schrieb-iban {
             font-size: 8px;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        .schrieb-iban.filled {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .schrieb-iban.missing {
+            background: rgba(156, 163, 175, 0.15);
+            color: #9ca3af;
+        }
+
+        .schrieb-compact-time {
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
-        .schrieb-mini-pill.success {
-            background: #dcfce7;
-            color: #16a34a;
-        }
-
-        .schrieb-mini-pill.error {
-            background: #fef2f2;
-            color: #dc2626;
-        }
-
-        .schrieb-mini-pill.pending {
-            background: #fef3c7;
-            color: #d97706;
+        .schrieb-compact-botschafter {
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70px;
+            text-align: right;
+            font-size: 8px;
         }
 
         /* Fallback für alte Liste (falls benötigt) */
@@ -2289,13 +2322,44 @@
                 <div class="view-main">
                     <!-- ===================== TAB 1: KW-Übersicht ===================== -->
                     <div class="kw-tab-content active" id="tabKW">
-                        <!-- Letzte 10 Schriebe (5+5 Grid) -->
+                        <!-- Letzte Schriebe (5+5 Grid) -->
                         <div class="info-box">
-                            <div class="info-box-header">
+                            <div class="info-box-header" style="display: flex; align-items: center; gap: 8px;">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
-                                <h3>Letzte 10 Schriebe</h3>
+                                <h3>Letzte Schriebe</h3>
+                                <div class="kw-info-icon" style="margin-left: 4px;">
+                                    i
+                                    <div class="kw-info-tooltip" style="left: 0; right: auto; min-width: 200px;">
+                                        <div class="kw-info-tooltip-row">
+                                            <svg fill="none" stroke="#9ca3af" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span>E-Mail versendet</span>
+                                        </div>
+                                        <div class="kw-info-tooltip-row">
+                                            <svg fill="none" stroke="#22c55e" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span>E-Mail geöffnet</span>
+                                        </div>
+                                        <div class="kw-info-tooltip-row">
+                                            <svg fill="none" stroke="#ef4444" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span>E-Mail nicht gesendet</span>
+                                        </div>
+                                        <div class="kw-info-tooltip-row" style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-color);">
+                                            <span style="color: #22c55e; font-weight: 600; font-size: 10px;">IBAN</span>
+                                            <span>IBAN nachgetragen</span>
+                                        </div>
+                                        <div class="kw-info-tooltip-row">
+                                            <span style="color: #9ca3af; font-weight: 600; font-size: 10px;">IBAN</span>
+                                            <span>IBAN fehlt noch</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="schriebe-grid" id="viewLastSchriebeTop">
                                 <!-- 5 Felder Reihe 1 + 5 Felder Reihe 2 - wird dynamisch gefüllt -->
@@ -2308,7 +2372,7 @@
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
-                                <h3>KW-Einsatzplanung</h3>
+                                <h3>Kampagnenplanung</h3>
                                 <div class="kw-info-icon" style="margin-left: 4px;">
                                     i
                                     <div class="kw-info-tooltip" style="left: 0; right: auto;">
@@ -3879,61 +3943,62 @@ function renderLastSchriebe(campaign) {
     const topContainer = document.getElementById('viewLastSchriebeTop');
 
     // Dummy data - wird später aus Datenbank kommen
+    // emailStatus: 'sent' (versendet), 'opened' (geöffnet), 'not_sent' (nicht gesendet)
     const dummySchriebe = [
-        { id: 1, memberName: 'Klaus Reichert', je: 480, eh: 40, ort: 'LU', werber: 'A. Schneider', date: 'Heute', emailDelivered: true, ibanSelfFilled: true },
-        { id: 2, memberName: 'Dr. Werner Braun', je: 600, eh: 50, ort: 'HD', werber: 'L. Bauer', date: 'Heute', emailDelivered: true, ibanSelfFilled: false },
-        { id: 3, memberName: 'Maria Gruber', je: 360, eh: 30, ort: 'MA', werber: 'M. Klein', date: 'Gestern', emailDelivered: false, ibanSelfFilled: null },
-        { id: 4, memberName: 'Hans Müller', je: 240, eh: 20, ort: 'LU', werber: 'A. Schneider', date: 'Gestern', emailDelivered: true, ibanSelfFilled: true },
-        { id: 5, memberName: 'Petra Schmidt', je: 180, eh: 15, ort: 'HD', werber: 'P. Hoffmann', date: '25.11.', emailDelivered: true, ibanSelfFilled: false },
-        { id: 6, memberName: 'Michael Weber', je: 120, eh: 10, ort: 'MA', werber: 'M. Klein', date: '24.11.', emailDelivered: null, ibanSelfFilled: null },
-        { id: 7, memberName: 'Sabine Fischer', je: 300, eh: 25, ort: 'LU', werber: 'L. Bauer', date: '24.11.', emailDelivered: true, ibanSelfFilled: true },
-        { id: 8, memberName: 'Thomas Koch', je: 420, eh: 35, ort: 'HD', werber: 'A. Schneider', date: '23.11.', emailDelivered: true, ibanSelfFilled: false },
-        { id: 9, memberName: 'Andrea Wagner', je: 156, eh: 13, ort: 'MA', werber: 'P. Hoffmann', date: '23.11.', emailDelivered: false, ibanSelfFilled: null },
-        { id: 10, memberName: 'Frank Becker', je: 84, eh: 7, ort: 'LU', werber: 'M. Klein', date: '22.11.', emailDelivered: true, ibanSelfFilled: true }
+        { id: 1, memberName: 'Klaus Reichert', eh: 40, werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Hauptstraße', hausnr: '12', uhrzeit: '14:32', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
+        { id: 2, memberName: 'Dr. Werner Braun', eh: 50, werbegebiet: 'Heidelberg-Altstadt', strasse: 'Bergstraße', hausnr: '45a', uhrzeit: '13:15', botschafter: 'L. Bauer', emailStatus: 'sent', ibanFilled: false },
+        { id: 3, memberName: 'Maria Gruber', eh: 30, werbegebiet: 'Mannheim-Neckarau', strasse: 'Rheinauer Str.', hausnr: '78', uhrzeit: '11:48', botschafter: 'M. Klein', emailStatus: 'not_sent', ibanFilled: false },
+        { id: 4, memberName: 'Hans Müller', eh: 20, werbegebiet: 'Ludwigshafen-Süd', strasse: 'Bahnhofstr.', hausnr: '3', uhrzeit: '10:22', botschafter: 'A. Schneider', emailStatus: 'opened', ibanFilled: true },
+        { id: 5, memberName: 'Petra Schmidt', eh: 15, werbegebiet: 'Heidelberg-Neuenheim', strasse: 'Uferweg', hausnr: '91', uhrzeit: '16:05', botschafter: 'P. Hoffmann', emailStatus: 'sent', ibanFilled: false },
+        { id: 6, memberName: 'Michael Weber', eh: 10, werbegebiet: 'Mannheim-Käfertal', strasse: 'Waldpfad', hausnr: '17', uhrzeit: '09:33', botschafter: 'M. Klein', emailStatus: 'sent', ibanFilled: true },
+        { id: 7, memberName: 'Sabine Fischer', eh: 25, werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Marktplatz', hausnr: '5', uhrzeit: '15:47', botschafter: 'L. Bauer', emailStatus: 'opened', ibanFilled: true },
+        { id: 8, memberName: 'Thomas Koch', eh: 35, werbegebiet: 'Heidelberg-Altstadt', strasse: 'Schlossberg', hausnr: '22', uhrzeit: '12:19', botschafter: 'A. Schneider', emailStatus: 'sent', ibanFilled: false },
+        { id: 9, memberName: 'Andrea Wagner', eh: 13, werbegebiet: 'Mannheim-Neckarau', strasse: 'Industriestr.', hausnr: '8b', uhrzeit: '17:55', botschafter: 'P. Hoffmann', emailStatus: 'not_sent', ibanFilled: false },
+        { id: 10, memberName: 'Frank Becker', eh: 7, werbegebiet: 'Ludwigshafen-Süd', strasse: 'Gartenweg', hausnr: '34', uhrzeit: '08:41', botschafter: 'M. Klein', emailStatus: 'opened', ibanFilled: true }
     ];
 
     let html = '';
     dummySchriebe.forEach(schrieb => {
-        // Status-Pills bestimmen
-        let emailPill = '';
-        if (schrieb.emailDelivered === true) {
-            emailPill = '<span class="schrieb-mini-pill success" title="E-Mail zugestellt">✓</span>';
-        } else if (schrieb.emailDelivered === false) {
-            emailPill = '<span class="schrieb-mini-pill error" title="E-Mail nicht zugestellt">✗</span>';
+        // Email-Icon bestimmen
+        let emailIcon = '';
+        let emailClass = '';
+        let emailTitle = '';
+        if (schrieb.emailStatus === 'opened') {
+            emailClass = 'email-opened';
+            emailTitle = 'E-Mail geöffnet';
+        } else if (schrieb.emailStatus === 'sent') {
+            emailClass = 'email-sent';
+            emailTitle = 'E-Mail versendet';
         } else {
-            emailPill = '<span class="schrieb-mini-pill pending" title="Ausstehend">○</span>';
+            emailClass = 'email-not-sent';
+            emailTitle = 'E-Mail nicht gesendet';
         }
+        emailIcon = `<svg class="schrieb-status-icon ${emailClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="${emailTitle}">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>`;
 
-        let ibanPill = '';
-        if (schrieb.ibanSelfFilled === true) {
-            ibanPill = '<span class="schrieb-mini-pill success" title="IBAN selbst">IBAN</span>';
-        } else if (schrieb.ibanSelfFilled === false) {
-            ibanPill = '<span class="schrieb-mini-pill pending" title="IBAN offen">IBAN</span>';
-        }
+        // IBAN-Status
+        const ibanHtml = schrieb.ibanFilled
+            ? '<span class="schrieb-iban filled" title="IBAN nachgetragen">IBAN</span>'
+            : '<span class="schrieb-iban missing" title="IBAN fehlt noch">IBAN</span>';
 
         html += `
-            <div class="schrieb-compact" onclick="openSchriebDetails(${schrieb.id})" title="${schrieb.memberName} - ${schrieb.je} JE - ${schrieb.werber}">
+            <div class="schrieb-compact" onclick="openSchriebDetails(${schrieb.id})" title="${schrieb.memberName} - ${schrieb.eh} EH">
                 <div class="schrieb-compact-header">
                     <span class="schrieb-compact-name">${schrieb.memberName}</span>
-                    <span class="schrieb-compact-je">${schrieb.je}</span>
+                    <span class="schrieb-compact-eh">${schrieb.eh} EH</span>
                 </div>
-                <div class="schrieb-compact-details">
-                    <div class="schrieb-compact-row">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        </svg>
-                        ${schrieb.ort} · ${schrieb.date}
-                    </div>
-                    <div class="schrieb-compact-row">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                        ${schrieb.werber}
-                    </div>
+                <div class="schrieb-compact-middle">
+                    <div class="schrieb-compact-wg">${schrieb.werbegebiet}</div>
+                    <div class="schrieb-compact-adresse">${schrieb.strasse} ${schrieb.hausnr}</div>
                 </div>
-                <div class="schrieb-compact-status">
-                    ${emailPill}
-                    ${ibanPill}
+                <div class="schrieb-compact-footer">
+                    <div class="schrieb-compact-status">
+                        ${emailIcon}
+                        ${ibanHtml}
+                    </div>
+                    <span class="schrieb-compact-time">${schrieb.uhrzeit}</span>
+                    <span class="schrieb-compact-botschafter" title="Botschafter: ${schrieb.botschafter}">B: ${schrieb.botschafter}</span>
                 </div>
             </div>
         `;
