@@ -178,6 +178,7 @@
         .type-badge.quality { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
         .type-badge.schrieb { background: rgba(16, 185, 129, 0.1); color: #10b981; }
         .type-badge.anomaly { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .type-badge.ruecklage { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
 
         /* Info Bereich */
         .alert-info {
@@ -430,8 +431,13 @@
                 <span class="stat-chip-value">2</span>
                 <span class="stat-chip-label">Anomalien</span>
             </div>
+            <div class="stat-chip">
+                <span class="stat-chip-dot" style="background: #8b5cf6;"></span>
+                <span class="stat-chip-value">2</span>
+                <span class="stat-chip-label">Rücklage</span>
+            </div>
             <div class="stat-chip" style="margin-left: auto;">
-                <span class="stat-chip-value">10</span>
+                <span class="stat-chip-value">12</span>
                 <span class="stat-chip-label">Gesamt offen</span>
             </div>
         </div>
@@ -439,7 +445,7 @@
         <!-- Filter Tabs -->
         <div class="filter-tabs">
             <button class="filter-tab active" data-filter="all">
-                Alle <span class="filter-badge">10</span>
+                Alle <span class="filter-badge">12</span>
             </button>
             <button class="filter-tab" data-filter="quality">
                 Quality <span class="filter-badge">5</span>
@@ -449,6 +455,9 @@
             </button>
             <button class="filter-tab" data-filter="anomaly">
                 Anomalien <span class="filter-badge">2</span>
+            </button>
+            <button class="filter-tab" data-filter="ruecklage">
+                Rücklage <span class="filter-badge">2</span>
             </button>
         </div>
 
@@ -918,6 +927,99 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Rücklage Alert 1 - Warnung -->
+            <div class="alert-row" data-type="ruecklage" onclick="toggleDetails(this)">
+                <div class="avatar-sm">PH</div>
+                <span class="type-badge ruecklage">Rücklage</span>
+                <div class="alert-info">
+                    <div class="alert-name">Peter Hoffmann</div>
+                    <div class="alert-campaign">Stornorücklage Q2 2023 - Warnung</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value warning">28%</div>
+                    <div class="metric-label">Verbleibend</div>
+                    <div class="mini-progress"><div class="mini-progress-fill warning" style="width: 28%;"></div></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">840 €</div>
+                    <div class="metric-label">von 3.000 €</div>
+                </div>
+                <span class="status-badge new"><span class="status-dot"></span>Neu</span>
+                <div class="timestamp">Heute, 09:00</div>
+                <button class="action-btn" onclick="event.stopPropagation(); markReviewed(this);" title="Als geprüft markieren">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </button>
+                <div class="alert-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Ursprüngliche Rücklage</span>
+                        <span class="detail-value">3.000 €</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Stornos bisher</span>
+                        <span class="detail-value" style="color: #ef4444;">-2.160 €</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Schwellenwert</span>
+                        <span class="detail-value">30% (Warnung bei Unterschreitung)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Freigabe geplant</span>
+                        <span class="detail-value">Q3 2025 (Juli)</span>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); viewEmployee('peter-hoffmann')">Profil</button>
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); viewAbrechnung('peter-hoffmann')">Abrechnung</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rücklage Alert 2 - Kritisch -->
+            <div class="alert-row" data-type="ruecklage" onclick="toggleDetails(this)">
+                <div class="avatar-sm">SK</div>
+                <span class="type-badge ruecklage">Rücklage</span>
+                <div class="alert-info">
+                    <div class="alert-name">Stefan Kraus</div>
+                    <div class="alert-campaign">Stornorücklage Q3 2023 - KRITISCH</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value danger">12%</div>
+                    <div class="metric-label">Verbleibend</div>
+                    <div class="mini-progress"><div class="mini-progress-fill danger" style="width: 12%;"></div></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">420 €</div>
+                    <div class="metric-label">von 3.500 €</div>
+                </div>
+                <span class="status-badge new"><span class="status-dot"></span>Neu</span>
+                <div class="timestamp">Heute, 09:00</div>
+                <button class="action-btn" onclick="event.stopPropagation(); markReviewed(this);" title="Als geprüft markieren">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </button>
+                <div class="alert-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Ursprüngliche Rücklage</span>
+                        <span class="detail-value">3.500 €</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Stornos bisher</span>
+                        <span class="detail-value" style="color: #ef4444;">-3.080 €</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Schwellenwert</span>
+                        <span class="detail-value" style="color: #ef4444;">15% (KRITISCH bei Unterschreitung)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Risiko</span>
+                        <span class="detail-value" style="color: #ef4444;">Kaskade oder Vorschuss-Abzug droht!</span>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); viewEmployee('stefan-kraus')">Profil</button>
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); viewAbrechnung('stefan-kraus')">Abrechnung</button>
+                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); createAction('stefan-kraus')">Maßnahme</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -973,6 +1075,15 @@
 
         function viewDayDetails(employeeId, date) {
             parent.location.hash = 'statistics';
+        }
+
+        function viewAbrechnung(employeeId) {
+            // Navigate to werber abrechnung page
+            window.location.href = '../abrechnungen/werber.html?id=' + employeeId;
+        }
+
+        function createAction(employeeId) {
+            alert('Maßnahmen-Dialog für ' + employeeId + ':\n\n- Gespräch mit Werber führen\n- Schulung ansetzen\n- Rücklagen-Übertrag prüfen\n- Vorschuss-Anpassung prüfen');
         }
 
         function exportAlerts() {

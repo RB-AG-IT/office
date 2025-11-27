@@ -88,6 +88,71 @@ Die Verrechnung erfolgt **nur für Stornos bis zum Zeitpunkt der Stornorücklage
 
 > **Beispiel:** Stornorücklage 300 EUR, 100 EUR Stornos → 200 EUR Auszahlung nach 24 Monaten
 
+#### Einfrieren nach Stornoabrechnung
+
+> **WICHTIG:** Sobald eine Stornoabrechnung für einen Zeitraum erfolgt ist, ist dieser Zeitraum **eingefroren** - keine weitere Verrechnung möglich!
+
+| Regel | Beschreibung |
+|-------|--------------|
+| **Abschluss** | Mit der Stornoabrechnung ist das Quartal abgeschlossen |
+| **Stornos danach** | Können noch eingetragen werden, aber sind für die Abrechnung irrelevant |
+| **Keine Rückwirkung** | Nachträgliche Stornos haben keinen Einfluss auf bereits abgerechnete Zeiträume |
+
+**Beispiel:**
+```
+Q1 2020 Rücklage:         500 EUR
+Q2 2022: Stornoabrechnung erfolgt
+         Stornos bis dahin: 120 EUR
+         → Auszahlung:      380 EUR
+         → Q1 2020 ist ERLEDIGT
+
+Später eingetragene Stornos für Q1 2020:
+→ Werden gespeichert (Dokumentation)
+→ Aber KEINE Verrechnung mehr!
+```
+
+#### Kaskadenlogik bei unzureichender Rücklage
+
+Wenn die Stornorücklage eines Quartals nicht ausreicht, greift folgende Kaskade:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Stornos anfallen                                            │
+│        ↓                                                    │
+│ Rücklage des Quartals reicht aus?                          │
+│        ├── JA → Von Rücklage abziehen ✓                    │
+│        │                                                    │
+│        └── NEIN ↓                                          │
+│                                                             │
+│ Nächstes verfügbares Quartal heranziehen                   │
+│        ↓                                                    │
+│ Immer noch nicht ausreichend?                              │
+│        ├── JA → Weiteres Quartal heranziehen               │
+│        │                                                    │
+│        └── KEINE Rücklage mehr vorhanden?                  │
+│                   ↓                                         │
+│ ⚠️ VOM VORSCHUSS ABZIEHEN!                                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Schritt | Aktion |
+|---------|--------|
+| 1 | Stornos vom aktuellen Quartal abziehen |
+| 2 | Bei Überschreitung: Nächstes Quartal verwenden |
+| 3 | Bei völliger Erschöpfung: **Vom Vorschuss abziehen** |
+
+> **KRITISCH:** Wenn keine Stornorücklage mehr vorhanden ist, muss die Provision direkt vom Vorschuss abgezogen werden!
+
+#### Frühwarnung bei geringer Stornorücklage
+
+> **Auffälligkeiten-Panel:** Sobald die Stornorücklage sehr gering wird (weil zu viele Stornos reinkommen), wird automatisch eine **Warnung im System** angezeigt.
+
+| Schwellenwert | Warnstufe | Aktion |
+|---------------|-----------|--------|
+| < 30% der ursprünglichen Rücklage | ⚠️ Warnung | Gelbe Markierung im Auffälligkeiten-Panel |
+| < 15% der ursprünglichen Rücklage | 🔴 Kritisch | Rote Markierung + Benachrichtigung |
+| 0% (aufgebraucht) | ❌ Erschöpft | Vorschuss-Abzug wird aktiviert |
+
 ---
 
 ## 1. Eigene Provision (Werber-Faktor)

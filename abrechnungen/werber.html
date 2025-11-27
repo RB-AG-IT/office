@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Werber-Abrechnung - RB Inside Office</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        body {
+            overflow-y: auto;
+            height: 100%;
+            margin: 0;
+            background: var(--bg-secondary);
+        }
+
+        .page-container {
+            padding: var(--spacing-lg);
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Info Icon Tooltip */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: help;
+            margin-left: 6px;
+            position: relative;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .info-icon:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .info-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 300px;
+            max-width: 420px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            text-align: left;
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .info-icon:hover .info-tooltip {
+            display: block;
+        }
+
+        .info-tooltip h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .info-tooltip p {
+            margin: 0 0 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .info-tooltip p:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-tooltip code {
+            background: var(--bg-hover);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .info-tooltip .rule-box {
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .info-tooltip .rule-box strong {
+            color: var(--text-primary);
+        }
+
+        /* Werber Profile Card */
+        .werber-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            gap: var(--spacing-xl);
+            align-items: center;
+        }
+
+        .werber-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .werber-info {
+            flex: 1;
+        }
+
+        .werber-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .werber-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .werber-stats {
+            display: flex;
+            gap: var(--spacing-xl);
+        }
+
+        .werber-stat {
+            text-align: center;
+        }
+
+        .werber-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .werber-stat-value.positive { color: #10b981; }
+        .werber-stat-value.warning { color: #f59e0b; }
+        .werber-stat-value.danger { color: #ef4444; }
+
+        .werber-stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Year Tabs */
+        .year-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-primary);
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: var(--spacing-lg);
+            width: fit-content;
+        }
+
+        .year-tab {
+            padding: 10px 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .year-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .year-tab.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* Section Tabs */
+        .section-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .section-tab {
+            padding: 10px 20px;
+            border: none;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .section-tab.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .section-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .section-tab:not(.active) .section-badge {
+            background: var(--bg-hover);
+        }
+
+        /* Content Sections */
+        .section-content {
+            display: none;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        /* Vorschuss Grid */
+        .vorschuss-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .vorschuss-card {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: var(--spacing-md);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .vorschuss-card.paid {
+            border-left-color: #10b981;
+        }
+
+        .vorschuss-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .vorschuss-kw {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .vorschuss-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .vorschuss-status {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .vorschuss-status.paid {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .vorschuss-status.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .vorschuss-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .vorschuss-label {
+            color: var(--text-secondary);
+        }
+
+        .vorschuss-value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .vorschuss-total {
+            border-top: 1px solid var(--border-color);
+            margin-top: var(--spacing-sm);
+            padding-top: var(--spacing-sm);
+            font-weight: 600;
+        }
+
+        .vorschuss-total .vorschuss-value {
+            color: #10b981;
+        }
+
+        /* Stornorücklage Timeline */
+        .storno-timeline {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .quartal-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .quartal-card.frozen {
+            opacity: 0.7;
+        }
+
+        .quartal-card.frozen::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(59, 130, 246, 0.03) 10px,
+                rgba(59, 130, 246, 0.03) 20px
+            );
+            pointer-events: none;
+        }
+
+        .quartal-header {
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quartal-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .quartal-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .quartal-badge.open {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .quartal-badge.frozen {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+
+        .quartal-badge.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .quartal-badge.critical {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .quartal-badge.paid {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .quartal-body {
+            padding: var(--spacing-md);
+        }
+
+        .quartal-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .quartal-row:last-child {
+            border-bottom: none;
+        }
+
+        .quartal-row.total {
+            font-weight: 600;
+            border-top: 2px solid var(--border-color);
+            margin-top: var(--spacing-sm);
+            padding-top: var(--spacing-sm);
+        }
+
+        .quartal-label {
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+        }
+
+        .quartal-value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .quartal-value.negative {
+            color: #ef4444;
+        }
+
+        .quartal-value.positive {
+            color: #10b981;
+        }
+
+        .quartal-footer {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-secondary);
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quartal-action {
+            padding: 4px 12px;
+            border: none;
+            background: var(--accent-color);
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .quartal-action:disabled {
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: var(--spacing-sm) 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .progress-fill.green { background: #10b981; }
+        .progress-fill.yellow { background: #f59e0b; }
+        .progress-fill.red { background: #ef4444; }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Summary Cards */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .summary-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .summary-value.positive { color: #10b981; }
+        .summary-value.warning { color: #f59e0b; }
+        .summary-value.danger { color: #ef4444; }
+
+        .summary-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Alert Box */
+        .alert-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+        }
+
+        .alert-box.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .alert-box.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .alert-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .alert-icon.danger { color: #ef4444; }
+        .alert-icon.warning { color: #f59e0b; }
+        .alert-icon.info { color: #3b82f6; }
+
+        .alert-content h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .alert-content p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Cascade Visualization */
+        .cascade-box {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .cascade-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+        }
+
+        .cascade-flow {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .cascade-step {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .cascade-step.active {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid #3b82f6;
+        }
+
+        .cascade-step.depleted {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+        }
+
+        .cascade-step-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .cascade-step-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .cascade-arrow {
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 1200px) {
+            .storno-timeline {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .summary-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .storno-timeline {
+                grid-template-columns: 1fr;
+            }
+            .werber-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            .werber-stats {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Werber-Abrechnung</h1>
+                <p class="page-subtitle">Detaillierte Provisions- und Stornorücklagen-Übersicht</p>
+            </div>
+            <div style="display: flex; gap: var(--spacing-sm);">
+                <button class="btn btn-secondary" onclick="exportAbrechnung()">
+                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Export
+                </button>
+                <button class="btn btn-primary" onclick="window.history.back()">
+                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Zurück
+                </button>
+            </div>
+        </div>
+
+        <!-- Werber Profile -->
+        <div class="werber-card">
+            <div class="werber-avatar">MS</div>
+            <div class="werber-info">
+                <div class="werber-name">Max Schmidt</div>
+                <div class="werber-meta">JMM (Stufe III) - Faktor 6.0 | Seit 01.01.2022 | Vorschuss 70% / Rücklage 30%</div>
+            </div>
+            <div class="werber-stats">
+                <div class="werber-stat">
+                    <div class="werber-stat-value positive">42.680 €</div>
+                    <div class="werber-stat-label">
+                        Gesamt ausgezahlt
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Gesamt ausgezahlt</h4>
+                                <p>Summe aller Vorschusszahlungen über den gesamten Zeitraum.</p>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+                <div class="werber-stat">
+                    <div class="werber-stat-value">8.420 €</div>
+                    <div class="werber-stat-label">
+                        Offene Rücklage
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Offene Stornorücklage</h4>
+                                <p>30% jeder Provision wird für 24 Monate einbehalten.</p>
+                                <p><strong>Freigabe:</strong> Quartalsweise nach 24 Monaten, abzüglich Stornos.</p>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+                <div class="werber-stat">
+                    <div class="werber-stat-value warning">12.3%</div>
+                    <div class="werber-stat-label">
+                        Stornoquote
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Stornoquote</h4>
+                                <p>Verhältnis der stornierten zu den gesamten Einheiten.</p>
+                                <p><strong>13-Monats-Regel:</strong> Nur Stornos innerhalb von 13 Monaten zählen.</p>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+                <div class="werber-stat">
+                    <div class="werber-stat-value">3.240 €</div>
+                    <div class="werber-stat-label">
+                        Nächste Freigabe
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Nächste Stornorücklagen-Freigabe</h4>
+                                <p>Fällig: <strong>Q1 2025</strong> (April 2025)</p>
+                                <p>Ursprung: Q1 2023</p>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warning Alert (if applicable) -->
+        <div class="alert-box warning" id="alertLowReserve" style="display: none;">
+            <svg class="alert-icon warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div class="alert-content">
+                <h4>Stornorücklage wird knapp!</h4>
+                <p>Die Stornorücklage für Q2 2023 ist unter 30% gefallen. Bei weiteren Stornos wird möglicherweise die Rücklage aus anderen Quartalen oder der Vorschuss belastet.</p>
+            </div>
+        </div>
+
+        <!-- Year Tabs -->
+        <div class="year-tabs">
+            <button class="year-tab" data-year="2022">2022</button>
+            <button class="year-tab" data-year="2023">2023</button>
+            <button class="year-tab active" data-year="2024">2024</button>
+        </div>
+
+        <!-- Section Tabs -->
+        <div class="section-tabs">
+            <button class="section-tab active" data-section="storno">
+                Stornorücklagen
+                <span class="section-badge">4 Quartale</span>
+            </button>
+            <button class="section-tab" data-section="vorschuss">
+                Vorschusszahlungen
+                <span class="section-badge" id="vorschussCount">52 KW</span>
+            </button>
+            <button class="section-tab" data-section="cascade">
+                Kaskadenlogik
+                <span class="info-icon" style="margin-left: 4px;">i
+                    <div class="info-tooltip" style="bottom: auto; top: calc(100% + 8px);">
+                        <h4>Kaskadenlogik bei Stornos</h4>
+                        <p>Wenn die Stornorücklage eines Quartals nicht ausreicht:</p>
+                        <div class="rule-box">
+                            1. Nächstes Quartal heranziehen<br>
+                            2. Weitere Quartale bei Bedarf<br>
+                            3. <strong>Letzter Ausweg: Vom Vorschuss abziehen!</strong>
+                        </div>
+                    </div>
+                </span>
+            </button>
+        </div>
+
+        <!-- Summary Row -->
+        <div class="summary-row" id="summaryRow">
+            <!-- Wird dynamisch gefüllt -->
+        </div>
+
+        <!-- Stornorücklage Section -->
+        <div class="section-content active" id="section-storno">
+            <div class="storno-timeline" id="stornoTimeline">
+                <!-- Wird dynamisch gefüllt -->
+            </div>
+        </div>
+
+        <!-- Vorschuss Section -->
+        <div class="section-content" id="section-vorschuss">
+            <div class="vorschuss-grid" id="vorschussGrid">
+                <!-- Wird dynamisch gefüllt -->
+            </div>
+        </div>
+
+        <!-- Cascade Section -->
+        <div class="section-content" id="section-cascade">
+            <div class="cascade-box">
+                <h3 class="cascade-title">
+                    Storno-Verrechnungslogik
+                    <span class="info-icon">i
+                        <div class="info-tooltip">
+                            <h4>Wichtige Regeln</h4>
+                            <p><strong>Einfrieren:</strong> Sobald eine Stornoabrechnung erfolgt ist, ist das Quartal abgeschlossen. Nachträgliche Stornos sind abrechnungstechnisch irrelevant.</p>
+                            <p><strong>Kaskade:</strong> Bei unzureichender Rücklage werden weitere Quartale herangezogen. Wenn keine Rücklage mehr vorhanden ist, wird vom Vorschuss abgezogen.</p>
+                        </div>
+                    </span>
+                </h3>
+
+                <div class="alert-box info" style="margin-bottom: var(--spacing-lg);">
+                    <svg class="alert-icon info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="alert-content">
+                        <h4>Beispiel: Storno-Verrechnung Q3 2024</h4>
+                        <p>Stornos: 450 € | Rücklage Q3: 380 € | Fehlbetrag: 70 € → Wird von Q4 2024 abgezogen</p>
+                    </div>
+                </div>
+
+                <div class="cascade-flow" id="cascadeFlow">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </div>
+
+            <!-- Detailed Cascade Table -->
+            <div class="cascade-box">
+                <h3 class="cascade-title">Verrechnung nach Quartal</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--bg-secondary);">
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Quartal</th>
+                            <th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Ursprüngliche Rücklage</th>
+                            <th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Stornos</th>
+                            <th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Kaskaden-Abzug</th>
+                            <th style="padding: 12px; text-align: right; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Verbleibend</th>
+                            <th style="padding: 12px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cascadeTable">
+                        <!-- Wird dynamisch gefüllt -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // DUMMY DATA - 3 Jahre (2022-2024)
+        // ================================================================
+
+        const WERBER_DATA = {
+            name: 'Max Schmidt',
+            stufe: 'JMM',
+            faktor: 6.0,
+            vorschussAnteil: 0.70,
+            ruecklageAnteil: 0.30,
+            seit: '2022-01-01'
+        };
+
+        // Stornorücklagen-Daten nach Jahr und Quartal
+        const STORNO_DATA = {
+            2022: [
+                { quartal: 'Q1', ruecklage: 2400, stornos: 180, kaskadenAbzug: 0, freigabe: '04/2024', status: 'paid', auszahlung: 2220 },
+                { quartal: 'Q2', ruecklage: 2850, stornos: 420, kaskadenAbzug: 0, freigabe: '07/2024', status: 'paid', auszahlung: 2430 },
+                { quartal: 'Q3', ruecklage: 3100, stornos: 290, kaskadenAbzug: 0, freigabe: '10/2024', status: 'paid', auszahlung: 2810 },
+                { quartal: 'Q4', ruecklage: 2680, stornos: 350, kaskadenAbzug: 0, freigabe: '01/2025', status: 'open', auszahlung: null }
+            ],
+            2023: [
+                { quartal: 'Q1', ruecklage: 3200, stornos: 480, kaskadenAbzug: 0, freigabe: '04/2025', status: 'open', auszahlung: null },
+                { quartal: 'Q2', ruecklage: 2950, stornos: 890, kaskadenAbzug: 0, freigabe: '07/2025', status: 'warning', auszahlung: null }, // 30% überschritten
+                { quartal: 'Q3', ruecklage: 3400, stornos: 520, kaskadenAbzug: 0, freigabe: '10/2025', status: 'open', auszahlung: null },
+                { quartal: 'Q4', ruecklage: 3100, stornos: 310, kaskadenAbzug: 0, freigabe: '01/2026', status: 'open', auszahlung: null }
+            ],
+            2024: [
+                { quartal: 'Q1', ruecklage: 3600, stornos: 280, kaskadenAbzug: 0, freigabe: '04/2026', status: 'open', auszahlung: null },
+                { quartal: 'Q2', ruecklage: 3250, stornos: 190, kaskadenAbzug: 0, freigabe: '07/2026', status: 'open', auszahlung: null },
+                { quartal: 'Q3', ruecklage: 3800, stornos: 450, kaskadenAbzug: 70, freigabe: '10/2026', status: 'critical', auszahlung: null }, // Kaskade nötig
+                { quartal: 'Q4', ruecklage: 2100, stornos: 120, kaskadenAbzug: 0, freigabe: '01/2027', status: 'open', auszahlung: null }
+            ]
+        };
+
+        // Vorschusszahlungen nach Jahr
+        function generateVorschussData(year) {
+            const data = [];
+            const baseAmount = year === 2022 ? 600 : year === 2023 ? 720 : 800;
+
+            for (let kw = 1; kw <= 52; kw++) {
+                const variation = Math.random() * 0.4 - 0.2; // -20% bis +20%
+                const brutto = Math.round(baseAmount * (1 + variation));
+                const vorschuss = Math.round(brutto * 0.7);
+                const ruecklage = brutto - vorschuss;
+
+                // Berechne Datum für KW
+                const date = getDateOfISOWeek(kw, year);
+                const isPaid = year < 2024 || (year === 2024 && kw <= 47);
+
+                data.push({
+                    kw: kw,
+                    datum: date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }),
+                    brutto: brutto,
+                    vorschuss: vorschuss,
+                    ruecklage: ruecklage,
+                    status: isPaid ? 'paid' : 'pending'
+                });
+            }
+            return data;
+        }
+
+        function getDateOfISOWeek(week, year) {
+            const simple = new Date(year, 0, 1 + (week - 1) * 7);
+            const dow = simple.getDay();
+            const ISOweekStart = simple;
+            if (dow <= 4)
+                ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+            else
+                ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+            return ISOweekStart;
+        }
+
+        // State
+        let currentYear = 2024;
+        let currentSection = 'storno';
+
+        // ================================================================
+        // RENDER FUNCTIONS
+        // ================================================================
+
+        function renderSummary() {
+            const data = STORNO_DATA[currentYear];
+            const totalRuecklage = data.reduce((sum, q) => sum + q.ruecklage, 0);
+            const totalStornos = data.reduce((sum, q) => sum + q.stornos, 0);
+            const totalKaskade = data.reduce((sum, q) => sum + q.kaskadenAbzug, 0);
+            const verbleibend = totalRuecklage - totalStornos - totalKaskade;
+            const stornoQuote = ((totalStornos / totalRuecklage) * 100).toFixed(1);
+
+            document.getElementById('summaryRow').innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-label">
+                        Rücklage ${currentYear}
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Stornorücklage ${currentYear}</h4>
+                                <p>30% jeder Provision wird für 24 Monate einbehalten.</p>
+                                <p>Freigabe erfolgt quartalsweise, abzüglich der angefallenen Stornos.</p>
+                            </div>
+                        </span>
+                    </div>
+                    <div class="summary-value">${totalRuecklage.toLocaleString('de-DE')} €</div>
+                    <div class="summary-sub">4 Quartale gesamt</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">
+                        Stornos ${currentYear}
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Stornierte Provisionen</h4>
+                                <p>Werden von der Stornorücklage abgezogen.</p>
+                                <div class="rule-box">
+                                    <strong>13-Monats-Regel:</strong> Nur Stornos innerhalb von 13 Monaten nach Anwerbung zählen.
+                                </div>
+                            </div>
+                        </span>
+                    </div>
+                    <div class="summary-value danger">-${totalStornos.toLocaleString('de-DE')} €</div>
+                    <div class="summary-sub">Quote: ${stornoQuote}%</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">
+                        Kaskaden-Abzüge
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Kaskaden-Abzüge</h4>
+                                <p>Wenn Stornos die Rücklage eines Quartals übersteigen, werden andere Quartale herangezogen.</p>
+                                <div class="rule-box">
+                                    <strong>Wichtig:</strong> Bei erschöpfter Rücklage wird vom Vorschuss abgezogen!
+                                </div>
+                            </div>
+                        </span>
+                    </div>
+                    <div class="summary-value ${totalKaskade > 0 ? 'warning' : ''}">${totalKaskade > 0 ? '-' : ''}${totalKaskade.toLocaleString('de-DE')} €</div>
+                    <div class="summary-sub">${totalKaskade > 0 ? 'Quartale überlastet' : 'Keine Überläufe'}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">
+                        Verbleibend
+                        <span class="info-icon">i
+                            <div class="info-tooltip">
+                                <h4>Verbleibende Rücklage</h4>
+                                <p>Nach Abzug aller Stornos und Kaskaden-Abzüge.</p>
+                                <p>Wird nach 24 Monaten quartalsweise freigegeben.</p>
+                            </div>
+                        </span>
+                    </div>
+                    <div class="summary-value positive">${verbleibend.toLocaleString('de-DE')} €</div>
+                    <div class="summary-sub">Zur Freigabe vorgesehen</div>
+                </div>
+            `;
+        }
+
+        function renderStornoTimeline() {
+            const data = STORNO_DATA[currentYear];
+            const container = document.getElementById('stornoTimeline');
+
+            container.innerHTML = data.map(q => {
+                const verbraucht = q.stornos + q.kaskadenAbzug;
+                const verbleibend = q.ruecklage - verbraucht;
+                const verbrauchProzent = (verbraucht / q.ruecklage * 100).toFixed(0);
+                const progressClass = verbrauchProzent > 70 ? 'red' : verbrauchProzent > 30 ? 'yellow' : 'green';
+
+                let statusBadge = '';
+                let isFrozen = false;
+                switch(q.status) {
+                    case 'paid':
+                        statusBadge = '<span class="quartal-badge paid">Ausgezahlt</span>';
+                        isFrozen = true;
+                        break;
+                    case 'frozen':
+                        statusBadge = '<span class="quartal-badge frozen">Eingefroren</span>';
+                        isFrozen = true;
+                        break;
+                    case 'warning':
+                        statusBadge = '<span class="quartal-badge warning">Warnung</span>';
+                        break;
+                    case 'critical':
+                        statusBadge = '<span class="quartal-badge critical">Kritisch</span>';
+                        break;
+                    default:
+                        statusBadge = '<span class="quartal-badge open">Offen</span>';
+                }
+
+                return `
+                    <div class="quartal-card ${isFrozen ? 'frozen' : ''}">
+                        <div class="quartal-header">
+                            <span class="quartal-title">${q.quartal} ${currentYear}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="quartal-body">
+                            <div class="quartal-row">
+                                <span class="quartal-label">
+                                    Rücklage
+                                    <span class="info-icon" style="width: 14px; height: 14px; font-size: 10px;">i
+                                        <div class="info-tooltip">
+                                            <h4>Ursprüngliche Rücklage</h4>
+                                            <p>30% der Provisionen aus ${q.quartal} ${currentYear}.</p>
+                                        </div>
+                                    </span>
+                                </span>
+                                <span class="quartal-value">${q.ruecklage.toLocaleString('de-DE')} €</span>
+                            </div>
+                            <div class="quartal-row">
+                                <span class="quartal-label">Stornos</span>
+                                <span class="quartal-value negative">-${q.stornos.toLocaleString('de-DE')} €</span>
+                            </div>
+                            ${q.kaskadenAbzug > 0 ? `
+                            <div class="quartal-row">
+                                <span class="quartal-label">
+                                    Kaskaden-Abzug
+                                    <span class="info-icon" style="width: 14px; height: 14px; font-size: 10px;">i
+                                        <div class="info-tooltip">
+                                            <h4>Kaskaden-Abzug</h4>
+                                            <p>Dieses Quartal wurde zur Deckung von Stornos aus einem anderen Quartal herangezogen.</p>
+                                        </div>
+                                    </span>
+                                </span>
+                                <span class="quartal-value negative">-${q.kaskadenAbzug.toLocaleString('de-DE')} €</span>
+                            </div>
+                            ` : ''}
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill ${progressClass}" style="width: ${100 - verbrauchProzent}%;"></div>
+                                </div>
+                                <div class="progress-labels">
+                                    <span>Verbraucht: ${verbrauchProzent}%</span>
+                                    <span>Rest: ${100 - verbrauchProzent}%</span>
+                                </div>
+                            </div>
+                            <div class="quartal-row total">
+                                <span class="quartal-label">Verbleibend</span>
+                                <span class="quartal-value ${verbleibend > 0 ? 'positive' : 'negative'}">${verbleibend.toLocaleString('de-DE')} €</span>
+                            </div>
+                        </div>
+                        <div class="quartal-footer">
+                            <span>Freigabe: ${q.freigabe}</span>
+                            ${q.status === 'paid' ?
+                                `<span style="color: #10b981; font-weight: 500;">${q.auszahlung.toLocaleString('de-DE')} € ausgezahlt</span>` :
+                                `<button class="quartal-action" ${isFrozen ? 'disabled' : ''} onclick="processAbrechnung('${q.quartal}', ${currentYear})">
+                                    ${isFrozen ? 'Abgeschlossen' : 'Abrechnen'}
+                                </button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderVorschuss() {
+            const data = generateVorschussData(currentYear);
+            const container = document.getElementById('vorschussGrid');
+
+            // Nur die letzten 12 KWs anzeigen (oder alle wenn gewünscht)
+            const displayData = data.slice(-12).reverse();
+
+            container.innerHTML = displayData.map(v => `
+                <div class="vorschuss-card ${v.status}">
+                    <div class="vorschuss-header">
+                        <div>
+                            <div class="vorschuss-kw">KW ${v.kw}</div>
+                            <div class="vorschuss-date">${v.datum}.${currentYear}</div>
+                        </div>
+                        <span class="vorschuss-status ${v.status}">${v.status === 'paid' ? 'Ausgezahlt' : 'Ausstehend'}</span>
+                    </div>
+                    <div class="vorschuss-row">
+                        <span class="vorschuss-label">Brutto-Provision</span>
+                        <span class="vorschuss-value">${v.brutto.toLocaleString('de-DE')} €</span>
+                    </div>
+                    <div class="vorschuss-row">
+                        <span class="vorschuss-label">Vorschuss (70%)</span>
+                        <span class="vorschuss-value">${v.vorschuss.toLocaleString('de-DE')} €</span>
+                    </div>
+                    <div class="vorschuss-row">
+                        <span class="vorschuss-label">Rücklage (30%)</span>
+                        <span class="vorschuss-value">${v.ruecklage.toLocaleString('de-DE')} €</span>
+                    </div>
+                    <div class="vorschuss-row vorschuss-total">
+                        <span class="vorschuss-label">${v.status === 'paid' ? 'Ausgezahlt' : 'Auszahlung Mo.'}</span>
+                        <span class="vorschuss-value">${v.vorschuss.toLocaleString('de-DE')} €</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update Badge
+            const paidCount = data.filter(v => v.status === 'paid').length;
+            document.getElementById('vorschussCount').textContent = `${paidCount}/52 KW`;
+        }
+
+        function renderCascade() {
+            // Cascade Flow Visualization
+            const data = STORNO_DATA[currentYear];
+            const flowContainer = document.getElementById('cascadeFlow');
+
+            flowContainer.innerHTML = data.map((q, i) => {
+                const verbleibend = q.ruecklage - q.stornos - q.kaskadenAbzug;
+                const isActive = q.kaskadenAbzug > 0 || q.stornos > q.ruecklage * 0.7;
+                const isDepleted = verbleibend <= 0;
+
+                return `
+                    <div class="cascade-step ${isActive ? 'active' : ''} ${isDepleted ? 'depleted' : ''}">
+                        <div class="cascade-step-label">${q.quartal} ${currentYear}</div>
+                        <div class="cascade-step-value" style="color: ${verbleibend > 0 ? '#10b981' : '#ef4444'}">
+                            ${verbleibend.toLocaleString('de-DE')} €
+                        </div>
+                    </div>
+                    ${i < data.length - 1 ? '<span class="cascade-arrow">→</span>' : ''}
+                `;
+            }).join('') + `
+                <span class="cascade-arrow">→</span>
+                <div class="cascade-step">
+                    <div class="cascade-step-label">Vorschuss</div>
+                    <div class="cascade-step-value" style="color: #3b82f6">Notfall</div>
+                </div>
+            `;
+
+            // Cascade Table
+            const tableContainer = document.getElementById('cascadeTable');
+            tableContainer.innerHTML = data.map(q => {
+                const verbleibend = q.ruecklage - q.stornos - q.kaskadenAbzug;
+
+                let statusHtml = '';
+                switch(q.status) {
+                    case 'paid':
+                        statusHtml = '<span style="color: #10b981;">Ausgezahlt</span>';
+                        break;
+                    case 'warning':
+                        statusHtml = '<span style="color: #f59e0b;">Warnung</span>';
+                        break;
+                    case 'critical':
+                        statusHtml = '<span style="color: #ef4444;">Kritisch</span>';
+                        break;
+                    default:
+                        statusHtml = '<span style="color: #3b82f6;">Offen</span>';
+                }
+
+                return `
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 12px; font-weight: 500;">${q.quartal} ${currentYear}</td>
+                        <td style="padding: 12px; text-align: right;">${q.ruecklage.toLocaleString('de-DE')} €</td>
+                        <td style="padding: 12px; text-align: right; color: #ef4444;">-${q.stornos.toLocaleString('de-DE')} €</td>
+                        <td style="padding: 12px; text-align: right; color: ${q.kaskadenAbzug > 0 ? '#f59e0b' : 'var(--text-secondary)'};">
+                            ${q.kaskadenAbzug > 0 ? '-' + q.kaskadenAbzug.toLocaleString('de-DE') + ' €' : '-'}
+                        </td>
+                        <td style="padding: 12px; text-align: right; font-weight: 600; color: ${verbleibend > 0 ? '#10b981' : '#ef4444'};">
+                            ${verbleibend.toLocaleString('de-DE')} €
+                        </td>
+                        <td style="padding: 12px; text-align: center;">${statusHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function render() {
+            renderSummary();
+            renderStornoTimeline();
+            renderVorschuss();
+            renderCascade();
+
+            // Check for warnings
+            const data = STORNO_DATA[currentYear];
+            const hasWarning = data.some(q => q.status === 'warning' || q.status === 'critical');
+            document.getElementById('alertLowReserve').style.display = hasWarning ? 'flex' : 'none';
+        }
+
+        // ================================================================
+        // EVENT HANDLERS
+        // ================================================================
+
+        // Year tabs
+        document.querySelectorAll('.year-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.year-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentYear = parseInt(this.dataset.year);
+                render();
+            });
+        });
+
+        // Section tabs
+        document.querySelectorAll('.section-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.section-content').forEach(c => c.classList.remove('active'));
+
+                this.classList.add('active');
+                const section = this.dataset.section;
+                document.getElementById('section-' + section).classList.add('active');
+                currentSection = section;
+            });
+        });
+
+        function processAbrechnung(quartal, year) {
+            if (confirm(`Stornorücklagen-Abrechnung für ${quartal} ${year} durchführen?\n\nACHTUNG: Nach der Abrechnung ist dieses Quartal eingefroren. Nachträgliche Stornos sind dann für die Abrechnung irrelevant.`)) {
+                alert(`Abrechnung für ${quartal} ${year} wurde durchgeführt.\n\nDas Quartal ist jetzt abgeschlossen.`);
+                // In real implementation: Update status and re-render
+            }
+        }
+
+        function exportAbrechnung() {
+            alert('Export wird vorbereitet...\n\nVerfügbare Formate:\n- Excel (.xlsx)\n- CSV (.csv)\n- PDF (.pdf)');
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
