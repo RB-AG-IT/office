@@ -1278,22 +1278,21 @@
             font-size: 13px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
         }
 
-        /* Clickable WG Chips */
+        /* WG Chips - Akkordeon-Style */
         .kw-wg-chips {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: var(--spacing-md);
         }
 
         .kw-wg-chip {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
+            padding: 8px 14px;
             background: var(--bg-primary);
             border: 2px solid var(--border-color);
             border-radius: 20px;
@@ -1309,10 +1308,11 @@
             color: #8b5cf6;
         }
 
-        .kw-wg-chip.selected {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1));
+        .kw-wg-chip.expanded {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.1));
             border-color: #8b5cf6;
             color: #8b5cf6;
+            order: -1; /* Expandiertes Chip nach links */
         }
 
         .kw-wg-chip svg {
@@ -1325,115 +1325,103 @@
             opacity: 0.7;
         }
 
-        /* Active WG List - Grid Layout 3 Spalten */
-        .kw-wg-active-list {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-sm);
+        .kw-wg-chip .chip-count {
+            font-size: 10px;
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 600;
         }
 
-        .kw-wg-item {
+        /* Akkordeon-Panel für Mitarbeiter-Zuweisung */
+        .kw-wg-accordion {
+            margin-top: var(--spacing-sm);
             background: var(--bg-primary);
-            border: 1px solid var(--border-color);
+            border: 1px solid #8b5cf6;
             border-radius: var(--radius-md);
             overflow: hidden;
-            min-width: 0; /* Für Grid overflow handling */
         }
 
-        .kw-wg-header {
+        .kw-wg-accordion-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 10px;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.05));
+            padding: 10px 12px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.08));
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .kw-wg-title {
+        .kw-wg-accordion-title {
             font-weight: 600;
-            color: var(--text-primary);
-            font-size: 12px;
+            color: #8b5cf6;
+            font-size: 13px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            gap: 8px;
         }
 
-        .kw-wg-title svg {
-            width: 14px;
-            height: 14px;
-            color: #8b5cf6;
-            flex-shrink: 0;
+        .kw-wg-accordion-title svg {
+            width: 16px;
+            height: 16px;
         }
 
-        .kw-wg-plz {
-            font-size: 10px;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            padding: 2px 6px;
-            border-radius: var(--radius-sm);
-            font-weight: 500;
-            flex-shrink: 0;
-        }
-
-        .kw-wg-body {
-            padding: 8px 10px;
-            border-top: 1px solid var(--border-color);
-            max-height: 150px;
+        .kw-wg-accordion-body {
+            padding: 12px;
+            max-height: 200px;
             overflow-y: auto;
         }
 
-        .kw-wg-ma-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+        .kw-wg-ma-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 6px;
         }
 
         .kw-wg-ma-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 5px 6px;
+            gap: 8px;
+            padding: 8px 10px;
             border-radius: var(--radius-sm);
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.15s;
             background: var(--bg-secondary);
+            border: 1px solid transparent;
         }
 
         .kw-wg-ma-item:hover {
-            background: rgba(139, 92, 246, 0.08);
-        }
-
-        .kw-wg-ma-item input[type="checkbox"] {
-            width: 14px;
-            height: 14px;
-            cursor: pointer;
-            accent-color: #8b5cf6;
-            flex-shrink: 0;
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
         }
 
         .kw-wg-ma-item.checked {
-            background: rgba(139, 92, 246, 0.12);
-            border-left: 3px solid #8b5cf6;
+            background: rgba(34, 197, 94, 0.15);
+            border-color: #22c55e;
+        }
+
+        .kw-wg-ma-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #22c55e;
         }
 
         .kw-wg-ma-name {
-            flex: 1;
             font-weight: 500;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            color: var(--text-primary);
+            flex: 1;
         }
 
         .kw-wg-ma-status {
-            font-size: 9px;
-            color: var(--text-secondary);
-            flex-shrink: 0;
+            font-size: 10px;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.15);
+            padding: 2px 6px;
+            border-radius: 8px;
         }
 
-        /* Leere Nachricht über alle Spalten */
+        /* Leere Nachricht */
         .kw-wg-active-list > p {
             grid-column: 1 / -1;
             text-align: center;
@@ -3377,77 +3365,77 @@ function renderKWDetails(campaign) {
                             Werbegebiete dieser KW
                         </div>
 
-                        <!-- Clickable WG Chips -->
+                        <!-- WG Chips als Akkordeon -->
                         <div class="kw-wg-chips">
                             ${campaignWerbegebiete.map(wg => {
-                                const isSelected = kwWerbegebiete.includes(wg.id);
+                                const isExpanded = assignment.expandedWg === wg.id;
+                                const assignedCount = (wgMaZuordnung[wg.id] || []).length;
                                 const ewFormatted = (wg.einwohner || 0).toLocaleString('de-DE');
-                                return '<div class="kw-wg-chip ' + (isSelected ? 'selected' : '') + '" onclick="toggleKWWerbegebiet(' + kw + ', \'' + wg.id + '\')">' +
+                                return '<div class="kw-wg-chip ' + (isExpanded ? 'expanded' : '') + '" onclick="toggleWgAccordion(' + kw + ', \'' + wg.id + '\')">' +
                                     '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
                                         '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>' +
                                     '</svg>' +
                                     '<span>' + wg.name + '</span>' +
                                     '<span class="chip-ew">' + ewFormatted + ' EW</span>' +
+                                    (assignedCount > 0 ? '<span class="chip-count">' + assignedCount + '</span>' : '') +
                                 '</div>';
                             }).join('')}
                         </div>
 
-                        <!-- Active WG List with MA Assignment -->
-                        <div class="kw-wg-active-list">
-                            ${activeWerbegebiete.length === 0 ? '<p style="color: var(--text-secondary); font-size: 12px; text-align: center; padding: 12px;">Klicke auf ein Werbegebiet um es zu aktivieren</p>' : ''}
-                            ${activeWerbegebiete.map(wg => {
-                                const allMembers = tc ? [tc, ...werberList] : werberList;
+                        <!-- Akkordeon Panel (nur wenn ein WG expandiert ist) -->
+                        ${(() => {
+                            const expandedWgId = assignment.expandedWg;
+                            if (!expandedWgId) return '';
 
-                                // Hilfsfunktion: In welchem WG ist der MA?
-                                const getMaWgId = (maId) => {
-                                    for (const checkWgId of Object.keys(wgMaZuordnung)) {
-                                        if (wgMaZuordnung[checkWgId] && wgMaZuordnung[checkWgId].includes(maId)) {
-                                            return checkWgId;
-                                        }
+                            const wg = campaignWerbegebiete.find(w => w.id === expandedWgId);
+                            if (!wg) return '';
+
+                            const allMembers = tc ? [tc, ...werberList] : werberList;
+                            const assignedCount = (wgMaZuordnung[wg.id] || []).length;
+
+                            // Hilfsfunktion: In welchem WG ist der MA?
+                            const getMaWgId = (maId) => {
+                                for (const checkWgId of Object.keys(wgMaZuordnung)) {
+                                    if (wgMaZuordnung[checkWgId] && wgMaZuordnung[checkWgId].includes(maId)) {
+                                        return checkWgId;
                                     }
-                                    return null;
-                                };
+                                }
+                                return null;
+                            };
 
-                                // Zähle zugeordnete MA
-                                const assignedCount = (wgMaZuordnung[wg.id] || []).length;
-
-                                return '<div class="kw-wg-item">' +
-                                    '<div class="kw-wg-header">' +
-                                        '<div class="kw-wg-title">' +
-                                            '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>' +
-                                            '</svg>' +
-                                            wg.name +
-                                        '</div>' +
-                                        '<div style="display: flex; align-items: center; gap: 8px;">' +
-                                            '<span class="kw-wg-plz">' + wg.plz + '</span>' +
-                                            '<span style="font-size: 11px; color: var(--text-secondary);">' + assignedCount + ' MA</span>' +
-                                        '</div>' +
+                            return '<div class="kw-wg-accordion">' +
+                                '<div class="kw-wg-accordion-header">' +
+                                    '<div class="kw-wg-accordion-title">' +
+                                        '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>' +
+                                        '</svg>' +
+                                        wg.name +
                                     '</div>' +
-                                    '<div class="kw-wg-body">' +
-                                        '<div class="kw-wg-ma-list">' +
-                                            (allMembers.length === 0 ?
-                                                '<p style="color: var(--text-secondary); font-size: 12px;">Keine Teammitglieder in dieser KW</p>' :
-                                                allMembers.map(m => {
-                                                    const maCurrentWg = getMaWgId(m.id);
-                                                    const isInThisWg = maCurrentWg === wg.id;
-                                                    const isInOtherWg = maCurrentWg && maCurrentWg !== wg.id;
-                                                    const otherWgName = isInOtherWg ? campaignWerbegebiete.find(w => w.id === maCurrentWg)?.name : null;
+                                    '<span style="font-size: 11px; color: var(--text-secondary);">' + assignedCount + ' / ' + allMembers.length + ' MA zugewiesen</span>' +
+                                '</div>' +
+                                '<div class="kw-wg-accordion-body">' +
+                                    '<div class="kw-wg-ma-grid">' +
+                                        (allMembers.length === 0 ?
+                                            '<p style="color: var(--text-secondary); font-size: 12px;">Keine Teammitglieder in dieser KW</p>' :
+                                            allMembers.map(m => {
+                                                const maCurrentWg = getMaWgId(m.id);
+                                                const isInThisWg = maCurrentWg === wg.id;
+                                                const isInOtherWg = maCurrentWg && maCurrentWg !== wg.id;
+                                                const otherWgName = isInOtherWg ? campaignWerbegebiete.find(w => w.id === maCurrentWg)?.name : null;
 
-                                                    return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + '">' +
-                                                        '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
-                                                            ' onchange="toggleWgMaZuordnung(' + kw + ', \'' + wg.id + '\', ' + m.id + ', this.checked)">' +
-                                                        '<span class="kw-wg-ma-name">' + m.name + '</span>' +
-                                                        (m.id === tcId ? '<span class="stufen-label stufen-label-tc" style="font-size: 9px;">TC</span>' : '') +
-                                                        (isInOtherWg ? '<span class="kw-wg-ma-status">in ' + otherWgName + '</span>' : '') +
-                                                    '</label>';
-                                                }).join('')
-                                            ) +
-                                        '</div>' +
+                                                return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + '">' +
+                                                    '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
+                                                        ' onchange="toggleWgMaZuordnung(' + kw + ', \'' + wg.id + '\', ' + m.id + ', this.checked)">' +
+                                                    '<span class="kw-wg-ma-name">' + m.name + '</span>' +
+                                                    (m.id === tcId ? '<span class="stufen-label stufen-label-tc" style="font-size: 9px;">TC</span>' : '') +
+                                                    (isInOtherWg ? '<span class="kw-wg-ma-status">in ' + (otherWgName || '').split(' ')[0] + '</span>' : '') +
+                                                '</label>';
+                                            }).join('')
+                                        ) +
                                     '</div>' +
-                                '</div>';
-                            }).join('')}
-                        </div>
+                                '</div>' +
+                            '</div>';
+                        })()}
                     </div>
 
                 </div>
@@ -3611,7 +3599,35 @@ async function removeKWMember(kw, memberId) {
     }
 }
 
-// Werbegebiet für KW an/aus togglen
+// Werbegebiet-Akkordeon öffnen/schließen
+function toggleWgAccordion(kw, wgId) {
+    const campaign = campaigns.find(c => c.id === viewingCampaignId);
+    if (!campaign) return;
+
+    // Scroll-Position speichern
+    const scrollY = window.scrollY;
+
+    if (!campaign.assignments[kw]) {
+        campaign.assignments[kw] = {};
+    }
+
+    // Toggle: Wenn bereits expandiert, schließen; sonst öffnen
+    if (campaign.assignments[kw].expandedWg === wgId) {
+        campaign.assignments[kw].expandedWg = null;
+    } else {
+        campaign.assignments[kw].expandedWg = wgId;
+    }
+
+    // View aktualisieren (expanded-Zustand erhalten)
+    rerenderKWDetails(campaign);
+
+    // Scroll-Position wiederherstellen
+    requestAnimationFrame(() => {
+        window.scrollTo(0, scrollY);
+    });
+}
+
+// Werbegebiet für KW an/aus togglen (nicht mehr benutzt, aber für Kompatibilität behalten)
 function toggleKWWerbegebiet(kw, wgId) {
     const campaign = campaigns.find(c => c.id === viewingCampaignId);
     if (!campaign) return;
@@ -3650,6 +3666,9 @@ function toggleWgMaZuordnung(kw, wgId, maId, isChecked) {
     const campaign = campaigns.find(c => c.id === viewingCampaignId);
     if (!campaign) return;
 
+    // Scroll-Position speichern
+    const scrollY = window.scrollY;
+
     if (!campaign.assignments[kw]) {
         campaign.assignments[kw] = {};
     }
@@ -3684,8 +3703,22 @@ function toggleWgMaZuordnung(kw, wgId, maId, isChecked) {
         }
     }
 
-    // View komplett neu rendern um alle Checkboxen zu aktualisieren (expanded-Zustand erhalten)
-    rerenderKWDetails(campaign);
+    // Nur die Checkboxen in dieser KW aktualisieren (ohne volles Re-render)
+    const card = document.querySelector(`.kw-detail-card[data-kw="${kw}"]`);
+    if (card) {
+        // Alle Checkboxen für diesen MA in allen WGs dieser KW aktualisieren
+        card.querySelectorAll(`input[type="checkbox"]`).forEach(cb => {
+            const match = cb.onchange.toString().match(/toggleWgMaZuordnung\(\d+,\s*'([^']+)',\s*(\d+)/);
+            if (match && parseInt(match[2]) === maId) {
+                const cbWgId = match[1];
+                const isAssigned = campaign.assignments[kw].wgMaZuordnung[cbWgId]?.includes(maId);
+                cb.checked = isAssigned;
+            }
+        });
+    }
+
+    // Scroll-Position wiederherstellen
+    window.scrollTo(0, scrollY);
 }
 
 // Toggle KW Detail Card
