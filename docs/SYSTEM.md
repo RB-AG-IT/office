@@ -103,6 +103,21 @@ Kampagnenplanung und -verwaltung:
 - Teamchef (TC) pro Kalenderwoche
 - Werbegebiet-Referenzierung
 
+**Erweiterte Kampagnen-Ansicht:** *(NEU)*
+Zwei-Spalten-Layout mit umfassender Übersicht:
+- **Hauptbereich (Links):**
+  - Team Overview: Gesamtzahl Werber, TCs, QMs
+  - TC-Provisions-Verteilung: Visualisierung der KW-Anteile pro TC
+  - KW-Einsatzplanung: Expandierbare Karten pro Kalenderwoche
+    - Zeigt TC, Werber mit Employee Cards
+    - Status-Badges (Neue MA, Anreise)
+  - Einsatzgebiete mit Konditionen-Matrix
+- **Sidebar (Rechts):**
+  - Kampagnen-Info kompakt
+  - Letzte 10 Schriebe mit Status-Pills
+    - Email-Zustellung (Zugestellt/Nicht zugestellt/Ausstehend)
+    - IBAN-Status (Selbst ausgefüllt/Offen)
+
 **Dokumentation:** [KAMPAGNEN.md](KAMPAGNEN.md)
 
 ### Provisionen
@@ -147,6 +162,67 @@ Auswertungen und Berichte:
 - Kampagnen-Erfolge
 - Stornoquoten
 - Team-Statistiken
+
+---
+
+## Komponenten (components/) *(NEU)*
+
+Wiederverwendbare UI-Komponenten für das gesamte System.
+
+### Employee Card (employee-card.js)
+Einheitliches Mitarbeiter-Mini-Menü für konsistente Darstellung überall im System.
+
+**Mini-Card (Standard-Ansicht):**
+- Avatar mit Karrierestufen-Gradient
+- Name und Rolle
+- Status-Badges: TC, QM, NEU, Anreise
+
+**Popup (bei Klick):**
+- Vollständiger Name und Karrierestufe
+- Rollen-Tags (Teamchef, Quality Manager, Neuer Mitarbeiter)
+- Badges & Achievements
+- Finanzen (Offener Vorschuss, Stornorücklage)
+- Quick Actions: Profil öffnen, Abrechnung
+
+**Verwendung:**
+```html
+<!-- Per data-attributes -->
+<div class="employee-card-trigger"
+     data-employee-id="uuid"
+     data-employee-name="Max Mustermann"
+     data-employee-role="EMA"
+     data-employee-avatar="url/to/photo.jpg"
+     data-employee-tc="true"
+     data-employee-qm="false"
+     data-employee-new="true"
+     data-employee-anreise="KW 48"
+     data-employee-vorschuss="150.00"
+     data-employee-ruecklage="500.00">
+</div>
+
+<!-- Oder programmatisch -->
+<script>
+EmployeeCard.create(container, {
+    id: 'uuid',
+    name: 'Max Mustermann',
+    role: 'EMA',
+    isTC: true,
+    isNew: true
+});
+</script>
+```
+
+**Karrierestufen-Farben:**
+- SMA: Grau (#6b7280)
+- EMA: Blau (#3b82f6)
+- JMM: Violett (#8b5cf6)
+- EMM: Orange (#f59e0b)
+- CEMM: Dunkelorange (#f97316)
+- SPB: Bronze (#cd7f32)
+- KAD: Silber (#c0c0c0)
+- FUE: Gold (#ffd700)
+
+---
 
 ### Vorlagen (vorlagen/)
 Verwaltung von Preis- und E-Mail-Vorlagen:
@@ -421,6 +497,21 @@ office/
 ---
 
 ## Changelog
+
+### November 2025 (4)
+- **Employee Card Component:** Neues wiederverwendbares UI-Element
+  - Einheitliche Mitarbeiter-Darstellung im gesamten System
+  - Mini-Card mit Avatar, Name, Rolle, Status-Badges
+  - Popup mit Finanzen, Badges, Quick Actions
+  - `components/employee-card.js`
+- **Erweiterte Kampagnen-Ansicht:** Zwei-Spalten-Layout
+  - Team Overview mit Werber/TC/QM Statistiken
+  - TC-Provisions-Verteilung mit visuellen Balken
+  - KW-Einsatzplanung mit expandierbaren Karten und Employee Cards
+  - Letzte 10 Schriebe in Sidebar
+- **Status-Pills für Schriebe:** Neue Status-Indikatoren
+  - Email-Zustellung: Zugestellt (grün), Nicht zugestellt (rot), Ausstehend (gelb)
+  - IBAN-Status: Selbst ausgefüllt (grün), Offen (gelb)
 
 ### November 2025 (3)
 - **Verträge & Vereinbarungen:** Neuer Abschnitt im Mitarbeiter-Profil
