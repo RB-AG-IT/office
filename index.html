@@ -514,11 +514,11 @@
                 await updateAccountMenu();
                 closeLoginModal();
 
-                // Reload current page to update with authenticated state
-                const hash = window.location.hash.substring(1);
-                if (hash) {
-                    loadPage(hash);
-                }
+                // Nach Login: Dashboard öffnen
+                window.location.hash = 'dashboard';
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelector('[data-page="dashboard"]').classList.add('active');
+                loadPage('dashboard');
 
             } catch (error) {
                 console.error('Login error:', error);
@@ -698,6 +698,9 @@
 
                 // Set URL hash
                 window.location.hash = page;
+
+                // Sidebar automatisch schließen
+                document.querySelector('.app-container').classList.remove('expanded');
 
                 // Load content
                 loadPage(page);
