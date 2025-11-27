@@ -660,8 +660,11 @@ Im Mitarbeiter-Profil (`/mitarbeiter/profil.html`) gibt es einen eigenen Bereich
 | Element | Beschreibung |
 |---------|--------------|
 | **Karrierestufe** | Dropdown zur Auswahl (JMM, SMM, SPB, KAD, FUE) |
+| **Gültig ab KW** | Kalenderwoche ab der die Änderung gilt (vor/zurück navigierbar) |
 | **Faktor-Anzeige** | Zeigt automatisch den Faktor der gewählten Stufe |
 | **Benefits** | Pill-Badges mit den Vorteilen der Stufe |
+
+> **WICHTIG:** Änderungen der Karrierestufe wirken sich immer pro **kompletter Kalenderwoche** aus. Bei rückwirkenden Änderungen werden die Provisionen neu berechnet.
 
 **Faktoren pro Stufe:**
 | Stufe | Faktor | Benefits |
@@ -679,10 +682,11 @@ Im Provisions-Bereich können zusätzliche Rollen vergeben werden, die weitere B
 | Rolle | Beschreibung |
 |-------|--------------|
 | **Quality Manager** | Prüft Datensätze auf Qualität, kann Auffälligkeiten markieren |
-| **Teamleiter** | Führt ein Team in einer Kampagne, erhält Kopfprovision |
 | **Recruiting Manager** | Wirbt neue Mitarbeiter, erhält Empfehlungsprovision |
 
 > **Hinweis:** Diese Rollen sind zusätzlich zur Karrierestufe und können kombiniert werden.
+>
+> **Teamleiter** wird nicht hier vergeben, sondern direkt in den **Kampagnen** zugewiesen.
 
 #### Individuelle Provision
 

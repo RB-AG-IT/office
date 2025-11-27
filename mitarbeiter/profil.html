@@ -834,6 +834,68 @@
             flex-shrink: 0;
         }
 
+        /* KW Selector */
+        .kw-select-group {
+            min-width: 140px;
+        }
+
+        .kw-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 4px;
+        }
+
+        .kw-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .kw-nav-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .kw-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 8px;
+            min-width: 60px;
+        }
+
+        .kw-number {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .kw-year {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .kw-selector.changed {
+            border-color: var(--warning-color);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .kw-selector.changed .kw-number {
+            color: var(--warning-color);
+        }
+
         /* Manual Provision Section */
         .manual-provision-section {
             margin-bottom: var(--spacing-lg);
@@ -1189,11 +1251,37 @@
                                 <option value="führungsebene">Führungsebene</option>
                             </select>
                         </div>
+                        <div class="form-group kw-select-group" style="margin-bottom: 0;">
+                            <label class="form-label">Gültig ab KW</label>
+                            <div class="kw-selector">
+                                <button type="button" class="kw-nav-btn" id="kwPrev">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="kw-display">
+                                    <span class="kw-number" id="kwNumber">KW 48</span>
+                                    <span class="kw-year" id="kwYear">2025</span>
+                                </div>
+                                <button type="button" class="kw-nav-btn" id="kwNext">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <input type="hidden" id="roleEffectiveDate" value="">
+                        </div>
                         <div class="role-factor-display" id="roleFaktorDisplay">
                             <span class="factor-label">Faktor</span>
                             <span class="factor-value" id="displayFaktor">-</span>
                         </div>
                     </div>
+                    <p class="kw-hint" id="kwHint" style="display: none; font-size: var(--font-size-xs); color: var(--warning-color); margin-top: var(--spacing-sm);">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <span id="kwHintText"></span>
+                    </p>
 
                     <!-- Benefits Liste -->
                     <div class="role-benefits" id="roleBenefits">
@@ -1212,15 +1300,6 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                                 Quality Manager
-                            </span>
-                        </label>
-                        <label class="additional-role-checkbox">
-                            <input type="checkbox" id="role_teamleiter" value="teamleiter">
-                            <span class="role-checkbox-label">
-                                <svg class="role-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                </svg>
-                                Teamleiter
                             </span>
                         </label>
                         <label class="additional-role-checkbox">
@@ -2185,21 +2264,25 @@
 
                 if (profileError) throw profileError;
 
-                // 5. Set main role
+                // 5. Set main role (mit effektivem Datum für Historie)
+                const effectiveDate = document.getElementById('roleEffectiveDate').value;
                 const { error: mainRoleError } = await supabase.rpc('set_main_role', {
                     p_user_id: userId,
-                    p_role_name: mainRole
+                    p_role_name: mainRole,
+                    p_effective_date: effectiveDate || new Date().toISOString().split('T')[0]
                 });
 
                 if (mainRoleError) throw mainRoleError;
+
+                // KW zurücksetzen nach dem Speichern
+                originalKwYear = currentKwYear;
+                originalKwWeek = currentKwWeek;
+                updateKwDisplay();
 
                 // 6. Set additional roles
                 const additionalRoles = [];
                 if (document.getElementById('role_quality_manager').checked) {
                     additionalRoles.push('quality_manager');
-                }
-                if (document.getElementById('role_teamleiter').checked) {
-                    additionalRoles.push('teamleiter');
                 }
                 if (document.getElementById('role_recruiting_manager').checked) {
                     additionalRoles.push('recruiting_manager');
@@ -2356,6 +2439,99 @@
                 label.textContent = 'Nein - Kleinunternehmer (§19 UStG)';
             }
         });
+
+        // ================================================================
+        // KW (KALENDERWOCHE) FUNKTIONEN
+        // ================================================================
+
+        // Aktuelles Jahr und KW
+        let currentKwYear = new Date().getFullYear();
+        let currentKwWeek = getWeekNumber(new Date());
+        let originalKwYear = currentKwYear;
+        let originalKwWeek = currentKwWeek;
+
+        // Kalenderwoche berechnen (ISO 8601)
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        // Montag der KW berechnen (ISO 8601)
+        function getMondayOfWeek(week, year) {
+            const jan4 = new Date(year, 0, 4);
+            const dayOfWeek = jan4.getDay() || 7;
+            const monday = new Date(jan4);
+            monday.setDate(jan4.getDate() - dayOfWeek + 1 + (week - 1) * 7);
+            return monday;
+        }
+
+        // KW-Anzeige aktualisieren
+        function updateKwDisplay() {
+            document.getElementById('kwNumber').textContent = `KW ${currentKwWeek}`;
+            document.getElementById('kwYear').textContent = currentKwYear;
+
+            const selector = document.querySelector('.kw-selector');
+            const hint = document.getElementById('kwHint');
+            const hintText = document.getElementById('kwHintText');
+
+            // Prüfen ob KW geändert wurde
+            if (currentKwWeek !== originalKwWeek || currentKwYear !== originalKwYear) {
+                selector.classList.add('changed');
+                hint.style.display = 'block';
+
+                const mondayDate = getMondayOfWeek(currentKwWeek, currentKwYear);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (mondayDate < today) {
+                    hintText.textContent = `Rückwirkende Änderung ab ${mondayDate.toLocaleDateString('de-DE')} - Provisionen werden neu berechnet`;
+                } else if (mondayDate > today) {
+                    hintText.textContent = `Zukünftige Änderung ab ${mondayDate.toLocaleDateString('de-DE')}`;
+                } else {
+                    hintText.textContent = `Änderung ab dieser Woche (${mondayDate.toLocaleDateString('de-DE')})`;
+                }
+            } else {
+                selector.classList.remove('changed');
+                hint.style.display = 'none';
+            }
+
+            // Effektives Datum setzen
+            const effectiveDate = getMondayOfWeek(currentKwWeek, currentKwYear);
+            document.getElementById('roleEffectiveDate').value = effectiveDate.toISOString().split('T')[0];
+        }
+
+        // KW Navigation Events
+        document.getElementById('kwPrev').addEventListener('click', function() {
+            currentKwWeek--;
+            if (currentKwWeek < 1) {
+                currentKwYear--;
+                currentKwWeek = getWeeksInYear(currentKwYear);
+            }
+            updateKwDisplay();
+        });
+
+        document.getElementById('kwNext').addEventListener('click', function() {
+            const maxWeeks = getWeeksInYear(currentKwYear);
+            currentKwWeek++;
+            if (currentKwWeek > maxWeeks) {
+                currentKwYear++;
+                currentKwWeek = 1;
+            }
+            updateKwDisplay();
+        });
+
+        // Anzahl Wochen im Jahr berechnen
+        function getWeeksInYear(year) {
+            const dec31 = new Date(year, 11, 31);
+            const week = getWeekNumber(dec31);
+            return week === 1 ? 52 : week;
+        }
+
+        // Initial KW setzen
+        updateKwDisplay();
 
         // Vorschau aktualisieren
         function updateProvisionPreview() {
