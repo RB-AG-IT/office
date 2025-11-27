@@ -2178,11 +2178,30 @@ function toggleEinsatzgebiet(index) {
     card.classList.toggle('expanded');
 }
 
-// Entfernt ein Einsatzgebiet
-function removeEinsatzgebiet(index) {
+// Entfernt ein Einsatzgebiet (mit doppelter Bestätigung)
+async function removeEinsatzgebiet(index) {
     const card = document.getElementById(`einsatzgebiet-${index}`);
-    if (card) {
+    if (!card) return;
+
+    // Erste Bestätigung
+    const firstConfirm = await showConfirm(
+        'Möchten Sie dieses Einsatzgebiet wirklich entfernen?',
+        'Einsatzgebiet entfernen',
+        'warning'
+    );
+
+    if (!firstConfirm) return;
+
+    // Zweite Bestätigung
+    const secondConfirm = await showConfirm(
+        'Sind Sie WIRKLICH sicher? Alle Konditionen dieses Einsatzgebiets gehen verloren!',
+        'Endgültig entfernen?',
+        'error'
+    );
+
+    if (secondConfirm) {
         card.remove();
+        showToast('Einsatzgebiet entfernt', 'success');
     }
 }
 

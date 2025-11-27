@@ -157,7 +157,7 @@
         /* Kampagnen Grid */
         .campaigns-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: var(--spacing-lg);
         }
 
@@ -1800,26 +1800,11 @@
             document.getElementById('area-tab-' + tabName).classList.add('active');
         }
 
-        // Toggle sondierung limit input type
-        function toggleSondLimitInput() {
-            const type = document.getElementById('areaSondLimitType').value;
-            document.getElementById('sondLimitMembersGroup').style.display = type === 'members' ? 'block' : 'none';
-            document.getElementById('sondLimitPercentGroup').style.display = type === 'percent' ? 'block' : 'none';
-        }
-
-        // Calculate members from percent
-        function calculateAreaMembers() {
-            const population = parseInt(document.getElementById('areaPopulation').value) || 0;
-            const percent = parseFloat(document.getElementById('areaSondMembersPercent').value) || 0;
-            const calculated = Math.floor(population * (percent / 100));
-            document.getElementById('areaCalculatedMembers').textContent = calculated.toLocaleString('de-DE');
-        }
-
         function editArea(index) {
             editingAreaIndex = index;
             const area = currentCustomer.areas[index];
 
-            // Stammdaten
+            // Stammdaten laden
             document.getElementById('newAreaName').value = area.name;
             document.getElementById('areaStreet').value = area.street || '';
             document.getElementById('areaZip').value = area.zip || '';
@@ -1830,41 +1815,6 @@
             document.getElementById('areaEmail').value = area.email || '';
             document.getElementById('areaPhone').value = area.phone || '';
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet bearbeiten';
-
-            // Konditionen
-            document.getElementById('areaPopulation').value = area.population || '';
-            document.getElementById('areaSondLimitType').value = area.sondLimitType || 'members';
-            document.getElementById('areaSondMembersDirect').value = area.sondMembersDirect || '';
-            document.getElementById('areaSondMembersPercent').value = area.sondMembersPercent || '';
-            toggleSondLimitInput();
-            calculateAreaMembers();
-
-            // Sondierung
-            for (let i = 0; i < 5; i++) {
-                document.getElementById('areaSond' + (i + 1)).value = (area.sondierung && area.sondierung[i]) || '';
-            }
-            // Regular
-            for (let i = 0; i < 5; i++) {
-                document.getElementById('areaReg' + (i + 1)).value = (area.regular && area.regular[i]) || '';
-            }
-
-            // Quality bonus
-            document.getElementById('areaQualityBonusEnabled').checked = area.qualityBonus || false;
-
-            // Storno rules
-            const thresholds = document.querySelectorAll('.area-storno-threshold');
-            const bonuses = document.querySelectorAll('.area-storno-bonus');
-            if (area.stornoRules && area.stornoRules.length > 0) {
-                area.stornoRules.forEach((rule, i) => {
-                    if (thresholds[i]) thresholds[i].value = rule.threshold;
-                    if (bonuses[i]) bonuses[i].value = rule.bonus;
-                });
-            }
-
-            // Sondervereinbarungen
-            document.getElementById('areaPartialPayment').checked = area.partialPayment || false;
-            document.getElementById('areaPartialPaymentPercent').value = area.partialPaymentPercent || '';
-            document.getElementById('areaSpecialAgreements').value = area.specialAgreements || '';
 
             // Handle group photo
             const preview = document.getElementById('groupPhotoPreview');
@@ -1885,7 +1835,7 @@
                 box.classList.remove('has-file');
             }
 
-            // Reset to first tab
+            // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
         }
@@ -1893,7 +1843,7 @@
         function openAddAreaModal() {
             editingAreaIndex = null;
 
-            // Stammdaten
+            // Stammdaten zurücksetzen
             document.getElementById('newAreaName').value = '';
             document.getElementById('areaStreet').value = '';
             document.getElementById('areaZip').value = '';
@@ -1904,42 +1854,6 @@
             document.getElementById('areaEmail').value = '';
             document.getElementById('areaPhone').value = '';
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet hinzufügen';
-
-            // Konditionen
-            document.getElementById('areaPopulation').value = '';
-            document.getElementById('areaSondLimitType').value = 'members';
-            document.getElementById('areaSondMembersDirect').value = '';
-            document.getElementById('areaSondMembersPercent').value = '';
-            document.getElementById('areaCalculatedMembers').textContent = '0';
-            toggleSondLimitInput();
-
-            // Sondierung & Regular
-            for (let i = 1; i <= 5; i++) {
-                document.getElementById('areaSond' + i).value = '';
-                document.getElementById('areaReg' + i).value = '';
-            }
-
-            // Quality bonus
-            document.getElementById('areaQualityBonusEnabled').checked = false;
-
-            // Reset storno rules to defaults
-            const thresholds = document.querySelectorAll('.area-storno-threshold');
-            const bonuses = document.querySelectorAll('.area-storno-bonus');
-            const defaultRules = [
-                { threshold: 15, bonus: 3 },
-                { threshold: 12, bonus: 3 },
-                { threshold: 10, bonus: 3 },
-                { threshold: 8, bonus: 1 }
-            ];
-            defaultRules.forEach((rule, i) => {
-                if (thresholds[i]) thresholds[i].value = rule.threshold;
-                if (bonuses[i]) bonuses[i].value = rule.bonus;
-            });
-
-            // Sondervereinbarungen
-            document.getElementById('areaPartialPayment').checked = false;
-            document.getElementById('areaPartialPaymentPercent').value = '';
-            document.getElementById('areaSpecialAgreements').value = '';
 
             // Reset group photo
             const preview = document.getElementById('groupPhotoPreview');
@@ -1954,7 +1868,7 @@
             document.getElementById('areaGroupPhoto').value = '';
             currentGroupPhotoData = null;
 
-            // Reset to first tab
+            // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
             document.getElementById('newAreaName').focus();
@@ -1970,19 +1884,10 @@
 
         function addArea() {
             const name = document.getElementById('newAreaName').value.trim();
-            if (!name) return;
-
-            // Collect storno rules
-            const thresholds = document.querySelectorAll('.area-storno-threshold');
-            const bonuses = document.querySelectorAll('.area-storno-bonus');
-            const stornoRules = [];
-            thresholds.forEach((th, i) => {
-                const threshold = parseFloat(th.value) || 0;
-                const bonus = parseFloat(bonuses[i]?.value) || 0;
-                if (threshold > 0) {
-                    stornoRules.push({ threshold, bonus });
-                }
-            });
+            if (!name) {
+                showToast('Bitte einen Namen eingeben', 'warning');
+                return;
+            }
 
             const areaData = {
                 // Stammdaten
@@ -1995,38 +1900,15 @@
                 privacyPolicy: document.getElementById('areaPrivacyPolicy').value.trim(),
                 contact: document.getElementById('areaContact').value.trim(),
                 email: document.getElementById('areaEmail').value.trim(),
-                phone: document.getElementById('areaPhone').value.trim(),
-
-                // Konditionen
-                population: parseInt(document.getElementById('areaPopulation').value) || null,
-                sondLimitType: document.getElementById('areaSondLimitType').value,
-                sondMembersDirect: parseInt(document.getElementById('areaSondMembersDirect').value) || null,
-                sondMembersPercent: parseFloat(document.getElementById('areaSondMembersPercent').value) || null,
-                sondierung: [
-                    parseFloat(document.getElementById('areaSond1').value) || 0,
-                    parseFloat(document.getElementById('areaSond2').value) || 0,
-                    parseFloat(document.getElementById('areaSond3').value) || 0,
-                    parseFloat(document.getElementById('areaSond4').value) || 0,
-                    parseFloat(document.getElementById('areaSond5').value) || 0
-                ],
-                regular: [
-                    parseFloat(document.getElementById('areaReg1').value) || 0,
-                    parseFloat(document.getElementById('areaReg2').value) || 0,
-                    parseFloat(document.getElementById('areaReg3').value) || 0,
-                    parseFloat(document.getElementById('areaReg4').value) || 0,
-                    parseFloat(document.getElementById('areaReg5').value) || 0
-                ],
-                qualityBonus: document.getElementById('areaQualityBonusEnabled').checked,
-                stornoRules: stornoRules,
-                partialPayment: document.getElementById('areaPartialPayment').checked,
-                partialPaymentPercent: parseFloat(document.getElementById('areaPartialPaymentPercent').value) || null,
-                specialAgreements: document.getElementById('areaSpecialAgreements').value.trim()
+                phone: document.getElementById('areaPhone').value.trim()
             };
 
             if (editingAreaIndex !== null) {
                 currentCustomer.areas[editingAreaIndex] = areaData;
+                showToast('Werbegebiet aktualisiert', 'success');
             } else {
                 currentCustomer.areas.push(areaData);
+                showToast('Werbegebiet hinzugefügt', 'success');
             }
 
             currentGroupPhotoData = null;
