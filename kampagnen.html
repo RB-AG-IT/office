@@ -252,6 +252,66 @@
 
         .kw-card.no-tc {
             border-color: var(--warning-text);
+        }
+
+        /* Einsatzgebiete Auswahl in KW */
+        .kw-einsatzgebiete {
+            margin-top: var(--spacing-sm);
+            padding-top: var(--spacing-sm);
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .kw-einsatzgebiete-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .kw-einsatzgebiete-label svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent-color);
+        }
+
+        .kw-eg-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+        }
+
+        .kw-eg-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .kw-eg-checkbox:hover {
+            border-color: var(--accent-color);
+        }
+
+        .kw-eg-checkbox input {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .kw-eg-checkbox.checked {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .kw-eg-checkbox.checked input {
+            accent-color: white;
             background: rgba(239, 68, 68, 0.05);
         }
 
@@ -1647,18 +1707,43 @@ function generateKWCards() {
     document.getElementById('saveCampaignBtn').style.display = 'inline-flex';
 }
 
+// Get current Einsatzgebiete from form
+function getEinsatzgebieteFromForm() {
+    const container = document.getElementById('einsatzgebieteContainer');
+    const cards = container.querySelectorAll('.einsatzgebiet-card');
+    const einsatzgebiete = [];
+
+    cards.forEach((card, index) => {
+        const select = card.querySelector(`#eg-area-${index}`);
+        if (select && select.value) {
+            const option = select.options[select.selectedIndex];
+            einsatzgebiete.push({
+                index: index,
+                id: select.value,
+                name: option ? option.text : `Einsatzgebiet ${index + 1}`
+            });
+        }
+    });
+
+    return einsatzgebiete;
+}
+
 // Create KW card
 function createKWCard(kw, assignment = {}) {
     const teamchefId = assignment.teamchef || null;
     const werberIds = assignment.werber || [];
+    const selectedEinsatzgebiete = assignment.einsatzgebiete || null; // null = alle
 
     const card = document.createElement('div');
     card.className = 'kw-card' + (teamchefId ? ' has-tc' : ' no-tc');
     card.dataset.kw = kw;
 
     // Get date range for this KW
-    const year = 2024;
+    const year = 2025;
     const dateRange = getKWDateRange(kw, year);
+
+    // Get available Einsatzgebiete
+    const einsatzgebiete = getEinsatzgebieteFromForm();
 
     card.innerHTML = `
         <div class="kw-header">
@@ -1703,9 +1788,45 @@ function createKWCard(kw, assignment = {}) {
                 ` : '';
             }).join('')}
         </div>
+
+        ${einsatzgebiete.length > 0 ? `
+        <div class="kw-einsatzgebiete">
+            <div class="kw-einsatzgebiete-label">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Einsatzgebiete dieser KW:
+            </div>
+            <div class="kw-eg-checkboxes" id="eg-checkboxes-kw-${kw}">
+                ${einsatzgebiete.map(eg => {
+                    const isChecked = selectedEinsatzgebiete === null || selectedEinsatzgebiete.includes(eg.index);
+                    return `
+                        <label class="kw-eg-checkbox ${isChecked ? 'checked' : ''}" onclick="toggleKwEinsatzgebiet(this, ${kw}, ${eg.index})">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} data-eg-index="${eg.index}">
+                            ${eg.name}
+                        </label>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+        ` : ''}
     `;
 
     return card;
+}
+
+// Toggle Einsatzgebiet checkbox styling
+function toggleKwEinsatzgebiet(label, kw, egIndex) {
+    const checkbox = label.querySelector('input[type="checkbox"]');
+    // Toggle happens after click, so we check the NEW state
+    setTimeout(() => {
+        if (checkbox.checked) {
+            label.classList.add('checked');
+        } else {
+            label.classList.remove('checked');
+        }
+    }, 0);
 }
 
 // Get date range for a KW
