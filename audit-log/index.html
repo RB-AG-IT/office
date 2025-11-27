@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit-Log - RB Inside Office</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            overflow-y: auto;
+            height: 100%;
+            margin: 0;
+            background: var(--bg-secondary);
+        }
+
+        .page-container {
+            padding: var(--spacing-lg);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .filter-group label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 13px;
+            min-width: 140px;
+        }
+
+        .filter-divider {
+            width: 1px;
+            height: 40px;
+            background: var(--border-color);
+            margin: 0 8px;
+        }
+
+        /* Log Timeline */
+        .log-container {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: var(--spacing-lg);
+        }
+
+        .log-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .log-empty svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .log-timeline {
+            position: relative;
+        }
+
+        .log-timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .log-entry {
+            position: relative;
+            padding-left: 52px;
+            padding-bottom: 24px;
+        }
+
+        .log-entry:last-child {
+            padding-bottom: 0;
+        }
+
+        .log-entry::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 3px solid var(--accent-color);
+        }
+
+        .log-entry.type-create::before {
+            border-color: #10b981;
+        }
+
+        .log-entry.type-update::before {
+            border-color: #f59e0b;
+        }
+
+        .log-entry.type-delete::before {
+            border-color: #ef4444;
+        }
+
+        .log-entry.type-role::before {
+            border-color: #8b5cf6;
+        }
+
+        .log-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .log-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .log-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .log-username {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .log-action {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .log-action-type {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .log-action-type.create {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .log-action-type.update {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .log-action-type.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .log-action-type.role {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+
+        .log-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        .log-details {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+        }
+
+        .log-detail-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .log-detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .log-detail-label {
+            color: var(--text-secondary);
+            min-width: 100px;
+        }
+
+        .log-detail-value {
+            color: var(--text-primary);
+        }
+
+        .log-detail-old {
+            color: #ef4444;
+            text-decoration: line-through;
+        }
+
+        .log-detail-new {
+            color: #10b981;
+        }
+
+        .log-detail-arrow {
+            color: var(--text-secondary);
+            margin: 0 4px;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: var(--spacing-lg);
+        }
+
+        .pagination-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Date Groups */
+        .log-date-group {
+            margin-bottom: 24px;
+        }
+
+        .log-date-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            padding-left: 52px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">Audit-Log</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="exportLog()">
+                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Exportieren
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>Zeitraum</label>
+                <select id="filterTimeRange" onchange="applyFilters()">
+                    <option value="today">Heute</option>
+                    <option value="week" selected>Diese Woche</option>
+                    <option value="month">Dieser Monat</option>
+                    <option value="all">Alle</option>
+                </select>
+            </div>
+
+            <div class="filter-divider"></div>
+
+            <div class="filter-group">
+                <label>Aktion</label>
+                <select id="filterAction" onchange="applyFilters()">
+                    <option value="">Alle Aktionen</option>
+                    <option value="create">Erstellt</option>
+                    <option value="update">Aktualisiert</option>
+                    <option value="delete">Geloescht</option>
+                    <option value="role">Rollenänderung</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Bereich</label>
+                <select id="filterArea" onchange="applyFilters()">
+                    <option value="">Alle Bereiche</option>
+                    <option value="users">Mitarbeiter</option>
+                    <option value="campaigns">Kampagnen</option>
+                    <option value="records">Datensätze</option>
+                    <option value="roles">Rollen</option>
+                    <option value="provisions">Provisionen</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Benutzer</label>
+                <select id="filterUser" onchange="applyFilters()">
+                    <option value="">Alle Benutzer</option>
+                    <!-- Will be populated dynamically -->
+                </select>
+            </div>
+        </div>
+
+        <!-- Log Container -->
+        <div class="log-container" id="logContainer">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                Lade Audit-Log...
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="pagination-btn" id="prevBtn" onclick="prevPage()" disabled>Zurück</button>
+            <span class="pagination-info" id="pageInfo">Seite 1 von 1</span>
+            <button class="pagination-btn" id="nextBtn" onclick="nextPage()">Weiter</button>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // SUPABASE SETUP
+        // ================================================================
+        const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // State
+        let currentPage = 1;
+        const pageSize = 50;
+        let totalEntries = 0;
+        let adminUsers = [];
+
+        // ================================================================
+        // INITIALIZATION
+        // ================================================================
+
+        async function init() {
+            await loadAdminUsers();
+            await loadAuditLog();
+        }
+
+        async function loadAdminUsers() {
+            try {
+                const { data, error } = await supabase
+                    .from('user_with_roles')
+                    .select('id, name')
+                    .in('main_role', ['admin', 'führungsebene'])
+                    .order('name');
+
+                if (error) throw error;
+
+                adminUsers = data || [];
+
+                // Populate filter dropdown
+                const filterUser = document.getElementById('filterUser');
+                adminUsers.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    filterUser.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading admin users:', error);
+            }
+        }
+
+        // ================================================================
+        // LOAD AUDIT LOG
+        // ================================================================
+
+        async function loadAuditLog() {
+            const container = document.getElementById('logContainer');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    Lade Audit-Log...
+                </div>
+            `;
+
+            try {
+                // Get filters
+                const timeRange = document.getElementById('filterTimeRange').value;
+                const action = document.getElementById('filterAction').value;
+                const area = document.getElementById('filterArea').value;
+                const userId = document.getElementById('filterUser').value;
+
+                // Build date filter
+                let dateFilter = null;
+                const now = new Date();
+                if (timeRange === 'today') {
+                    dateFilter = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+                } else if (timeRange === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    dateFilter = weekAgo.toISOString();
+                } else if (timeRange === 'month') {
+                    const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    dateFilter = monthAgo.toISOString();
+                }
+
+                // Query audit_log table
+                let query = supabase
+                    .from('audit_log')
+                    .select('*', { count: 'exact' })
+                    .order('created_at', { ascending: false })
+                    .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
+
+                if (dateFilter) {
+                    query = query.gte('created_at', dateFilter);
+                }
+
+                if (action) {
+                    query = query.eq('action_type', action);
+                }
+
+                if (area) {
+                    query = query.eq('table_name', area);
+                }
+
+                if (userId) {
+                    query = query.eq('performed_by', userId);
+                }
+
+                const { data: logs, error, count } = await query;
+
+                if (error) {
+                    // If table doesn't exist yet, show empty state
+                    if (error.code === '42P01') {
+                        showEmptyState('Audit-Log Tabelle noch nicht eingerichtet');
+                        return;
+                    }
+                    throw error;
+                }
+
+                totalEntries = count || 0;
+
+                if (!logs || logs.length === 0) {
+                    showEmptyState('Keine Einträge gefunden');
+                    return;
+                }
+
+                // Get user names for the logs
+                const userIds = [...new Set(logs.map(l => l.performed_by).filter(Boolean))];
+                let userMap = {};
+
+                if (userIds.length > 0) {
+                    const { data: users } = await supabase
+                        .from('users')
+                        .select('id, name')
+                        .in('id', userIds);
+
+                    if (users) {
+                        users.forEach(u => userMap[u.id] = u.name);
+                    }
+                }
+
+                // Group logs by date
+                const groupedLogs = groupByDate(logs);
+
+                // Render logs
+                renderLogs(groupedLogs, userMap);
+
+                // Update pagination
+                updatePagination();
+
+            } catch (error) {
+                console.error('Error loading audit log:', error);
+                container.innerHTML = `
+                    <div class="log-empty">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <p>Fehler beim Laden des Audit-Logs</p>
+                        <p style="font-size: 12px; margin-top: 8px;">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showEmptyState(message) {
+            const container = document.getElementById('logContainer');
+            container.innerHTML = `
+                <div class="log-empty">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <p>${message}</p>
+                </div>
+            `;
+            document.getElementById('pagination').style.display = 'none';
+        }
+
+        function groupByDate(logs) {
+            const groups = {};
+            logs.forEach(log => {
+                const date = new Date(log.created_at).toLocaleDateString('de-DE', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                if (!groups[date]) {
+                    groups[date] = [];
+                }
+                groups[date].push(log);
+            });
+            return groups;
+        }
+
+        function renderLogs(groupedLogs, userMap) {
+            const container = document.getElementById('logContainer');
+            let html = '<div class="log-timeline">';
+
+            Object.entries(groupedLogs).forEach(([date, logs]) => {
+                html += `
+                    <div class="log-date-group">
+                        <div class="log-date-header">${date}</div>
+                `;
+
+                logs.forEach(log => {
+                    const userName = userMap[log.performed_by] || 'System';
+                    const initials = getInitials(userName);
+                    const actionType = log.action_type || 'update';
+                    const time = new Date(log.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+                    html += `
+                        <div class="log-entry type-${actionType}">
+                            <div class="log-header">
+                                <div class="log-user">
+                                    <div class="log-avatar">${initials}</div>
+                                    <span class="log-username">${userName}</span>
+                                </div>
+                                <span class="log-action">${getActionText(log)}</span>
+                                <span class="log-action-type ${actionType}">${getActionLabel(actionType)}</span>
+                                <span class="log-time">${time}</span>
+                            </div>
+                            ${renderLogDetails(log)}
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function getInitials(name) {
+            const parts = name.trim().split(' ');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        function getActionLabel(type) {
+            const labels = {
+                'create': 'Erstellt',
+                'update': 'Aktualisiert',
+                'delete': 'Gelöscht',
+                'role': 'Rolle'
+            };
+            return labels[type] || type;
+        }
+
+        function getActionText(log) {
+            const tableLabels = {
+                'users': 'Mitarbeiter',
+                'campaigns': 'Kampagne',
+                'records': 'Datensatz',
+                'roles': 'Rolle',
+                'provisions': 'Provision',
+                'user_roles': 'Benutzerrolle',
+                'user_profiles': 'Profil'
+            };
+
+            const table = tableLabels[log.table_name] || log.table_name;
+            const targetName = log.target_name || '';
+
+            if (log.action_type === 'create') {
+                return `hat ${table} ${targetName} erstellt`;
+            } else if (log.action_type === 'update') {
+                return `hat ${table} ${targetName} aktualisiert`;
+            } else if (log.action_type === 'delete') {
+                return `hat ${table} ${targetName} gelöscht`;
+            } else if (log.action_type === 'role') {
+                return `hat Rolle von ${targetName} geändert`;
+            }
+
+            return `hat Änderung an ${table} vorgenommen`;
+        }
+
+        function renderLogDetails(log) {
+            if (!log.old_data && !log.new_data && !log.description) {
+                return '';
+            }
+
+            let html = '<div class="log-details">';
+
+            // Show description if available
+            if (log.description) {
+                html += `<div class="log-detail-row">
+                    <span class="log-detail-value">${log.description}</span>
+                </div>`;
+            }
+
+            // Show changed fields
+            if (log.old_data || log.new_data) {
+                const oldData = log.old_data || {};
+                const newData = log.new_data || {};
+                const allKeys = new Set([...Object.keys(oldData), ...Object.keys(newData)]);
+
+                allKeys.forEach(key => {
+                    if (key === 'id' || key === 'created_at' || key === 'updated_at') return;
+
+                    const oldVal = oldData[key];
+                    const newVal = newData[key];
+
+                    if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
+                        html += `<div class="log-detail-row">
+                            <span class="log-detail-label">${formatFieldName(key)}:</span>
+                            ${oldVal !== undefined ? `<span class="log-detail-old">${formatValue(oldVal)}</span>` : ''}
+                            ${oldVal !== undefined && newVal !== undefined ? '<span class="log-detail-arrow">→</span>' : ''}
+                            ${newVal !== undefined ? `<span class="log-detail-new">${formatValue(newVal)}</span>` : ''}
+                        </div>`;
+                    }
+                });
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function formatFieldName(name) {
+            const labels = {
+                'name': 'Name',
+                'email': 'E-Mail',
+                'main_role': 'Hauptrolle',
+                'karriere_stufe': 'Karrierestufe',
+                'custom_provision_factor': 'Ind. Provision',
+                'is_quality_manager': 'Quality Manager',
+                'is_recruiting_manager': 'Recruiting Manager',
+                'status': 'Status',
+                'campaign_name': 'Kampagne'
+            };
+            return labels[name] || name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatValue(val) {
+            if (val === null || val === undefined) return '-';
+            if (typeof val === 'boolean') return val ? 'Ja' : 'Nein';
+            if (typeof val === 'object') return JSON.stringify(val);
+            return String(val);
+        }
+
+        // ================================================================
+        // PAGINATION
+        // ================================================================
+
+        function updatePagination() {
+            const totalPages = Math.ceil(totalEntries / pageSize);
+            const pagination = document.getElementById('pagination');
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            pagination.style.display = 'flex';
+            document.getElementById('pageInfo').textContent = `Seite ${currentPage} von ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage <= 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadAuditLog();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(totalEntries / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadAuditLog();
+            }
+        }
+
+        // ================================================================
+        // FILTERS
+        // ================================================================
+
+        function applyFilters() {
+            currentPage = 1;
+            loadAuditLog();
+        }
+
+        // ================================================================
+        // EXPORT
+        // ================================================================
+
+        async function exportLog() {
+            try {
+                // Get all filtered data
+                const timeRange = document.getElementById('filterTimeRange').value;
+                const action = document.getElementById('filterAction').value;
+                const area = document.getElementById('filterArea').value;
+                const userId = document.getElementById('filterUser').value;
+
+                let dateFilter = null;
+                const now = new Date();
+                if (timeRange === 'today') {
+                    dateFilter = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+                } else if (timeRange === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    dateFilter = weekAgo.toISOString();
+                } else if (timeRange === 'month') {
+                    const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    dateFilter = monthAgo.toISOString();
+                }
+
+                let query = supabase
+                    .from('audit_log')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (dateFilter) query = query.gte('created_at', dateFilter);
+                if (action) query = query.eq('action_type', action);
+                if (area) query = query.eq('table_name', area);
+                if (userId) query = query.eq('performed_by', userId);
+
+                const { data, error } = await query;
+
+                if (error) throw error;
+
+                // Convert to CSV
+                const headers = ['Datum', 'Uhrzeit', 'Benutzer', 'Aktion', 'Bereich', 'Beschreibung'];
+                const rows = data.map(log => {
+                    const date = new Date(log.created_at);
+                    return [
+                        date.toLocaleDateString('de-DE'),
+                        date.toLocaleTimeString('de-DE'),
+                        log.performed_by || 'System',
+                        getActionLabel(log.action_type),
+                        log.table_name,
+                        log.description || ''
+                    ];
+                });
+
+                const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+                // Download
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `audit-log-${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Fehler beim Exportieren: ' + error.message);
+            }
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

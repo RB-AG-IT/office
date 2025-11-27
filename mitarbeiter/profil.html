@@ -601,7 +601,15 @@
         }
 
         .provision-input-wrapper .form-input {
-            padding-right: 40px;
+            padding-right: 60px;
+            /* Verstecke die Spinner-Buttons bei number inputs */
+            -moz-appearance: textfield;
+        }
+
+        .provision-input-wrapper .form-input::-webkit-outer-spin-button,
+        .provision-input-wrapper .form-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         .provision-unit {
@@ -894,6 +902,40 @@
 
         .kw-selector.changed .kw-number {
             color: var(--warning-color);
+        }
+
+        /* KW Range Selector (von - bis) */
+        .kw-range-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kw-range-separator {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .kw-selector-compact {
+            padding: 2px;
+        }
+
+        .kw-selector-compact .kw-nav-btn {
+            width: 24px;
+            height: 24px;
+        }
+
+        .kw-selector-compact .kw-display {
+            padding: 0 4px;
+            min-width: 50px;
+        }
+
+        .kw-selector-compact .kw-number {
+            font-size: 12px;
+        }
+
+        .kw-selector-compact .kw-year {
+            font-size: 9px;
         }
 
         /* Manual Provision Section */
@@ -1430,11 +1472,15 @@
                             <label class="form-label">Karrierestufe *</label>
                             <select class="form-input" id="mainRole">
                                 <option value="">Bitte auswählen</option>
-                                <option value="junior_marketing_manager">Junior Marketing Manager</option>
-                                <option value="senior_marketing_manager">Senior Marketing Manager</option>
-                                <option value="spitzenbotschafter">Spitzenbotschafter</option>
-                                <option value="kader_manager">Kader Manager</option>
-                                <option value="führungsebene">Führungsebene</option>
+                                <option value="sma">SMA - Starting Marketing Advisor</option>
+                                <option value="ema">EMA - Executive Marketing Advisor</option>
+                                <option value="jmm">JMM - Junior Marketing Manager</option>
+                                <option value="emm">EMM - Executive Marketing Manager</option>
+                                <option value="cemm">CEMM - Chief Executive Marketing Manager</option>
+                                <option value="spb">SPB - Spitzen Botschafter</option>
+                                <option value="kad">KAD - Kadermanager</option>
+                                <option value="fue">FUE - Führungsebene</option>
+                                <option value="admin">Admin - Administrator</option>
                             </select>
                         </div>
                         <div class="form-group kw-select-group" style="margin-bottom: 0;">
@@ -1506,39 +1552,59 @@
                 <!-- Manuelle Provision -->
                 <div class="manual-provision-section">
                     <div style="display: flex; gap: var(--spacing-lg); align-items: flex-start; flex-wrap: wrap;">
-                        <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                        <div class="form-group" style="width: 120px; margin-bottom: 0;">
                             <label class="form-label">
-                                Individuelle Provision
+                                Ind. Faktor
                                 <span class="optional-badge">Optional</span>
                             </label>
                             <div class="provision-input-wrapper">
-                                <input type="number" class="form-input" id="customCommission" placeholder="z.B. 6.5" min="0" max="15" step="0.1">
-                                <span class="provision-unit">Faktor</span>
+                                <input type="number" class="form-input" id="customCommission" placeholder="6.5" min="0" max="15" step="0.1" style="text-align: center;">
+                                <span class="provision-unit">×</span>
                             </div>
                         </div>
-                        <div class="form-group kw-select-group" style="margin-bottom: 0;">
-                            <label class="form-label">Gültig ab KW</label>
-                            <div class="kw-selector" id="customKwSelector">
-                                <button type="button" class="kw-nav-btn" id="customKwPrev">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                    </svg>
-                                </button>
-                                <div class="kw-display">
-                                    <span class="kw-number" id="customKwNumber">KW 48</span>
-                                    <span class="kw-year" id="customKwYear">2025</span>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Gültig von - bis</label>
+                            <div class="kw-range-selector">
+                                <div class="kw-selector kw-selector-compact" id="customKwFromSelector">
+                                    <button type="button" class="kw-nav-btn" id="customKwFromPrev">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div class="kw-display">
+                                        <span class="kw-number" id="customKwFromNumber">KW 48</span>
+                                        <span class="kw-year" id="customKwFromYear">2025</span>
+                                    </div>
+                                    <button type="button" class="kw-nav-btn" id="customKwFromNext">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                                <button type="button" class="kw-nav-btn" id="customKwNext">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </button>
+                                <span class="kw-range-separator">–</span>
+                                <div class="kw-selector kw-selector-compact" id="customKwToSelector">
+                                    <button type="button" class="kw-nav-btn" id="customKwToPrev">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div class="kw-display">
+                                        <span class="kw-number" id="customKwToNumber">KW 52</span>
+                                        <span class="kw-year" id="customKwToYear">2025</span>
+                                    </div>
+                                    <button type="button" class="kw-nav-btn" id="customKwToNext">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                            <input type="hidden" id="customEffectiveDate" value="">
+                            <input type="hidden" id="customEffectiveDateFrom" value="">
+                            <input type="hidden" id="customEffectiveDateTo" value="">
                         </div>
                     </div>
                     <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
-                        Nur ausfüllen wenn abweichend vom Standard-Faktor. Pro KW gilt immer nur ein Faktor.
+                        Überschreibt den Karrierestufen-Faktor für den gewählten Zeitraum
                     </p>
                     <p class="kw-hint" id="customKwHint" style="display: none; font-size: var(--font-size-xs); color: var(--warning-color); margin-top: var(--spacing-xs);">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;">
@@ -1629,47 +1695,18 @@
                     </div>
                 </div>
 
-                <!-- Tab Navigation -->
-                <div class="history-tabs">
-                    <button type="button" class="history-tab active" data-tab="historie">
-                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Rollen-Historie -->
+                <div class="role-history-section">
+                    <h4 class="role-history-title">
+                        <svg style="width: 18px; height: 18px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         Rollen-Historie
-                    </button>
-                    <button type="button" class="history-tab" data-tab="audit">
-                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                        </svg>
-                        Audit-Log
-                    </button>
-                </div>
-
-                <!-- Rollen-Historie Tab -->
-                <div class="history-tab-content active" id="historieTab">
-                    <div class="role-history-section">
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
-                            Zeigt den gültigen Faktor pro Kalenderwoche (nur neuester Wert pro KW)
-                        </p>
-                        <div class="role-history-timeline" id="roleHistoryTimeline">
-                            <div class="role-history-empty">
-                                <p>Noch keine Historie vorhanden</p>
-                                <span>Die Rollen-Historie wird automatisch geführt sobald Änderungen vorgenommen werden.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Audit-Log Tab -->
-                <div class="history-tab-content" id="auditTab">
-                    <div class="audit-log-section">
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
-                            Zeigt alle Änderungen inkl. überschriebener Werte (vollständiges Protokoll)
-                        </p>
-                        <div class="audit-log-list" id="auditLogList">
-                            <div class="audit-log-empty">
-                                <p>Noch keine Änderungen protokolliert</p>
-                            </div>
+                    </h4>
+                    <div class="role-history-timeline" id="roleHistoryTimeline">
+                        <div class="role-history-empty">
+                            <p>Noch keine Historie vorhanden</p>
+                            <span>Die Rollen-Historie wird automatisch geführt sobald Änderungen vorgenommen werden.</span>
                         </div>
                     </div>
                 </div>
@@ -2631,36 +2668,133 @@
         // ================================================================
 
         // Rollen-Mapping für Display-Namen, Faktoren und Benefits
+        // Rollen-Konfiguration aus Base (office.rb-inside.de/base)
         const ROLE_CONFIG = {
+            'sma': {
+                name: 'Starting Marketing Advisor',
+                short: 'SMA',
+                faktor: 5.0,
+                stars: 1,
+                color: '#78909C',
+                glow: 0,
+                benefits: ['Einstieg ins Team', 'Grundprovision', 'Schulungszugang']
+            },
+            'ema': {
+                name: 'Executive Marketing Advisor',
+                short: 'EMA',
+                faktor: 5.5,
+                stars: 2,
+                color: '#4CAF50',
+                glow: 0,
+                benefits: ['Erhöhte Provision', 'Bonus-Berechtigung', 'Erweiterte Schulungen']
+            },
+            'jmm': {
+                name: 'Junior Marketing Manager',
+                short: 'JMM',
+                faktor: 6.0,
+                stars: 3,
+                color: '#2196F3',
+                glow: 0,
+                benefits: ['Factor 6.0', 'Team-Events Zugang', 'Mentoring-Programm']
+            },
             'junior_marketing_manager': {
                 name: 'Junior Marketing Manager',
                 short: 'JMM',
                 faktor: 6.0,
-                benefits: ['Einstieg ins Team', 'Grundprovision', 'Schulungszugang', 'Mentoring-Programm']
+                stars: 3,
+                color: '#2196F3',
+                glow: 0,
+                benefits: ['Factor 6.0', 'Team-Events Zugang', 'Mentoring-Programm']
+            },
+            'emm': {
+                name: 'Executive Marketing Manager',
+                short: 'EMM',
+                faktor: 6.5,
+                stars: 4,
+                color: '#9C27B0',
+                glow: 1,
+                benefits: ['Factor 6.5', 'Leadership-Training', 'Bonus-Pool Zugang']
             },
             'senior_marketing_manager': {
-                name: 'Senior Marketing Manager',
-                short: 'SMM',
+                name: 'Executive Marketing Manager',
+                short: 'EMM',
                 faktor: 6.5,
-                benefits: ['Erhöhte Provision', 'Bonus-Berechtigung', 'Erweiterte Schulungen', 'Team-Events']
+                stars: 4,
+                color: '#9C27B0',
+                glow: 1,
+                benefits: ['Factor 6.5', 'Leadership-Training', 'Bonus-Pool Zugang']
             },
-            'spitzenbotschafter': {
-                name: 'Spitzenbotschafter',
+            'cemm': {
+                name: 'Chief Executive Marketing Manager',
+                short: 'CEMM',
+                faktor: 6.75,
+                stars: 5,
+                color: '#E040FB',
+                glow: 2,
+                benefits: ['Factor 6.75', 'Premium Events', 'Karriere-Coaching']
+            },
+            'spb': {
+                name: 'Spitzen Botschafter',
                 short: 'SPB',
                 faktor: 7.0,
-                benefits: ['VIP Status', 'Exklusive Boni', 'Reise-Incentives', 'Premium Events']
+                stars: 6,
+                color: '#FFA500',
+                glow: 3,
+                benefits: ['Factor 7.0', 'VIP Status', 'Exklusive Boni', 'Reise-Incentives']
             },
-            'kader_manager': {
-                name: 'Kader Manager',
+            'spitzenbotschafter': {
+                name: 'Spitzen Botschafter',
+                short: 'SPB',
+                faktor: 7.0,
+                stars: 6,
+                color: '#FFA500',
+                glow: 3,
+                benefits: ['Factor 7.0', 'VIP Status', 'Exklusive Boni', 'Reise-Incentives']
+            },
+            'kad': {
+                name: 'Kadermanager',
                 short: 'KAD',
                 faktor: 7.5,
-                benefits: ['Team-Provision', 'Management-Boni', 'Premium Support', 'Führungskräfte-Training']
+                stars: 7,
+                color: '#FFD700',
+                glow: 4,
+                benefits: ['Factor 7.5', 'Team-Provision', 'Management-Boni', 'Premium Support']
+            },
+            'kader_manager': {
+                name: 'Kadermanager',
+                short: 'KAD',
+                faktor: 7.5,
+                stars: 7,
+                color: '#FFD700',
+                glow: 4,
+                benefits: ['Factor 7.5', 'Team-Provision', 'Management-Boni', 'Premium Support']
+            },
+            'fue': {
+                name: 'Führungsebene',
+                short: 'FUE',
+                faktor: 8.0,
+                stars: 8,
+                color: '#FFFFFF',
+                glow: 5,
+                benefits: ['Factor 8.0 MAX', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
             },
             'führungsebene': {
                 name: 'Führungsebene',
                 short: 'FUE',
                 faktor: 8.0,
-                benefits: ['Maximaler Faktor', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
+                stars: 8,
+                color: '#FFFFFF',
+                glow: 5,
+                benefits: ['Factor 8.0 MAX', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
+            },
+            'admin': {
+                name: 'Administrator',
+                short: 'ADM',
+                faktor: 8.0,
+                stars: 8,
+                color: '#FFFFFF',
+                glow: 5,
+                benefits: ['Volle System-Rechte', 'Alle Bereiche', 'Verwaltungs-Zugang', 'Elite Status']
             }
         };
 
@@ -2776,66 +2910,102 @@
         updateKwDisplay();
 
         // ================================================================
-        // KW FÜR INDIVIDUELLE PROVISION
+        // KW FÜR INDIVIDUELLE PROVISION (VON - BIS)
         // ================================================================
 
-        let customKwYear = new Date().getFullYear();
-        let customKwWeek = getWeekNumber(new Date());
-        let originalCustomKwYear = customKwYear;
-        let originalCustomKwWeek = customKwWeek;
+        // Von-Datum
+        let customKwFromYear = new Date().getFullYear();
+        let customKwFromWeek = getWeekNumber(new Date());
 
-        function updateCustomKwDisplay() {
-            document.getElementById('customKwNumber').textContent = `KW ${customKwWeek}`;
-            document.getElementById('customKwYear').textContent = customKwYear;
+        // Bis-Datum (default: Ende des Jahres)
+        let customKwToYear = new Date().getFullYear();
+        let customKwToWeek = 52;
 
-            const selector = document.getElementById('customKwSelector');
+        function updateCustomKwFromDisplay() {
+            document.getElementById('customKwFromNumber').textContent = `KW ${customKwFromWeek}`;
+            document.getElementById('customKwFromYear').textContent = customKwFromYear;
+
+            const effectiveDate = getMondayOfWeek(customKwFromWeek, customKwFromYear);
+            document.getElementById('customEffectiveDateFrom').value = effectiveDate.toISOString().split('T')[0];
+
+            // Validate: "from" should not be after "to"
+            validateKwRange();
+        }
+
+        function updateCustomKwToDisplay() {
+            document.getElementById('customKwToNumber').textContent = `KW ${customKwToWeek}`;
+            document.getElementById('customKwToYear').textContent = customKwToYear;
+
+            const effectiveDate = getMondayOfWeek(customKwToWeek, customKwToYear);
+            document.getElementById('customEffectiveDateTo').value = effectiveDate.toISOString().split('T')[0];
+
+            // Validate: "to" should not be before "from"
+            validateKwRange();
+        }
+
+        function validateKwRange() {
+            const fromSelector = document.getElementById('customKwFromSelector');
+            const toSelector = document.getElementById('customKwToSelector');
             const hint = document.getElementById('customKwHint');
             const hintText = document.getElementById('customKwHintText');
 
-            if (customKwWeek !== originalCustomKwWeek || customKwYear !== originalCustomKwYear) {
-                selector.classList.add('changed');
+            const fromDate = getMondayOfWeek(customKwFromWeek, customKwFromYear);
+            const toDate = getMondayOfWeek(customKwToWeek, customKwToYear);
+
+            if (fromDate > toDate) {
+                fromSelector.classList.add('changed');
+                toSelector.classList.add('changed');
                 hint.style.display = 'block';
-
-                const mondayDate = getMondayOfWeek(customKwWeek, customKwYear);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                if (mondayDate < today) {
-                    hintText.textContent = `Rückwirkende Änderung ab ${mondayDate.toLocaleDateString('de-DE')}`;
-                } else if (mondayDate > today) {
-                    hintText.textContent = `Zukünftige Änderung ab ${mondayDate.toLocaleDateString('de-DE')}`;
-                } else {
-                    hintText.textContent = `Änderung ab dieser Woche`;
-                }
+                hintText.textContent = 'Fehler: "Von" darf nicht nach "Bis" liegen';
             } else {
-                selector.classList.remove('changed');
+                fromSelector.classList.remove('changed');
+                toSelector.classList.remove('changed');
                 hint.style.display = 'none';
             }
-
-            const effectiveDate = getMondayOfWeek(customKwWeek, customKwYear);
-            document.getElementById('customEffectiveDate').value = effectiveDate.toISOString().split('T')[0];
         }
 
-        document.getElementById('customKwPrev').addEventListener('click', function() {
-            customKwWeek--;
-            if (customKwWeek < 1) {
-                customKwYear--;
-                customKwWeek = getWeeksInYear(customKwYear);
+        // From Navigation
+        document.getElementById('customKwFromPrev').addEventListener('click', function() {
+            customKwFromWeek--;
+            if (customKwFromWeek < 1) {
+                customKwFromYear--;
+                customKwFromWeek = getWeeksInYear(customKwFromYear);
             }
-            updateCustomKwDisplay();
+            updateCustomKwFromDisplay();
         });
 
-        document.getElementById('customKwNext').addEventListener('click', function() {
-            const maxWeeks = getWeeksInYear(customKwYear);
-            customKwWeek++;
-            if (customKwWeek > maxWeeks) {
-                customKwYear++;
-                customKwWeek = 1;
+        document.getElementById('customKwFromNext').addEventListener('click', function() {
+            const maxWeeks = getWeeksInYear(customKwFromYear);
+            customKwFromWeek++;
+            if (customKwFromWeek > maxWeeks) {
+                customKwFromYear++;
+                customKwFromWeek = 1;
             }
-            updateCustomKwDisplay();
+            updateCustomKwFromDisplay();
         });
 
-        updateCustomKwDisplay();
+        // To Navigation
+        document.getElementById('customKwToPrev').addEventListener('click', function() {
+            customKwToWeek--;
+            if (customKwToWeek < 1) {
+                customKwToYear--;
+                customKwToWeek = getWeeksInYear(customKwToYear);
+            }
+            updateCustomKwToDisplay();
+        });
+
+        document.getElementById('customKwToNext').addEventListener('click', function() {
+            const maxWeeks = getWeeksInYear(customKwToYear);
+            customKwToWeek++;
+            if (customKwToWeek > maxWeeks) {
+                customKwToYear++;
+                customKwToWeek = 1;
+            }
+            updateCustomKwToDisplay();
+        });
+
+        updateCustomKwFromDisplay();
+        updateCustomKwToDisplay();
 
         // Vorschau aktualisieren
         function updateProvisionPreview() {
@@ -3008,100 +3178,6 @@
             }
         }
 
-        // ================================================================
-        // HISTORY TAB SWITCHING
-        // ================================================================
-
-        document.querySelectorAll('.history-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Remove active from all tabs
-                document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.history-tab-content').forEach(c => c.classList.remove('active'));
-
-                // Add active to clicked tab
-                this.classList.add('active');
-                const tabName = this.getAttribute('data-tab');
-                document.getElementById(tabName + 'Tab').classList.add('active');
-            });
-        });
-
-        // Audit-Log laden
-        async function loadAuditLog(userId) {
-            try {
-                // Lade alle Rollen-Änderungen (auch überschriebene)
-                // In einer echten Implementierung würde man hier eine audit_log Tabelle abfragen
-                // Für jetzt zeigen wir alle Rollen-Einträge chronologisch
-                const { data: roles, error } = await supabase
-                    .from('user_roles')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                const auditList = document.getElementById('auditLogList');
-
-                if (!roles || roles.length === 0) {
-                    auditList.innerHTML = `
-                        <div class="audit-log-empty">
-                            <p>Noch keine Änderungen protokolliert</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Gruppiere nach KW um überschriebene Einträge zu markieren
-                const kwMap = new Map();
-                roles.forEach(role => {
-                    if (role.role_type === 'main') {
-                        const date = new Date(role.assigned_at);
-                        const kw = `${date.getFullYear()}-${getWeekNumber(date)}`;
-                        if (!kwMap.has(kw)) {
-                            kwMap.set(kw, []);
-                        }
-                        kwMap.get(kw).push(role);
-                    }
-                });
-
-                auditList.innerHTML = roles.map(role => {
-                    const config = ROLE_CONFIG[role.role_name] || { name: role.role_name };
-                    const createdAt = new Date(role.created_at || role.assigned_at);
-                    const assignedDate = new Date(role.assigned_at);
-                    const kw = getWeekNumber(assignedDate);
-                    const year = assignedDate.getFullYear();
-
-                    // Check if overwritten (same KW, but not the latest)
-                    const kwKey = `${year}-${kw}`;
-                    const kwEntries = kwMap.get(kwKey) || [];
-                    const isOverwritten = role.role_type === 'main' && kwEntries.length > 1 && kwEntries[0].id !== role.id;
-
-                    const actionText = role.role_type === 'main'
-                        ? `Karrierestufe: ${config.name}`
-                        : `Zusatz-Rolle: ${config.name || role.role_name}`;
-
-                    const statusText = role.is_active ? 'aktiviert' : 'deaktiviert';
-
-                    return `
-                        <div class="audit-log-item ${isOverwritten ? 'overwritten' : ''}">
-                            <div class="audit-log-timestamp">
-                                ${createdAt.toLocaleDateString('de-DE')} ${createdAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
-                            </div>
-                            <div class="audit-log-content">
-                                <div class="audit-log-action">${actionText}</div>
-                                <div class="audit-log-detail">
-                                    ${statusText}
-                                    <span class="audit-log-kw">KW ${kw}/${year}</span>
-                                    ${isOverwritten ? '(überschrieben)' : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-            } catch (error) {
-                console.error('Error loading audit log:', error);
-            }
-        }
 
         // ================================================================
         // LOAD USER DATA (if editing existing user)
@@ -3271,9 +3347,8 @@
                     updateCurrentRoleDisplay(user.main_role);
                 }
 
-                // Load role history and audit log
+                // Load role history
                 await loadRoleHistory(userId);
-                await loadAuditLog(userId);
 
             } catch (error) {
                 console.error('Load user error:', error);
