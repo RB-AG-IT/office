@@ -676,7 +676,7 @@ Im Mitarbeiter-Profil (`/mitarbeiter/profil.html`) gibt es einen eigenen Bereich
 | V | CEMM | Chief Executive Marketing Manager | 6.75 | 5 | Pink (#E040FB) | Factor 6.75, Premium Events, Karriere-Coaching |
 | VI | SPB | Spitzen Botschafter | 7.0 | 6 | Orange (#FFA500) | Factor 7.0, VIP Status, Exklusive Boni, Reise-Incentives |
 | VII | KAD | Kadermanager | 7.5 | 7 | Gold (#FFD700) | Factor 7.5, Team-Provision, Management-Boni, Premium Support |
-| VIII | FUE | Führungsebene | 8.0 | 8 | Weiß (#FFFFFF) | Factor 8.0 MAX, Unternehmens-Beteiligung, Unbegrenzte Boni, Elite Status |
+| VIII | FUE | Führungsebene | 8.0 | 8 | Slate (#2C3E50) | Factor 8.0 MAX, Unternehmens-Beteiligung, Unbegrenzte Boni, Elite Status |
 | - | ADM | Administrator | 8.0 | - | - | Volle System-Rechte, Alle Bereiche, Verwaltungs-Zugang |
 
 > **Visuelle Darstellung:** Jede Stufe hat eine eigene Farbe und Anzahl Sterne. Ab EMM (Stufe IV) gibt es einen "Glow"-Effekt (leuchtende Umrandung), der mit jeder Stufe stärker wird.
