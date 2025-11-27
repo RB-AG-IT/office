@@ -96,20 +96,20 @@
 | 5 ERH Woche | 5 ERH in einer Woche |
 | 10 MG Tag | 10 Mitglieder an einem Tag |
 
-#### Einmalig
+#### Meilensteine
 | Anforderung | Beschreibung |
 |-------------|--------------|
 | **Empfehlung** | **1 Empfehlung (Anreise vom TC bestätigt)** |
-| 30 EH Schrieb | 1× 30 EH Schrieb |
 
 #### Stornoquote
 | Anforderung | Ziel |
 |-------------|------|
 | Stornoquote | < 9% |
 
-#### Sammel-Anforderungen (kumulativ innerhalb der Stufe)
+#### Schrieb-Sammlung (kumulativ innerhalb der Stufe)
 | Anforderung | Ziel |
 |-------------|------|
+| 360 JE Schrieb | 1× |
 | 50 JE Schriebe | 10× |
 | 120 JE Schriebe | 10× |
 | 240 JE Schriebe | 2× |
@@ -128,21 +128,21 @@
 | 5 ERH Woche | 5 ERH in einer Woche |
 | 13 MG Tag | 13 Mitglieder an einem Tag |
 
-#### Einmalig
+#### Meilensteine
 | Anforderung | Beschreibung |
 |-------------|--------------|
 | **Empfehlungen** | **2 Empfehlungen (Anreise vom TC bestätigt)** |
 | Teamleitung | 3 Wochen Teamleitung |
-| 30 EH Schrieb | 5× 30 EH Schrieb |
 
 #### Stornoquote
 | Anforderung | Ziel |
 |-------------|------|
 | Stornoquote | < 8% |
 
-#### Sammel-Anforderungen (kumulativ innerhalb der Stufe)
+#### Schrieb-Sammlung (kumulativ innerhalb der Stufe)
 | Anforderung | Ziel |
 |-------------|------|
+| 360 JE Schriebe | 5× |
 | 60 JE Schriebe | 50× |
 | 50 JE Schriebe | 25× |
 | 120 JE Schriebe | 25× |
@@ -162,12 +162,11 @@
 | 15 ERH Woche | 15 ERH in einer Woche |
 | 17 MG Tag | 17 Mitglieder an einem Tag |
 
-#### Einmalig
+#### Meilensteine
 | Anforderung | Beschreibung |
 |-------------|--------------|
 | **Empfehlungen** | **3 Empfehlungen (Anreise vom TC bestätigt)** |
 | Teamleitung | 3 Wochen Teamleitung |
-| 50 EH Schrieb (netto) | 50 EH Schrieb netto |
 | 100 EH Tage | 10× einen 100 EH Tag |
 | 300 EH Wochen | 5× eine 300 EH Woche |
 | 400 EH Wochen | 3× eine 400 EH Woche |
@@ -177,9 +176,10 @@
 |-------------|------|
 | Stornoquote | < 8% |
 
-#### Sammel-Anforderungen (kumulativ innerhalb der Stufe)
+#### Schrieb-Sammlung (kumulativ innerhalb der Stufe)
 | Anforderung | Ziel |
 |-------------|------|
+| 600 JE Schrieb | 1× |
 | 60 JE Schriebe | 75× |
 | 50 JE Schriebe | 75× |
 | 120 JE Schriebe | 75× |
@@ -190,7 +190,7 @@
 ### Stufe VI → VII (Spitzen Botschafter → Kadermanager)
 **Typ: Ernennung**
 
-#### Einmalig
+#### Meilensteine
 | Anforderung | Beschreibung |
 |-------------|--------------|
 | **Empfehlungen** | **3 Empfehlungen (Anreise vom TC bestätigt)** |
