@@ -3100,8 +3100,8 @@ function setKWTeamchef(kw, tcId) {
     campaign.assignments[kw].teamchef = tcId ? parseInt(tcId) : null;
 
     showToast(`Teamchef für KW ${kw} ${tcId ? 'gesetzt' : 'entfernt'}`, 'success');
-    // View aktualisieren
-    renderKWDetails(campaign);
+    // View aktualisieren (expanded-Zustand erhalten)
+    rerenderKWDetails(campaign);
 }
 
 // Dienst hinzufügen
@@ -3149,8 +3149,8 @@ function addKWDienst(kw) {
     const dienstName = TC_DIENSTE.find(d => d.id === dienst)?.name || dienst;
     showToast(`Dienst "${dienstName}" hinzugefügt (${faktor.toFixed(2)})`, 'success');
 
-    // View aktualisieren
-    renderKWDetails(campaign);
+    // View aktualisieren (expanded-Zustand erhalten)
+    rerenderKWDetails(campaign);
 }
 
 // Dienst entfernen
@@ -3161,8 +3161,8 @@ function removeKWDienst(kw, index) {
     campaign.assignments[kw].tcDienste.splice(index, 1);
     showToast(`Dienst entfernt`, 'success');
 
-    // View aktualisieren
-    renderKWDetails(campaign);
+    // View aktualisieren (expanded-Zustand erhalten)
+    rerenderKWDetails(campaign);
 }
 
 // Mitglied zur KW hinzufügen
@@ -3195,8 +3195,8 @@ function addKWMember(kw) {
     const member = employees.find(e => e.id === memberId);
     showToast(`${member?.name || 'Mitarbeiter'} zu KW ${kw} hinzugefügt`, 'success');
 
-    // View aktualisieren
-    renderKWDetails(campaign);
+    // View aktualisieren (expanded-Zustand erhalten)
+    rerenderKWDetails(campaign);
 }
 
 // Mitglied aus KW entfernen
@@ -3208,7 +3208,8 @@ function removeKWMember(kw, memberId) {
     if (index > -1) {
         campaign.assignments[kw].werber.splice(index, 1);
         showToast(`Mitarbeiter aus KW ${kw} entfernt`, 'success');
-        renderKWDetails(campaign);
+        // View aktualisieren (expanded-Zustand erhalten)
+        rerenderKWDetails(campaign);
     }
 }
 
@@ -3226,7 +3227,8 @@ function updateKWWerbegebiete(kw) {
     campaign.assignments[kw].werbegebiete = selectedWGs;
 
     showToast(`Werbegebiete für KW ${kw} aktualisiert`, 'success');
-    renderKWDetails(campaign);
+    // View aktualisieren (expanded-Zustand erhalten)
+    rerenderKWDetails(campaign);
 }
 
 // MA-Zuordnung zu Werbegebiet togglen (nur 1 WG pro Werber!)
@@ -3268,8 +3270,8 @@ function toggleWgMaZuordnung(kw, wgId, maId, isChecked) {
         }
     }
 
-    // View komplett neu rendern um alle Checkboxen zu aktualisieren
-    renderKWDetails(campaign);
+    // View komplett neu rendern um alle Checkboxen zu aktualisieren (expanded-Zustand erhalten)
+    rerenderKWDetails(campaign);
 }
 
 // Toggle KW Detail Card
@@ -3278,6 +3280,30 @@ function toggleKWDetail(kw) {
     if (card) {
         card.classList.toggle('expanded');
     }
+}
+
+// Speichert welche KWs expanded sind
+function getExpandedKWs() {
+    const expanded = [];
+    document.querySelectorAll('.kw-detail-card.expanded').forEach(card => {
+        expanded.push(parseInt(card.dataset.kw));
+    });
+    return expanded;
+}
+
+// Stellt expanded-Zustand wieder her
+function restoreExpandedKWs(expandedKWs) {
+    expandedKWs.forEach(kw => {
+        const card = document.querySelector('.kw-detail-card[data-kw="' + kw + '"]');
+        if (card) card.classList.add('expanded');
+    });
+}
+
+// Wrapper für renderKWDetails der expanded-Zustand erhält
+function rerenderKWDetails(campaign) {
+    const expandedKWs = getExpandedKWs();
+    renderKWDetails(campaign);
+    restoreExpandedKWs(expandedKWs);
 }
 
 // Letzte 10 Schriebe (5+5 Grid)
