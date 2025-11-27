@@ -333,6 +333,160 @@
             margin-bottom: 16px;
             padding-left: 52px;
         }
+
+        /* Letzte Mitglieder Section */
+        .mitglieder-section {
+            margin-top: var(--spacing-lg);
+        }
+
+        .mitglieder-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .mitglieder-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .mitglieder-section-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Mitglieder Grid */
+        .mitglieder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        @media (min-width: 1200px) {
+            .mitglieder-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .mitglieder-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        /* Mitglied Card */
+        .mitglied-card {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .mitglied-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: var(--accent-color);
+        }
+
+        .mitglied-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .mitglied-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .mitglied-eh {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-color);
+            background: rgba(99, 102, 241, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .mitglied-details {
+            margin-bottom: 10px;
+        }
+
+        .mitglied-wg {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .mitglied-adresse {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .mitglied-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .mitglied-status {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .mitglied-status svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .mitglied-status svg.has-email {
+            color: #22c55e;
+        }
+
+        .mitglied-status svg.no-email {
+            color: #9ca3af;
+        }
+
+        .mitglied-status svg.has-iban {
+            color: #22c55e;
+        }
+
+        .mitglied-status svg.no-iban {
+            color: #9ca3af;
+        }
+
+        .mitglied-time {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .mitglied-botschafter {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Loading state for mitglieder */
+        .mitglieder-loading {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -410,6 +564,20 @@
             <span class="pagination-info" id="pageInfo">Seite 1 von 1</span>
             <button class="pagination-btn" id="nextBtn" onclick="nextPage()">Weiter</button>
         </div>
+
+        <!-- Letzte 25 Mitglieder -->
+        <div class="mitglieder-section">
+            <div class="mitglieder-section-header">
+                <h2 class="mitglieder-section-title">Letzte 25 Mitglieder</h2>
+                <span class="mitglieder-section-subtitle">Neueste Schriebe aus allen Kampagnen</span>
+            </div>
+            <div id="mitgliederGrid" class="mitglieder-grid">
+                <div class="mitglieder-loading">
+                    <div class="loading-spinner"></div>
+                    Lade Mitglieder...
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -434,6 +602,7 @@
         async function init() {
             await loadAdminUsers();
             await loadAuditLog();
+            await loadLastMitglieder();
         }
 
         async function loadAdminUsers() {
@@ -857,6 +1026,87 @@
             } catch (error) {
                 console.error('Export error:', error);
                 alert('Fehler beim Exportieren: ' + error.message);
+            }
+        }
+
+        // ================================================================
+        // LETZTE 25 MITGLIEDER
+        // ================================================================
+
+        async function loadLastMitglieder() {
+            const container = document.getElementById('mitgliederGrid');
+
+            try {
+                // Load last 25 records ordered by created_at
+                const { data: records, error } = await supabase
+                    .from('records')
+                    .select(`
+                        id,
+                        name,
+                        eh,
+                        strasse,
+                        hausnr,
+                        email,
+                        iban,
+                        created_at,
+                        werbegebiet:werbegebiete(name),
+                        botschafter:users!records_botschafter_id_fkey(name)
+                    `)
+                    .order('created_at', { ascending: false })
+                    .limit(25);
+
+                if (error) throw error;
+
+                if (!records || records.length === 0) {
+                    container.innerHTML = `
+                        <div class="mitglieder-loading">
+                            Keine Mitglieder gefunden
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Render the cards
+                container.innerHTML = records.map(m => {
+                    const hasEmail = m.email && m.email.trim() !== '';
+                    const hasIban = m.iban && m.iban.trim() !== '';
+                    const uhrzeit = new Date(m.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    const werbegebiet = m.werbegebiet?.name || 'Kein WG';
+                    const botschafter = m.botschafter?.name || '-';
+
+                    return `
+                        <div class="mitglied-card">
+                            <div class="mitglied-header">
+                                <span class="mitglied-name">${m.name || 'Unbekannt'}</span>
+                                <span class="mitglied-eh">${m.eh || 0} EH</span>
+                            </div>
+                            <div class="mitglied-details">
+                                <div class="mitglied-wg">${werbegebiet}</div>
+                                <div class="mitglied-adresse">${m.strasse || ''} ${m.hausnr || ''}</div>
+                            </div>
+                            <div class="mitglied-footer">
+                                <div class="mitglied-status">
+                                    <svg class="${hasEmail ? 'has-email' : 'no-email'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    <svg class="${hasIban ? 'has-iban' : 'no-iban'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                    <span class="mitglied-time">${uhrzeit}</span>
+                                </div>
+                                <span class="mitglied-botschafter">${botschafter}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading mitglieder:', error);
+                container.innerHTML = `
+                    <div class="mitglieder-loading">
+                        Fehler beim Laden der Mitglieder: ${error.message}
+                    </div>
+                `;
             }
         }
 
