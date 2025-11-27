@@ -2004,16 +2004,38 @@
 
         .kosten-item-config {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 8px;
             margin-top: 8px;
             padding-top: 8px;
             border-top: 1px solid var(--border-color);
         }
 
+        .kosten-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .kosten-row label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            min-width: 50px;
+        }
+
         .kosten-input {
-            flex: 1;
+            width: 80px;
             padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 12px;
+        }
+
+        .kosten-select {
+            padding: 6px 8px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             background: var(--bg-card);
@@ -2061,16 +2083,37 @@
             padding: 8px 10px;
             background: var(--bg-card);
             border-radius: var(--radius-sm);
+            flex-wrap: wrap;
         }
 
-        .sonderposten-item input {
+        .sonderposten-item input[type="text"] {
             flex: 1;
+            min-width: 100px;
             padding: 6px 10px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             background: var(--bg-secondary);
             color: var(--text-primary);
             font-size: 12px;
+        }
+
+        .sonderposten-item input[type="number"] {
+            width: 70px;
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 12px;
+        }
+
+        .sonderposten-item select {
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 11px;
         }
 
         .sonderposten-remove {
@@ -3878,7 +3921,7 @@
                                     <!-- Kostenübernahmen -->
                                     <div class="wg-config-section">
                                         <div class="wg-config-section-header">
-                                            <h4>Kostenübernahmen</h4>
+                                            <h4>Kostenübernahmen (DRK Verband)</h4>
                                         </div>
                                         <div class="kosten-items">
                                             <!-- KFZ -->
@@ -3891,12 +3934,24 @@
                                                     <span class="kosten-label">KFZ</span>
                                                 </div>
                                                 <div class="kosten-item-config" id="kfzConfig" style="display: none;">
-                                                    <select class="wg-select-small" id="wgKfzArt">
-                                                        <option value="pauschal">Pauschal</option>
-                                                        <option value="km">Pro km</option>
-                                                        <option value="frei">Frei</option>
-                                                    </select>
-                                                    <input type="text" class="kosten-input" id="wgKfzBetrag" placeholder="Betrag">
+                                                    <div class="kosten-row">
+                                                        <label>Kostenart</label>
+                                                        <select class="kosten-select" id="wgKfzArt">
+                                                            <option value="aufwand">Aufwands- & Beschaffungskosten</option>
+                                                            <option value="frei">Frei Eintragbar</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="kosten-row">
+                                                        <label>Summe</label>
+                                                        <input type="number" class="kosten-input" id="wgKfzBetrag" placeholder="0">
+                                                        <span style="color: var(--text-secondary); font-size: 12px;">€</span>
+                                                        <label>pro</label>
+                                                        <select class="kosten-select" id="wgKfzZeitraum">
+                                                            <option value="tag">Tag</option>
+                                                            <option value="woche">Woche</option>
+                                                            <option value="abschnitt">Kampagnenabschnitt (3 Wo.)</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <!-- Kleidung -->
@@ -3909,11 +3964,29 @@
                                                     <span class="kosten-label">Kleidung</span>
                                                 </div>
                                                 <div class="kosten-item-config" id="kleidungConfig" style="display: none;">
-                                                    <select class="wg-select-small" id="wgKleidungArt">
-                                                        <option value="pauschal">Pauschal</option>
-                                                        <option value="frei">Frei</option>
-                                                    </select>
-                                                    <input type="text" class="kosten-input" id="wgKleidungBetrag" placeholder="Betrag">
+                                                    <div class="kosten-row">
+                                                        <label>Kostenart</label>
+                                                        <select class="kosten-select" id="wgKleidungArt">
+                                                            <option value="aufwand">Aufwands- & Beschaffungskosten</option>
+                                                            <option value="abnutzung">Abnutzungspauschale</option>
+                                                            <option value="frei">Frei Eintragbar</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="kosten-row">
+                                                        <label>Summe</label>
+                                                        <input type="number" class="kosten-input" id="wgKleidungBetrag" placeholder="0">
+                                                        <span style="color: var(--text-secondary); font-size: 12px;">€</span>
+                                                        <select class="kosten-select" id="wgKleidungPro">
+                                                            <option value="pp">p.P.</option>
+                                                            <option value="team">Team</option>
+                                                        </select>
+                                                        <label>pro</label>
+                                                        <select class="kosten-select" id="wgKleidungZeitraum">
+                                                            <option value="tag">Tag</option>
+                                                            <option value="woche">Woche</option>
+                                                            <option value="abschnitt">Kampagnenabschnitt (3 Wo.)</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <!-- Ausweise -->
@@ -3923,14 +3996,31 @@
                                                         <input type="checkbox" id="wgKostenAusweise">
                                                         <span class="toggle-slider"></span>
                                                     </label>
-                                                    <span class="kosten-label">Ausweise</span>
+                                                    <span class="kosten-label">DRK Ausweise</span>
                                                 </div>
                                                 <div class="kosten-item-config" id="ausweiseConfig" style="display: none;">
-                                                    <select class="wg-select-small" id="wgAusweiseArt">
-                                                        <option value="pauschal">Pauschal</option>
-                                                        <option value="frei">Frei</option>
-                                                    </select>
-                                                    <input type="text" class="kosten-input" id="wgAusweiseBetrag" placeholder="Betrag">
+                                                    <div class="kosten-row">
+                                                        <label>Kostenart</label>
+                                                        <select class="kosten-select" id="wgAusweiseArt">
+                                                            <option value="aufwand">Aufwands- & Beschaffungskosten</option>
+                                                            <option value="frei">Frei Eintragbar</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="kosten-row">
+                                                        <label>Summe</label>
+                                                        <input type="number" class="kosten-input" id="wgAusweiseBetrag" placeholder="0">
+                                                        <span style="color: var(--text-secondary); font-size: 12px;">€</span>
+                                                        <select class="kosten-select" id="wgAusweisePro">
+                                                            <option value="pp">p.P.</option>
+                                                            <option value="team">Team</option>
+                                                        </select>
+                                                        <label>pro</label>
+                                                        <select class="kosten-select" id="wgAusweiseZeitraum">
+                                                            <option value="tag">Tag</option>
+                                                            <option value="woche">Woche</option>
+                                                            <option value="abschnitt">Kampagnenabschnitt (3 Wo.)</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -4906,7 +4996,11 @@ function addWgToCampaign(wgId) {
         teilvProzent: 50,
         stornopuffer: 10,
         endabrWochen: 8,
-        kosten: { kfz: false, kleidung: false, ausweise: false },
+        kosten: {
+            kfz: { aktiv: false, art: 'aufwand', betrag: '', zeitraum: 'woche' },
+            kleidung: { aktiv: false, art: 'aufwand', betrag: '', pro: 'pp', zeitraum: 'woche' },
+            ausweise: { aktiv: false, art: 'aufwand', betrag: '', pro: 'pp', zeitraum: 'woche' }
+        },
         sonderposten: [],
         rahmenvertrag: '',
         avv: ''
@@ -5022,12 +5116,30 @@ function openWgConfig(wgId) {
     document.getElementById('wgEndabrWochen').value = wg.endabrWochen;
 
     // Kostenübernahmen
-    document.getElementById('wgKostenKfz').checked = wg.kosten.kfz;
-    document.getElementById('kfzConfig').style.display = wg.kosten.kfz ? 'flex' : 'none';
-    document.getElementById('wgKostenKleidung').checked = wg.kosten.kleidung;
-    document.getElementById('kleidungConfig').style.display = wg.kosten.kleidung ? 'flex' : 'none';
-    document.getElementById('wgKostenAusweise').checked = wg.kosten.ausweise;
-    document.getElementById('ausweiseConfig').style.display = wg.kosten.ausweise ? 'flex' : 'none';
+    const kosten = wg.kosten || {};
+
+    // KFZ
+    document.getElementById('wgKostenKfz').checked = kosten.kfz?.aktiv || false;
+    document.getElementById('kfzConfig').style.display = kosten.kfz?.aktiv ? 'flex' : 'none';
+    document.getElementById('wgKfzArt').value = kosten.kfz?.art || 'aufwand';
+    document.getElementById('wgKfzBetrag').value = kosten.kfz?.betrag || '';
+    document.getElementById('wgKfzZeitraum').value = kosten.kfz?.zeitraum || 'woche';
+
+    // Kleidung
+    document.getElementById('wgKostenKleidung').checked = kosten.kleidung?.aktiv || false;
+    document.getElementById('kleidungConfig').style.display = kosten.kleidung?.aktiv ? 'flex' : 'none';
+    document.getElementById('wgKleidungArt').value = kosten.kleidung?.art || 'aufwand';
+    document.getElementById('wgKleidungBetrag').value = kosten.kleidung?.betrag || '';
+    document.getElementById('wgKleidungPro').value = kosten.kleidung?.pro || 'pp';
+    document.getElementById('wgKleidungZeitraum').value = kosten.kleidung?.zeitraum || 'woche';
+
+    // Ausweise
+    document.getElementById('wgKostenAusweise').checked = kosten.ausweise?.aktiv || false;
+    document.getElementById('ausweiseConfig').style.display = kosten.ausweise?.aktiv ? 'flex' : 'none';
+    document.getElementById('wgAusweiseArt').value = kosten.ausweise?.art || 'aufwand';
+    document.getElementById('wgAusweiseBetrag').value = kosten.ausweise?.betrag || '';
+    document.getElementById('wgAusweisePro').value = kosten.ausweise?.pro || 'pp';
+    document.getElementById('wgAusweiseZeitraum').value = kosten.ausweise?.zeitraum || 'woche';
 
     // Sonderposten
     renderSonderposten();
@@ -5137,7 +5249,16 @@ function renderSonderposten() {
     container.innerHTML = wgSonderposten.map((sp, idx) => `
         <div class="sonderposten-item">
             <input type="text" value="${sp.name || ''}" placeholder="Bezeichnung" onchange="updateSonderposten(${idx}, 'name', this.value)">
-            <input type="text" value="${sp.betrag || ''}" placeholder="Betrag" style="width: 80px;" onchange="updateSonderposten(${idx}, 'betrag', this.value)">
+            <input type="number" value="${sp.summe || ''}" placeholder="€" onchange="updateSonderposten(${idx}, 'summe', this.value)">
+            <select onchange="updateSonderposten(${idx}, 'pro', this.value)">
+                <option value="pp" ${sp.pro === 'pp' ? 'selected' : ''}>p.P.</option>
+                <option value="team" ${sp.pro === 'team' ? 'selected' : ''}>Team</option>
+            </select>
+            <select onchange="updateSonderposten(${idx}, 'zeitraum', this.value)">
+                <option value="tag" ${sp.zeitraum === 'tag' ? 'selected' : ''}>Tag</option>
+                <option value="woche" ${sp.zeitraum === 'woche' ? 'selected' : ''}>Woche</option>
+                <option value="abschnitt" ${sp.zeitraum === 'abschnitt' ? 'selected' : ''}>Abschnitt (3 Wo.)</option>
+            </select>
             <button class="sonderposten-remove" onclick="removeSonderposten(${idx})">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -5149,7 +5270,7 @@ function renderSonderposten() {
 
 // Sonderposten hinzufügen
 function addSonderposten() {
-    wgSonderposten.push({ name: '', betrag: '' });
+    wgSonderposten.push({ name: '', summe: '', pro: 'pp', zeitraum: 'woche' });
     renderSonderposten();
 }
 
@@ -5233,15 +5354,26 @@ function saveWgConfig() {
 
     // Kostenübernahmen
     wg.kosten = {
-        kfz: document.getElementById('wgKostenKfz').checked,
-        kfzArt: document.getElementById('wgKfzArt').value,
-        kfzBetrag: document.getElementById('wgKfzBetrag').value,
-        kleidung: document.getElementById('wgKostenKleidung').checked,
-        kleidungArt: document.getElementById('wgKleidungArt').value,
-        kleidungBetrag: document.getElementById('wgKleidungBetrag').value,
-        ausweise: document.getElementById('wgKostenAusweise').checked,
-        ausweiseArt: document.getElementById('wgAusweiseArt').value,
-        ausweiseBetrag: document.getElementById('wgAusweiseBetrag').value
+        kfz: {
+            aktiv: document.getElementById('wgKostenKfz').checked,
+            art: document.getElementById('wgKfzArt').value,
+            betrag: document.getElementById('wgKfzBetrag').value,
+            zeitraum: document.getElementById('wgKfzZeitraum').value
+        },
+        kleidung: {
+            aktiv: document.getElementById('wgKostenKleidung').checked,
+            art: document.getElementById('wgKleidungArt').value,
+            betrag: document.getElementById('wgKleidungBetrag').value,
+            pro: document.getElementById('wgKleidungPro').value,
+            zeitraum: document.getElementById('wgKleidungZeitraum').value
+        },
+        ausweise: {
+            aktiv: document.getElementById('wgKostenAusweise').checked,
+            art: document.getElementById('wgAusweiseArt').value,
+            betrag: document.getElementById('wgAusweiseBetrag').value,
+            pro: document.getElementById('wgAusweisePro').value,
+            zeitraum: document.getElementById('wgAusweiseZeitraum').value
+        }
     };
 
     // Sonderposten
