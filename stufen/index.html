@@ -409,6 +409,85 @@
             font-size: 14px;
         }
 
+        /* Vergleichs-Tabelle */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .comparison-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+
+        .comparison-table th.level-header {
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .comparison-table th.level-header .level-badge-mini {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .comparison-table th.level-header .level-factor-mini {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .comparison-table td.category-header {
+            background: var(--bg-hover);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comparison-table td.req-cell {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .comparison-table td.req-cell ul {
+            margin: 0;
+            padding-left: 16px;
+        }
+
+        .comparison-table td.req-cell li {
+            margin-bottom: 4px;
+        }
+
+        .comparison-table tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .comparison-table .empty-cell {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .level-card {
@@ -460,6 +539,20 @@
         <!-- Karriere-Leiter -->
         <div class="career-ladder" id="careerLadder">
             <!-- Wird dynamisch geladen -->
+        </div>
+
+        <!-- Vergleichs-Tabelle für Bearbeitungsphase -->
+        <div class="comparison-section" style="margin-top: var(--spacing-xl);">
+            <div class="info-box" style="border-left-color: #9C27B0;">
+                <div class="info-box-title">📊 Anforderungen-Vergleich (Bearbeitungsansicht)</div>
+                <div class="info-box-text">
+                    Übersichtliche Darstellung aller Aufstiegsanforderungen im Vergleich.
+                </div>
+            </div>
+
+            <div id="comparisonTable" style="overflow-x: auto; margin-top: var(--spacing-md);">
+                <!-- Wird dynamisch geladen -->
+            </div>
         </div>
     </div>
 
@@ -742,9 +835,12 @@
             requirements[levelKey].push(value);
             saveRequirements(requirements);
 
-            // Liste aktualisieren
+            // Listen aktualisieren
             document.getElementById(`req-list-${levelKey}`).innerHTML = renderRequirements(levelKey);
             input.value = '';
+
+            // Vergleichs-Tabelle aktualisieren
+            renderComparisonTable();
         }
 
         // Anforderung löschen
@@ -754,8 +850,11 @@
             requirements[levelKey].splice(index, 1);
             saveRequirements(requirements);
 
-            // Liste aktualisieren
+            // Listen aktualisieren
             document.getElementById(`req-list-${levelKey}`).innerHTML = renderRequirements(levelKey);
+
+            // Vergleichs-Tabelle aktualisieren
+            renderComparisonTable();
         }
 
         // Panel ein-/ausklappen
@@ -863,8 +962,101 @@
             container.innerHTML = html;
         }
 
+        // Vergleichs-Tabelle rendern
+        function renderComparisonTable() {
+            const container = document.getElementById('comparisonTable');
+            const levels = CAREER_LEVELS.levelOrder; // SMA → FUE
+
+            // Anforderungen nach Kategorien gruppieren
+            function categorizeRequirements(reqs) {
+                const categories = {
+                    wochenleistung: [],
+                    einmalig: [],
+                    stornoquote: [],
+                    sammel: []
+                };
+
+                reqs.forEach(req => {
+                    if (req.includes('📊') || req.includes('in einer Woche') || req.includes('an einem Tag')) {
+                        categories.wochenleistung.push(req);
+                    } else if (req.includes('✈️') || req.includes('Empfehlung') || req.includes('Teamleitung') || req.includes('🏆') || req.includes('Ernennung') || req.includes('aktiv')) {
+                        categories.einmalig.push(req);
+                    } else if (req.includes('Storno')) {
+                        categories.stornoquote.push(req);
+                    } else if (req.includes('×') || req.includes('insgesamt')) {
+                        categories.sammel.push(req);
+                    } else {
+                        categories.einmalig.push(req);
+                    }
+                });
+
+                return categories;
+            }
+
+            // Header erstellen
+            let html = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 150px;">Kategorie</th>
+                            ${levels.map(key => {
+                                const level = CAREER_LEVELS.levels[key];
+                                return `
+                                    <th class="level-header">
+                                        <div class="level-badge-mini" style="background: ${level.color};">${level.code}</div>
+                                        <div class="level-factor-mini">Faktor ${level.factor}</div>
+                                    </th>
+                                `;
+                            }).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Kategorien
+            const categoryNames = {
+                wochenleistung: '📊 Wochenleistung',
+                einmalig: '✈️ Einmalig',
+                stornoquote: '📉 Stornoquote',
+                sammel: '📦 Sammel-Anforderungen'
+            };
+
+            Object.keys(categoryNames).forEach(catKey => {
+                html += `
+                    <tr>
+                        <td class="category-header">${categoryNames[catKey]}</td>
+                        ${levels.map(levelKey => {
+                            const reqs = requirements[levelKey] || [];
+                            const cats = categorizeRequirements(reqs);
+                            const items = cats[catKey];
+
+                            if (items.length === 0) {
+                                return `<td class="req-cell empty-cell">—</td>`;
+                            }
+
+                            return `
+                                <td class="req-cell">
+                                    <ul>
+                                        ${items.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </td>
+                            `;
+                        }).join('')}
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = html;
+        }
+
         // Initialisierung
         renderCareerLadder();
+        renderComparisonTable();
     </script>
 </body>
 </html>

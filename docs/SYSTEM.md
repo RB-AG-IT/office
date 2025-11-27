@@ -49,6 +49,22 @@ Vollständige Mitarbeiterverwaltung:
 - Empfehlungen/Recruiting
 - Profilbilder
 
+### Mitarbeiter-Profil (mitarbeiter/profil.html)
+Detailliertes Profil-Formular mit:
+
+**Karrierestufen-Verwaltung:**
+- Separater "Karrierestufe speichern" Button für direkte Speicherung
+- KW-basierter Gültigkeitszeitraum (Von - Bis)
+- **KW-Überlappungs-Prüfung:** Warnung wenn neue Stufe bestehende Einträge überlappt
+  - Zeigt vorhandene Rolle, Faktor und KW-Zeitraum
+  - Neue Stufe überschreibt überlappende Zeiträume automatisch
+- Karriere-Historie mit allen vergangenen Stufen
+
+**Provisions-Einstellungen:**
+- Individueller Faktor (überschreibt Karriere-Faktor für Zeitraum)
+- Vorschuss/Stornorücklage Aufteilung
+- USt-Pflichtig Toggle
+
 **Dokumentation:** [KARRIERE.md](KARRIERE.md)
 
 ### Kunden (kunden/)
@@ -78,6 +94,17 @@ Komplettes Provisionsmodell:
 - DRK-Provision (Kundenkonditionen)
 
 **Dokumentation:** [PROVISIONEN.md](PROVISIONEN.md)
+
+### Stufen & Achievements (stufen/)
+Übersicht aller Karrierestufen:
+- Visuelles Karriere-Leiter Design (FUE → SMA)
+- Klappbare Anforderungen-Panels pro Stufe
+- Anforderungen in Kategorien sortiert:
+  - 📊 Wochenleistung (EH, MG, ERH pro Woche)
+  - ✈️ Einmalig (Empfehlungen mit Anreise-Bestätigung)
+  - Stornoquote-Limits
+  - Sammel-Anforderungen (JE-Schriebe kumulativ)
+- Bearbeitbare Anforderungen (Hinzufügen/Löschen)
 
 ### Datensätze (datensaetze/)
 Verwaltung von Mitgliedsdatensätzen:
@@ -194,8 +221,10 @@ Finanzverwaltung:
 ```
 ├── Dashboard
 ├── Kampagnen
-├── Auffälligkeiten    ← NEU
+├── Auffälligkeiten
 ├── Mitarbeiter
+│   └── [Profil mit KW-Karrierestufen]
+├── Stufen & Achievements  ← NEU
 ├── Datensätze
 ├── Statistik
 ├── Kunden
@@ -293,6 +322,10 @@ office/
 ├── kampagnen.html          # Kampagnen-Planung
 ├── auffaelligkeiten/
 │   └── index.html          # Auffälligkeiten (Quality, Schriebe, Anomalien)
+├── mitarbeiter/
+│   └── profil.html         # Mitarbeiter-Profil (Karrierestufen, KW-Speicherung)
+├── stufen/
+│   └── index.html          # Stufen & Achievements (Karriere-Leiter)
 ├── kunden/
 │   ├── index.html          # Kunden-Übersicht
 │   └── kunde.html          # Einzelkunde mit Werbegebieten
@@ -327,4 +360,4 @@ office/
 
 ---
 
-*Letzte Aktualisierung: November 2025 - Toast/Confirm System, Fallback-System für Werbegebiete*
+*Letzte Aktualisierung: November 2025 - Karrierestufen-Speicherung mit KW-Überlappungsprüfung, neue Aufstiegsanforderungen*
