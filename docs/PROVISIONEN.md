@@ -685,10 +685,10 @@ Im Mitarbeiter-Profil (`/mitarbeiter/profil.html`) gibt es einen eigenen Bereich
 
 Im Provisions-Bereich können zusätzliche Rollen vergeben werden, die weitere Berechtigungen und Provisionsansprüche ermöglichen:
 
-| Rolle | Beschreibung |
-|-------|--------------|
-| **Quality Manager** | Prüft Datensätze auf Qualität, kann Auffälligkeiten markieren |
-| **Recruiting Manager** | Wirbt neue Mitarbeiter, erhält Empfehlungsprovision |
+| Rolle | Beschreibung | Benefits |
+|-------|--------------|----------|
+| **Quality Manager** | Prüft Datensätze auf Qualität, kann Auffälligkeiten markieren | Zugriff Qualitätsmodul |
+| **Recruiting Manager** | Wirbt neue Mitarbeiter, erhält Empfehlungsprovision | Zugriff Recruiting Portal |
 
 > **Hinweis:** Diese Rollen sind zusätzlich zur Karrierestufe und können kombiniert werden.
 >
