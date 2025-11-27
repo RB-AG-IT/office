@@ -4355,7 +4355,7 @@
 </div>
 
 <!-- Modal für neue Kampagne -->
-<div class="modal modal-large" id="campaignModal">
+<div class="modal" id="campaignModal">
     <div class="modal-content">
         <div class="modal-header">
             <h2 class="modal-title" id="modalTitle">Neue Kampagne</h2>
@@ -4368,7 +4368,12 @@
         <div class="modal-body">
             <div class="form-group">
                 <label class="form-label">Kampagnenname *</label>
-                <input type="text" class="form-input" id="campaignName" placeholder="z.B. Frühjahrs-Kampagne 2024">
+                <input type="text" class="form-input" id="campaignName" placeholder="z.B. Frühjahrs-Kampagne">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Jahr *</label>
+                <input type="number" class="form-input" id="campaignYear" placeholder="z.B. 2025" min="2020" max="2100" value="2025">
             </div>
 
             <div class="form-row">
@@ -4382,65 +4387,13 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Kunde *</label>
-                <select class="form-input" id="customer" onchange="loadCustomerAreas()">
-                    <option value="">Kunde auswählen</option>
-                    <option value="drk">DRK - Deutsches Rotes Kreuz</option>
-                    <option value="unicef">UNICEF Deutschland</option>
-                    <option value="wwf">WWF Deutschland</option>
-                    <option value="greenpeace">Greenpeace e.V.</option>
-                    <option value="aerzte">Ärzte ohne Grenzen</option>
-                </select>
-            </div>
-
-            <!-- Abrechnungs-Einstellungen -->
-            <div style="background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); margin: var(--spacing-md) 0;">
-                <h4 style="font-size: var(--font-size-sm); font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">
-                    Abrechnungs-Einstellungen
-                </h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Abrechnungs-Puffer %</label>
-                        <input type="number" class="form-input" id="pufferPercent" value="10" min="0" max="50" step="1">
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px;">% der wöchentlichen Rechnung einbehalten</p>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Wartezeit Endabrechnung</label>
-                        <input type="number" class="form-input" id="wartezeitWochen" value="4" min="1" max="12">
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px;">Wochen nach Kampagnenende</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Einsatzgebiete -->
-            <div class="form-group">
-                <label class="form-label">Einsatzgebiete *</label>
-                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-sm);">
-                    Wählen Sie die Werbegebiete für diese Kampagne. Pro Einsatzgebiet können separate Konditionen festgelegt werden.
-                </p>
-                <div id="einsatzgebieteContainer">
-                    <!-- Einsatzgebiete werden hier dynamisch hinzugefügt -->
-                </div>
-                <button type="button" class="btn btn-secondary" onclick="addEinsatzgebiet()" style="margin-top: var(--spacing-sm);">
-                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Einsatzgebiet hinzufügen
-                </button>
-            </div>
-
-            <div class="form-group" id="kwAssignmentSection" style="display: none;">
-                <label class="form-label">Mitarbeiter pro Kalenderwoche zuweisen</label>
-                <div class="kw-assignment-grid" id="kwAssignmentGrid">
-                    <!-- KW Cards will be generated here -->
-                </div>
-            </div>
+            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
+                Weitere Einstellungen (Einsatzgebiete, Verträge, Mitarbeiter) können nach dem Erstellen in der Kampagnen-Detailansicht konfiguriert werden.
+            </p>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeCampaignModal()">Abbrechen</button>
-            <button type="button" class="btn btn-primary" id="generateKWBtn" onclick="generateKWCards()" style="display: none;">KW generieren</button>
-            <button type="button" class="btn btn-primary" id="saveCampaignBtn" onclick="saveCampaign()">Kampagne speichern</button>
+            <button type="button" class="btn btn-primary" id="saveCampaignBtn" onclick="saveCampaign()">Kampagne erstellen</button>
         </div>
     </div>
 </div>
@@ -4595,17 +4548,15 @@ const employees = [
 let campaigns = [
     {
         id: 1,
-        name: 'DRK Frühjahr 2024',
+        name: 'DRK Frühjahr',
+        year: 2024,
         kwFrom: 10,
         kwTo: 15,
-        customer: 'DRK - Deutsches Rotes Kreuz',
-        area: 'Berlin & Umgebung',
         einsatzgebiete: [
             { id: 'berlin-mitte', name: 'Berlin-Mitte e.V.', plz: '10115', einwohner: 85000, rahmenvertrag: 'RV-2024-001' },
             { id: 'berlin-kreuzberg', name: 'Berlin-Kreuzberg e.V.', plz: '10961', einwohner: 72000, rahmenvertrag: 'RV-2024-001' },
             { id: 'berlin-prenzlberg', name: 'Prenzlauer Berg e.V.', plz: '10405', einwohner: 65000, rahmenvertrag: 'RV-2024-002' }
         ],
-        // assignments now includes teamchef per KW
         assignments: {
             10: { teamchef: 1, werber: [2, 4] },
             11: { teamchef: 1, werber: [2, 3, 5] },
@@ -4617,11 +4568,10 @@ let campaigns = [
     },
     {
         id: 2,
-        name: 'UNICEF Sommer 2024',
+        name: 'UNICEF Sommer',
+        year: 2024,
         kwFrom: 25,
         kwTo: 30,
-        customer: 'UNICEF Deutschland',
-        area: 'München & Südbayern',
         einsatzgebiete: [
             { id: 'muc-zentrum', name: 'München-Zentrum', plz: '80331', einwohner: 125000, rahmenvertrag: 'RV-UNICEF-2024' },
             { id: 'muc-nord', name: 'München-Nord', plz: '80933', einwohner: 78000 } // Kein Vertrag
@@ -4694,7 +4644,7 @@ function renderCampaigns() {
         };
 
         // Calculate date range from KW
-        const year = 2025;
+        const year = campaign.year || 2025;
         const startDate = getKWDateRange(campaign.kwFrom, year).split(' - ')[0];
         const endDate = getKWDateRange(campaign.kwTo, year).split(' - ')[1];
 
@@ -4792,16 +4742,9 @@ function openCampaignModal() {
     document.getElementById('modalTitle').textContent = 'Neue Kampagne';
     document.getElementById('campaignModal').classList.add('show');
     document.getElementById('campaignName').value = '';
+    document.getElementById('campaignYear').value = new Date().getFullYear();
     document.getElementById('kwFrom').value = '';
     document.getElementById('kwTo').value = '';
-    document.getElementById('customer').value = '';
-    document.getElementById('pufferPercent').value = '10';
-    document.getElementById('wartezeitWochen').value = '4';
-    document.getElementById('einsatzgebieteContainer').innerHTML = '';
-    einsatzgebietCounter = 0;
-    document.getElementById('kwAssignmentSection').style.display = 'none';
-    document.getElementById('generateKWBtn').style.display = 'inline-flex';
-    document.getElementById('saveCampaignBtn').style.display = 'none';
 }
 
 // Close modal
@@ -7701,82 +7644,52 @@ function removeEmployeeFromKW(kw, employeeId) {
     }
 }
 
-// Save campaign
+// Save campaign (neue Kampagne erstellen)
 async function saveCampaign() {
-    const name = document.getElementById('campaignName').value;
+    const name = document.getElementById('campaignName').value.trim();
+    const year = parseInt(document.getElementById('campaignYear').value);
     const kwFrom = parseInt(document.getElementById('kwFrom').value);
     const kwTo = parseInt(document.getElementById('kwTo').value);
-    const customer = document.getElementById('customer').selectedOptions[0]?.text;
-    const area = document.getElementById('area').selectedOptions[0]?.text;
 
-    if (!name || !kwFrom || !kwTo || !customer || !area) {
+    if (!name || !year || !kwFrom || !kwTo) {
         showToast('Bitte alle Pflichtfelder ausfüllen', 'error');
         return;
     }
 
-    // Check that each KW has a teamchef
-    let missingTC = [];
-    for (let kw = kwFrom; kw <= kwTo; kw++) {
-        const tcSelect = document.getElementById(`tc-kw-${kw}`);
-        if (!tcSelect || !tcSelect.value) {
-            missingTC.push(kw);
-        }
+    if (kwFrom > kwTo) {
+        showToast('Von-KW muss kleiner oder gleich Bis-KW sein', 'error');
+        return;
     }
 
-    if (missingTC.length > 0) {
-        const confirmed = await showConfirm(
-            `Folgende KW haben keinen Teamchef: ${missingTC.join(', ')}. Trotzdem speichern?`,
-            'Fehlende Teamchefs',
-            'warning'
-        );
-        if (!confirmed) return;
+    if (kwFrom < 1 || kwTo > 53) {
+        showToast('KW muss zwischen 1 und 53 liegen', 'error');
+        return;
     }
 
-    // Collect assignments
+    // Erstelle leere assignments für jede KW
     const assignments = {};
     for (let kw = kwFrom; kw <= kwTo; kw++) {
-        const tcSelect = document.getElementById(`tc-kw-${kw}`);
-        const container = document.getElementById(`employees-kw-${kw}`);
-
-        const teamchef = tcSelect?.value ? parseInt(tcSelect.value) : null;
-        const werber = [];
-
-        if (container) {
-            const tags = container.querySelectorAll('.employee-tag');
-            tags.forEach(tag => {
-                const empId = parseInt(tag.dataset.empId);
-                if (empId) werber.push(empId);
-            });
-        }
-
-        assignments[kw] = { teamchef, werber };
+        assignments[kw] = { teamchef: null, werber: [] };
     }
 
-    if (editingCampaignId) {
-        // Update existing
-        const campaign = campaigns.find(c => c.id === editingCampaignId);
-        campaign.name = name;
-        campaign.kwFrom = kwFrom;
-        campaign.kwTo = kwTo;
-        campaign.customer = customer;
-        campaign.area = area;
-        campaign.assignments = assignments;
-    } else {
-        // Create new
-        const newCampaign = {
-            id: campaigns.length + 1,
-            name,
-            kwFrom,
-            kwTo,
-            customer,
-            area,
-            assignments
-        };
-        campaigns.push(newCampaign);
-    }
+    // Create new campaign
+    const newCampaign = {
+        id: Date.now(), // Unique ID
+        name,
+        year,
+        kwFrom,
+        kwTo,
+        einsatzgebiete: [],
+        assignments
+    };
+    campaigns.push(newCampaign);
 
     closeCampaignModal();
     renderCampaigns();
+    showToast('Kampagne erfolgreich erstellt', 'success');
+
+    // Öffne direkt die Detailansicht der neuen Kampagne
+    viewCampaign(newCampaign.id);
 }
 
 // Edit campaign
