@@ -721,6 +721,131 @@
         .kw-detail-badges {
             display: flex;
             gap: 6px;
+            align-items: center;
+        }
+
+        /* Team Pills im Header (eingeklappt) */
+        .kw-header-team {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 400px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+            padding: 2px 0;
+        }
+
+        .kw-header-team::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .kw-header-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .kw-header-pill.tc {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .kw-header-pill.neuanreise {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #22c55e;
+        }
+
+        .kw-header-pill.abreise {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #ef4444;
+        }
+
+        .kw-header-pill.normal {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Info Icon mit Tooltip */
+        .kw-info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 10px;
+            font-weight: 700;
+            cursor: help;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .kw-info-icon:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .kw-info-tooltip {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            margin-bottom: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 220px;
+            z-index: 1000;
+            display: none;
+            font-size: 11px;
+            font-weight: 400;
+            text-align: left;
+        }
+
+        .kw-info-icon:hover .kw-info-tooltip {
+            display: block;
+        }
+
+        .kw-info-tooltip-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .kw-info-tooltip-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .kw-info-tooltip-pill {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .kw-info-tooltip-pill.yellow { background: #f59e0b; }
+        .kw-info-tooltip-pill.green { background: #22c55e; }
+        .kw-info-tooltip-pill.red { background: #ef4444; }
+        .kw-info-tooltip-pill.white { background: #e5e7eb; border: 1px solid #d1d5db; }
+
+        /* Hide team pills when expanded */
+        .kw-detail-card.expanded .kw-header-team {
+            display: none;
         }
 
         .kw-badge {
@@ -2907,6 +3032,9 @@ function renderKWDetails(campaign) {
         const hasTc = !!tc;
         const dateRange = getKWDateRange(kw, 2025);
 
+        // Sortiere Werber alphabetisch für Header-Pills
+        const werberSorted = [...werberWithLabels].sort((a, b) => a.name.localeCompare(b.name));
+
         // Dummy TC-Dienste pro KW
         const kwDienste = assignment.tcDienste || [];
         const vergebenerFaktor = kwDienste.reduce((sum, d) => sum + (d.faktor || 0), 0);
@@ -2923,6 +3051,22 @@ function renderKWDetails(campaign) {
         if (isCurrentWeek) classes += ' current-week expanded';
         if (hasTc) classes += ' has-tc';
 
+        // Generiere Header Team Pills HTML
+        const headerTeamPillsHtml = (() => {
+            let pills = '';
+            // TC zuerst (gelb)
+            if (tc) {
+                pills += '<span class="kw-header-pill tc">' + tc.name.split(' ').map(n => n[0]).join('') + '</span>';
+            }
+            // Dann Werber alphabetisch sortiert
+            werberSorted.forEach(w => {
+                const pillClass = w.label || 'normal';
+                const initials = w.name.split(' ').map(n => n[0]).join('');
+                pills += '<span class="kw-header-pill ' + pillClass + '" title="' + w.name + '">' + initials + '</span>';
+            });
+            return pills;
+        })();
+
         html += `
             <div class="${classes}" data-kw="${kw}">
                 <div class="kw-detail-header" onclick="toggleKWDetail(${kw})">
@@ -2932,9 +3076,30 @@ function renderKWDetails(campaign) {
                     </div>
                     <div class="kw-detail-badges">
                         ${isCurrentWeek ? '<span class="kw-badge current">Aktuelle Woche</span>' : ''}
-                        ${hasTc ? '<span class="kw-badge tc">TC</span>' : '<span class="kw-badge" style="background: #fee2e2; color: #dc2626;">Kein TC</span>'}
-                        ${anreisenCount > 0 ? `<span class="travel-label travel-label-anreise">${anreisenCount} Anr.</span>` : ''}
-                        ${abreisenCount > 0 ? `<span class="travel-label travel-label-abreise">${abreisenCount} Abr.</span>` : ''}
+                        <div class="kw-header-team">
+                            ${headerTeamPillsHtml}
+                        </div>
+                        <div class="kw-info-icon">
+                            i
+                            <div class="kw-info-tooltip">
+                                <div class="kw-info-tooltip-row">
+                                    <span class="kw-info-tooltip-pill yellow"></span>
+                                    <span>Teamchef (TC)</span>
+                                </div>
+                                <div class="kw-info-tooltip-row">
+                                    <span class="kw-info-tooltip-pill green"></span>
+                                    <span>Neuanreise (neu in dieser KW)</span>
+                                </div>
+                                <div class="kw-info-tooltip-row">
+                                    <span class="kw-info-tooltip-pill red"></span>
+                                    <span>Abreise (letzte KW)</span>
+                                </div>
+                                <div class="kw-info-tooltip-row">
+                                    <span class="kw-info-tooltip-pill white"></span>
+                                    <span>Normales Teammitglied</span>
+                                </div>
+                            </div>
+                        </div>
                         <span class="kw-badge count">${totalCount} Pers.</span>
                     </div>
                 </div>
