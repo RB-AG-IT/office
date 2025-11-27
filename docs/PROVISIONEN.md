@@ -667,13 +667,17 @@ Im Mitarbeiter-Profil (`/mitarbeiter/profil.html`) gibt es einen eigenen Bereich
 > **WICHTIG:** Änderungen der Karrierestufe wirken sich immer pro **kompletter Kalenderwoche** aus. Bei rückwirkenden Änderungen werden die Provisionen neu berechnet.
 
 **Faktoren pro Stufe:**
-| Stufe | Faktor | Benefits |
-|-------|--------|----------|
-| JMM | 6.0 | Einstieg ins Team, Grundprovision, Schulungszugang, Mentoring |
-| SMM | 6.5 | Erhöhte Provision, Bonus-Berechtigung, Erweiterte Schulungen, Team-Events |
-| SPB | 7.0 | VIP Status, Exklusive Boni, Reise-Incentives, Premium Events |
-| KAD | 7.5 | Team-Provision, Management-Boni, Premium Support, Führungskräfte-Training |
-| FUE | 8.0 | Maximaler Faktor, Unternehmens-Beteiligung, Unbegrenzte Boni, Elite Status |
+| Stufe | Name | Faktor | Benefits |
+|-------|------|--------|----------|
+| I | SMA - Studentische Mitarbeiter Akquise | 5.0 | Einstieg, Grundschulung, Flexible Arbeitszeiten, Studenten-Bonus |
+| II | EMA - Erfahrene Mitarbeiter Akquise | 5.5 | Erhöhte Grundprovision, Erweiterte Schulungen, Erfahrungs-Bonus, Team-Events |
+| III | JMM - Junior Mitarbeiter Management | 6.0 | Einstieg ins Management, Grundprovision, Schulungszugang, Mentoring |
+| IV | EMM - Erfahrene Mitarbeiter Management | 6.5 | Erhöhte Provision, Bonus-Berechtigung, Erweiterte Schulungen, Team-Events |
+| V | CEMM - Chef Erfahrene Mitarbeiter Management | 6.75 | Chef-Status, Team-Verantwortung, Führungs-Bonus, Spezial-Schulungen |
+| VI | SPB - Spitzenbotschafter | 7.0 | VIP Status, Exklusive Boni, Reise-Incentives, Premium Events |
+| VII | KAD - Kader Manager | 7.5 | Team-Provision, Management-Boni, Premium Support, Führungskräfte-Training |
+| VIII | FUE - Führungsebene | 8.0 | Maximaler Faktor, Unternehmens-Beteiligung, Unbegrenzte Boni, Elite Status |
+| - | ADM - Administrator | 8.0 | Volle System-Rechte, Alle Bereiche, Verwaltungs-Zugang, Elite Status |
 
 #### Zusatz-Rollen (Berechtigungen)
 
