@@ -862,6 +862,43 @@
             border-top: 1px solid var(--border-color);
         }
 
+        .schrieb-status {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: var(--spacing-sm);
+        }
+
+        .schrieb-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .schrieb-status-pill svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .schrieb-status-pill.status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .schrieb-status-pill.status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .schrieb-status-pill.status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
         .view-header {
             display: flex;
             justify-content: space-between;
@@ -2172,16 +2209,16 @@ function renderLastSchriebe(campaign) {
 
     // Dummy data - wird später aus Datenbank kommen
     const dummySchriebe = [
-        { id: 1, memberName: 'Klaus Reichert', je: 480, eh: 40, ort: 'Ludwigshafen', werber: { id: 3, name: 'Anna Schneider', role: 'JMM' }, date: 'Heute, 11:23' },
-        { id: 2, memberName: 'Dr. Werner Braun', je: 600, eh: 50, ort: 'Heidelberg', werber: { id: 5, name: 'Lisa Bauer', role: 'EMA' }, date: 'Heute, 15:48' },
-        { id: 3, memberName: 'Maria Gruber', je: 360, eh: 30, ort: 'Mannheim', werber: { id: 4, name: 'Max Klein', role: 'SMA' }, date: 'Gestern, 09:15' },
-        { id: 4, memberName: 'Hans Müller', je: 240, eh: 20, ort: 'Ludwigshafen', werber: { id: 3, name: 'Anna Schneider', role: 'JMM' }, date: 'Gestern, 14:30' },
-        { id: 5, memberName: 'Petra Schmidt', je: 180, eh: 15, ort: 'Heidelberg', werber: { id: 2, name: 'Peter Hoffmann', role: 'EMA' }, date: '25.11.2025' },
-        { id: 6, memberName: 'Michael Weber', je: 120, eh: 10, ort: 'Mannheim', werber: { id: 4, name: 'Max Klein', role: 'SMA' }, date: '24.11.2025' },
-        { id: 7, memberName: 'Sabine Fischer', je: 300, eh: 25, ort: 'Ludwigshafen', werber: { id: 5, name: 'Lisa Bauer', role: 'EMA' }, date: '24.11.2025' },
-        { id: 8, memberName: 'Thomas Koch', je: 420, eh: 35, ort: 'Heidelberg', werber: { id: 3, name: 'Anna Schneider', role: 'JMM' }, date: '23.11.2025' },
-        { id: 9, memberName: 'Andrea Wagner', je: 156, eh: 13, ort: 'Mannheim', werber: { id: 2, name: 'Peter Hoffmann', role: 'EMA' }, date: '23.11.2025' },
-        { id: 10, memberName: 'Frank Becker', je: 84, eh: 7, ort: 'Ludwigshafen', werber: { id: 4, name: 'Max Klein', role: 'SMA' }, date: '22.11.2025' }
+        { id: 1, memberName: 'Klaus Reichert', je: 480, eh: 40, ort: 'Ludwigshafen', werber: { id: 3, name: 'Anna Schneider', role: 'JMM' }, date: 'Heute, 11:23', emailDelivered: true, ibanSelfFilled: true },
+        { id: 2, memberName: 'Dr. Werner Braun', je: 600, eh: 50, ort: 'Heidelberg', werber: { id: 5, name: 'Lisa Bauer', role: 'EMA' }, date: 'Heute, 15:48', emailDelivered: true, ibanSelfFilled: false },
+        { id: 3, memberName: 'Maria Gruber', je: 360, eh: 30, ort: 'Mannheim', werber: { id: 4, name: 'Max Klein', role: 'SMA' }, date: 'Gestern, 09:15', emailDelivered: false, ibanSelfFilled: null },
+        { id: 4, memberName: 'Hans Müller', je: 240, eh: 20, ort: 'Ludwigshafen', werber: { id: 3, name: 'Anna Schneider', role: 'JMM' }, date: 'Gestern, 14:30', emailDelivered: true, ibanSelfFilled: true },
+        { id: 5, memberName: 'Petra Schmidt', je: 180, eh: 15, ort: 'Heidelberg', werber: { id: 2, name: 'Peter Hoffmann', role: 'EMA' }, date: '25.11.2025', emailDelivered: true, ibanSelfFilled: false },
+        { id: 6, memberName: 'Michael Weber', je: 120, eh: 10, ort: 'Mannheim', werber: { id: 4, name: 'Max Klein', role: 'SMA' }, date: '24.11.2025', emailDelivered: null, ibanSelfFilled: null },
+        { id: 7, memberName: 'Sabine Fischer', je: 300, eh: 25, ort: 'Ludwigshafen', werber: { id: 5, name: 'Lisa Bauer', role: 'EMA' }, date: '24.11.2025', emailDelivered: true, ibanSelfFilled: true },
+        { id: 8, memberName: 'Thomas Koch', je: 420, eh: 35, ort: 'Heidelberg', werber: { id: 3, name: 'Anna Schneider', role: 'JMM' }, date: '23.11.2025', emailDelivered: true, ibanSelfFilled: false },
+        { id: 9, memberName: 'Andrea Wagner', je: 156, eh: 13, ort: 'Mannheim', werber: { id: 2, name: 'Peter Hoffmann', role: 'EMA' }, date: '23.11.2025', emailDelivered: false, ibanSelfFilled: null },
+        { id: 10, memberName: 'Frank Becker', je: 84, eh: 7, ort: 'Ludwigshafen', werber: { id: 4, name: 'Max Klein', role: 'SMA' }, date: '22.11.2025', emailDelivered: true, ibanSelfFilled: true }
     ];
 
     let html = '';
@@ -2208,6 +2245,45 @@ function renderLastSchriebe(campaign) {
                     <span class="schrieb-detail">
                         ${schrieb.eh} EH
                     </span>
+                </div>
+                <div class="schrieb-status">
+                    ${schrieb.emailDelivered === true ? `
+                        <span class="schrieb-status-pill status-success" title="E-Mail erfolgreich zugestellt">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Zugestellt
+                        </span>
+                    ` : schrieb.emailDelivered === false ? `
+                        <span class="schrieb-status-pill status-error" title="E-Mail konnte nicht zugestellt werden">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Nicht zugestellt
+                        </span>
+                    ` : `
+                        <span class="schrieb-status-pill status-pending" title="E-Mail-Zustellung ausstehend">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Ausstehend
+                        </span>
+                    `}
+                    ${schrieb.ibanSelfFilled === true ? `
+                        <span class="schrieb-status-pill status-success" title="IBAN wurde selbst ausgefüllt">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            IBAN selbst
+                        </span>
+                    ` : schrieb.ibanSelfFilled === false ? `
+                        <span class="schrieb-status-pill status-pending" title="IBAN noch nicht ausgefüllt">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            IBAN offen
+                        </span>
+                    ` : ''}
                 </div>
                 <div class="schrieb-werber">
                     <div class="employee-card-trigger"
