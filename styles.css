@@ -332,3 +332,347 @@ body {
 *:hover {
     scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
 }
+
+/* ========================================
+   EMPLOYEE CARD COMPONENT
+   ======================================== */
+
+/* Mini Card - Trigger Element */
+.employee-card-trigger {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.ec-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+}
+
+.ec-mini:hover {
+    border-color: var(--accent-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.ec-mini-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.ec-mini-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ec-mini-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.ec-mini-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ec-mini-role {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ec-mini-badges {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.ec-mini-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.ec-mini-badge.ec-tc {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.ec-mini-badge.ec-qm {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
+.ec-mini-badge.ec-new {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.ec-mini-badge.ec-anreise {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+/* Popup */
+.ec-popup {
+    position: fixed;
+    z-index: 9999;
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    min-width: 320px;
+    max-width: 380px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s, transform 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.ec-popup-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.ec-popup-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.ec-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.15s;
+}
+
+.ec-popup-close:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.ec-popup-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.ec-popup-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ec-popup-info {
+    flex: 1;
+    min-width: 0;
+    padding-right: 24px;
+}
+
+.ec-popup-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+}
+
+.ec-popup-role {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ec-role-badge {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+}
+
+.ec-role-name {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.ec-popup-role-tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.ec-role-tag {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.ec-role-tag.ec-tc {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.ec-role-tag.ec-qm {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
+.ec-role-tag.ec-new {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.ec-popup-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ec-popup-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.ec-popup-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ec-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+.ec-popup-finances {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ec-finance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ec-finance-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.ec-finance-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ec-finance-value.ec-warning {
+    color: #f59e0b;
+}
+
+.ec-popup-actions {
+    padding: 16px 20px;
+    display: flex;
+    gap: 8px;
+}
+
+.ec-action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.ec-action-btn:hover {
+    background: var(--bg-hover);
+}
+
+.ec-action-btn.ec-primary {
+    background: var(--accent-color);
+    color: white;
+}
+
+.ec-action-btn.ec-primary:hover {
+    background: var(--accent-hover);
+}
+
+/* Employee Card in Lists */
+.ec-list-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ec-list-item:last-child {
+    border-bottom: none;
+}
+
+.ec-list-item .ec-mini {
+    border: none;
+    padding: 0;
+    background: transparent;
+}
+
+.ec-list-item .ec-mini:hover {
+    box-shadow: none;
+}

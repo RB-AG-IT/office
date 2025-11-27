@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kampagnen - RB Inside</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Employee Card Component -->
+    <script src="components/employee-card.js" defer></script>
     <style>
         html, body {
             background: var(--bg-secondary);
@@ -567,10 +569,297 @@
         }
 
         /* ============================================
-           KAMPAGNEN-ÜBERSICHT (View Modal)
+           KAMPAGNEN-ÜBERSICHT (View Modal) - ERWEITERT
            ============================================ */
         .view-modal .modal-content {
-            max-width: 900px;
+            max-width: 1200px;
+        }
+
+        .view-modal .modal-body {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        /* Two-Column Layout für View */
+        .view-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: var(--spacing-xl);
+        }
+
+        .view-main {
+            min-width: 0;
+        }
+
+        .view-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        @media (max-width: 1100px) {
+            .view-layout {
+                grid-template-columns: 1fr;
+            }
+            .view-sidebar {
+                order: -1;
+            }
+        }
+
+        /* Team Übersicht Cards */
+        .team-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .team-stat-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            text-align: center;
+        }
+
+        .team-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .team-stat-value.tc { color: #f59e0b; }
+        .team-stat-value.qm { color: #8b5cf6; }
+
+        .team-stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* TC Provision Distribution */
+        .tc-provision-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .tc-provision-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .tc-provision-name {
+            flex: 1;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .tc-provision-weeks {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .tc-provision-bar {
+            width: 100px;
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .tc-provision-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 3px;
+        }
+
+        .tc-provision-percent {
+            font-weight: 600;
+            color: #f59e0b;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* KW Detail Cards */
+        .kw-detail-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .kw-detail-card.current-week {
+            border-color: var(--accent-color);
+        }
+
+        .kw-detail-card.has-tc {
+            border-color: #f59e0b;
+        }
+
+        .kw-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            cursor: pointer;
+        }
+
+        .kw-detail-header:hover {
+            background: var(--bg-hover);
+        }
+
+        .kw-detail-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .kw-detail-title strong {
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .kw-detail-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .kw-detail-badges {
+            display: flex;
+            gap: 6px;
+        }
+
+        .kw-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .kw-badge.current {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .kw-badge.tc {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .kw-badge.count {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .kw-detail-body {
+            padding: var(--spacing-md);
+            display: none;
+        }
+
+        .kw-detail-card.expanded .kw-detail-body {
+            display: block;
+        }
+
+        .kw-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .kw-section-title svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .kw-section-title.tc { color: #f59e0b; }
+        .kw-section-title.anreise { color: #3b82f6; }
+        .kw-section-title.new { color: #10b981; }
+
+        .kw-employee-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* Letzte Schriebe Sidebar */
+        .schriebe-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .schrieb-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            transition: all 0.2s;
+        }
+
+        .schrieb-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .schrieb-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .schrieb-member-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .schrieb-je {
+            font-weight: 700;
+            color: var(--accent-color);
+            font-size: 15px;
+        }
+
+        .schrieb-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .schrieb-detail {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .schrieb-detail svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .schrieb-werber {
+            margin-top: var(--spacing-sm);
+            padding-top: var(--spacing-sm);
+            border-top: 1px solid var(--border-color);
         }
 
         .view-header {
@@ -1050,9 +1339,11 @@
                     <div class="view-meta">
                         <span id="viewCampaignStatus" class="campaign-status active">Aktiv</span>
                         <span style="margin-left: var(--spacing-sm);">KW <span id="viewKwRange">10-15</span></span>
+                        <span style="margin-left: var(--spacing-sm);" id="viewPeriodInline">04.03. - 14.04.2025</span>
                     </div>
                 </div>
                 <div class="view-actions">
+                    <button class="btn btn-secondary" onclick="closeViewModal()">Schließen</button>
                     <button class="btn btn-primary" onclick="editFromView()">
                         <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -1062,63 +1353,116 @@
                 </div>
             </div>
 
-            <!-- Allgemeine Infos -->
-            <div class="info-box">
-                <div class="info-box-header">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <h3>Allgemeine Informationen</h3>
-                </div>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-item-label">Kunde</span>
-                        <span class="info-item-value" id="viewCustomer">DRK Ludwigshafen</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-item-label">Zeitraum</span>
-                        <span class="info-item-value" id="viewPeriod">04.03. - 14.04.2024</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-item-label">Abrechnungs-Puffer</span>
-                        <span class="info-item-value" id="viewPuffer">10%</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-item-label">Wartezeit Endabrechnung</span>
-                        <span class="info-item-value" id="viewWartezeit">4 Wochen</span>
-                    </div>
-                </div>
-            </div>
+            <!-- Two-Column Layout -->
+            <div class="view-layout">
+                <!-- Main Content -->
+                <div class="view-main">
+                    <!-- Team Übersicht -->
+                    <div class="info-box">
+                        <div class="info-box-header">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            <h3>Team-Übersicht</h3>
+                        </div>
+                        <div class="team-overview-grid">
+                            <div class="team-stat-card">
+                                <div class="team-stat-value" id="viewTotalEmployees">12</div>
+                                <div class="team-stat-label">Mitarbeiter gesamt</div>
+                            </div>
+                            <div class="team-stat-card">
+                                <div class="team-stat-value tc" id="viewTotalTCs">3</div>
+                                <div class="team-stat-label">Teamchefs</div>
+                            </div>
+                            <div class="team-stat-card">
+                                <div class="team-stat-value qm" id="viewTotalQMs">1</div>
+                                <div class="team-stat-label">Quality Manager</div>
+                            </div>
+                        </div>
 
-            <!-- Mitarbeiter Übersicht -->
-            <div class="info-box">
-                <div class="info-box-header">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                    </svg>
-                    <h3>Mitarbeiter-Einsatz</h3>
-                </div>
-                <div id="viewEmployeeGrid" class="kw-blocks-grid">
-                    <!-- Wird dynamisch gefüllt -->
-                </div>
-            </div>
+                        <!-- TC Provision Aufteilung -->
+                        <div style="margin-top: var(--spacing-md);">
+                            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: var(--spacing-sm);">
+                                TC-Provision Aufteilung
+                            </div>
+                            <div class="tc-provision-grid" id="viewTCProvision">
+                                <!-- Wird dynamisch gefüllt -->
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Einsatzgebiete mit Konditionen -->
-            <div class="info-box highlight">
-                <div class="info-box-header">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <h3>Einsatzgebiete & Konditionen</h3>
+                    <!-- KW-Übersicht (erweitert) -->
+                    <div class="info-box">
+                        <div class="info-box-header">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <h3>KW-Einsatzplanung</h3>
+                        </div>
+                        <div id="viewKWDetails">
+                            <!-- Wird dynamisch gefüllt -->
+                        </div>
+                    </div>
+
+                    <!-- Einsatzgebiete -->
+                    <div class="info-box highlight">
+                        <div class="info-box-header">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <h3>Einsatzgebiete & Konditionen</h3>
+                        </div>
+                        <div id="viewEinsatzgebiete">
+                            <!-- Wird dynamisch gefüllt -->
+                        </div>
+                    </div>
                 </div>
-                <div id="viewEinsatzgebiete">
-                    <!-- Wird dynamisch gefüllt -->
+
+                <!-- Sidebar -->
+                <div class="view-sidebar">
+                    <!-- Kampagnen-Info -->
+                    <div class="info-box">
+                        <div class="info-box-header">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <h3>Kampagnen-Info</h3>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                            <div class="info-item">
+                                <span class="info-item-label">Kunde</span>
+                                <span class="info-item-value" id="viewCustomer">DRK Ludwigshafen</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-item-label">Zeitraum</span>
+                                <span class="info-item-value" id="viewPeriod">04.03. - 14.04.2024</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-item-label">Abrechnungs-Puffer</span>
+                                <span class="info-item-value" id="viewPuffer">10%</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-item-label">Wartezeit</span>
+                                <span class="info-item-value" id="viewWartezeit">4 Wochen</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Letzte 10 Schriebe -->
+                    <div class="info-box">
+                        <div class="info-box-header">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <h3>Letzte 10 Schriebe</h3>
+                        </div>
+                        <div class="schriebe-list" id="viewLastSchriebe">
+                            <!-- Wird dynamisch gefüllt -->
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeViewModal()">Schließen</button>
         </div>
     </div>
 </div>
@@ -1566,12 +1910,21 @@ function closeCampaignModal() {
 }
 
 // ============================================
-// VIEW MODAL FUNCTIONS
+// VIEW MODAL FUNCTIONS (ERWEITERT)
 // ============================================
 
 let viewingCampaignId = null;
 
-// Open view modal
+// Aktuelle KW ermitteln
+function getCurrentKW() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1);
+    const diff = now - start;
+    const oneWeek = 1000 * 60 * 60 * 24 * 7;
+    return Math.ceil(((diff / oneWeek) + start.getDay() + 1) / 7);
+}
+
+// Open view modal (ERWEITERT)
 function viewCampaign(id) {
     const campaign = campaigns.find(c => c.id === id);
     if (!campaign) return;
@@ -1589,14 +1942,24 @@ function viewCampaign(id) {
     document.getElementById('viewPuffer').textContent = (campaign.pufferPercent || 10) + '%';
     document.getElementById('viewWartezeit').textContent = (campaign.wartezeitWochen || 4) + ' Wochen';
 
-    // Calculate period dates (approximate)
+    // Calculate period dates
     const year = 2025;
     const startDate = getKWDateRange(campaign.kwFrom, year).split(' - ')[0];
     const endDate = getKWDateRange(campaign.kwTo, year).split(' - ')[1];
     document.getElementById('viewPeriod').textContent = `${startDate} - ${endDate}`;
+    document.getElementById('viewPeriodInline').textContent = `${startDate} - ${endDate}`;
 
-    // Employee overview
-    renderViewEmployees(campaign);
+    // Team Overview Stats
+    renderTeamOverview(campaign);
+
+    // TC Provision Distribution
+    renderTCProvision(campaign);
+
+    // KW Details (erweitert)
+    renderKWDetails(campaign);
+
+    // Letzte Schriebe
+    renderLastSchriebe(campaign);
 
     // Einsatzgebiete
     renderViewEinsatzgebiete(campaign);
@@ -1604,9 +1967,76 @@ function viewCampaign(id) {
     document.getElementById('campaignViewModal').classList.add('show');
 }
 
-// Render employee badges in view (vertical blocks)
-function renderViewEmployees(campaign) {
-    const container = document.getElementById('viewEmployeeGrid');
+// Team Overview Stats
+function renderTeamOverview(campaign) {
+    const allEmployeeIds = new Set();
+    const tcIds = new Set();
+    const qmIds = new Set();
+
+    for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
+        const assignment = campaign.assignments[kw] || {};
+        if (assignment.teamchef) {
+            tcIds.add(assignment.teamchef);
+            allEmployeeIds.add(assignment.teamchef);
+        }
+        (assignment.werber || []).forEach(id => allEmployeeIds.add(id));
+    }
+
+    // Check for QMs in employees
+    allEmployeeIds.forEach(id => {
+        const emp = employees.find(e => e.id === id);
+        if (emp && emp.isQM) qmIds.add(id);
+    });
+
+    document.getElementById('viewTotalEmployees').textContent = allEmployeeIds.size;
+    document.getElementById('viewTotalTCs').textContent = tcIds.size;
+    document.getElementById('viewTotalQMs').textContent = qmIds.size;
+}
+
+// TC Provision Distribution
+function renderTCProvision(campaign) {
+    const container = document.getElementById('viewTCProvision');
+    const tcWeeks = {};
+    const totalWeeks = campaign.kwTo - campaign.kwFrom + 1;
+
+    // Zähle Wochen pro TC
+    for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
+        const assignment = campaign.assignments[kw] || {};
+        if (assignment.teamchef) {
+            tcWeeks[assignment.teamchef] = (tcWeeks[assignment.teamchef] || 0) + 1;
+        }
+    }
+
+    if (Object.keys(tcWeeks).length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">Keine TCs zugewiesen</p>';
+        return;
+    }
+
+    let html = '';
+    Object.entries(tcWeeks).forEach(([tcId, weeks]) => {
+        const tc = employees.find(e => e.id === parseInt(tcId));
+        const percent = Math.round((weeks / totalWeeks) * 100);
+        const tcName = tc ? tc.name : 'Unbekannt';
+
+        html += `
+            <div class="tc-provision-row">
+                <span class="tc-provision-name">${tcName}</span>
+                <span class="tc-provision-weeks">${weeks} KW</span>
+                <div class="tc-provision-bar">
+                    <div class="tc-provision-fill" style="width: ${percent}%"></div>
+                </div>
+                <span class="tc-provision-percent">${percent}%</span>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+// KW Details (erweitert mit Employee Cards)
+function renderKWDetails(campaign) {
+    const container = document.getElementById('viewKWDetails');
+    const currentKW = getCurrentKW();
     let html = '';
 
     for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
@@ -1614,17 +2044,188 @@ function renderViewEmployees(campaign) {
         const tcId = assignment.teamchef;
         const werberIds = assignment.werber || [];
         const tc = tcId ? employees.find(e => e.id === tcId) : null;
-        const count = werberIds.length + (tc ? 1 : 0);
+        const werberList = werberIds.map(id => employees.find(e => e.id === id)).filter(Boolean);
+        const totalCount = werberList.length + (tc ? 1 : 0);
+
+        const isCurrentWeek = kw === currentKW;
+        const hasTc = !!tc;
+        const dateRange = getKWDateRange(kw, 2025);
+
+        // Anreisen für diese Woche (Dummy - in echt aus Datenbank)
+        const anreisen = werberList.filter(e => e.anreiseKW === kw);
+        const newEmployees = werberList.filter(e => e.isNew);
+
+        let classes = 'kw-detail-card';
+        if (isCurrentWeek) classes += ' current-week expanded';
+        if (hasTc) classes += ' has-tc';
 
         html += `
-            <div class="kw-block" title="${tc ? 'TC: ' + tc.name : 'Kein TC'}">
-                <div class="kw-block-label">KW ${kw}</div>
-                <div class="kw-block-value">${count} Pers.</div>
+            <div class="${classes}" data-kw="${kw}">
+                <div class="kw-detail-header" onclick="toggleKWDetail(${kw})">
+                    <div class="kw-detail-title">
+                        <strong>KW ${kw}</strong>
+                        <span class="kw-detail-date">${dateRange}</span>
+                    </div>
+                    <div class="kw-detail-badges">
+                        ${isCurrentWeek ? '<span class="kw-badge current">Aktuelle Woche</span>' : ''}
+                        ${hasTc ? '<span class="kw-badge tc">TC</span>' : ''}
+                        <span class="kw-badge count">${totalCount} Pers.</span>
+                    </div>
+                </div>
+                <div class="kw-detail-body">
+                    ${tc ? `
+                        <div class="kw-section-title tc">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                            </svg>
+                            Teamchef
+                        </div>
+                        <div class="kw-employee-list">
+                            <div class="employee-card-trigger"
+                                data-employee-id="${tc.id}"
+                                data-employee-name="${tc.name}"
+                                data-employee-role="${tc.role || 'EMA'}"
+                                data-employee-tc="true">
+                            </div>
+                        </div>
+                    ` : '<p style="color: #f59e0b; font-size: 12px; margin-bottom: var(--spacing-md);">Kein TC für diese Woche</p>'}
+
+                    ${anreisen.length > 0 ? `
+                        <div class="kw-section-title anreise">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z"/>
+                            </svg>
+                            Anreisen (${anreisen.length})
+                        </div>
+                        <div class="kw-employee-list">
+                            ${anreisen.map(e => `
+                                <div class="employee-card-trigger"
+                                    data-employee-id="${e.id}"
+                                    data-employee-name="${e.name}"
+                                    data-employee-role="${e.role || 'SMA'}"
+                                    data-employee-anreise="KW ${kw}">
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${newEmployees.length > 0 ? `
+                        <div class="kw-section-title new">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
+                            Neue Mitarbeiter (${newEmployees.length})
+                        </div>
+                        <div class="kw-employee-list">
+                            ${newEmployees.map(e => `
+                                <div class="employee-card-trigger"
+                                    data-employee-id="${e.id}"
+                                    data-employee-name="${e.name}"
+                                    data-employee-role="${e.role || 'SMA'}"
+                                    data-employee-new="true">
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    <div class="kw-section-title">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        Alle Werber (${werberList.length})
+                    </div>
+                    <div class="kw-employee-list">
+                        ${werberList.map(e => `
+                            <div class="employee-card-trigger"
+                                data-employee-id="${e.id}"
+                                data-employee-name="${e.name}"
+                                data-employee-role="${e.role || 'SMA'}"
+                                ${e.isNew ? 'data-employee-new="true"' : ''}
+                                ${e.vorschuss ? `data-employee-vorschuss="${e.vorschuss}"` : ''}>
+                            </div>
+                        `).join('') || '<p style="color: var(--text-secondary); font-size: 12px;">Keine Werber</p>'}
+                    </div>
+                </div>
             </div>
         `;
     }
 
-    container.innerHTML = html || '<p style="color: var(--text-secondary);">Keine Mitarbeiter zugewiesen</p>';
+    container.innerHTML = html || '<p style="color: var(--text-secondary);">Keine KW-Daten</p>';
+
+    // Initialize employee cards
+    if (typeof EmployeeCard !== 'undefined') {
+        EmployeeCard.init();
+    }
+}
+
+// Toggle KW Detail Card
+function toggleKWDetail(kw) {
+    const card = document.querySelector(`.kw-detail-card[data-kw="${kw}"]`);
+    if (card) {
+        card.classList.toggle('expanded');
+    }
+}
+
+// Letzte 10 Schriebe
+function renderLastSchriebe(campaign) {
+    const container = document.getElementById('viewLastSchriebe');
+
+    // Dummy data - wird später aus Datenbank kommen
+    const dummySchriebe = [
+        { id: 1, memberName: 'Klaus Reichert', je: 480, eh: 40, ort: 'Ludwigshafen', werber: { id: 3, name: 'Anna Schneider', role: 'JMM' }, date: 'Heute, 11:23' },
+        { id: 2, memberName: 'Dr. Werner Braun', je: 600, eh: 50, ort: 'Heidelberg', werber: { id: 5, name: 'Lisa Bauer', role: 'EMA' }, date: 'Heute, 15:48' },
+        { id: 3, memberName: 'Maria Gruber', je: 360, eh: 30, ort: 'Mannheim', werber: { id: 4, name: 'Max Klein', role: 'SMA' }, date: 'Gestern, 09:15' },
+        { id: 4, memberName: 'Hans Müller', je: 240, eh: 20, ort: 'Ludwigshafen', werber: { id: 3, name: 'Anna Schneider', role: 'JMM' }, date: 'Gestern, 14:30' },
+        { id: 5, memberName: 'Petra Schmidt', je: 180, eh: 15, ort: 'Heidelberg', werber: { id: 2, name: 'Peter Hoffmann', role: 'EMA' }, date: '25.11.2025' },
+        { id: 6, memberName: 'Michael Weber', je: 120, eh: 10, ort: 'Mannheim', werber: { id: 4, name: 'Max Klein', role: 'SMA' }, date: '24.11.2025' },
+        { id: 7, memberName: 'Sabine Fischer', je: 300, eh: 25, ort: 'Ludwigshafen', werber: { id: 5, name: 'Lisa Bauer', role: 'EMA' }, date: '24.11.2025' },
+        { id: 8, memberName: 'Thomas Koch', je: 420, eh: 35, ort: 'Heidelberg', werber: { id: 3, name: 'Anna Schneider', role: 'JMM' }, date: '23.11.2025' },
+        { id: 9, memberName: 'Andrea Wagner', je: 156, eh: 13, ort: 'Mannheim', werber: { id: 2, name: 'Peter Hoffmann', role: 'EMA' }, date: '23.11.2025' },
+        { id: 10, memberName: 'Frank Becker', je: 84, eh: 7, ort: 'Ludwigshafen', werber: { id: 4, name: 'Max Klein', role: 'SMA' }, date: '22.11.2025' }
+    ];
+
+    let html = '';
+    dummySchriebe.forEach(schrieb => {
+        html += `
+            <div class="schrieb-card">
+                <div class="schrieb-header">
+                    <span class="schrieb-member-name">${schrieb.memberName}</span>
+                    <span class="schrieb-je">${schrieb.je} JE</span>
+                </div>
+                <div class="schrieb-details">
+                    <span class="schrieb-detail">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        </svg>
+                        ${schrieb.ort}
+                    </span>
+                    <span class="schrieb-detail">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        ${schrieb.date}
+                    </span>
+                    <span class="schrieb-detail">
+                        ${schrieb.eh} EH
+                    </span>
+                </div>
+                <div class="schrieb-werber">
+                    <div class="employee-card-trigger"
+                        data-employee-id="${schrieb.werber.id}"
+                        data-employee-name="${schrieb.werber.name}"
+                        data-employee-role="${schrieb.werber.role}">
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html || '<p style="color: var(--text-secondary);">Keine Schriebe vorhanden</p>';
+
+    // Initialize employee cards
+    if (typeof EmployeeCard !== 'undefined') {
+        EmployeeCard.init();
+    }
 }
 
 // Render Einsatzgebiete in view (with nice Konditionen display)
