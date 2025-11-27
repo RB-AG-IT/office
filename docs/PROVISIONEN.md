@@ -651,17 +651,139 @@ Beim Erstellen/Bearbeiten einer Kampagne müssen **pro Einsatzgebiet** folgende 
 
 ## Abrechnungs-Verwaltung
 
-### Werber-Profil: Provisions- und Abrechnungsmodalitäten
+### Mitarbeiter-Profil: Provisions- und Abrechnungsmodalitäten
 
-Im Werber-Profil gibt es einen eigenen Bereich für individuelle Abrechnungseinstellungen:
+Im Mitarbeiter-Profil (`/mitarbeiter/profil.html`) gibt es einen eigenen Bereich "Provisions- und Abrechnungsmodalitäten":
+
+#### Karrierestufe mit Faktor und Benefits
+
+| Element | Beschreibung |
+|---------|--------------|
+| **Karrierestufe** | Dropdown zur Auswahl (JMM, SMM, SPB, KAD, FUE) |
+| **Faktor-Anzeige** | Zeigt automatisch den Faktor der gewählten Stufe |
+| **Benefits** | Pill-Badges mit den Vorteilen der Stufe |
+
+**Faktoren pro Stufe:**
+| Stufe | Faktor | Benefits |
+|-------|--------|----------|
+| JMM | 6.0 | Einstieg ins Team, Grundprovision, Schulungszugang, Mentoring |
+| SMM | 6.5 | Erhöhte Provision, Bonus-Berechtigung, Erweiterte Schulungen, Team-Events |
+| SPB | 7.0 | VIP Status, Exklusive Boni, Reise-Incentives, Premium Events |
+| KAD | 7.5 | Team-Provision, Management-Boni, Premium Support, Führungskräfte-Training |
+| FUE | 8.0 | Maximaler Faktor, Unternehmens-Beteiligung, Unbegrenzte Boni, Elite Status |
+
+#### Zusatz-Rollen (Berechtigungen)
+
+Im Provisions-Bereich können zusätzliche Rollen vergeben werden, die weitere Berechtigungen und Provisionsansprüche ermöglichen:
+
+| Rolle | Beschreibung |
+|-------|--------------|
+| **Quality Manager** | Prüft Datensätze auf Qualität, kann Auffälligkeiten markieren |
+| **Teamleiter** | Führt ein Team in einer Kampagne, erhält Kopfprovision |
+| **Recruiting Manager** | Wirbt neue Mitarbeiter, erhält Empfehlungsprovision |
+
+> **Hinweis:** Diese Rollen sind zusätzlich zur Karrierestufe und können kombiniert werden.
+
+#### Individuelle Provision
+
+| Einstellung | Beschreibung |
+|-------------|--------------|
+| **Individueller Faktor** | Optional - überschreibt den Standard-Faktor der Karrierestufe |
+
+> **Hinweis:** Nur ausfüllen wenn abweichend vom Standard. Z.B. für Sondervereinbarungen.
+
+#### Vorschuss/Rücklage Aufteilung
 
 | Einstellung | Standard | Beschreibung |
 |-------------|----------|--------------|
 | **Vorschuss-Anteil** | 70% | Anteil der sofortigen Auszahlung |
-| **Rücklage-Anteil** | 30% | Anteil für Stornorücklage |
+| **Rücklage-Anteil** | 30% | Wird automatisch berechnet (100% - Vorschuss) |
 | **Umsatzsteuerpflichtig** | Nein | Ob USt auf Abrechnungen ausgewiesen wird |
 
 > **WICHTIG:** Die Aufteilung 70%/30% ist der Standard, kann aber pro Werber individuell angepasst werden (z.B. 80/20, 60/40).
+
+#### Vorschau-Berechnung
+
+Das Profil zeigt eine **Live-Vorschau** bei 1.000 € Brutto-Provision:
+- Vorschuss: z.B. 700 € (bei 70%)
+- Stornorücklage: z.B. 300 € (bei 30%)
+
+### Karriere & Rollen-Historie
+
+Im Profil wird auch die **Rollen-Historie** angezeigt:
+
+| Element | Beschreibung |
+|---------|--------------|
+| **Aktuelle Karrierestufe** | Hero-Anzeige mit Faktor, "Seit"-Datum und Dauer |
+| **Rollen-Historie** | Timeline aller vergangenen Rollen mit Zeitraum und Dauer |
+
+> Die Historie wird automatisch geführt sobald Rollenwechsel vorgenommen werden.
+
+### Abrechnungs-Seiten im Office
+
+Die Abrechnungen sind in drei separate Seiten aufgeteilt mit gemeinsamer Sub-Navigation:
+
+#### Navigation
+
+| Seite | Pfad | Beschreibung |
+|-------|------|--------------|
+| **Werber** | `/abrechnungen/werber/` | Werber-Provisionen |
+| **DRK** | `/abrechnungen/drk/` | DRK-Rechnungen |
+| **Gesamt** | `/abrechnungen/` | Gewinn/Verlust Übersicht |
+
+> Der Sidebar-Menüpunkt "Abrechnungen" führt zur **Gesamt**-Seite. Auf jeder Seite gibt es oben eine Sub-Navigation zum Wechseln.
+
+#### Werber-Abrechnungen (`/abrechnungen/werber/`)
+
+**Kategorien (Tabs):**
+| Kategorie | Beschreibung |
+|-----------|--------------|
+| **Gesamt** | Übersicht aller Werber zusammen |
+| **Einzeln** | Pro Werber aufgeschlüsselt |
+| **Teamleiter** | TL-Provisionen (Kopfprovision vom Team) |
+| **Empfehlung** | Empfehlungsprovisionen |
+
+**Toggle:** Jede Kategorie hat einen Toggle zwischen:
+- **Vorschuss (70%)** - Wöchentliche Auszahlung
+- **Stornorücklage (30%)** - Einbehalten
+
+**Features:**
+- KW-Navigation (vor/zurück)
+- Übersicht pro Werber mit Avatar, Rolle, Faktor
+- Stornoquote-Anzeige mit Progress-Bar
+- Status: Bereit, Versendet, Bezahlt
+
+#### DRK-Abrechnungen (`/abrechnungen/drk/`)
+
+**Gruppierung:** Nach Kampagnen
+
+**Tabs:**
+| Tab | Beschreibung |
+|-----|--------------|
+| **Wöchentlich** | 90% fällig, 10% Puffer |
+| **Endabrechnung** | Nach Kampagnenende (Puffer minus Stornos) |
+| **Zweitjahresrate** | 12 Monate nach Endabrechnung |
+| **Folgejahre** | Jährlich wiederkehrend |
+
+**Features:**
+- Filter nach Kampagne, Zeitraum, Status
+- Konditionen-Übersicht pro Kampagne (Sondierung, Regular, Qualitätsbonus)
+- Status: Ausstehend, Erstellt, Versendet, Bezahlt
+
+#### Gesamt-Übersicht (`/abrechnungen/`)
+
+**Hero-Cards:**
+| Card | Farbe | Beschreibung |
+|------|-------|--------------|
+| **Einnahmen** | Grün | DRK-Rechnungen (diese Woche fällig) |
+| **Ausgaben** | Rot | Werber-Provisionen (Vorschuss-Auszahlung) |
+| **Saldo** | Lila/Orange | Gewinn/Verlust (Einnahmen - Ausgaben) |
+
+**Features:**
+- Zeitraum-Filter: Woche / Monat / Quartal
+- Einnahmen/Ausgaben Breakdown nebeneinander
+- Offene Posten Tabelle (kombiniert Einnahmen + Ausgaben)
+- Status-Anzeige: Bereit, Ausstehend, Überfällig
 
 ### Abrechnungen bearbeiten
 
