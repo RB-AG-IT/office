@@ -1816,6 +1816,7 @@
         .provision-year {
             display: flex;
             flex-direction: column;
+            align-items: center;
             gap: 4px;
         }
 
@@ -1828,23 +1829,30 @@
         .provision-input-wrap {
             display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 2px;
+            background: var(--bg-secondary);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
         }
 
         .provision-input-wrap span {
-            font-size: 12px;
-            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
         }
 
         .provision-input {
-            width: 50px;
-            padding: 6px 8px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: var(--bg-card);
+            width: 40px;
+            padding: 4px 2px;
+            border: none;
+            border-radius: 0;
+            background: transparent;
             color: var(--text-primary);
-            font-size: 12px;
-            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: right;
         }
 
         .provision-input:focus {
@@ -1864,6 +1872,12 @@
         .sond-limit-row label {
             font-size: 12px;
             color: var(--text-secondary);
+        }
+
+        .sond-limit-calc {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            opacity: 0.6;
         }
 
         /* Qualitätsbonus Rules - Editierbar */
@@ -3696,11 +3710,12 @@
                                         </div>
                                         <div class="sond-limit-row">
                                             <label>Limit</label>
-                                            <input type="number" class="provision-input" id="sondLimit" value="100" min="0" style="width: 70px;">
-                                            <select class="wg-select-small" id="sondLimitType">
+                                            <input type="number" class="provision-input" id="sondLimit" value="100" min="0" style="width: 70px;" onchange="updateSondLimitCalc()">
+                                            <select class="wg-select-small" id="sondLimitType" onchange="updateSondLimitCalc()">
                                                 <option value="mg">MG</option>
                                                 <option value="prozent">% Bevölkerung</option>
                                             </select>
+                                            <span class="sond-limit-calc" id="sondLimitCalc"></span>
                                         </div>
                                     </div>
 
@@ -4970,6 +4985,7 @@ function openWgConfig(wgId) {
     document.getElementById('sondJ5').value = wg.sondierung.j5;
     document.getElementById('sondLimit').value = wg.sondierung.limit;
     document.getElementById('sondLimitType').value = wg.sondierung.limitType;
+    updateSondLimitCalc();
 
     // Regular
     document.getElementById('regJ1').value = wg.regular.j1;
@@ -5067,6 +5083,27 @@ function updateQualiMaxBonus() {
     const pp4 = parseInt(document.getElementById('qualiPP4').value) || 0;
     const maxBonus = pp1 + pp2 + pp3 + pp4;
     document.getElementById('qualiMaxDisplay').innerHTML = `<span>Max. Bonus: +${maxBonus} PP</span>`;
+}
+
+// Sond-Limit Berechnung aktualisieren
+function updateSondLimitCalc() {
+    const limitType = document.getElementById('sondLimitType').value;
+    const limitValue = parseInt(document.getElementById('sondLimit').value) || 0;
+    const calcEl = document.getElementById('sondLimitCalc');
+
+    if (limitType === 'prozent') {
+        // Bevölkerung vom aktuellen WG holen
+        const wg = campaignWerbegebiete.find(w => w.id === activeWgConfig);
+        const bevolkerung = wg?.population || 0;
+        if (bevolkerung > 0) {
+            const mg = Math.round(bevolkerung * limitValue / 100);
+            calcEl.textContent = `= ${mg.toLocaleString('de-DE')} MG`;
+        } else {
+            calcEl.textContent = '= ? MG';
+        }
+    } else {
+        calcEl.textContent = '';
+    }
 }
 
 // Verträge des Kunden laden
