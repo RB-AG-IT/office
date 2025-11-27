@@ -2873,13 +2873,18 @@ function renderKWDetails(campaign) {
         const prevWerberIds = prevAssignment.werber || [];
         const nextWerberIds = nextAssignment.werber || [];
 
+        // Ist dies die erste KW der Kampagne?
+        const isFirstKW = kw === campaign.kwFrom;
+        const isLastKW = kw === campaign.kwTo;
+
         // Berechne Labels für TC
         let tcLabel = '';
         if (tc) {
             const tcWasInPrevKW = prevTcId === tcId || prevWerberIds.includes(tcId);
             const tcIsInNextKW = nextTcId === tcId || nextWerberIds.includes(tcId);
-            if (!tcWasInPrevKW && kw > campaign.kwFrom) tcLabel = 'neuanreise';
-            else if (!tcIsInNextKW && kw < campaign.kwTo) tcLabel = 'abreise';
+            // Erste KW = alle sind Neuanreise, danach nur wenn nicht in vorheriger KW
+            if (isFirstKW || !tcWasInPrevKW) tcLabel = 'neuanreise';
+            else if (!tcIsInNextKW && !isLastKW) tcLabel = 'abreise';
         }
 
         // Berechne Labels für Werber
@@ -2887,8 +2892,9 @@ function renderKWDetails(campaign) {
             const wasInPrevKW = prevWerberIds.includes(w.id) || prevTcId === w.id;
             const isInNextKW = nextWerberIds.includes(w.id) || nextTcId === w.id;
             let label = '';
-            if (!wasInPrevKW && kw > campaign.kwFrom) label = 'neuanreise';
-            else if (!isInNextKW && kw < campaign.kwTo) label = 'abreise';
+            // Erste KW = alle sind Neuanreise, danach nur wenn nicht in vorheriger KW
+            if (isFirstKW || !wasInPrevKW) label = 'neuanreise';
+            else if (!isInNextKW && !isLastKW) label = 'abreise';
             return { ...w, label };
         });
 
