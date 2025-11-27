@@ -798,6 +798,61 @@
             border-radius: 50%;
         }
 
+        /* Save Role Button */
+        .btn-save-role {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--success-color, #10b981) 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-save-role:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-save-role:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: var(--text-secondary);
+        }
+
+        .btn-save-role.saving {
+            pointer-events: none;
+        }
+
+        .btn-save-role.saved {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        /* KW Overlap Warning */
+        .kw-overlap-warning {
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         /* Additional Roles Checkboxes */
         .additional-role-checkbox {
             display: flex;
@@ -1553,6 +1608,30 @@
                     <!-- Benefits Liste -->
                     <div class="role-benefits" id="roleBenefits">
                         <span class="benefits-placeholder">Wähle eine Karrierestufe um die Benefits zu sehen</span>
+                    </div>
+
+                    <!-- Speichern Button für Karrierestufe -->
+                    <div class="role-save-section" style="margin-top: var(--spacing-md); display: flex; align-items: center; gap: var(--spacing-md);">
+                        <button type="button" class="btn btn-primary btn-save-role" id="saveRoleBtn" onclick="saveRoleEntry()" disabled>
+                            <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Karrierestufe speichern
+                        </button>
+                        <span class="role-save-hint" id="roleSaveHint" style="font-size: var(--font-size-xs); color: var(--text-secondary);"></span>
+                    </div>
+
+                    <!-- KW-Überlappungs-Warnung -->
+                    <div class="kw-overlap-warning" id="kwOverlapWarning" style="display: none; margin-top: var(--spacing-sm); padding: var(--spacing-sm) var(--spacing-md); background: var(--warning-bg, #fef3cd); border: 1px solid var(--warning-color, #ffc107); border-radius: 8px;">
+                        <div style="display: flex; align-items: flex-start; gap: var(--spacing-sm);">
+                            <svg style="width: 18px; height: 18px; flex-shrink: 0; color: var(--warning-color, #856404);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <div>
+                                <div style="font-weight: 600; font-size: var(--font-size-sm); color: var(--warning-color, #856404); margin-bottom: 4px;">KW-Überlappung erkannt</div>
+                                <div id="kwOverlapDetails" style="font-size: var(--font-size-xs); color: var(--warning-color, #856404);"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -3228,7 +3307,226 @@
             const roleKey = this.value;
             updateRoleFaktorAndBenefits(roleKey);
             updateCurrentRoleDisplay(roleKey);
+            checkRoleCanBeSaved();
+            checkKwOverlap();
         });
+
+        // ================================================================
+        // KARRIERESTUFE SEPARAT SPEICHERN
+        // ================================================================
+
+        // Rollen-Historie aus localStorage (für lokale Demo) oder Supabase
+        let roleHistory = JSON.parse(localStorage.getItem('roleHistory') || '[]');
+
+        // Prüfen ob Speicherbutton aktiviert werden soll
+        function checkRoleCanBeSaved() {
+            const roleSelect = document.getElementById('mainRole');
+            const saveBtn = document.getElementById('saveRoleBtn');
+            const hint = document.getElementById('roleSaveHint');
+
+            if (roleSelect.value) {
+                saveBtn.disabled = false;
+                hint.textContent = '';
+            } else {
+                saveBtn.disabled = true;
+                hint.textContent = 'Bitte eine Karrierestufe auswählen';
+            }
+        }
+
+        // KW-Überlappung prüfen
+        function checkKwOverlap() {
+            const roleSelect = document.getElementById('mainRole');
+            const warningEl = document.getElementById('kwOverlapWarning');
+            const detailsEl = document.getElementById('kwOverlapDetails');
+
+            if (!roleSelect.value) {
+                warningEl.style.display = 'none';
+                return;
+            }
+
+            const fromKw = currentKwWeek;
+            const fromYear = currentKwYear;
+            const toKw = roleKwToWeek;
+            const toYear = roleKwToYear;
+
+            // Finde überlappende Einträge
+            const overlaps = roleHistory.filter(entry => {
+                // Prüfe ob Zeiträume überlappen
+                const entryFromDate = kwToDate(entry.fromKw, entry.fromYear);
+                const entryToDate = entry.toKw ? kwToDate(entry.toKw, entry.toYear) : new Date(2099, 11, 31);
+                const newFromDate = kwToDate(fromKw, fromYear);
+                const newToDate = toKw ? kwToDate(toKw, toYear) : new Date(2099, 11, 31);
+
+                return newFromDate <= entryToDate && newToDate >= entryFromDate;
+            });
+
+            if (overlaps.length > 0) {
+                warningEl.style.display = 'block';
+                const overlapDetails = overlaps.map(entry => {
+                    const config = ROLE_CONFIG[entry.role] || { name: entry.role, faktor: '-' };
+                    const toText = entry.toKw ? `KW ${entry.toKw}/${entry.toYear}` : '∞';
+                    return `<div style="margin-top: 4px;">• <strong>${config.short || config.name}</strong> (Faktor ${config.faktor}) in KW ${entry.fromKw}/${entry.fromYear} - ${toText}</div>`;
+                }).join('');
+                detailsEl.innerHTML = `Diese KW überschneidet sich mit vorhandenen Einträgen:<br>${overlapDetails}<br><em style="margin-top: 8px; display: block;">Die neue Stufe überschreibt die überlappenden Zeiträume.</em>`;
+            } else {
+                warningEl.style.display = 'none';
+            }
+        }
+
+        // KW in Datum umrechnen (Montag der KW)
+        function kwToDate(kw, year) {
+            const jan1 = new Date(year, 0, 1);
+            const daysToMonday = (8 - jan1.getDay()) % 7;
+            const firstMonday = new Date(year, 0, 1 + daysToMonday);
+            return new Date(firstMonday.getTime() + (kw - 1) * 7 * 24 * 60 * 60 * 1000);
+        }
+
+        // Karrierestufe speichern
+        async function saveRoleEntry() {
+            const roleSelect = document.getElementById('mainRole');
+            const saveBtn = document.getElementById('saveRoleBtn');
+            const hint = document.getElementById('roleSaveHint');
+
+            if (!roleSelect.value) return;
+
+            saveBtn.disabled = true;
+            saveBtn.classList.add('saving');
+            saveBtn.innerHTML = `
+                <svg style="width: 16px; height: 16px; margin-right: 6px; animation: spin 1s linear infinite;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Speichern...
+            `;
+
+            const newEntry = {
+                id: Date.now(),
+                role: roleSelect.value,
+                fromKw: currentKwWeek,
+                fromYear: currentKwYear,
+                toKw: roleKwToWeek,
+                toYear: roleKwToYear,
+                savedAt: new Date().toISOString()
+            };
+
+            // Überlappende Einträge anpassen
+            roleHistory = roleHistory.map(entry => {
+                const entryFromDate = kwToDate(entry.fromKw, entry.fromYear);
+                const entryToDate = entry.toKw ? kwToDate(entry.toKw, entry.toYear) : new Date(2099, 11, 31);
+                const newFromDate = kwToDate(newEntry.fromKw, newEntry.fromYear);
+                const newToDate = newEntry.toKw ? kwToDate(newEntry.toKw, newEntry.toYear) : new Date(2099, 11, 31);
+
+                // Wenn neuer Eintrag den alten komplett überlappt, markieren zum Löschen
+                if (newFromDate <= entryFromDate && newToDate >= entryToDate) {
+                    return null;
+                }
+
+                // Wenn neuer Eintrag am Ende überlappt, alten verkürzen
+                if (newFromDate > entryFromDate && newFromDate <= entryToDate) {
+                    // Berechne neue End-KW (eine KW vor dem neuen Start)
+                    const newEndDate = new Date(newFromDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    const newEndKw = getWeekNumber(newEndDate);
+                    entry.toKw = newEndKw;
+                    entry.toYear = newEndDate.getFullYear();
+                }
+
+                return entry;
+            }).filter(e => e !== null);
+
+            // Neuen Eintrag hinzufügen
+            roleHistory.push(newEntry);
+
+            // Nach Datum sortieren
+            roleHistory.sort((a, b) => {
+                const dateA = kwToDate(a.fromKw, a.fromYear);
+                const dateB = kwToDate(b.fromKw, b.fromYear);
+                return dateB - dateA;
+            });
+
+            // Speichern
+            localStorage.setItem('roleHistory', JSON.stringify(roleHistory));
+
+            // UI aktualisieren
+            setTimeout(() => {
+                saveBtn.classList.remove('saving');
+                saveBtn.classList.add('saved');
+                saveBtn.innerHTML = `
+                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Gespeichert!
+                `;
+
+                const config = ROLE_CONFIG[roleSelect.value];
+                const toText = newEntry.toKw ? `KW ${newEntry.toKw}/${newEntry.toYear}` : '∞';
+                hint.innerHTML = `<span style="color: var(--success-color);">✓ ${config.short || config.name} für KW ${newEntry.fromKw}/${newEntry.fromYear} - ${toText} gespeichert</span>`;
+
+                // Historie aktualisieren
+                renderRoleHistoryLocal();
+                checkKwOverlap();
+
+                // Button nach 2s zurücksetzen
+                setTimeout(() => {
+                    saveBtn.classList.remove('saved');
+                    saveBtn.innerHTML = `
+                        <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Karrierestufe speichern
+                    `;
+                    checkRoleCanBeSaved();
+                }, 2000);
+            }, 500);
+        }
+
+        // Lokale Historie rendern (für Demo ohne Supabase)
+        function renderRoleHistoryLocal() {
+            const timeline = document.getElementById('roleHistoryTimeline');
+
+            if (roleHistory.length === 0) {
+                timeline.innerHTML = `
+                    <div class="role-history-empty">
+                        <p>Noch keine Historie vorhanden</p>
+                        <span>Die Rollen-Historie wird automatisch geführt sobald Änderungen vorgenommen werden.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            timeline.innerHTML = roleHistory.map((entry, index) => {
+                const config = ROLE_CONFIG[entry.role] || { name: entry.role, faktor: '-', short: entry.role.toUpperCase() };
+                const toText = entry.toKw ? `KW ${entry.toKw}/${entry.toYear}` : '∞ (unbegrenzt)';
+                const isFirst = index === 0;
+
+                return `
+                    <div class="role-history-item ${isFirst ? 'current' : 'inactive'}">
+                        <div class="role-history-header">
+                            <span class="role-history-name">${config.name} (${config.short || entry.role.toUpperCase()})</span>
+                            <span class="role-history-duration-badge">Faktor ${config.faktor}</span>
+                        </div>
+                        <div class="role-history-dates">KW ${entry.fromKw}/${entry.fromYear} - ${toText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // KW-Wochennummer berechnen
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return weekNo;
+        }
+
+        // KW-Änderungen überwachen
+        document.getElementById('kwPrev').addEventListener('click', () => setTimeout(checkKwOverlap, 50));
+        document.getElementById('kwNext').addEventListener('click', () => setTimeout(checkKwOverlap, 50));
+        document.getElementById('roleKwToPrev').addEventListener('click', () => setTimeout(checkKwOverlap, 50));
+        document.getElementById('roleKwToNext').addEventListener('click', () => setTimeout(checkKwOverlap, 50));
+
+        // Initialisierung
+        checkRoleCanBeSaved();
+        renderRoleHistoryLocal();
 
         // Zusatz-Rollen Benefits Configuration
         const ADDITIONAL_ROLE_BENEFITS = {
