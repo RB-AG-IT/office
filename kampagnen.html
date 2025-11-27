@@ -652,6 +652,91 @@
             color: var(--text-secondary);
             margin-bottom: var(--spacing-sm);
         }
+
+        /* KW Blocks (vertical) */
+        .kw-blocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: var(--spacing-sm);
+        }
+
+        .kw-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            text-align: center;
+            cursor: default;
+            transition: border-color 0.2s;
+        }
+
+        .kw-block:hover {
+            border-color: var(--accent-color);
+        }
+
+        .kw-block-label {
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+
+        .kw-block-value {
+            font-size: var(--font-size-md);
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        /* Unified Campaign Card */
+        .campaign-badges {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .contract-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .contract-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .contract-badge.has-contract {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .contract-badge.missing {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .kondition-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .kondition-badge.no-kondition {
+            background: #fef2f2;
+            color: #dc2626;
+        }
     </style>
 </head>
 <body>
@@ -723,7 +808,7 @@
                     </svg>
                     <h3>Mitarbeiter-Einsatz</h3>
                 </div>
-                <div id="viewEmployeeGrid" class="week-employees" style="gap: var(--spacing-md);">
+                <div id="viewEmployeeGrid" class="kw-blocks-grid">
                     <!-- Wird dynamisch gefüllt -->
                 </div>
             </div>
@@ -1020,12 +1105,21 @@ function renderCampaigns() {
             `;
         }
 
+        // Calculate date range from KW
+        const year = 2025;
+        const startDate = getKWDateRange(campaign.kwFrom, year).split(' - ')[0];
+        const endDate = getKWDateRange(campaign.kwTo, year).split(' - ')[1];
+
+        // Dummy data for badges (will come from Supabase later)
+        const hasContract = campaign.id % 2 === 1; // Dummy
+        const hasKonditionen = true; // Dummy
+
         return `
             <div class="campaign-card status-${status}" onclick="viewCampaign(${campaign.id})">
                 <div class="campaign-header">
                     <div>
                         <div class="campaign-title">${campaign.name}</div>
-                        <div class="campaign-meta">KW ${campaign.kwFrom} - ${campaign.kwTo}</div>
+                        <div class="campaign-meta">${startDate} - ${endDate} (KW ${campaign.kwFrom}-${campaign.kwTo})</div>
                     </div>
                     <span class="campaign-status ${status}">${statusLabels[status]}</span>
                 </div>
@@ -1036,9 +1130,25 @@ function renderCampaigns() {
                         <span class="info-value">${campaign.customer}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Gebiet:</span>
+                        <span class="info-label">Einsatzgebiet:</span>
                         <span class="info-value">${campaign.area}</span>
                     </div>
+                    <div class="info-row">
+                        <span class="info-label">Puffer:</span>
+                        <span class="info-value">${campaign.pufferPercent || 10}%</span>
+                    </div>
+                </div>
+
+                <div class="campaign-badges">
+                    <span class="contract-badge ${hasContract ? 'has-contract' : 'missing'}">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${hasContract ? 'M5 13l4 4L19 7' : 'M12 9v2m0 4h.01'}"/>
+                        </svg>
+                        ${hasContract ? 'Vertrag' : 'Kein Vertrag'}
+                    </span>
+                    <span class="kondition-badge ${hasKonditionen ? '' : 'no-kondition'}">
+                        ${hasKonditionen ? 'Konditionen' : 'Keine Kond.'}
+                    </span>
                 </div>
 
                 ${employeeCountHTML}
@@ -1109,7 +1219,7 @@ function viewCampaign(id) {
     document.getElementById('campaignViewModal').classList.add('show');
 }
 
-// Render employee badges in view
+// Render employee badges in view (vertical blocks)
 function renderViewEmployees(campaign) {
     const container = document.getElementById('viewEmployeeGrid');
     let html = '';
@@ -1122,11 +1232,9 @@ function renderViewEmployees(campaign) {
         const count = werberIds.length + (tc ? 1 : 0);
 
         html += `
-            <div class="week-badge" style="padding: 8px 12px;" title="${tc ? 'TC: ' + tc.name : 'Kein TC'}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                </svg>
-                KW ${kw}: ${count} Pers.
+            <div class="kw-block" title="${tc ? 'TC: ' + tc.name : 'Kein TC'}">
+                <div class="kw-block-label">KW ${kw}</div>
+                <div class="kw-block-value">${count} Pers.</div>
             </div>
         `;
     }
@@ -1856,9 +1964,18 @@ function calculateSondMembers(index) {
 // Initial render
 renderCampaigns();
 
-// Check for URL parameter to open view modal
+// Check for URL parameter or sessionStorage to open view modal
 const urlParams = new URLSearchParams(window.location.search);
-const viewId = urlParams.get('view');
+let viewId = urlParams.get('view');
+
+// Also check sessionStorage (set from Kunden page navigation)
+if (!viewId) {
+    viewId = sessionStorage.getItem('viewCampaignId');
+    if (viewId) {
+        sessionStorage.removeItem('viewCampaignId'); // Clear after reading
+    }
+}
+
 if (viewId) {
     const campaignId = parseInt(viewId);
     if (campaignId && campaigns.find(c => c.id === campaignId)) {
