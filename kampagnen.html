@@ -691,15 +691,58 @@
 
         .kw-detail-header {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             padding: var(--spacing-md);
             background: var(--bg-secondary);
             cursor: pointer;
-            gap: var(--spacing-md);
+            gap: 6px;
         }
 
         .kw-detail-header:hover {
             background: var(--bg-hover);
+        }
+
+        .kw-header-row1 {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            width: 100%;
+        }
+
+        .kw-header-row2 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding-left: 140px;
+        }
+
+        .kw-header-wg-list {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .kw-header-wg {
+            font-size: 11px;
+            color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .kw-header-einwohner {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        /* Hide row2 when expanded */
+        .kw-detail-card.expanded .kw-header-row2 {
+            display: none;
         }
 
         .kw-detail-title {
@@ -1267,7 +1310,7 @@
             height: 14px;
         }
 
-        .kw-wg-chip .chip-plz {
+        .kw-wg-chip .chip-ew {
             font-size: 10px;
             opacity: 0.7;
         }
@@ -3063,9 +3106,9 @@ function renderKWDetails(campaign) {
 
     // Kampagnen-Werbegebiete (aus Einsatzgebieten)
     const campaignWerbegebiete = campaign.einsatzgebiete || [
-        { id: 'lu-mitte', name: 'Ludwigshafen-Mitte e.V.', plz: '67059' },
-        { id: 'lu-sued', name: 'Ludwigshafen-Süd e.V.', plz: '67061' },
-        { id: 'ma-zentrum', name: 'Mannheim-Zentrum e.V.', plz: '68161' }
+        { id: 'lu-mitte', name: 'Ludwigshafen-Mitte e.V.', plz: '67059', einwohner: 45000 },
+        { id: 'lu-sued', name: 'Ludwigshafen-Süd e.V.', plz: '67061', einwohner: 32000 },
+        { id: 'ma-zentrum', name: 'Mannheim-Zentrum e.V.', plz: '68161', einwohner: 58000 }
     ];
 
     for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
@@ -3158,19 +3201,36 @@ function renderKWDetails(campaign) {
             return pills;
         })();
 
+        // Berechne Gesamt-Einwohner für aktive Werbegebiete
+        const totalEinwohner = activeWerbegebiete.reduce((sum, wg) => sum + (wg.einwohner || 0), 0);
+        const einwohnerFormatted = totalEinwohner.toLocaleString('de-DE');
+
+        // Werbegebiete-Namen für zweite Zeile
+        const wgNamesHtml = activeWerbegebiete.map(wg =>
+            '<span class="kw-header-wg">' + wg.name.replace(' e.V.', '') + '</span>'
+        ).join('');
+
         html += `
             <div class="${classes}" data-kw="${kw}">
                 <div class="kw-detail-header" onclick="toggleKWDetail(${kw})">
-                    <div class="kw-detail-title">
-                        <strong>KW ${kw}</strong>
-                        <span class="kw-detail-date">${dateRange}</span>
-                    </div>
-                    <div class="kw-detail-badges">
-                        ${isCurrentWeek ? '<span class="kw-badge current">Aktuelle Woche</span>' : ''}
-                        <div class="kw-header-team">
-                            ${headerTeamPillsHtml}
+                    <div class="kw-header-row1">
+                        <div class="kw-detail-title">
+                            <strong>KW ${kw}</strong>
+                            <span class="kw-detail-date">${dateRange}</span>
+                        </div>
+                        <div class="kw-detail-badges">
+                            ${isCurrentWeek ? '<span class="kw-badge current">Aktuelle Woche</span>' : ''}
+                            <div class="kw-header-team">
+                                ${headerTeamPillsHtml}
+                            </div>
                         </div>
                         <span class="kw-badge count">${totalCount} Pers.</span>
+                    </div>
+                    <div class="kw-header-row2">
+                        <div class="kw-header-wg-list">
+                            ${wgNamesHtml || '<span style="color: var(--text-secondary); font-size: 11px;">Keine Werbegebiete</span>'}
+                        </div>
+                        <span class="kw-header-einwohner">${einwohnerFormatted} EW</span>
                     </div>
                 </div>
                 <div class="kw-detail-body">
@@ -3313,12 +3373,13 @@ function renderKWDetails(campaign) {
                         <div class="kw-wg-chips">
                             ${campaignWerbegebiete.map(wg => {
                                 const isSelected = kwWerbegebiete.includes(wg.id);
+                                const ewFormatted = (wg.einwohner || 0).toLocaleString('de-DE');
                                 return '<div class="kw-wg-chip ' + (isSelected ? 'selected' : '') + '" onclick="toggleKWWerbegebiet(' + kw + ', \'' + wg.id + '\')">' +
                                     '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
                                         '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>' +
                                     '</svg>' +
                                     '<span>' + wg.name + '</span>' +
-                                    '<span class="chip-plz">' + wg.plz + '</span>' +
+                                    '<span class="chip-ew">' + ewFormatted + ' EW</span>' +
                                 '</div>';
                             }).join('')}
                         </div>
@@ -3619,7 +3680,22 @@ function toggleWgMaZuordnung(kw, wgId, maId, isChecked) {
 function toggleKWDetail(kw) {
     const card = document.querySelector(`.kw-detail-card[data-kw="${kw}"]`);
     if (card) {
+        // Speichere Position des Headers relativ zum Viewport
+        const header = card.querySelector('.kw-detail-header');
+        const headerRect = header.getBoundingClientRect();
+        const headerTopBefore = headerRect.top;
+
+        // Toggle expanded state
         card.classList.toggle('expanded');
+
+        // Nach dem Toggle: Scroll anpassen damit Header an gleicher Position bleibt
+        requestAnimationFrame(() => {
+            const newHeaderRect = header.getBoundingClientRect();
+            const diff = newHeaderRect.top - headerTopBefore;
+            if (diff !== 0) {
+                window.scrollBy(0, diff);
+            }
+        });
     }
 }
 
