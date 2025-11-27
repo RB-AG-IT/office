@@ -1281,11 +1281,22 @@
             margin-bottom: var(--spacing-sm);
         }
 
-        /* WG Chips - Akkordeon-Style */
-        .kw-wg-chips {
+        /* WG Container - Chips mit Akkordeon darunter */
+        .kw-wg-container {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            align-items: flex-start;
+        }
+
+        /* Wrapper für Chip + Akkordeon */
+        .kw-wg-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kw-wg-wrapper.selected {
+            order: -1; /* Ausgewählte nach links */
         }
 
         .kw-wg-chip {
@@ -1308,23 +1319,11 @@
             color: #8b5cf6;
         }
 
-        .kw-wg-chip.selected {
+        .kw-wg-wrapper.selected .kw-wg-chip {
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.1));
             border-color: #8b5cf6;
             color: #8b5cf6;
-            order: -1; /* Ausgewählte Chips nach links */
-        }
-
-        /* Container für alle Akkordeons */
-        .kw-wg-accordions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--spacing-sm);
-            margin-top: var(--spacing-sm);
-        }
-
-        .kw-wg-accordions:empty {
-            display: none;
+            border-radius: 20px 20px 4px 4px;
         }
 
         .kw-wg-chip svg {
@@ -1337,7 +1336,7 @@
             opacity: 0.7;
         }
 
-        .kw-wg-chip .chip-count {
+        .kw-wg-chip .chip-ma {
             font-size: 10px;
             background: rgba(139, 92, 246, 0.2);
             color: #8b5cf6;
@@ -1346,77 +1345,66 @@
             font-weight: 600;
         }
 
-        /* Akkordeon-Panel für Mitarbeiter-Zuweisung */
+        /* Akkordeon direkt unter dem Chip */
         .kw-wg-accordion {
-            margin-top: var(--spacing-sm);
             background: var(--bg-primary);
-            border: 1px solid #8b5cf6;
-            border-radius: var(--radius-md);
+            border: 2px solid #8b5cf6;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
             overflow: hidden;
-        }
-
-        .kw-wg-accordion-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 12px;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.08));
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .kw-wg-accordion-title {
-            font-weight: 600;
-            color: #8b5cf6;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .kw-wg-accordion-title svg {
-            width: 16px;
-            height: 16px;
+            min-width: 200px;
         }
 
         .kw-wg-accordion-body {
-            padding: 12px;
-            max-height: 200px;
+            padding: 8px;
+            max-height: 210px; /* ca. 6 Mitarbeiter */
             overflow-y: auto;
         }
 
-        .kw-wg-ma-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 6px;
+        .kw-wg-ma-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .kw-wg-ma-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-radius: var(--radius-sm);
             font-size: 12px;
             cursor: pointer;
             transition: all 0.15s;
             background: var(--bg-secondary);
-            border: 1px solid transparent;
+            border: 2px solid transparent;
         }
 
         .kw-wg-ma-item:hover {
             background: rgba(139, 92, 246, 0.1);
-            border-color: rgba(139, 92, 246, 0.3);
         }
 
+        /* MA in anderem WG → verblasst */
+        .kw-wg-ma-item.in-other-wg {
+            opacity: 0.5;
+        }
+
+        .kw-wg-ma-item.in-other-wg:hover {
+            opacity: 0.8;
+        }
+
+        /* MA ausgewählt → grüne Umrandung */
         .kw-wg-ma-item.checked {
-            background: rgba(34, 197, 94, 0.15);
+            background: rgba(34, 197, 94, 0.1);
             border-color: #22c55e;
+            opacity: 1;
         }
 
         .kw-wg-ma-item input[type="checkbox"] {
             width: 16px;
             height: 16px;
             accent-color: #22c55e;
+            cursor: pointer;
         }
 
         .kw-wg-ma-name {
@@ -3377,28 +3365,13 @@ function renderKWDetails(campaign) {
                             Werbegebiete dieser KW
                         </div>
 
-                        <!-- WG Chips - Ausgewählte links (lila), nicht ausgewählte rechts (neutral) -->
-                        <div class="kw-wg-chips">
+                        <!-- WG Chips mit Akkordeon direkt darunter -->
+                        <div class="kw-wg-container" id="wg-container-kw-${kw}">
                             ${campaignWerbegebiete.map(wg => {
                                 const isSelected = kwWerbegebiete.includes(wg.id);
-                                const assignedCount = (wgMaZuordnung[wg.id] || []).length;
-                                const ewFormatted = (wg.einwohner || 0).toLocaleString('de-DE');
-                                return '<div class="kw-wg-chip ' + (isSelected ? 'selected' : '') + '" onclick="handleWgClick(' + kw + ', \'' + wg.id + '\', ' + isSelected + ')">' +
-                                    '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>' +
-                                    '</svg>' +
-                                    '<span>' + wg.name + '</span>' +
-                                    '<span class="chip-ew">' + ewFormatted + ' EW</span>' +
-                                    (isSelected && assignedCount > 0 ? '<span class="chip-count">' + assignedCount + '</span>' : '') +
-                                '</div>';
-                            }).join('')}
-                        </div>
-
-                        <!-- Akkordeons für alle ausgewählten Werbegebiete -->
-                        <div class="kw-wg-accordions">
-                            ${activeWerbegebiete.map(wg => {
                                 const allMembers = tc ? [tc, ...werberList] : werberList;
                                 const assignedCount = (wgMaZuordnung[wg.id] || []).length;
+                                const ewFormatted = (wg.einwohner || 0).toLocaleString('de-DE');
 
                                 // Hilfsfunktion: In welchem WG ist der MA?
                                 const getMaWgId = (maId) => {
@@ -3410,37 +3383,38 @@ function renderKWDetails(campaign) {
                                     return null;
                                 };
 
-                                return '<div class="kw-wg-accordion">' +
-                                    '<div class="kw-wg-accordion-header">' +
-                                        '<div class="kw-wg-accordion-title">' +
-                                            '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>' +
-                                            '</svg>' +
-                                            wg.name +
-                                        '</div>' +
-                                        '<span style="font-size: 11px; color: var(--text-secondary);">' + assignedCount + ' / ' + allMembers.length + ' MA</span>' +
+                                return '<div class="kw-wg-wrapper ' + (isSelected ? 'selected' : '') + '" data-wg-id="' + wg.id + '">' +
+                                    '<div class="kw-wg-chip" onclick="handleWgClick(' + kw + ', \'' + wg.id + '\', ' + isSelected + ')">' +
+                                        '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>' +
+                                        '</svg>' +
+                                        '<span>' + wg.name + '</span>' +
+                                        '<span class="chip-ew">' + ewFormatted + ' EW</span>' +
+                                        (isSelected ? '<span class="chip-ma" data-wg-count="' + wg.id + '">' + assignedCount + '/' + allMembers.length + '</span>' : '') +
                                     '</div>' +
-                                    '<div class="kw-wg-accordion-body">' +
-                                        '<div class="kw-wg-ma-grid">' +
-                                            (allMembers.length === 0 ?
-                                                '<p style="color: var(--text-secondary); font-size: 12px;">Keine Teammitglieder</p>' :
-                                                allMembers.map(m => {
-                                                    const maCurrentWg = getMaWgId(m.id);
-                                                    const isInThisWg = maCurrentWg === wg.id;
-                                                    const isInOtherWg = maCurrentWg && maCurrentWg !== wg.id;
-                                                    const otherWgName = isInOtherWg ? campaignWerbegebiete.find(w => w.id === maCurrentWg)?.name : null;
+                                    (isSelected ?
+                                        '<div class="kw-wg-accordion">' +
+                                            '<div class="kw-wg-accordion-body">' +
+                                                '<div class="kw-wg-ma-list">' +
+                                                    (allMembers.length === 0 ?
+                                                        '<p style="color: var(--text-secondary); font-size: 12px;">Keine Teammitglieder</p>' :
+                                                        allMembers.map(m => {
+                                                            const maCurrentWg = getMaWgId(m.id);
+                                                            const isInThisWg = maCurrentWg === wg.id;
+                                                            const isInOtherWg = maCurrentWg && maCurrentWg !== wg.id;
 
-                                                    return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + '">' +
-                                                        '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
-                                                            ' onchange="toggleWgMaZuordnung(' + kw + ', \'' + wg.id + '\', ' + m.id + ', this.checked)">' +
-                                                        '<span class="kw-wg-ma-name">' + m.name + '</span>' +
-                                                        (m.id === tcId ? '<span class="stufen-label stufen-label-tc" style="font-size: 9px;">TC</span>' : '') +
-                                                        (isInOtherWg ? '<span class="kw-wg-ma-status">in ' + (otherWgName || '').split(' ')[0] + '</span>' : '') +
-                                                    '</label>';
-                                                }).join('')
-                                            ) +
-                                        '</div>' +
-                                    '</div>' +
+                                                            return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + (isInOtherWg ? ' in-other-wg' : '') + '" data-ma-id="' + m.id + '">' +
+                                                                '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
+                                                                    ' onchange="toggleWgMaZuordnungLive(' + kw + ', \'' + wg.id + '\', ' + m.id + ', this.checked)">' +
+                                                                '<span class="kw-wg-ma-name">' + m.name + '</span>' +
+                                                                (m.id === tcId ? '<span class="stufen-label stufen-label-tc" style="font-size: 9px;">TC</span>' : '') +
+                                                            '</label>';
+                                                        }).join('')
+                                                    ) +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>'
+                                    : '') +
                                 '</div>';
                             }).join('')}
                         </div>
@@ -3756,6 +3730,89 @@ function toggleWgMaZuordnung(kw, wgId, maId, isChecked) {
 
     // Scroll-Position wiederherstellen
     window.scrollTo(0, scrollY);
+}
+
+// MA-Zuordnung zu Werbegebiet togglen - LIVE ohne Re-render
+function toggleWgMaZuordnungLive(kw, wgId, maId, isChecked) {
+    const campaign = campaigns.find(c => c.id === viewingCampaignId);
+    if (!campaign) return;
+
+    if (!campaign.assignments[kw]) {
+        campaign.assignments[kw] = {};
+    }
+    if (!campaign.assignments[kw].wgMaZuordnung) {
+        campaign.assignments[kw].wgMaZuordnung = {};
+    }
+
+    // WICHTIG: Jeder Werber kann nur in EINEM Werbegebiet sein!
+    let previousWgId = null;
+
+    if (isChecked) {
+        // Erst aus allen anderen WGs entfernen
+        Object.keys(campaign.assignments[kw].wgMaZuordnung).forEach(otherWgId => {
+            const idx = campaign.assignments[kw].wgMaZuordnung[otherWgId].indexOf(maId);
+            if (idx > -1) {
+                previousWgId = otherWgId;
+                campaign.assignments[kw].wgMaZuordnung[otherWgId].splice(idx, 1);
+            }
+        });
+
+        // Dann zum neuen WG hinzufügen
+        if (!campaign.assignments[kw].wgMaZuordnung[wgId]) {
+            campaign.assignments[kw].wgMaZuordnung[wgId] = [];
+        }
+        if (!campaign.assignments[kw].wgMaZuordnung[wgId].includes(maId)) {
+            campaign.assignments[kw].wgMaZuordnung[wgId].push(maId);
+        }
+    } else {
+        // Aus diesem WG entfernen
+        if (campaign.assignments[kw].wgMaZuordnung[wgId]) {
+            const index = campaign.assignments[kw].wgMaZuordnung[wgId].indexOf(maId);
+            if (index > -1) {
+                campaign.assignments[kw].wgMaZuordnung[wgId].splice(index, 1);
+            }
+        }
+    }
+
+    // === LIVE DOM UPDATES (ohne Re-render) ===
+    const card = document.querySelector(`.kw-detail-card[data-kw="${kw}"]`);
+    if (!card) return;
+
+    // Finde das WG in dem der MA jetzt ist (oder null)
+    let maCurrentWgId = null;
+    Object.keys(campaign.assignments[kw].wgMaZuordnung || {}).forEach(wId => {
+        if (campaign.assignments[kw].wgMaZuordnung[wId]?.includes(maId)) {
+            maCurrentWgId = wId;
+        }
+    });
+
+    // Alle WG-Wrapper in dieser KW durchgehen
+    card.querySelectorAll('.kw-wg-wrapper').forEach(wrapper => {
+        const thisWgId = wrapper.dataset.wgId;
+
+        // MA-Item für diesen Werber in diesem WG finden
+        const maItem = wrapper.querySelector(`.kw-wg-ma-item[data-ma-id="${maId}"]`);
+        if (maItem) {
+            const checkbox = maItem.querySelector('input[type="checkbox"]');
+            const isInThisWg = maCurrentWgId === thisWgId;
+            const isInOtherWg = maCurrentWgId && maCurrentWgId !== thisWgId;
+
+            // Checkbox-Status
+            if (checkbox) checkbox.checked = isInThisWg;
+
+            // CSS-Klassen aktualisieren
+            maItem.classList.toggle('checked', isInThisWg);
+            maItem.classList.toggle('in-other-wg', isInOtherWg);
+        }
+
+        // X/X Zähler im Chip aktualisieren
+        const countSpan = wrapper.querySelector(`[data-wg-count="${thisWgId}"]`);
+        if (countSpan) {
+            const assignedCount = campaign.assignments[kw].wgMaZuordnung[thisWgId]?.length || 0;
+            const allMembers = campaign.assignments[kw]?.team || [];
+            countSpan.textContent = assignedCount + '/' + allMembers.length;
+        }
+    });
 }
 
 // Toggle KW Detail Card
