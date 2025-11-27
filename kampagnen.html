@@ -691,11 +691,11 @@
 
         .kw-detail-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             padding: var(--spacing-md);
             background: var(--bg-secondary);
             cursor: pointer;
+            gap: var(--spacing-md);
         }
 
         .kw-detail-header:hover {
@@ -706,6 +706,8 @@
             display: flex;
             align-items: center;
             gap: var(--spacing-sm);
+            min-width: 140px;
+            flex-shrink: 0;
         }
 
         .kw-detail-title strong {
@@ -722,6 +724,7 @@
             display: flex;
             gap: 6px;
             align-items: center;
+            flex: 1;
         }
 
         /* Team Pills im Header (eingeklappt) */
@@ -809,17 +812,18 @@
             bottom: 100%;
             right: 0;
             margin-bottom: 8px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
             border-radius: var(--radius-md);
             padding: 10px 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            width: 220px;
+            width: 240px;
             z-index: 1000;
             display: none;
             font-size: 11px;
             font-weight: 400;
             text-align: left;
+            color: #374151;
         }
 
         .kw-info-icon:hover .kw-info-tooltip {
@@ -1123,6 +1127,7 @@
         .kw-team-member {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
             padding: 8px 12px;
             background: var(--bg-primary);
@@ -1136,8 +1141,19 @@
             margin-bottom: 0;
         }
 
+        .kw-team-member-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kw-team-member-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .kw-team-member-name {
-            flex: 1;
             font-weight: 500;
             color: var(--text-primary);
         }
@@ -3251,15 +3267,19 @@ function renderKWDetails(campaign) {
                         <div class="kw-team-list">
                             ${werberWithLabels.length > 0 ? werberWithLabels.map(w => `
                                 <div class="kw-team-member">
-                                    <span class="kw-team-member-name">${w.name}</span>
-                                    ${getStufeLabel(w.role || 'SMA')}
-                                    ${w.isQM ? '<span class="stufen-label stufen-label-qm">QM</span>' : ''}
-                                    ${w.label ? `<span class="kw-member-label ${w.label}">${w.label === 'neuanreise' ? 'Neuanreise' : w.label === 'abreise' ? 'Abreise' : 'An/Ab'}</span>` : ''}
-                                    <button class="kw-team-member-remove" onclick="removeKWMember(${kw}, ${w.id})" title="Entfernen">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                    </button>
+                                    <div class="kw-team-member-left">
+                                        <span class="kw-team-member-name">${w.name}</span>
+                                        ${getStufeLabel(w.role || 'SMA')}
+                                        ${w.isQM ? '<span class="stufen-label stufen-label-qm">QM</span>' : ''}
+                                    </div>
+                                    <div class="kw-team-member-right">
+                                        ${w.label ? `<span class="kw-member-label ${w.label}">${w.label === 'neuanreise' ? 'Neuanreise' : w.label === 'abreise' ? 'Abreise' : 'An/Ab'}</span>` : ''}
+                                        <button class="kw-team-member-remove" onclick="removeKWMember(${kw}, ${w.id})" title="Entfernen">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             `).join('') : '<p style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 8px;">Keine Mitglieder</p>'}
                         </div>
