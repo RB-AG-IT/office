@@ -237,6 +237,14 @@
             border: none;
             display: block;
             min-width: 0;
+            /* Transition für smoothere Größenänderung */
+            transition: none;
+        }
+
+        /* Während Sidebar-Transition sofort die volle Breite nutzen */
+        .content-area, .content-frame, .content-frame iframe {
+            flex: 1;
+            max-width: 100%;
         }
         
         .content-frame.no-iframe {
@@ -660,7 +668,16 @@
 
         // Sidebar Toggle
         document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.querySelector('.app-container').classList.toggle('expanded');
+            const container = document.querySelector('.app-container');
+            container.classList.toggle('expanded');
+
+            // Nach der Transition den iframe-Inhalt neu berechnen lassen
+            setTimeout(() => {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.dispatchEvent(new Event('resize'));
+                }
+            }, 350); // Etwas länger als die 0.3s Transition
         });
 
         // Navigation Handler
