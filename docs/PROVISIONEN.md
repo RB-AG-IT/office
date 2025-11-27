@@ -159,16 +159,16 @@ Wenn die Stornorücklage eines Quartals nicht ausreicht, greift folgende Kaskade
 
 Basierend auf der Karrierestufe:
 
-| Stufe | Name | Faktor |
-|-------|------|--------|
-| I | SMA (Studentische Mitarbeiter Aquise) | 5.0 |
-| II | EMA (Erfahrene Mitarbeiter Aquise) | 5.5 |
-| III | JMM (Junior Mitarbeiter Management) | 6.0 |
-| IV | EMM (Erfahrene Mitarbeiter Management) | 6.5 |
-| V | CEMM (Chef Erfahrene Mitarbeiter Management) | 6.75 |
-| VI | SPB (Spitzen Botschafter) | 7.0 |
-| VII | KAD (Kadermanager) | 7.5 |
-| VIII | FUE (Führungsebene) | 8.0 |
+| Stufe | Kürzel | Name | Faktor |
+|-------|--------|------|--------|
+| I | SMA | Starting Marketing Advisor | 5.0 |
+| II | EMA | Executive Marketing Advisor | 5.5 |
+| III | JMM | Junior Marketing Manager | 6.0 |
+| IV | EMM | Executive Marketing Manager | 6.5 |
+| V | CEMM | Chief Executive Marketing Manager | 6.75 |
+| VI | SPB | Spitzen Botschafter | 7.0 |
+| VII | KAD | Kadermanager | 7.5 |
+| VIII | FUE | Führungsebene | 8.0 |
 
 **Berechnung:** `Eigene Netto-EH × Faktor`
 
@@ -667,17 +667,19 @@ Im Mitarbeiter-Profil (`/mitarbeiter/profil.html`) gibt es einen eigenen Bereich
 > **WICHTIG:** Änderungen der Karrierestufe wirken sich immer pro **kompletter Kalenderwoche** aus. Bei rückwirkenden Änderungen werden die Provisionen neu berechnet.
 
 **Faktoren pro Stufe:**
-| Stufe | Name | Faktor | Benefits |
-|-------|------|--------|----------|
-| I | SMA - Studentische Mitarbeiter Akquise | 5.0 | Einstieg, Grundschulung, Flexible Arbeitszeiten, Studenten-Bonus |
-| II | EMA - Erfahrene Mitarbeiter Akquise | 5.5 | Erhöhte Grundprovision, Erweiterte Schulungen, Erfahrungs-Bonus, Team-Events |
-| III | JMM - Junior Mitarbeiter Management | 6.0 | Einstieg ins Management, Grundprovision, Schulungszugang, Mentoring |
-| IV | EMM - Erfahrene Mitarbeiter Management | 6.5 | Erhöhte Provision, Bonus-Berechtigung, Erweiterte Schulungen, Team-Events |
-| V | CEMM - Chef Erfahrene Mitarbeiter Management | 6.75 | Chef-Status, Team-Verantwortung, Führungs-Bonus, Spezial-Schulungen |
-| VI | SPB - Spitzenbotschafter | 7.0 | VIP Status, Exklusive Boni, Reise-Incentives, Premium Events |
-| VII | KAD - Kader Manager | 7.5 | Team-Provision, Management-Boni, Premium Support, Führungskräfte-Training |
-| VIII | FUE - Führungsebene | 8.0 | Maximaler Faktor, Unternehmens-Beteiligung, Unbegrenzte Boni, Elite Status |
-| - | ADM - Administrator | 8.0 | Volle System-Rechte, Alle Bereiche, Verwaltungs-Zugang, Elite Status |
+| Stufe | Kürzel | Name | Faktor | Sterne | Farbe | Benefits |
+|-------|--------|------|--------|--------|-------|----------|
+| I | SMA | Starting Marketing Advisor | 5.0 | 1 | Grau (#78909C) | Einstieg ins Team, Grundprovision, Schulungszugang |
+| II | EMA | Executive Marketing Advisor | 5.5 | 2 | Grün (#4CAF50) | Erhöhte Provision, Bonus-Berechtigung, Erweiterte Schulungen |
+| III | JMM | Junior Marketing Manager | 6.0 | 3 | Blau (#2196F3) | Factor 6.0, Team-Events Zugang, Mentoring-Programm |
+| IV | EMM | Executive Marketing Manager | 6.5 | 4 | Lila (#9C27B0) | Factor 6.5, Leadership-Training, Bonus-Pool Zugang |
+| V | CEMM | Chief Executive Marketing Manager | 6.75 | 5 | Pink (#E040FB) | Factor 6.75, Premium Events, Karriere-Coaching |
+| VI | SPB | Spitzen Botschafter | 7.0 | 6 | Orange (#FFA500) | Factor 7.0, VIP Status, Exklusive Boni, Reise-Incentives |
+| VII | KAD | Kadermanager | 7.5 | 7 | Gold (#FFD700) | Factor 7.5, Team-Provision, Management-Boni, Premium Support |
+| VIII | FUE | Führungsebene | 8.0 | 8 | Weiß (#FFFFFF) | Factor 8.0 MAX, Unternehmens-Beteiligung, Unbegrenzte Boni, Elite Status |
+| - | ADM | Administrator | 8.0 | - | - | Volle System-Rechte, Alle Bereiche, Verwaltungs-Zugang |
+
+> **Visuelle Darstellung:** Jede Stufe hat eine eigene Farbe und Anzahl Sterne. Ab EMM (Stufe IV) gibt es einen "Glow"-Effekt (leuchtende Umrandung), der mit jeder Stufe stärker wird.
 
 #### Zusatz-Rollen (Berechtigungen)
 

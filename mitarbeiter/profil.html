@@ -1472,14 +1472,14 @@
                             <label class="form-label">Karrierestufe *</label>
                             <select class="form-input" id="mainRole">
                                 <option value="">Bitte auswählen</option>
-                                <option value="sma">SMA - Studentische Mitarbeiter Akquise</option>
-                                <option value="ema">EMA - Erfahrene Mitarbeiter Akquise</option>
-                                <option value="junior_marketing_manager">JMM - Junior Mitarbeiter Management</option>
-                                <option value="senior_marketing_manager">EMM - Erfahrene Mitarbeiter Management</option>
-                                <option value="cemm">CEMM - Chef Erfahrene Mitarbeiter Management</option>
-                                <option value="spitzenbotschafter">SPB - Spitzenbotschafter</option>
-                                <option value="kader_manager">KAD - Kader Manager</option>
-                                <option value="führungsebene">FUE - Führungsebene</option>
+                                <option value="sma">SMA - Starting Marketing Advisor</option>
+                                <option value="ema">EMA - Executive Marketing Advisor</option>
+                                <option value="jmm">JMM - Junior Marketing Manager</option>
+                                <option value="emm">EMM - Executive Marketing Manager</option>
+                                <option value="cemm">CEMM - Chief Executive Marketing Manager</option>
+                                <option value="spb">SPB - Spitzen Botschafter</option>
+                                <option value="kad">KAD - Kadermanager</option>
+                                <option value="fue">FUE - Führungsebene</option>
                                 <option value="admin">Admin - Administrator</option>
                             </select>
                         </div>
@@ -2668,59 +2668,132 @@
         // ================================================================
 
         // Rollen-Mapping für Display-Namen, Faktoren und Benefits
+        // Rollen-Konfiguration aus Base (office.rb-inside.de/base)
         const ROLE_CONFIG = {
             'sma': {
-                name: 'Studentische Mitarbeiter Akquise',
+                name: 'Starting Marketing Advisor',
                 short: 'SMA',
                 faktor: 5.0,
-                benefits: ['Einstieg', 'Grundschulung', 'Flexible Arbeitszeiten', 'Studenten-Bonus']
+                stars: 1,
+                color: '#78909C',
+                glow: 0,
+                benefits: ['Einstieg ins Team', 'Grundprovision', 'Schulungszugang']
             },
             'ema': {
-                name: 'Erfahrene Mitarbeiter Akquise',
+                name: 'Executive Marketing Advisor',
                 short: 'EMA',
                 faktor: 5.5,
-                benefits: ['Erhöhte Grundprovision', 'Erweiterte Schulungen', 'Erfahrungs-Bonus', 'Team-Events']
+                stars: 2,
+                color: '#4CAF50',
+                glow: 0,
+                benefits: ['Erhöhte Provision', 'Bonus-Berechtigung', 'Erweiterte Schulungen']
             },
-            'junior_marketing_manager': {
-                name: 'Junior Mitarbeiter Management',
+            'jmm': {
+                name: 'Junior Marketing Manager',
                 short: 'JMM',
                 faktor: 6.0,
-                benefits: ['Einstieg ins Management', 'Grundprovision', 'Schulungszugang', 'Mentoring-Programm']
+                stars: 3,
+                color: '#2196F3',
+                glow: 0,
+                benefits: ['Factor 6.0', 'Team-Events Zugang', 'Mentoring-Programm']
             },
-            'senior_marketing_manager': {
-                name: 'Erfahrene Mitarbeiter Management',
+            'junior_marketing_manager': {
+                name: 'Junior Marketing Manager',
+                short: 'JMM',
+                faktor: 6.0,
+                stars: 3,
+                color: '#2196F3',
+                glow: 0,
+                benefits: ['Factor 6.0', 'Team-Events Zugang', 'Mentoring-Programm']
+            },
+            'emm': {
+                name: 'Executive Marketing Manager',
                 short: 'EMM',
                 faktor: 6.5,
-                benefits: ['Erhöhte Provision', 'Bonus-Berechtigung', 'Erweiterte Schulungen', 'Team-Events']
+                stars: 4,
+                color: '#9C27B0',
+                glow: 1,
+                benefits: ['Factor 6.5', 'Leadership-Training', 'Bonus-Pool Zugang']
+            },
+            'senior_marketing_manager': {
+                name: 'Executive Marketing Manager',
+                short: 'EMM',
+                faktor: 6.5,
+                stars: 4,
+                color: '#9C27B0',
+                glow: 1,
+                benefits: ['Factor 6.5', 'Leadership-Training', 'Bonus-Pool Zugang']
             },
             'cemm': {
-                name: 'Chef Erfahrene Mitarbeiter Management',
+                name: 'Chief Executive Marketing Manager',
                 short: 'CEMM',
                 faktor: 6.75,
-                benefits: ['Chef-Status', 'Team-Verantwortung', 'Führungs-Bonus', 'Spezial-Schulungen']
+                stars: 5,
+                color: '#E040FB',
+                glow: 2,
+                benefits: ['Factor 6.75', 'Premium Events', 'Karriere-Coaching']
             },
-            'spitzenbotschafter': {
-                name: 'Spitzenbotschafter',
+            'spb': {
+                name: 'Spitzen Botschafter',
                 short: 'SPB',
                 faktor: 7.0,
-                benefits: ['VIP Status', 'Exklusive Boni', 'Reise-Incentives', 'Premium Events']
+                stars: 6,
+                color: '#FFA500',
+                glow: 3,
+                benefits: ['Factor 7.0', 'VIP Status', 'Exklusive Boni', 'Reise-Incentives']
             },
-            'kader_manager': {
-                name: 'Kader Manager',
+            'spitzenbotschafter': {
+                name: 'Spitzen Botschafter',
+                short: 'SPB',
+                faktor: 7.0,
+                stars: 6,
+                color: '#FFA500',
+                glow: 3,
+                benefits: ['Factor 7.0', 'VIP Status', 'Exklusive Boni', 'Reise-Incentives']
+            },
+            'kad': {
+                name: 'Kadermanager',
                 short: 'KAD',
                 faktor: 7.5,
-                benefits: ['Team-Provision', 'Management-Boni', 'Premium Support', 'Führungskräfte-Training']
+                stars: 7,
+                color: '#FFD700',
+                glow: 4,
+                benefits: ['Factor 7.5', 'Team-Provision', 'Management-Boni', 'Premium Support']
+            },
+            'kader_manager': {
+                name: 'Kadermanager',
+                short: 'KAD',
+                faktor: 7.5,
+                stars: 7,
+                color: '#FFD700',
+                glow: 4,
+                benefits: ['Factor 7.5', 'Team-Provision', 'Management-Boni', 'Premium Support']
+            },
+            'fue': {
+                name: 'Führungsebene',
+                short: 'FUE',
+                faktor: 8.0,
+                stars: 8,
+                color: '#FFFFFF',
+                glow: 5,
+                benefits: ['Factor 8.0 MAX', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
             },
             'führungsebene': {
                 name: 'Führungsebene',
                 short: 'FUE',
                 faktor: 8.0,
-                benefits: ['Maximaler Faktor', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
+                stars: 8,
+                color: '#FFFFFF',
+                glow: 5,
+                benefits: ['Factor 8.0 MAX', 'Unternehmens-Beteiligung', 'Unbegrenzte Boni', 'Elite Status']
             },
             'admin': {
                 name: 'Administrator',
                 short: 'ADM',
                 faktor: 8.0,
+                stars: 8,
+                color: '#FFFFFF',
+                glow: 5,
                 benefits: ['Volle System-Rechte', 'Alle Bereiche', 'Verwaltungs-Zugang', 'Elite Status']
             }
         };
