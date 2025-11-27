@@ -77,6 +77,14 @@ Detailliertes Profil-Formular mit:
 - Individuelle Preisvorlagen für Formulare
 - Überschreibt Firmen-Standard bei der Mitglieder-Erfassung
 
+**Verträge & Vereinbarungen:** *(NEU)*
+- **HV Vertrag (links):** Hauptvertrag hochladen
+- **Sonstige Vereinbarungen (rechts):**
+  - Dokumentname eingeben
+  - Datei mit Monat und Jahr im Namen (z.B. `Zusatzvereinbarung_November_2025.pdf`)
+  - Liste aller hochgeladenen Vereinbarungen
+- Löschen geht über Lösch-Warteschlange (Admin muss bestätigen)
+
 **Dokumentation:** [KARRIERE.md](KARRIERE.md)
 
 ### Kunden (kunden/)
@@ -117,6 +125,15 @@ Komplettes Provisionsmodell:
   - Stornoquote-Limits
   - Sammel-Anforderungen (JE-Schriebe kumulativ)
 - Bearbeitbare Anforderungen (Hinzufügen/Löschen)
+
+### Lösch-Anfragen (loeschanfragen/) *(NEU)*
+Admin-Bereich für sichere Löschvorgänge:
+- **Warteschlange:** Alle ausstehenden Lösch-Anfragen
+- **Aktionen:**
+  - **Löschen:** Endgültig aus Datenbank entfernen
+  - **Archivieren:** Für den Nutzer unsichtbar machen (aber behalten)
+- **Sicherheitsmaßnahme:** Nutzer sieht nur "gelöscht", Admin kann archivieren
+- Zeigt: Wer hat gelöscht, welches Dokument, wann
 
 ### Datensätze (datensaetze/)
 Verwaltung von Mitgliedsdatensätzen:
@@ -258,13 +275,14 @@ Finanzverwaltung:
 ├── Auffälligkeiten
 ├── Mitarbeiter
 │   └── [Profil mit KW-Karrierestufen]
-├── Stufen & Achievements  ← NEU
+├── Stufen & Achievements
 ├── Datensätze
 ├── Statistik
 ├── Kunden
 │   └── [Einzelkunde]
 ├── Abrechnungen
 ├── Vorlagen
+├── Lösch-Anfragen  ← NEU (Admin)
 └── Einstellungen
 ```
 
@@ -362,6 +380,8 @@ office/
 │   └── profil.html         # Mitarbeiter-Profil (Karrierestufen, KW-Speicherung)
 ├── stufen/
 │   └── index.html          # Stufen & Achievements (Karriere-Leiter)
+├── loeschanfragen/
+│   └── index.html          # Lösch-Anfragen (Admin-Warteschlange)
 ├── kunden/
 │   ├── index.html          # Kunden-Übersicht
 │   └── kunde.html          # Einzelkunde mit Werbegebieten
@@ -401,6 +421,17 @@ office/
 ---
 
 ## Changelog
+
+### November 2025 (3)
+- **Verträge & Vereinbarungen:** Neuer Abschnitt im Mitarbeiter-Profil
+  - HV Vertrag Upload (linke Seite)
+  - Sonstige Vereinbarungen mit Dokumentname + Monat/Jahr (rechte Seite)
+- **Lösch-Anfragen:** Neuer Admin-Bereich für sichere Löschvorgänge
+  - Warteschlange für alle Lösch-Anfragen
+  - Optionen: Endgültig löschen oder archivieren (für Nutzer unsichtbar)
+  - Neue Datenbank-Tabellen: `user_contracts`, `deletion_queue`
+- **CEMM:** 15 ERH statt 5 ERH in einer Woche als Anforderung
+- **SPB:** 20 ERH statt 15 ERH in einer Woche als Anforderung
 
 ### November 2025 (2)
 - **Ghost-Modus:** Mitarbeiter können als "Ghost" markiert werden (nur Office sichtbar)
