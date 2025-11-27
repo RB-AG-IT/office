@@ -163,6 +163,78 @@
             color: var(--text-secondary);
         }
 
+        /* Campaign Card - KW Timeline */
+        .campaign-kw-timeline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .kw-timeline-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4px 6px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            min-width: 36px;
+            font-size: 10px;
+        }
+
+        .kw-timeline-item .kw-num {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .kw-timeline-item .kw-count {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .kw-timeline-item.kw-empty .kw-count {
+            color: var(--text-muted);
+        }
+
+        .kw-timeline-item.kw-current {
+            background: var(--accent-color);
+        }
+
+        .kw-timeline-item.kw-current .kw-num,
+        .kw-timeline-item.kw-current .kw-count {
+            color: white;
+        }
+
+        /* Contract Status Badge */
+        .contract-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            margin-top: var(--spacing-sm);
+        }
+
+        .contract-status-badge.all-contracts {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .contract-status-badge.partial-contracts {
+            background: #fef9c3;
+            color: #ca8a04;
+        }
+
+        .contract-status-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
         /* Modal Styles */
         .modal-large .modal-content {
             max-width: 900px;
@@ -4528,6 +4600,11 @@ let campaigns = [
         kwTo: 15,
         customer: 'DRK - Deutsches Rotes Kreuz',
         area: 'Berlin & Umgebung',
+        einsatzgebiete: [
+            { id: 'berlin-mitte', name: 'Berlin-Mitte e.V.', plz: '10115', einwohner: 85000, rahmenvertrag: 'RV-2024-001' },
+            { id: 'berlin-kreuzberg', name: 'Berlin-Kreuzberg e.V.', plz: '10961', einwohner: 72000, rahmenvertrag: 'RV-2024-001' },
+            { id: 'berlin-prenzlberg', name: 'Prenzlauer Berg e.V.', plz: '10405', einwohner: 65000, rahmenvertrag: 'RV-2024-002' }
+        ],
         // assignments now includes teamchef per KW
         assignments: {
             10: { teamchef: 1, werber: [2, 4] },
@@ -4545,6 +4622,10 @@ let campaigns = [
         kwTo: 30,
         customer: 'UNICEF Deutschland',
         area: 'München & Südbayern',
+        einsatzgebiete: [
+            { id: 'muc-zentrum', name: 'München-Zentrum', plz: '80331', einwohner: 125000, rahmenvertrag: 'RV-UNICEF-2024' },
+            { id: 'muc-nord', name: 'München-Nord', plz: '80933', einwohner: 78000 } // Kein Vertrag
+        ],
         assignments: {
             25: { teamchef: 2, werber: [3, 4] },
             26: { teamchef: 2, werber: [4, 5] },
@@ -4612,90 +4693,94 @@ function renderCampaigns() {
             inactive: 'Inaktiv'
         };
 
-        let employeeCountHTML = '';
-        if (status === 'active') {
-            const currentWeek = getCurrentWeek();
-            const nextWeek = currentWeek + 1;
-
-            const currentAssignment = campaign.assignments[currentWeek] || {};
-            const nextAssignment = campaign.assignments[nextWeek] || {};
-
-            const currentCount = (currentAssignment.werber?.length || 0) + (currentAssignment.teamchef ? 1 : 0);
-            const nextCount = (nextAssignment.werber?.length || 0) + (nextAssignment.teamchef ? 1 : 0);
-
-            const currentTC = currentAssignment.teamchef ? employees.find(e => e.id === currentAssignment.teamchef)?.name : 'Kein TC';
-            const nextTC = nextAssignment.teamchef ? employees.find(e => e.id === nextAssignment.teamchef)?.name : 'Kein TC';
-
-            employeeCountHTML = `
-                <div class="employee-count">
-                    <div class="employee-count-title">Aktuelle & Nächste KW</div>
-                    <div class="week-employees">
-                        <div class="week-badge" title="TC: ${currentTC}">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                            KW ${currentWeek}: ${currentCount} P.
-                        </div>
-                        ${nextWeek <= campaign.kwTo ? `
-                        <div class="week-badge" title="TC: ${nextTC}">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                            KW ${nextWeek}: ${nextCount} P.
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        }
-
         // Calculate date range from KW
         const year = 2025;
         const startDate = getKWDateRange(campaign.kwFrom, year).split(' - ')[0];
         const endDate = getKWDateRange(campaign.kwTo, year).split(' - ')[1];
 
-        // Dummy data for badges (will come from Supabase later)
-        const hasContract = campaign.id % 2 === 1; // Dummy
-        const hasKonditionen = true; // Dummy
+        // Calculate number of weeks
+        const weekCount = campaign.kwTo - campaign.kwFrom + 1;
+
+        // Get Einsatzgebiete data
+        const einsatzgebiete = campaign.einsatzgebiete || [];
+        const einsatzgebieteCount = einsatzgebiete.length;
+
+        // Calculate total Einwohner
+        const totalEinwohner = einsatzgebiete.reduce((sum, eg) => sum + (eg.einwohner || 0), 0);
+        const einwohnerPerKW = weekCount > 0 ? Math.round(totalEinwohner / weekCount) : 0;
+        const einwohnerFormatted = totalEinwohner.toLocaleString('de-DE');
+        const einwohnerPerKWFormatted = einwohnerPerKW.toLocaleString('de-DE');
+
+        // Check contract status - green if all Einsatzgebiete have contracts, yellow if some missing
+        const einsatzgebieteWithContract = einsatzgebiete.filter(eg => eg.rahmenvertrag || eg.contract).length;
+        const allHaveContracts = einsatzgebieteCount > 0 && einsatzgebieteWithContract === einsatzgebieteCount;
+        const someHaveContracts = einsatzgebieteWithContract > 0 && einsatzgebieteWithContract < einsatzgebieteCount;
+
+        // Build KW timeline
+        const currentWeek = getCurrentWeek();
+        let kwTimelineHTML = '<div class="campaign-kw-timeline">';
+        for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
+            const assignment = campaign.assignments[kw] || {};
+            const personCount = (assignment.werber?.length || 0) + (assignment.teamchef ? 1 : 0);
+            const isCurrent = kw === currentWeek;
+            const isEmpty = personCount === 0;
+            kwTimelineHTML += `
+                <div class="kw-timeline-item ${isCurrent ? 'kw-current' : ''} ${isEmpty ? 'kw-empty' : ''}">
+                    <span class="kw-num">${kw}</span>
+                    <span class="kw-count">${personCount}P</span>
+                </div>
+            `;
+        }
+        kwTimelineHTML += '</div>';
+
+        // Contract status badge
+        let contractStatusHTML = '';
+        if (einsatzgebieteCount > 0) {
+            if (allHaveContracts) {
+                contractStatusHTML = `
+                    <div class="contract-status-badge all-contracts">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Alle Verträge zugeordnet
+                    </div>
+                `;
+            } else {
+                contractStatusHTML = `
+                    <div class="contract-status-badge partial-contracts">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01"/>
+                        </svg>
+                        ${einsatzgebieteWithContract}/${einsatzgebieteCount} Verträge
+                    </div>
+                `;
+            }
+        }
 
         return `
             <div class="campaign-card status-${status}" onclick="viewCampaign(${campaign.id})">
                 <div class="campaign-header">
                     <div>
                         <div class="campaign-title">${campaign.name}</div>
-                        <div class="campaign-meta">${startDate} - ${endDate} (KW ${campaign.kwFrom}-${campaign.kwTo})</div>
+                        <div class="campaign-meta">${startDate} - ${endDate} (KW ${campaign.kwFrom}-${campaign.kwTo}) · ${weekCount} W.</div>
                     </div>
                     <span class="campaign-status ${status}">${statusLabels[status]}</span>
                 </div>
 
                 <div class="campaign-info">
                     <div class="info-row">
-                        <span class="info-label">Kunde:</span>
-                        <span class="info-value">${campaign.customer}</span>
+                        <span class="info-label">Einwohner:</span>
+                        <span class="info-value">${einwohnerFormatted} ${totalEinwohner > 0 ? `(${einwohnerPerKWFormatted}/KW)` : ''}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Einsatzgebiet:</span>
-                        <span class="info-value">${campaign.area}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Puffer:</span>
-                        <span class="info-value">${campaign.pufferPercent || 10}%</span>
+                        <span class="info-label">Einsatzgebiete:</span>
+                        <span class="info-value">${einsatzgebieteCount}</span>
                     </div>
                 </div>
 
-                <div class="campaign-badges">
-                    <span class="contract-badge ${hasContract ? 'has-contract' : 'missing'}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${hasContract ? 'M5 13l4 4L19 7' : 'M12 9v2m0 4h.01'}"/>
-                        </svg>
-                        ${hasContract ? 'Vertrag' : 'Kein Vertrag'}
-                    </span>
-                    <span class="kondition-badge ${hasKonditionen ? '' : 'no-kondition'}">
-                        ${hasKonditionen ? 'Konditionen' : 'Keine Kond.'}
-                    </span>
-                </div>
+                ${contractStatusHTML}
 
-                ${employeeCountHTML}
+                ${kwTimelineHTML}
             </div>
         `;
     }).join('');
