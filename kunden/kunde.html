@@ -161,10 +161,12 @@
             gap: var(--spacing-lg);
         }
 
+        /* Campaign Card - EXAKT wie kampagnen.html */
         .campaign-card {
-            background: var(--bg-secondary);
+            background: var(--bg-primary);
             border-radius: var(--radius-lg);
             padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
             border: 2px solid var(--border-color);
             transition: all 0.2s;
             cursor: pointer;
@@ -183,9 +185,9 @@
             border-color: #3b82f6;
         }
 
-        .campaign-card.status-completed {
+        .campaign-card.status-inactive {
             border-color: #9ca3af;
-            opacity: 0.8;
+            opacity: 0.7;
         }
 
         .campaign-header {
@@ -196,13 +198,13 @@
         }
 
         .campaign-title {
-            font-size: var(--font-size-base);
+            font-size: var(--font-size-lg);
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 4px;
+            margin-bottom: var(--spacing-xs);
         }
 
-        .campaign-period {
+        .campaign-meta {
             font-size: var(--font-size-xs);
             color: var(--text-secondary);
         }
@@ -225,37 +227,38 @@
             color: #2563eb;
         }
 
-        .campaign-status.completed {
+        .campaign-status.inactive {
             background: #f3f4f6;
             color: #6b7280;
         }
 
         .campaign-info {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .info-row {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            justify-content: space-between;
+            padding: var(--spacing-xs) 0;
             font-size: var(--font-size-sm);
         }
 
-        .campaign-info-row {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .campaign-info-label {
+        .info-label {
             color: var(--text-secondary);
         }
 
-        .campaign-info-value {
+        .info-value {
             color: var(--text-primary);
             font-weight: 500;
         }
 
         .campaign-badges {
             display: flex;
-            gap: var(--spacing-xs);
-            margin-top: var(--spacing-sm);
+            gap: var(--spacing-sm);
             flex-wrap: wrap;
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
         }
 
         .contract-badge {
@@ -263,25 +266,40 @@
             align-items: center;
             gap: 4px;
             padding: 4px 8px;
-            background: var(--bg-primary);
             border-radius: var(--radius-sm);
-            font-size: 11px;
+            font-size: var(--font-size-xs);
             font-weight: 500;
         }
 
+        .contract-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
         .contract-badge.has-contract {
-            background: var(--success-bg);
-            color: var(--success-text);
+            background: #dcfce7;
+            color: #16a34a;
         }
 
         .contract-badge.missing {
-            background: var(--warning-bg);
-            color: var(--warning-text);
+            background: #fef3c7;
+            color: #d97706;
         }
 
-        .contract-badge svg {
-            width: 12px;
-            height: 12px;
+        .kondition-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .kondition-badge.no-kondition {
+            background: #fef2f2;
+            color: #dc2626;
         }
 
         /* Add Campaign Card */
@@ -1981,15 +1999,18 @@
         function renderCampaigns() {
             const grid = document.getElementById('campaignsGrid');
 
+            // EXAKT wie kampagnen.html
             const statusLabels = {
                 active: 'Aktiv',
-                planned: 'Anstehend',
-                completed: 'Abgeschlossen'
+                planned: 'Geplant',
+                inactive: 'Beendet'
             };
 
             const campaignCards = currentCustomer.campaigns.map(campaign => {
                 // Calculate status based on dates
-                const status = getCampaignStatus(campaign.startDate, campaign.endDate);
+                let status = getCampaignStatus(campaign.startDate, campaign.endDate);
+                // Map 'completed' to 'inactive' for consistency with kampagnen.html
+                if (status === 'completed') status = 'inactive';
 
                 // Get area info
                 const area = currentCustomer.areas[campaign.areaIndex];
@@ -2001,22 +2022,22 @@
                         <div class="campaign-header">
                             <div>
                                 <div class="campaign-title">${campaign.name}</div>
-                                <div class="campaign-period">${formatDate(campaign.startDate)} - ${formatDate(campaign.endDate)}</div>
+                                <div class="campaign-meta">${formatDate(campaign.startDate)} - ${formatDate(campaign.endDate)}</div>
                             </div>
                             <span class="campaign-status ${status}">${statusLabels[status]}</span>
                         </div>
                         <div class="campaign-info">
-                            <div class="campaign-info-row">
-                                <span class="campaign-info-label">Werbegebiet:</span>
-                                <span class="campaign-info-value">${areaName}</span>
+                            <div class="info-row">
+                                <span class="info-label">Einsatzgebiet:</span>
+                                <span class="info-value">${areaName}</span>
                             </div>
-                            <div class="campaign-info-row">
-                                <span class="campaign-info-label">Bevölkerung:</span>
-                                <span class="campaign-info-value">${area && area.population ? area.population.toLocaleString('de-DE') : '-'}</span>
+                            <div class="info-row">
+                                <span class="info-label">Bevölkerung:</span>
+                                <span class="info-value">${area && area.population ? area.population.toLocaleString('de-DE') : '-'}</span>
                             </div>
-                            <div class="campaign-info-row">
-                                <span class="campaign-info-label">Qualitätsbonus:</span>
-                                <span class="campaign-info-value">${area && area.qualityBonus ? 'Ja' : 'Nein'}</span>
+                            <div class="info-row">
+                                <span class="info-label">Qualitätsbonus:</span>
+                                <span class="info-value">${area && area.qualityBonus ? 'Ja' : 'Nein'}</span>
                             </div>
                         </div>
                         <div class="campaign-badges">
@@ -2024,10 +2045,10 @@
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${campaign.hasContract ? 'M5 13l4 4L19 7' : 'M12 9v2m0 4h.01'}"/>
                                 </svg>
-                                ${campaign.hasContract ? 'Vertrag zugeordnet' : 'Kein Vertrag'}
+                                ${campaign.hasContract ? 'Vertrag' : 'Kein Vertrag'}
                             </span>
                             <span class="kondition-badge ${hasKonditionen ? '' : 'no-kondition'}">
-                                ${hasKonditionen ? 'Kond.' : 'Keine Kond.'}
+                                ${hasKonditionen ? 'Konditionen' : 'Keine Kond.'}
                             </span>
                         </div>
                     </div>
