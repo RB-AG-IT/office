@@ -888,11 +888,27 @@
             font-size: var(--font-size-sm);
             font-weight: 600;
             color: var(--text-primary);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .kw-number:hover {
+            background: var(--bg-hover);
         }
 
         .kw-year {
             font-size: 10px;
             color: var(--text-secondary);
+            cursor: pointer;
+            padding: 1px 4px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .kw-year:hover {
+            background: var(--bg-hover);
         }
 
         .kw-selector.changed {
@@ -2840,11 +2856,16 @@
         // KW (KALENDERWOCHE) FUNKTIONEN
         // ================================================================
 
-        // Aktuelles Jahr und KW
+        // Aktuelles Jahr und KW (Von)
         let currentKwYear = new Date().getFullYear();
         let currentKwWeek = getWeekNumber(new Date());
         let originalKwYear = currentKwYear;
         let originalKwWeek = currentKwWeek;
+
+        // Karrierestufe Bis-Datum (default: unbegrenzt = null)
+        let roleKwToYear = null;
+        let roleKwToWeek = null;
+        let roleKwToUnlimited = true; // ∞ = unbegrenzt
 
         // Kalenderwoche berechnen (ISO 8601)
         function getWeekNumber(date) {
@@ -2919,6 +2940,29 @@
             updateKwDisplay();
         });
 
+        // Manuelle KW-Eingabe (Von) - Klick auf KW-Anzeige
+        document.getElementById('kwNumber').addEventListener('click', function() {
+            const input = prompt('Kalenderwoche eingeben (1-52):', currentKwWeek);
+            if (input !== null) {
+                const week = parseInt(input);
+                if (week >= 1 && week <= getWeeksInYear(currentKwYear)) {
+                    currentKwWeek = week;
+                    updateKwDisplay();
+                }
+            }
+        });
+
+        document.getElementById('kwYear').addEventListener('click', function() {
+            const input = prompt('Jahr eingeben:', currentKwYear);
+            if (input !== null) {
+                const year = parseInt(input);
+                if (year >= 2020 && year <= 2100) {
+                    currentKwYear = year;
+                    updateKwDisplay();
+                }
+            }
+        });
+
         // Anzahl Wochen im Jahr berechnen
         function getWeeksInYear(year) {
             const dec31 = new Date(year, 11, 31);
@@ -2926,8 +2970,101 @@
             return week === 1 ? 52 : week;
         }
 
+        // ================================================================
+        // KARRIERESTUFE BIS-DATUM FUNKTIONEN
+        // ================================================================
+
+        function updateRoleKwToDisplay() {
+            const numberEl = document.getElementById('roleKwToNumber');
+            const yearEl = document.getElementById('roleKwToYear');
+
+            if (roleKwToUnlimited) {
+                numberEl.textContent = '∞';
+                yearEl.textContent = '';
+                document.getElementById('roleEffectiveDateTo').value = '';
+            } else {
+                numberEl.textContent = `KW ${roleKwToWeek}`;
+                yearEl.textContent = roleKwToYear;
+                const effectiveDate = getMondayOfWeek(roleKwToWeek, roleKwToYear);
+                document.getElementById('roleEffectiveDateTo').value = effectiveDate.toISOString().split('T')[0];
+            }
+        }
+
+        // Bis-Navigation Events
+        document.getElementById('roleKwToPrev').addEventListener('click', function() {
+            if (roleKwToUnlimited) {
+                // Wechsel von ∞ zu aktuellem Jahr Ende
+                roleKwToUnlimited = false;
+                roleKwToYear = new Date().getFullYear();
+                roleKwToWeek = 52;
+            } else {
+                roleKwToWeek--;
+                if (roleKwToWeek < 1) {
+                    roleKwToYear--;
+                    roleKwToWeek = getWeeksInYear(roleKwToYear);
+                }
+            }
+            updateRoleKwToDisplay();
+        });
+
+        document.getElementById('roleKwToNext').addEventListener('click', function() {
+            if (roleKwToUnlimited) {
+                return; // Schon auf Maximum
+            }
+            const maxWeeks = getWeeksInYear(roleKwToYear);
+            roleKwToWeek++;
+            if (roleKwToWeek > maxWeeks) {
+                roleKwToYear++;
+                roleKwToWeek = 1;
+            }
+            // Option: Nach bestimmter Zeit wieder auf ∞ setzen
+            updateRoleKwToDisplay();
+        });
+
+        // Manuelle Bis-Eingabe - Klick auf KW-Anzeige
+        document.getElementById('roleKwToNumber').addEventListener('click', function() {
+            const input = prompt('Kalenderwoche eingeben (1-52, oder leer für ∞):', roleKwToUnlimited ? '' : roleKwToWeek);
+            if (input === null) return;
+
+            if (input.trim() === '' || input === '∞') {
+                roleKwToUnlimited = true;
+                roleKwToWeek = null;
+                roleKwToYear = null;
+            } else {
+                const week = parseInt(input);
+                if (week >= 1 && week <= 52) {
+                    roleKwToUnlimited = false;
+                    roleKwToWeek = week;
+                    if (roleKwToYear === null) {
+                        roleKwToYear = new Date().getFullYear();
+                    }
+                }
+            }
+            updateRoleKwToDisplay();
+        });
+
+        document.getElementById('roleKwToYear').addEventListener('click', function() {
+            if (roleKwToUnlimited) {
+                // Erst KW setzen
+                roleKwToUnlimited = false;
+                roleKwToYear = new Date().getFullYear();
+                roleKwToWeek = 52;
+                updateRoleKwToDisplay();
+                return;
+            }
+            const input = prompt('Jahr eingeben:', roleKwToYear);
+            if (input !== null) {
+                const year = parseInt(input);
+                if (year >= 2020 && year <= 2100) {
+                    roleKwToYear = year;
+                    updateRoleKwToDisplay();
+                }
+            }
+        });
+
         // Initial KW setzen
         updateKwDisplay();
+        updateRoleKwToDisplay();
 
         // ================================================================
         // KW FÜR INDIVIDUELLE PROVISION (VON - BIS)
@@ -3022,6 +3159,52 @@
                 customKwToWeek = 1;
             }
             updateCustomKwToDisplay();
+        });
+
+        // Manuelle KW-Eingabe für individuelle Provision (Von)
+        document.getElementById('customKwFromNumber').addEventListener('click', function() {
+            const input = prompt('Kalenderwoche eingeben (1-52):', customKwFromWeek);
+            if (input !== null) {
+                const week = parseInt(input);
+                if (week >= 1 && week <= getWeeksInYear(customKwFromYear)) {
+                    customKwFromWeek = week;
+                    updateCustomKwFromDisplay();
+                }
+            }
+        });
+
+        document.getElementById('customKwFromYear').addEventListener('click', function() {
+            const input = prompt('Jahr eingeben:', customKwFromYear);
+            if (input !== null) {
+                const year = parseInt(input);
+                if (year >= 2020 && year <= 2100) {
+                    customKwFromYear = year;
+                    updateCustomKwFromDisplay();
+                }
+            }
+        });
+
+        // Manuelle KW-Eingabe für individuelle Provision (Bis)
+        document.getElementById('customKwToNumber').addEventListener('click', function() {
+            const input = prompt('Kalenderwoche eingeben (1-52):', customKwToWeek);
+            if (input !== null) {
+                const week = parseInt(input);
+                if (week >= 1 && week <= getWeeksInYear(customKwToYear)) {
+                    customKwToWeek = week;
+                    updateCustomKwToDisplay();
+                }
+            }
+        });
+
+        document.getElementById('customKwToYear').addEventListener('click', function() {
+            const input = prompt('Jahr eingeben:', customKwToYear);
+            if (input !== null) {
+                const year = parseInt(input);
+                if (year >= 2020 && year <= 2100) {
+                    customKwToYear = year;
+                    updateCustomKwToDisplay();
+                }
+            }
         });
 
         updateCustomKwFromDisplay();
