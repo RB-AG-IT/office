@@ -543,4 +543,4 @@ Beim Erstellen/Bearbeiten einer Kampagne müssen **pro Einsatzgebiet** folgende 
 
 ---
 
-*Letzte Aktualisierung: November 2024 - Abrechnungs-Timeline, Qualitätsbonus, Teilvergütung, Konditionen pro Einsatzgebiet ergänzt*
+*Letzte Aktualisierung: November 2025*
