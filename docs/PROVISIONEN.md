@@ -723,18 +723,27 @@ Im Profil wird auch die **Rollen-Historie** angezeigt:
 |---------|--------------|
 | **Aktuelle Karrierestufe** | Hero-Anzeige mit Faktor, "Seit"-Datum und Dauer |
 
-#### Zwei Ansichten (Tabs)
+#### Rollen-Historie
 
-| Tab | Beschreibung |
-|-----|--------------|
-| **Rollen-Historie** | Zeigt den gültigen Faktor pro KW (nur neuester Wert pro KW) |
-| **Audit-Log** | Zeigt alle Änderungen inkl. überschriebener Werte (vollständiges Protokoll) |
+Die Rollen-Historie zeigt den gültigen Faktor pro KW (nur neuester Wert pro KW).
 
 > **Rollen-Historie**: Konsolidierte Ansicht - zeigt nur was für die Provisionsberechnung relevant ist (ein Faktor pro KW)
->
-> **Audit-Log**: Vollständiges Protokoll aller Änderungen mit Zeitstempel, auch wenn Werte überschrieben wurden
 
 > Die Historie wird automatisch geführt sobald Rollenwechsel vorgenommen werden.
+
+### Audit-Log (eigener Menüpunkt)
+
+Der **Audit-Log** ist ein eigenständiger Bereich in der Sidebar (`/audit-log/`), der alle wichtigen Änderungen im System protokolliert.
+
+| Feature | Beschreibung |
+|---------|--------------|
+| **Zeitraum-Filter** | Heute, Diese Woche, Dieser Monat, Alle |
+| **Aktions-Filter** | Erstellt, Aktualisiert, Gelöscht, Rollenänderung |
+| **Bereichs-Filter** | Mitarbeiter, Kampagnen, Datensätze, Rollen, Provisionen |
+| **Benutzer-Filter** | Nach Admin/Führungsebene filtern |
+| **Export** | CSV-Export mit allen gefilterten Daten |
+
+> **Vollständiges Protokoll**: Zeigt alle Admin-Änderungen mit Zeitstempel, Benutzer, alte und neue Werte.
 
 ### Abrechnungs-Seiten im Office
 

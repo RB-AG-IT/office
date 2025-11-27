@@ -1691,47 +1691,18 @@
                     </div>
                 </div>
 
-                <!-- Tab Navigation -->
-                <div class="history-tabs">
-                    <button type="button" class="history-tab active" data-tab="historie">
-                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Rollen-Historie -->
+                <div class="role-history-section">
+                    <h4 class="role-history-title">
+                        <svg style="width: 18px; height: 18px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         Rollen-Historie
-                    </button>
-                    <button type="button" class="history-tab" data-tab="audit">
-                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                        </svg>
-                        Audit-Log
-                    </button>
-                </div>
-
-                <!-- Rollen-Historie Tab -->
-                <div class="history-tab-content active" id="historieTab">
-                    <div class="role-history-section">
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
-                            Zeigt den gültigen Faktor pro Kalenderwoche (nur neuester Wert pro KW)
-                        </p>
-                        <div class="role-history-timeline" id="roleHistoryTimeline">
-                            <div class="role-history-empty">
-                                <p>Noch keine Historie vorhanden</p>
-                                <span>Die Rollen-Historie wird automatisch geführt sobald Änderungen vorgenommen werden.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Audit-Log Tab -->
-                <div class="history-tab-content" id="auditTab">
-                    <div class="audit-log-section">
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
-                            Zeigt alle Änderungen inkl. überschriebener Werte (vollständiges Protokoll)
-                        </p>
-                        <div class="audit-log-list" id="auditLogList">
-                            <div class="audit-log-empty">
-                                <p>Noch keine Änderungen protokolliert</p>
-                            </div>
+                    </h4>
+                    <div class="role-history-timeline" id="roleHistoryTimeline">
+                        <div class="role-history-empty">
+                            <p>Noch keine Historie vorhanden</p>
+                            <span>Die Rollen-Historie wird automatisch geführt sobald Änderungen vorgenommen werden.</span>
                         </div>
                     </div>
                 </div>
@@ -3106,100 +3077,6 @@
             }
         }
 
-        // ================================================================
-        // HISTORY TAB SWITCHING
-        // ================================================================
-
-        document.querySelectorAll('.history-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Remove active from all tabs
-                document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.history-tab-content').forEach(c => c.classList.remove('active'));
-
-                // Add active to clicked tab
-                this.classList.add('active');
-                const tabName = this.getAttribute('data-tab');
-                document.getElementById(tabName + 'Tab').classList.add('active');
-            });
-        });
-
-        // Audit-Log laden
-        async function loadAuditLog(userId) {
-            try {
-                // Lade alle Rollen-Änderungen (auch überschriebene)
-                // In einer echten Implementierung würde man hier eine audit_log Tabelle abfragen
-                // Für jetzt zeigen wir alle Rollen-Einträge chronologisch
-                const { data: roles, error } = await supabase
-                    .from('user_roles')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                const auditList = document.getElementById('auditLogList');
-
-                if (!roles || roles.length === 0) {
-                    auditList.innerHTML = `
-                        <div class="audit-log-empty">
-                            <p>Noch keine Änderungen protokolliert</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Gruppiere nach KW um überschriebene Einträge zu markieren
-                const kwMap = new Map();
-                roles.forEach(role => {
-                    if (role.role_type === 'main') {
-                        const date = new Date(role.assigned_at);
-                        const kw = `${date.getFullYear()}-${getWeekNumber(date)}`;
-                        if (!kwMap.has(kw)) {
-                            kwMap.set(kw, []);
-                        }
-                        kwMap.get(kw).push(role);
-                    }
-                });
-
-                auditList.innerHTML = roles.map(role => {
-                    const config = ROLE_CONFIG[role.role_name] || { name: role.role_name };
-                    const createdAt = new Date(role.created_at || role.assigned_at);
-                    const assignedDate = new Date(role.assigned_at);
-                    const kw = getWeekNumber(assignedDate);
-                    const year = assignedDate.getFullYear();
-
-                    // Check if overwritten (same KW, but not the latest)
-                    const kwKey = `${year}-${kw}`;
-                    const kwEntries = kwMap.get(kwKey) || [];
-                    const isOverwritten = role.role_type === 'main' && kwEntries.length > 1 && kwEntries[0].id !== role.id;
-
-                    const actionText = role.role_type === 'main'
-                        ? `Karrierestufe: ${config.name}`
-                        : `Zusatz-Rolle: ${config.name || role.role_name}`;
-
-                    const statusText = role.is_active ? 'aktiviert' : 'deaktiviert';
-
-                    return `
-                        <div class="audit-log-item ${isOverwritten ? 'overwritten' : ''}">
-                            <div class="audit-log-timestamp">
-                                ${createdAt.toLocaleDateString('de-DE')} ${createdAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
-                            </div>
-                            <div class="audit-log-content">
-                                <div class="audit-log-action">${actionText}</div>
-                                <div class="audit-log-detail">
-                                    ${statusText}
-                                    <span class="audit-log-kw">KW ${kw}/${year}</span>
-                                    ${isOverwritten ? '(überschrieben)' : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-            } catch (error) {
-                console.error('Error loading audit log:', error);
-            }
-        }
 
         // ================================================================
         // LOAD USER DATA (if editing existing user)
@@ -3369,9 +3246,8 @@
                     updateCurrentRoleDisplay(user.main_role);
                 }
 
-                // Load role history and audit log
+                // Load role history
                 await loadRoleHistory(userId);
-                await loadAuditLog(userId);
 
             } catch (error) {
                 console.error('Load user error:', error);
