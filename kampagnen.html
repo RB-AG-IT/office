@@ -5390,9 +5390,19 @@ function updateSonderposten(idx, field, value) {
 }
 
 // Sonderposten entfernen
-function removeSonderposten(idx) {
+async function removeSonderposten(idx) {
+    const sp = wgSonderposten[idx];
+    const name = sp?.name || 'Sonderposten';
+    const confirmed = await showConfirm(
+        `Möchten Sie "${name}" wirklich löschen?`,
+        'Sonderposten löschen',
+        'error'
+    );
+    if (!confirmed) return;
+
     wgSonderposten.splice(idx, 1);
     renderSonderposten();
+    showToast('Sonderposten gelöscht', 'info');
 }
 
 // Gruppenbild Upload triggern
@@ -5447,7 +5457,14 @@ function handleGruppenbildUpload(event) {
 }
 
 // Gruppenbild entfernen
-function removeGruppenbild() {
+async function removeGruppenbild() {
+    const confirmed = await showConfirm(
+        'Möchten Sie das Gruppenbild wirklich löschen?',
+        'Gruppenbild löschen',
+        'error'
+    );
+    if (!confirmed) return;
+
     // Preview zurücksetzen
     const preview = document.getElementById('gruppenbildPreview');
     preview.src = '';
@@ -5497,11 +5514,18 @@ function loadGruppenbild(gruppenbild) {
 }
 
 // WG aus Kampagne entfernen
-function removeWgFromCampaign() {
+async function removeWgFromCampaign() {
     if (!activeWgConfig) return;
 
     const wg = campaignWerbegebiete.find(w => w.id === activeWgConfig);
     if (!wg) return;
+
+    const confirmed = await showConfirm(
+        `Möchten Sie "${wg.name}" wirklich aus der Kampagne entfernen? Alle Konfigurationen gehen verloren.`,
+        'Einsatzgebiet entfernen',
+        'error'
+    );
+    if (!confirmed) return;
 
     const idx = campaignWerbegebiete.indexOf(wg);
     if (idx > -1) {
