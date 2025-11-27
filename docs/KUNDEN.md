@@ -143,6 +143,19 @@ const area = {
 
 ## UI-Elemente
 
+### Kunden-Übersicht (index.html)
+
+| Spalte | Inhalt |
+|--------|--------|
+| **Kunde** | Name (KV/OV Abkürzung) + Kundennummer |
+| **Typ** | Kreisverband / Ortsverein Badge |
+| **Werbegebiete** | Tags der zugehörigen Gebiete |
+| **Kontakt** | Ansprechpartner + E-Mail |
+| **Status** | Aktiv / Inaktiv |
+| **Aktion** | Bearbeiten-Button |
+
+> **Hinweis:** Der separate "Werbegebiete verwalten" Button wurde entfernt. Werbegebiete werden direkt in der Kunden-Detailseite bearbeitet.
+
 ### Werbegebiet-Modal (1 Tab)
 
 | Tab | Inhalt |
@@ -151,7 +164,7 @@ const area = {
 
 > **Hinweis:** Der Konditionen-Tab wurde entfernt. Konditionen werden im Kampagnen-Modul festgelegt.
 
-### Info-Icons
+### Info-Icons (Werbegebiet-Tags)
 
 | Icon | Bedeutung |
 |------|-----------|
@@ -160,11 +173,15 @@ const area = {
 | 👤 | Ansprechpartner hinterlegt |
 | 🔗 | Eigene Links (Website/Datenschutz) |
 
+### Werbegebiete bearbeiten
+
+Klick auf ein Werbegebiet-Tag in der Kunden-Detailseite öffnet das Bearbeitungsmodal.
+
 ### Kampagnen-Anzeige bei Kunde
 
 - Nur Kampagnen anzeigen, in denen dieser Kunde beteiligt ist
 - Kein "Neue Kampagne anlegen" Button
-- Link zum Kampagnen-Modul für Neuanlage
+- Klick auf Kampagne navigiert zum Kampagnen-Modul
 
 ---
 
@@ -176,4 +193,4 @@ const area = {
 
 ---
 
-*Letzte Aktualisierung: November 2024 - Konditionen zu Kampagne verschoben, Ansprechpartner-Fallback dokumentiert*
+*Letzte Aktualisierung: November 2025 - Werbegebiete-Button entfernt, KV/OV Abkürzungen, Fallback-System erweitert*
