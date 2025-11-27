@@ -1931,6 +1931,72 @@
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
         }
 
+        /* Settings Gear Button */
+        .header-settings-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--text-secondary);
+        }
+        .header-settings-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .header-settings-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Tooltip Info Icon */
+        .info-tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin-left: 4px;
+            cursor: help;
+        }
+        .info-tooltip svg {
+            width: 12px;
+            height: 12px;
+            color: var(--text-secondary);
+        }
+        .info-tooltip:hover svg {
+            color: var(--accent-color);
+        }
+        .info-tooltip .tooltip-text {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 400;
+            text-transform: none;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 4px;
+        }
+        .info-tooltip:hover .tooltip-text {
+            visibility: visible;
+        }
+
+        /* Settings Modal (smaller) */
+        .settings-modal .modal-content {
+            max-width: 500px;
+        }
+
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -2717,7 +2783,15 @@
 <div class="modal view-modal" id="campaignViewModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="modal-title">Kampagnen-Übersicht</h2>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <h2 class="modal-title">Kampagnen-Übersicht</h2>
+                <button class="header-settings-btn" onclick="openCampaignSettingsModal()" title="Kampagnen-Einstellungen">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </button>
+            </div>
             <button class="modal-close" onclick="closeViewModal()">
                 <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -2837,74 +2911,10 @@
                         </div>
                     </div>
 
-                    <!-- ===================== TAB 2: Werbegebiete & Einstellungen ===================== -->
+                    <!-- ===================== TAB 2: Werbegebiete & Provisionen ===================== -->
                     <div class="kw-tab-content" id="tabProvision">
-                        <!-- Kampagnen-Einstellungen -->
-                        <div class="info-box">
-                            <div class="info-box-header" style="display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    </svg>
-                                    <h3>Kampagnen-Einstellungen</h3>
-                                </div>
-                                <button id="btnEditCampaignSettings" class="btn btn-secondary btn-sm" onclick="toggleCampaignEditMode()">
-                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                    </svg>
-                                    Bearbeiten
-                                </button>
-                            </div>
-                            <div class="campaign-settings-grid" id="campaignSettingsGrid">
-                                <div class="setting-row">
-                                    <label class="setting-label">Kampagnenname</label>
-                                    <input type="text" class="setting-input" id="editCampaignName" disabled>
-                                </div>
-                                <div class="setting-row">
-                                    <label class="setting-label">Kunde</label>
-                                    <select class="setting-input" id="editCustomer" disabled>
-                                        <option value="drk">DRK - Deutsches Rotes Kreuz</option>
-                                        <option value="unicef">UNICEF Deutschland</option>
-                                        <option value="wwf">WWF Deutschland</option>
-                                        <option value="greenpeace">Greenpeace e.V.</option>
-                                        <option value="aerzte">Ärzte ohne Grenzen</option>
-                                    </select>
-                                </div>
-                                <div class="setting-row-inline">
-                                    <div class="setting-col">
-                                        <label class="setting-label">Von KW</label>
-                                        <input type="number" class="setting-input" id="editKwFrom" min="1" max="53" disabled>
-                                    </div>
-                                    <div class="setting-col">
-                                        <label class="setting-label">Bis KW</label>
-                                        <input type="number" class="setting-input" id="editKwTo" min="1" max="53" disabled>
-                                    </div>
-                                    <div class="setting-col">
-                                        <label class="setting-label">Puffer %</label>
-                                        <input type="number" class="setting-input" id="editPuffer" min="0" max="50" disabled>
-                                    </div>
-                                    <div class="setting-col">
-                                        <label class="setting-label">Wartezeit (Wochen)</label>
-                                        <input type="number" class="setting-input" id="editWartezeit" min="1" max="12" disabled>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="campaignSettingsActions" style="display: none; margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
-                                <button class="btn btn-primary btn-sm" onclick="saveCampaignSettings()">
-                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    Speichern
-                                </button>
-                                <button class="btn btn-secondary btn-sm" onclick="cancelCampaignEdit()" style="margin-left: 8px;">
-                                    Abbrechen
-                                </button>
-                            </div>
-                        </div>
-
                         <!-- Einsatzgebiete mit DRK-Optionen -->
-                        <div class="info-box highlight" style="margin-top: var(--spacing-md);">
+                        <div class="info-box highlight">
                             <div class="info-box-header">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -2923,6 +2933,125 @@
                 </div>
 
                 <!-- Sidebar entfernt - Info ist jetzt kompakt oben -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für Kampagnen-Einstellungen -->
+<div class="modal settings-modal" id="campaignSettingsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <svg style="width: 20px; height: 20px; color: var(--accent-color);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <h2 class="modal-title">Kampagnen-Einstellungen</h2>
+            </div>
+            <button class="modal-close" onclick="closeCampaignSettingsModal()">
+                <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="campaign-settings-grid" id="campaignSettingsGrid">
+                <!-- Kampagnenname + Jahr/Quartal -->
+                <div class="setting-row">
+                    <label class="setting-label">Kampagnenname</label>
+                    <input type="text" class="setting-input" id="editCampaignName" disabled>
+                </div>
+                <div class="setting-row-inline" style="grid-template-columns: 1fr 1fr;">
+                    <div class="setting-col">
+                        <label class="setting-label">Jahr</label>
+                        <input type="number" class="setting-input" id="editCampaignYear" min="2020" max="2099" disabled>
+                    </div>
+                    <div class="setting-col">
+                        <label class="setting-label">Quartal</label>
+                        <select class="setting-input" id="editCampaignQuartal" disabled>
+                            <option value="Q1">Q1 (Jan-Mar)</option>
+                            <option value="Q2">Q2 (Apr-Jun)</option>
+                            <option value="Q3">Q3 (Jul-Sep)</option>
+                            <option value="Q4">Q4 (Okt-Dez)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Kunde (Mehrfachauswahl) -->
+                <div class="setting-row">
+                    <label class="setting-label">Kunde</label>
+                    <select class="setting-input" id="editCustomer" multiple size="3" disabled>
+                        <option value="drk">DRK - Deutsches Rotes Kreuz</option>
+                        <option value="unicef">UNICEF Deutschland</option>
+                        <option value="wwf">WWF Deutschland</option>
+                        <option value="greenpeace">Greenpeace e.V.</option>
+                        <option value="aerzte">Ärzte ohne Grenzen</option>
+                    </select>
+                    <span style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">Strg/Cmd gedrückt halten für Mehrfachauswahl</span>
+                </div>
+
+                <!-- KW-Bereich -->
+                <div class="setting-row-inline" style="grid-template-columns: 1fr 1fr;">
+                    <div class="setting-col">
+                        <label class="setting-label">Von KW</label>
+                        <input type="number" class="setting-input" id="editKwFrom" min="1" max="53" disabled>
+                    </div>
+                    <div class="setting-col">
+                        <label class="setting-label">Bis KW</label>
+                        <input type="number" class="setting-input" id="editKwTo" min="1" max="53" disabled>
+                    </div>
+                </div>
+
+                <!-- Stornopuffer + Endabrechnung -->
+                <div class="setting-row-inline" style="grid-template-columns: 1fr 1fr;">
+                    <div class="setting-col">
+                        <label class="setting-label">
+                            Stornopuffer (%)
+                            <span class="info-tooltip">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="tooltip-text">in den Zwischen-Abr.</span>
+                            </span>
+                        </label>
+                        <input type="number" class="setting-input" id="editPuffer" min="0" max="50" disabled>
+                    </div>
+                    <div class="setting-col">
+                        <label class="setting-label">
+                            Zeitpunkt Endabr. nach
+                            <span class="info-tooltip">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="tooltip-text">Nach dem letzten Einsatztag, nach wie vielen Wochen wird die Endabr. gestellt</span>
+                            </span>
+                        </label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" class="setting-input" id="editWartezeit" min="1" max="12" style="flex: 1;" disabled>
+                            <span style="font-size: 13px; color: var(--text-secondary);">Wochen</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aktions-Buttons -->
+            <div id="campaignSettingsActions" style="display: flex; gap: 8px; margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                <button id="btnEditCampaignSettings" class="btn btn-secondary btn-sm" onclick="toggleCampaignEditMode()">
+                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Bearbeiten
+                </button>
+                <button id="btnSaveCampaignSettings" class="btn btn-primary btn-sm" onclick="saveCampaignSettings()" style="display: none;">
+                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Speichern
+                </button>
+                <button id="btnCancelCampaignSettings" class="btn btn-secondary btn-sm" onclick="cancelCampaignEdit()" style="display: none;">
+                    Abbrechen
+                </button>
             </div>
         </div>
     </div>
@@ -3441,27 +3570,6 @@ function viewCampaign(id) {
     if (!campaign) return;
 
     viewingCampaignId = id;
-    const status = getCampaignStatus(campaign.kwFrom, campaign.kwTo);
-    const statusLabels = { active: 'Aktiv', planned: 'Geplant', inactive: 'Beendet' };
-
-    // Basic info
-    document.getElementById('viewCampaignName').textContent = campaign.name;
-    document.getElementById('viewCampaignStatus').className = 'campaign-status ' + status;
-    document.getElementById('viewCampaignStatus').textContent = statusLabels[status];
-    document.getElementById('viewKwRange').textContent = `${campaign.kwFrom}-${campaign.kwTo}`;
-    document.getElementById('viewCustomer').textContent = campaign.customer;
-    document.getElementById('viewPuffer').textContent = (campaign.pufferPercent || 10) + '%';
-    document.getElementById('viewWartezeit').textContent = (campaign.wartezeitWochen || 4) + ' Wochen';
-
-    // Calculate period dates
-    const year = 2025;
-    const startDate = getKWDateRange(campaign.kwFrom, year).split(' - ')[0];
-    const endDate = getKWDateRange(campaign.kwTo, year).split(' - ')[1];
-    document.getElementById('viewPeriod').textContent = `${startDate} - ${endDate}`;
-
-    // Schriebe count for compact info
-    const schriebeCountEl = document.getElementById('viewLastSchriebeCount');
-    if (schriebeCountEl) schriebeCountEl.textContent = '10'; // Dummy count, will come from DB
 
     // KW Details (erweitert)
     renderKWDetails(campaign);
@@ -3472,13 +3580,26 @@ function viewCampaign(id) {
     // Einsatzgebiete
     renderViewEinsatzgebiete(campaign);
 
-    // Kampagnen-Einstellungen im Tab befüllen
-    populateCampaignSettings(campaign);
-
     document.getElementById('campaignViewModal').classList.add('show');
 }
 
-// Kampagnen-Einstellungen im Tab befüllen
+// Settings Modal öffnen
+function openCampaignSettingsModal() {
+    if (!viewingCampaignId) return;
+    const campaign = campaigns.find(c => c.id === viewingCampaignId);
+    if (!campaign) return;
+
+    populateCampaignSettings(campaign);
+    document.getElementById('campaignSettingsModal').classList.add('show');
+}
+
+// Settings Modal schließen
+function closeCampaignSettingsModal() {
+    cancelCampaignEdit();
+    document.getElementById('campaignSettingsModal').classList.remove('show');
+}
+
+// Kampagnen-Einstellungen im Modal befüllen
 function populateCampaignSettings(campaign) {
     document.getElementById('editCampaignName').value = campaign.name || '';
     document.getElementById('editKwFrom').value = campaign.kwFrom || '';
@@ -3486,7 +3607,20 @@ function populateCampaignSettings(campaign) {
     document.getElementById('editPuffer').value = campaign.pufferPercent || 10;
     document.getElementById('editWartezeit').value = campaign.wartezeitWochen || 4;
 
-    // Kunde Select setzen
+    // Jahr und Quartal aus KW berechnen
+    const year = campaign.year || new Date().getFullYear();
+    document.getElementById('editCampaignYear').value = year;
+
+    // Quartal basierend auf Start-KW bestimmen
+    const kw = campaign.kwFrom || 1;
+    let quartal = 'Q1';
+    if (kw >= 1 && kw <= 13) quartal = 'Q1';
+    else if (kw >= 14 && kw <= 26) quartal = 'Q2';
+    else if (kw >= 27 && kw <= 39) quartal = 'Q3';
+    else quartal = 'Q4';
+    document.getElementById('editCampaignQuartal').value = campaign.quartal || quartal;
+
+    // Kunde Multi-Select setzen
     const customerSelect = document.getElementById('editCustomer');
     const customerMap = {
         'DRK Ludwigshafen e.V.': 'drk',
@@ -3496,16 +3630,31 @@ function populateCampaignSettings(campaign) {
         'Greenpeace e.V.': 'greenpeace',
         'Ärzte ohne Grenzen': 'aerzte'
     };
-    customerSelect.value = customerMap[campaign.customer] || 'drk';
 
-    // Edit-Modus zurücksetzen (ohne rekursiven Aufruf)
+    // Alle Optionen deselektieren
+    Array.from(customerSelect.options).forEach(opt => opt.selected = false);
+
+    // Kunden können mehrere sein (als Array oder String)
+    const customers = Array.isArray(campaign.customers) ? campaign.customers : [campaign.customer];
+    customers.forEach(c => {
+        const key = customerMap[c];
+        if (key) {
+            const opt = customerSelect.querySelector(`option[value="${key}"]`);
+            if (opt) opt.selected = true;
+        }
+    });
+
+    // Edit-Modus zurücksetzen
     campaignEditMode = false;
     const inputs = document.querySelectorAll('#campaignSettingsGrid .setting-input');
-    const actions = document.getElementById('campaignSettingsActions');
-    const btn = document.getElementById('btnEditCampaignSettings');
+    const btnEdit = document.getElementById('btnEditCampaignSettings');
+    const btnSave = document.getElementById('btnSaveCampaignSettings');
+    const btnCancel = document.getElementById('btnCancelCampaignSettings');
+
     inputs.forEach(input => input.disabled = true);
-    if (actions) actions.style.display = 'none';
-    if (btn) btn.style.display = 'inline-flex';
+    if (btnEdit) btnEdit.style.display = 'inline-flex';
+    if (btnSave) btnSave.style.display = 'none';
+    if (btnCancel) btnCancel.style.display = 'none';
 }
 
 // Edit-Modus State
@@ -3516,19 +3665,22 @@ function toggleCampaignEditMode() {
     campaignEditMode = !campaignEditMode;
 
     const inputs = document.querySelectorAll('#campaignSettingsGrid .setting-input');
-    const actions = document.getElementById('campaignSettingsActions');
-    const btn = document.getElementById('btnEditCampaignSettings');
+    const btnEdit = document.getElementById('btnEditCampaignSettings');
+    const btnSave = document.getElementById('btnSaveCampaignSettings');
+    const btnCancel = document.getElementById('btnCancelCampaignSettings');
 
     if (campaignEditMode) {
         // Edit-Modus aktivieren
         inputs.forEach(input => input.disabled = false);
-        actions.style.display = 'flex';
-        btn.style.display = 'none';
+        if (btnEdit) btnEdit.style.display = 'none';
+        if (btnSave) btnSave.style.display = 'inline-flex';
+        if (btnCancel) btnCancel.style.display = 'inline-flex';
     } else {
         // Edit-Modus deaktivieren
         inputs.forEach(input => input.disabled = true);
-        actions.style.display = 'none';
-        btn.style.display = 'inline-flex';
+        if (btnEdit) btnEdit.style.display = 'inline-flex';
+        if (btnSave) btnSave.style.display = 'none';
+        if (btnCancel) btnCancel.style.display = 'none';
     }
 }
 
@@ -3537,14 +3689,16 @@ function cancelCampaignEdit() {
     campaignEditMode = false;
 
     const inputs = document.querySelectorAll('#campaignSettingsGrid .setting-input');
-    const actions = document.getElementById('campaignSettingsActions');
-    const btn = document.getElementById('btnEditCampaignSettings');
+    const btnEdit = document.getElementById('btnEditCampaignSettings');
+    const btnSave = document.getElementById('btnSaveCampaignSettings');
+    const btnCancel = document.getElementById('btnCancelCampaignSettings');
 
     inputs.forEach(input => input.disabled = true);
-    if (actions) actions.style.display = 'none';
-    if (btn) btn.style.display = 'inline-flex';
+    if (btnEdit) btnEdit.style.display = 'inline-flex';
+    if (btnSave) btnSave.style.display = 'none';
+    if (btnCancel) btnCancel.style.display = 'none';
 
-    // Werte zurücksetzen auf aktuelle Kampagne (ohne erneuten cancelCampaignEdit Aufruf)
+    // Werte zurücksetzen auf aktuelle Kampagne
     if (viewingCampaignId) {
         const campaign = campaigns.find(c => c.id === viewingCampaignId);
         if (campaign) {
@@ -3553,7 +3707,19 @@ function cancelCampaignEdit() {
             document.getElementById('editKwTo').value = campaign.kwTo || '';
             document.getElementById('editPuffer').value = campaign.pufferPercent || 10;
             document.getElementById('editWartezeit').value = campaign.wartezeitWochen || 4;
+            document.getElementById('editCampaignYear').value = campaign.year || new Date().getFullYear();
 
+            // Quartal zurücksetzen
+            const kw = campaign.kwFrom || 1;
+            let quartal = 'Q1';
+            if (kw >= 1 && kw <= 13) quartal = 'Q1';
+            else if (kw >= 14 && kw <= 26) quartal = 'Q2';
+            else if (kw >= 27 && kw <= 39) quartal = 'Q3';
+            else quartal = 'Q4';
+            document.getElementById('editCampaignQuartal').value = campaign.quartal || quartal;
+
+            // Multi-Select Kunden zurücksetzen
+            const customerSelect = document.getElementById('editCustomer');
             const customerMap = {
                 'DRK Ludwigshafen e.V.': 'drk',
                 'DRK - Deutsches Rotes Kreuz': 'drk',
@@ -3562,7 +3728,15 @@ function cancelCampaignEdit() {
                 'Greenpeace e.V.': 'greenpeace',
                 'Ärzte ohne Grenzen': 'aerzte'
             };
-            document.getElementById('editCustomer').value = customerMap[campaign.customer] || 'drk';
+            Array.from(customerSelect.options).forEach(opt => opt.selected = false);
+            const customers = Array.isArray(campaign.customers) ? campaign.customers : [campaign.customer];
+            customers.forEach(c => {
+                const key = customerMap[c];
+                if (key) {
+                    const opt = customerSelect.querySelector(`option[value="${key}"]`);
+                    if (opt) opt.selected = true;
+                }
+            });
         }
     }
 }
@@ -3580,7 +3754,12 @@ async function saveCampaignSettings() {
     const newKwTo = parseInt(document.getElementById('editKwTo').value);
     const newPuffer = parseInt(document.getElementById('editPuffer').value);
     const newWartezeit = parseInt(document.getElementById('editWartezeit').value);
-    const newCustomerKey = document.getElementById('editCustomer').value;
+    const newYear = parseInt(document.getElementById('editCampaignYear').value);
+    const newQuartal = document.getElementById('editCampaignQuartal').value;
+
+    // Multi-Select Kunden lesen
+    const customerSelect = document.getElementById('editCustomer');
+    const selectedCustomerKeys = Array.from(customerSelect.selectedOptions).map(opt => opt.value);
 
     // Validierung
     if (!newName) {
@@ -3589,6 +3768,10 @@ async function saveCampaignSettings() {
     }
     if (newKwFrom > newKwTo) {
         showToast('Von-KW muss kleiner als Bis-KW sein', 'warning');
+        return;
+    }
+    if (selectedCustomerKeys.length === 0) {
+        showToast('Bitte mindestens einen Kunden auswählen', 'warning');
         return;
     }
 
@@ -3607,26 +3790,13 @@ async function saveCampaignSettings() {
     campaign.kwTo = newKwTo;
     campaign.pufferPercent = newPuffer;
     campaign.wartezeitWochen = newWartezeit;
-    campaign.customer = customerLabels[newCustomerKey] || campaign.customer;
+    campaign.year = newYear;
+    campaign.quartal = newQuartal;
 
-    // Header aktualisieren
-    document.getElementById('viewCampaignName').textContent = campaign.name;
-    document.getElementById('viewKwRange').textContent = `${campaign.kwFrom}-${campaign.kwTo}`;
-    document.getElementById('viewCustomer').textContent = campaign.customer;
-    document.getElementById('viewPuffer').textContent = campaign.pufferPercent + '%';
-    document.getElementById('viewWartezeit').textContent = campaign.wartezeitWochen + ' Wochen';
-
-    // Zeitraum aktualisieren
-    const year = 2025;
-    const startDate = getKWDateRange(campaign.kwFrom, year).split(' - ')[0];
-    const endDate = getKWDateRange(campaign.kwTo, year).split(' - ')[1];
-    document.getElementById('viewPeriod').textContent = `${startDate} - ${endDate}`;
-
-    // Status aktualisieren
-    const status = getCampaignStatus(campaign.kwFrom, campaign.kwTo);
-    const statusLabels = { active: 'Aktiv', planned: 'Geplant', inactive: 'Beendet' };
-    document.getElementById('viewCampaignStatus').className = 'campaign-status ' + status;
-    document.getElementById('viewCampaignStatus').textContent = statusLabels[status];
+    // Kunden als Array speichern
+    campaign.customers = selectedCustomerKeys.map(key => customerLabels[key]);
+    // Für Rückwärtskompatibilität: erster Kunde als Haupt-Kunde
+    campaign.customer = campaign.customers[0];
 
     // Grid in Kampagnen-Übersicht aktualisieren
     renderCampaignGrid();
