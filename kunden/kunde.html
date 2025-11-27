@@ -1292,21 +1292,6 @@
                         </div>
                     </div>
 
-                    <!-- Gruppenbild -->
-                    <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
-                        Gruppenbild
-                    </p>
-                    <div class="form-group">
-                        <label class="document-upload-box" id="groupPhotoBox" style="display: flex; flex-direction: column; align-items: center; padding: var(--spacing-lg);">
-                            <input type="file" id="areaGroupPhoto" accept="image/*" style="display: none;" onchange="handleGroupPhotoUpload(this)">
-                            <img id="groupPhotoPreview" src="" alt="Gruppenbild" style="display: none; max-width: 100%; max-height: 150px; border-radius: var(--radius-md); margin-bottom: var(--spacing-sm);">
-                            <svg id="groupPhotoIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 32px; height: 32px; color: var(--text-secondary);">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <span id="groupPhotoText" style="font-size: var(--font-size-sm); color: var(--text-secondary);">Gruppenbild hochladen</span>
-                        </label>
-                    </div>
-
                     <!-- Website & Datenschutz -->
                     <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
                         Links (werden vom Kunden übernommen, falls leer)
@@ -1434,7 +1419,6 @@
                     street: 'Bahnhofstr. 45',
                     zip: '67059',
                     city: 'Ludwigshafen',
-                    groupPhoto: '',
                     website: 'https://www.drk-mitte-lu.de',
                     privacyPolicy: '',
                     contact: 'Hans Müller',
@@ -1463,7 +1447,6 @@
                     street: 'Südring 12',
                     zip: '67065',
                     city: 'Ludwigshafen',
-                    groupPhoto: '',
                     website: '',
                     privacyPolicy: '',
                     contact: 'Anna Weber',
@@ -1487,7 +1470,6 @@
                     street: '',
                     zip: '',
                     city: '',
-                    groupPhoto: '',
                     website: '',
                     privacyPolicy: '',
                     contact: '',
@@ -1742,7 +1724,6 @@
                 let tooltipParts = [];
                 if (area.street) tooltipParts.push(`Adresse: ${area.street}, ${area.zip} ${area.city}`);
                 if (area.contact) tooltipParts.push(`Ansprechpartner: ${area.contact}`);
-                if (area.groupPhoto) tooltipParts.push('Gruppenbild vorhanden');
                 const effectiveWebsite = getEffectiveLink(area, 'website');
                 const effectivePrivacy = getEffectiveLink(area, 'privacyPolicy');
                 if (effectiveWebsite) tooltipParts.push(`Website: ${effectiveWebsite}`);
@@ -1751,7 +1732,6 @@
                 // Build info icons
                 let icons = [];
                 if (area.street) icons.push('<span title="Adresse hinterlegt" style="color: var(--success-text);">📍</span>');
-                if (area.groupPhoto) icons.push('<span title="Gruppenbild vorhanden" style="color: var(--success-text);">📷</span>');
                 // Show contact icon if ANY contact info is filled (name, email, or phone)
                 if (area.contact || area.email || area.phone) icons.push('<span title="Ansprechpartner hinterlegt" style="color: var(--success-text);">👤</span>');
                 if (area.website || area.privacyPolicy) icons.push('<span title="Eigene Links" style="color: var(--success-text);">🔗</span>');
@@ -1816,25 +1796,6 @@
             document.getElementById('areaPhone').value = area.phone || '';
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet bearbeiten';
 
-            // Handle group photo
-            const preview = document.getElementById('groupPhotoPreview');
-            const icon = document.getElementById('groupPhotoIcon');
-            const text = document.getElementById('groupPhotoText');
-            const box = document.getElementById('groupPhotoBox');
-
-            if (area.groupPhoto) {
-                preview.src = area.groupPhoto;
-                preview.style.display = 'block';
-                icon.style.display = 'none';
-                text.textContent = 'Klicken zum Ändern';
-                box.classList.add('has-file');
-            } else {
-                preview.style.display = 'none';
-                icon.style.display = 'block';
-                text.textContent = 'Gruppenbild hochladen';
-                box.classList.remove('has-file');
-            }
-
             // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
@@ -1855,27 +1816,11 @@
             document.getElementById('areaPhone').value = '';
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet hinzufügen';
 
-            // Reset group photo
-            const preview = document.getElementById('groupPhotoPreview');
-            const icon = document.getElementById('groupPhotoIcon');
-            const text = document.getElementById('groupPhotoText');
-            const box = document.getElementById('groupPhotoBox');
-            preview.style.display = 'none';
-            preview.src = '';
-            icon.style.display = 'block';
-            text.textContent = 'Gruppenbild hochladen';
-            box.classList.remove('has-file');
-            document.getElementById('areaGroupPhoto').value = '';
-            currentGroupPhotoData = null;
-
             // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
             document.getElementById('newAreaName').focus();
         }
-
-        // Temporary storage for group photo
-        let currentGroupPhotoData = null;
 
         function closeAddAreaModal() {
             document.getElementById('addAreaModal').classList.remove('show');
@@ -1895,7 +1840,6 @@
                 street: document.getElementById('areaStreet').value.trim(),
                 zip: document.getElementById('areaZip').value.trim(),
                 city: document.getElementById('areaCity').value.trim(),
-                groupPhoto: currentGroupPhotoData || (editingAreaIndex !== null ? currentCustomer.areas[editingAreaIndex].groupPhoto : ''),
                 website: document.getElementById('areaWebsite').value.trim(),
                 privacyPolicy: document.getElementById('areaPrivacyPolicy').value.trim(),
                 contact: document.getElementById('areaContact').value.trim(),
@@ -1911,34 +1855,8 @@
                 showToast('Werbegebiet hinzugefügt', 'success');
             }
 
-            currentGroupPhotoData = null;
             renderAreas();
             closeAddAreaModal();
-        }
-
-        // Handle group photo upload
-        function handleGroupPhotoUpload(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    currentGroupPhotoData = e.target.result;
-
-                    const preview = document.getElementById('groupPhotoPreview');
-                    const icon = document.getElementById('groupPhotoIcon');
-                    const text = document.getElementById('groupPhotoText');
-                    const box = document.getElementById('groupPhotoBox');
-
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    icon.style.display = 'none';
-                    text.textContent = 'Klicken zum Ändern';
-                    box.classList.add('has-file');
-                };
-
-                reader.readAsDataURL(file);
-            }
         }
 
         // Helper function to get effective data with fallback from area to customer

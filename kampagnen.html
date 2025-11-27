@@ -522,6 +522,44 @@
             margin-bottom: 0;
         }
 
+        /* Gruppenbild Upload */
+        .gruppenbild-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 120px;
+        }
+
+        .gruppenbild-upload:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-hover);
+        }
+
+        .gruppenbild-upload.has-photo {
+            border-style: solid;
+            border-color: var(--success-text);
+        }
+
+        .gruppenbild-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .gruppenbild-preview {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: var(--radius-md);
+        }
+
         .storno-rule input {
             width: 60px;
             text-align: center;
@@ -1843,6 +1881,47 @@ function toggleKwEinsatzgebiet(label, kw, egIndex) {
     }, 0);
 }
 
+// Update Einsatzgebiete checkboxes in all KW cards
+function updateKwEinsatzgebiete() {
+    const kwCards = document.querySelectorAll('.kw-card');
+    const einsatzgebiete = getEinsatzgebieteFromForm();
+
+    kwCards.forEach(card => {
+        const kw = parseInt(card.dataset.kw);
+        let egContainer = card.querySelector('.kw-einsatzgebiete');
+
+        if (einsatzgebiete.length > 0) {
+            // Create or update the container
+            if (!egContainer) {
+                egContainer = document.createElement('div');
+                egContainer.className = 'kw-einsatzgebiete';
+                card.appendChild(egContainer);
+            }
+
+            egContainer.innerHTML = `
+                <div class="kw-einsatzgebiete-label">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Einsatzgebiete dieser KW:
+                </div>
+                <div class="kw-eg-checkboxes" id="eg-checkboxes-kw-${kw}">
+                    ${einsatzgebiete.map(eg => `
+                        <label class="kw-eg-checkbox checked" onclick="toggleKwEinsatzgebiet(this, ${kw}, ${eg.index})">
+                            <input type="checkbox" checked data-eg-index="${eg.index}">
+                            ${eg.name}
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+        } else if (egContainer) {
+            // Remove the container if no einsatzgebiete
+            egContainer.remove();
+        }
+    });
+}
+
 // Get date range for a KW
 function getKWDateRange(kw, year) {
     // Calculate the first day of the year
@@ -2301,10 +2380,31 @@ function addEinsatzgebiet() {
                     </p>
                 </div>
             </div>
+
+            <!-- Gruppenbild -->
+            <div class="konditionen-section">
+                <div class="konditionen-section-title">Gruppenbild</div>
+                <label class="gruppenbild-upload" id="eg-photo-box-${index}">
+                    <input type="file" id="eg-photo-${index}" accept="image/*" style="display: none;" onchange="handleEgPhotoUpload(${index}, this)">
+                    <img id="eg-photo-preview-${index}" src="" alt="Gruppenbild" class="gruppenbild-preview" style="display: none;">
+                    <div class="gruppenbild-placeholder" id="eg-photo-placeholder-${index}">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 32px; height: 32px; color: var(--text-secondary);">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span style="font-size: var(--font-size-sm); color: var(--text-secondary);">Gruppenbild hochladen</span>
+                    </div>
+                </label>
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
+                    Das Bild wird für dieses Einsatzgebiet in dieser Kampagne verwendet.
+                </p>
+            </div>
         </div>
     `;
 
     container.appendChild(card);
+
+    // Update KW cards with new Einsatzgebiet
+    updateKwEinsatzgebiete();
 }
 
 // Toggle Einsatzgebiet Karte
@@ -2337,6 +2437,8 @@ async function removeEinsatzgebiet(index) {
     if (secondConfirm) {
         card.remove();
         showToast('Einsatzgebiet entfernt', 'success');
+        // Update KW cards
+        updateKwEinsatzgebiete();
     }
 }
 
@@ -2349,6 +2451,8 @@ function updateEinsatzgebietTitle(index) {
     } else {
         title.textContent = `Einsatzgebiet ${index + 1}`;
     }
+    // Update KW cards with new name
+    updateKwEinsatzgebiete();
 }
 
 // Toggle Qualitätsbonus
@@ -2363,6 +2467,27 @@ function toggleTeilvergutung(index) {
     const checkbox = document.getElementById(`eg-teilv-${index}`);
     const input = document.getElementById(`eg-teilv-input-${index}`);
     input.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+// Handle Gruppenbild Upload
+function handleEgPhotoUpload(index, input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const preview = document.getElementById(`eg-photo-preview-${index}`);
+            const placeholder = document.getElementById(`eg-photo-placeholder-${index}`);
+            const box = document.getElementById(`eg-photo-box-${index}`);
+
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+            box.classList.add('has-photo');
+        };
+
+        reader.readAsDataURL(file);
+    }
 }
 
 // Toggle Sondierungslimit Typ (Anzahl MG vs. % der Bevölkerung)
