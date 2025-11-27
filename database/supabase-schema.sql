@@ -79,6 +79,11 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
   -- Sonstiges
   clothing_size TEXT CHECK (clothing_size IN ('XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL')),
 
+  -- Sichtbarkeits-Einstellungen
+  is_ghost BOOLEAN DEFAULT false,           -- Ghost-Modus: Nur Office sieht diesen Mitarbeiter
+  can_see_others BOOLEAN DEFAULT true,      -- Ob Ghost-Mitarbeiter andere sehen darf
+  participate_ranking BOOLEAN DEFAULT true, -- Teilnahme am Base-Ranking
+
   -- Dokumente & Fotos (URLs zu Supabase Storage)
   id_card_front_url TEXT,
   id_card_back_url TEXT,
