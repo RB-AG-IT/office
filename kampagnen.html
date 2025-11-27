@@ -1569,27 +1569,36 @@
             color: #8b5cf6;
         }
 
-        /* Mitte: Werbegebiet + Adresse */
-        .schrieb-compact-middle {
-            flex: 1;
-            font-size: 11px;
+        /* Unter dem Namen: WG Pill + Standort (vertikal) */
+        .schrieb-compact-location {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            margin-top: 3px;
+        }
+
+        .schrieb-compact-wg-pill {
+            display: inline-block;
+            padding: 1px 6px;
+            background: rgba(139, 92, 246, 0.15);
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 600;
+            color: #8b5cf6;
+            white-space: nowrap;
+        }
+
+        .schrieb-compact-strasse {
+            font-size: 10px;
             color: var(--text-secondary);
-            line-height: 1.4;
-            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
         }
 
-        .schrieb-compact-wg {
-            font-weight: 500;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .schrieb-compact-adresse {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .schrieb-compact-strasse .location-emoji {
+            font-size: 9px;
         }
 
         /* Unten: Status links, Uhrzeit mitte, Botschafter rechts */
@@ -4814,15 +4823,17 @@ function renderLastSchriebe(campaign) {
         html += `
             <div class="schrieb-compact" onclick="openSchriebDetails(${schrieb.id})" title="${schrieb.memberName} - ${schrieb.eh} EH">
                 <div class="schrieb-compact-header">
-                    <span class="schrieb-compact-name">${schrieb.memberName}</span>
+                    <div>
+                        <span class="schrieb-compact-name">${schrieb.memberName}</span>
+                        <div class="schrieb-compact-location">
+                            <span class="schrieb-compact-wg-pill">${schrieb.werbegebiet}</span>
+                            <span class="schrieb-compact-strasse"><span class="location-emoji">📍</span>${schrieb.strasse} ${schrieb.hausnr}</span>
+                        </div>
+                    </div>
                     <div class="schrieb-compact-badges">
                         <span class="schrieb-compact-eh">${schrieb.eh} EH</span>
                         ${typPill}
                     </div>
-                </div>
-                <div class="schrieb-compact-middle">
-                    <div class="schrieb-compact-wg">${schrieb.werbegebiet}</div>
-                    <div class="schrieb-compact-adresse">${schrieb.strasse} ${schrieb.hausnr}</div>
                 </div>
                 <div class="schrieb-compact-footer">
                     <div class="schrieb-compact-status">
@@ -4906,15 +4917,17 @@ function renderMitgliedCardLarge(mitglied) {
     return `
         <div class="schrieb-compact" style="cursor: default; pointer-events: none;">
             <div class="schrieb-compact-header">
-                <span class="schrieb-compact-name">${mitglied.name}</span>
+                <div>
+                    <span class="schrieb-compact-name">${mitglied.name}</span>
+                    <div class="schrieb-compact-location">
+                        <span class="schrieb-compact-wg-pill">${mitglied.werbegebiet}</span>
+                        <span class="schrieb-compact-strasse"><span class="location-emoji">📍</span>${mitglied.strasse} ${mitglied.hausnr}</span>
+                    </div>
+                </div>
                 <div class="schrieb-compact-badges">
                     <span class="schrieb-compact-eh">${mitglied.eh} EH</span>
                     ${typPill}
                 </div>
-            </div>
-            <div class="schrieb-compact-middle">
-                <div class="schrieb-compact-wg">${mitglied.werbegebiet}</div>
-                <div class="schrieb-compact-adresse">${mitglied.strasse} ${mitglied.hausnr}</div>
             </div>
             <div class="schrieb-compact-footer">
                 <div class="schrieb-compact-status">
