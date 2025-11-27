@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abrechnungen - RB Inside Office</title>
+    <title>Abrechnungen - Gesamt - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             overflow-y: auto;
@@ -17,6 +18,36 @@
             padding: var(--spacing-lg);
             max-width: 1600px;
             margin: 0 auto;
+        }
+
+        /* Sub-Navigation */
+        .sub-nav {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            background: var(--bg-primary);
+            padding: var(--spacing-sm);
+            border-radius: 12px;
+        }
+
+        .sub-nav-link {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .sub-nav-link:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .sub-nav-link.active {
+            background: var(--accent-color);
+            color: white;
         }
 
         .page-header {
@@ -32,119 +63,72 @@
             color: var(--text-primary);
         }
 
-        /* Info Icon Tooltip */
-        .info-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--bg-hover);
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: help;
-            margin-left: 6px;
-            position: relative;
-            transition: all 0.2s;
+        /* Gewinn/Verlust Hero */
+        .gewinn-hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
         }
 
-        .info-icon:hover {
-            background: var(--accent-color);
+        .hero-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .hero-card.einnahmen {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
         }
 
-        .info-tooltip {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px 16px;
-            min-width: 280px;
-            max-width: 400px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            z-index: 1000;
-            display: none;
-            text-align: left;
-            font-weight: 400;
+        .hero-card.ausgaben {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .hero-card.gewinn {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .hero-card.gewinn.negativ {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .hero-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: var(--spacing-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-value {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .hero-sub {
             font-size: 13px;
-            line-height: 1.5;
+            opacity: 0.8;
         }
 
-        .info-icon:hover .info-tooltip {
-            display: block;
+        .hero-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto var(--spacing-md);
+            opacity: 0.9;
         }
 
-        .info-tooltip h4 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .info-tooltip p {
-            margin: 0;
-            color: var(--text-secondary);
-        }
-
-        .info-tooltip code {
-            background: var(--bg-hover);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            background: var(--bg-primary);
-            padding: 4px;
-            border-radius: 12px;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .tab:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .tab.active {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Stats Summary */
-        .stats-row {
+        /* Stats Grid */
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
         }
 
         .stat-card {
@@ -153,44 +137,45 @@
             padding: var(--spacing-lg);
         }
 
-        .stat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: var(--spacing-sm);
-        }
-
         .stat-label {
             font-size: 13px;
             color: var(--text-secondary);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
+            margin-bottom: var(--spacing-sm);
         }
 
         .stat-value {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             color: var(--text-primary);
         }
 
         .stat-value.positive { color: #10b981; }
+        .stat-value.negative { color: #ef4444; }
         .stat-value.warning { color: #f59e0b; }
 
-        /* Abrechnung Cards */
-        .abrechnung-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: var(--spacing-lg);
+        .stat-change {
+            font-size: 12px;
+            margin-top: 4px;
         }
 
-        .abrechnung-card {
+        .stat-change.up { color: #10b981; }
+        .stat-change.down { color: #ef4444; }
+
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .column-card {
             background: var(--bg-primary);
             border-radius: 12px;
             overflow: hidden;
         }
 
-        .abrechnung-header {
+        .column-header {
             padding: var(--spacing-md) var(--spacing-lg);
             border-bottom: 1px solid var(--border-color);
             display: flex;
@@ -198,184 +183,89 @@
             align-items: center;
         }
 
-        .abrechnung-title {
+        .column-title {
             font-size: 16px;
             font-weight: 600;
-            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .abrechnung-kw {
-            font-size: 13px;
-            color: var(--text-secondary);
+        .column-title .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
         }
 
-        .abrechnung-status {
+        .column-title .dot.green { background: #10b981; }
+        .column-title .dot.red { background: #ef4444; }
+
+        .column-badge {
+            font-size: 12px;
             padding: 4px 12px;
             border-radius: 12px;
-            font-size: 12px;
             font-weight: 500;
         }
 
-        .abrechnung-status.pending {
-            background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
-        }
-
-        .abrechnung-status.ready {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-        }
-
-        .abrechnung-status.sent {
+        .column-badge.green {
             background: rgba(16, 185, 129, 0.1);
             color: #10b981;
         }
 
-        .abrechnung-status.paid {
-            background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
+        .column-badge.red {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
         }
 
-        .abrechnung-body {
+        .column-body {
             padding: var(--spacing-lg);
         }
 
-        .abrechnung-row {
+        .breakdown-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: var(--spacing-sm) 0;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .abrechnung-row:last-child {
+        .breakdown-row:last-child {
             border-bottom: none;
         }
 
-        .abrechnung-row.total {
+        .breakdown-row.total {
             font-weight: 600;
-            border-top: 2px solid var(--border-color);
+            padding-top: var(--spacing-md);
             margin-top: var(--spacing-sm);
-            padding-top: var(--spacing-sm);
+            border-top: 2px solid var(--border-color);
+            border-bottom: none;
         }
 
-        .abrechnung-label {
+        .breakdown-label {
             color: var(--text-secondary);
             font-size: 14px;
         }
 
-        .abrechnung-value {
-            color: var(--text-primary);
-            font-size: 14px;
+        .breakdown-value {
             font-weight: 500;
         }
 
-        .abrechnung-footer {
-            padding: var(--spacing-md) var(--spacing-lg);
-            background: var(--bg-secondary);
-            display: flex;
-            gap: var(--spacing-sm);
-            justify-content: flex-end;
-        }
+        .breakdown-value.positive { color: #10b981; }
+        .breakdown-value.negative { color: #ef4444; }
 
-        /* Timeline */
-        .timeline-section {
+        /* Offene Posten */
+        .offene-posten-section {
             background: var(--bg-primary);
             border-radius: 12px;
-            padding: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
+            overflow: hidden;
+            margin-bottom: var(--spacing-xl);
         }
 
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: var(--spacing-lg);
-            display: flex;
-            align-items: center;
-        }
-
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--border-color);
-        }
-
-        .timeline-item {
-            position: relative;
-            padding-bottom: var(--spacing-lg);
-        }
-
-        .timeline-item:last-child {
-            padding-bottom: 0;
-        }
-
-        .timeline-dot {
-            position: absolute;
-            left: -26px;
-            top: 0;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-        }
-
-        .timeline-dot.active {
-            background: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .timeline-dot.completed {
-            background: #10b981;
-            border-color: #10b981;
-        }
-
-        .timeline-dot.today {
-            background: #f59e0b;
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
-        }
-
-        .timeline-content {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: var(--spacing-md);
-        }
-
-        .timeline-date {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-
-        .timeline-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .timeline-desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* Stornorücklage Table */
-        .ruecklage-table {
+        .offene-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .ruecklage-table th {
+        .offene-table th {
             text-align: left;
             padding: 12px 16px;
             font-size: 12px;
@@ -383,529 +273,305 @@
             color: var(--text-secondary);
             text-transform: uppercase;
             background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
         }
 
-        .ruecklage-table td {
+        .offene-table td {
             padding: 12px 16px;
             font-size: 14px;
-            color: var(--text-primary);
             border-bottom: 1px solid var(--border-color);
         }
 
-        .ruecklage-table tr:hover {
+        .offene-table tr:hover {
             background: var(--bg-hover);
         }
 
-        .progress-bar {
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-badge.einnahme {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .type-badge.ausgabe {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .status-dot {
+            width: 8px;
             height: 8px;
-            background: var(--bg-secondary);
-            border-radius: 4px;
-            overflow: hidden;
-            width: 100px;
+            border-radius: 50%;
+            display: inline-block;
         }
 
-        .progress-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s;
+        .status-dot.pending { background: #f59e0b; }
+        .status-dot.overdue { background: #ef4444; }
+
+        /* Zeitraum Filter */
+        .zeitraum-filter {
+            display: flex;
+            gap: var(--spacing-sm);
+            background: var(--bg-primary);
+            padding: 4px;
+            border-radius: 8px;
         }
 
-        .progress-fill.green { background: #10b981; }
-        .progress-fill.yellow { background: #f59e0b; }
-        .progress-fill.red { background: #ef4444; }
+        .zeitraum-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-        @media (max-width: 1024px) {
-            .stats-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .abrechnung-grid {
+        .zeitraum-btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .zeitraum-btn:hover:not(.active) {
+            background: var(--bg-hover);
+        }
+
+        @media (max-width: 1200px) {
+            .gewinn-hero {
                 grid-template-columns: 1fr;
+            }
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 <body>
     <div class="page-container">
+        <!-- Sub-Navigation -->
+        <nav class="sub-nav">
+            <a href="werber/" class="sub-nav-link">Werber</a>
+            <a href="drk/" class="sub-nav-link">DRK</a>
+            <a href="index.html" class="sub-nav-link active">Gesamt</a>
+        </nav>
+
         <!-- Header -->
         <div class="page-header">
-            <h1 class="page-title">Abrechnungen</h1>
-            <div style="display: flex; gap: var(--spacing-sm);">
-                <button class="btn btn-secondary" onclick="exportAll()">
+            <h1 class="page-title">Abrechnungen - Gesamt</h1>
+            <div style="display: flex; gap: var(--spacing-md); align-items: center;">
+                <div class="zeitraum-filter">
+                    <button class="zeitraum-btn active">Diese Woche</button>
+                    <button class="zeitraum-btn">Dieser Monat</button>
+                    <button class="zeitraum-btn">Dieses Quartal</button>
+                </div>
+                <button class="btn btn-secondary" onclick="exportGesamt()">
                     <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
                     Export
                 </button>
-                <button class="btn btn-primary" onclick="createAbrechnung()">
-                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Neue Abrechnung
-                </button>
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="stats-row">
+        <!-- Gewinn/Verlust Hero -->
+        <div class="gewinn-hero">
+            <div class="hero-card einnahmen">
+                <svg class="hero-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="hero-label">Einnahmen (DRK)</div>
+                <div class="hero-value">1.526 €</div>
+                <div class="hero-sub">Diese Woche fällig</div>
+            </div>
+            <div class="hero-card ausgaben">
+                <svg class="hero-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <div class="hero-label">Ausgaben (Werber)</div>
+                <div class="hero-value">8.540 €</div>
+                <div class="hero-sub">Vorschuss-Auszahlung</div>
+            </div>
+            <div class="hero-card gewinn negativ">
+                <svg class="hero-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <div class="hero-label">Saldo (Woche)</div>
+                <div class="hero-value">-7.014 €</div>
+                <div class="hero-sub">Vorfinanzierung Provisionen</div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-label">
-                        Offene Abrechnungen
-                        <span class="info-icon">i
-                            <div class="info-tooltip">
-                                <h4>Offene Abrechnungen</h4>
-                                <p>Abrechnungen die noch erstellt oder versendet werden müssen.</p>
-                            </div>
-                        </span>
-                    </span>
-                </div>
-                <div class="stat-value warning">3</div>
+                <div class="stat-label">Offene DRK-Rechnungen</div>
+                <div class="stat-value warning">4</div>
+                <div class="stat-change">2.102 € ausstehend</div>
             </div>
             <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-label">
-                        Diese Woche (Vorschuss)
-                        <span class="info-icon">i
-                            <div class="info-tooltip">
-                                <h4>Vorschuss</h4>
-                                <p>70% der Provision wird wöchentlich (Montag) ausgezahlt.<br><br>
-                                <code>Provision × 0,7 = Vorschuss</code></p>
-                            </div>
-                        </span>
-                    </span>
-                </div>
-                <div class="stat-value">8.540 €</div>
+                <div class="stat-label">Offene Werber-Auszahlungen</div>
+                <div class="stat-value warning">8</div>
+                <div class="stat-change">8.540 € bereit</div>
             </div>
             <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-label">
-                        Stornorücklage (gesamt)
-                        <span class="info-icon">i
-                            <div class="info-tooltip">
-                                <h4>Stornorücklage</h4>
-                                <p>30% der Provision wird einbehalten für 24 Monate.<br><br>
-                                Freigabe quartalsweise, abzüglich Stornos.</p>
-                            </div>
-                        </span>
-                    </span>
-                </div>
-                <div class="stat-value">24.680 €</div>
+                <div class="stat-label">Stornorücklage (gesamt)</div>
+                <div class="stat-value">28.340 €</div>
+                <div class="stat-change up">+3.660 € diese Woche</div>
             </div>
             <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-label">
-                        Nächste Freigabe (Q1/25)
-                        <span class="info-icon">i
-                            <div class="info-tooltip">
-                                <h4>Freigabe Stornorücklage</h4>
-                                <p>Nach 24 Monaten wird die Rücklage freigegeben.<br><br>
-                                <code>Rücklage - Stornos = Auszahlung</code></p>
-                            </div>
-                        </span>
-                    </span>
-                </div>
+                <div class="stat-label">Nächste Freigabe (Q1/25)</div>
                 <div class="stat-value positive">3.240 €</div>
+                <div class="stat-change">In 6 Wochen</div>
             </div>
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" data-tab="werber">Werber-Provisionen</button>
-            <button class="tab" data-tab="drk">DRK-Rechnungen</button>
-            <button class="tab" data-tab="ruecklage">Stornorücklage</button>
-            <button class="tab" data-tab="timeline">Rechnungs-Timeline</button>
-        </div>
-
-        <!-- Werber Provisionen -->
-        <div class="tab-content active" id="tab-werber">
-            <div class="abrechnung-grid">
-                <!-- KW 47 -->
-                <div class="abrechnung-card">
-                    <div class="abrechnung-header">
-                        <div>
-                            <div class="abrechnung-title">Werber-Provision</div>
-                            <div class="abrechnung-kw">KW 47 (18.11. - 24.11.2024)</div>
-                        </div>
-                        <span class="abrechnung-status ready">Bereit</span>
-                    </div>
-                    <div class="abrechnung-body">
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Brutto-Provision</span>
-                            <span class="abrechnung-value">12.200 €</span>
-                        </div>
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">
-                                Vorschuss (70%)
-                                <span class="info-icon" style="margin-left: 4px;">i
-                                    <div class="info-tooltip" style="left: 0; transform: none;">
-                                        <h4>Vorschuss</h4>
-                                        <p>70% werden sofort ausgezahlt.</p>
-                                    </div>
-                                </span>
-                            </span>
-                            <span class="abrechnung-value">8.540 €</span>
-                        </div>
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Stornorücklage (30%)</span>
-                            <span class="abrechnung-value">3.660 €</span>
-                        </div>
-                        <div class="abrechnung-row total">
-                            <span class="abrechnung-label">Auszahlung Montag</span>
-                            <span class="abrechnung-value" style="color: #10b981;">8.540 €</span>
-                        </div>
-                    </div>
-                    <div class="abrechnung-footer">
-                        <button class="btn btn-secondary btn-sm" onclick="previewAbrechnung('kw47')">Vorschau</button>
-                        <button class="btn btn-primary btn-sm" onclick="sendAbrechnung('kw47')">Freigeben</button>
-                    </div>
-                </div>
-
-                <!-- KW 46 -->
-                <div class="abrechnung-card">
-                    <div class="abrechnung-header">
-                        <div>
-                            <div class="abrechnung-title">Werber-Provision</div>
-                            <div class="abrechnung-kw">KW 46 (11.11. - 17.11.2024)</div>
-                        </div>
-                        <span class="abrechnung-status sent">Versendet</span>
-                    </div>
-                    <div class="abrechnung-body">
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Brutto-Provision</span>
-                            <span class="abrechnung-value">10.850 €</span>
-                        </div>
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Vorschuss (70%)</span>
-                            <span class="abrechnung-value">7.595 €</span>
-                        </div>
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Stornorücklage (30%)</span>
-                            <span class="abrechnung-value">3.255 €</span>
-                        </div>
-                        <div class="abrechnung-row total">
-                            <span class="abrechnung-label">Ausgezahlt am 18.11.</span>
-                            <span class="abrechnung-value" style="color: #10b981;">7.595 €</span>
-                        </div>
-                    </div>
-                    <div class="abrechnung-footer">
-                        <button class="btn btn-secondary btn-sm" onclick="viewAbrechnung('kw46')">Details</button>
-                        <button class="btn btn-secondary btn-sm" onclick="downloadPDF('kw46')">PDF</button>
-                    </div>
-                </div>
-
-                <!-- KW 45 -->
-                <div class="abrechnung-card">
-                    <div class="abrechnung-header">
-                        <div>
-                            <div class="abrechnung-title">Werber-Provision</div>
-                            <div class="abrechnung-kw">KW 45 (04.11. - 10.11.2024)</div>
-                        </div>
-                        <span class="abrechnung-status paid">Bezahlt</span>
-                    </div>
-                    <div class="abrechnung-body">
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Brutto-Provision</span>
-                            <span class="abrechnung-value">11.400 €</span>
-                        </div>
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Vorschuss (70%)</span>
-                            <span class="abrechnung-value">7.980 €</span>
-                        </div>
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Stornorücklage (30%)</span>
-                            <span class="abrechnung-value">3.420 €</span>
-                        </div>
-                        <div class="abrechnung-row total">
-                            <span class="abrechnung-label">Ausgezahlt am 11.11.</span>
-                            <span class="abrechnung-value" style="color: #10b981;">7.980 €</span>
-                        </div>
-                    </div>
-                    <div class="abrechnung-footer">
-                        <button class="btn btn-secondary btn-sm" onclick="viewAbrechnung('kw45')">Details</button>
-                        <button class="btn btn-secondary btn-sm" onclick="downloadPDF('kw45')">PDF</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- DRK Rechnungen -->
-        <div class="tab-content" id="tab-drk">
-            <div class="abrechnung-grid">
-                <div class="abrechnung-card">
-                    <div class="abrechnung-header">
-                        <div>
-                            <div class="abrechnung-title">DRK KV Ludwigshafen</div>
-                            <div class="abrechnung-kw">KW 47 • Ludwigshafen-Mitte e.V.</div>
-                        </div>
-                        <span class="abrechnung-status pending">Ausstehend</span>
-                    </div>
-                    <div class="abrechnung-body">
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Netto-JE</span>
-                            <span class="abrechnung-value">5.280 €</span>
-                        </div>
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">
-                                Kondition
-                                <span class="info-icon" style="margin-left: 4px;">i
-                                    <div class="info-tooltip" style="left: 0; transform: none;">
-                                        <h4>DRK-Kondition</h4>
-                                        <p>Regular 12% + Qualitätsbonus 6%<br>(Stornoquote 9%)</p>
-                                    </div>
-                                </span>
-                            </span>
-                            <span class="abrechnung-value">18%</span>
-                        </div>
-                        <div class="abrechnung-row total">
-                            <span class="abrechnung-label">Rechnungsbetrag</span>
-                            <span class="abrechnung-value">950,40 €</span>
-                        </div>
-                    </div>
-                    <div class="abrechnung-footer">
-                        <button class="btn btn-secondary btn-sm" onclick="viewMitgliederliste()">Mitgliederliste</button>
-                        <button class="btn btn-primary btn-sm" onclick="createRechnung()">Rechnung erstellen</button>
-                    </div>
-                </div>
-
-                <div class="abrechnung-card">
-                    <div class="abrechnung-header">
-                        <div>
-                            <div class="abrechnung-title">DRK KV Ludwigshafen</div>
-                            <div class="abrechnung-kw">KW 47 • Ludwigshafen-Süd e.V.</div>
-                        </div>
-                        <span class="abrechnung-status pending">Ausstehend</span>
-                    </div>
-                    <div class="abrechnung-body">
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Netto-JE</span>
-                            <span class="abrechnung-value">3.840 €</span>
-                        </div>
-                        <div class="abrechnung-row">
-                            <span class="abrechnung-label">Kondition</span>
-                            <span class="abrechnung-value">15%</span>
-                        </div>
-                        <div class="abrechnung-row total">
-                            <span class="abrechnung-label">Rechnungsbetrag</span>
-                            <span class="abrechnung-value">576,00 €</span>
-                        </div>
-                    </div>
-                    <div class="abrechnung-footer">
-                        <button class="btn btn-secondary btn-sm" onclick="viewMitgliederliste()">Mitgliederliste</button>
-                        <button class="btn btn-primary btn-sm" onclick="createRechnung()">Rechnung erstellen</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stornorücklage -->
-        <div class="tab-content" id="tab-ruecklage">
-            <div class="timeline-section">
-                <h2 class="section-title">
-                    Stornorücklage nach Werber
-                    <span class="info-icon">i
-                        <div class="info-tooltip">
-                            <h4>Stornorücklage</h4>
-                            <p>30% jeder Provision wird für 24 Monate einbehalten.<br><br>
-                            <strong>Freigabe:</strong> Quartalsweise nach 24 Monaten<br>
-                            <strong>Berechnung:</strong> Rücklage - tatsächliche Stornos</p>
-                        </div>
+        <!-- Einnahmen vs Ausgaben Breakdown -->
+        <div class="two-column">
+            <!-- Einnahmen -->
+            <div class="column-card">
+                <div class="column-header">
+                    <span class="column-title">
+                        <span class="dot green"></span>
+                        Einnahmen (DRK)
                     </span>
-                </h2>
-                <table class="ruecklage-table">
-                    <thead>
-                        <tr>
-                            <th>Werber</th>
-                            <th>Rücklage gesamt</th>
-                            <th>Stornos bisher</th>
-                            <th>Verfügbar</th>
-                            <th>Nächste Freigabe</th>
-                            <th>Stornoquote</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Anna Schmidt</strong></td>
-                            <td>4.800 €</td>
-                            <td style="color: #ef4444;">-320 €</td>
-                            <td style="color: #10b981;">4.480 €</td>
-                            <td>Q1/2025: 1.200 €</td>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill green" style="width: 7%;"></div>
-                                    </div>
-                                    <span>6,7%</span>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Max Mustermann</strong></td>
-                            <td>3.600 €</td>
-                            <td style="color: #ef4444;">-540 €</td>
-                            <td style="color: #10b981;">3.060 €</td>
-                            <td>Q1/2025: 840 €</td>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill yellow" style="width: 15%;"></div>
-                                    </div>
-                                    <span>15%</span>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Thomas Fischer</strong></td>
-                            <td>2.400 €</td>
-                            <td style="color: #ef4444;">-180 €</td>
-                            <td style="color: #10b981;">2.220 €</td>
-                            <td>Q2/2025: 600 €</td>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill green" style="width: 8%;"></div>
-                                    </div>
-                                    <span>7,5%</span>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Julia Wagner</strong></td>
-                            <td>1.800 €</td>
-                            <td style="color: #ef4444;">-420 €</td>
-                            <td style="color: #10b981;">1.380 €</td>
-                            <td>Q2/2025: 480 €</td>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill red" style="width: 23%;"></div>
-                                    </div>
-                                    <span>23%</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot style="background: var(--bg-secondary); font-weight: 600;">
-                        <tr>
-                            <td>Gesamt</td>
-                            <td>12.600 €</td>
-                            <td style="color: #ef4444;">-1.460 €</td>
-                            <td style="color: #10b981;">11.140 €</td>
-                            <td>Q1/2025: 3.120 €</td>
-                            <td>11,6%</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
-        <!-- Timeline -->
-        <div class="tab-content" id="tab-timeline">
-            <div class="timeline-section">
-                <h2 class="section-title">
-                    Rechnungs-Timeline
-                    <span class="info-icon">i
-                        <div class="info-tooltip">
-                            <h4>Timeline</h4>
-                            <p>Übersicht aller vergangenen und anstehenden Rechnungen.<br><br>
-                            <strong>Intervall:</strong> Wöchentlich (Montag) während Kampagne</p>
-                        </div>
-                    </span>
-                </h2>
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">02.12.2024 (Montag)</div>
-                            <div class="timeline-title">KW 48 - Werber-Provision</div>
-                            <div class="timeline-desc">Geplante Auszahlung • Noch nicht erstellt</div>
-                        </div>
+                    <span class="column-badge green">+1.526 €</span>
+                </div>
+                <div class="column-body">
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">KV Ludwigshafen - Mitte</span>
+                        <span class="breakdown-value positive">+855,36 €</span>
                     </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-dot today"></div>
-                        <div class="timeline-content" style="border: 2px solid #f59e0b;">
-                            <div class="timeline-date">25.11.2024 (Heute)</div>
-                            <div class="timeline-title" style="color: #f59e0b;">KW 47 - Werber-Provision</div>
-                            <div class="timeline-desc">Bereit zur Freigabe • 8.540 € Vorschuss</div>
-                        </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">KV Ludwigshafen - Süd</span>
+                        <span class="breakdown-value positive">+518,40 €</span>
                     </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-dot completed"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">18.11.2024</div>
-                            <div class="timeline-title">KW 46 - Werber-Provision</div>
-                            <div class="timeline-desc">Ausgezahlt • 7.595 €</div>
-                        </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Puffer (10% einbehalten)</span>
+                        <span class="breakdown-value" style="color: var(--text-secondary);">+152,64 €</span>
                     </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-dot completed"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">11.11.2024</div>
-                            <div class="timeline-title">KW 45 - Werber-Provision</div>
-                            <div class="timeline-desc">Ausgezahlt • 7.980 €</div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-dot completed"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">04.11.2024</div>
-                            <div class="timeline-title">KW 44 - Werber-Provision</div>
-                            <div class="timeline-desc">Ausgezahlt • 6.840 €</div>
-                        </div>
+                    <div class="breakdown-row total">
+                        <span class="breakdown-label">Gesamt Einnahmen</span>
+                        <span class="breakdown-value positive">1.526,40 €</span>
                     </div>
                 </div>
             </div>
+
+            <!-- Ausgaben -->
+            <div class="column-card">
+                <div class="column-header">
+                    <span class="column-title">
+                        <span class="dot red"></span>
+                        Ausgaben (Werber)
+                    </span>
+                    <span class="column-badge red">-8.540 €</span>
+                </div>
+                <div class="column-body">
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Werber-Vorschuss (70%)</span>
+                        <span class="breakdown-value negative">-8.540 €</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Teamleiter-Provision</span>
+                        <span class="breakdown-value negative">-343 €</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Empfehlungs-Provision</span>
+                        <span class="breakdown-value negative">-150 €</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">→ Stornorücklage (30%)</span>
+                        <span class="breakdown-value" style="color: var(--text-secondary);">3.660 € einbeh.</span>
+                    </div>
+                    <div class="breakdown-row total">
+                        <span class="breakdown-label">Gesamt Ausgaben</span>
+                        <span class="breakdown-value negative">-9.033 €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Offene Posten -->
+        <div class="offene-posten-section">
+            <div class="column-header">
+                <span class="column-title">Offene Posten</span>
+                <button class="btn btn-secondary btn-sm">Alle anzeigen</button>
+            </div>
+            <table class="offene-table">
+                <thead>
+                    <tr>
+                        <th>Typ</th>
+                        <th>Beschreibung</th>
+                        <th>Fällig</th>
+                        <th>Betrag</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="type-badge ausgabe">Ausgabe</span></td>
+                        <td>Werber-Vorschuss KW 47 (8 Werber)</td>
+                        <td>25.11.2024 (Mo)</td>
+                        <td style="color: #ef4444; font-weight: 600;">-8.540 €</td>
+                        <td><span class="status-dot pending"></span> Bereit</td>
+                    </tr>
+                    <tr>
+                        <td><span class="type-badge einnahme">Einnahme</span></td>
+                        <td>DRK Ludwigshafen-Mitte KW 47</td>
+                        <td>25.11.2024</td>
+                        <td style="color: #10b981; font-weight: 600;">+855,36 €</td>
+                        <td><span class="status-dot pending"></span> Ausstehend</td>
+                    </tr>
+                    <tr>
+                        <td><span class="type-badge einnahme">Einnahme</span></td>
+                        <td>DRK Ludwigshafen-Süd KW 47</td>
+                        <td>25.11.2024</td>
+                        <td style="color: #10b981; font-weight: 600;">+518,40 €</td>
+                        <td><span class="status-dot pending"></span> Ausstehend</td>
+                    </tr>
+                    <tr>
+                        <td><span class="type-badge einnahme">Einnahme</span></td>
+                        <td>DRK Ludwigshafen-Mitte KW 46</td>
+                        <td>18.11.2024</td>
+                        <td style="color: #10b981; font-weight: 600;">+803,52 €</td>
+                        <td><span class="status-dot overdue"></span> Überfällig</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        // Supabase Setup
+        const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Zeitraum Filter
+        document.querySelectorAll('.zeitraum-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.zeitraum-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+                // Filter-Logik hier...
             });
         });
 
-        function createAbrechnung() {
-            alert('Neue Abrechnung erstellen...');
-        }
-
-        function previewAbrechnung(kw) {
-            alert('Vorschau für ' + kw);
-        }
-
-        function sendAbrechnung(kw) {
-            if (confirm('Abrechnung für ' + kw + ' freigeben und Auszahlung veranlassen?')) {
-                alert('Abrechnung freigegeben!');
-            }
-        }
-
-        function viewAbrechnung(kw) {
-            alert('Details für ' + kw);
-        }
-
-        function downloadPDF(kw) {
-            alert('PDF für ' + kw + ' wird heruntergeladen...');
-        }
-
-        function viewMitgliederliste() {
-            alert('Mitgliederliste wird angezeigt...');
-        }
-
-        function createRechnung() {
-            alert('Rechnung wird erstellt...');
-        }
-
-        function exportAll() {
-            alert('Alle Abrechnungen werden exportiert...');
+        function exportGesamt() {
+            alert('Gesamtübersicht wird exportiert...');
         }
     </script>
 </body>
