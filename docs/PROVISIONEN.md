@@ -660,8 +660,11 @@ Im Mitarbeiter-Profil (`/mitarbeiter/profil.html`) gibt es einen eigenen Bereich
 | Element | Beschreibung |
 |---------|--------------|
 | **Karrierestufe** | Dropdown zur Auswahl (JMM, SMM, SPB, KAD, FUE) |
+| **Gültig ab KW** | Kalenderwoche ab der die Änderung gilt (vor/zurück navigierbar) |
 | **Faktor-Anzeige** | Zeigt automatisch den Faktor der gewählten Stufe |
 | **Benefits** | Pill-Badges mit den Vorteilen der Stufe |
+
+> **WICHTIG:** Änderungen der Karrierestufe wirken sich immer pro **kompletter Kalenderwoche** aus. Bei rückwirkenden Änderungen werden die Provisionen neu berechnet.
 
 **Faktoren pro Stufe:**
 | Stufe | Faktor | Benefits |
@@ -679,18 +682,22 @@ Im Provisions-Bereich können zusätzliche Rollen vergeben werden, die weitere B
 | Rolle | Beschreibung |
 |-------|--------------|
 | **Quality Manager** | Prüft Datensätze auf Qualität, kann Auffälligkeiten markieren |
-| **Teamleiter** | Führt ein Team in einer Kampagne, erhält Kopfprovision |
 | **Recruiting Manager** | Wirbt neue Mitarbeiter, erhält Empfehlungsprovision |
 
 > **Hinweis:** Diese Rollen sind zusätzlich zur Karrierestufe und können kombiniert werden.
+>
+> **Teamleiter** wird nicht hier vergeben, sondern direkt in den **Kampagnen** zugewiesen.
 
 #### Individuelle Provision
 
 | Einstellung | Beschreibung |
 |-------------|--------------|
 | **Individueller Faktor** | Optional - überschreibt den Standard-Faktor der Karrierestufe |
+| **Gültig ab KW** | Kalenderwoche ab der der individuelle Faktor gilt |
 
 > **Hinweis:** Nur ausfüllen wenn abweichend vom Standard. Z.B. für Sondervereinbarungen.
+>
+> **Pro KW gilt immer nur ein Faktor** - bei erneuter Änderung für dieselbe KW wird der vorherige Wert überschrieben.
 
 #### Vorschuss/Rücklage Aufteilung
 
@@ -715,7 +722,17 @@ Im Profil wird auch die **Rollen-Historie** angezeigt:
 | Element | Beschreibung |
 |---------|--------------|
 | **Aktuelle Karrierestufe** | Hero-Anzeige mit Faktor, "Seit"-Datum und Dauer |
-| **Rollen-Historie** | Timeline aller vergangenen Rollen mit Zeitraum und Dauer |
+
+#### Zwei Ansichten (Tabs)
+
+| Tab | Beschreibung |
+|-----|--------------|
+| **Rollen-Historie** | Zeigt den gültigen Faktor pro KW (nur neuester Wert pro KW) |
+| **Audit-Log** | Zeigt alle Änderungen inkl. überschriebener Werte (vollständiges Protokoll) |
+
+> **Rollen-Historie**: Konsolidierte Ansicht - zeigt nur was für die Provisionsberechnung relevant ist (ein Faktor pro KW)
+>
+> **Audit-Log**: Vollständiges Protokoll aller Änderungen mit Zeitstempel, auch wenn Werte überschrieben wurden
 
 > Die Historie wird automatisch geführt sobald Rollenwechsel vorgenommen werden.
 
