@@ -1390,68 +1390,110 @@
                 </div>
             </div>
 
+            <!-- Main Tabs -->
+            <div class="kw-tabs" id="mainViewTabs">
+                <div class="kw-tab active" onclick="switchMainTab('kw')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    KW-Übersicht
+                </div>
+                <div class="kw-tab" onclick="switchMainTab('provision')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Werbegebiete & Provision
+                </div>
+            </div>
+
             <!-- Two-Column Layout -->
             <div class="view-layout">
                 <!-- Main Content -->
                 <div class="view-main">
-                    <!-- Team Übersicht -->
-                    <div class="info-box">
-                        <div class="info-box-header">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                            <h3>Team-Übersicht</h3>
-                        </div>
-                        <div class="team-overview-grid">
-                            <div class="team-stat-card">
-                                <div class="team-stat-value" id="viewTotalEmployees">12</div>
-                                <div class="team-stat-label">Mitarbeiter gesamt</div>
+                    <!-- ===================== TAB 1: KW-Übersicht ===================== -->
+                    <div class="kw-tab-content active" id="tabKW">
+                        <!-- Kampagnen-Gesamtübersicht -->
+                        <div class="info-box">
+                            <div class="info-box-header">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                                <h3>Kampagnen-Gesamtübersicht</h3>
                             </div>
-                            <div class="team-stat-card">
-                                <div class="team-stat-value tc" id="viewTotalTCs">3</div>
-                                <div class="team-stat-label">Teamchefs</div>
+                            <div class="team-overview-grid">
+                                <div class="team-stat-card">
+                                    <div class="team-stat-value" id="viewTotalEmployees">12</div>
+                                    <div class="team-stat-label">Mitarbeiter gesamt</div>
+                                </div>
+                                <div class="team-stat-card">
+                                    <div class="team-stat-value tc" id="viewTotalTCs">3</div>
+                                    <div class="team-stat-label">Teamchefs</div>
+                                </div>
+                                <div class="team-stat-card">
+                                    <div class="team-stat-value qm" id="viewTotalQMs">1</div>
+                                    <div class="team-stat-label">Quality Manager</div>
+                                </div>
                             </div>
-                            <div class="team-stat-card">
-                                <div class="team-stat-value qm" id="viewTotalQMs">1</div>
-                                <div class="team-stat-label">Quality Manager</div>
+
+                            <!-- TC Provision Gesamt-Übersicht -->
+                            <div style="margin-top: var(--spacing-md);">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: var(--spacing-sm);">
+                                    TC-Provision Übersicht (Gesamt)
+                                </div>
+                                <div id="viewTCProvision">
+                                    <!-- Wird dynamisch gefüllt -->
+                                </div>
                             </div>
                         </div>
 
-                        <!-- TC Provision Aufteilung -->
-                        <div style="margin-top: var(--spacing-md);">
-                            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: var(--spacing-sm);">
-                                TC-Provision Aufteilung
+                        <!-- Letzte 10 Schriebe (prominent im KW-Tab) -->
+                        <div class="info-box">
+                            <div class="info-box-header">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <h3>Letzte 10 Schriebe</h3>
                             </div>
-                            <div class="tc-provision-grid" id="viewTCProvision">
+                            <div class="schriebe-list" id="viewLastSchriebeTop" style="max-height: 280px; overflow-y: auto;">
+                                <!-- Wird dynamisch gefüllt -->
+                            </div>
+                        </div>
+
+                        <!-- KW-Einsatzplanung mit TC-Provision pro KW -->
+                        <div class="info-box">
+                            <div class="info-box-header">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <h3>KW-Einsatzplanung</h3>
+                            </div>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                                Klicken Sie auf eine KW, um Details anzuzeigen. Pro KW können TC-Provision/Dienste, Anreisen und Abreisen eingetragen werden.
+                            </p>
+                            <div id="viewKWDetails">
                                 <!-- Wird dynamisch gefüllt -->
                             </div>
                         </div>
                     </div>
 
-                    <!-- KW-Übersicht (erweitert) -->
-                    <div class="info-box">
-                        <div class="info-box-header">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <h3>KW-Einsatzplanung</h3>
-                        </div>
-                        <div id="viewKWDetails">
-                            <!-- Wird dynamisch gefüllt -->
-                        </div>
-                    </div>
-
-                    <!-- Einsatzgebiete -->
-                    <div class="info-box highlight">
-                        <div class="info-box-header">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            <h3>Einsatzgebiete & Konditionen</h3>
-                        </div>
-                        <div id="viewEinsatzgebiete">
-                            <!-- Wird dynamisch gefüllt -->
+                    <!-- ===================== TAB 2: Werbegebiete ===================== -->
+                    <div class="kw-tab-content" id="tabProvision">
+                        <!-- Einsatzgebiete mit DRK-Optionen -->
+                        <div class="info-box highlight">
+                            <div class="info-box-header">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <h3>Einsatzgebiete & DRK-Optionen</h3>
+                            </div>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                                Pro Einsatzgebiet: DRK Auto, Kleidung, Ausweise mit Bereitstellung (RB/DRK) und Kostenübernahme.
+                            </p>
+                            <div id="viewEinsatzgebiete">
+                                <!-- Wird dynamisch gefüllt -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1951,6 +1993,55 @@ function closeCampaignModal() {
 // ============================================
 
 let viewingCampaignId = null;
+let isEditMode = false;
+
+// Stufen-Farben für Labels
+const STUFEN_CONFIG = {
+    SMA: { name: 'Starting Marketing Advisor', color: '#78909C', class: 'sma' },
+    EMA: { name: 'Executive Marketing Advisor', color: '#4CAF50', class: 'ema' },
+    JMM: { name: 'Junior Marketing Manager', color: '#2196F3', class: 'jmm' },
+    EMM: { name: 'Executive Marketing Manager', color: '#9C27B0', class: 'emm' },
+    CEMM: { name: 'Chief Executive Marketing Manager', color: '#E040FB', class: 'cemm' },
+    SPB: { name: 'Spitzen Botschafter', color: '#FFA500', class: 'spb' },
+    KAD: { name: 'Kadermanager', color: '#FFD700', class: 'kad' },
+    FUE: { name: 'Führungsebene', color: '#2C3E50', class: 'fue' }
+};
+
+// TC Dienste Konfiguration
+const TC_DIENSTE = [
+    { id: 'muell', name: 'Müll' },
+    { id: 'motivation', name: 'Motivation' },
+    { id: 'gebiet', name: 'Gebiet' },
+    { id: 'einkauf', name: 'Einkauf' },
+    { id: 'sonstige', name: 'Sonstige' }
+];
+
+// Stufen-Label generieren
+function getStufeLabel(stufe, showFull = false) {
+    const config = STUFEN_CONFIG[stufe?.toUpperCase()] || STUFEN_CONFIG.SMA;
+    const text = showFull ? config.name : stufe?.toUpperCase() || 'SMA';
+    return `<span class="stufen-label stufen-label-${config.class}">${text}</span>`;
+}
+
+// Tab-Wechsel Funktion
+function switchMainTab(tabName) {
+    // Tabs aktualisieren
+    document.querySelectorAll('#mainViewTabs .kw-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.view-main .kw-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Aktiven Tab setzen
+    if (tabName === 'kw') {
+        document.querySelector('#mainViewTabs .kw-tab:first-child').classList.add('active');
+        document.getElementById('tabKW').classList.add('active');
+    } else if (tabName === 'provision') {
+        document.querySelector('#mainViewTabs .kw-tab:last-child').classList.add('active');
+        document.getElementById('tabProvision').classList.add('active');
+    }
+}
 
 // Aktuelle KW ermitteln
 function getCurrentKW() {
@@ -2068,9 +2159,85 @@ function renderTCProvision(campaign) {
     });
 
     container.innerHTML = html;
+
+    // TC Dienste rendern
+    renderTCDienste(campaign);
 }
 
-// KW Details (erweitert mit Employee Cards)
+// TC Dienste Aufteilung rendern
+function renderTCDienste(campaign) {
+    const container = document.getElementById('viewTCDienste');
+
+    // Dummy-Daten für TC-Dienste (später aus DB)
+    const tcDienste = campaign.tcDienste || [
+        { dienst: 'muell', faktor: 0.2 },
+        { dienst: 'motivation', faktor: 0.3 },
+        { dienst: 'gebiet', faktor: 0.3 },
+        { dienst: 'einkauf', faktor: 0.2 }
+    ];
+
+    const gesamtFaktor = tcDienste.reduce((sum, d) => sum + d.faktor, 0);
+    const isOver = gesamtFaktor > 1;
+    const isUnder = gesamtFaktor < 1;
+
+    let html = '<div class="inline-editable" id="tcDiensteEditable">';
+
+    tcDienste.forEach((dienst, index) => {
+        const dienstConfig = TC_DIENSTE.find(d => d.id === dienst.dienst) || { name: dienst.dienst };
+        html += `
+            <div class="tc-dienst-row">
+                <input type="number" class="tc-dienst-faktor" value="${dienst.faktor}" min="0.01" max="1" step="0.01"
+                    onchange="updateTCDienst(${index}, this.value)">
+                <select class="tc-dienst-select" onchange="changeTCDienstType(${index}, this.value)">
+                    ${TC_DIENSTE.map(d => `<option value="${d.id}" ${d.id === dienst.dienst ? 'selected' : ''}>${d.name}</option>`).join('')}
+                </select>
+                <button class="tc-dienst-remove" onclick="removeTCDienst(${index})" title="Entfernen">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+    });
+
+    html += `
+        <button class="tc-dienst-add" onclick="addTCDienst()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Dienst hinzufügen
+        </button>
+        <div class="tc-gesamt">
+            <span class="tc-gesamt-label">Gesamt TC-Faktor:</span>
+            <span class="tc-gesamt-value ${isOver || isUnder ? 'warning' : ''}">${gesamtFaktor.toFixed(2)} / 1.00</span>
+        </div>
+    `;
+
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+// TC-Dienst Hilfsfunktionen
+function updateTCDienst(index, value) {
+    console.log('Update Dienst', index, 'to', value);
+    // Später: Daten speichern
+}
+
+function changeTCDienstType(index, type) {
+    console.log('Change Dienst type', index, 'to', type);
+}
+
+function removeTCDienst(index) {
+    console.log('Remove Dienst', index);
+    showToast('Dienst entfernt', 'success');
+}
+
+function addTCDienst() {
+    console.log('Add new Dienst');
+    showToast('Neuer Dienst hinzugefügt', 'success');
+}
+
+// KW Details (erweitert mit Employee Cards, TC-Dienste, Anreisen/Abreisen)
 function renderKWDetails(campaign) {
     const container = document.getElementById('viewKWDetails');
     const currentKW = getCurrentKW();
@@ -2088,9 +2255,16 @@ function renderKWDetails(campaign) {
         const hasTc = !!tc;
         const dateRange = getKWDateRange(kw, 2025);
 
-        // Anreisen für diese Woche (Dummy - in echt aus Datenbank)
-        const anreisen = werberList.filter(e => e.anreiseKW === kw);
-        const newEmployees = werberList.filter(e => e.isNew);
+        // Dummy-Daten für Anreisen/Abreisen (später aus DB)
+        const anreisen = assignment.anreisen || [];
+        const abreisen = assignment.abreisen || [];
+        const gebuendelt = assignment.gebuendelt || false;
+
+        // Dummy TC-Dienste pro KW
+        const kwDienste = assignment.tcDienste || [
+            { dienst: 'muell', faktor: 0.2 },
+            { dienst: 'motivation', faktor: 0.3 }
+        ];
 
         let classes = 'kw-detail-card';
         if (isCurrentWeek) classes += ' current-week expanded';
@@ -2106,10 +2280,14 @@ function renderKWDetails(campaign) {
                     <div class="kw-detail-badges">
                         ${isCurrentWeek ? '<span class="kw-badge current">Aktuelle Woche</span>' : ''}
                         ${hasTc ? '<span class="kw-badge tc">TC</span>' : ''}
+                        ${anreisen.length > 0 ? `<span class="travel-label travel-label-anreise">${anreisen.length} Anr.</span>` : ''}
+                        ${abreisen.length > 0 ? `<span class="travel-label travel-label-abreise">${abreisen.length} Abr.</span>` : ''}
+                        ${gebuendelt ? '<span class="travel-label travel-label-gebundelt">Gebündelt</span>' : ''}
                         <span class="kw-badge count">${totalCount} Pers.</span>
                     </div>
                 </div>
                 <div class="kw-detail-body">
+                    <!-- TC & TC-Dienste Sektion -->
                     ${tc ? `
                         <div class="kw-section-title tc">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2117,70 +2295,117 @@ function renderKWDetails(campaign) {
                             </svg>
                             Teamchef
                         </div>
-                        <div class="kw-employee-list">
-                            <div class="employee-card-trigger"
-                                data-employee-id="${tc.id}"
-                                data-employee-name="${tc.name}"
-                                data-employee-role="${tc.role || 'EMA'}"
-                                data-employee-tc="true">
+                        <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); flex-wrap: wrap;">
+                            <span style="font-weight: 600;">${tc.name}</span>
+                            ${getStufeLabel(tc.role || 'EMA')}
+                            <span class="stufen-label stufen-label-tc">TC</span>
+                            ${tc.isQM ? '<span class="stufen-label stufen-label-qm">QM</span>' : ''}
+                        </div>
+
+                        <!-- TC-Dienste Aufteilung für diese KW -->
+                        <div style="background: var(--bg-secondary); padding: var(--spacing-sm); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md);">
+                            <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;">
+                                TC-Dienste Aufteilung (KW ${kw})
+                            </div>
+                            <div class="inline-editable" id="tcDienste-kw-${kw}">
+                                ${kwDienste.map((d, idx) => {
+                                    const dienstName = TC_DIENSTE.find(td => td.id === d.dienst)?.name || d.dienst;
+                                    return `
+                                        <div class="tc-dienst-row" style="padding: 6px 10px;">
+                                            <input type="number" class="tc-dienst-faktor" value="${d.faktor}" min="0.01" max="1" step="0.01" style="width: 55px;">
+                                            <select class="tc-dienst-select" style="flex: 1;">
+                                                ${TC_DIENSTE.map(td => `<option value="${td.id}" ${td.id === d.dienst ? 'selected' : ''}>${td.name}</option>`).join('')}
+                                            </select>
+                                            <button class="tc-dienst-remove" title="Entfernen">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    `;
+                                }).join('')}
+                                <button class="tc-dienst-add" onclick="addKWTCDienst(${kw})" style="margin-top: 4px;">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 12px; height: 12px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Dienst hinzufügen
+                                </button>
+                                <div class="tc-gesamt" style="margin-top: 6px; padding: 6px 10px;">
+                                    <span class="tc-gesamt-label">KW-Gesamt:</span>
+                                    <span class="tc-gesamt-value">${kwDienste.reduce((sum, d) => sum + d.faktor, 0).toFixed(2)}</span>
+                                </div>
                             </div>
                         </div>
-                    ` : '<p style="color: #f59e0b; font-size: 12px; margin-bottom: var(--spacing-md);">Kein TC für diese Woche</p>'}
+                    ` : '<p style="color: #f59e0b; font-size: 12px; margin-bottom: var(--spacing-md);">Kein TC für diese Woche zugewiesen</p>'}
 
-                    ${anreisen.length > 0 ? `
-                        <div class="kw-section-title anreise">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z"/>
-                            </svg>
-                            Anreisen (${anreisen.length})
-                        </div>
-                        <div class="kw-employee-list">
-                            ${anreisen.map(e => `
-                                <div class="employee-card-trigger"
-                                    data-employee-id="${e.id}"
-                                    data-employee-name="${e.name}"
-                                    data-employee-role="${e.role || 'SMA'}"
-                                    data-employee-anreise="KW ${kw}">
+                    <!-- Anreisen -->
+                    <div class="kw-section-title anreise" style="color: #3b82f6;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z"/>
+                        </svg>
+                        Anreisen (${anreisen.length})
+                        ${gebuendelt ? '<span class="travel-label travel-label-gebundelt" style="margin-left: 8px;">Gebündelt</span>' : ''}
+                    </div>
+                    <div style="margin-bottom: var(--spacing-md);">
+                        ${anreisen.length > 0 ? anreisen.map(empId => {
+                            const emp = employees.find(e => e.id === empId);
+                            return emp ? `
+                                <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0;">
+                                    <span>${emp.name}</span>
+                                    ${getStufeLabel(emp.role || 'SMA')}
+                                    <span class="travel-label travel-label-anreise">Anreise</span>
                                 </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-
-                    ${newEmployees.length > 0 ? `
-                        <div class="kw-section-title new">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            ` : '';
+                        }).join('') : '<p style="color: var(--text-secondary); font-size: 12px;">Keine Anreisen geplant</p>'}
+                        <button class="tc-dienst-add" onclick="addKWAnreise(${kw})" style="margin-top: 6px;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 12px; height: 12px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
-                            Neue Mitarbeiter (${newEmployees.length})
-                        </div>
-                        <div class="kw-employee-list">
-                            ${newEmployees.map(e => `
-                                <div class="employee-card-trigger"
-                                    data-employee-id="${e.id}"
-                                    data-employee-name="${e.name}"
-                                    data-employee-role="${e.role || 'SMA'}"
-                                    data-employee-new="true">
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
+                            Anreise hinzufügen
+                        </button>
+                    </div>
 
+                    <!-- Abreisen -->
+                    <div class="kw-section-title" style="color: #ef4444;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                        Abreisen (${abreisen.length})
+                    </div>
+                    <div style="margin-bottom: var(--spacing-md);">
+                        ${abreisen.length > 0 ? abreisen.map(empId => {
+                            const emp = employees.find(e => e.id === empId);
+                            return emp ? `
+                                <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0;">
+                                    <span>${emp.name}</span>
+                                    ${getStufeLabel(emp.role || 'SMA')}
+                                    <span class="travel-label travel-label-abreise">Abreise</span>
+                                </div>
+                            ` : '';
+                        }).join('') : '<p style="color: var(--text-secondary); font-size: 12px;">Keine Abreisen geplant</p>'}
+                        <button class="tc-dienst-add" onclick="addKWAbreise(${kw})" style="margin-top: 6px;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 12px; height: 12px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Abreise hinzufügen
+                        </button>
+                    </div>
+
+                    <!-- Alle Werber -->
                     <div class="kw-section-title">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                         </svg>
-                        Alle Werber (${werberList.length})
+                        Alle Teammitglieder (${werberList.length})
                     </div>
                     <div class="kw-employee-list">
-                        ${werberList.map(e => `
-                            <div class="employee-card-trigger"
-                                data-employee-id="${e.id}"
-                                data-employee-name="${e.name}"
-                                data-employee-role="${e.role || 'SMA'}"
-                                ${e.isNew ? 'data-employee-new="true"' : ''}
-                                ${e.vorschuss ? `data-employee-vorschuss="${e.vorschuss}"` : ''}>
+                        ${werberList.length > 0 ? werberList.map(e => `
+                            <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                <span style="flex: 1;">${e.name}</span>
+                                ${getStufeLabel(e.role || 'SMA')}
+                                ${e.isQM ? '<span class="stufen-label stufen-label-qm">QM</span>' : ''}
                             </div>
-                        `).join('') || '<p style="color: var(--text-secondary); font-size: 12px;">Keine Werber</p>'}
+                        `).join('') : '<p style="color: var(--text-secondary); font-size: 12px;">Keine Werber zugewiesen</p>'}
                     </div>
                 </div>
             </div>
@@ -2195,6 +2420,19 @@ function renderKWDetails(campaign) {
     }
 }
 
+// Hilfsfunktionen für KW-Aktionen
+function addKWTCDienst(kw) {
+    showToast(`Dienst zu KW ${kw} hinzufügen`, 'info');
+}
+
+function addKWAnreise(kw) {
+    showToast(`Anreise zu KW ${kw} hinzufügen`, 'info');
+}
+
+function addKWAbreise(kw) {
+    showToast(`Abreise zu KW ${kw} hinzufügen`, 'info');
+}
+
 // Toggle KW Detail Card
 function toggleKWDetail(kw) {
     const card = document.querySelector(`.kw-detail-card[data-kw="${kw}"]`);
@@ -2203,9 +2441,10 @@ function toggleKWDetail(kw) {
     }
 }
 
-// Letzte 10 Schriebe
+// Letzte 10 Schriebe (in beiden Containern)
 function renderLastSchriebe(campaign) {
     const container = document.getElementById('viewLastSchriebe');
+    const topContainer = document.getElementById('viewLastSchriebeTop');
 
     // Dummy data - wird später aus Datenbank kommen
     const dummySchriebe = [
@@ -2296,7 +2535,11 @@ function renderLastSchriebe(campaign) {
         `;
     });
 
-    container.innerHTML = html || '<p style="color: var(--text-secondary);">Keine Schriebe vorhanden</p>';
+    const htmlContent = html || '<p style="color: var(--text-secondary);">Keine Schriebe vorhanden</p>';
+
+    // Beide Container füllen (Sidebar und Top im KW-Tab)
+    if (container) container.innerHTML = htmlContent;
+    if (topContainer) topContainer.innerHTML = htmlContent;
 
     // Initialize employee cards
     if (typeof EmployeeCard !== 'undefined') {
@@ -2304,7 +2547,7 @@ function renderLastSchriebe(campaign) {
     }
 }
 
-// Render Einsatzgebiete in view (with nice Konditionen display)
+// Render Einsatzgebiete in view (with nice Konditionen display und DRK-Optionen)
 function renderViewEinsatzgebiete(campaign) {
     const container = document.getElementById('viewEinsatzgebiete');
 
@@ -2325,7 +2568,11 @@ function renderViewEinsatzgebiete(campaign) {
                 { threshold: 8, bonus: 1 }
             ],
             teilvergutung: true,
-            teilvergutungPercent: 80
+            teilvergutungPercent: 80,
+            // DRK-Optionen
+            drkAuto: { bereitstellung: 'drk', kostenuebernahme: 'drk', kostenTyp: 'aufwand', kosten: 250 },
+            drkKleidung: { bereitstellung: 'rb', kostenuebernahme: 'drk', kostenTyp: 'vereinbart', kosten: 50, pro: 'person', zeitraum: 'woche' },
+            drkAusweise: { bereitstellung: 'drk', kostenuebernahme: 'drk', kostenTyp: 'aufwand', kosten: 0 }
         }
     ];
 
@@ -2350,6 +2597,20 @@ function renderViewEinsatzgebiete(campaign) {
                         <span class="info-badge purple">Sondierung: ${eg.sondierungslimit} MG</span>
                         ${eg.qualityBonus ? '<span class="info-badge green">Qualitätsbonus aktiv</span>' : ''}
                         ${eg.teilvergutung ? '<span class="info-badge green">Teilvergütung: ' + eg.teilvergutungPercent + '%</span>' : ''}
+                    </div>
+
+                    <!-- DRK-Optionen -->
+                    <div class="konditionen-section-view" style="margin-bottom: var(--spacing-lg);">
+                        <div class="konditionen-section-view-title" style="color: #dc2626; display: flex; align-items: center; gap: 6px;">
+                            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                            DRK-Optionen
+                        </div>
+
+                        ${renderDRKOption('Auto Bereitstellung', eg.drkAuto, 'auto', index)}
+                        ${renderDRKOption('Kleidung', eg.drkKleidung, 'kleidung', index)}
+                        ${renderDRKOption('Ausweise', eg.drkAusweise, 'ausweise', index)}
                     </div>
 
                     <!-- Sondierungskonditionen -->
@@ -2395,6 +2656,113 @@ function renderViewEinsatzgebiete(campaign) {
     });
 
     container.innerHTML = html || '<p style="color: var(--text-secondary);">Keine Einsatzgebiete definiert</p>';
+}
+
+// DRK-Option rendern
+function renderDRKOption(title, option, type, egIndex) {
+    if (!option) return '';
+
+    const bereitstellungLabel = option.bereitstellung === 'drk' ? 'DRK' : 'RB';
+    const kostenuebernahmeLabel = option.kostenuebernahme === 'drk' ? 'DRK' : 'RB';
+
+    let kostenDetails = '';
+    if (option.kostenuebernahme === 'drk') {
+        if (option.kostenTyp === 'aufwand') {
+            kostenDetails = 'Aufwands- & Beschaffungskosten';
+        } else if (option.kostenTyp === 'vereinbart') {
+            const proLabel = option.pro === 'person' ? 'Pro Person' : 'Pro Team';
+            const zeitraumLabels = {
+                'tag': 'Tag',
+                'einsatztag': 'Einsatztag',
+                'woche': 'Woche',
+                'abschnitt': 'Kampagnenabschnitt (3 Wo.)',
+                'kampagne': 'Kampagne (6 Wo.)'
+            };
+            const zeitraumLabel = zeitraumLabels[option.zeitraum] || option.zeitraum;
+            kostenDetails = `Vereinbart: ${option.kosten}€ ${proLabel} / ${zeitraumLabel}`;
+        }
+    }
+
+    return `
+        <div class="drk-option-card">
+            <div class="drk-option-header">
+                <div class="drk-option-title">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        ${type === 'auto' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>' : ''}
+                        ${type === 'kleidung' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>' : ''}
+                        ${type === 'ausweise' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>' : ''}
+                    </svg>
+                    DRK ${title}
+                </div>
+            </div>
+            <div class="drk-bereitstellung inline-editable" id="drk-${type}-${egIndex}">
+                <label>
+                    <input type="radio" name="drk-${type}-bereit-${egIndex}" value="rb" ${option.bereitstellung === 'rb' ? 'checked' : ''}>
+                    Bereitstellung: RB
+                </label>
+                <label>
+                    <input type="radio" name="drk-${type}-bereit-${egIndex}" value="drk" ${option.bereitstellung === 'drk' ? 'checked' : ''}>
+                    Bereitstellung: DRK
+                </label>
+            </div>
+            <div class="drk-bereitstellung inline-editable">
+                <label>
+                    <input type="radio" name="drk-${type}-kosten-${egIndex}" value="rb" ${option.kostenuebernahme === 'rb' ? 'checked' : ''} onchange="toggleDRKKosten('${type}', ${egIndex}, 'rb')">
+                    Kostenübernahme: RB
+                </label>
+                <label>
+                    <input type="radio" name="drk-${type}-kosten-${egIndex}" value="drk" ${option.kostenuebernahme === 'drk' ? 'checked' : ''} onchange="toggleDRKKosten('${type}', ${egIndex}, 'drk')">
+                    Kostenübernahme: DRK
+                </label>
+            </div>
+            ${option.kostenuebernahme === 'drk' ? `
+            <div class="drk-kosten-section inline-editable" id="drk-kosten-${type}-${egIndex}">
+                <div class="drk-kosten-row">
+                    <span class="drk-kosten-label">Kostenart:</span>
+                    <select class="drk-kosten-select" onchange="toggleDRKKostenTyp('${type}', ${egIndex}, this.value)">
+                        <option value="aufwand" ${option.kostenTyp === 'aufwand' ? 'selected' : ''}>Aufwands- & Beschaffungskosten</option>
+                        <option value="vereinbart" ${option.kostenTyp === 'vereinbart' ? 'selected' : ''}>Vereinbarter Betrag</option>
+                    </select>
+                </div>
+                ${option.kostenTyp === 'vereinbart' ? `
+                <div class="drk-kosten-row">
+                    <span class="drk-kosten-label">Summe:</span>
+                    <input type="number" class="drk-kosten-input" value="${option.kosten || 0}" min="0" step="0.01">
+                    <span style="font-size: 12px;">€</span>
+                </div>
+                <div class="drk-kosten-row">
+                    <span class="drk-kosten-label">Pro:</span>
+                    <select class="drk-kosten-select">
+                        <option value="person" ${option.pro === 'person' ? 'selected' : ''}>Pro Person</option>
+                        <option value="team" ${option.pro === 'team' ? 'selected' : ''}>Pro Team</option>
+                    </select>
+                </div>
+                <div class="drk-kosten-row">
+                    <span class="drk-kosten-label">Zeitraum:</span>
+                    <select class="drk-kosten-select">
+                        <option value="tag" ${option.zeitraum === 'tag' ? 'selected' : ''}>Tag</option>
+                        <option value="einsatztag" ${option.zeitraum === 'einsatztag' ? 'selected' : ''}>Einsatztag</option>
+                        <option value="woche" ${option.zeitraum === 'woche' ? 'selected' : ''}>Woche</option>
+                        <option value="abschnitt" ${option.zeitraum === 'abschnitt' ? 'selected' : ''}>Kampagnenabschnitt (3 Wo.)</option>
+                        <option value="kampagne" ${option.zeitraum === 'kampagne' ? 'selected' : ''}>Kampagne (6 Wo.)</option>
+                    </select>
+                </div>
+                ` : ''}
+            </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+// DRK-Kosten umschalten
+function toggleDRKKosten(type, egIndex, value) {
+    console.log('Toggle DRK Kosten', type, egIndex, value);
+    // Später: Daten speichern und UI aktualisieren
+}
+
+function toggleDRKKostenTyp(type, egIndex, value) {
+    console.log('Toggle DRK Kosten Typ', type, egIndex, value);
+    // Später: Daten speichern und UI aktualisieren
 }
 
 // Close view modal
