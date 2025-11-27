@@ -1169,11 +1169,6 @@
             color: #dc2626;
         }
 
-        .kw-team-member-name {
-            flex: 1;
-            font-weight: 500;
-        }
-
         .kw-team-empty {
             color: var(--text-secondary);
             font-size: 12px;
@@ -3041,34 +3036,44 @@ function renderKWDetails(campaign) {
                             ${activeWerbegebiete.map(wg => {
                                 const zugeordneteMA = wgMaZuordnung[wg.id] || [];
                                 const allMembers = tc ? [tc, ...werberList] : werberList;
-                                return `
-                                    <div class="kw-wg-item">
-                                        <div class="kw-wg-header">
-                                            <div class="kw-wg-title">
-                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                                </svg>
-                                                ${wg.name}
-                                            </div>
-                                            <span class="kw-wg-plz">${wg.plz}</span>
-                                        </div>
-                                        <div class="kw-wg-body">
-                                            <div class="kw-wg-ma-list">
-                                                ${allMembers.map(m => {
-                                                    const isChecked = zugeordneteMA.includes(m.id) || zugeordneteMA.length === 0;
-                                                    return `
-                                                        <label class="kw-wg-ma-item ${isChecked ? 'checked' : ''}">
-                                                            <input type="checkbox" ${isChecked ? 'checked' : ''}
-                                                                   onchange="toggleWgMaZuordnung(${kw}, '${wg.id}', ${m.id}, this.checked)">
-                                                            <span class="kw-wg-ma-name">${m.name}</span>
-                                                            ${m.id === tcId ? '<span class="stufen-label stufen-label-tc" style="font-size: 9px;">TC</span>' : ''}
-                                                        </label>
-                                                    `;
-                                                }).join('')}
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+
+                                // Hilfsfunktion: In welchem WG ist der MA?
+                                const getMaWgId = (maId) => {
+                                    for (const checkWgId of Object.keys(wgMaZuordnung)) {
+                                        if (wgMaZuordnung[checkWgId] && wgMaZuordnung[checkWgId].includes(maId)) {
+                                            return checkWgId;
+                                        }
+                                    }
+                                    return null;
+                                };
+
+                                return '<div class="kw-wg-item">' +
+                                    '<div class="kw-wg-header">' +
+                                        '<div class="kw-wg-title">' +
+                                            '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>' +
+                                            '</svg>' +
+                                            wg.name +
+                                        '</div>' +
+                                        '<span class="kw-wg-plz">' + wg.plz + '</span>' +
+                                    '</div>' +
+                                    '<div class="kw-wg-body">' +
+                                        '<div class="kw-wg-ma-list">' +
+                                            allMembers.map(m => {
+                                                const maCurrentWg = getMaWgId(m.id);
+                                                const isInThisWg = maCurrentWg === wg.id;
+                                                const notAssigned = !maCurrentWg;
+                                                return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + '">' +
+                                                    '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
+                                                        ' onchange="toggleWgMaZuordnung(' + kw + ', \'' + wg.id + '\', ' + m.id + ', this.checked)">' +
+                                                    '<span class="kw-wg-ma-name">' + m.name + '</span>' +
+                                                    (m.id === tcId ? '<span class="stufen-label stufen-label-tc" style="font-size: 9px;">TC</span>' : '') +
+                                                    (notAssigned ? '<span style="font-size: 10px; color: var(--text-secondary);">(nicht zugeordnet)</span>' : '') +
+                                                '</label>';
+                                            }).join('') +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>';
                             }).join('')}
                         </div>
                     </div>
@@ -3230,7 +3235,7 @@ function updateKWWerbegebiete(kw) {
     renderKWDetails(campaign);
 }
 
-// MA-Zuordnung zu Werbegebiet togglen
+// MA-Zuordnung zu Werbegebiet togglen (nur 1 WG pro Werber!)
 function toggleWgMaZuordnung(kw, wgId, maId, isChecked) {
     const campaign = campaigns.find(c => c.id === viewingCampaignId);
     if (!campaign) return;
@@ -3241,32 +3246,36 @@ function toggleWgMaZuordnung(kw, wgId, maId, isChecked) {
     if (!campaign.assignments[kw].wgMaZuordnung) {
         campaign.assignments[kw].wgMaZuordnung = {};
     }
-    if (!campaign.assignments[kw].wgMaZuordnung[wgId]) {
-        // Wenn noch keine Zuordnung, alle MA standardmäßig zuordnen
-        const assignment = campaign.assignments[kw];
-        const allMaIds = [...(assignment.werber || [])];
-        if (assignment.teamchef) allMaIds.push(assignment.teamchef);
-        campaign.assignments[kw].wgMaZuordnung[wgId] = allMaIds;
-    }
 
-    const zuordnung = campaign.assignments[kw].wgMaZuordnung[wgId];
-
+    // WICHTIG: Jeder Werber kann nur in EINEM Werbegebiet sein!
     if (isChecked) {
-        if (!zuordnung.includes(maId)) {
-            zuordnung.push(maId);
+        // Erst aus allen anderen WGs entfernen
+        Object.keys(campaign.assignments[kw].wgMaZuordnung).forEach(otherWgId => {
+            const idx = campaign.assignments[kw].wgMaZuordnung[otherWgId].indexOf(maId);
+            if (idx > -1) {
+                campaign.assignments[kw].wgMaZuordnung[otherWgId].splice(idx, 1);
+            }
+        });
+
+        // Dann zum neuen WG hinzufügen
+        if (!campaign.assignments[kw].wgMaZuordnung[wgId]) {
+            campaign.assignments[kw].wgMaZuordnung[wgId] = [];
+        }
+        if (!campaign.assignments[kw].wgMaZuordnung[wgId].includes(maId)) {
+            campaign.assignments[kw].wgMaZuordnung[wgId].push(maId);
         }
     } else {
-        const index = zuordnung.indexOf(maId);
-        if (index > -1) {
-            zuordnung.splice(index, 1);
+        // Aus diesem WG entfernen
+        if (campaign.assignments[kw].wgMaZuordnung[wgId]) {
+            const index = campaign.assignments[kw].wgMaZuordnung[wgId].indexOf(maId);
+            if (index > -1) {
+                campaign.assignments[kw].wgMaZuordnung[wgId].splice(index, 1);
+            }
         }
     }
 
-    // Checkbox-Item Styling aktualisieren
-    const label = event.target.closest('.kw-wg-ma-item');
-    if (label) {
-        label.classList.toggle('checked', isChecked);
-    }
+    // View komplett neu rendern um alle Checkboxen zu aktualisieren
+    renderKWDetails(campaign);
 }
 
 // Toggle KW Detail Card
