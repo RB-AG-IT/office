@@ -2006,6 +2006,116 @@
             max-width: 500px;
         }
 
+        /* Customer Multi-Select Dropdown */
+        .customer-dropdown {
+            position: relative;
+        }
+        .customer-dropdown-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            min-height: 38px;
+        }
+        .customer-dropdown-trigger:hover {
+            border-color: var(--accent-color);
+        }
+        .customer-dropdown-trigger.disabled {
+            cursor: default;
+            background: var(--bg-primary);
+            border-color: transparent;
+        }
+        .customer-dropdown-trigger.disabled:hover {
+            border-color: transparent;
+        }
+        .customer-dropdown-trigger svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-secondary);
+            transition: transform 0.2s;
+        }
+        .customer-dropdown.open .customer-dropdown-trigger svg {
+            transform: rotate(180deg);
+        }
+        .customer-dropdown-list {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            margin-top: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .customer-dropdown.open .customer-dropdown-list {
+            display: block;
+        }
+        .customer-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .customer-dropdown-item:hover {
+            background: var(--bg-secondary);
+        }
+        .customer-dropdown-item.selected {
+            background: rgba(34, 197, 94, 0.1);
+        }
+        .customer-dropdown-item .check-icon {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .customer-dropdown-item.selected .check-icon {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+        .customer-dropdown-item.selected .check-icon svg {
+            display: block;
+        }
+        .customer-dropdown-item .check-icon svg {
+            display: none;
+            width: 12px;
+            height: 12px;
+            color: white;
+        }
+        .customer-dropdown-item span {
+            font-size: 14px;
+        }
+        .selected-customers-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            flex: 1;
+        }
+        .selected-customer-tag {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -2966,38 +3076,73 @@
         </div>
         <div class="modal-body">
             <div class="campaign-settings-grid" id="campaignSettingsGrid">
-                <!-- Kampagnenname + Jahr/Quartal -->
-                <div class="setting-row">
-                    <label class="setting-label">Kampagnenname</label>
-                    <input type="text" class="setting-input" id="editCampaignName" disabled>
-                </div>
-                <div class="setting-row-inline" style="grid-template-columns: 1fr 1fr;">
+                <!-- Kampagnenname + Jahr -->
+                <div class="setting-row-inline" style="grid-template-columns: 2fr 1fr;">
+                    <div class="setting-col">
+                        <label class="setting-label">Kampagnenname</label>
+                        <input type="text" class="setting-input" id="editCampaignName" disabled>
+                    </div>
                     <div class="setting-col">
                         <label class="setting-label">Jahr</label>
                         <input type="number" class="setting-input" id="editCampaignYear" min="2020" max="2099" disabled>
                     </div>
-                    <div class="setting-col">
-                        <label class="setting-label">Quartal</label>
-                        <select class="setting-input" id="editCampaignQuartal" disabled>
-                            <option value="Q1">Q1 (Jan-Mar)</option>
-                            <option value="Q2">Q2 (Apr-Jun)</option>
-                            <option value="Q3">Q3 (Jul-Sep)</option>
-                            <option value="Q4">Q4 (Okt-Dez)</option>
-                        </select>
-                    </div>
                 </div>
 
-                <!-- Kunde (Mehrfachauswahl) -->
+                <!-- Kunde (Mehrfachauswahl Dropdown) -->
                 <div class="setting-row">
                     <label class="setting-label">Kunde</label>
-                    <select class="setting-input" id="editCustomer" multiple size="3" disabled>
-                        <option value="drk">DRK - Deutsches Rotes Kreuz</option>
-                        <option value="unicef">UNICEF Deutschland</option>
-                        <option value="wwf">WWF Deutschland</option>
-                        <option value="greenpeace">Greenpeace e.V.</option>
-                        <option value="aerzte">Ärzte ohne Grenzen</option>
-                    </select>
-                    <span style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">Strg/Cmd gedrückt halten für Mehrfachauswahl</span>
+                    <div class="customer-dropdown" id="customerDropdown">
+                        <div class="customer-dropdown-trigger disabled" onclick="toggleCustomerDropdown()">
+                            <div class="selected-customers-preview" id="selectedCustomersPreview">
+                                <span style="color: var(--text-secondary);">Kunde auswählen...</span>
+                            </div>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="customer-dropdown-list">
+                            <div class="customer-dropdown-item" data-value="drk" onclick="toggleCustomerSelection('drk')">
+                                <div class="check-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>DRK - Deutsches Rotes Kreuz</span>
+                            </div>
+                            <div class="customer-dropdown-item" data-value="unicef" onclick="toggleCustomerSelection('unicef')">
+                                <div class="check-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>UNICEF Deutschland</span>
+                            </div>
+                            <div class="customer-dropdown-item" data-value="wwf" onclick="toggleCustomerSelection('wwf')">
+                                <div class="check-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>WWF Deutschland</span>
+                            </div>
+                            <div class="customer-dropdown-item" data-value="greenpeace" onclick="toggleCustomerSelection('greenpeace')">
+                                <div class="check-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>Greenpeace e.V.</span>
+                            </div>
+                            <div class="customer-dropdown-item" data-value="aerzte" onclick="toggleCustomerSelection('aerzte')">
+                                <div class="check-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>Ärzte ohne Grenzen</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- KW-Bereich -->
@@ -3036,8 +3181,8 @@
                                 <span class="tooltip-text">Nach dem letzten Einsatztag, nach wie vielen Wochen wird die Endabr. gestellt</span>
                             </span>
                         </label>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <input type="number" class="setting-input" id="editWartezeit" min="1" max="12" style="flex: 1;" disabled>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <input type="number" class="setting-input" id="editWartezeit" min="1" max="12" style="width: 70px;" disabled>
                             <span style="font-size: 13px; color: var(--text-secondary);">Wochen</span>
                         </div>
                     </div>
@@ -3045,20 +3190,20 @@
             </div>
 
             <!-- Aktions-Buttons -->
-            <div id="campaignSettingsActions" style="display: flex; gap: 8px; margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
-                <button id="btnEditCampaignSettings" class="btn btn-secondary btn-sm" onclick="toggleCampaignEditMode()">
-                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div id="campaignSettingsActions" style="display: flex; gap: 10px; margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                <button id="btnEditCampaignSettings" class="btn btn-secondary" onclick="toggleCampaignEditMode()">
+                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
                     Bearbeiten
                 </button>
-                <button id="btnSaveCampaignSettings" class="btn btn-primary btn-sm" onclick="saveCampaignSettings()" style="display: none;">
-                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button id="btnSaveCampaignSettings" class="btn btn-primary" onclick="saveCampaignSettings()" style="display: none;">
+                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                     Speichern
                 </button>
-                <button id="btnCancelCampaignSettings" class="btn btn-secondary btn-sm" onclick="cancelCampaignEdit()" style="display: none;">
+                <button id="btnCancelCampaignSettings" class="btn btn-secondary" onclick="cancelCampaignEdit()" style="display: none;">
                     Abbrechen
                 </button>
             </div>
@@ -3616,21 +3761,11 @@ function populateCampaignSettings(campaign) {
     document.getElementById('editPuffer').value = campaign.pufferPercent || 10;
     document.getElementById('editWartezeit').value = campaign.wartezeitWochen || 4;
 
-    // Jahr und Quartal aus KW berechnen
+    // Jahr
     const year = campaign.year || new Date().getFullYear();
     document.getElementById('editCampaignYear').value = year;
 
-    // Quartal basierend auf Start-KW bestimmen
-    const kw = campaign.kwFrom || 1;
-    let quartal = 'Q1';
-    if (kw >= 1 && kw <= 13) quartal = 'Q1';
-    else if (kw >= 14 && kw <= 26) quartal = 'Q2';
-    else if (kw >= 27 && kw <= 39) quartal = 'Q3';
-    else quartal = 'Q4';
-    document.getElementById('editCampaignQuartal').value = campaign.quartal || quartal;
-
-    // Kunde Multi-Select setzen
-    const customerSelect = document.getElementById('editCustomer');
+    // Kunde Dropdown setzen
     const customerMap = {
         'DRK Ludwigshafen e.V.': 'drk',
         'DRK - Deutsches Rotes Kreuz': 'drk',
@@ -3640,18 +3775,21 @@ function populateCampaignSettings(campaign) {
         'Ärzte ohne Grenzen': 'aerzte'
     };
 
-    // Alle Optionen deselektieren
-    Array.from(customerSelect.options).forEach(opt => opt.selected = false);
+    // Alle Dropdown-Items deselektieren
+    document.querySelectorAll('.customer-dropdown-item').forEach(item => {
+        item.classList.remove('selected');
+    });
 
     // Kunden können mehrere sein (als Array oder String)
     const customers = Array.isArray(campaign.customers) ? campaign.customers : [campaign.customer];
     customers.forEach(c => {
         const key = customerMap[c];
         if (key) {
-            const opt = customerSelect.querySelector(`option[value="${key}"]`);
-            if (opt) opt.selected = true;
+            const item = document.querySelector(`.customer-dropdown-item[data-value="${key}"]`);
+            if (item) item.classList.add('selected');
         }
     });
+    updateCustomerPreview();
 
     // Edit-Modus zurücksetzen
     campaignEditMode = false;
@@ -3659,12 +3797,64 @@ function populateCampaignSettings(campaign) {
     const btnEdit = document.getElementById('btnEditCampaignSettings');
     const btnSave = document.getElementById('btnSaveCampaignSettings');
     const btnCancel = document.getElementById('btnCancelCampaignSettings');
+    const dropdown = document.getElementById('customerDropdown');
+    const trigger = dropdown?.querySelector('.customer-dropdown-trigger');
 
     inputs.forEach(input => input.disabled = true);
+    if (trigger) trigger.classList.add('disabled');
+    dropdown?.classList.remove('open');
     if (btnEdit) btnEdit.style.display = 'inline-flex';
     if (btnSave) btnSave.style.display = 'none';
     if (btnCancel) btnCancel.style.display = 'none';
 }
+
+// Customer Dropdown Toggle
+function toggleCustomerDropdown() {
+    const dropdown = document.getElementById('customerDropdown');
+    const trigger = dropdown?.querySelector('.customer-dropdown-trigger');
+    if (trigger?.classList.contains('disabled')) return;
+    dropdown?.classList.toggle('open');
+}
+
+// Customer Selection Toggle
+function toggleCustomerSelection(value) {
+    const item = document.querySelector(`.customer-dropdown-item[data-value="${value}"]`);
+    if (item) {
+        item.classList.toggle('selected');
+        updateCustomerPreview();
+    }
+}
+
+// Update Customer Preview
+function updateCustomerPreview() {
+    const preview = document.getElementById('selectedCustomersPreview');
+    const selected = document.querySelectorAll('.customer-dropdown-item.selected');
+
+    const shortNames = {
+        'drk': 'DRK',
+        'unicef': 'UNICEF',
+        'wwf': 'WWF',
+        'greenpeace': 'Greenpeace',
+        'aerzte': 'Ärzte o.G.'
+    };
+
+    if (selected.length === 0) {
+        preview.innerHTML = '<span style="color: var(--text-secondary);">Kunde auswählen...</span>';
+    } else {
+        preview.innerHTML = Array.from(selected).map(item => {
+            const value = item.dataset.value;
+            return `<span class="selected-customer-tag">${shortNames[value] || value}</span>`;
+        }).join('');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('customerDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
+    }
+});
 
 // Edit-Modus State
 let campaignEditMode = false;
@@ -3677,16 +3867,21 @@ function toggleCampaignEditMode() {
     const btnEdit = document.getElementById('btnEditCampaignSettings');
     const btnSave = document.getElementById('btnSaveCampaignSettings');
     const btnCancel = document.getElementById('btnCancelCampaignSettings');
+    const dropdown = document.getElementById('customerDropdown');
+    const trigger = dropdown?.querySelector('.customer-dropdown-trigger');
 
     if (campaignEditMode) {
         // Edit-Modus aktivieren
         inputs.forEach(input => input.disabled = false);
+        if (trigger) trigger.classList.remove('disabled');
         if (btnEdit) btnEdit.style.display = 'none';
         if (btnSave) btnSave.style.display = 'inline-flex';
         if (btnCancel) btnCancel.style.display = 'inline-flex';
     } else {
         // Edit-Modus deaktivieren
         inputs.forEach(input => input.disabled = true);
+        if (trigger) trigger.classList.add('disabled');
+        dropdown?.classList.remove('open');
         if (btnEdit) btnEdit.style.display = 'inline-flex';
         if (btnSave) btnSave.style.display = 'none';
         if (btnCancel) btnCancel.style.display = 'none';
@@ -3701,8 +3896,12 @@ function cancelCampaignEdit() {
     const btnEdit = document.getElementById('btnEditCampaignSettings');
     const btnSave = document.getElementById('btnSaveCampaignSettings');
     const btnCancel = document.getElementById('btnCancelCampaignSettings');
+    const dropdown = document.getElementById('customerDropdown');
+    const trigger = dropdown?.querySelector('.customer-dropdown-trigger');
 
     inputs.forEach(input => input.disabled = true);
+    if (trigger) trigger.classList.add('disabled');
+    dropdown?.classList.remove('open');
     if (btnEdit) btnEdit.style.display = 'inline-flex';
     if (btnSave) btnSave.style.display = 'none';
     if (btnCancel) btnCancel.style.display = 'none';
@@ -3718,17 +3917,7 @@ function cancelCampaignEdit() {
             document.getElementById('editWartezeit').value = campaign.wartezeitWochen || 4;
             document.getElementById('editCampaignYear').value = campaign.year || new Date().getFullYear();
 
-            // Quartal zurücksetzen
-            const kw = campaign.kwFrom || 1;
-            let quartal = 'Q1';
-            if (kw >= 1 && kw <= 13) quartal = 'Q1';
-            else if (kw >= 14 && kw <= 26) quartal = 'Q2';
-            else if (kw >= 27 && kw <= 39) quartal = 'Q3';
-            else quartal = 'Q4';
-            document.getElementById('editCampaignQuartal').value = campaign.quartal || quartal;
-
-            // Multi-Select Kunden zurücksetzen
-            const customerSelect = document.getElementById('editCustomer');
+            // Kunden Dropdown zurücksetzen
             const customerMap = {
                 'DRK Ludwigshafen e.V.': 'drk',
                 'DRK - Deutsches Rotes Kreuz': 'drk',
@@ -3737,15 +3926,18 @@ function cancelCampaignEdit() {
                 'Greenpeace e.V.': 'greenpeace',
                 'Ärzte ohne Grenzen': 'aerzte'
             };
-            Array.from(customerSelect.options).forEach(opt => opt.selected = false);
+            document.querySelectorAll('.customer-dropdown-item').forEach(item => {
+                item.classList.remove('selected');
+            });
             const customers = Array.isArray(campaign.customers) ? campaign.customers : [campaign.customer];
             customers.forEach(c => {
                 const key = customerMap[c];
                 if (key) {
-                    const opt = customerSelect.querySelector(`option[value="${key}"]`);
-                    if (opt) opt.selected = true;
+                    const item = document.querySelector(`.customer-dropdown-item[data-value="${key}"]`);
+                    if (item) item.classList.add('selected');
                 }
             });
+            updateCustomerPreview();
         }
     }
 }
@@ -3764,11 +3956,10 @@ async function saveCampaignSettings() {
     const newPuffer = parseInt(document.getElementById('editPuffer').value);
     const newWartezeit = parseInt(document.getElementById('editWartezeit').value);
     const newYear = parseInt(document.getElementById('editCampaignYear').value);
-    const newQuartal = document.getElementById('editCampaignQuartal').value;
 
-    // Multi-Select Kunden lesen
-    const customerSelect = document.getElementById('editCustomer');
-    const selectedCustomerKeys = Array.from(customerSelect.selectedOptions).map(opt => opt.value);
+    // Kunden aus Dropdown lesen
+    const selectedItems = document.querySelectorAll('.customer-dropdown-item.selected');
+    const selectedCustomerKeys = Array.from(selectedItems).map(item => item.dataset.value);
 
     // Validierung
     if (!newName) {
@@ -3800,7 +3991,6 @@ async function saveCampaignSettings() {
     campaign.pufferPercent = newPuffer;
     campaign.wartezeitWochen = newWartezeit;
     campaign.year = newYear;
-    campaign.quartal = newQuartal;
 
     // Kunden als Array speichern
     campaign.customers = selectedCustomerKeys.map(key => customerLabels[key]);
