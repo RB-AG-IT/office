@@ -3783,6 +3783,12 @@
                                         <span class="wg-config-name" id="wgConfigName">Werbegebiet</span>
                                         <span class="wg-config-kunde" id="wgConfigKunde">Kunde</span>
                                     </div>
+                                    <button class="btn btn-secondary btn-small" id="btnWgEdit" onclick="toggleWgEditMode()" style="margin: 0 var(--spacing-md);">
+                                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                        Bearbeiten
+                                    </button>
                                     <div class="wg-kw-selection" id="wgKwSelection">
                                         <!-- KW Pills werden dynamisch generiert -->
                                     </div>
@@ -4179,19 +4185,24 @@
                                 </div>
 
                                 <!-- Footer mit Speichern -->
-                                <div class="wg-config-footer">
+                                <div class="wg-config-footer" id="wgConfigFooter">
                                     <button class="btn btn-secondary" onclick="removeWgFromCampaign()">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
                                         Entfernen
                                     </button>
-                                    <button class="btn btn-primary" onclick="saveWgConfig()">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                        </svg>
-                                        Speichern
-                                    </button>
+                                    <div id="wgEditButtons" style="display: none; gap: var(--spacing-sm);">
+                                        <button class="btn btn-secondary" onclick="cancelWgEdit()">
+                                            Abbrechen
+                                        </button>
+                                        <button class="btn btn-primary" onclick="saveWgConfig()">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                            Speichern
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -5034,6 +5045,7 @@ let selectedWgKunde = null;
 let campaignWerbegebiete = []; // WGs die zur Kampagne hinzugefügt wurden
 let activeWgConfig = null; // Aktuell ausgewähltes WG zur Konfiguration
 let wgSonderposten = []; // Sonderposten für das aktuelle WG
+let wgEditMode = false; // Edit-Modus für WG Konfiguration
 
 // Kunde auswählen
 function onKundeSelectChange() {
@@ -5124,8 +5136,9 @@ function addWgToCampaign(wgId) {
     renderAvailableWerbegebiete();
     updateAddedWgList();
 
-    // Direkt zur Konfiguration öffnen
+    // Direkt zur Konfiguration öffnen und im Edit-Modus starten
     openWgConfig(wgId);
+    setWgConfigEditable(true);
 
     showToast(`${wg.name} hinzugefügt`, 'success');
 }
@@ -5271,6 +5284,9 @@ function openWgConfig(wgId) {
 
     // Added List aktualisieren für active state
     updateAddedWgList();
+
+    // Standardmäßig im Read-Modus starten
+    setWgConfigEditable(false);
 }
 
 // KW Pills rendern
@@ -5636,6 +5652,91 @@ function saveWgConfig() {
     wg.avv = document.getElementById('wgAvv').value;
 
     showToast(`${wg.name} gespeichert`, 'success');
+
+    // Edit-Modus beenden
+    setWgConfigEditable(false);
+}
+
+// Toggle WG Edit-Modus
+function toggleWgEditMode() {
+    setWgConfigEditable(!wgEditMode);
+}
+
+// Abbrechen der WG Bearbeitung
+function cancelWgEdit() {
+    // Werte zurücksetzen auf gespeicherte Werte durch Neu-Laden
+    if (activeWgConfig) {
+        openWgConfig(activeWgConfig);
+    } else {
+        setWgConfigEditable(false);
+    }
+}
+
+// WG Config editable/readonly setzen
+function setWgConfigEditable(editable) {
+    wgEditMode = editable;
+
+    const configBody = document.getElementById('wgConfigPanel');
+    if (!configBody) return;
+
+    // Alle Inputs, Selects und Textareas im Config-Body
+    const inputs = configBody.querySelectorAll('.wg-config-body input, .wg-config-body select, .wg-config-body textarea');
+    inputs.forEach(input => {
+        input.disabled = !editable;
+    });
+
+    // Toggle-Switches
+    const toggles = configBody.querySelectorAll('.wg-config-body .toggle-switch input');
+    toggles.forEach(toggle => {
+        toggle.disabled = !editable;
+        const slider = toggle.closest('.toggle-switch');
+        if (slider) {
+            slider.style.opacity = editable ? '1' : '0.6';
+            slider.style.pointerEvents = editable ? 'auto' : 'none';
+        }
+    });
+
+    // Gruppenbild Upload
+    const gruppenbildUpload = document.getElementById('gruppenbildUpload');
+    if (gruppenbildUpload) {
+        gruppenbildUpload.style.pointerEvents = editable ? 'auto' : 'none';
+        gruppenbildUpload.style.opacity = editable ? '1' : '0.7';
+    }
+    const gruppenbildActions = document.getElementById('gruppenbildActions');
+    if (gruppenbildActions) {
+        gruppenbildActions.style.display = editable && document.getElementById('gruppenbildPreview').src ? 'flex' : 'none';
+    }
+
+    // Sonderposten hinzufügen Button
+    const addSonderpostenBtn = configBody.querySelector('.btn-add-small');
+    if (addSonderpostenBtn) {
+        addSonderpostenBtn.style.display = editable ? 'flex' : 'none';
+    }
+
+    // Sonderposten entfernen Buttons
+    const removeSonderpostenBtns = configBody.querySelectorAll('.sonderposten-remove');
+    removeSonderpostenBtns.forEach(btn => {
+        btn.style.display = editable ? 'flex' : 'none';
+    });
+
+    // Bearbeiten-Button Text/Icon ändern
+    const btnEdit = document.getElementById('btnWgEdit');
+    if (btnEdit) {
+        btnEdit.style.display = editable ? 'none' : 'inline-flex';
+    }
+
+    // Speichern/Abbrechen Buttons anzeigen/verstecken
+    const editButtons = document.getElementById('wgEditButtons');
+    if (editButtons) {
+        editButtons.style.display = editable ? 'flex' : 'none';
+    }
+
+    // KW Pills deaktivieren/aktivieren
+    const kwPills = configBody.querySelectorAll('.wg-kw-pill');
+    kwPills.forEach(pill => {
+        pill.style.pointerEvents = editable ? 'auto' : 'none';
+        pill.style.opacity = editable ? '1' : '0.7';
+    });
 }
 
 // Toggle Kostenart Frei-Textfeld
