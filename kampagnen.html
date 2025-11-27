@@ -1543,11 +1543,12 @@
             white-space: nowrap;
         }
 
-        /* ERH/NMG Type Pill */
+        /* ERH/NMG Type Pill - unter EH */
         .schrieb-compact-badges {
             display: flex;
-            gap: 4px;
-            align-items: center;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
         }
 
         .schrieb-typ-pill {
@@ -4460,7 +4461,7 @@ const verfuegbareWerbegebiete = [
     { id: 'ma-kaefertal', name: 'Mannheim-Käfertal' }
 ];
 
-// Mitglied Card (groß) HTML generieren - wiederverwendbar
+// Mitglied Card für Modal - exakt gleiche Karte wie im Grid (nicht klickbar)
 function renderMitgliedCardLarge(mitglied) {
     // Email-Status Icon
     let emailIconClass = 'email-sent';
@@ -4478,38 +4479,38 @@ function renderMitgliedCardLarge(mitglied) {
         ? `<span class="schrieb-typ-pill ${mitglied.typ.toLowerCase()}">${mitglied.typ}</span>`
         : '';
 
+    // IBAN-Status
+    const ibanHtml = mitglied.ibanFilled
+        ? '<span class="schrieb-iban filled" title="IBAN nachgetragen">IBAN</span>'
+        : '<span class="schrieb-iban missing" title="IBAN fehlt noch">IBAN</span>';
+
+    // Email Icon
+    const emailIcon = `<svg class="schrieb-status-icon ${emailIconClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="${emailTitle}">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+    </svg>`;
+
+    // Exakt gleiche Karte wie im Grid (schrieb-compact), nur ohne onclick
     return `
-        <div class="mitglied-card-large-header">
-            <span class="mitglied-card-large-name">${mitglied.name}</span>
-            <div class="schrieb-compact-badges">
-                <span class="mitglied-card-large-eh">${mitglied.eh} EH</span>
-                ${typPill}
+        <div class="schrieb-compact" style="cursor: default; pointer-events: none;">
+            <div class="schrieb-compact-header">
+                <span class="schrieb-compact-name">${mitglied.name}</span>
+                <div class="schrieb-compact-badges">
+                    <span class="schrieb-compact-eh">${mitglied.eh} EH</span>
+                    ${typPill}
+                </div>
             </div>
-        </div>
-        <div class="mitglied-card-large-details">
-            <div class="mitglied-card-large-row">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <span>${mitglied.werbegebiet}</span>
+            <div class="schrieb-compact-middle">
+                <div class="schrieb-compact-wg">${mitglied.werbegebiet}</div>
+                <div class="schrieb-compact-adresse">${mitglied.strasse} ${mitglied.hausnr}</div>
             </div>
-            <div class="mitglied-card-large-row">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                <span>${mitglied.strasse} ${mitglied.hausnr}, ${mitglied.plz} ${mitglied.ort}</span>
+            <div class="schrieb-compact-footer">
+                <div class="schrieb-compact-status">
+                    ${emailIcon}
+                    ${ibanHtml}
+                </div>
+                <span class="schrieb-compact-time">${mitglied.uhrzeit}</span>
+                <span class="schrieb-compact-botschafter" title="Botschafter: ${mitglied.botschafter}">${mitglied.botschafter}</span>
             </div>
-        </div>
-        <div class="mitglied-card-large-footer">
-            <div class="mitglied-card-large-status">
-                <svg class="schrieb-status-icon ${emailIconClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="${emailTitle}" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                <span class="schrieb-iban ${mitglied.ibanFilled ? 'filled' : 'missing'}">${mitglied.ibanFilled ? 'IBAN ✓' : 'IBAN fehlt'}</span>
-                <span style="color: var(--text-secondary);">${mitglied.uhrzeit} Uhr</span>
-            </div>
-            <span class="mitglied-card-large-botschafter">Botschafter: ${mitglied.botschafter}</span>
         </div>
     `;
 }
@@ -4537,8 +4538,20 @@ function openSchriebDetails(id) {
     ).join('');
 
     // Button disabled states setzen
+    const btnWelcome = document.getElementById('btnWelcomeMail');
     const btnIban = document.getElementById('btnIbanMail');
     const btnErhoehung = document.getElementById('btnErhoehungMail');
+
+    // Willkommensmail: disabled wenn IBAN fehlt ODER bei ERH (nur NMG mit IBAN)
+    const welcomeDisabled = !mitglied.ibanFilled || mitglied.typ === 'ERH';
+    btnWelcome.disabled = welcomeDisabled;
+    if (!mitglied.ibanFilled) {
+        btnWelcome.title = 'IBAN muss zuerst eingetragen werden';
+    } else if (mitglied.typ === 'ERH') {
+        btnWelcome.title = 'Nicht verfügbar für Erhöhungen';
+    } else {
+        btnWelcome.title = 'Willkommensmail senden';
+    }
 
     // IBAN nachtragen Mail: disabled wenn IBAN bereits vorhanden
     btnIban.disabled = mitglied.ibanFilled === true;
