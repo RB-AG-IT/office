@@ -1866,31 +1866,59 @@
             color: var(--text-secondary);
         }
 
-        /* Qualitätsbonus Rules */
-        .quali-rules {
+        /* Qualitätsbonus Rules - Editierbar */
+        .quali-rules-edit {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
 
-        .quali-rule {
-            display: flex;
-            justify-content: space-between;
+        .quali-rules-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .quali-col-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .quali-rule-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
             align-items: center;
-            padding: 6px 10px;
-            background: var(--bg-card);
-            border-radius: var(--radius-sm);
         }
 
-        .quali-rule-condition {
+        .quali-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .quali-input-wrap span {
             font-size: 12px;
             color: var(--text-secondary);
         }
 
-        .quali-rule-bonus {
-            font-size: 12px;
-            font-weight: 600;
-            color: #22c55e;
+        .quali-input {
+            width: 50px;
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .quali-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
         }
 
         .quali-rule-max {
@@ -3729,28 +3757,60 @@
                                                 <span class="wg-config-hint">Bonus bei niedriger Stornoquote</span>
                                             </div>
                                             <label class="toggle-switch">
-                                                <input type="checkbox" id="wgQualitaetsbonus" checked>
+                                                <input type="checkbox" id="wgQualitaetsbonus" checked onchange="toggleQualiRules()">
                                                 <span class="toggle-slider"></span>
                                             </label>
                                         </div>
-                                        <div class="quali-rules" id="qualiRulesSection">
-                                            <div class="quali-rule">
-                                                <span class="quali-rule-condition">Storno &lt; 15%</span>
-                                                <span class="quali-rule-bonus">+3 PP</span>
+                                        <div class="quali-rules-edit" id="qualiRulesSection">
+                                            <div class="quali-rules-header">
+                                                <span class="quali-col-label">Storno unter</span>
+                                                <span class="quali-col-label">1. Jahr</span>
                                             </div>
-                                            <div class="quali-rule">
-                                                <span class="quali-rule-condition">Storno &lt; 12%</span>
-                                                <span class="quali-rule-bonus">+3 PP</span>
+                                            <div class="quali-rule-row">
+                                                <div class="quali-input-wrap">
+                                                    <input type="number" class="quali-input" id="qualiStorno1" value="15" min="0" max="100">
+                                                    <span>%</span>
+                                                </div>
+                                                <div class="quali-input-wrap">
+                                                    <span>+</span>
+                                                    <input type="number" class="quali-input" id="qualiPP1" value="3" min="0" max="20" onchange="updateQualiMaxBonus()">
+                                                    <span>PP</span>
+                                                </div>
                                             </div>
-                                            <div class="quali-rule">
-                                                <span class="quali-rule-condition">Storno &lt; 10%</span>
-                                                <span class="quali-rule-bonus">+3 PP</span>
+                                            <div class="quali-rule-row">
+                                                <div class="quali-input-wrap">
+                                                    <input type="number" class="quali-input" id="qualiStorno2" value="12" min="0" max="100">
+                                                    <span>%</span>
+                                                </div>
+                                                <div class="quali-input-wrap">
+                                                    <span>+</span>
+                                                    <input type="number" class="quali-input" id="qualiPP2" value="3" min="0" max="20" onchange="updateQualiMaxBonus()">
+                                                    <span>PP</span>
+                                                </div>
                                             </div>
-                                            <div class="quali-rule">
-                                                <span class="quali-rule-condition">Storno &lt; 8%</span>
-                                                <span class="quali-rule-bonus">+1 PP</span>
+                                            <div class="quali-rule-row">
+                                                <div class="quali-input-wrap">
+                                                    <input type="number" class="quali-input" id="qualiStorno3" value="10" min="0" max="100">
+                                                    <span>%</span>
+                                                </div>
+                                                <div class="quali-input-wrap">
+                                                    <span>+</span>
+                                                    <input type="number" class="quali-input" id="qualiPP3" value="3" min="0" max="20" onchange="updateQualiMaxBonus()">
+                                                    <span>PP</span>
+                                                </div>
                                             </div>
-                                            <div class="quali-rule-max">
+                                            <div class="quali-rule-row">
+                                                <div class="quali-input-wrap">
+                                                    <input type="number" class="quali-input" id="qualiStorno4" value="8" min="0" max="100">
+                                                    <span>%</span>
+                                                </div>
+                                                <div class="quali-input-wrap">
+                                                    <span>+</span>
+                                                    <input type="number" class="quali-input" id="qualiPP4" value="1" min="0" max="20" onchange="updateQualiMaxBonus()">
+                                                    <span>PP</span>
+                                                </div>
+                                            </div>
+                                            <div class="quali-rule-max" id="qualiMaxDisplay">
                                                 <span>Max. Bonus: +10 PP</span>
                                             </div>
                                         </div>
@@ -4818,7 +4878,15 @@ function addWgToCampaign(wgId) {
         kws: Array.from({length: kwTo - kwFrom + 1}, (_, i) => kwFrom + i), // Alle KWs aktiviert
         sondierung: { j1: 80, j2: 50, j3: 30, j4: 0, j5: 0, limit: 100, limitType: 'mg' },
         regular: { j1: 60, j2: 40, j3: 20, j4: 0, j5: 0 },
-        qualitaetsbonus: true,
+        qualitaetsbonus: {
+            aktiv: true,
+            regeln: [
+                { storno: 15, pp: 3 },
+                { storno: 12, pp: 3 },
+                { storno: 10, pp: 3 },
+                { storno: 8, pp: 1 }
+            ]
+        },
         teilverguetung: false,
         teilvProzent: 50,
         stornopuffer: 10,
@@ -4911,7 +4979,22 @@ function openWgConfig(wgId) {
     document.getElementById('regJ5').value = wg.regular.j5;
 
     // Qualitätsbonus
-    document.getElementById('wgQualitaetsbonus').checked = wg.qualitaetsbonus;
+    const qb = wg.qualitaetsbonus;
+    const qbAktiv = typeof qb === 'object' ? qb.aktiv : qb;
+    const qbRegeln = typeof qb === 'object' && qb.regeln ? qb.regeln : [
+        { storno: 15, pp: 3 }, { storno: 12, pp: 3 }, { storno: 10, pp: 3 }, { storno: 8, pp: 1 }
+    ];
+    document.getElementById('wgQualitaetsbonus').checked = qbAktiv;
+    document.getElementById('qualiStorno1').value = qbRegeln[0]?.storno || 15;
+    document.getElementById('qualiPP1').value = qbRegeln[0]?.pp || 3;
+    document.getElementById('qualiStorno2').value = qbRegeln[1]?.storno || 12;
+    document.getElementById('qualiPP2').value = qbRegeln[1]?.pp || 3;
+    document.getElementById('qualiStorno3').value = qbRegeln[2]?.storno || 10;
+    document.getElementById('qualiPP3').value = qbRegeln[2]?.pp || 3;
+    document.getElementById('qualiStorno4').value = qbRegeln[3]?.storno || 8;
+    document.getElementById('qualiPP4').value = qbRegeln[3]?.pp || 1;
+    document.getElementById('qualiRulesSection').style.display = qbAktiv ? 'flex' : 'none';
+    updateQualiMaxBonus();
 
     // Teilvergütung
     document.getElementById('wgTeilverguetung').checked = wg.teilverguetung;
@@ -4968,6 +5051,22 @@ function toggleWgKw(kw) {
     }
 
     renderKwPills(wg);
+}
+
+// Qualitätsbonus ein-/ausblenden
+function toggleQualiRules() {
+    const checked = document.getElementById('wgQualitaetsbonus').checked;
+    document.getElementById('qualiRulesSection').style.display = checked ? 'flex' : 'none';
+}
+
+// Max. Bonus berechnen und anzeigen
+function updateQualiMaxBonus() {
+    const pp1 = parseInt(document.getElementById('qualiPP1').value) || 0;
+    const pp2 = parseInt(document.getElementById('qualiPP2').value) || 0;
+    const pp3 = parseInt(document.getElementById('qualiPP3').value) || 0;
+    const pp4 = parseInt(document.getElementById('qualiPP4').value) || 0;
+    const maxBonus = pp1 + pp2 + pp3 + pp4;
+    document.getElementById('qualiMaxDisplay').innerHTML = `<span>Max. Bonus: +${maxBonus} PP</span>`;
 }
 
 // Verträge des Kunden laden
@@ -5076,8 +5175,18 @@ function saveWgConfig() {
         j5: parseInt(document.getElementById('regJ5').value) || 0
     };
 
-    // Toggles
-    wg.qualitaetsbonus = document.getElementById('wgQualitaetsbonus').checked;
+    // Qualitätsbonus
+    wg.qualitaetsbonus = {
+        aktiv: document.getElementById('wgQualitaetsbonus').checked,
+        regeln: [
+            { storno: parseInt(document.getElementById('qualiStorno1').value) || 15, pp: parseInt(document.getElementById('qualiPP1').value) || 3 },
+            { storno: parseInt(document.getElementById('qualiStorno2').value) || 12, pp: parseInt(document.getElementById('qualiPP2').value) || 3 },
+            { storno: parseInt(document.getElementById('qualiStorno3').value) || 10, pp: parseInt(document.getElementById('qualiPP3').value) || 3 },
+            { storno: parseInt(document.getElementById('qualiStorno4').value) || 8, pp: parseInt(document.getElementById('qualiPP4').value) || 1 }
+        ]
+    };
+
+    // Teilvergütung
     wg.teilverguetung = document.getElementById('wgTeilverguetung').checked;
     wg.teilvProzent = parseInt(document.getElementById('wgTeilvProzent').value) || 50;
 
