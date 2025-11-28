@@ -165,11 +165,14 @@
         .campaign-card {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
+            padding: var(--spacing-xl);
             box-shadow: var(--shadow-sm);
             border: 2px solid var(--border-color);
             transition: all 0.2s;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            min-height: 280px;
         }
 
         .campaign-card:hover {
@@ -194,25 +197,27 @@
             display: flex;
             justify-content: space-between;
             align-items: start;
-            margin-bottom: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
         }
 
         .campaign-title {
-            font-size: var(--font-size-lg);
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: var(--spacing-xs);
+            margin-bottom: 6px;
+            line-height: 1.3;
         }
 
         .campaign-meta {
-            font-size: var(--font-size-xs);
+            font-size: 14px;
             color: var(--text-secondary);
+            line-height: 1.4;
         }
 
         .campaign-status {
-            padding: 4px 10px;
+            padding: 6px 14px;
             border-radius: var(--radius-sm);
-            font-size: var(--font-size-xs);
+            font-size: 13px;
             font-weight: 600;
             white-space: nowrap;
         }
@@ -232,6 +237,13 @@
             color: #6b7280;
         }
 
+        /* Hauptinhalt der Karte - wächst und füllt Platz */
+        .campaign-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
         .campaign-info {
             margin-bottom: var(--spacing-md);
         }
@@ -239,8 +251,13 @@
         .info-row {
             display: flex;
             justify-content: space-between;
-            padding: var(--spacing-xs) 0;
-            font-size: var(--font-size-sm);
+            padding: 8px 0;
+            font-size: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
         }
 
         .info-label {
@@ -249,57 +266,100 @@
 
         .info-value {
             color: var(--text-primary);
-            font-weight: 500;
+            font-weight: 600;
         }
 
-        .campaign-badges {
+        /* Contract-Status Platzhalter für konsistente Höhe */
+        .campaign-contract-area {
+            min-height: 36px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        /* KW-Timeline immer am Ende */
+        .campaign-kw-area {
+            margin-top: auto;
+        }
+
+        /* Campaign Card - KW Timeline */
+        .campaign-kw-timeline {
             display: flex;
-            gap: var(--spacing-sm);
             flex-wrap: wrap;
-            margin-top: var(--spacing-md);
-            padding-top: var(--spacing-md);
-            border-top: 1px solid var(--border-color);
+            gap: 6px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
         }
 
-        .contract-badge {
+        .kw-timeline-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 10px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            min-width: 48px;
+            border: 1px solid var(--border-color);
+            transition: all 0.15s;
+        }
+
+        .kw-timeline-item .kw-num {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .kw-timeline-item .kw-count {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--accent-color);
+        }
+
+        .kw-timeline-item.kw-empty {
+            opacity: 0.6;
+        }
+
+        .kw-timeline-item.kw-empty .kw-count {
+            color: var(--text-muted);
+        }
+
+        .kw-timeline-item.kw-current {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .kw-timeline-item.kw-current .kw-num,
+        .kw-timeline-item.kw-current .kw-count {
+            color: white;
+        }
+
+        /* Contract Status Badge */
+        .contract-status-badge {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 8px;
+            padding: 3px 8px;
             border-radius: var(--radius-sm);
             font-size: var(--font-size-xs);
             font-weight: 500;
+            margin-top: var(--spacing-sm);
         }
 
-        .contract-badge svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .contract-badge.has-contract {
+        .contract-status-badge.all-contracts {
             background: #dcfce7;
             color: #16a34a;
         }
 
-        .contract-badge.missing {
-            background: #fef3c7;
-            color: #d97706;
+        .contract-status-badge.partial-contracts {
+            background: #fef9c3;
+            color: #ca8a04;
         }
 
-        .kondition-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 8px;
-            border-radius: var(--radius-sm);
-            font-size: var(--font-size-xs);
-            font-weight: 500;
-            background: #f3e8ff;
-            color: #7c3aed;
-        }
-
-        .kondition-badge.no-kondition {
-            background: #fef2f2;
-            color: #dc2626;
+        .contract-status-badge svg {
+            width: 12px;
+            height: 12px;
         }
 
         /* Add Campaign Card */
@@ -1521,19 +1581,55 @@
             campaigns: [
                 {
                     id: 1,
-                    name: 'Frühjahrskampagne 2024',
-                    startDate: '2024-03-01',
-                    endDate: '2024-05-31',
-                    areaIndex: 0, // Referenz auf Werbegebiet
-                    hasContract: true
+                    name: 'Frühjahrskampagne 2025',
+                    year: 2025,
+                    kwFrom: 10,
+                    kwTo: 22,
+                    einsatzgebiete: [
+                        { name: 'Ludwigshafen-Mitte', einwohner: 45000, rahmenvertrag: true },
+                        { name: 'Ludwigshafen-Süd', einwohner: 38000, rahmenvertrag: true }
+                    ],
+                    assignments: {
+                        10: { teamchef: 'Max Müller', werber: ['Anna Schmidt', 'Peter Weber'] },
+                        11: { teamchef: 'Max Müller', werber: ['Anna Schmidt', 'Peter Weber', 'Lisa Braun'] },
+                        12: { teamchef: 'Max Müller', werber: ['Anna Schmidt'] },
+                        13: { teamchef: null, werber: [] },
+                        14: { teamchef: null, werber: ['Peter Weber'] },
+                        15: { teamchef: 'Max Müller', werber: ['Anna Schmidt', 'Peter Weber'] },
+                        16: { teamchef: 'Max Müller', werber: ['Anna Schmidt', 'Peter Weber', 'Lisa Braun'] },
+                        17: { teamchef: 'Max Müller', werber: ['Anna Schmidt', 'Peter Weber'] },
+                        18: { teamchef: 'Max Müller', werber: ['Anna Schmidt'] },
+                        19: { teamchef: null, werber: [] },
+                        20: { teamchef: 'Max Müller', werber: ['Anna Schmidt', 'Peter Weber'] },
+                        21: { teamchef: 'Max Müller', werber: ['Anna Schmidt', 'Peter Weber', 'Lisa Braun'] },
+                        22: { teamchef: 'Max Müller', werber: ['Anna Schmidt'] }
+                    }
                 },
                 {
                     id: 2,
-                    name: 'Herbstkampagne 2024',
-                    startDate: '2024-09-01',
-                    endDate: '2024-11-30',
-                    areaIndex: 1, // Referenz auf Werbegebiet
-                    hasContract: true
+                    name: 'Herbstkampagne 2025',
+                    year: 2025,
+                    kwFrom: 36,
+                    kwTo: 48,
+                    einsatzgebiete: [
+                        { name: 'Mannheim-Nord', einwohner: 52000, rahmenvertrag: true },
+                        { name: 'Mannheim-Zentrum', einwohner: 68000, rahmenvertrag: false }
+                    ],
+                    assignments: {
+                        36: { teamchef: 'Lisa Braun', werber: ['Tom Fischer'] },
+                        37: { teamchef: 'Lisa Braun', werber: ['Tom Fischer', 'Sarah Meier'] },
+                        38: { teamchef: null, werber: [] },
+                        39: { teamchef: 'Lisa Braun', werber: ['Tom Fischer'] },
+                        40: { teamchef: 'Lisa Braun', werber: ['Tom Fischer', 'Sarah Meier'] },
+                        41: { teamchef: 'Lisa Braun', werber: ['Tom Fischer'] },
+                        42: { teamchef: null, werber: [] },
+                        43: { teamchef: 'Lisa Braun', werber: ['Tom Fischer', 'Sarah Meier'] },
+                        44: { teamchef: 'Lisa Braun', werber: ['Tom Fischer'] },
+                        45: { teamchef: 'Lisa Braun', werber: ['Tom Fischer', 'Sarah Meier'] },
+                        46: { teamchef: null, werber: [] },
+                        47: { teamchef: 'Lisa Braun', werber: ['Tom Fischer'] },
+                        48: { teamchef: 'Lisa Braun', werber: ['Tom Fischer', 'Sarah Meier'] }
+                    }
                 }
             ]
         };
@@ -1887,21 +1983,43 @@
         }
 
         // ================================================================
-        // CAMPAIGNS
+        // CAMPAIGNS - EXAKT wie kampagnen.html
         // ================================================================
 
-        // Calculate campaign status based on dates
-        function getCampaignStatus(startDate, endDate) {
-            if (!startDate || !endDate) return 'planned';
+        // Aktuelle Kalenderwoche berechnen
+        function getCurrentWeek() {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), 0, 1);
+            const diff = now - start;
+            const oneWeek = 1000 * 60 * 60 * 24 * 7;
+            return Math.ceil(diff / oneWeek);
+        }
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+        // KW Datumsbereich berechnen
+        function getKWDateRange(kw, year) {
+            const jan1 = new Date(year, 0, 1);
+            const dayOfWeek = jan1.getDay();
+            const offsetToMonday = (dayOfWeek <= 4) ? (1 - dayOfWeek) : (8 - dayOfWeek);
+            const firstMonday = new Date(year, 0, 1 + offsetToMonday);
+            const targetMonday = new Date(firstMonday);
+            targetMonday.setDate(firstMonday.getDate() + (kw - 1) * 7);
+            const targetSunday = new Date(targetMonday);
+            targetSunday.setDate(targetMonday.getDate() + 6);
 
-            if (today < start) return 'planned';
-            if (today > end) return 'completed';
-            return 'active';
+            const formatDate = (d) => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            return `${formatDate(targetMonday)} - ${formatDate(targetSunday)}`;
+        }
+
+        // Kampagnenstatus basierend auf KW berechnen
+        function getCampaignStatus(kwFrom, kwTo) {
+            const currentWeek = getCurrentWeek();
+
+            if (currentWeek >= kwFrom && currentWeek <= kwTo) {
+                return 'active';
+            } else if (currentWeek < kwFrom) {
+                return 'planned';
+            }
+            return 'inactive';
         }
 
         // Calculate overall customer status based on campaigns
@@ -1914,7 +2032,7 @@
             let hasPlanned = false;
 
             currentCustomer.campaigns.forEach(campaign => {
-                const status = getCampaignStatus(campaign.startDate, campaign.endDate);
+                const status = getCampaignStatus(campaign.kwFrom, campaign.kwTo);
                 if (status === 'active') hasActive = true;
                 if (status === 'planned') hasPlanned = true;
             });
@@ -1937,25 +2055,13 @@
         }
 
         function updateCampaignStatus() {
-            const startDate = document.getElementById('campaignStart').value;
-            const endDate = document.getElementById('campaignEnd').value;
-            const status = getCampaignStatus(startDate, endDate);
-
-            const statusLabels = {
-                active: 'Aktiv',
-                planned: 'Anstehend',
-                completed: 'Abgeschlossen'
-            };
-
-            const display = document.getElementById('campaignStatusDisplay');
-            display.textContent = statusLabels[status];
-            display.className = 'campaign-status ' + status;
+            // Nicht mehr benötigt für KW-basierte Kampagnen
         }
 
+        // renderCampaigns - EXAKT wie kampagnen.html
         function renderCampaigns() {
             const grid = document.getElementById('campaignsGrid');
 
-            // EXAKT wie kampagnen.html
             const statusLabels = {
                 active: 'Aktiv',
                 planned: 'Geplant',
@@ -1963,49 +2069,100 @@
             };
 
             const campaignCards = currentCustomer.campaigns.map(campaign => {
-                // Calculate status based on dates
-                let status = getCampaignStatus(campaign.startDate, campaign.endDate);
-                // Map 'completed' to 'inactive' for consistency with kampagnen.html
-                if (status === 'completed') status = 'inactive';
+                const status = getCampaignStatus(campaign.kwFrom, campaign.kwTo);
 
-                // Get area info
-                const area = currentCustomer.areas[campaign.areaIndex];
-                const areaName = area ? area.name : 'Kein Werbegebiet';
-                const hasKonditionen = area && area.sondierung && area.sondierung.some(k => k > 0);
+                // Calculate date range from KW
+                const year = campaign.year || 2025;
+                const startDate = getKWDateRange(campaign.kwFrom, year).split(' - ')[0];
+                const endDate = getKWDateRange(campaign.kwTo, year).split(' - ')[1];
+
+                // Calculate number of weeks
+                const weekCount = campaign.kwTo - campaign.kwFrom + 1;
+
+                // Get Einsatzgebiete data
+                const einsatzgebiete = campaign.einsatzgebiete || [];
+                const einsatzgebieteCount = einsatzgebiete.length;
+
+                // Calculate total Einwohner
+                const totalEinwohner = einsatzgebiete.reduce((sum, eg) => sum + (eg.einwohner || 0), 0);
+                const einwohnerPerKW = weekCount > 0 ? Math.round(totalEinwohner / weekCount) : 0;
+                const einwohnerFormatted = totalEinwohner.toLocaleString('de-DE');
+                const einwohnerPerKWFormatted = einwohnerPerKW.toLocaleString('de-DE');
+
+                // Check contract status
+                const einsatzgebieteWithContract = einsatzgebiete.filter(eg => eg.rahmenvertrag || eg.contract).length;
+                const allHaveContracts = einsatzgebieteCount > 0 && einsatzgebieteWithContract === einsatzgebieteCount;
+
+                // Build KW timeline
+                const currentWeek = getCurrentWeek();
+                let kwTimelineHTML = '<div class="campaign-kw-timeline">';
+                for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
+                    const assignment = campaign.assignments ? campaign.assignments[kw] : {};
+                    const personCount = (assignment?.werber?.length || 0) + (assignment?.teamchef ? 1 : 0);
+                    const isCurrent = kw === currentWeek;
+                    const isEmpty = personCount === 0;
+                    kwTimelineHTML += `
+                        <div class="kw-timeline-item ${isCurrent ? 'kw-current' : ''} ${isEmpty ? 'kw-empty' : ''}">
+                            <span class="kw-num">${kw}</span>
+                            <span class="kw-count">${personCount}P</span>
+                        </div>
+                    `;
+                }
+                kwTimelineHTML += '</div>';
+
+                // Contract status badge
+                let contractStatusHTML = '';
+                if (einsatzgebieteCount > 0) {
+                    if (allHaveContracts) {
+                        contractStatusHTML = `
+                            <div class="contract-status-badge all-contracts">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Alle Verträge zugeordnet
+                            </div>
+                        `;
+                    } else {
+                        contractStatusHTML = `
+                            <div class="contract-status-badge partial-contracts">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01"/>
+                                </svg>
+                                ${einsatzgebieteWithContract}/${einsatzgebieteCount} Verträge
+                            </div>
+                        `;
+                    }
+                }
 
                 return `
                     <div class="campaign-card status-${status}" onclick="openCampaignInKampagnen(${campaign.id})">
                         <div class="campaign-header">
                             <div>
                                 <div class="campaign-title">${campaign.name}</div>
-                                <div class="campaign-meta">${formatDate(campaign.startDate)} - ${formatDate(campaign.endDate)}</div>
+                                <div class="campaign-meta">${startDate} - ${endDate} (KW ${campaign.kwFrom}-${campaign.kwTo}) · ${weekCount} W.</div>
                             </div>
                             <span class="campaign-status ${status}">${statusLabels[status]}</span>
                         </div>
-                        <div class="campaign-info">
-                            <div class="info-row">
-                                <span class="info-label">Einsatzgebiet:</span>
-                                <span class="info-value">${areaName}</span>
+
+                        <div class="campaign-content">
+                            <div class="campaign-info">
+                                <div class="info-row">
+                                    <span class="info-label">Einwohner:</span>
+                                    <span class="info-value">${einwohnerFormatted} ${totalEinwohner > 0 ? `(${einwohnerPerKWFormatted}/KW)` : ''}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Einsatzgebiete:</span>
+                                    <span class="info-value">${einsatzgebieteCount}</span>
+                                </div>
                             </div>
-                            <div class="info-row">
-                                <span class="info-label">Bevölkerung:</span>
-                                <span class="info-value">${area && area.population ? area.population.toLocaleString('de-DE') : '-'}</span>
+
+                            <div class="campaign-contract-area">
+                                ${contractStatusHTML}
                             </div>
-                            <div class="info-row">
-                                <span class="info-label">Qualitätsbonus:</span>
-                                <span class="info-value">${area && area.qualityBonus ? 'Ja' : 'Nein'}</span>
+
+                            <div class="campaign-kw-area">
+                                ${kwTimelineHTML}
                             </div>
-                        </div>
-                        <div class="campaign-badges">
-                            <span class="contract-badge ${campaign.hasContract ? 'has-contract' : 'missing'}">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${campaign.hasContract ? 'M5 13l4 4L19 7' : 'M12 9v2m0 4h.01'}"/>
-                                </svg>
-                                ${campaign.hasContract ? 'Vertrag' : 'Kein Vertrag'}
-                            </span>
-                            <span class="kondition-badge ${hasKonditionen ? '' : 'no-kondition'}">
-                                ${hasKonditionen ? 'Konditionen' : 'Keine Kond.'}
-                            </span>
                         </div>
                     </div>
                 `;
