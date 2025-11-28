@@ -1461,16 +1461,26 @@
 
     <script>
         // ================================================================
-        // NAVIGATION
+        // NAVIGATION & DIRTY STATE
         // ================================================================
+        let hasUnsavedChanges = false;
+
         function goBack() {
-            // Check if we're in an iframe
-            if (window.parent !== window) {
-                window.parent.location.hash = 'users';
-            } else {
-                window.location.href = '../index.html#users';
+            if (hasUnsavedChanges) {
+                if (!confirm('Sie haben ungespeicherte Änderungen.\n\nMöchten Sie wirklich ohne Speichern verlassen?')) {
+                    return;
+                }
             }
+            history.back();
         }
+
+        // Track form changes
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                el.addEventListener('change', () => hasUnsavedChanges = true);
+                el.addEventListener('input', () => hasUnsavedChanges = true);
+            });
+        });
 
         // ================================================================
         // TOAST & CONFIRM FUNCTIONS
@@ -2550,7 +2560,13 @@
             document.getElementById('lastSaved').textContent = 'Zuletzt gespeichert: ' + new Date().toLocaleTimeString('de-DE');
             document.getElementById('customerName').textContent = currentCustomer.name;
 
+            // Reset dirty state before redirect
+            hasUnsavedChanges = false;
+
             alert('Kunde erfolgreich gespeichert!');
+
+            // Redirect to overview
+            history.back();
         }
 
         // ================================================================
