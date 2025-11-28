@@ -4229,6 +4229,46 @@
                                         </div>
                                     </div>
 
+                                    <!-- Erhöhungen & Zahlungsmodalitäten -->
+                                    <div class="wg-config-section">
+                                        <div class="wg-config-section-header toggle-header">
+                                            <div>
+                                                <h4>Erhöhungen</h4>
+                                                <span class="wg-config-hint">Beitragserhöhungen erlaubt</span>
+                                            </div>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="wgErhohungen" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Zahlungsmodalitäten -->
+                                    <div class="wg-config-section">
+                                        <div class="wg-config-section-header">
+                                            <h4>Zahlungsmodalitäten</h4>
+                                            <span class="wg-config-hint">Erlaubte Zahlungsweisen</span>
+                                        </div>
+                                        <div class="zahlungsmodal-pills" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                                            <label class="checkbox-pill active" onclick="toggleZahlungsmodalitat(this, 'monthly')">
+                                                <input type="checkbox" checked style="display: none;">
+                                                Monatlich
+                                            </label>
+                                            <label class="checkbox-pill active" onclick="toggleZahlungsmodalitat(this, 'quarterly')">
+                                                <input type="checkbox" checked style="display: none;">
+                                                Quartal
+                                            </label>
+                                            <label class="checkbox-pill active" onclick="toggleZahlungsmodalitat(this, 'biannual')">
+                                                <input type="checkbox" checked style="display: none;">
+                                                Halbjährlich
+                                            </label>
+                                            <label class="checkbox-pill active" onclick="toggleZahlungsmodalitat(this, 'annual')">
+                                                <input type="checkbox" checked style="display: none;">
+                                                Jährlich
+                                            </label>
+                                        </div>
+                                    </div>
+
                                     <!-- Stornopuffer & Endabrechnung -->
                                     <div class="wg-config-section">
                                         <div class="wg-config-section-header">
@@ -7491,6 +7531,19 @@ function togglePaymentModality(index, modality) {
 
     // TODO: Save to database
     console.log('Payment modality toggled for index', index, ':', modality, checkbox.checked);
+}
+
+// Toggle Zahlungsmodalität im WG-Config Panel
+function toggleZahlungsmodalitat(element, modality) {
+    event.preventDefault();
+    const checkbox = element.querySelector('input');
+
+    // Toggle active state
+    element.classList.toggle('active');
+    checkbox.checked = !checkbox.checked;
+
+    // TODO: Save to database
+    console.log('Zahlungsmodalität toggled:', modality, checkbox.checked);
 }
 
 // DRK-Option rendern
