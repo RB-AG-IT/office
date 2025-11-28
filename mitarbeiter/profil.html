@@ -1910,7 +1910,7 @@
     <div class="profile-container">
         <!-- Header -->
         <div class="profile-header">
-            <button class="back-arrow" onclick="parent.location.hash='users'" title="Zurück">
+            <button class="back-arrow" onclick="goBack()" title="Zurück">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -2745,7 +2745,7 @@
             <span id="lastSaved">Noch nicht gespeichert</span>
         </div>
         <div class="footer-actions">
-            <button class="btn btn-secondary" onclick="parent.location.hash='users'">Abbrechen</button>
+            <button class="btn btn-secondary" onclick="goBack()">Abbrechen</button>
             <button class="btn btn-primary" onclick="saveProfile()">
                 <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -2756,6 +2756,18 @@
     </div>
 
     <script>
+        // ================================================================
+        // NAVIGATION
+        // ================================================================
+        function goBack() {
+            // Check if we're in an iframe
+            if (window.parent !== window) {
+                window.parent.location.hash = 'users';
+            } else {
+                window.location.href = '../index.html#users';
+            }
+        }
+
         // ================================================================
         // SUPABASE SETUP
         // ================================================================
@@ -3640,7 +3652,7 @@
 
                 // Redirect to overview after 1 second
                 setTimeout(() => {
-                    parent.location.hash = 'users';
+                    goBack();
                 }, 1000);
 
             } catch (error) {
