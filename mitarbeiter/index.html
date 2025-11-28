@@ -11,8 +11,12 @@
     <style>
         body {
             background: var(--bg-secondary);
-            padding: var(--spacing-lg);
+            padding: 0;
             margin: 0;
+        }
+
+        .content-area {
+            padding: var(--spacing-lg);
         }
     </style>
 </head>
@@ -57,37 +61,19 @@
     </div>
 </div>
 
-<!-- Action Bar -->
-<div style="margin-bottom: var(--spacing-lg);">
-    <!-- Zeile 1: Suchfeld + Button -->
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
-        <div style="position: relative; flex: 1; max-width: 500px;">
-            <input 
-                type="text" 
-                id="searchInput" 
-                placeholder="Mitarbeiter suchen..." 
-                class="form-input"
-                style="padding-left: 40px;"
-            >
-            <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<!-- Action Toolbar -->
+<div class="action-toolbar">
+    <div class="toolbar-left">
+        <!-- Keine Tabs auf dieser Seite -->
+    </div>
+    <div class="toolbar-center">
+        <div class="toolbar-search">
+            <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
+            <input type="text" class="toolbar-search-input" id="searchInput" placeholder="Mitarbeiter suchen...">
         </div>
-        
-        <button 
-            id="addEmployeeBtn"
-            class="btn btn-primary"
-        >
-            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Neuer Mitarbeiter
-        </button>
-    </div>
-    
-    <!-- Zeile 2: Filter -->
-    <div style="display: flex; gap: var(--spacing-md); align-items: center;">
-        <select id="roleFilter" class="form-input" style="min-width: 180px; flex-shrink: 0; width: auto;">
+        <select class="toolbar-filter" id="roleFilter">
             <option value="">Alle Rollen</option>
             <option value="junior_marketing_manager">Junior Marketing Manager</option>
             <option value="senior_marketing_manager">Senior Marketing Manager</option>
@@ -95,16 +81,24 @@
             <option value="kader_manager">Kader Manager</option>
             <option value="führungsebene">Führungsebene</option>
         </select>
-        
-        <select id="statusFilter" class="form-input" style="min-width: 140px; flex-shrink: 0; width: auto;">
+        <select class="toolbar-filter" id="statusFilter">
             <option value="">Alle Status</option>
             <option value="aktiv">Aktiv</option>
             <option value="ausstehend">Ausstehend</option>
             <option value="inaktiv">Inaktiv</option>
         </select>
     </div>
+    <div class="toolbar-right">
+        <button class="toolbar-btn toolbar-btn-primary" id="addEmployeeBtn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>Neuer Mitarbeiter</span>
+        </button>
+    </div>
 </div>
 
+<div class="content-area">
 <!-- Employee List -->
 <div class="table-container">
     <!-- Table Header -->
@@ -134,6 +128,7 @@
     <h3 style="font-size: var(--font-size-lg); font-weight: 600; margin-bottom: var(--spacing-sm);">Keine Mitarbeiter gefunden</h3>
     <p class="text-secondary text-sm">Versuchen Sie einen anderen Suchbegriff oder Filter.</p>
 </div>
+</div><!-- Ende content-area -->
 
 <script>
 // ================================================================
