@@ -1490,19 +1490,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border: none;
-            background: transparent;
+            background: var(--bg-primary);
             color: var(--text-secondary);
             border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all 0.2s;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .kw-nav-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
+            background: var(--accent-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .kw-nav-btn:active {
+            transform: scale(0.95);
         }
 
         .kw-display {
@@ -2345,7 +2353,7 @@
 
                 <div class="role-provision-section">
                     <div class="role-select-row">
-                        <div class="form-group">
+                        <div class="form-group" style="flex: 2; min-width: 280px;">
                             <label class="form-label">Karrierestufe auswählen *</label>
                             <select class="form-input" id="mainRole">
                                 <option value="">-- Stufe wählen --</option>
@@ -2359,45 +2367,38 @@
                                 <option value="fue">FUE - Führungsebene</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Individueller Faktor <span class="optional-badge">Optional</span></label>
-                            <div class="provision-input-wrapper">
-                                <input type="number" class="form-input" id="customFactor" placeholder="Standard" min="0" max="15" step="0.1" style="text-align: center;">
-                                <span class="provision-unit">×</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
+                        <div class="form-group" style="flex: 2; min-width: 320px;">
                             <label class="form-label">Gültig ab KW</label>
-                            <div class="kw-range-selector">
-                                <div class="kw-selector kw-selector-compact" id="roleKwFromSelector">
-                                    <button type="button" class="kw-nav-btn" id="kwPrev">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                            <div class="kw-range-selector" style="gap: 12px;">
+                                <div class="kw-selector" id="roleKwFromSelector" style="padding: 6px;">
+                                    <button type="button" class="kw-nav-btn" id="kwPrev" style="position: relative; z-index: 5;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; pointer-events: none;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                         </svg>
                                     </button>
-                                    <div class="kw-display">
-                                        <span class="kw-number" id="kwNumber">KW 48</span>
-                                        <span class="kw-year" id="kwYear">2025</span>
+                                    <div class="kw-display" style="min-width: 70px; padding: 0 12px;">
+                                        <span class="kw-number" id="kwNumber" style="font-size: 14px;">KW 48</span>
+                                        <span class="kw-year" id="kwYear" style="font-size: 11px;">2025</span>
                                     </div>
-                                    <button type="button" class="kw-nav-btn" id="kwNext">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                    <button type="button" class="kw-nav-btn" id="kwNext" style="position: relative; z-index: 5;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; pointer-events: none;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                         </svg>
                                     </button>
                                 </div>
-                                <span class="kw-range-separator">bis</span>
-                                <div class="kw-selector kw-selector-compact" id="roleKwToSelector">
-                                    <button type="button" class="kw-nav-btn" id="roleKwToPrev">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                <span class="kw-range-separator" style="font-weight: 600;">bis</span>
+                                <div class="kw-selector" id="roleKwToSelector" style="padding: 6px;">
+                                    <button type="button" class="kw-nav-btn" id="roleKwToPrev" style="position: relative; z-index: 5;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; pointer-events: none;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                         </svg>
                                     </button>
-                                    <div class="kw-display">
-                                        <span class="kw-number" id="roleKwToNumber">∞</span>
-                                        <span class="kw-year" id="roleKwToYear"></span>
+                                    <div class="kw-display" style="min-width: 70px; padding: 0 12px;">
+                                        <span class="kw-number" id="roleKwToNumber" style="font-size: 14px;">∞</span>
+                                        <span class="kw-year" id="roleKwToYear" style="font-size: 11px;"></span>
                                     </div>
-                                    <button type="button" class="kw-nav-btn" id="roleKwToNext">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                    <button type="button" class="kw-nav-btn" id="roleKwToNext" style="position: relative; z-index: 5;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; pointer-events: none;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                         </svg>
                                     </button>
@@ -2409,6 +2410,36 @@
                         <div class="role-factor-display" id="roleFaktorDisplay">
                             <span class="factor-label">Faktor</span>
                             <span class="factor-value" id="displayFaktor">-</span>
+                            <span class="factor-individual-hint" id="factorIndividualHint" style="display: none; font-size: 9px; opacity: 0.8; margin-top: 2px;">individuell</span>
+                        </div>
+                    </div>
+
+                    <!-- Individueller Faktor Toggle -->
+                    <div class="individual-factor-toggle" id="individualFactorToggle" style="margin-top: var(--spacing-md); padding: var(--spacing-md); background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="toggleIndividualFactor()">
+                            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; color: var(--accent-color);">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                <span style="font-weight: 600; font-size: var(--font-size-sm);">Individueller Faktor</span>
+                                <span class="optional-badge">Optional</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                <span id="individualFactorValue" style="font-size: var(--font-size-sm); color: var(--text-secondary);">Standard</span>
+                                <svg id="individualFactorChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px; color: var(--text-secondary); transition: transform 0.2s;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div id="individualFactorInput" style="display: none; margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                            <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                                <label style="font-size: var(--font-size-sm); color: var(--text-secondary);">Faktor:</label>
+                                <div class="provision-input-wrapper" style="max-width: 120px;">
+                                    <input type="number" class="form-input" id="customFactor" placeholder="z.B. 6.5" min="0" max="15" step="0.1" style="text-align: center; height: 40px;">
+                                    <span class="provision-unit">×</span>
+                                </div>
+                                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: 0;">Überschreibt den Standard-Faktor der Karrierestufe</p>
+                            </div>
                         </div>
                     </div>
                     <p class="kw-hint" id="kwHint" style="display: none; font-size: var(--font-size-xs); color: var(--warning-color); margin-top: var(--spacing-sm);">
@@ -4099,28 +4130,66 @@
         });
 
         // Faktor-Anzeige aktualisieren (mit individuellem Faktor)
+        // Individueller Faktor Toggle Status
+        let individualFactorEnabled = false;
+
+        // Toggle für Individueller Faktor
+        function toggleIndividualFactor() {
+            individualFactorEnabled = !individualFactorEnabled;
+            const inputSection = document.getElementById('individualFactorInput');
+            const chevron = document.getElementById('individualFactorChevron');
+            const valueDisplay = document.getElementById('individualFactorValue');
+            const customFactorInput = document.getElementById('customFactor');
+
+            if (individualFactorEnabled) {
+                inputSection.style.display = 'block';
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                inputSection.style.display = 'none';
+                chevron.style.transform = 'rotate(0deg)';
+                // Individuellen Faktor zurücksetzen
+                customFactorInput.value = '';
+                valueDisplay.textContent = 'Standard';
+                updateFactorDisplay();
+                checkRoleCanBeSaved();
+            }
+        }
+
         function updateFactorDisplay() {
             const customFactor = document.getElementById('customFactor').value;
             const roleSelect = document.getElementById('mainRole');
             const faktorDisplay = document.getElementById('displayFaktor');
-            const faktorLabel = faktorDisplay.previousElementSibling;
+            const faktorLabel = document.querySelector('.factor-label');
+            const individualHint = document.getElementById('factorIndividualHint');
+            const valueDisplay = document.getElementById('individualFactorValue');
 
-            if (customFactor && parseFloat(customFactor) > 0) {
-                // Individueller Faktor eingetragen
+            if (individualFactorEnabled && customFactor && parseFloat(customFactor) > 0) {
+                // Individueller Faktor eingetragen und Toggle aktiv
                 faktorDisplay.textContent = parseFloat(customFactor).toFixed(1);
-                faktorLabel.textContent = 'Individuell';
+                faktorLabel.textContent = 'Faktor';
+                individualHint.style.display = 'block';
                 faktorDisplay.parentElement.style.background = 'linear-gradient(135deg, #FF6B6B 0%, #ee5a5a 100%)';
+                valueDisplay.textContent = parseFloat(customFactor).toFixed(1) + '×';
+                valueDisplay.style.color = '#FF6B6B';
+                valueDisplay.style.fontWeight = '600';
             } else if (roleSelect.value) {
                 // Karrierestufe-Faktor verwenden
                 const config = ROLE_CONFIG[roleSelect.value];
                 if (config) {
                     faktorDisplay.textContent = config.faktor.toFixed(1);
                     faktorLabel.textContent = 'Faktor';
+                    individualHint.style.display = 'none';
                     faktorDisplay.parentElement.style.background = 'linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%)';
+                    if (valueDisplay) {
+                        valueDisplay.textContent = 'Standard';
+                        valueDisplay.style.color = 'var(--text-secondary)';
+                        valueDisplay.style.fontWeight = 'normal';
+                    }
                 }
             } else {
                 faktorDisplay.textContent = '-';
                 faktorLabel.textContent = 'Faktor';
+                individualHint.style.display = 'none';
                 faktorDisplay.parentElement.style.background = 'linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%)';
             }
         }
