@@ -3053,6 +3053,120 @@
             color: #6b7280;
         }
 
+        .info-badge.orange {
+            background: #ffedd5;
+            color: #ea580c;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+        .toggle-slider {
+            width: 44px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .toggle-slider::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--accent-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::after {
+            left: 22px;
+        }
+
+        .toggle-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+        }
+
+        /* Checkbox Pills */
+        .checkbox-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .checkbox-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .checkbox-pill:hover {
+            border-color: var(--accent-color);
+        }
+
+        .checkbox-pill.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .checkbox-pill input {
+            display: none;
+        }
+
+        /* Einsatzgebiet Options Section */
+        .einsatzgebiet-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .einsatzgebiet-option-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .einsatzgebiet-option-label {
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .konditionen-section-view {
             margin-top: var(--spacing-md);
             padding-top: var(--spacing-md);
@@ -7215,6 +7329,9 @@ function renderViewEinsatzgebiete(campaign) {
             ],
             teilvergutung: true,
             teilvergutungPercent: 80,
+            // Neue Optionen
+            erhohungen: true,
+            paymentModalities: ['monthly', 'quarterly', 'biannual', 'annual'],
             // DRK-Optionen
             drkAuto: { bereitstellung: 'drk', kostenuebernahme: 'drk', kostenTyp: 'aufwand', kosten: 250 },
             drkKleidung: { bereitstellung: 'rb', kostenuebernahme: 'drk', kostenTyp: 'vereinbart', kosten: 50, pro: 'person', zeitraum: 'woche' },
@@ -7225,6 +7342,15 @@ function renderViewEinsatzgebiete(campaign) {
     let html = '';
 
     dummyEinsatzgebiete.forEach((eg, index) => {
+        // Payment modalities labels
+        const paymentLabels = {
+            'monthly': 'Monatlich',
+            'quarterly': 'Quartal',
+            'biannual': 'Halbjährlich',
+            'annual': 'Jährlich'
+        };
+        const allModalities = ['monthly', 'quarterly', 'biannual', 'annual'];
+
         html += `
             <div class="einsatzgebiet-view">
                 <div class="einsatzgebiet-view-header">
@@ -7238,11 +7364,35 @@ function renderViewEinsatzgebiete(campaign) {
                     <span class="info-badge gray">${eg.plz}</span>
                 </div>
                 <div class="einsatzgebiet-view-body">
+                    <!-- Erhöhungen & Zahlungsmodalitäten -->
+                    <div class="einsatzgebiet-options">
+                        <div class="einsatzgebiet-option-group">
+                            <span class="einsatzgebiet-option-label">Erhöhungen</span>
+                            <label class="toggle-switch" onclick="toggleErhohungen(${index})">
+                                <input type="checkbox" id="erhohungen-${index}" ${eg.erhohungen ? 'checked' : ''}>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">${eg.erhohungen ? 'Ja' : 'Nein'}</span>
+                            </label>
+                        </div>
+                        <div class="einsatzgebiet-option-group">
+                            <span class="einsatzgebiet-option-label">Zahlungsmodalitäten</span>
+                            <div class="checkbox-pills">
+                                ${allModalities.map(mod => `
+                                    <label class="checkbox-pill ${eg.paymentModalities.includes(mod) ? 'active' : ''}" onclick="togglePaymentModality(${index}, '${mod}')">
+                                        <input type="checkbox" ${eg.paymentModalities.includes(mod) ? 'checked' : ''}>
+                                        ${paymentLabels[mod]}
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="badge-row" style="margin-bottom: var(--spacing-md);">
                         <span class="info-badge blue">Bevölkerung: ${eg.population.toLocaleString('de-DE')}</span>
                         <span class="info-badge purple">Sondierung: ${eg.sondierungslimit} MG</span>
                         ${eg.qualityBonus ? '<span class="info-badge green">Qualitätsbonus aktiv</span>' : ''}
                         ${eg.teilvergutung ? '<span class="info-badge green">Teilvergütung: ' + eg.teilvergutungPercent + '%</span>' : ''}
+                        ${eg.erhohungen ? '<span class="info-badge orange">Erhöhungen aktiv</span>' : ''}
                     </div>
 
                     <!-- DRK-Optionen -->
@@ -7302,6 +7452,45 @@ function renderViewEinsatzgebiete(campaign) {
     });
 
     container.innerHTML = html || '<p style="color: var(--text-secondary);">Keine Einsatzgebiete definiert</p>';
+}
+
+// Toggle Erhöhungen für ein Einsatzgebiet
+function toggleErhohungen(index) {
+    const checkbox = document.getElementById(`erhohungen-${index}`);
+    const label = checkbox.parentElement.querySelector('.toggle-label');
+
+    // Toggle the checkbox
+    checkbox.checked = !checkbox.checked;
+    label.textContent = checkbox.checked ? 'Ja' : 'Nein';
+
+    // Update badge
+    const badge = checkbox.closest('.einsatzgebiet-view').querySelector('.info-badge.orange');
+    if (checkbox.checked && !badge) {
+        const badgeRow = checkbox.closest('.einsatzgebiet-view').querySelector('.badge-row');
+        const newBadge = document.createElement('span');
+        newBadge.className = 'info-badge orange';
+        newBadge.textContent = 'Erhöhungen aktiv';
+        badgeRow.appendChild(newBadge);
+    } else if (!checkbox.checked && badge) {
+        badge.remove();
+    }
+
+    // TODO: Save to database
+    console.log('Erhöhungen toggled for index', index, ':', checkbox.checked);
+}
+
+// Toggle Payment Modality für ein Einsatzgebiet
+function togglePaymentModality(index, modality) {
+    event.preventDefault();
+    const pill = event.currentTarget;
+    const checkbox = pill.querySelector('input');
+
+    // Toggle active state
+    pill.classList.toggle('active');
+    checkbox.checked = !checkbox.checked;
+
+    // TODO: Save to database
+    console.log('Payment modality toggled for index', index, ':', modality, checkbox.checked);
 }
 
 // DRK-Option rendern
