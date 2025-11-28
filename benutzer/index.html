@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benutzer - RB Inside Office</title>
+    <link rel="stylesheet" href="../styles.css">
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            overflow-y: auto;
+            height: 100%;
+            margin: 0;
+            background: var(--bg-secondary);
+        }
+
+        .page-container {
+            padding: 0;
+        }
+
+        .content-area {
+            padding: var(--spacing-lg);
+        }
+
+        /* Multi-Select Dropdown */
+        .multi-select-container {
+            position: relative;
+        }
+
+        .multi-select-trigger {
+            height: 36px;
+            padding: 0 32px 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 140px;
+            position: relative;
+        }
+
+        .multi-select-trigger::after {
+            content: '';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--text-secondary);
+        }
+
+        .multi-select-trigger.open::after {
+            border-top-color: transparent;
+            border-bottom-color: var(--text-secondary);
+            transform: translateY(-80%);
+        }
+
+        .multi-select-count {
+            background: var(--accent-color);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .multi-select-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            min-width: 220px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .multi-select-dropdown.open {
+            display: block;
+        }
+
+        .multi-select-section {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .multi-select-section:last-child {
+            border-bottom: none;
+        }
+
+        .multi-select-section-title {
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .multi-select-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 13px;
+        }
+
+        .multi-select-option:hover {
+            background: var(--bg-hover);
+        }
+
+        .multi-select-option.selected {
+            background: #dcfce7;
+        }
+
+        .multi-select-option.selected .multi-select-check {
+            display: flex;
+        }
+
+        .multi-select-option.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .multi-select-check {
+            display: none;
+            width: 18px;
+            height: 18px;
+            background: #22c55e;
+            border-radius: 4px;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .multi-select-check svg {
+            width: 12px;
+            height: 12px;
+            color: white;
+        }
+
+        .multi-select-box {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .multi-select-option.selected .multi-select-box {
+            display: none;
+        }
+
+        /* Benutzer-Tabelle */
+        .users-table {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .users-table-header {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 1.5fr 80px 1.2fr 140px 80px;
+            gap: 1px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .users-table-header > div {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.15s;
+        }
+
+        .sortable:hover {
+            color: var(--text-primary);
+        }
+
+        .sortable.active {
+            color: var(--accent-color);
+        }
+
+        .sort-icon {
+            width: 14px;
+            height: 14px;
+            opacity: 0.5;
+            transition: opacity 0.15s, transform 0.15s;
+        }
+
+        .sortable:hover .sort-icon,
+        .sortable.active .sort-icon {
+            opacity: 1;
+        }
+
+        .sortable.desc .sort-icon {
+            transform: rotate(180deg);
+        }
+
+        .users-table-body {
+            background: var(--bg-primary);
+        }
+
+        .user-row {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 1.5fr 80px 1.2fr 140px 80px;
+            gap: 1px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s;
+        }
+
+        .user-row:last-child {
+            border-bottom: none;
+        }
+
+        .user-row:hover {
+            background: var(--bg-hover);
+        }
+
+        .user-row > div {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Benutzer-Info mit farbigem Indikator */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-type-indicator {
+            width: 4px;
+            height: 40px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .user-type-indicator.mitarbeiter {
+            background: #22c55e;
+        }
+
+        .user-type-indicator.kunde {
+            background: #ef4444;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-avatar.mitarbeiter {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+
+        .user-avatar.kunde {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        /* Label/Stufe Badge */
+        .label-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .label-badge.mitarbeiter {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .label-badge.kunde {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Email */
+        .user-email {
+            font-size: 13px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Statistik Button */
+        .btn-stats {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .btn-stats:hover {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-stats svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Herkunft */
+        .user-herkunft {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .user-herkunft .stadt {
+            color: var(--text-secondary);
+        }
+
+        /* Online Status */
+        .status-online {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-online::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-offline {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Bearbeiten Button */
+        .btn-edit {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+            color: var(--text-secondary);
+        }
+
+        .btn-edit:hover {
+            background: var(--bg-secondary);
+            color: var(--accent-color);
+        }
+
+        .btn-edit svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 64px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: var(--spacing-md);
+            color: #d1d5db;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Action Toolbar -->
+        <div class="action-toolbar">
+            <div class="toolbar-left">
+                <div class="toolbar-tabs">
+                    <button class="toolbar-tab active" data-filter="alle">Beide</button>
+                    <button class="toolbar-tab" data-filter="mitarbeiter">Mitarbeiter</button>
+                    <button class="toolbar-tab" data-filter="kunde">Kunden</button>
+                </div>
+            </div>
+            <div class="toolbar-center">
+                <div class="toolbar-search">
+                    <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" class="toolbar-search-input" id="searchInput" placeholder="Benutzer suchen...">
+                </div>
+
+                <!-- Multi-Select Stufen Filter -->
+                <div class="multi-select-container" id="stufenFilter">
+                    <div class="multi-select-trigger" id="stufenTrigger">
+                        <span>Alle Stufen</span>
+                        <span class="multi-select-count" style="display: none;">0</span>
+                    </div>
+                    <div class="multi-select-dropdown" id="stufenDropdown">
+                        <div class="multi-select-section" id="mitarbeiterStufen">
+                            <div class="multi-select-section-title">Mitarbeiter</div>
+                            <div class="multi-select-option" data-value="junior_marketing_manager" data-type="mitarbeiter">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>Junior Marketing Manager</span>
+                            </div>
+                            <div class="multi-select-option" data-value="senior_marketing_manager" data-type="mitarbeiter">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>Senior Marketing Manager</span>
+                            </div>
+                            <div class="multi-select-option" data-value="spitzenbotschafter" data-type="mitarbeiter">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>Spitzenbotschafter</span>
+                            </div>
+                            <div class="multi-select-option" data-value="kader_manager" data-type="mitarbeiter">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>Kader Manager</span>
+                            </div>
+                            <div class="multi-select-option" data-value="führungsebene" data-type="mitarbeiter">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>Führungsebene</span>
+                            </div>
+                        </div>
+                        <div class="multi-select-section" id="kundenStufen">
+                            <div class="multi-select-section-title">Kunden</div>
+                            <div class="multi-select-option" data-value="kreisverband" data-type="kunde">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>Kreisverband</span>
+                            </div>
+                            <div class="multi-select-option" data-value="ortsverein" data-type="kunde">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>Ortsverein</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="toolbar-right">
+                <button class="toolbar-btn toolbar-btn-primary" id="addUserBtn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Benutzer anlegen</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Benutzer Tabelle -->
+            <div class="users-table">
+                <div class="users-table-header">
+                    <div class="sortable active" data-sort="name">
+                        Benutzer
+                        <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                        </svg>
+                    </div>
+                    <div class="sortable" data-sort="label">
+                        Label
+                        <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                        </svg>
+                    </div>
+                    <div>Email</div>
+                    <div>Statistik</div>
+                    <div class="sortable" data-sort="herkunft">
+                        Herkunft
+                        <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                        </svg>
+                    </div>
+                    <div>Letzter Login</div>
+                    <div></div>
+                </div>
+                <div class="users-table-body" id="usersTableBody">
+                    <!-- Benutzer werden dynamisch geladen -->
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <h3>Keine Benutzer gefunden</h3>
+                <p>Versuchen Sie einen anderen Suchbegriff oder Filter.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Benutzer anlegen -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Benutzer anlegen</h2>
+                <button class="modal-close" id="closeModalBtn">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Benutzertyp *</label>
+                    <select class="form-input" id="userType">
+                        <option value="">Bitte auswählen</option>
+                        <option value="mitarbeiter">Mitarbeiter</option>
+                        <option value="kunde">Kunde</option>
+                    </select>
+                </div>
+                <div id="dynamicFields">
+                    <!-- Dynamische Felder je nach Typ -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Abbrechen</button>
+                <button type="button" class="btn btn-primary" id="saveUserBtn" disabled>Benutzer anlegen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // SUPABASE SETUP
+        // ================================================================
+        const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ================================================================
+        // CONSTANTS
+        // ================================================================
+        const roleLabels = {
+            'junior_marketing_manager': 'Junior Marketing Manager',
+            'senior_marketing_manager': 'Senior Marketing Manager',
+            'spitzenbotschafter': 'Spitzenbotschafter',
+            'kader_manager': 'Kader Manager',
+            'führungsebene': 'Führungsebene',
+            'kreisverband': 'Kreisverband',
+            'ortsverein': 'Ortsverein'
+        };
+
+        // State
+        let users = [];
+        let currentFilter = 'alle';
+        let currentSort = { field: 'name', direction: 'asc' };
+        let selectedStufen = [];
+        let searchTerm = '';
+
+        // ================================================================
+        // DUMMY DATA (bis Supabase vollständig verbunden ist)
+        // ================================================================
+        const dummyUsers = [
+            {
+                id: '1',
+                type: 'mitarbeiter',
+                name: 'Max Müller',
+                stufe: 'junior_marketing_manager',
+                email: 'max.mueller@rb-inside.de',
+                bundesland: 'Bayern',
+                stadt: 'München',
+                lastLogin: new Date(),
+                isOnline: true
+            },
+            {
+                id: '2',
+                type: 'mitarbeiter',
+                name: 'Lisa Schmidt',
+                stufe: 'spitzenbotschafter',
+                email: 'lisa.schmidt@rb-inside.de',
+                bundesland: 'Baden-Württemberg',
+                stadt: 'Stuttgart',
+                lastLogin: new Date(Date.now() - 3600000),
+                isOnline: false
+            },
+            {
+                id: '3',
+                type: 'kunde',
+                name: 'DRK Kreisverband Ludwigshafen',
+                stufe: 'kreisverband',
+                email: 'kontakt@drk-ludwigshafen.de',
+                bundesland: 'Rheinland-Pfalz',
+                stadt: 'Ludwigshafen',
+                lastLogin: new Date(Date.now() - 86400000),
+                isOnline: false
+            },
+            {
+                id: '4',
+                type: 'kunde',
+                name: 'DRK Ortsverein Römerberg',
+                stufe: 'ortsverein',
+                email: 'info@drk-roemerberg.de',
+                bundesland: 'Rheinland-Pfalz',
+                stadt: 'Römerberg',
+                lastLogin: new Date(Date.now() - 172800000),
+                isOnline: false
+            },
+            {
+                id: '5',
+                type: 'mitarbeiter',
+                name: 'Thomas Weber',
+                stufe: 'kader_manager',
+                email: 'thomas.weber@rb-inside.de',
+                bundesland: 'Sachsen',
+                stadt: 'Dresden',
+                lastLogin: new Date(),
+                isOnline: true
+            },
+            {
+                id: '6',
+                type: 'mitarbeiter',
+                name: 'Anna Hoffmann',
+                stufe: 'führungsebene',
+                email: 'anna.hoffmann@rb-inside.de',
+                bundesland: 'Nordrhein-Westfalen',
+                stadt: 'Köln',
+                lastLogin: new Date(Date.now() - 7200000),
+                isOnline: false
+            },
+            {
+                id: '7',
+                type: 'kunde',
+                name: 'DRK Kreisverband Mannheim',
+                stufe: 'kreisverband',
+                email: 'info@drk-mannheim.de',
+                bundesland: 'Baden-Württemberg',
+                stadt: 'Mannheim',
+                lastLogin: new Date(),
+                isOnline: true
+            }
+        ];
+
+        // ================================================================
+        // RENDER FUNCTIONS
+        // ================================================================
+
+        function getInitials(name) {
+            const parts = name.trim().split(' ');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        function formatLastLogin(date, isOnline) {
+            if (isOnline) {
+                return `<span class="status-online">Online</span>`;
+            }
+            const d = new Date(date);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `<span class="status-offline">${day}.${month}.${year} ${hours}:${minutes}</span>`;
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            const emptyState = document.getElementById('emptyState');
+
+            // Filter
+            let filtered = users.filter(user => {
+                // Type filter
+                if (currentFilter !== 'alle' && user.type !== currentFilter) return false;
+
+                // Search filter
+                if (searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    if (!user.name.toLowerCase().includes(term) &&
+                        !user.email.toLowerCase().includes(term)) return false;
+                }
+
+                // Stufen filter
+                if (selectedStufen.length > 0 && !selectedStufen.includes(user.stufe)) return false;
+
+                return true;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                let valA, valB;
+                switch (currentSort.field) {
+                    case 'name':
+                        valA = a.name.toLowerCase();
+                        valB = b.name.toLowerCase();
+                        break;
+                    case 'label':
+                        valA = roleLabels[a.stufe] || a.stufe;
+                        valB = roleLabels[b.stufe] || b.stufe;
+                        break;
+                    case 'herkunft':
+                        valA = a.bundesland.toLowerCase();
+                        valB = b.bundesland.toLowerCase();
+                        break;
+                    default:
+                        valA = a.name.toLowerCase();
+                        valB = b.name.toLowerCase();
+                }
+
+                if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'flex';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            tbody.innerHTML = filtered.map(user => `
+                <div class="user-row" data-id="${user.id}" data-type="${user.type}">
+                    <div>
+                        <div class="user-info">
+                            <div class="user-type-indicator ${user.type}"></div>
+                            <div class="user-avatar ${user.type}">${getInitials(user.name)}</div>
+                            <span class="user-name">${user.name}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="label-badge ${user.type}">${roleLabels[user.stufe] || user.stufe}</span>
+                    </div>
+                    <div>
+                        <span class="user-email">${user.email}</span>
+                    </div>
+                    <div>
+                        <button class="btn-stats" onclick="openStatistics('${user.id}', '${user.type}')" title="Statistik anzeigen">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div>
+                        <span class="user-herkunft">${user.bundesland} <span class="stadt">(${user.stadt})</span></span>
+                    </div>
+                    <div>
+                        ${formatLastLogin(user.lastLogin, user.isOnline)}
+                    </div>
+                    <div>
+                        <button class="btn-edit" onclick="editUser('${user.id}', '${user.type}')" title="Bearbeiten">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ================================================================
+        // EVENT HANDLERS
+        // ================================================================
+
+        // Tabs
+        document.querySelectorAll('.toolbar-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.toolbar-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+
+                // Update Stufen-Filter opacity based on tab
+                updateStufenFilterVisibility();
+                renderUsers();
+            });
+        });
+
+        function updateStufenFilterVisibility() {
+            const mitarbeiterOptions = document.querySelectorAll('[data-type="mitarbeiter"]');
+            const kundenOptions = document.querySelectorAll('[data-type="kunde"]');
+
+            mitarbeiterOptions.forEach(opt => {
+                opt.classList.toggle('disabled', currentFilter === 'kunde');
+            });
+            kundenOptions.forEach(opt => {
+                opt.classList.toggle('disabled', currentFilter === 'mitarbeiter');
+            });
+        }
+
+        // Sortierung
+        document.querySelectorAll('.sortable').forEach(header => {
+            header.addEventListener('click', function() {
+                const field = this.dataset.sort;
+
+                if (currentSort.field === field) {
+                    // Toggle direction
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    this.classList.toggle('desc', currentSort.direction === 'desc');
+                } else {
+                    // New field
+                    document.querySelectorAll('.sortable').forEach(h => {
+                        h.classList.remove('active', 'desc');
+                    });
+                    currentSort = { field, direction: 'asc' };
+                    this.classList.add('active');
+                }
+
+                renderUsers();
+            });
+        });
+
+        // Suche
+        document.getElementById('searchInput').addEventListener('input', function() {
+            searchTerm = this.value;
+            renderUsers();
+        });
+
+        // Multi-Select Stufen Filter
+        const stufenTrigger = document.getElementById('stufenTrigger');
+        const stufenDropdown = document.getElementById('stufenDropdown');
+
+        stufenTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('open');
+            stufenDropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!stufenDropdown.contains(e.target) && !stufenTrigger.contains(e.target)) {
+                stufenTrigger.classList.remove('open');
+                stufenDropdown.classList.remove('open');
+            }
+        });
+
+        document.querySelectorAll('.multi-select-option').forEach(option => {
+            option.addEventListener('click', function() {
+                if (this.classList.contains('disabled')) return;
+
+                const value = this.dataset.value;
+                this.classList.toggle('selected');
+
+                if (this.classList.contains('selected')) {
+                    selectedStufen.push(value);
+                } else {
+                    selectedStufen = selectedStufen.filter(s => s !== value);
+                }
+
+                updateStufenTriggerText();
+                renderUsers();
+            });
+        });
+
+        function updateStufenTriggerText() {
+            const text = stufenTrigger.querySelector('span:first-child');
+            const count = stufenTrigger.querySelector('.multi-select-count');
+
+            if (selectedStufen.length === 0) {
+                text.textContent = 'Alle Stufen';
+                count.style.display = 'none';
+            } else if (selectedStufen.length === 1) {
+                text.textContent = roleLabels[selectedStufen[0]] || selectedStufen[0];
+                count.style.display = 'none';
+            } else {
+                text.textContent = 'Stufen';
+                count.textContent = selectedStufen.length;
+                count.style.display = 'inline';
+            }
+        }
+
+        // ================================================================
+        // NAVIGATION FUNCTIONS
+        // ================================================================
+
+        function openStatistics(userId, userType) {
+            // Öffnet Statistik-Seite mit Benutzer vorausgewählt
+            if (window.parent && window.parent !== window) {
+                window.parent.location.hash = 'statistics';
+                // TODO: Parameter für vorausgewählten Benutzer übergeben
+            } else {
+                window.location.href = '../statistik/?user=' + userId;
+            }
+        }
+
+        function editUser(userId, userType) {
+            if (userType === 'mitarbeiter') {
+                window.location.href = '../mitarbeiter/profil.html?id=' + userId;
+            } else {
+                window.location.href = '../kunden/kunde.html?id=' + userId;
+            }
+        }
+
+        // ================================================================
+        // MODAL FUNCTIONS
+        // ================================================================
+
+        const modal = document.getElementById('addUserModal');
+        const userTypeSelect = document.getElementById('userType');
+        const dynamicFields = document.getElementById('dynamicFields');
+        const saveBtn = document.getElementById('saveUserBtn');
+
+        document.getElementById('addUserBtn').addEventListener('click', () => {
+            modal.classList.add('show');
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+        document.getElementById('cancelBtn').addEventListener('click', closeModal);
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        function closeModal() {
+            modal.classList.remove('show');
+            userTypeSelect.value = '';
+            dynamicFields.innerHTML = '';
+            saveBtn.disabled = true;
+        }
+
+        userTypeSelect.addEventListener('change', function() {
+            const type = this.value;
+            saveBtn.disabled = !type;
+
+            if (type === 'mitarbeiter') {
+                dynamicFields.innerHTML = `
+                    <div class="form-group">
+                        <label class="form-label">Name *</label>
+                        <input type="text" class="form-input" id="userName" placeholder="Max Mustermann">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">E-Mail *</label>
+                        <input type="email" class="form-input" id="userEmail" placeholder="max@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Rolle *</label>
+                        <select class="form-input" id="userRole">
+                            <option value="">Bitte auswählen</option>
+                            <option value="junior_marketing_manager">Junior Marketing Manager</option>
+                            <option value="senior_marketing_manager">Senior Marketing Manager</option>
+                            <option value="spitzenbotschafter">Spitzenbotschafter</option>
+                            <option value="kader_manager">Kader Manager</option>
+                            <option value="führungsebene">Führungsebene</option>
+                        </select>
+                    </div>
+                `;
+            } else if (type === 'kunde') {
+                dynamicFields.innerHTML = `
+                    <div class="form-group">
+                        <label class="form-label">Kundenname *</label>
+                        <input type="text" class="form-input" id="userName" placeholder="z.B. DRK Kreisverband München">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Typ *</label>
+                        <select class="form-input" id="userRole">
+                            <option value="kreisverband">Kreisverband</option>
+                            <option value="ortsverein">Ortsverein</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kontaktperson</label>
+                        <input type="text" class="form-input" id="contactPerson" placeholder="Max Mustermann">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">E-Mail</label>
+                        <input type="email" class="form-input" id="userEmail" placeholder="kontakt@drk-example.de">
+                    </div>
+                `;
+            } else {
+                dynamicFields.innerHTML = '';
+            }
+        });
+
+        saveBtn.addEventListener('click', async function() {
+            const type = userTypeSelect.value;
+            const name = document.getElementById('userName')?.value?.trim();
+            const email = document.getElementById('userEmail')?.value?.trim();
+            const role = document.getElementById('userRole')?.value;
+
+            if (!name || !role) {
+                alert('Bitte alle Pflichtfelder ausfüllen.');
+                return;
+            }
+
+            // Hier würde die Supabase-Integration kommen
+            // Für jetzt: Dummy-Daten hinzufügen
+            const newUser = {
+                id: String(Date.now()),
+                type: type,
+                name: name,
+                stufe: role,
+                email: email || 'keine@email.de',
+                bundesland: 'Deutschland',
+                stadt: 'Unbekannt',
+                lastLogin: new Date(),
+                isOnline: false
+            };
+
+            users.unshift(newUser);
+            renderUsers();
+            closeModal();
+
+            alert('Benutzer erfolgreich angelegt!');
+        });
+
+        // ================================================================
+        // INITIALIZATION
+        // ================================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load dummy data (später durch Supabase ersetzen)
+            users = [...dummyUsers];
+            renderUsers();
+
+            // TODO: Live-Update für Online-Status implementieren
+            // setInterval(() => { ... }, 30000);
+        });
+    </script>
+</body>
+</html>
