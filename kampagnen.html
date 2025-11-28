@@ -38,11 +38,14 @@
         .campaign-card {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
+            padding: var(--spacing-xl);
             box-shadow: var(--shadow-sm);
             border: 2px solid var(--border-color);
             transition: all 0.2s;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            min-height: 280px;
         }
 
         .campaign-card:hover {
@@ -67,25 +70,27 @@
             display: flex;
             justify-content: space-between;
             align-items: start;
-            margin-bottom: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
         }
 
         .campaign-title {
-            font-size: var(--font-size-lg);
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: var(--spacing-xs);
+            margin-bottom: 6px;
+            line-height: 1.3;
         }
 
         .campaign-meta {
-            font-size: var(--font-size-xs);
+            font-size: 14px;
             color: var(--text-secondary);
+            line-height: 1.4;
         }
 
         .campaign-status {
-            padding: 4px 10px;
+            padding: 6px 14px;
             border-radius: var(--radius-sm);
-            font-size: var(--font-size-xs);
+            font-size: 13px;
             font-weight: 600;
             white-space: nowrap;
         }
@@ -105,6 +110,13 @@
             color: #6b7280;
         }
 
+        /* Hauptinhalt der Karte - wächst und füllt Platz */
+        .campaign-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
         .campaign-info {
             margin-bottom: var(--spacing-md);
         }
@@ -112,8 +124,13 @@
         .info-row {
             display: flex;
             justify-content: space-between;
-            padding: var(--spacing-xs) 0;
-            font-size: var(--font-size-sm);
+            padding: 8px 0;
+            font-size: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
         }
 
         .info-label {
@@ -122,7 +139,18 @@
 
         .info-value {
             color: var(--text-primary);
-            font-weight: 500;
+            font-weight: 600;
+        }
+
+        /* Contract-Status Platzhalter für konsistente Höhe */
+        .campaign-contract-area {
+            min-height: 36px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        /* KW-Timeline immer am Ende */
+        .campaign-kw-area {
+            margin-top: auto;
         }
 
         .employee-count {
@@ -167,32 +195,40 @@
         .campaign-kw-timeline {
             display: flex;
             flex-wrap: wrap;
-            gap: 4px;
+            gap: 6px;
             background: var(--bg-secondary);
             border-radius: var(--radius-md);
-            padding: var(--spacing-sm);
-            margin-top: var(--spacing-sm);
+            padding: var(--spacing-md);
         }
 
         .kw-timeline-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 4px 6px;
+            justify-content: center;
+            padding: 8px 10px;
             background: var(--bg-primary);
             border-radius: var(--radius-sm);
-            min-width: 36px;
-            font-size: 10px;
+            min-width: 48px;
+            border: 1px solid var(--border-color);
+            transition: all 0.15s;
         }
 
         .kw-timeline-item .kw-num {
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 2px;
         }
 
         .kw-timeline-item .kw-count {
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 14px;
             color: var(--accent-color);
+        }
+
+        .kw-timeline-item.kw-empty {
+            opacity: 0.6;
         }
 
         .kw-timeline-item.kw-empty .kw-count {
@@ -201,6 +237,8 @@
 
         .kw-timeline-item.kw-current {
             background: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
         }
 
         .kw-timeline-item.kw-current .kw-num,
@@ -4717,20 +4755,26 @@ function renderCampaigns() {
                     <span class="campaign-status ${status}">${statusLabels[status]}</span>
                 </div>
 
-                <div class="campaign-info">
-                    <div class="info-row">
-                        <span class="info-label">Einwohner:</span>
-                        <span class="info-value">${einwohnerFormatted} ${totalEinwohner > 0 ? `(${einwohnerPerKWFormatted}/KW)` : ''}</span>
+                <div class="campaign-content">
+                    <div class="campaign-info">
+                        <div class="info-row">
+                            <span class="info-label">Einwohner:</span>
+                            <span class="info-value">${einwohnerFormatted} ${totalEinwohner > 0 ? `(${einwohnerPerKWFormatted}/KW)` : ''}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Einsatzgebiete:</span>
+                            <span class="info-value">${einsatzgebieteCount}</span>
+                        </div>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Einsatzgebiete:</span>
-                        <span class="info-value">${einsatzgebieteCount}</span>
+
+                    <div class="campaign-contract-area">
+                        ${contractStatusHTML}
+                    </div>
+
+                    <div class="campaign-kw-area">
+                        ${kwTimelineHTML}
                     </div>
                 </div>
-
-                ${contractStatusHTML}
-
-                ${kwTimelineHTML}
             </div>
         `;
     }).join('');
