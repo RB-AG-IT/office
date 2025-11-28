@@ -15,52 +15,15 @@
         }
 
         .page-container {
+            padding: 0;
+            max-width: none;
+            margin: 0;
+        }
+
+        .content-area {
             padding: var(--spacing-lg);
             max-width: 1600px;
             margin: 0 auto;
-        }
-
-        /* Sub-Navigation */
-        .sub-nav {
-            display: flex;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-lg);
-            background: var(--bg-primary);
-            padding: var(--spacing-sm);
-            border-radius: 12px;
-        }
-
-        .sub-nav-link {
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-
-        .sub-nav-link:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .sub-nav-link.active {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-xl);
-        }
-
-        .page-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-primary);
         }
 
         /* Gewinn/Verlust Hero */
@@ -363,30 +326,33 @@
 </head>
 <body>
     <div class="page-container">
-        <!-- Sub-Navigation -->
-        <nav class="sub-nav">
-            <a href="werber/" class="sub-nav-link">Werber</a>
-            <a href="drk/" class="sub-nav-link">DRK</a>
-            <a href="index.html" class="sub-nav-link active">Gesamt</a>
-        </nav>
-
-        <!-- Header Actions -->
-        <div class="page-header" style="justify-content: flex-end;">
-            <div style="display: flex; gap: var(--spacing-md); align-items: center;">
-                <div class="zeitraum-filter">
-                    <button class="zeitraum-btn active">Diese Woche</button>
-                    <button class="zeitraum-btn">Dieser Monat</button>
-                    <button class="zeitraum-btn">Dieses Quartal</button>
+        <!-- Action Toolbar -->
+        <div class="action-toolbar">
+            <div class="toolbar-left">
+                <div class="toolbar-tabs">
+                    <a href="werber/" class="toolbar-tab">Werber</a>
+                    <a href="drk/" class="toolbar-tab">DRK</a>
+                    <a href="index.html" class="toolbar-tab active">Gesamt</a>
                 </div>
-                <button class="btn btn-secondary" onclick="exportGesamt()">
-                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            </div>
+            <div class="toolbar-center">
+                <div class="toolbar-tabs">
+                    <button class="toolbar-tab active" onclick="setZeitraum('week')">Diese Woche</button>
+                    <button class="toolbar-tab" onclick="setZeitraum('month')">Dieser Monat</button>
+                    <button class="toolbar-tab" onclick="setZeitraum('quarter')">Dieses Quartal</button>
+                </div>
+            </div>
+            <div class="toolbar-right">
+                <button class="toolbar-btn" onclick="exportGesamt()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
-                    Export
+                    <span>Export</span>
                 </button>
             </div>
         </div>
 
+        <div class="content-area">
         <!-- Gewinn/Verlust Hero -->
         <div class="gewinn-hero">
             <div class="hero-card einnahmen">
@@ -552,6 +518,7 @@
                 </tbody>
             </table>
         </div>
+        </div><!-- Ende content-area -->
     </div>
 
     <script>
@@ -561,13 +528,11 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Zeitraum Filter
-        document.querySelectorAll('.zeitraum-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.zeitraum-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                // Filter-Logik hier...
-            });
-        });
+        function setZeitraum(period) {
+            document.querySelectorAll('.toolbar-center .toolbar-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            // Filter-Logik hier...
+        }
 
         function exportGesamt() {
             alert('Gesamtübersicht wird exportiert...');

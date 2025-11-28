@@ -397,64 +397,66 @@
     </style>
 </head>
 <body>
-    <div class="page-container">
-        <!-- Header Actions -->
-        <div class="page-header" style="justify-content: flex-end;">
-            <button class="btn btn-secondary btn-sm" onclick="exportAlerts()">
-                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+        <div class="toolbar-left">
+            <div class="toolbar-stats">
+                <div class="toolbar-stat-chip">
+                    <span class="toolbar-stat-dot red"></span>
+                    <span class="toolbar-stat-value">5</span>
+                    <span class="toolbar-stat-label">Quality</span>
+                </div>
+                <div class="toolbar-stat-chip">
+                    <span class="toolbar-stat-dot green"></span>
+                    <span class="toolbar-stat-value">3</span>
+                    <span class="toolbar-stat-label">Schriebe</span>
+                </div>
+                <div class="toolbar-stat-chip">
+                    <span class="toolbar-stat-dot orange"></span>
+                    <span class="toolbar-stat-value">2</span>
+                    <span class="toolbar-stat-label">Anomalien</span>
+                </div>
+                <div class="toolbar-stat-chip">
+                    <span class="toolbar-stat-dot purple"></span>
+                    <span class="toolbar-stat-value">2</span>
+                    <span class="toolbar-stat-label">Rücklage</span>
+                </div>
+                <div class="toolbar-stat-chip" style="margin-left: 8px; background: var(--accent-color); color: white;">
+                    <span class="toolbar-stat-value" style="color: white;">12</span>
+                    <span class="toolbar-stat-label" style="color: rgba(255,255,255,0.8);">Gesamt</span>
+                </div>
+            </div>
+        </div>
+        <div class="toolbar-center">
+            <div class="toolbar-tabs">
+                <button class="toolbar-tab active" data-filter="all">
+                    Alle <span class="tab-badge">12</span>
+                </button>
+                <button class="toolbar-tab" data-filter="quality">
+                    Quality <span class="tab-badge">5</span>
+                </button>
+                <button class="toolbar-tab" data-filter="schrieb">
+                    Schriebe <span class="tab-badge">3</span>
+                </button>
+                <button class="toolbar-tab" data-filter="anomaly">
+                    Anomalien <span class="tab-badge">2</span>
+                </button>
+                <button class="toolbar-tab" data-filter="ruecklage">
+                    Rücklage <span class="tab-badge">2</span>
+                </button>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="toolbar-btn" onclick="exportAlerts()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                Export
+                <span>Export</span>
             </button>
         </div>
+    </div>
 
-        <!-- Stats Chips -->
-        <div class="stats-bar">
-            <div class="stat-chip">
-                <span class="stat-chip-dot red"></span>
-                <span class="stat-chip-value">5</span>
-                <span class="stat-chip-label">Quality</span>
-            </div>
-            <div class="stat-chip">
-                <span class="stat-chip-dot green"></span>
-                <span class="stat-chip-value">3</span>
-                <span class="stat-chip-label">Schriebe</span>
-            </div>
-            <div class="stat-chip">
-                <span class="stat-chip-dot yellow"></span>
-                <span class="stat-chip-value">2</span>
-                <span class="stat-chip-label">Anomalien</span>
-            </div>
-            <div class="stat-chip">
-                <span class="stat-chip-dot" style="background: #8b5cf6;"></span>
-                <span class="stat-chip-value">2</span>
-                <span class="stat-chip-label">Rücklage</span>
-            </div>
-            <div class="stat-chip" style="margin-left: auto;">
-                <span class="stat-chip-value">12</span>
-                <span class="stat-chip-label">Gesamt offen</span>
-            </div>
-        </div>
-
-        <!-- Filter Tabs -->
-        <div class="filter-tabs">
-            <button class="filter-tab active" data-filter="all">
-                Alle <span class="filter-badge">12</span>
-            </button>
-            <button class="filter-tab" data-filter="quality">
-                Quality <span class="filter-badge">5</span>
-            </button>
-            <button class="filter-tab" data-filter="schrieb">
-                Schriebe <span class="filter-badge">3</span>
-            </button>
-            <button class="filter-tab" data-filter="anomaly">
-                Anomalien <span class="filter-badge">2</span>
-            </button>
-            <button class="filter-tab" data-filter="ruecklage">
-                Rücklage <span class="filter-badge">2</span>
-            </button>
-        </div>
-
+    <div class="content-area">
         <!-- Alerts List -->
         <div class="alerts-list">
             <!-- Header -->
@@ -1015,13 +1017,13 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>  <!-- Ende content-area -->
 
     <script>
         // Filter functionality
-        document.querySelectorAll('.filter-tab').forEach(tab => {
+        document.querySelectorAll('.toolbar-tab').forEach(tab => {
             tab.addEventListener('click', function() {
-                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.toolbar-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
 
                 const filter = this.dataset.filter;

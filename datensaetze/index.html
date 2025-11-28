@@ -14,159 +14,45 @@
         }
 
         .page-container {
+            padding: 0;
+            max-width: none;
+            margin: 0;
+        }
+
+        .content-area {
             padding: var(--spacing-lg);
             max-width: 1800px;
             margin: 0 auto;
         }
 
-        .page-header {
+        /* Filter-Zeile unter der Toolbar */
+        .filter-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .page-title {
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .header-actions {
-            display: flex;
             gap: var(--spacing-sm);
-        }
-
-        /* Suchfeld - mittig und größer */
-        .search-section {
-            display: flex;
-            justify-content: center;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .search-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-        }
-
-        .search-wrapper input {
-            width: 100%;
-            padding: 14px 20px 14px 48px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 16px;
-            transition: all 0.2s;
-        }
-
-        .search-wrapper input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .search-wrapper svg {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            color: var(--text-secondary);
-        }
-
-        /* Filter Bar */
-        .filter-bar {
-            background: var(--bg-primary);
-            border-radius: 10px;
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-            display: flex;
+            padding: 8px var(--spacing-md);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
             flex-wrap: wrap;
-            gap: var(--spacing-sm);
-            align-items: center;
         }
 
-        .filter-group {
-            display: flex;
+        .filter-row .toolbar-filter-group {
             flex-direction: column;
             gap: 2px;
         }
 
-        .filter-group label {
-            font-size: 10px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            text-transform: uppercase;
+        .filter-row .toolbar-filter-label {
+            font-size: 9px;
         }
 
-        .filter-group select {
-            padding: 6px 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 13px;
-            min-width: 140px;
-        }
-
-        .filter-divider {
-            width: 1px;
-            height: 40px;
-            background: var(--border-color);
-            margin: 0 8px;
-        }
-
-        /* Vorlagen-Bereich */
-        .template-bar {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-            padding: var(--spacing-sm) var(--spacing-md);
-            background: var(--bg-primary);
-            border-radius: 10px;
-        }
-
-        .template-label {
+        .filter-row .toolbar-filter {
+            height: 30px;
             font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
+            min-width: 120px;
         }
 
-        .template-tabs {
-            display: flex;
-            gap: 4px;
-        }
-
-        .template-tab {
-            padding: 6px 12px;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 500;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .template-tab:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .template-tab.active {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        .template-actions {
-            margin-left: auto;
-            display: flex;
-            gap: 8px;
+        .filter-row .toolbar-divider {
+            height: 30px;
         }
 
         /* Stats Cards - kompakter */
@@ -451,90 +337,109 @@
 </head>
 <body>
     <div class="page-container">
-        <!-- Header Actions -->
-        <div class="page-header" style="justify-content: flex-end;">
-            <div class="header-actions">
-                <button class="btn btn-secondary btn-sm" onclick="openExportModal()">
-                    <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Action Toolbar -->
+        <div class="action-toolbar">
+            <div class="toolbar-left">
+                <div class="toolbar-tabs">
+                    <button class="toolbar-tab active" onclick="switchTemplate('standard')">Standard</button>
+                    <button class="toolbar-tab" onclick="switchTemplate('kompakt')">Kompakt</button>
+                    <button class="toolbar-tab" onclick="switchTemplate('detail')">Detail</button>
+                </div>
+            </div>
+            <div class="toolbar-center">
+                <div class="toolbar-search" style="max-width: 360px;">
+                    <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" class="toolbar-search-input" id="searchInput" placeholder="Name, Adresse, Email, Werber suchen..." onkeyup="filterTable()">
+                </div>
+            </div>
+            <div class="toolbar-right">
+                <button class="toolbar-btn" onclick="openTemplateModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>Spalten</span>
+                </button>
+                <button class="toolbar-btn" onclick="saveTemplate()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                    </svg>
+                    <span>Speichern</span>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="toolbar-btn" onclick="openExportModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
-                    Export
+                    <span>Export</span>
                 </button>
-                <button class="btn btn-primary btn-sm" onclick="openImportModal()">
-                    <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button class="toolbar-btn toolbar-btn-primary" onclick="openImportModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                     </svg>
-                    Import
+                    <span>Import</span>
                 </button>
             </div>
         </div>
 
-        <!-- Suchfeld - mittig und größer -->
-        <div class="search-section">
-            <div class="search-wrapper">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <input type="text" id="searchInput" placeholder="Name, Adresse, Email, Werber suchen..." onkeyup="filterTable()">
-            </div>
-        </div>
-
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-            <div class="filter-group">
-                <label>Zeitraum</label>
-                <select id="filterPeriod" onchange="applyFilters()">
+        <!-- Filter Row -->
+        <div class="filter-row">
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Zeitraum</span>
+                <select class="toolbar-filter" id="filterPeriod" onchange="applyFilters()">
                     <option value="week">Diese Woche</option>
                     <option value="month" selected>Dieser Monat</option>
                     <option value="quarter">Dieses Quartal</option>
                     <option value="year">Dieses Jahr</option>
                 </select>
             </div>
-            <div class="filter-group">
-                <label>Kampagne</label>
-                <select id="filterCampaign" onchange="applyFilters()">
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Kampagne</span>
+                <select class="toolbar-filter" id="filterCampaign" onchange="applyFilters()">
                     <option value="">Alle Kampagnen</option>
                     <option value="1">Frühjahrskampagne 2024</option>
                     <option value="2">Sommerkampagne 2024</option>
                     <option value="3">Herbstkampagne 2024</option>
                 </select>
             </div>
-            <div class="filter-group">
-                <label>Kunde</label>
-                <select id="filterCustomer" onchange="applyFilters()">
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Kunde</span>
+                <select class="toolbar-filter" id="filterCustomer" onchange="applyFilters()">
                     <option value="">Alle Kunden</option>
                     <option value="1">DRK KV Ludwigshafen</option>
                     <option value="2">DRK KV Mannheim</option>
                 </select>
             </div>
-            <div class="filter-group">
-                <label>Werbegebiet</label>
-                <select id="filterArea" onchange="applyFilters()">
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Werbegebiet</span>
+                <select class="toolbar-filter" id="filterArea" onchange="applyFilters()">
                     <option value="">Alle Gebiete</option>
                     <option value="1">Ludwigshafen-Mitte</option>
                     <option value="2">Ludwigshafen-Süd</option>
                 </select>
             </div>
-            <div class="filter-divider"></div>
-            <div class="filter-group">
-                <label>Teamchef</label>
-                <select id="filterTeamchef" onchange="applyFilters()">
+            <div class="toolbar-divider"></div>
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Teamchef</span>
+                <select class="toolbar-filter" id="filterTeamchef" onchange="applyFilters()">
                     <option value="">Alle Teamchefs</option>
                     <option value="1">Michael Wagner</option>
                     <option value="2">Sandra Hoffmann</option>
                 </select>
             </div>
-            <div class="filter-group">
-                <label>Typ</label>
-                <select id="filterType" onchange="applyFilters()">
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Typ</span>
+                <select class="toolbar-filter" id="filterType" onchange="applyFilters()">
                     <option value="">Alle</option>
                     <option value="nmg">NMG</option>
                     <option value="erh">ERH</option>
                 </select>
             </div>
-            <div class="filter-group">
-                <label>Status</label>
-                <select id="filterStatus" onchange="applyFilters()">
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Status</span>
+                <select class="toolbar-filter" id="filterStatus" onchange="applyFilters()">
                     <option value="">Alle</option>
                     <option value="active">Aktiv</option>
                     <option value="storniert">Storniert</option>
@@ -542,31 +447,7 @@
             </div>
         </div>
 
-        <!-- Vorlagen-Bereich -->
-        <div class="template-bar">
-            <span class="template-label">Ansicht:</span>
-            <div class="template-tabs">
-                <button class="template-tab active" onclick="switchTemplate('standard')">Standard</button>
-                <button class="template-tab" onclick="switchTemplate('kompakt')">Kompakt</button>
-                <button class="template-tab" onclick="switchTemplate('detail')">Detail</button>
-            </div>
-            <div class="template-actions">
-                <button class="btn btn-secondary btn-sm" onclick="openTemplateModal()">
-                    <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    Spalten
-                </button>
-                <button class="btn btn-secondary btn-sm" onclick="saveTemplate()">
-                    <svg style="width: 12px; height: 12px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-                    </svg>
-                    Speichern
-                </button>
-            </div>
-        </div>
-
+        <div class="content-area">
         <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-chip">
@@ -644,6 +525,7 @@
                 </div>
             </div>
         </div>
+        </div><!-- Ende content-area -->
     </div>
 
     <!-- Template Modal -->

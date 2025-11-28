@@ -753,39 +753,40 @@
     </style>
 </head>
 <body>
-    <div class="page-container">
-        <!-- Haupt-Tabs: Preisvorlagen / Emails -->
-        <div class="main-tabs">
-            <button class="main-tab active" data-main-tab="preisvorlagen">
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+        <div class="toolbar-left">
+            <div class="toolbar-tabs">
+                <button class="toolbar-tab active" data-main-tab="preisvorlagen">
+                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Preisvorlagen
+                </button>
+                <button class="toolbar-tab" data-main-tab="emails">
+                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    E-Mails
+                </button>
+            </div>
+        </div>
+        <div class="toolbar-center"></div>
+        <div class="toolbar-right" id="toolbarRightContent">
+            <button class="toolbar-btn toolbar-btn-primary" onclick="openNewPreisvorlageModal()">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                Preisvorlagen
-            </button>
-            <button class="main-tab" data-main-tab="emails">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                E-Mails
+                <span>Neue Preisvorlage</span>
             </button>
         </div>
+    </div>
 
+    <div class="content-area">
         <!-- ============================================== -->
         <!-- PREISVORLAGEN CONTENT -->
         <!-- ============================================== -->
         <div class="main-tab-content active" id="main-tab-preisvorlagen">
-            <div class="preisvorlagen-header">
-                <div class="preisvorlagen-info">
-                    <h2>Preisvorlagen für Rhodenburg</h2>
-                    <p>Verwalten Sie hier die Preisvorlagen für alle Mitglieder-Formulare der Firma Rhodenburg.</p>
-                </div>
-                <button class="btn btn-primary" onclick="openNewPreisvorlageModal()">
-                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Neue Preisvorlage
-                </button>
-            </div>
 
             <!-- Preisvorlagen Grid -->
             <div class="preisvorlagen-grid">
@@ -869,16 +870,6 @@
         <!-- EMAILS CONTENT -->
         <!-- ============================================== -->
         <div class="main-tab-content" id="main-tab-emails">
-            <div class="emails-header">
-                <h2>E-Mail Vorlagen</h2>
-                <button class="btn btn-primary" onclick="openNewTemplateModal()">
-                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Neue Vorlage
-                </button>
-            </div>
-
             <!-- Placeholders Section -->
         <div class="placeholders-section">
             <h2 class="section-title">
@@ -1317,7 +1308,7 @@
             </div>
         </div>
         </div>  <!-- Ende main-tab-emails -->
-    </div>
+    </div>  <!-- Ende content-area -->
 
     <!-- Edit Template Modal -->
     <div class="modal" id="editModal">
@@ -1409,13 +1400,38 @@ Ihr DRK {werbegebiet}</textarea>
         // ============================================
         // HAUPT-TAB SWITCHING (Preisvorlagen / Emails)
         // ============================================
-        document.querySelectorAll('.main-tab').forEach(tab => {
+        const toolbarRight = document.getElementById('toolbarRightContent');
+
+        function updateToolbarButton(tab) {
+            if (tab === 'preisvorlagen') {
+                toolbarRight.innerHTML = `
+                    <button class="toolbar-btn toolbar-btn-primary" onclick="openNewPreisvorlageModal()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span>Neue Preisvorlage</span>
+                    </button>
+                `;
+            } else {
+                toolbarRight.innerHTML = `
+                    <button class="toolbar-btn toolbar-btn-primary" onclick="openNewTemplateModal()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span>Neue Vorlage</span>
+                    </button>
+                `;
+            }
+        }
+
+        document.querySelectorAll('.toolbar-tab[data-main-tab]').forEach(tab => {
             tab.addEventListener('click', function() {
-                document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.toolbar-tab[data-main-tab]').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.main-tab-content').forEach(c => c.classList.remove('active'));
 
                 this.classList.add('active');
                 document.getElementById('main-tab-' + this.dataset.mainTab).classList.add('active');
+                updateToolbarButton(this.dataset.mainTab);
             });
         });
 
