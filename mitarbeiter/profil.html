@@ -2757,16 +2757,27 @@
 
     <script>
         // ================================================================
-        // NAVIGATION
+        // NAVIGATION & DIRTY STATE
         // ================================================================
+        let hasUnsavedChanges = false;
+
         function goBack() {
-            // Check if we're in an iframe
-            if (window.parent !== window) {
-                window.parent.location.hash = 'users';
-            } else {
-                window.location.href = '../index.html#users';
+            if (hasUnsavedChanges) {
+                if (!confirm('Sie haben ungespeicherte Änderungen.\n\nMöchten Sie wirklich ohne Speichern verlassen?')) {
+                    return;
+                }
             }
+            history.back();
         }
+
+        // Track form changes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Track all input, select, textarea changes
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                el.addEventListener('change', () => hasUnsavedChanges = true);
+                el.addEventListener('input', () => hasUnsavedChanges = true);
+            });
+        });
 
         // ================================================================
         // SUPABASE SETUP
@@ -3648,12 +3659,13 @@
                 saveBtn.disabled = false;
                 saveBtn.innerHTML = originalText;
 
-                alert('✅ Mitarbeiter erfolgreich gespeichert!\n\nSie können jetzt zur Übersicht zurückkehren.');
+                // Reset dirty state before redirect
+                hasUnsavedChanges = false;
 
-                // Redirect to overview after 1 second
-                setTimeout(() => {
-                    goBack();
-                }, 1000);
+                alert('✅ Mitarbeiter erfolgreich gespeichert!');
+
+                // Redirect to overview
+                history.back();
 
             } catch (error) {
                 console.error('Save error:', error);
