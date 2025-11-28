@@ -71,13 +71,6 @@
             height: 20px;
         }
 
-        .page-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-right: auto;
-        }
-
         .nav-menu {
             flex: 1;
             list-style: none;
@@ -182,11 +175,16 @@
             grid-row: 1;
             background: var(--bg-primary);
             border-bottom: 1px solid var(--border-color);
-            padding: 0 32px;
+            padding: 0 24px;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
-            gap: 16px;
+        }
+
+        .topbar .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         .account-menu {
@@ -450,7 +448,7 @@
 
         <!-- Top Bar -->
         <header class="topbar">
-            <div class="page-title">Office & Verwaltung</div>
+            <div class="page-title">Dashboard</div>
             <div class="account-menu">
                 <div class="account-avatar">AD</div>
                 <div class="account-info">
@@ -792,6 +790,29 @@
                 'deletion-requests': 'loeschanfragen/',
                 settings: 'settings.html'
             };
+
+            // Page titles mapping
+            const pageTitles = {
+                dashboard: 'Dashboard',
+                campaigns: 'Kampagnen',
+                alerts: 'Auffälligkeiten',
+                employees: 'Mitarbeiter',
+                records: 'Datensätze',
+                statistics: 'Statistik',
+                customers: 'Kunden',
+                payouts: 'Abrechnungen',
+                templates: 'Vorlagen',
+                'audit-log': 'Audit-Log',
+                stufen: 'Stufen & Achievements',
+                'deletion-requests': 'Lösch-Anfragen',
+                settings: 'Einstellungen'
+            };
+
+            // Update topbar title
+            const titleElement = document.querySelector('.topbar .page-title');
+            if (titleElement && pageTitles[page]) {
+                titleElement.textContent = pageTitles[page];
+            }
 
             // Check if user is logged in
             if (!currentUser) {
