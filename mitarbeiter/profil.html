@@ -78,6 +78,62 @@
             font-size: var(--font-size-sm);
         }
 
+        /* Header Level Badge */
+        .header-level-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-level-badge .level-badge {
+            width: 90px;
+            height: 90px;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--level-color, #78909C);
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .header-level-badge .level-badge-code {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-level-badge .level-badge-stufe {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.85);
+            margin-top: 2px;
+        }
+
+        .header-level-badge .level-stars {
+            display: flex;
+            gap: 2px;
+            margin-top: 4px;
+        }
+
+        .header-level-badge .level-star {
+            width: 14px;
+            height: 14px;
+            fill: #FFD700;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+        }
+
+        .header-level-badge .level-name {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-align: center;
+        }
+
         .header-photos {
             display: flex;
             gap: var(--spacing-md);
@@ -1818,7 +1874,19 @@
                 <h1 id="profileName">Neuer Mitarbeiter</h1>
                 <p>Mitarbeiternummer: <span id="employeeId">-</span> • Erstellt am: <span id="createdDate">-</span></p>
             </div>
-            
+
+            <!-- Karrierestufe Badge -->
+            <div class="header-level-badge" id="headerLevelBadge">
+                <div class="level-badge" id="headerBadge" style="--level-color: #78909C;">
+                    <span class="level-badge-code" id="headerBadgeCode">-</span>
+                    <span class="level-badge-stufe" id="headerBadgeStufe">Stufe -</span>
+                    <div class="level-stars" id="headerBadgeStars">
+                        <!-- Sterne werden dynamisch eingefügt -->
+                    </div>
+                </div>
+                <span class="level-name" id="headerBadgeName">Keine Stufe</span>
+            </div>
+
             <div class="header-photos">
                 <div class="header-photo-box">
                     <label for="photoInternInput" class="header-photo-upload" id="photoInternBox">
@@ -2010,12 +2078,16 @@
                             <input type="text" class="form-input" id="companyName" placeholder="z.B. Max Mustermann Marketing">
                         </div>
                         <div class="form-group form-group-full">
-                            <label class="checkbox-label" style="display: flex; align-items: center; gap: var(--spacing-sm); cursor: pointer;">
-                                <input type="checkbox" id="vatLiable" style="width: 18px; height: 18px; accent-color: var(--primary-color); cursor: pointer;">
-                                <span style="font-weight: 500;">Umsatzsteuerpflichtig</span>
-                            </label>
-                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs); margin-left: 26px;">
-                                Bei Aktivierung wird die Umsatzsteuer mit ausgezahlt. Die Umsatzsteuer-ID wird dann zur Pflichtangabe.
+                            <label class="form-label">Umsatzsteuerpflichtig</label>
+                            <div class="toggle-switch-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="vatLiable" onchange="updateVatLiableStatus()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" id="vatLiableLabel">Nein - Kleinunternehmer (§19 UStG)</span>
+                            </div>
+                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
+                                Bei "Ja" wird die Umsatzsteuer mit ausgezahlt. Die Umsatzsteuer-ID wird dann zur Pflichtangabe.
                             </p>
                         </div>
                         <div class="form-group">
@@ -2041,11 +2113,201 @@
             <!-- TAB: Einstellungen -->
             <div class="tab-content" id="tab-einstellungen">
 
-            <!-- Provisions- und Abrechnungsmodalitäten -->
+            <!-- 1. Sichtbarkeits-Einstellungen -->
             <div class="section-card">
-                <h2 class="section-title">Provisions- und Abrechnungsmodalitäten</h2>
+                <h2 class="section-title">Sichtbarkeit & Ranking</h2>
 
-                <!-- Karrierestufe mit Von/Bis und Faktor -->
+                <div class="form-grid" style="margin-bottom: var(--spacing-lg);">
+                    <div class="form-group">
+                        <label class="form-label">GameTAG</label>
+                        <input type="text" class="form-input" id="gameTag" placeholder="z.B. MaxPro#1234">
+                    </div>
+                </div>
+
+                <div class="visibility-settings">
+                    <!-- Ghost-Modus -->
+                    <div class="visibility-setting-item">
+                        <div class="visibility-setting-main">
+                            <div class="visibility-setting-info">
+                                <div class="visibility-setting-header">
+                                    <svg class="visibility-icon ghost-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                    </svg>
+                                    <span class="visibility-setting-title">Ghost-Modus</span>
+                                </div>
+                                <p class="visibility-setting-description">
+                                    Wenn aktiviert, ist dieser Mitarbeiter für andere unsichtbar. Nur das Office (Admins) kann diesen Mitarbeiter sehen.
+                                </p>
+                            </div>
+                            <div class="toggle-switch-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="isGhost" onchange="updateGhostMode()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" id="ghostLabel">Aus - Mitarbeiter ist sichtbar</span>
+                            </div>
+                        </div>
+
+                        <!-- Sub-Option: Andere sehen -->
+                        <div class="visibility-sub-option" id="canSeeOthersOption" style="display: none;">
+                            <div class="visibility-setting-info">
+                                <div class="visibility-setting-header">
+                                    <svg class="visibility-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; margin-left: 28px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <span class="visibility-setting-title" style="font-size: var(--font-size-sm);">Darf andere sehen</span>
+                                </div>
+                                <p class="visibility-setting-description" style="margin-left: 46px;">
+                                    Legt fest, ob dieser Ghost-Mitarbeiter andere Mitarbeiter in der Liste sehen darf.
+                                </p>
+                            </div>
+                            <div class="toggle-switch-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="canSeeOthers" checked onchange="updateCanSeeOthers()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" id="canSeeOthersLabel">Ja - Kann andere sehen</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visibility-divider"></div>
+
+                    <!-- Ranking-Teilnahme -->
+                    <div class="visibility-setting-item">
+                        <div class="visibility-setting-main">
+                            <div class="visibility-setting-info">
+                                <div class="visibility-setting-header">
+                                    <svg class="visibility-icon ranking-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                    <span class="visibility-setting-title">Ranking-Teilnahme</span>
+                                </div>
+                                <p class="visibility-setting-description">
+                                    Wenn deaktiviert, erscheint dieser Mitarbeiter nicht im Base-Ranking (Leaderboard).
+                                </p>
+                            </div>
+                            <div class="toggle-switch-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="participateRanking" checked onchange="updateRankingParticipation()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" id="rankingLabel">An - Nimmt am Ranking teil</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Vorschuss / Stornorücklage -->
+            <div class="section-card">
+                <h2 class="section-title">Vorschuss & Stornorücklage</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Vorschuss-Anteil (%)</label>
+                        <div class="provision-input-wrapper">
+                            <input type="number" class="form-input" id="vorschussAnteil" value="70" min="0" max="100" step="5">
+                            <span class="provision-unit">%</span>
+                        </div>
+                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
+                            Standard: 70% - Wird wöchentlich (Montag) ausgezahlt
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stornorücklage-Anteil (%)</label>
+                        <div class="provision-input-wrapper">
+                            <input type="number" class="form-input" id="ruecklageAnteil" value="30" min="0" max="100" step="5" readonly>
+                            <span class="provision-unit">%</span>
+                        </div>
+                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
+                            Wird automatisch berechnet (100% - Vorschuss)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Zusatz-Rollen -->
+            <div class="section-card">
+                <h2 class="section-title">Zusatz-Rollen</h2>
+                <div class="additional-roles-section">
+                    <label class="form-label" style="margin-bottom: var(--spacing-sm);">Berechtigungen</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-md);">
+                        <label class="additional-role-checkbox">
+                            <input type="checkbox" id="role_quality_manager" value="quality_manager">
+                            <span class="role-checkbox-label">
+                                <svg class="role-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Quality Manager
+                            </span>
+                        </label>
+                        <label class="additional-role-checkbox">
+                            <input type="checkbox" id="role_recruiting_manager" value="recruiting_manager">
+                            <span class="role-checkbox-label">
+                                <svg class="role-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                </svg>
+                                Recruiting Manager
+                            </span>
+                        </label>
+                    </div>
+                    <!-- Benefits für Zusatz-Rollen -->
+                    <div class="role-benefits" id="additionalRoleBenefits" style="margin-top: var(--spacing-sm); display: none;">
+                        <span class="benefits-placeholder">Benefits der ausgewählten Zusatz-Rollen</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Preisvorlagen (ab EMM freigeschaltet) -->
+            <div class="section-card" id="preisvorlagenSection">
+                <div class="section-locked-overlay" id="preisvorlagenLock">
+                    <div class="locked-content">
+                        <svg class="locked-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 48px; height: 48px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <h3 class="locked-title">Preisvorlagen gesperrt</h3>
+                        <p class="locked-description">Diese Funktion ist ab der Karrierestufe <strong>EMM</strong> (Executive Marketing Manager) verfügbar.</p>
+                        <div class="locked-badge">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            Erreiche EMM um freizuschalten
+                        </div>
+                    </div>
+                </div>
+                <h2 class="section-title">
+                    <svg class="section-title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 22px; height: 22px; margin-right: 8px; vertical-align: middle;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Preisvorlagen
+                    <span class="section-badge emm-badge">ab EMM</span>
+                </h2>
+                <p class="section-description">
+                    Individuelle Preisvorlagen für Formulare. Diese werden bei der Mitglieder-Erfassung verwendet.
+                </p>
+
+                <div class="preisvorlagen-content" id="preisvorlagenContent">
+                    <div class="preisvorlage-info">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Preisvorlagen werden in einer zukünftigen Version konfigurierbar sein.</span>
+                    </div>
+                    <!-- Placeholder für zukünftige Preisvorlagen-Konfiguration -->
+                    <div class="preisvorlage-placeholder">
+                        <div class="placeholder-item">
+                            <span class="placeholder-label">Standard-Preisvorlage</span>
+                            <span class="placeholder-value">Wird automatisch verwendet</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Karrierestufe Auswahl -->
+            <div class="section-card">
+                <h2 class="section-title">Karrierestufe</h2>
+
                 <div class="role-provision-section">
                     <div class="role-select-row">
                         <div class="form-group" style="width: 180px; margin-bottom: 0;">
@@ -2153,66 +2415,11 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Zusatz-Rollen mit Benefits -->
-                <div class="additional-roles-section" style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--border-color);">
-                    <label class="form-label" style="margin-bottom: var(--spacing-sm);">Zusatz-Rollen (Berechtigungen)</label>
-                    <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-md);">
-                        <label class="additional-role-checkbox">
-                            <input type="checkbox" id="role_quality_manager" value="quality_manager">
-                            <span class="role-checkbox-label">
-                                <svg class="role-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                Quality Manager
-                            </span>
-                        </label>
-                        <label class="additional-role-checkbox">
-                            <input type="checkbox" id="role_recruiting_manager" value="recruiting_manager">
-                            <span class="role-checkbox-label">
-                                <svg class="role-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                                </svg>
-                                Recruiting Manager
-                            </span>
-                        </label>
-                    </div>
-                    <!-- Benefits für Zusatz-Rollen -->
-                    <div class="role-benefits" id="additionalRoleBenefits" style="margin-top: var(--spacing-sm); display: none;">
-                        <span class="benefits-placeholder">Benefits der ausgewählten Zusatz-Rollen</span>
-                    </div>
-                </div>
-
-                <div class="provision-divider"></div>
-
-                <!-- Vorschuss / Rücklage -->
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Vorschuss-Anteil (%)</label>
-                        <div class="provision-input-wrapper">
-                            <input type="number" class="form-input" id="vorschussAnteil" value="70" min="0" max="100" step="5">
-                            <span class="provision-unit">%</span>
-                        </div>
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
-                            Standard: 70% - Wird wöchentlich (Montag) ausgezahlt
-                        </p>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Stornorücklage-Anteil (%)</label>
-                        <div class="provision-input-wrapper">
-                            <input type="number" class="form-input" id="ruecklageAnteil" value="30" min="0" max="100" step="5" readonly>
-                            <span class="provision-unit">%</span>
-                        </div>
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
-                            Wird automatisch berechnet (100% - Vorschuss)
-                        </p>
-                    </div>
-                    </div>
             </div>
 
-            <!-- Karriere & Rollen-Historie -->
+            <!-- 6. Karriere & Rollen-Historie -->
             <div class="section-card">
-                <h2 class="section-title">Karriere & Rollen-Historie</h2>
+                <h2 class="section-title">Karriere-Historie</h2>
 
                 <!-- Aktuelle Rolle -->
                 <div class="current-role-display">
@@ -2248,138 +2455,6 @@
                         <div class="role-history-empty">
                             <p>Noch keine Historie vorhanden</p>
                             <span>Die Rollen-Historie wird automatisch geführt sobald Änderungen vorgenommen werden.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sichtbarkeits-Einstellungen -->
-            <div class="section-card">
-                <h2 class="section-title">Sichtbarkeit & Ranking</h2>
-
-                <div class="form-grid" style="margin-bottom: var(--spacing-lg);">
-                    <div class="form-group">
-                        <label class="form-label">GameTAG</label>
-                        <input type="text" class="form-input" id="gameTag" placeholder="z.B. MaxPro#1234">
-                    </div>
-                </div>
-
-                <div class="visibility-settings">
-                    <!-- Ghost-Modus -->
-                    <div class="visibility-setting-item">
-                        <div class="visibility-setting-main">
-                            <div class="visibility-setting-info">
-                                <div class="visibility-setting-header">
-                                    <svg class="visibility-icon ghost-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                                    </svg>
-                                    <span class="visibility-setting-title">Ghost-Modus</span>
-                                </div>
-                                <p class="visibility-setting-description">
-                                    Wenn aktiviert, ist dieser Mitarbeiter für andere unsichtbar. Nur das Office (Admins) kann diesen Mitarbeiter sehen.
-                                </p>
-                            </div>
-                            <div class="toggle-switch-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="isGhost" onchange="updateGhostMode()">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label" id="ghostLabel">Aus - Mitarbeiter ist sichtbar</span>
-                            </div>
-                        </div>
-
-                        <!-- Sub-Option: Andere sehen -->
-                        <div class="visibility-sub-option" id="canSeeOthersOption" style="display: none;">
-                            <div class="visibility-setting-info">
-                                <div class="visibility-setting-header">
-                                    <svg class="visibility-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; margin-left: 28px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    <span class="visibility-setting-title" style="font-size: var(--font-size-sm);">Darf andere sehen</span>
-                                </div>
-                                <p class="visibility-setting-description" style="margin-left: 46px;">
-                                    Legt fest, ob dieser Ghost-Mitarbeiter andere Mitarbeiter in der Liste sehen darf.
-                                </p>
-                            </div>
-                            <div class="toggle-switch-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="canSeeOthers" checked onchange="updateCanSeeOthers()">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label" id="canSeeOthersLabel">Ja - Kann andere sehen</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="visibility-divider"></div>
-
-                    <!-- Ranking-Teilnahme -->
-                    <div class="visibility-setting-item">
-                        <div class="visibility-setting-main">
-                            <div class="visibility-setting-info">
-                                <div class="visibility-setting-header">
-                                    <svg class="visibility-icon ranking-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                    </svg>
-                                    <span class="visibility-setting-title">Ranking-Teilnahme</span>
-                                </div>
-                                <p class="visibility-setting-description">
-                                    Wenn deaktiviert, erscheint dieser Mitarbeiter nicht im Base-Ranking (Leaderboard).
-                                </p>
-                            </div>
-                            <div class="toggle-switch-container">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="participateRanking" checked onchange="updateRankingParticipation()">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                                <span class="toggle-label" id="rankingLabel">An - Nimmt am Ranking teil</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Preisvorlagen (ab EMM freigeschaltet) -->
-            <div class="section-card" id="preisvorlagenSection">
-                <div class="section-locked-overlay" id="preisvorlagenLock">
-                    <div class="locked-content">
-                        <svg class="locked-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 48px; height: 48px;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
-                        <h3 class="locked-title">Preisvorlagen gesperrt</h3>
-                        <p class="locked-description">Diese Funktion ist ab der Karrierestufe <strong>EMM</strong> (Executive Marketing Manager) verfügbar.</p>
-                        <div class="locked-badge">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                            </svg>
-                            Erreiche EMM um freizuschalten
-                        </div>
-                    </div>
-                </div>
-                <h2 class="section-title">
-                    <svg class="section-title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 22px; height: 22px; margin-right: 8px; vertical-align: middle;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    Preisvorlagen
-                    <span class="section-badge emm-badge">ab EMM</span>
-                </h2>
-                <p class="section-description">
-                    Individuelle Preisvorlagen für Formulare. Diese werden bei der Mitglieder-Erfassung verwendet.
-                </p>
-
-                <div class="preisvorlagen-content" id="preisvorlagenContent">
-                    <div class="preisvorlage-info">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>Preisvorlagen werden in einer zukünftigen Version konfigurierbar sein.</span>
-                    </div>
-                    <!-- Placeholder für zukünftige Preisvorlagen-Konfiguration -->
-                    <div class="preisvorlage-placeholder">
-                        <div class="placeholder-item">
-                            <span class="placeholder-label">Standard-Preisvorlage</span>
-                            <span class="placeholder-value">Wird automatisch verwendet</span>
                         </div>
                     </div>
                 </div>
@@ -2625,6 +2700,50 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ================================================================
+        // KARRIERESTUFEN KONFIGURATION
+        // ================================================================
+        const CAREER_LEVELS = {
+            sma: { name: 'Starting Marketing Advisor', code: 'SMA', stufe: 'I', stars: 1, color: '#78909C' },
+            ema: { name: 'Executive Marketing Advisor', code: 'EMA', stufe: 'II', stars: 2, color: '#4CAF50' },
+            jmm: { name: 'Junior Marketing Manager', code: 'JMM', stufe: 'III', stars: 3, color: '#2196F3' },
+            emm: { name: 'Executive Marketing Manager', code: 'EMM', stufe: 'IV', stars: 4, color: '#9C27B0' },
+            cemm: { name: 'Chief Executive Marketing Manager', code: 'CEMM', stufe: 'V', stars: 5, color: '#E040FB' },
+            spb: { name: 'Spitzen Botschafter', code: 'SPB', stufe: 'VI', stars: 6, color: '#FFA500' },
+            kad: { name: 'Kadermanager', code: 'KAD', stufe: 'VII', stars: 7, color: '#FFD700' },
+            fue: { name: 'Führungsebene', code: 'FUE', stufe: 'VIII', stars: 8, color: '#2C3E50' }
+        };
+
+        function updateHeaderBadge(roleKey) {
+            const level = CAREER_LEVELS[roleKey];
+            const badge = document.getElementById('headerBadge');
+            const codeEl = document.getElementById('headerBadgeCode');
+            const stufeEl = document.getElementById('headerBadgeStufe');
+            const starsEl = document.getElementById('headerBadgeStars');
+            const nameEl = document.getElementById('headerBadgeName');
+
+            if (level) {
+                badge.style.setProperty('--level-color', level.color);
+                badge.style.background = level.color;
+                codeEl.textContent = level.code;
+                stufeEl.textContent = 'Stufe ' + level.stufe;
+                nameEl.textContent = level.name;
+
+                // Sterne generieren
+                let starsHtml = '';
+                for (let i = 0; i < level.stars; i++) {
+                    starsHtml += '<svg class="level-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+                }
+                starsEl.innerHTML = starsHtml;
+            } else {
+                badge.style.background = '#78909C';
+                codeEl.textContent = '-';
+                stufeEl.textContent = 'Stufe -';
+                starsEl.innerHTML = '';
+                nameEl.textContent = 'Keine Stufe';
+            }
+        }
 
         // ================================================================
         // PROFILE TABS
@@ -3936,6 +4055,7 @@
             updateRoleFaktorAndBenefits(roleKey);
             updateCurrentRoleDisplay(roleKey);
             updatePreisvorlagenLock(roleKey);
+            updateHeaderBadge(roleKey);
             checkRoleCanBeSaved();
             checkKwOverlap();
         });
@@ -4455,10 +4575,10 @@
                     document.getElementById('vatNumber').value = profile.vat_number || '';
                     document.getElementById('companyName').value = profile.company_name || '';
 
-                    // Umsatzsteuerpflicht Checkbox setzen
+                    // Umsatzsteuerpflicht Toggle setzen
                     if (profile.vat_liable) {
                         document.getElementById('vatLiable').checked = true;
-                        updateVatRequirement();
+                        updateVatLiableStatus();
                     }
 
                     document.getElementById('clothingSize').value = profile.clothing_size || '';
@@ -4540,6 +4660,7 @@
                     document.getElementById('mainRole').value = user.main_role;
                     updateRoleFaktorAndBenefits(user.main_role);
                     updatePreisvorlagenLock(user.main_role);
+                    updateHeaderBadge(user.main_role);
                 }
 
                 // Check additional roles
@@ -4910,22 +5031,23 @@
             }
         }
 
-        // Umsatzsteuerpflicht Checkbox Handler
-        const vatLiableCheckbox = document.getElementById('vatLiable');
-        const vatNumberLabel = document.getElementById('vatNumberLabel');
-        const vatNumberInput = document.getElementById('vatNumber');
+        // Umsatzsteuerpflicht Toggle Handler
+        function updateVatLiableStatus() {
+            const vatLiableCheckbox = document.getElementById('vatLiable');
+            const vatLiableLabel = document.getElementById('vatLiableLabel');
+            const vatNumberLabel = document.getElementById('vatNumberLabel');
+            const vatNumberInput = document.getElementById('vatNumber');
 
-        function updateVatRequirement() {
             if (vatLiableCheckbox.checked) {
+                vatLiableLabel.textContent = 'Ja - Umsatzsteuerpflichtig';
                 vatNumberLabel.innerHTML = 'Umsatzsteuer-ID <span style="color: var(--danger-color);">*</span>';
                 vatNumberInput.required = true;
             } else {
+                vatLiableLabel.textContent = 'Nein - Kleinunternehmer (§19 UStG)';
                 vatNumberLabel.innerHTML = 'Umsatzsteuer-ID';
                 vatNumberInput.required = false;
             }
         }
-
-        vatLiableCheckbox.addEventListener('change', updateVatRequirement);
 
         // Load profile data if ID is provided in URL
         const urlParams = new URLSearchParams(window.location.search);
