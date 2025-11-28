@@ -157,6 +157,58 @@
             gap: var(--spacing-lg);
         }
 
+        /* Profile Tabs */
+        .profile-tabs {
+            display: flex;
+            gap: 0;
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 6px;
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .profile-tab {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+        }
+
+        .profile-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .profile-tab.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: grid;
+            gap: var(--spacing-lg);
+        }
+
+        .tab-content-extra {
+            display: none;
+        }
+
+        .tab-content-extra.active {
+            display: grid;
+            gap: var(--spacing-lg);
+        }
+
         .section-card {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
@@ -1798,8 +1850,17 @@
             </div>
         </div>
 
+        <!-- Profile Tabs -->
+        <div class="profile-tabs">
+            <button class="profile-tab active" data-tab="informationen">Informationen</button>
+            <button class="profile-tab" data-tab="einstellungen">Einstellungen</button>
+        </div>
+
         <!-- Profile Content -->
         <div class="profile-content">
+
+            <!-- TAB: Informationen -->
+            <div class="tab-content active" id="tab-informationen">
 
             <!-- Persönliche Daten -->
             <div class="section-card">
@@ -1993,6 +2054,11 @@
                     </div>
                 </div>
             </div>
+
+            </div><!-- Ende TAB: Informationen -->
+
+            <!-- TAB: Einstellungen -->
+            <div class="tab-content" id="tab-einstellungen">
 
             <!-- Provisions- und Abrechnungsmodalitäten -->
             <div class="section-card">
@@ -2366,6 +2432,11 @@
                 </div>
             </div>
 
+            </div><!-- Ende TAB: Einstellungen -->
+
+            <!-- Dokumente (gehört zu Informationen, wird per JS gesteuert) -->
+            <div class="tab-content-extra" data-tab="informationen">
+
             <!-- Dokumente -->
             <div class="section-card">
                 <h2 class="section-title">Dokumente</h2>
@@ -2539,6 +2610,8 @@
                 </div>
             </div>
 
+            </div><!-- Ende TAB: Informationen (Dokumente/Verträge) -->
+
         </div>
     </div>
 
@@ -2599,6 +2672,41 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ================================================================
+        // PROFILE TABS
+        // ================================================================
+
+        document.querySelectorAll('.profile-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.dataset.tab;
+
+                // Update tab buttons
+                document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update main tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                const mainContent = document.getElementById('tab-' + targetTab);
+                if (mainContent) mainContent.classList.add('active');
+
+                // Update extra tab content (Dokumente/Verträge)
+                document.querySelectorAll('.tab-content-extra').forEach(extra => {
+                    if (extra.dataset.tab === targetTab) {
+                        extra.classList.add('active');
+                    } else {
+                        extra.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Initialize: Show Informationen tab extras
+        document.querySelectorAll('.tab-content-extra[data-tab="informationen"]').forEach(el => {
+            el.classList.add('active');
+        });
 
         // ================================================================
         // PHOTO & DOCUMENT UPLOAD HANDLERS
