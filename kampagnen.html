@@ -1084,6 +1084,38 @@
             color: #f59e0b;
         }
 
+        /* Quality Manager Row im TC-Bereich */
+        .kw-qm-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            padding-top: var(--spacing-sm);
+            border-top: 1px dashed rgba(245, 158, 11, 0.4);
+            flex-wrap: wrap;
+        }
+
+        .kw-qm-stamp {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
+        }
+
+        .kw-qm-stamp svg {
+            width: 14px;
+            height: 14px;
+            color: white;
+        }
+
         .kw-tc-name {
             font-size: var(--font-size-lg);
             font-weight: 700;
@@ -4721,13 +4753,13 @@ function showConfirm(message, title = 'Bestätigung', type = 'warning') {
 
 // Dummy employee data
 const employees = [
-    { id: 1, name: 'Max Kellermann', role: 'EMM' },
-    { id: 2, name: 'Anna Schmidt', role: 'CEMM' },
-    { id: 3, name: 'Thomas Müller', role: 'SMA' },
-    { id: 4, name: 'Lisa Weber', role: 'SMA' },
-    { id: 5, name: 'Peter Fischer', role: 'SPB' },
-    { id: 6, name: 'Sarah Klein', role: 'SMA' },
-    { id: 7, name: 'Michael Becker', role: 'SMA' }
+    { id: 1, name: 'Max Kellermann', role: 'EMM', additionalRoles: ['quality_manager'] },
+    { id: 2, name: 'Anna Schmidt', role: 'CEMM', additionalRoles: ['quality_manager', 'recruiting_manager'] },
+    { id: 3, name: 'Thomas Müller', role: 'SMA', additionalRoles: [] },
+    { id: 4, name: 'Lisa Weber', role: 'SMA', additionalRoles: ['quality_manager'] },
+    { id: 5, name: 'Peter Fischer', role: 'SPB', additionalRoles: [] },
+    { id: 6, name: 'Sarah Klein', role: 'SMA', additionalRoles: [] },
+    { id: 7, name: 'Michael Becker', role: 'SMA', additionalRoles: ['recruiting_manager'] }
 ];
 
 // Campaign storage
@@ -6348,6 +6380,22 @@ function renderKWDetails(campaign) {
                                 ${tcLabel ? `<span class="kw-member-label ${tcLabel}">${tcLabel === 'neuanreise' ? 'Neuanreise' : tcLabel === 'abreise' ? 'Abreise' : 'An/Ab'}</span>` : ''}
                             ` : ''}
                         </div>
+                        <!-- Quality Manager Zeile -->
+                        <div class="kw-qm-row">
+                            <span class="kw-qm-stamp">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Quality
+                            </span>
+                            <select class="form-input" style="flex: 1; max-width: 250px; height: 32px; padding: 0 8px; font-size: 12px;"
+                                    onchange="setKWQualityManager(${kw}, this.value)" id="qm-select-kw-${kw}">
+                                <option value="">-- QM auswählen --</option>
+                                ${employees.filter(e => e.additionalRoles && e.additionalRoles.includes('quality_manager')).map(e =>
+                                    `<option value="${e.id}" ${e.id === (assignment.qualityManager || '') ? 'selected' : ''}>${e.name}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
                     </div>
 
                     <!-- =============== 2. DIENSTE + TEAM (nebeneinander) =============== -->
@@ -6546,6 +6594,21 @@ function setKWTeamchef(kw, tcId) {
     campaign.assignments[kw].teamchef = tcId ? parseInt(tcId) : null;
 
     showToast(`Teamchef für KW ${kw} ${tcId ? 'gesetzt' : 'entfernt'}`, 'success');
+    // View aktualisieren (expanded-Zustand erhalten)
+    rerenderKWDetails(campaign);
+}
+
+// Quality Manager für KW setzen
+function setKWQualityManager(kw, qmId) {
+    const campaign = campaigns.find(c => c.id === viewingCampaignId);
+    if (!campaign) return;
+
+    if (!campaign.assignments[kw]) {
+        campaign.assignments[kw] = {};
+    }
+    campaign.assignments[kw].qualityManager = qmId ? parseInt(qmId) : null;
+
+    showToast(`Quality Manager für KW ${kw} ${qmId ? 'gesetzt' : 'entfernt'}`, 'success');
     // View aktualisieren (expanded-Zustand erhalten)
     rerenderKWDetails(campaign);
 }
