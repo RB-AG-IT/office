@@ -1921,38 +1921,12 @@
                         <input type="text" class="form-input" id="city" placeholder="Musterstadt">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Land *</label>
-                        <select class="form-input" id="country">
-                            <option value="Deutschland" selected>Deutschland</option>
-                            <option value="Österreich">Österreich</option>
-                            <option value="Schweiz">Schweiz</option>
-                            <option value="Luxemburg">Luxemburg</option>
-                            <option value="Frankreich">Frankreich</option>
-                            <option value="Niederlande">Niederlande</option>
-                            <option value="Belgien">Belgien</option>
-                        </select>
+                        <label class="form-label">Land</label>
+                        <input type="text" class="form-input" id="country" placeholder="Wird automatisch ausgefüllt" readonly style="background: var(--bg-secondary); cursor: not-allowed;">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Bundesland</label>
-                        <select class="form-input" id="bundesland">
-                            <option value="">Bitte wählen</option>
-                            <option value="Baden-Württemberg">Baden-Württemberg</option>
-                            <option value="Bayern">Bayern</option>
-                            <option value="Berlin">Berlin</option>
-                            <option value="Brandenburg">Brandenburg</option>
-                            <option value="Bremen">Bremen</option>
-                            <option value="Hamburg">Hamburg</option>
-                            <option value="Hessen">Hessen</option>
-                            <option value="Mecklenburg-Vorpommern">Mecklenburg-Vorpommern</option>
-                            <option value="Niedersachsen">Niedersachsen</option>
-                            <option value="Nordrhein-Westfalen">Nordrhein-Westfalen</option>
-                            <option value="Rheinland-Pfalz">Rheinland-Pfalz</option>
-                            <option value="Saarland">Saarland</option>
-                            <option value="Sachsen">Sachsen</option>
-                            <option value="Sachsen-Anhalt">Sachsen-Anhalt</option>
-                            <option value="Schleswig-Holstein">Schleswig-Holstein</option>
-                            <option value="Thüringen">Thüringen</option>
-                        </select>
+                        <input type="text" class="form-input" id="bundesland" placeholder="Wird automatisch ausgefüllt" readonly style="background: var(--bg-secondary); cursor: not-allowed;">
                     </div>
                     <div class="form-group form-group-full">
                         <label class="form-label">Zusatzinformation</label>
@@ -2035,6 +2009,15 @@
                             <label class="form-label">Firma / Unternehmensname</label>
                             <input type="text" class="form-input" id="companyName" placeholder="z.B. Max Mustermann Marketing">
                         </div>
+                        <div class="form-group form-group-full">
+                            <label class="checkbox-label" style="display: flex; align-items: center; gap: var(--spacing-sm); cursor: pointer;">
+                                <input type="checkbox" id="vatLiable" style="width: 18px; height: 18px; accent-color: var(--primary-color); cursor: pointer;">
+                                <span style="font-weight: 500;">Umsatzsteuerpflichtig</span>
+                            </label>
+                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs); margin-left: 26px;">
+                                Bei Aktivierung wird die Umsatzsteuer mit ausgezahlt. Die Umsatzsteuer-ID wird dann zur Pflichtangabe.
+                            </p>
+                        </div>
                         <div class="form-group">
                             <label class="form-label">Steuernummer (gewerblich)</label>
                             <input type="text" class="form-input" id="taxNumber" placeholder="12/345/67890">
@@ -2042,11 +2025,11 @@
                                 Vom Finanzamt zugeteilte Steuernummer
                             </p>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Umsatzsteuer-ID</label>
+                        <div class="form-group" id="vatNumberGroup">
+                            <label class="form-label" id="vatNumberLabel">Umsatzsteuer-ID</label>
                             <input type="text" class="form-input" id="vatNumber" placeholder="DE123456789" maxlength="14">
                             <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
-                                Nur bei Umsatzsteuerpflicht (USt-IdNr.)
+                                USt-IdNr. für Vorsteuerabzug
                             </p>
                         </div>
                     </div>
@@ -2224,35 +2207,7 @@
                             Wird automatisch berechnet (100% - Vorschuss)
                         </p>
                     </div>
-                    <div class="form-group form-group-full">
-                        <label class="form-label">Umsatzsteuerpflichtig</label>
-                        <div class="toggle-switch-container">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="umsatzsteuerpflichtig">
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span class="toggle-label" id="ustLabel">Nein - Kleinunternehmer (§19 UStG)</span>
-                        </div>
-                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-xs);">
-                            Bei "Ja" wird die Umsatzsteuer auf Abrechnungen ausgewiesen
-                        </p>
                     </div>
-                </div>
-
-                <!-- Provision Preview -->
-                <div class="provision-preview">
-                    <h4>Vorschau bei 1.000 € Brutto-Provision:</h4>
-                    <div class="provision-preview-grid">
-                        <div class="provision-preview-item">
-                            <span class="provision-preview-label">Vorschuss</span>
-                            <span class="provision-preview-value positive" id="previewVorschuss">700 €</span>
-                        </div>
-                        <div class="provision-preview-item">
-                            <span class="provision-preview-label">Stornorücklage</span>
-                            <span class="provision-preview-value" id="previewRuecklage">300 €</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Karriere & Rollen-Historie -->
@@ -3221,6 +3176,13 @@
                             document.getElementById('houseNumber').value = houseNumber;
                             document.getElementById('postalCode').value = postcode;
                             document.getElementById('city').value = city;
+
+                            // Land und Bundesland automatisch ausfüllen
+                            const country = result.country || '';
+                            const state = result.state || '';
+                            document.getElementById('country').value = country;
+                            document.getElementById('bundesland').value = state;
+
                             autocompleteResults.classList.remove('show');
                         });
                         
@@ -3267,6 +3229,15 @@
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
                     alert('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+                    return;
+                }
+
+                // Umsatzsteuer-ID Pflichtprüfung
+                const isVatLiable = document.getElementById('vatLiable').checked;
+                const vatNumber = document.getElementById('vatNumber').value.trim();
+                if (isVatLiable && !vatNumber) {
+                    alert('Bei Umsatzsteuerpflicht ist die Umsatzsteuer-ID ein Pflichtfeld.');
+                    document.getElementById('vatNumber').focus();
                     return;
                 }
 
@@ -3366,10 +3337,12 @@
                     bic: document.getElementById('bic').value.trim(),
                     bank_name: document.getElementById('bankName').value.trim(),
                     tax_number: document.getElementById('taxNumber').value.trim(),
+                    vat_number: document.getElementById('vatNumber').value.trim(),
+                    company_name: document.getElementById('companyName').value.trim(),
+                    vat_liable: document.getElementById('vatLiable').checked,
                     clothing_size: document.getElementById('clothingSize').value,
                     // Provisions-Einstellungen
                     vorschuss_anteil: parseInt(document.getElementById('vorschussAnteil').value) || 70,
-                    umsatzsteuerpflichtig: document.getElementById('umsatzsteuerpflichtig').checked,
                     // Sichtbarkeits-Einstellungen
                     is_ghost: document.getElementById('isGhost').checked,
                     can_see_others: document.getElementById('canSeeOthers').checked,
@@ -4479,6 +4452,15 @@
                     document.getElementById('bic').value = profile.bic || '';
                     document.getElementById('bankName').value = profile.bank_name || '';
                     document.getElementById('taxNumber').value = profile.tax_number || '';
+                    document.getElementById('vatNumber').value = profile.vat_number || '';
+                    document.getElementById('companyName').value = profile.company_name || '';
+
+                    // Umsatzsteuerpflicht Checkbox setzen
+                    if (profile.vat_liable) {
+                        document.getElementById('vatLiable').checked = true;
+                        updateVatRequirement();
+                    }
+
                     document.getElementById('clothingSize').value = profile.clothing_size || '';
 
                     // Select clothing size
@@ -4927,6 +4909,23 @@
                 console.error('Load contracts error:', error);
             }
         }
+
+        // Umsatzsteuerpflicht Checkbox Handler
+        const vatLiableCheckbox = document.getElementById('vatLiable');
+        const vatNumberLabel = document.getElementById('vatNumberLabel');
+        const vatNumberInput = document.getElementById('vatNumber');
+
+        function updateVatRequirement() {
+            if (vatLiableCheckbox.checked) {
+                vatNumberLabel.innerHTML = 'Umsatzsteuer-ID <span style="color: var(--danger-color);">*</span>';
+                vatNumberInput.required = true;
+            } else {
+                vatNumberLabel.innerHTML = 'Umsatzsteuer-ID';
+                vatNumberInput.required = false;
+            }
+        }
+
+        vatLiableCheckbox.addEventListener('change', updateVatRequirement);
 
         // Load profile data if ID is provided in URL
         const urlParams = new URLSearchParams(window.location.search);
