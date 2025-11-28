@@ -1270,7 +1270,21 @@
                 <div class="area-tab-content active" id="area-tab-stammdaten">
                     <div class="form-group">
                         <label class="form-label">Name des Werbegebiets *</label>
-                        <input type="text" class="form-input" id="newAreaName" placeholder="z.B. Ludwigshafen-Mitte e.V.">
+                        <input type="text" class="form-input" id="newAreaName" placeholder="z.B. Oggersheim-Ruchheim">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Vereinsname</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="white-space: nowrap;">DRK</span>
+                            <select class="form-input" id="areaVereinstyp" style="width: auto; min-width: 80px;">
+                                <option value="OV">OV</option>
+                                <option value="KV">KV</option>
+                            </select>
+                            <input type="text" class="form-input" id="areaVereinsname" placeholder="z.B. Ludwigshafen" style="flex: 1;">
+                            <span style="white-space: nowrap;">e.V.</span>
+                        </div>
+                        <span style="font-size: 11px; color: var(--text-secondary);">z.B. DRK OV Ludwigshafen e.V.</span>
                     </div>
 
                     <!-- Adresse -->
@@ -1725,38 +1739,9 @@
             }
 
             container.innerHTML = currentCustomer.areas.map((area, index) => {
-                // Build tooltip
-                let tooltipParts = [];
-                if (area.street) tooltipParts.push(`Adresse: ${area.street}, ${area.zip} ${area.city}`);
-                if (area.contact) tooltipParts.push(`Ansprechpartner: ${area.contact}`);
-                const effectiveWebsite = getEffectiveLink(area, 'website');
-                const effectivePrivacy = getEffectiveLink(area, 'privacyPolicy');
-                if (effectiveWebsite) tooltipParts.push(`Website: ${effectiveWebsite}`);
-                if (tooltipParts.length === 0) tooltipParts.push('Klicken zum Bearbeiten');
-
-                // Build info icons
-                let icons = [];
-                if (area.street) icons.push('<span title="Adresse hinterlegt" style="color: var(--success-text);">📍</span>');
-                // Show contact icon if ANY contact info is filled (name, email, or phone)
-                if (area.contact || area.email || area.phone) icons.push('<span title="Ansprechpartner hinterlegt" style="color: var(--success-text);">👤</span>');
-                if (area.website || area.privacyPolicy) icons.push('<span title="Eigene Links" style="color: var(--success-text);">🔗</span>');
-
-                // Konditionen badge
-                const hasKonditionen = area.sondierung && area.sondierung.length > 0 && area.sondierung.some(k => k > 0);
-                const konditionBadge = hasKonditionen
-                    ? `<span class="kondition-badge" title="Konditionen: S${area.sondierung[0]}%/R${area.regular[0]}%">Kond.</span>`
-                    : `<span class="kondition-badge no-kondition" title="Keine Konditionen hinterlegt">Keine Kond.</span>`;
-
-                // Einwohner badge
-                const einwohnerBadge = area.einwohner
-                    ? `<span style="font-size: 10px; color: var(--text-secondary); margin-left: 4px;">(${area.einwohner.toLocaleString('de-DE')} EW)</span>`
-                    : '';
-
                 return `
-                    <div class="area-tag" onclick="editArea(${index})" style="cursor: pointer;" title="${tooltipParts.join('\n')}">
-                        ${area.name}${einwohnerBadge}
-                        ${konditionBadge}
-                        ${icons.length > 0 ? '<span style="margin-left: 6px; display: inline-flex; gap: 2px;">' + icons.join('') + '</span>' : ''}
+                    <div class="area-tag" onclick="editArea(${index})" style="cursor: pointer;" title="Klicken zum Bearbeiten">
+                        ${area.name}
                         <button class="remove-btn" onclick="event.stopPropagation(); removeArea(${index})">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -1796,6 +1781,8 @@
 
             // Stammdaten laden
             document.getElementById('newAreaName').value = area.name;
+            document.getElementById('areaVereinstyp').value = area.vereinstyp || 'OV';
+            document.getElementById('areaVereinsname').value = area.vereinsname || '';
             document.getElementById('areaStreet').value = area.street || '';
             document.getElementById('areaZip').value = area.zip || '';
             document.getElementById('areaCity').value = area.city || '';
@@ -1817,6 +1804,8 @@
 
             // Stammdaten zurücksetzen
             document.getElementById('newAreaName').value = '';
+            document.getElementById('areaVereinstyp').value = 'OV';
+            document.getElementById('areaVereinsname').value = '';
             document.getElementById('areaStreet').value = '';
             document.getElementById('areaZip').value = '';
             document.getElementById('areaCity').value = '';
@@ -1849,6 +1838,8 @@
             const areaData = {
                 // Stammdaten
                 name: name,
+                vereinstyp: document.getElementById('areaVereinstyp').value,
+                vereinsname: document.getElementById('areaVereinsname').value.trim(),
                 street: document.getElementById('areaStreet').value.trim(),
                 zip: document.getElementById('areaZip').value.trim(),
                 city: document.getElementById('areaCity').value.trim(),
