@@ -181,10 +181,21 @@
             align-items: center;
         }
 
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
         .topbar .page-title {
             font-size: 18px;
             font-weight: 600;
             color: var(--text-primary);
+        }
+
+        .topbar .date-info {
+            font-size: 13px;
+            color: var(--text-secondary);
         }
 
         .account-menu {
@@ -448,7 +459,10 @@
 
         <!-- Top Bar -->
         <header class="topbar">
-            <div class="page-title">Dashboard</div>
+            <div class="topbar-left">
+                <div class="page-title">Dashboard</div>
+                <div class="date-info" id="topbarDateInfo"></div>
+            </div>
             <div class="account-menu">
                 <div class="account-avatar">AD</div>
                 <div class="account-info">
@@ -841,11 +855,41 @@
         }
 
         // ================================================================
+        // DATE INFO
+        // ================================================================
+
+        function updateTopbarDate() {
+            const dateElement = document.getElementById('topbarDateInfo');
+            if (!dateElement) return;
+
+            const now = new Date();
+            const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+            const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+            const dayName = days[now.getDay()];
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+
+            // Calculate KW (ISO week number)
+            const tempDate = new Date(now.getTime());
+            tempDate.setHours(0, 0, 0, 0);
+            tempDate.setDate(tempDate.getDate() + 3 - (tempDate.getDay() + 6) % 7);
+            const week1 = new Date(tempDate.getFullYear(), 0, 4);
+            const kw = 1 + Math.round(((tempDate.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+
+            dateElement.textContent = `${dayName} | ${day}. ${month} | ${year} | KW ${kw}`;
+        }
+
+        // ================================================================
         // INITIALIZATION
         // ================================================================
 
         // Load page based on URL hash on page load
         window.addEventListener('DOMContentLoaded', async function() {
+            // Update date in topbar
+            updateTopbarDate();
+
             // Check auth state first
             await checkAuthState();
 
