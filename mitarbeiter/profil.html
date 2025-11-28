@@ -78,60 +78,66 @@
             font-size: var(--font-size-sm);
         }
 
-        /* Header Level Badge */
+        /* Header Level Badge - Absolut zentriert */
         .header-level-badge {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            z-index: 10;
         }
 
         .header-level-badge .level-badge {
-            width: 90px;
-            height: 90px;
-            border-radius: 18px;
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             background: var(--level-color, #78909C);
             position: relative;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
 
         .header-level-badge .level-badge-code {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 28px;
+            font-weight: 800;
             color: white;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .header-level-badge .level-badge-stufe {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
-            color: rgba(255,255,255,0.85);
+            color: rgba(255,255,255,0.9);
             margin-top: 2px;
         }
 
         .header-level-badge .level-stars {
             display: flex;
-            gap: 2px;
+            gap: 3px;
             margin-top: 4px;
         }
 
         .header-level-badge .level-star {
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             fill: #FFD700;
             filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
         }
 
         .header-level-badge .level-name {
-            font-size: var(--font-size-xs);
-            color: var(--text-secondary);
-            font-weight: 500;
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+            font-weight: 600;
             text-align: center;
+            max-width: 150px;
         }
 
         .header-photos {
@@ -829,47 +835,79 @@
             color: #10b981;
         }
 
-        /* Role Selection mit Faktor */
+        /* Role Selection mit Faktor - Großes Layout */
         .role-provision-section {
             margin-bottom: var(--spacing-lg);
-            padding-bottom: var(--spacing-lg);
-            border-bottom: 1px solid var(--border-color);
         }
 
         .role-select-row {
             display: flex;
+            flex-wrap: wrap;
             gap: var(--spacing-lg);
             align-items: flex-end;
+            padding: var(--spacing-xl);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .role-select-row .form-group {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 0;
+        }
+
+        .role-select-row .form-group:first-child {
+            flex: 2;
+            min-width: 280px;
+        }
+
+        .role-select-row .form-input {
+            height: 48px;
+            font-size: var(--font-size-base);
+        }
+
+        .role-select-row .form-label {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
         }
 
         .role-factor-display {
             background: linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg) var(--spacing-xl);
             text-align: center;
-            min-width: 100px;
+            min-width: 130px;
             color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .factor-label {
             display: block;
-            font-size: 11px;
+            font-size: 12px;
             opacity: 0.9;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .factor-value {
             display: block;
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 36px;
+            font-weight: 800;
         }
 
         .role-benefits {
-            margin-top: var(--spacing-md);
-            padding: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-lg);
             background: var(--bg-secondary);
-            border-radius: var(--radius-md);
-            min-height: 40px;
+            border-radius: var(--radius-lg);
+            min-height: 60px;
         }
 
         .benefits-placeholder {
@@ -2307,36 +2345,33 @@
 
                 <div class="role-provision-section">
                     <div class="role-select-row">
-                        <div class="form-group" style="width: 180px; margin-bottom: 0;">
-                            <label class="form-label">Karrierestufe *</label>
+                        <div class="form-group">
+                            <label class="form-label">Karrierestufe auswählen *</label>
                             <select class="form-input" id="mainRole">
-                                <option value="">Bitte auswählen</option>
-                                <option value="sma">SMA</option>
-                                <option value="ema">EMA</option>
-                                <option value="jmm">JMM</option>
-                                <option value="emm">EMM</option>
-                                <option value="cemm">CEMM</option>
-                                <option value="spb">SPB</option>
-                                <option value="kad">KAD</option>
-                                <option value="fue">FUE</option>
+                                <option value="">-- Stufe wählen --</option>
+                                <option value="sma">SMA - Starting Marketing Advisor</option>
+                                <option value="ema">EMA - Executive Marketing Advisor</option>
+                                <option value="jmm">JMM - Junior Marketing Manager</option>
+                                <option value="emm">EMM - Executive Marketing Manager</option>
+                                <option value="cemm">CEMM - Chief Executive Marketing Manager</option>
+                                <option value="spb">SPB - Spitzen Botschafter</option>
+                                <option value="kad">KAD - Kadermanager</option>
+                                <option value="fue">FUE - Führungsebene</option>
                             </select>
                         </div>
-                        <div class="form-group" style="width: 100px; margin-bottom: 0;">
-                            <label class="form-label">
-                                Ind. Faktor
-                                <span class="optional-badge" style="font-size: 9px;">Optional</span>
-                            </label>
-                            <div class="provision-input-wrapper" style="height: 42px;">
-                                <input type="number" class="form-input" id="customFactor" placeholder="-" min="0" max="15" step="0.1" style="text-align: center;">
+                        <div class="form-group">
+                            <label class="form-label">Individueller Faktor <span class="optional-badge">Optional</span></label>
+                            <div class="provision-input-wrapper">
+                                <input type="number" class="form-input" id="customFactor" placeholder="Standard" min="0" max="15" step="0.1" style="text-align: center;">
                                 <span class="provision-unit">×</span>
                             </div>
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label">Gültig von - bis</label>
+                        <div class="form-group">
+                            <label class="form-label">Gültig ab KW</label>
                             <div class="kw-range-selector">
                                 <div class="kw-selector kw-selector-compact" id="roleKwFromSelector">
                                     <button type="button" class="kw-nav-btn" id="kwPrev">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                         </svg>
                                     </button>
@@ -2345,15 +2380,15 @@
                                         <span class="kw-year" id="kwYear">2025</span>
                                     </div>
                                     <button type="button" class="kw-nav-btn" id="kwNext">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                         </svg>
                                     </button>
                                 </div>
-                                <span class="kw-range-separator">–</span>
+                                <span class="kw-range-separator">bis</span>
                                 <div class="kw-selector kw-selector-compact" id="roleKwToSelector">
                                     <button type="button" class="kw-nav-btn" id="roleKwToPrev">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                         </svg>
                                     </button>
@@ -2362,7 +2397,7 @@
                                         <span class="kw-year" id="roleKwToYear"></span>
                                     </div>
                                     <button type="button" class="kw-nav-btn" id="roleKwToNext">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                         </svg>
                                     </button>
