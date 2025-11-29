@@ -1847,6 +1847,145 @@
             font-size: var(--font-size-xs);
         }
 
+        /* Kampagnen Grid */
+        .campaigns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .campaign-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .campaign-card:hover {
+            box-shadow: var(--shadow-sm);
+            border-color: var(--accent-color);
+        }
+
+        .campaign-card.status-active {
+            border-color: #22c55e;
+        }
+
+        .campaign-card.status-planned {
+            border-color: #3b82f6;
+        }
+
+        .campaign-card.status-inactive {
+            border-color: #9ca3af;
+            opacity: 0.7;
+        }
+
+        .campaign-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .campaign-title {
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .campaign-meta {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .campaign-status {
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .campaign-status.active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .campaign-status.planned {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .campaign-status.inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .campaign-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        /* Gutschriftrechnungen (kompakt) */
+        .invoices-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .invoice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        .invoice-item-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .invoice-item-name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .invoice-item-status {
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .invoice-item-status.paid {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .invoice-item-status.pending {
+            background: #fef3cd;
+            color: #856404;
+        }
+
+        .invoice-item-amount {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .invoices-empty {
+            text-align: center;
+            padding: var(--spacing-md);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
         /* History Tabs */
         .history-tabs {
             display: flex;
@@ -2226,6 +2365,35 @@
                             </p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- 7. Kampagnen -->
+            <div class="section-card">
+                <h2 class="section-title">Kampagnen</h2>
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                    Kampagnen, an denen dieser Mitarbeiter teilnimmt oder teilgenommen hat
+                </p>
+                <div class="campaigns-grid" id="employeeCampaignsGrid">
+                    <!-- Campaigns will be rendered here -->
+                </div>
+                <div id="noEmployeeCampaignsMessage" style="display: none; text-align: center; padding: var(--spacing-lg); color: var(--text-secondary);">
+                    <p>Dieser Mitarbeiter ist aktuell in keiner Kampagne.</p>
+                    <a href="/kampagnen.html" style="color: var(--accent-color); text-decoration: none; font-size: var(--font-size-sm);">Zum Kampagnen-Modul</a>
+                </div>
+            </div>
+
+            <!-- 8. Gutschriftrechnungen (Auszahlungen) -->
+            <div class="section-card">
+                <h2 class="section-title">Gutschriftrechnungen</h2>
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                    Alle Auszahlungen an diesen Mitarbeiter
+                </p>
+                <div class="invoices-list" id="employeeInvoicesList">
+                    <!-- Gutschriftrechnungen werden hier gerendert -->
+                </div>
+                <div class="invoices-empty" id="noEmployeeInvoicesMessage" style="display: none;">
+                    Noch keine Gutschriftrechnungen vorhanden
                 </div>
             </div>
 
@@ -3008,6 +3176,120 @@
         document.querySelectorAll('.tab-content-extra[data-tab="informationen"]').forEach(el => {
             el.classList.add('active');
         });
+
+        // ================================================================
+        // MITARBEITER KAMPAGNEN
+        // ================================================================
+
+        // Demo-Daten für Kampagnen des Mitarbeiters
+        const employeeCampaigns = [
+            {
+                id: 1,
+                name: 'Frühjahrskampagne 2025',
+                customer: 'DRK Kreisverband Ludwigshafen',
+                kwFrom: 10,
+                kwTo: 22,
+                year: 2025,
+                status: 'active',
+                role: 'Teamchef'
+            },
+            {
+                id: 2,
+                name: 'Herbstkampagne 2024',
+                customer: 'DRK Kreisverband Mannheim',
+                kwFrom: 36,
+                kwTo: 48,
+                year: 2024,
+                status: 'inactive',
+                role: 'Werber'
+            }
+        ];
+
+        function renderEmployeeCampaigns() {
+            const grid = document.getElementById('employeeCampaignsGrid');
+            const noMessage = document.getElementById('noEmployeeCampaignsMessage');
+
+            if (employeeCampaigns.length === 0) {
+                grid.innerHTML = '';
+                noMessage.style.display = 'block';
+                return;
+            }
+
+            noMessage.style.display = 'none';
+
+            grid.innerHTML = employeeCampaigns.map(campaign => {
+                const statusLabel = {
+                    'active': 'Aktiv',
+                    'planned': 'Geplant',
+                    'inactive': 'Abgeschlossen'
+                }[campaign.status] || campaign.status;
+
+                return `
+                    <div class="campaign-card status-${campaign.status}" onclick="window.location.href='/kampagnen.html'">
+                        <div class="campaign-header">
+                            <div>
+                                <div class="campaign-title">${campaign.name}</div>
+                                <div class="campaign-meta">${campaign.customer}</div>
+                            </div>
+                            <span class="campaign-status ${campaign.status}">${statusLabel}</span>
+                        </div>
+                        <div class="campaign-info">
+                            <span>KW ${campaign.kwFrom}-${campaign.kwTo}/${campaign.year}</span>
+                            <span>•</span>
+                            <span>${campaign.role}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Kampagnen beim Laden rendern
+        document.addEventListener('DOMContentLoaded', function() {
+            renderEmployeeCampaigns();
+            renderEmployeeInvoices();
+        });
+
+        // ================================================================
+        // GUTSCHRIFTRECHNUNGEN (Auszahlungen)
+        // ================================================================
+
+        // Demo-Daten für Gutschriftrechnungen
+        const employeeInvoices = [
+            { id: 1, name: 'GS-2025-001', date: '31.01.2025', amount: 1850.00, status: 'paid' },
+            { id: 2, name: 'GS-2025-002', date: '28.02.2025', amount: 2340.50, status: 'paid' },
+            { id: 3, name: 'GS-2025-003', date: '31.03.2025', amount: 1920.00, status: 'pending' }
+        ];
+
+        function renderEmployeeInvoices() {
+            const list = document.getElementById('employeeInvoicesList');
+            const noMessage = document.getElementById('noEmployeeInvoicesMessage');
+
+            if (employeeInvoices.length === 0) {
+                list.innerHTML = '';
+                noMessage.style.display = 'block';
+                return;
+            }
+
+            noMessage.style.display = 'none';
+
+            list.innerHTML = employeeInvoices.map(invoice => {
+                const statusLabel = invoice.status === 'paid' ? 'Ausgezahlt' : 'Ausstehend';
+                const formattedAmount = new Intl.NumberFormat('de-DE', {
+                    style: 'currency',
+                    currency: 'EUR'
+                }).format(invoice.amount);
+
+                return `
+                    <div class="invoice-item">
+                        <div class="invoice-item-info">
+                            <span class="invoice-item-name">${invoice.name}</span>
+                            <span class="invoice-item-status ${invoice.status}">${statusLabel}</span>
+                        </div>
+                        <span class="invoice-item-amount">${formattedAmount}</span>
+                    </div>
+                `;
+            }).join('');
+        }
 
         // ================================================================
         // PHOTO & DOCUMENT UPLOAD HANDLERS
