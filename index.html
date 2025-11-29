@@ -6,6 +6,9 @@
     <title>Backoffice - RB Inside</title>
     <link rel="stylesheet" href="styles.css">
 
+    <!-- Modal-System (ersetzt Chrome alert/confirm/prompt) -->
+    <script src="modal-system.js"></script>
+
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -622,7 +625,8 @@
         }
 
         async function handleLogout() {
-            if (!confirm('Möchten Sie sich wirklich abmelden?')) return;
+            const confirmed = await showConfirm('Abmelden', 'Möchten Sie sich wirklich abmelden?', 'question');
+            if (!confirmed) return;
 
             try {
                 const { error } = await supabase.auth.signOut();
@@ -637,7 +641,7 @@
 
             } catch (error) {
                 console.error('Logout error:', error);
-                alert('Fehler beim Abmelden: ' + error.message);
+                await showAlert('Fehler', 'Fehler beim Abmelden: ' + error.message, 'error');
             }
         }
 

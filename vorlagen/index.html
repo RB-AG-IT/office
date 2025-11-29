@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vorlagen - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../modal-system.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -1438,17 +1439,18 @@ Ihr DRK {werbegebiet}</textarea>
         // ============================================
         // PREISVORLAGEN FUNKTIONEN
         // ============================================
-        function openNewPreisvorlageModal() {
-            alert('Neue Preisvorlage erstellen - Diese Funktion wird in einer zukünftigen Version verfügbar sein.');
+        async function openNewPreisvorlageModal() {
+            await showAlert('Coming Soon', 'Neue Preisvorlage erstellen - Diese Funktion wird in einer zukünftigen Version verfügbar sein.', 'info');
         }
 
-        function editPreisvorlage(id) {
-            alert('Preisvorlage bearbeiten: ' + id + ' - Diese Funktion wird in einer zukünftigen Version verfügbar sein.');
+        async function editPreisvorlage(id) {
+            await showAlert('Coming Soon', 'Preisvorlage bearbeiten: ' + id + ' - Diese Funktion wird in einer zukünftigen Version verfügbar sein.', 'info');
         }
 
-        function deletePreisvorlage(id) {
-            if (confirm('Möchten Sie diese Preisvorlage wirklich löschen?')) {
-                alert('Preisvorlage wird gelöscht: ' + id);
+        async function deletePreisvorlage(id) {
+            const confirmed = await showConfirm('Löschen', 'Möchten Sie diese Preisvorlage wirklich löschen?', 'warning');
+            if (confirmed) {
+                await showAlert('Gelöscht', 'Preisvorlage wird gelöscht: ' + id, 'success');
             }
         }
 
@@ -1467,10 +1469,10 @@ Ihr DRK {werbegebiet}</textarea>
         });
 
         // Copy placeholder
-        function copyPlaceholder(text) {
+        async function copyPlaceholder(text) {
             navigator.clipboard.writeText(text);
             // Show toast or feedback
-            alert('Kopiert: ' + text);
+            await showAlert('Kopiert', 'Kopiert: ' + text, 'success');
         }
 
         // Edit template
@@ -1485,8 +1487,8 @@ Ihr DRK {werbegebiet}</textarea>
         }
 
         // Preview template
-        function previewTemplate(templateId) {
-            alert('Vorschau für: ' + templateId);
+        async function previewTemplate(templateId) {
+            await showAlert('Vorschau', 'Vorschau für: ' + templateId, 'info');
         }
 
         // Update preview
@@ -1512,28 +1514,29 @@ Ihr DRK {werbegebiet}</textarea>
         document.getElementById('templateContent').addEventListener('input', updatePreview);
 
         // Save template
-        function saveTemplate() {
-            alert('Vorlage gespeichert!');
+        async function saveTemplate() {
+            await showAlert('Gespeichert', 'Vorlage gespeichert!', 'success');
             closeEditModal();
         }
 
         // Test email
-        function testEmail() {
-            const email = prompt('Test-E-Mail senden an:', 'test@example.com');
+        async function testEmail() {
+            const email = await showPrompt('Test-E-Mail', 'Test-E-Mail senden an:', 'test@example.com');
             if (email) {
-                alert('Test-E-Mail wird gesendet an: ' + email);
+                await showAlert('Gesendet', 'Test-E-Mail wird gesendet an: ' + email, 'success');
             }
         }
 
         // Send manual email
-        function sendManual(templateId) {
-            alert('Manuelle E-Mail senden: ' + templateId);
+        async function sendManual(templateId) {
+            await showAlert('E-Mail', 'Manuelle E-Mail senden: ' + templateId, 'info');
         }
 
         // Send newsletter
-        function sendNewsletter(templateId) {
-            if (confirm('Newsletter an alle Fördermitglieder senden?')) {
-                alert('Newsletter wird versendet...');
+        async function sendNewsletter(templateId) {
+            const confirmed = await showConfirm('Newsletter versenden', 'Newsletter an alle Fördermitglieder senden?', 'question');
+            if (confirmed) {
+                await showAlert('Versendet', 'Newsletter wird versendet...', 'success');
             }
         }
 
@@ -1546,14 +1549,14 @@ Ihr DRK {werbegebiet}</textarea>
             document.getElementById('resendModal').classList.remove('show');
         }
 
-        function resendEmail() {
-            alert('E-Mail wird erneut gesendet...');
+        async function resendEmail() {
+            await showAlert('Erneut gesendet', 'E-Mail wird erneut gesendet...', 'success');
             closeResendModal();
         }
 
         // New template modal
-        function openNewTemplateModal() {
-            alert('Neue Vorlage erstellen - Coming soon');
+        async function openNewTemplateModal() {
+            await showAlert('Coming Soon', 'Neue Vorlage erstellen - Coming soon', 'info');
         }
 
         // Individual template functions
@@ -1571,14 +1574,15 @@ Ihr DRK {werbegebiet}</textarea>
             updatePreview();
         }
 
-        function deleteIndividualTemplate(templateId) {
-            if (confirm('Möchten Sie diese Vorlage wirklich löschen?')) {
-                alert('Vorlage wird gelöscht...');
+        async function deleteIndividualTemplate(templateId) {
+            const confirmed = await showConfirm('Löschen', 'Möchten Sie diese Vorlage wirklich löschen?', 'warning');
+            if (confirmed) {
+                await showAlert('Gelöscht', 'Vorlage wird gelöscht...', 'success');
             }
         }
 
-        function useIndividualTemplate(templateId) {
-            alert('Vorlage wird zum Versenden geöffnet...');
+        async function useIndividualTemplate(templateId) {
+            await showAlert('Versenden', 'Vorlage wird zum Versenden geöffnet...', 'info');
         }
 
         // Check user stage for individual templates access

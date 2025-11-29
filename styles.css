@@ -1459,3 +1459,222 @@ body {
     max-width: 1600px;
     margin: 0 auto;
 }
+
+/* ========================================
+   EINHEITLICHES MODAL-DIALOG-SYSTEM
+   ========================================
+
+   WICHTIG: Dieses System ersetzt ALLE nativen Browser-Dialoge!
+
+   Anstatt die hässlichen Chrome/Browser alert(), confirm() und prompt()
+   Dialoge zu verwenden, nutze diese einheitlichen, schönen Modals:
+
+   VERWENDUNG:
+   -----------
+
+   1. ALERT (Nur Hinweis anzeigen):
+      showAlert('Titel', 'Nachricht hier', 'success')
+
+      Typen: 'info', 'success', 'warning', 'error'
+
+   2. CONFIRM (Ja/Nein Bestätigung):
+      const result = await showConfirm('Titel', 'Frage hier', 'warning')
+      if (result) {
+          // Benutzer hat "Ja" geklickt
+      }
+
+   3. PROMPT (Eingabe vom Benutzer):
+      const input = await showPrompt('Titel', 'Frage', 'Standardwert')
+      if (input !== null) {
+          // Benutzer hat etwas eingegeben
+      }
+
+   NIEMALS mehr verwenden:
+   - alert()
+   - confirm()
+   - prompt()
+
+   Diese Funktionen sind in /base/app.js und modal-system.js definiert.
+
+   ======================================== */
+
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: var(--spacing-md);
+}
+
+.custom-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.custom-modal {
+    background: var(--bg-primary, #ffffff);
+    border-radius: var(--radius-lg, 12px);
+    padding: var(--spacing-lg, 24px);
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.custom-modal-overlay.active .custom-modal {
+    transform: scale(1) translateY(0);
+}
+
+.custom-modal-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-md, 16px);
+}
+
+.custom-modal-icon.info {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
+    color: #3b82f6;
+}
+
+.custom-modal-icon.success {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
+    color: #22c55e;
+}
+
+.custom-modal-icon.warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+    color: #f59e0b;
+}
+
+.custom-modal-icon.error {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
+    color: #ef4444;
+}
+
+.custom-modal-icon.question {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+    color: #a855f7;
+}
+
+.custom-modal-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 2;
+}
+
+.custom-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary, #1a1a1a);
+    text-align: center;
+    margin-bottom: var(--spacing-sm, 8px);
+}
+
+.custom-modal-message {
+    font-size: 14px;
+    color: var(--text-secondary, #6b7280);
+    text-align: center;
+    line-height: 1.6;
+    margin-bottom: var(--spacing-lg, 24px);
+    white-space: pre-line;
+}
+
+.custom-modal-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-secondary, #f8f9fa);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: var(--radius-md, 8px);
+    color: var(--text-primary, #1a1a1a);
+    font-size: 14px;
+    margin-bottom: var(--spacing-lg, 24px);
+    transition: all 0.2s ease;
+}
+
+.custom-modal-input:focus {
+    outline: none;
+    border-color: var(--accent-color, #3b82f6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.custom-modal-input::placeholder {
+    color: var(--text-secondary, #6b7280);
+}
+
+.custom-modal-buttons {
+    display: flex;
+    gap: var(--spacing-sm, 8px);
+    justify-content: center;
+}
+
+.custom-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--radius-md, 8px);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 160px;
+}
+
+.custom-modal-btn:active {
+    transform: scale(0.97);
+}
+
+.custom-modal-btn.cancel {
+    background: var(--bg-secondary, #f8f9fa);
+    color: var(--text-primary, #1a1a1a);
+    border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.custom-modal-btn.cancel:hover {
+    background: var(--bg-hover, #f0f1f3);
+}
+
+.custom-modal-btn.confirm {
+    background: var(--accent-color, #3b82f6);
+    color: white;
+}
+
+.custom-modal-btn.confirm:hover {
+    background: var(--accent-hover, #2563eb);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.custom-modal-btn.danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.custom-modal-btn.danger:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.custom-modal-btn.success {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+}
+
+.custom-modal-btn.success:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}

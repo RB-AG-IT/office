@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mitarbeiter Profil - RB Inside</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../modal-system.js"></script>
 
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1754,6 +1755,73 @@
             color: var(--text-secondary);
         }
 
+        /* Mini-Badge Styles (kleine Wappen) */
+        .mini-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .mini-badge-code {
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            line-height: 1;
+        }
+
+        .mini-badge-stars {
+            display: flex;
+            gap: 1px;
+            margin-top: 1px;
+        }
+
+        .mini-badge-star {
+            width: 6px;
+            height: 6px;
+            fill: #FFD700;
+        }
+
+        /* Größeres Badge neben dem Faktor-Feld */
+        .factor-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .factor-badge-code {
+            font-size: 14px;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            line-height: 1;
+        }
+
+        .factor-badge-stars {
+            display: flex;
+            gap: 1px;
+            margin-top: 2px;
+        }
+
+        .factor-badge-star {
+            width: 8px;
+            height: 8px;
+            fill: #FFD700;
+        }
+
         .role-history-empty {
             text-align: center;
             padding: var(--spacing-xl);
@@ -2407,6 +2475,8 @@
                             <input type="hidden" id="roleEffectiveDate" value="">
                             <input type="hidden" id="roleEffectiveDateTo" value="">
                         </div>
+                        <!-- Badge neben dem Faktor -->
+                        <div id="factorBadgeContainer" style="display: none;"></div>
                         <div class="role-factor-display" id="roleFaktorDisplay">
                             <span class="factor-label">Faktor</span>
                             <span class="factor-value" id="displayFaktor">-</span>
@@ -2414,45 +2484,32 @@
                         </div>
                     </div>
 
-                    <!-- Individueller Faktor Toggle -->
-                    <div class="individual-factor-toggle" id="individualFactorToggle" style="margin-top: var(--spacing-md); padding: var(--spacing-md); background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="toggleIndividualFactor()">
-                            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; color: var(--accent-color);">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                                <span style="font-weight: 600; font-size: var(--font-size-sm);">Individueller Faktor</span>
-                                <span class="optional-badge">Optional</span>
+                    <!-- Benefits Liste (direkt unter der Stufen-Auswahl) -->
+                    <div class="role-benefits" id="roleBenefits" style="margin-top: var(--spacing-md);">
+                        <span class="benefits-placeholder">Wähle eine Karrierestufe um die Benefits zu sehen</span>
+                    </div>
+
+                    <!-- Individueller Faktor als kompakte Checkbox -->
+                    <div class="individual-factor-toggle" id="individualFactorToggle" style="margin-top: var(--spacing-md); display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; font-size: var(--font-size-sm);">
+                            <input type="checkbox" id="individualFactorCheckbox" onchange="toggleIndividualFactor()" style="width: 16px; height: 16px; accent-color: var(--accent-color); cursor: pointer;">
+                            <span style="color: var(--text-secondary);">Individueller Faktor</span>
+                        </label>
+                        <div id="individualFactorInput" style="display: none; align-items: center; gap: var(--spacing-sm);">
+                            <div class="provision-input-wrapper" style="width: 100px;">
+                                <input type="number" class="form-input" id="customFactor" placeholder="6.5" min="0" max="15" step="0.1" style="text-align: center; height: 38px; padding-right: 28px;">
+                                <span class="provision-unit">×</span>
                             </div>
-                            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
-                                <span id="individualFactorValue" style="font-size: var(--font-size-sm); color: var(--text-secondary);">Standard</span>
-                                <svg id="individualFactorChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px; color: var(--text-secondary); transition: transform 0.2s;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div id="individualFactorInput" style="display: none; margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
-                            <div style="display: flex; align-items: center; gap: var(--spacing-md);">
-                                <label style="font-size: var(--font-size-sm); color: var(--text-secondary);">Faktor:</label>
-                                <div class="provision-input-wrapper" style="max-width: 120px;">
-                                    <input type="number" class="form-input" id="customFactor" placeholder="z.B. 6.5" min="0" max="15" step="0.1" style="text-align: center; height: 40px;">
-                                    <span class="provision-unit">×</span>
-                                </div>
-                                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: 0;">Überschreibt den Standard-Faktor der Karrierestufe</p>
-                            </div>
+                            <span style="font-size: var(--font-size-xs); color: var(--text-tertiary);">überschreibt Stufen-Faktor</span>
                         </div>
                     </div>
+
                     <p class="kw-hint" id="kwHint" style="display: none; font-size: var(--font-size-xs); color: var(--warning-color); margin-top: var(--spacing-sm);">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                         <span id="kwHintText"></span>
                     </p>
-
-                    <!-- Benefits Liste -->
-                    <div class="role-benefits" id="roleBenefits">
-                        <span class="benefits-placeholder">Wähle eine Karrierestufe um die Benefits zu sehen</span>
-                    </div>
 
                     <!-- Speichern Button für Karrierestufe -->
                     <div class="role-save-section" style="margin-top: var(--spacing-md); display: flex; align-items: center; gap: var(--spacing-md);">
@@ -2486,12 +2543,14 @@
 
                 <!-- Aktuelle Rolle -->
                 <div class="current-role-display">
-                    <div class="current-role-header">
+                    <div class="current-role-header" style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <div id="currentRoleMiniWappen" style="display: none;"></div>
                         <span class="current-role-label">Aktuelle Karrierestufe</span>
                         <span class="current-role-badge" id="currentRoleBadge">-</span>
                     </div>
                     <div class="current-role-info">
-                        <div class="role-info-item">
+                        <div class="role-info-item" style="display: flex; align-items: center; gap: 8px;">
+                            <div id="currentFaktorMiniWappen" style="display: none;"></div>
                             <span class="role-info-label">Faktor</span>
                             <span class="role-info-value" id="currentFaktor">-</span>
                         </div>
@@ -2761,9 +2820,10 @@
         // ================================================================
         let hasUnsavedChanges = false;
 
-        function goBack() {
+        async function goBack() {
             if (hasUnsavedChanges) {
-                if (!confirm('Sie haben ungespeicherte Änderungen.\n\nMöchten Sie wirklich ohne Speichern verlassen?')) {
+                const confirmed = await showConfirm('Ungespeicherte Änderungen', 'Sie haben ungespeicherte Änderungen.\n\nMöchten Sie wirklich ohne Speichern verlassen?', 'warning');
+                if (!confirmed) {
                     return;
                 }
             }
@@ -2828,6 +2888,89 @@
                 stufeEl.textContent = 'Stufe -';
                 starsEl.innerHTML = '';
                 nameEl.textContent = 'Keine Stufe';
+            }
+        }
+
+        // ================================================================
+        // MINI BADGE GENERIERUNG (für Wappen-Anzeige überall)
+        // ================================================================
+
+        // Generiert ein Mini-Badge HTML (32x32px) für Historie-Einträge
+        function generateMiniBadge(roleKey) {
+            const level = CAREER_LEVELS[roleKey];
+            if (!level) return '';
+
+            let starsHtml = '';
+            const maxStars = Math.min(level.stars, 4); // Max 4 Sterne für Mini-Badge
+            for (let i = 0; i < maxStars; i++) {
+                starsHtml += '<svg class="mini-badge-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+            }
+
+            return `
+                <div class="mini-badge" style="background: ${level.color};">
+                    <span class="mini-badge-code">${level.code}</span>
+                    <div class="mini-badge-stars">${starsHtml}</div>
+                </div>
+            `;
+        }
+
+        // Generiert ein größeres Badge HTML (50x50px) für neben dem Faktor-Feld
+        function generateFactorBadge(roleKey) {
+            const level = CAREER_LEVELS[roleKey];
+            if (!level) return '';
+
+            let starsHtml = '';
+            const maxStars = Math.min(level.stars, 5); // Max 5 Sterne für Factor-Badge
+            for (let i = 0; i < maxStars; i++) {
+                starsHtml += '<svg class="factor-badge-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+            }
+
+            return `
+                <div class="factor-badge" style="background: ${level.color};">
+                    <span class="factor-badge-code">${level.code}</span>
+                    <div class="factor-badge-stars">${starsHtml}</div>
+                </div>
+            `;
+        }
+
+        // Aktualisiert das Badge neben dem Faktor-Feld
+        function updateFactorBadge(roleKey) {
+            const container = document.getElementById('factorBadgeContainer');
+            if (!container) return;
+
+            if (roleKey && CAREER_LEVELS[roleKey]) {
+                container.innerHTML = generateFactorBadge(roleKey);
+                container.style.display = 'block';
+            } else {
+                container.innerHTML = '';
+                container.style.display = 'none';
+            }
+        }
+
+        // Aktualisiert das Mini-Badge neben "Aktuelle Karrierestufe"
+        function updateCurrentRoleMiniWappen(roleKey) {
+            const wappenContainer = document.getElementById('currentRoleMiniWappen');
+            const faktorWappenContainer = document.getElementById('currentFaktorMiniWappen');
+
+            if (roleKey && CAREER_LEVELS[roleKey]) {
+                const miniBadgeHtml = generateMiniBadge(roleKey);
+                if (wappenContainer) {
+                    wappenContainer.innerHTML = miniBadgeHtml;
+                    wappenContainer.style.display = 'block';
+                }
+                if (faktorWappenContainer) {
+                    faktorWappenContainer.innerHTML = miniBadgeHtml;
+                    faktorWappenContainer.style.display = 'block';
+                }
+            } else {
+                if (wappenContainer) {
+                    wappenContainer.innerHTML = '';
+                    wappenContainer.style.display = 'none';
+                }
+                if (faktorWappenContainer) {
+                    faktorWappenContainer.innerHTML = '';
+                    faktorWappenContainer.style.display = 'none';
+                }
             }
         }
 
@@ -3426,14 +3569,14 @@
 
                 // Validation
                 if (!firstName || !lastName || !email || !mainRole) {
-                    alert('Bitte füllen Sie alle Pflichtfelder aus:\n- Vorname\n- Nachname\n- E-Mail\n- Haupt-Rolle');
+                    await showAlert('Pflichtfelder', 'Bitte füllen Sie alle Pflichtfelder aus:\n- Vorname\n- Nachname\n- E-Mail\n- Haupt-Rolle', 'warning');
                     return;
                 }
 
                 // Email validation
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
-                    alert('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+                    await showAlert('E-Mail ungültig', 'Bitte geben Sie eine gültige E-Mail-Adresse ein.', 'warning');
                     return;
                 }
 
@@ -3441,7 +3584,7 @@
                 const isVatLiable = document.getElementById('vatLiable').checked;
                 const vatNumber = document.getElementById('vatNumber').value.trim();
                 if (isVatLiable && !vatNumber) {
-                    alert('Bei Umsatzsteuerpflicht ist die Umsatzsteuer-ID ein Pflichtfeld.');
+                    await showAlert('USt-ID erforderlich', 'Bei Umsatzsteuerpflicht ist die Umsatzsteuer-ID ein Pflichtfeld.', 'warning');
                     document.getElementById('vatNumber').focus();
                     return;
                 }
@@ -3662,14 +3805,14 @@
                 // Reset dirty state before redirect
                 hasUnsavedChanges = false;
 
-                alert('✅ Mitarbeiter erfolgreich gespeichert!');
+                await showAlert('Erfolg', 'Mitarbeiter erfolgreich gespeichert!', 'success');
 
                 // Redirect to overview
                 history.back();
 
             } catch (error) {
                 console.error('Save error:', error);
-                alert(`❌ Fehler beim Speichern:\n${error.message}\n\nBitte versuchen Sie es erneut oder kontaktieren Sie den Support.`);
+                await showAlert('Fehler beim Speichern', `${error.message}\n\nBitte versuchen Sie es erneut oder kontaktieren Sie den Support.`, 'error');
 
                 // Restore button
                 const saveBtn = event.target;
@@ -3998,8 +4141,8 @@
         });
 
         // Manuelle KW-Eingabe (Von) - Klick auf KW-Anzeige
-        document.getElementById('kwNumber').addEventListener('click', function() {
-            const input = prompt('Kalenderwoche eingeben (1-52):', currentKwWeek);
+        document.getElementById('kwNumber').addEventListener('click', async function() {
+            const input = await showPrompt('Kalenderwoche', 'Kalenderwoche eingeben (1-52):', String(currentKwWeek));
             if (input !== null) {
                 const week = parseInt(input);
                 if (week >= 1 && week <= getWeeksInYear(currentKwYear)) {
@@ -4009,8 +4152,8 @@
             }
         });
 
-        document.getElementById('kwYear').addEventListener('click', function() {
-            const input = prompt('Jahr eingeben:', currentKwYear);
+        document.getElementById('kwYear').addEventListener('click', async function() {
+            const input = await showPrompt('Jahr', 'Jahr eingeben:', String(currentKwYear));
             if (input !== null) {
                 const year = parseInt(input);
                 if (year >= 2020 && year <= 2100) {
@@ -4079,8 +4222,8 @@
         });
 
         // Manuelle Bis-Eingabe - Klick auf KW-Anzeige
-        document.getElementById('roleKwToNumber').addEventListener('click', function() {
-            const input = prompt('Kalenderwoche eingeben (1-52, oder leer für ∞):', roleKwToUnlimited ? '' : roleKwToWeek);
+        document.getElementById('roleKwToNumber').addEventListener('click', async function() {
+            const input = await showPrompt('Kalenderwoche Bis', 'Kalenderwoche eingeben (1-52, oder leer für ∞):', roleKwToUnlimited ? '' : String(roleKwToWeek));
             if (input === null) return;
 
             if (input.trim() === '' || input === '∞') {
@@ -4100,7 +4243,7 @@
             updateRoleKwToDisplay();
         });
 
-        document.getElementById('roleKwToYear').addEventListener('click', function() {
+        document.getElementById('roleKwToYear').addEventListener('click', async function() {
             if (roleKwToUnlimited) {
                 // Erst KW setzen
                 roleKwToUnlimited = false;
@@ -4109,7 +4252,7 @@
                 updateRoleKwToDisplay();
                 return;
             }
-            const input = prompt('Jahr eingeben:', roleKwToYear);
+            const input = await showPrompt('Jahr Bis', 'Jahr eingeben:', String(roleKwToYear));
             if (input !== null) {
                 const year = parseInt(input);
                 if (year >= 2020 && year <= 2100) {
@@ -4143,6 +4286,7 @@
             updateCurrentRoleDisplay(roleKey);
             updatePreisvorlagenLock(roleKey);
             updateHeaderBadge(roleKey);
+            updateFactorBadge(roleKey); // Badge neben Faktor-Feld aktualisieren
             checkRoleCanBeSaved();
             checkKwOverlap();
         });
@@ -4157,23 +4301,20 @@
         // Individueller Faktor Toggle Status
         let individualFactorEnabled = false;
 
-        // Toggle für Individueller Faktor
+        // Toggle für Individueller Faktor (jetzt als Checkbox)
         function toggleIndividualFactor() {
-            individualFactorEnabled = !individualFactorEnabled;
+            const checkbox = document.getElementById('individualFactorCheckbox');
+            individualFactorEnabled = checkbox.checked;
             const inputSection = document.getElementById('individualFactorInput');
-            const chevron = document.getElementById('individualFactorChevron');
-            const valueDisplay = document.getElementById('individualFactorValue');
             const customFactorInput = document.getElementById('customFactor');
 
             if (individualFactorEnabled) {
-                inputSection.style.display = 'block';
-                chevron.style.transform = 'rotate(180deg)';
+                inputSection.style.display = 'flex';
+                customFactorInput.focus();
             } else {
                 inputSection.style.display = 'none';
-                chevron.style.transform = 'rotate(0deg)';
                 // Individuellen Faktor zurücksetzen
                 customFactorInput.value = '';
-                valueDisplay.textContent = 'Standard';
                 updateFactorDisplay();
                 checkRoleCanBeSaved();
             }
@@ -4385,6 +4526,9 @@
                 renderRoleHistoryLocal();
                 checkKwOverlap();
 
+                // Aktuelle Anzeige (Wappen + "Aktuelle Karrierestufe") aktualisieren
+                updateCurrentRoleFromHistory();
+
                 // Button nach 2s zurücksetzen
                 setTimeout(() => {
                     saveBtn.classList.remove('saved');
@@ -4428,13 +4572,19 @@
                     displayFactor = config.faktor;
                 }
 
+                // Mini-Badge für diesen Eintrag generieren
+                const miniBadgeHtml = entry.role !== 'individuell' ? generateMiniBadge(entry.role) : '';
+
                 return `
                     <div class="role-history-item ${isFirst ? 'current' : 'inactive'}" ${entry.customFactor ? 'style="border-left-color: #FF6B6B;"' : ''}>
-                        <div class="role-history-header">
-                            <span class="role-history-name">${displayName}</span>
-                            <span class="role-history-duration-badge" ${entry.customFactor ? 'style="background: #FF6B6B;"' : ''}>Faktor ${displayFactor}</span>
+                        <div class="role-history-header" style="display: flex; align-items: center; gap: 10px;">
+                            ${miniBadgeHtml}
+                            <div style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                                <span class="role-history-name">${displayName}</span>
+                                <span class="role-history-duration-badge" ${entry.customFactor ? 'style="background: #FF6B6B; color: white;"' : ''}>Faktor ${displayFactor}</span>
+                            </div>
                         </div>
-                        <div class="role-history-dates">KW ${entry.fromKw}/${entry.fromYear} - ${toText}</div>
+                        <div class="role-history-dates" style="margin-left: ${miniBadgeHtml ? '42px' : '0'};">KW ${entry.fromKw}/${entry.fromYear} - ${toText}</div>
                     </div>
                 `;
             }).join('');
@@ -4526,6 +4676,52 @@
         }
 
         // Aktuelle Rolle im Display aktualisieren
+        // Aktuell gültige Rolle aus der History bestimmen und anzeigen
+        function updateCurrentRoleFromHistory() {
+            if (roleHistory.length === 0) return;
+
+            // Aktuelle KW und Jahr bestimmen
+            const now = new Date();
+            const currentKw = getWeekNumber(now);
+            const currentYear = now.getFullYear();
+            const currentDate = kwToDate(currentKw, currentYear);
+
+            // Die aktuell gültige Rolle finden (die erste, deren Zeitraum das aktuelle Datum einschließt)
+            let activeRole = null;
+            for (const entry of roleHistory) {
+                const fromDate = kwToDate(entry.fromKw, entry.fromYear);
+                const toDate = entry.toKw ? kwToDate(entry.toKw, entry.toYear) : new Date(2099, 11, 31);
+
+                if (currentDate >= fromDate && currentDate <= toDate) {
+                    activeRole = entry;
+                    break;
+                }
+            }
+
+            // Wenn keine aktive Rolle gefunden, nehme die neueste
+            if (!activeRole && roleHistory.length > 0) {
+                activeRole = roleHistory[0];
+            }
+
+            if (activeRole) {
+                const roleKey = activeRole.role === 'individuell' ? null : activeRole.role;
+                const fromDate = kwToDate(activeRole.fromKw, activeRole.fromYear);
+
+                if (roleKey && ROLE_CONFIG[roleKey]) {
+                    updateCurrentRoleDisplay(roleKey, fromDate.toISOString());
+                    updateCurrentRoleMiniWappen(roleKey); // Mini-Wappen aktualisieren
+                    updateHeaderBadge(roleKey); // Header-Wappen aktualisieren
+                } else if (activeRole.customFactor) {
+                    // Individueller Faktor
+                    document.getElementById('currentRoleBadge').textContent = 'Individuell';
+                    document.getElementById('currentFaktor').textContent = activeRole.customFactor.toFixed(1);
+                    document.getElementById('currentRoleSince').textContent = fromDate.toLocaleDateString('de-DE');
+                    document.getElementById('currentRoleDuration').textContent = calculateDuration(fromDate, new Date());
+                    updateCurrentRoleMiniWappen(null); // Kein Mini-Wappen bei individuellem Faktor
+                }
+            }
+        }
+
         function updateCurrentRoleDisplay(roleKey, assignedAt = null) {
             const config = ROLE_CONFIG[roleKey];
 
@@ -4616,13 +4812,19 @@
                         ? `${startDate.toLocaleDateString('de-DE')} - ${role.is_active ? 'heute' : endDate.toLocaleDateString('de-DE')}`
                         : startDate.toLocaleDateString('de-DE');
 
+                    // Mini-Badge für diesen Eintrag generieren
+                    const miniBadgeHtml = generateMiniBadge(role.role_name);
+
                     return `
                         <div class="role-history-item ${statusClass}">
-                            <div class="role-history-header">
-                                <span class="role-history-name">${config.name}</span>
-                                <span class="role-history-duration-badge">${duration}</span>
+                            <div class="role-history-header" style="display: flex; align-items: center; gap: 10px;">
+                                ${miniBadgeHtml}
+                                <div style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                                    <span class="role-history-name">${config.name}</span>
+                                    <span class="role-history-duration-badge">${duration}</span>
+                                </div>
                             </div>
-                            <div class="role-history-dates">${dateRange}</div>
+                            <div class="role-history-dates" style="margin-left: ${miniBadgeHtml ? '42px' : '0'};">${dateRange}</div>
                         </div>
                     `;
                 }).join('');
@@ -4786,6 +4988,8 @@
                     updateRoleFaktorAndBenefits(user.main_role);
                     updatePreisvorlagenLock(user.main_role);
                     updateHeaderBadge(user.main_role);
+                    updateFactorBadge(user.main_role);
+                    updateCurrentRoleMiniWappen(user.main_role);
                 }
 
                 // Check additional roles
@@ -4852,7 +5056,7 @@
 
             } catch (error) {
                 console.error('Load user error:', error);
-                alert(`❌ Fehler beim Laden der Benutzerdaten:\n${error.message}`);
+                await showAlert('Fehler', `Fehler beim Laden der Benutzerdaten:\n${error.message}`, 'error');
             }
         }
 
@@ -4877,7 +5081,7 @@
             const userId = new URLSearchParams(window.location.search).get('id');
 
             if (!userId) {
-                alert('Fehler: Kein Benutzer ausgewählt');
+                await showAlert('Fehler', 'Fehler: Kein Benutzer ausgewählt', 'error');
                 return;
             }
 
@@ -4922,11 +5126,11 @@
 
                 // UI aktualisieren
                 showHvContract(newFileName, now);
-                alert('✅ HV Vertrag erfolgreich hochgeladen!');
+                await showAlert('Erfolg', 'HV Vertrag erfolgreich hochgeladen!', 'success');
 
             } catch (error) {
                 console.error('Upload error:', error);
-                alert('❌ Fehler beim Hochladen: ' + error.message);
+                await showAlert('Fehler', 'Fehler beim Hochladen: ' + error.message, 'error');
             }
         }
 
@@ -4944,18 +5148,18 @@
             const documentName = document.getElementById('otherContractName').value.trim();
 
             if (!documentName) {
-                alert('Bitte geben Sie einen Dokumentnamen ein.');
+                await showAlert('Fehler', 'Bitte geben Sie einen Dokumentnamen ein.', 'warning');
                 return;
             }
 
             if (!pendingOtherContractFile) {
-                alert('Bitte wählen Sie eine Datei aus.');
+                await showAlert('Fehler', 'Bitte wählen Sie eine Datei aus.', 'warning');
                 return;
             }
 
             const userId = new URLSearchParams(window.location.search).get('id');
             if (!userId) {
-                alert('Fehler: Kein Benutzer ausgewählt');
+                await showAlert('Fehler', 'Fehler: Kein Benutzer ausgewählt', 'error');
                 return;
             }
 
@@ -5010,11 +5214,11 @@
                 document.getElementById('uploadOtherBtn').disabled = true;
                 pendingOtherContractFile = null;
 
-                alert('✅ Vereinbarung erfolgreich hochgeladen!');
+                await showAlert('Erfolg', 'Vereinbarung erfolgreich hochgeladen!', 'success');
 
             } catch (error) {
                 console.error('Upload error:', error);
-                alert('❌ Fehler beim Hochladen: ' + error.message);
+                await showAlert('Fehler', 'Fehler beim Hochladen: ' + error.message, 'error');
             }
         }
 
@@ -5077,7 +5281,7 @@
 
         // Löschanfrage für Vertrag erstellen
         async function requestContractDeletion(contractId, contractName) {
-            const confirmed = confirm(`Möchten Sie "${contractName || 'diesen Vertrag'}" wirklich löschen?\n\nDie Löschung muss vom Backoffice bestätigt werden.`);
+            const confirmed = await showConfirm('Vertrag löschen', `Möchten Sie "${contractName || 'diesen Vertrag'}" wirklich löschen?\n\nDie Löschung muss vom Backoffice bestätigt werden.`, 'warning');
 
             if (!confirmed) return;
 
@@ -5115,11 +5319,11 @@
 
                 if (deleteError) throw deleteError;
 
-                alert('✅ Löschanfrage wurde erstellt.\n\nDas Backoffice wird die Anfrage bearbeiten.');
+                await showAlert('Erfolg', 'Löschanfrage wurde erstellt.\n\nDas Backoffice wird die Anfrage bearbeiten.', 'success');
 
             } catch (error) {
                 console.error('Deletion request error:', error);
-                alert('❌ Fehler beim Erstellen der Löschanfrage: ' + error.message);
+                await showAlert('Fehler', 'Fehler beim Erstellen der Löschanfrage: ' + error.message, 'error');
             }
         }
 

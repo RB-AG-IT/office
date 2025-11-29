@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investments - RB Inside</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../modal-system.js"></script>
     <style>
         .page-container {
             padding: var(--spacing-lg);
@@ -511,7 +512,7 @@
 
     <script>
         // Demo: Unlock Wallet (in production this would validate against backend)
-        function unlockWallet() {
+        async function unlockWallet() {
             const password = document.getElementById('walletPassword').value;
 
             // Demo password: 1234
@@ -519,7 +520,7 @@
                 document.getElementById('walletLocked').classList.add('hidden');
                 document.getElementById('walletUnlocked').classList.add('active');
             } else {
-                alert('Falsches Passwort. Demo-Passwort: 1234');
+                await showAlert('Falsches Passwort', 'Falsches Passwort. Demo-Passwort: 1234', 'error');
             }
         }
 
