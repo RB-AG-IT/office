@@ -139,6 +139,42 @@
             color: white;
         }
 
+        /* Address autocomplete */
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-results.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: var(--spacing-md);
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: var(--font-size-sm);
+        }
+
+        .autocomplete-item:hover {
+            background: var(--bg-hover);
+        }
+
         .tab-content {
             display: none;
         }
@@ -1251,6 +1287,45 @@
             </div>
         </div>
 
+        <!-- Adresse -->
+        <div class="section-card">
+            <h2 class="section-title">Adresse</h2>
+            <div class="form-grid">
+                <div class="form-group form-group-full">
+                    <label class="form-label">Straße und Hausnummer</label>
+                    <div style="display: grid; grid-template-columns: 5fr 1fr; gap: var(--spacing-md);">
+                        <div class="autocomplete-container">
+                            <input type="text" class="form-input" id="customerStreet" placeholder="Beginnen Sie zu tippen für Vorschläge...">
+                            <div class="autocomplete-results" id="customerStreetAutocomplete"></div>
+                        </div>
+                        <div>
+                            <input type="text" class="form-input" id="customerHouseNumber" placeholder="Nr.">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">PLZ</label>
+                    <input type="text" class="form-input" id="customerPostalCode" placeholder="12345" maxlength="5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stadt</label>
+                    <input type="text" class="form-input" id="customerCity" placeholder="Musterstadt">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Land</label>
+                    <input type="text" class="form-input" id="customerCountry" placeholder="Wird automatisch ausgefüllt" readonly style="background: var(--bg-secondary); cursor: not-allowed;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bundesland</label>
+                    <input type="text" class="form-input" id="customerBundesland" placeholder="Wird automatisch ausgefüllt" readonly style="background: var(--bg-secondary); cursor: not-allowed;">
+                </div>
+                <div class="form-group form-group-full">
+                    <label class="form-label">Zusatzinformation</label>
+                    <input type="text" class="form-input" id="customerAddressExtra" placeholder="z.B. 2. Stock, Hinterhaus">
+                </div>
+            </div>
+        </div>
+
         <!-- Ansprechpartner -->
         <div class="section-card">
             <div class="section-header">
@@ -1619,15 +1694,19 @@
                     <div class="form-group">
                         <label class="form-label">Vereinsname</label>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="white-space: nowrap;">DRK</span>
                             <select class="form-input" id="areaVereinstyp" style="width: auto; min-width: 80px;">
-                                <option value="OV">OV</option>
                                 <option value="KV">KV</option>
+                                <option value="OV">OV</option>
                             </select>
                             <input type="text" class="form-input" id="areaVereinsname" placeholder="z.B. Ludwigshafen" style="flex: 1;">
-                            <span style="white-space: nowrap;">e.V.</span>
+                            <select class="form-input" id="areaRechtsform" style="width: auto; min-width: 100px;">
+                                <option value="e.V.">e.V.</option>
+                                <option value="gGmbH">gGmbH</option>
+                                <option value="GmbH">GmbH</option>
+                                <option value="">- keine -</option>
+                            </select>
                         </div>
-                        <span style="font-size: 11px; color: var(--text-secondary);">z.B. DRK OV Ludwigshafen e.V.</span>
+                        <span style="font-size: 11px; color: var(--text-secondary);">z.B. KV Ludwigshafen e.V.</span>
                     </div>
 
                     <!-- Adresse -->
@@ -1635,17 +1714,28 @@
                         Adresse des Ortsvereins
                     </p>
                     <div class="form-group">
-                        <label class="form-label">Straße</label>
-                        <input type="text" class="form-input" id="areaStreet" placeholder="Musterstraße 123">
+                        <label class="form-label">Straße und Hausnummer</label>
+                        <div style="display: grid; grid-template-columns: 4fr 1fr; gap: var(--spacing-sm);">
+                            <input type="text" class="form-input" id="areaStreet" placeholder="Musterstraße">
+                            <input type="text" class="form-input" id="areaHouseNumber" placeholder="Nr.">
+                        </div>
                     </div>
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">PLZ</label>
-                            <input type="text" class="form-input" id="areaZip" placeholder="67059">
+                            <input type="text" class="form-input" id="areaZip" placeholder="67059" maxlength="5">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Ort</label>
+                            <label class="form-label">Stadt</label>
                             <input type="text" class="form-input" id="areaCity" placeholder="Ludwigshafen">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Land</label>
+                            <input type="text" class="form-input" id="areaCountry" placeholder="Wird automatisch ausgefüllt" readonly style="background: var(--bg-secondary); cursor: not-allowed;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bundesland</label>
+                            <input type="text" class="form-input" id="areaBundesland" placeholder="Wird automatisch ausgefüllt" readonly style="background: var(--bg-secondary); cursor: not-allowed;">
                         </div>
                     </div>
                     <div class="form-group">
@@ -2483,11 +2573,15 @@
 
             // Stammdaten laden
             document.getElementById('newAreaName').value = area.name;
-            document.getElementById('areaVereinstyp').value = area.vereinstyp || 'OV';
+            document.getElementById('areaVereinstyp').value = area.vereinstyp || 'KV';
             document.getElementById('areaVereinsname').value = area.vereinsname || '';
+            document.getElementById('areaRechtsform').value = area.rechtsform || 'e.V.';
             document.getElementById('areaStreet').value = area.street || '';
+            document.getElementById('areaHouseNumber').value = area.houseNumber || '';
             document.getElementById('areaZip').value = area.zip || '';
             document.getElementById('areaCity').value = area.city || '';
+            document.getElementById('areaCountry').value = area.country || '';
+            document.getElementById('areaBundesland').value = area.bundesland || '';
             document.getElementById('areaEinwohner').value = area.einwohner || '';
             document.getElementById('areaWebsite').value = area.website || '';
             document.getElementById('areaPrivacyPolicy').value = area.privacyPolicy || '';
@@ -2529,11 +2623,15 @@
 
             // Stammdaten zurücksetzen
             document.getElementById('newAreaName').value = '';
-            document.getElementById('areaVereinstyp').value = 'OV';
+            document.getElementById('areaVereinstyp').value = 'KV';
             document.getElementById('areaVereinsname').value = '';
+            document.getElementById('areaRechtsform').value = 'e.V.';
             document.getElementById('areaStreet').value = '';
+            document.getElementById('areaHouseNumber').value = '';
             document.getElementById('areaZip').value = '';
             document.getElementById('areaCity').value = '';
+            document.getElementById('areaCountry').value = '';
+            document.getElementById('areaBundesland').value = '';
             document.getElementById('areaWebsite').value = '';
             document.getElementById('areaPrivacyPolicy').value = '';
             document.getElementById('areaContactFirstName').value = '';
@@ -2582,9 +2680,13 @@
                 name: name,
                 vereinstyp: document.getElementById('areaVereinstyp').value,
                 vereinsname: document.getElementById('areaVereinsname').value.trim(),
+                rechtsform: document.getElementById('areaRechtsform').value,
                 street: document.getElementById('areaStreet').value.trim(),
+                houseNumber: document.getElementById('areaHouseNumber').value.trim(),
                 zip: document.getElementById('areaZip').value.trim(),
                 city: document.getElementById('areaCity').value.trim(),
+                country: document.getElementById('areaCountry').value.trim(),
+                bundesland: document.getElementById('areaBundesland').value.trim(),
                 website: document.getElementById('areaWebsite').value.trim(),
                 privacyPolicy: document.getElementById('areaPrivacyPolicy').value.trim(),
                 // Ansprechpartner (neues Format)
