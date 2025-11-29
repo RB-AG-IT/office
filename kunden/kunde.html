@@ -105,6 +105,47 @@
             color: var(--text-primary);
         }
 
+        /* Profile Tabs */
+        .profile-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: var(--spacing-sm);
+        }
+
+        .profile-tab {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: none;
+            border: none;
+            font-size: var(--font-size-base);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .profile-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+
+        .profile-tab.active {
+            color: var(--accent-color);
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent-color);
+            margin-bottom: -2px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         /* Form Grid */
         .form-grid {
             display: grid;
@@ -157,6 +198,85 @@
         .area-tag .remove-btn svg {
             width: 14px;
             height: 14px;
+        }
+
+        /* Ansprechpartner Cards */
+        .contact-person-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .contact-person-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-person-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .contact-person-role {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+        }
+
+        .contact-person-remove {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .contact-person-remove:hover {
+            color: var(--error-color);
+            background: var(--error-bg, rgba(239, 68, 68, 0.1));
+        }
+
+        .contact-person-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+        }
+
+        .contact-person-grid .form-group {
+            margin-bottom: 0;
+        }
+
+        .contact-person-grid .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .contact-person-grid .form-input {
+            font-size: var(--font-size-sm);
+            padding: 8px 12px;
+        }
+
+        .contact-person-grid .form-label {
+            font-size: var(--font-size-xs);
+            margin-bottom: 4px;
+        }
+
+        /* Sonstige Rolle Input */
+        .sonstige-rolle-input {
+            display: none;
+            margin-top: var(--spacing-xs);
+        }
+
+        .sonstige-rolle-input.show {
+            display: block;
         }
 
         /* Kampagnen Grid */
@@ -272,6 +392,63 @@
         .info-value {
             color: var(--text-primary);
             font-weight: 600;
+        }
+
+        /* Rechnungen (kompakt) */
+        .invoices-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .invoice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        .invoice-item-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .invoice-item-name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .invoice-item-status {
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+        }
+
+        .invoice-item-status.paid {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .invoice-item-status.pending {
+            background: #fef3cd;
+            color: #856404;
+        }
+
+        .invoice-item-amount {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .invoices-empty {
+            text-align: center;
+            padding: var(--spacing-md);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
         }
 
         /* Contract-Status Platzhalter für konsistente Höhe */
@@ -1010,6 +1187,15 @@
             </div>
         </div>
 
+        <!-- Tabs -->
+        <div class="profile-tabs">
+            <button class="profile-tab active" data-tab="informationen">Informationen</button>
+            <button class="profile-tab" data-tab="einstellungen">Einstellungen</button>
+        </div>
+
+        <!-- TAB: Informationen -->
+        <div class="tab-content active" id="tab-informationen">
+
         <!-- Allgemeine Informationen -->
         <div class="section-card">
             <div class="section-header">
@@ -1025,18 +1211,7 @@
                     <input type="text" class="form-input" id="kdId" placeholder="z.B. A025-033">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Typ *</label>
-                    <select class="form-input" id="type">
-                        <option value="kreisverband">Kreisverband</option>
-                        <option value="ortsverein">Ortsverein</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Kontaktperson</label>
-                    <input type="text" class="form-input" id="contactPerson" placeholder="Dr. Max Mustermann">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">E-Mail</label>
+                    <label class="form-label">E-Mail (für Login) *</label>
                     <input type="email" class="form-input" id="contactEmail" placeholder="kontakt@drk-example.de">
                 </div>
                 <div class="form-group">
@@ -1044,14 +1219,40 @@
                     <input type="tel" class="form-input" id="contactPhone" placeholder="+49 621 12345">
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Typ *</label>
+                    <select class="form-input" id="type">
+                        <option value="kreisverband">Kreisverband</option>
+                        <option value="ortsverein">Ortsverein</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label class="form-label">Website</label>
                     <input type="url" class="form-input" id="customerWebsite" placeholder="https://www.drk-example.de">
                 </div>
-                <div class="form-group">
+                <div class="form-group form-group-full">
                     <label class="form-label">Datenschutzerklärung (Link)</label>
                     <input type="url" class="form-input" id="customerPrivacyPolicy" placeholder="https://www.drk-example.de/datenschutz">
                 </div>
             </div>
+        </div>
+
+        <!-- Ansprechpartner -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Ansprechpartner</h2>
+                <button class="btn btn-secondary btn-small" onclick="addContactPerson()">
+                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Hinzufügen
+                </button>
+            </div>
+            <div id="contactPersonsContainer">
+                <!-- Ansprechpartner werden hier dynamisch eingefügt -->
+            </div>
+            <p class="empty-hint" id="noContactsHint" style="font-size: var(--font-size-sm); color: var(--text-secondary); text-align: center; padding: var(--spacing-lg);">
+                Noch keine Ansprechpartner hinzugefügt
+            </p>
         </div>
 
         <!-- Werbegebiete -->
@@ -1071,23 +1272,6 @@
             <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
                 Werbegebiete sind die Ortsvereine, für die separate Mitgliederformulare verwendet werden.
             </p>
-        </div>
-
-        <!-- Rechnungsstellung -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Rechnungsstellung</h2>
-            </div>
-            <div class="invoice-option">
-                <label>
-                    <input type="radio" name="invoiceType" value="combined" checked>
-                    Alle Werbegebiete zusammen abrechnen
-                </label>
-                <label>
-                    <input type="radio" name="invoiceType" value="separate">
-                    Pro Werbegebiet separate Rechnung
-                </label>
-            </div>
         </div>
 
         <!-- Verträge -->
@@ -1128,6 +1312,19 @@
             </div>
         </div>
 
+        <!-- Rechnungen (kompakt) -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Rechnungen</h2>
+            </div>
+            <div class="invoices-list" id="customerInvoicesList">
+                <!-- Rechnungen werden hier gerendert -->
+            </div>
+            <div class="invoices-empty" id="noInvoicesMessage" style="display: none;">
+                Noch keine Rechnungen vorhanden
+            </div>
+        </div>
+
         <!-- Kampagnen -->
         <div class="section-card">
             <div class="section-header">
@@ -1142,6 +1339,31 @@
                 <a href="/kampagnen.html" style="color: var(--accent-color); text-decoration: none; font-size: var(--font-size-sm);">→ Zum Kampagnen-Modul</a>
             </div>
         </div>
+
+        </div><!-- Ende TAB: Informationen -->
+
+        <!-- TAB: Einstellungen -->
+        <div class="tab-content" id="tab-einstellungen">
+
+        <!-- Rechnungsstellung -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Rechnungsstellung</h2>
+            </div>
+            <div class="invoice-option">
+                <label>
+                    <input type="radio" name="invoiceType" value="combined" checked>
+                    Alle Werbegebiete zusammen abrechnen
+                </label>
+                <label>
+                    <input type="radio" name="invoiceType" value="separate">
+                    Pro Werbegebiet separate Rechnung
+                </label>
+            </div>
+        </div>
+
+        </div><!-- Ende TAB: Einstellungen -->
+
     </div>
 
     <!-- Sticky Footer -->
@@ -1434,18 +1656,36 @@
                     <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
                         Ansprechpartner (wird vom Kunden übernommen, falls leer)
                     </p>
-                    <div class="form-group">
-                        <label class="form-label">Ansprechpartner</label>
-                        <input type="text" class="form-input" id="areaContact" placeholder="Max Mustermann">
-                    </div>
-                    <div class="form-grid">
+                    <div class="contact-person-grid">
+                        <div class="form-group">
+                            <label class="form-label">Vorname</label>
+                            <input type="text" class="form-input" id="areaContactFirstName" placeholder="Max">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nachname</label>
+                            <input type="text" class="form-input" id="areaContactLastName" placeholder="Mustermann">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Rolle</label>
+                            <select class="form-input" id="areaContactRole" onchange="handleAreaContactRoleChange()">
+                                <option value="">-- Auswählen --</option>
+                                <option value="geschaeftsfuehrer">Geschäftsführer</option>
+                                <option value="mitgliederbeauftragte">Mitgliederbeauftragte</option>
+                                <option value="stv_geschaeftsfuehrer">Stv. Geschäftsführer</option>
+                                <option value="oeffentlichkeitsarbeit">Öffentlichkeitsarbeit</option>
+                                <option value="sonstige">Sonstige</option>
+                            </select>
+                            <div class="sonstige-rolle-input" id="areaContactCustomRoleContainer">
+                                <input type="text" class="form-input" id="areaContactCustomRole" placeholder="Rolle beschreiben...">
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="form-label">E-Mail</label>
-                            <input type="email" class="form-input" id="areaEmail" placeholder="email@example.de">
+                            <input type="email" class="form-input" id="areaContactEmail" placeholder="email@example.de">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Telefon</label>
-                            <input type="tel" class="form-input" id="areaPhone" placeholder="+49 123 456789">
+                            <input type="tel" class="form-input" id="areaContactPhone" placeholder="+49 123 456789">
                         </div>
                     </div>
                 </div>
@@ -1705,6 +1945,169 @@
 
         let editingCampaignId = null;
 
+        // Ansprechpartner-Liste
+        let contactPersons = [
+            // Demo-Daten
+            {
+                id: 1,
+                firstName: 'Maria',
+                lastName: 'Schmidt',
+                role: 'geschaeftsfuehrer',
+                customRole: '',
+                email: 'schmidt@drk-ludwigshafen.de',
+                phone: '+49 621 57001'
+            },
+            {
+                id: 2,
+                firstName: 'Thomas',
+                lastName: 'Müller',
+                role: 'mitgliederbeauftragte',
+                customRole: '',
+                email: 'mueller@drk-ludwigshafen.de',
+                phone: '+49 621 57002'
+            }
+        ];
+
+        // Rollen-Konfiguration für Dropdown
+        const CONTACT_ROLES = {
+            'geschaeftsfuehrer': 'Geschäftsführer',
+            'mitgliederbeauftragte': 'Mitgliederbeauftragte',
+            'stv_geschaeftsfuehrer': 'Stv. Geschäftsführer',
+            'oeffentlichkeitsarbeit': 'Öffentlichkeitsarbeit',
+            'sonstige': 'Sonstige'
+        };
+
+        // ================================================================
+        // ANSPRECHPARTNER FUNKTIONEN
+        // ================================================================
+
+        function addContactPerson() {
+            const newId = Date.now();
+            contactPersons.push({
+                id: newId,
+                firstName: '',
+                lastName: '',
+                role: 'geschaeftsfuehrer',
+                customRole: '',
+                email: '',
+                phone: ''
+            });
+            renderContactPersons();
+            hasUnsavedChanges = true;
+
+            // Fokus auf das erste Eingabefeld des neuen Ansprechpartners
+            setTimeout(() => {
+                const newCard = document.querySelector(`[data-contact-id="${newId}"]`);
+                if (newCard) {
+                    const firstInput = newCard.querySelector('input');
+                    if (firstInput) firstInput.focus();
+                }
+            }, 100);
+        }
+
+        async function removeContactPerson(id) {
+            const confirmed = await showConfirm('Ansprechpartner entfernen', 'Möchten Sie diesen Ansprechpartner wirklich entfernen?', 'warning');
+            if (!confirmed) return;
+
+            contactPersons = contactPersons.filter(c => c.id !== id);
+            renderContactPersons();
+            hasUnsavedChanges = true;
+        }
+
+        function updateContactPerson(id, field, value) {
+            const contact = contactPersons.find(c => c.id === id);
+            if (contact) {
+                contact[field] = value;
+                hasUnsavedChanges = true;
+
+                // Bei Rolle "sonstige": Freitext-Feld ein-/ausblenden
+                if (field === 'role') {
+                    const card = document.querySelector(`[data-contact-id="${id}"]`);
+                    const customRoleInput = card.querySelector('.sonstige-rolle-input');
+                    if (customRoleInput) {
+                        if (value === 'sonstige') {
+                            customRoleInput.classList.add('show');
+                        } else {
+                            customRoleInput.classList.remove('show');
+                            contact.customRole = '';
+                        }
+                    }
+                }
+            }
+        }
+
+        function renderContactPersons() {
+            const container = document.getElementById('contactPersonsContainer');
+            const emptyHint = document.getElementById('noContactsHint');
+
+            if (contactPersons.length === 0) {
+                container.innerHTML = '';
+                emptyHint.style.display = 'block';
+                return;
+            }
+
+            emptyHint.style.display = 'none';
+
+            container.innerHTML = contactPersons.map(contact => {
+                const roleLabel = contact.role === 'sonstige' && contact.customRole
+                    ? contact.customRole
+                    : CONTACT_ROLES[contact.role] || 'Unbekannt';
+                const showCustomRole = contact.role === 'sonstige';
+
+                return `
+                    <div class="contact-person-card" data-contact-id="${contact.id}">
+                        <div class="contact-person-header">
+                            <span class="contact-person-role">${roleLabel}</span>
+                            <button class="contact-person-remove" onclick="removeContactPerson(${contact.id})" title="Ansprechpartner entfernen">
+                                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="contact-person-grid">
+                            <div class="form-group">
+                                <label class="form-label">Vorname</label>
+                                <input type="text" class="form-input" value="${contact.firstName}"
+                                    onchange="updateContactPerson(${contact.id}, 'firstName', this.value)"
+                                    placeholder="Vorname">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nachname</label>
+                                <input type="text" class="form-input" value="${contact.lastName}"
+                                    onchange="updateContactPerson(${contact.id}, 'lastName', this.value)"
+                                    placeholder="Nachname">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Rolle</label>
+                                <select class="form-input" onchange="updateContactPerson(${contact.id}, 'role', this.value)">
+                                    ${Object.entries(CONTACT_ROLES).map(([key, label]) =>
+                                        `<option value="${key}" ${contact.role === key ? 'selected' : ''}>${label}</option>`
+                                    ).join('')}
+                                </select>
+                                <div class="sonstige-rolle-input ${showCustomRole ? 'show' : ''}">
+                                    <input type="text" class="form-input" value="${contact.customRole || ''}"
+                                        onchange="updateContactPerson(${contact.id}, 'customRole', this.value)"
+                                        placeholder="Rolle beschreiben...">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">E-Mail</label>
+                                <input type="email" class="form-input" value="${contact.email}"
+                                    onchange="updateContactPerson(${contact.id}, 'email', this.value)"
+                                    placeholder="email@example.de">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Telefon</label>
+                                <input type="tel" class="form-input" value="${contact.phone}"
+                                    onchange="updateContactPerson(${contact.id}, 'phone', this.value)"
+                                    placeholder="+49 123 456789">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         // ================================================================
         // INITIALIZATION
         // ================================================================
@@ -1735,14 +2138,42 @@
             }
 
             renderCustomerData();
+            renderContactPersons();
             renderAreas();
             renderContracts();
+            renderInvoices();
             renderCampaigns();
 
             // Setup population calculator
             document.getElementById('sondMembersPercent').addEventListener('input', calculateMembers);
             document.getElementById('population').addEventListener('input', calculateMembers);
+
+            // Setup profile tabs
+            setupTabs();
         });
+
+        // ================================================================
+        // PROFILE TABS
+        // ================================================================
+
+        function setupTabs() {
+            document.querySelectorAll('.profile-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.dataset.tab;
+
+                    // Update tab buttons
+                    document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Update tab content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    const mainContent = document.getElementById('tab-' + targetTab);
+                    if (mainContent) mainContent.classList.add('active');
+                });
+            });
+        }
 
         // ================================================================
         // DATA LOADING
@@ -1773,6 +2204,49 @@
                 document.getElementById('customerName').textContent = currentCustomer.name;
                 document.getElementById('customerId').textContent = 'KD-' + String(currentCustomer.id).padStart(4, '0');
             }
+        }
+
+        // ================================================================
+        // RECHNUNGEN
+        // ================================================================
+
+        // Demo-Daten für Rechnungen
+        const customerInvoices = [
+            { id: 1, name: 'RE-2025-001', date: '15.01.2025', amount: 2450.00, status: 'paid' },
+            { id: 2, name: 'RE-2025-002', date: '01.02.2025', amount: 1890.50, status: 'paid' },
+            { id: 3, name: 'RE-2025-003', date: '15.02.2025', amount: 3120.00, status: 'pending' },
+            { id: 4, name: 'RE-2025-004', date: '01.03.2025', amount: 2780.25, status: 'pending' }
+        ];
+
+        function renderInvoices() {
+            const list = document.getElementById('customerInvoicesList');
+            const noMessage = document.getElementById('noInvoicesMessage');
+
+            if (customerInvoices.length === 0) {
+                list.innerHTML = '';
+                noMessage.style.display = 'block';
+                return;
+            }
+
+            noMessage.style.display = 'none';
+
+            list.innerHTML = customerInvoices.map(invoice => {
+                const statusLabel = invoice.status === 'paid' ? 'Bezahlt' : 'Offen';
+                const formattedAmount = new Intl.NumberFormat('de-DE', {
+                    style: 'currency',
+                    currency: 'EUR'
+                }).format(invoice.amount);
+
+                return `
+                    <div class="invoice-item">
+                        <div class="invoice-item-info">
+                            <span class="invoice-item-name">${invoice.name}</span>
+                            <span class="invoice-item-status ${invoice.status}">${statusLabel}</span>
+                        </div>
+                        <span class="invoice-item-amount">${formattedAmount}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         // ================================================================
@@ -1954,9 +2428,32 @@
             document.getElementById('areaEinwohner').value = area.einwohner || '';
             document.getElementById('areaWebsite').value = area.website || '';
             document.getElementById('areaPrivacyPolicy').value = area.privacyPolicy || '';
-            document.getElementById('areaContact').value = area.contact || '';
-            document.getElementById('areaEmail').value = area.email || '';
-            document.getElementById('areaPhone').value = area.phone || '';
+
+            // Ansprechpartner laden (neues Format oder Legacy-Fallback)
+            if (area.contactFirstName !== undefined) {
+                document.getElementById('areaContactFirstName').value = area.contactFirstName || '';
+                document.getElementById('areaContactLastName').value = area.contactLastName || '';
+                document.getElementById('areaContactRole').value = area.contactRole || '';
+                document.getElementById('areaContactCustomRole').value = area.contactCustomRole || '';
+                if (area.contactRole === 'sonstige') {
+                    document.getElementById('areaContactCustomRoleContainer').classList.add('show');
+                } else {
+                    document.getElementById('areaContactCustomRoleContainer').classList.remove('show');
+                }
+                document.getElementById('areaContactEmail').value = area.contactEmail || '';
+                document.getElementById('areaContactPhone').value = area.contactPhone || '';
+            } else {
+                // Legacy-Daten: Versuche Name zu splitten
+                const nameParts = (area.contact || '').split(' ');
+                document.getElementById('areaContactFirstName').value = nameParts[0] || '';
+                document.getElementById('areaContactLastName').value = nameParts.slice(1).join(' ') || '';
+                document.getElementById('areaContactRole').value = '';
+                document.getElementById('areaContactCustomRole').value = '';
+                document.getElementById('areaContactCustomRoleContainer').classList.remove('show');
+                document.getElementById('areaContactEmail').value = area.email || '';
+                document.getElementById('areaContactPhone').value = area.phone || '';
+            }
+
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet bearbeiten';
 
             // Modal öffnen
@@ -1976,9 +2473,13 @@
             document.getElementById('areaCity').value = '';
             document.getElementById('areaWebsite').value = '';
             document.getElementById('areaPrivacyPolicy').value = '';
-            document.getElementById('areaContact').value = '';
-            document.getElementById('areaEmail').value = '';
-            document.getElementById('areaPhone').value = '';
+            document.getElementById('areaContactFirstName').value = '';
+            document.getElementById('areaContactLastName').value = '';
+            document.getElementById('areaContactRole').value = '';
+            document.getElementById('areaContactCustomRole').value = '';
+            document.getElementById('areaContactCustomRoleContainer').classList.remove('show');
+            document.getElementById('areaContactEmail').value = '';
+            document.getElementById('areaContactPhone').value = '';
             document.getElementById('areaEinwohner').value = '';
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet hinzufügen';
 
@@ -1986,6 +2487,19 @@
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
             document.getElementById('newAreaName').focus();
+        }
+
+        // Rolle-Dropdown im Werbegebiet-Modal
+        function handleAreaContactRoleChange() {
+            const roleSelect = document.getElementById('areaContactRole');
+            const customRoleContainer = document.getElementById('areaContactCustomRoleContainer');
+
+            if (roleSelect.value === 'sonstige') {
+                customRoleContainer.classList.add('show');
+            } else {
+                customRoleContainer.classList.remove('show');
+                document.getElementById('areaContactCustomRole').value = '';
+            }
         }
 
         function closeAddAreaModal() {
@@ -2010,9 +2524,17 @@
                 city: document.getElementById('areaCity').value.trim(),
                 website: document.getElementById('areaWebsite').value.trim(),
                 privacyPolicy: document.getElementById('areaPrivacyPolicy').value.trim(),
-                contact: document.getElementById('areaContact').value.trim(),
-                email: document.getElementById('areaEmail').value.trim(),
-                phone: document.getElementById('areaPhone').value.trim(),
+                // Ansprechpartner (neues Format)
+                contactFirstName: document.getElementById('areaContactFirstName').value.trim(),
+                contactLastName: document.getElementById('areaContactLastName').value.trim(),
+                contactRole: document.getElementById('areaContactRole').value,
+                contactCustomRole: document.getElementById('areaContactCustomRole').value.trim(),
+                contactEmail: document.getElementById('areaContactEmail').value.trim(),
+                contactPhone: document.getElementById('areaContactPhone').value.trim(),
+                // Legacy-Kompatibilität: contact = Vorname + Nachname
+                contact: `${document.getElementById('areaContactFirstName').value.trim()} ${document.getElementById('areaContactLastName').value.trim()}`.trim(),
+                email: document.getElementById('areaContactEmail').value.trim(),
+                phone: document.getElementById('areaContactPhone').value.trim(),
                 einwohner: parseInt(document.getElementById('areaEinwohner').value) || 0
             };
 
