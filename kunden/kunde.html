@@ -1388,20 +1388,15 @@
                 <div class="form-group">
                     <label class="form-label">Kundenname *</label>
                     <div class="customer-name-row" style="display: flex; gap: var(--spacing-sm); align-items: center; flex-wrap: wrap;">
-                        <select class="form-input" id="organisation" style="width: 100px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
+                        <select class="form-input" id="organisation" style="width: 80px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
                             <option value="DRK" selected>DRK</option>
-                            <option value="ASB">ASB</option>
-                            <option value="JUH">JUH</option>
-                            <option value="MHD">MHD</option>
-                            <option value="DLRG">DLRG</option>
-                            <option value="">- andere -</option>
                         </select>
-                        <select class="form-input" id="namePrefix" style="width: 140px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
+                        <select class="form-input" id="namePrefix" style="width: 160px; flex-shrink: 0;" onchange="updateCustomerNameDisplay(); updateFormForCustomerType();">
                             <option value="Landesverband">Landesverband</option>
                             <option value="Kreisverband" selected>Kreisverband</option>
                             <option value="Ortsverein">Ortsverein</option>
                         </select>
-                        <input type="text" class="form-input" id="name" placeholder="z.B. Ludwigshafen" style="flex: 1; min-width: 150px;" oninput="updateCustomerNameDisplay()">
+                        <input type="text" class="form-input" id="name" placeholder="z.B. Ludwigshafen" style="flex: 1; min-width: 120px;" oninput="updateCustomerNameDisplay()">
                         <select class="form-input" id="nameSuffix" style="width: 100px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
                             <option value="e.V.">e.V.</option>
                             <option value="gGmbH">gGmbH</option>
@@ -1502,27 +1497,27 @@
             </p>
         </div>
 
-        <!-- Werbegebiete (Kreisverbände) -->
-        <div class="section-card">
+        <!-- Werbegebiete (Kreisverbände) - nur für Landesverband -->
+        <div class="section-card" id="sectionWerbegebiete">
             <div class="section-header">
-                <h2 class="section-title">Werbegebiete (Kreisverbände)</h2>
-                <button class="btn btn-secondary btn-small" onclick="openAddAreaModal()">
+                <h2 class="section-title" id="werbegebieteSectionTitle">Werbegebiete (Kreisverbände)</h2>
+                <button class="btn btn-secondary btn-small" onclick="openAddAreaModal()" id="addAreaBtn">
                     <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
-                    Kreisverband hinzufügen
+                    <span id="addAreaBtnText">Kreisverband hinzufügen</span>
                 </button>
             </div>
             <div class="areas-container" id="areasContainer">
                 <!-- Areas/Kreisverbände will be rendered here -->
             </div>
-            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
+            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);" id="werbegebieteHint">
                 Kreisverbände, die zu diesem Landesverband gehören.
             </p>
         </div>
 
-        <!-- Kreisverbände mit Ortsvereinen -->
-        <div class="section-card">
+        <!-- Kreisverbände mit Ortsvereinen - nur für Landesverband -->
+        <div class="section-card" id="sectionKreisverbandeOrtsvereine">
             <div class="section-header">
                 <h2 class="section-title">Kreisverbände</h2>
             </div>
@@ -1859,17 +1854,23 @@
             <div class="modal-body">
                 <!-- Tab: Stammdaten -->
                 <div class="area-tab-content active" id="area-tab-stammdaten">
-                    <div class="form-group">
-                        <label class="form-label">Name des Werbegebiets *</label>
-                        <input type="text" class="form-input" id="newAreaName" placeholder="z.B. Oggersheim-Ruchheim">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-md);">
+                        <div class="form-group">
+                            <label class="form-label">Name des Werbegebiets *</label>
+                            <input type="text" class="form-input" id="newAreaName" placeholder="z.B. Oggersheim-Ruchheim">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Einwohnerzahl</label>
+                            <input type="number" class="form-input" id="areaEinwohner" placeholder="z.B. 45000" min="0">
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Vereinsname</label>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <select class="form-input" id="areaVereinstyp" style="width: auto; min-width: 80px;">
-                                <option value="KV">KV</option>
-                                <option value="OV">OV</option>
+                                <option value="KV">Kreisverband</option>
+                                <option value="OV" id="areaVereinstypOV">Ortsverein</option>
                             </select>
                             <input type="text" class="form-input" id="areaVereinsname" placeholder="z.B. Ludwigshafen" style="flex: 1;">
                             <select class="form-input" id="areaRechtsform" style="width: auto; min-width: 100px;">
@@ -1913,11 +1914,6 @@
                             <label class="form-label">Bundesland</label>
                             <input type="text" class="form-input" id="areaBundesland" placeholder="Wird automatisch ausgefüllt" readonly style="background: var(--bg-secondary); cursor: not-allowed;">
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Einwohnerzahl</label>
-                        <input type="number" class="form-input" id="areaEinwohner" placeholder="z.B. 45000" min="0">
-                        <span style="font-size: 11px; color: var(--text-secondary);">Anzahl der Einwohner im Werbegebiet</span>
                     </div>
 
                     <!-- Website & Datenschutz -->
@@ -1997,9 +1993,15 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Ortsverein-Name *</label>
-                    <input type="text" class="form-input" id="ovName" placeholder="z.B. OV Ludwigshafen-Mitte">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-md);">
+                    <div class="form-group">
+                        <label class="form-label">Ortsverein-Name *</label>
+                        <input type="text" class="form-input" id="ovName" placeholder="z.B. OV Ludwigshafen-Mitte">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Einwohnerzahl</label>
+                        <input type="number" class="form-input" id="ovEinwohner" placeholder="z.B. 15000" min="0">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Straße</label>
@@ -2481,6 +2483,9 @@
             renderContracts();
             renderInvoices();
             renderCampaigns();
+
+            // Formular an Kundentyp anpassen
+            updateFormForCustomerType();
 
             // Setup population calculator (nur wenn Elemente existieren)
             const sondMembersPercentEl = document.getElementById('sondMembersPercent');
@@ -3166,6 +3171,9 @@
 
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet bearbeiten';
 
+            // Bei Landesverband: Nur Kreisverband als Option anzeigen
+            updateAreaVereinstypOptions();
+
             // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
@@ -3197,10 +3205,72 @@
             document.getElementById('areaEinwohner').value = '';
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet hinzufügen';
 
+            // Bei Landesverband: Nur Kreisverband als Option anzeigen
+            updateAreaVereinstypOptions();
+
             // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
             document.getElementById('newAreaName').focus();
+        }
+
+        // Aktualisiert die Vereinstyp-Optionen basierend auf dem Kundentyp
+        function updateAreaVereinstypOptions() {
+            const namePrefix = document.getElementById('namePrefix');
+            const ovOption = document.getElementById('areaVereinstypOV');
+            const vereinstypSelect = document.getElementById('areaVereinstyp');
+
+            if (namePrefix && ovOption) {
+                if (namePrefix.value === 'Landesverband') {
+                    // Bei Landesverband: Ortsverein-Option ausblenden
+                    ovOption.style.display = 'none';
+                    // Falls OV ausgewählt war, auf KV wechseln
+                    if (vereinstypSelect.value === 'OV') {
+                        vereinstypSelect.value = 'KV';
+                    }
+                } else {
+                    // Sonst: Ortsverein-Option anzeigen
+                    ovOption.style.display = '';
+                }
+            }
+        }
+
+        // Live-Update des Formulars basierend auf Kundentyp (LV/KV/OV)
+        function updateFormForCustomerType() {
+            const namePrefix = document.getElementById('namePrefix');
+            if (!namePrefix) return;
+
+            const customerType = namePrefix.value;
+
+            // Elemente holen
+            const sectionWerbegebiete = document.getElementById('sectionWerbegebiete');
+            const sectionKreisverbandeOV = document.getElementById('sectionKreisverbandeOrtsvereine');
+            const werbegebieteSectionTitle = document.getElementById('werbegebieteSectionTitle');
+            const addAreaBtnText = document.getElementById('addAreaBtnText');
+            const werbegebieteHint = document.getElementById('werbegebieteHint');
+
+            if (customerType === 'Landesverband') {
+                // Landesverband: Beide Sections anzeigen, KV-Beschriftung
+                if (sectionWerbegebiete) sectionWerbegebiete.style.display = '';
+                if (sectionKreisverbandeOV) sectionKreisverbandeOV.style.display = '';
+                if (werbegebieteSectionTitle) werbegebieteSectionTitle.textContent = 'Werbegebiete (Kreisverbände)';
+                if (addAreaBtnText) addAreaBtnText.textContent = 'Kreisverband hinzufügen';
+                if (werbegebieteHint) werbegebieteHint.textContent = 'Kreisverbände, die zu diesem Landesverband gehören.';
+            } else if (customerType === 'Kreisverband') {
+                // Kreisverband: Werbegebiete anzeigen mit OV-Beschriftung, KV-Übersicht ausblenden
+                if (sectionWerbegebiete) sectionWerbegebiete.style.display = '';
+                if (sectionKreisverbandeOV) sectionKreisverbandeOV.style.display = 'none';
+                if (werbegebieteSectionTitle) werbegebieteSectionTitle.textContent = 'Werbegebiete (Ortsvereine)';
+                if (addAreaBtnText) addAreaBtnText.textContent = 'Ortsverein hinzufügen';
+                if (werbegebieteHint) werbegebieteHint.textContent = 'Ortsvereine, die zu diesem Kreisverband gehören.';
+            } else if (customerType === 'Ortsverein') {
+                // Ortsverein: Beide Sections ausblenden (OV hat keine Untereinheiten)
+                if (sectionWerbegebiete) sectionWerbegebiete.style.display = 'none';
+                if (sectionKreisverbandeOV) sectionKreisverbandeOV.style.display = 'none';
+            }
+
+            // Auch die Modal-Optionen aktualisieren
+            updateAreaVereinstypOptions();
         }
 
         // Rolle-Dropdown im Werbegebiet-Modal
