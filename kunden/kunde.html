@@ -143,7 +143,8 @@
         }
 
         .tab-content.active {
-            display: block;
+            display: grid;
+            gap: var(--spacing-lg);
         }
 
         /* Form Grid */
@@ -1202,9 +1203,25 @@
                 <h2 class="section-title">Allgemeine Informationen</h2>
             </div>
             <div class="form-grid">
-                <div class="form-group">
+                <div class="form-group form-group-full">
                     <label class="form-label">Kundenname *</label>
-                    <input type="text" class="form-input" id="name" placeholder="z.B. DRK Kreisverband Ludwigshafen">
+                    <div class="customer-name-row" style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                        <select class="form-input" id="namePrefix" style="width: 80px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
+                            <option value="KV">KV</option>
+                            <option value="OV">OV</option>
+                        </select>
+                        <input type="text" class="form-input" id="name" placeholder="z.B. Ludwigshafen" style="flex: 1;" oninput="updateCustomerNameDisplay()">
+                        <select class="form-input" id="nameSuffix" style="width: 100px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
+                            <option value="e.V.">e.V.</option>
+                            <option value="gGmbH">gGmbH</option>
+                            <option value="GmbH">GmbH</option>
+                            <option value="">- keine -</option>
+                        </select>
+                        <span style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-left: var(--spacing-sm); white-space: nowrap;" id="customerIdDisplay">KD-0001</span>
+                    </div>
+                    <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px;">
+                        Vorschau: <strong id="customerNamePreview">KV Ludwigshafen e.V.</strong>
+                    </p>
                 </div>
                 <div class="form-group">
                     <label class="form-label">KD-ID</label>
@@ -1218,13 +1235,11 @@
                     <label class="form-label">Telefon</label>
                     <input type="tel" class="form-input" id="contactPhone" placeholder="+49 621 12345">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Typ *</label>
-                    <select class="form-input" id="type">
-                        <option value="kreisverband">Kreisverband</option>
-                        <option value="ortsverein">Ortsverein</option>
-                    </select>
-                </div>
+                <!-- Typ wird automatisch aus KV/OV Auswahl gesetzt -->
+                <select class="form-input" id="type" style="display: none;">
+                    <option value="kreisverband">Kreisverband</option>
+                    <option value="ortsverein">Ortsverein</option>
+                </select>
                 <div class="form-group">
                     <label class="form-label">Website</label>
                     <input type="url" class="form-input" id="customerWebsite" placeholder="https://www.drk-example.de">
@@ -1673,6 +1688,10 @@
                                 <option value="mitgliederbeauftragte">Mitgliederbeauftragte</option>
                                 <option value="stv_geschaeftsfuehrer">Stv. Geschäftsführer</option>
                                 <option value="oeffentlichkeitsarbeit">Öffentlichkeitsarbeit</option>
+                                <option value="vorstand">Vorstand</option>
+                                <option value="vorstandsvorsitzender">Vorstandsvorsitzender</option>
+                                <option value="bereitschaftsleiter">Bereitschaftsleiter</option>
+                                <option value="schatzmeister">Schatzmeister</option>
                                 <option value="sonstige">Sonstige</option>
                             </select>
                             <div class="sonstige-rolle-input" id="areaContactCustomRoleContainer">
@@ -1974,6 +1993,10 @@
             'mitgliederbeauftragte': 'Mitgliederbeauftragte',
             'stv_geschaeftsfuehrer': 'Stv. Geschäftsführer',
             'oeffentlichkeitsarbeit': 'Öffentlichkeitsarbeit',
+            'vorstand': 'Vorstand',
+            'vorstandsvorsitzender': 'Vorstandsvorsitzender',
+            'bereitschaftsleiter': 'Bereitschaftsleiter',
+            'schatzmeister': 'Schatzmeister',
             'sonstige': 'Sonstige'
         };
 
@@ -2188,9 +2211,23 @@
         }
 
         function renderCustomerData() {
-            document.getElementById('name').value = currentCustomer.name;
+            // Parse existing name into parts or use stored parts
+            const namePrefix = currentCustomer.namePrefix || (currentCustomer.type === 'ortsverein' ? 'OV' : 'KV');
+            const nameSuffix = currentCustomer.nameSuffix || 'e.V.';
+            // Extract base name from full name if not already parsed
+            let baseName = currentCustomer.baseName || '';
+            if (!baseName && currentCustomer.name) {
+                // Try to extract base name from full name like "DRK Kreisverband Ludwigshafen"
+                baseName = currentCustomer.name
+                    .replace(/^(DRK\s+)?(Kreisverband|Ortsverein|KV|OV)\s*/i, '')
+                    .replace(/\s+(e\.V\.|gGmbH|GmbH)$/i, '')
+                    .trim();
+            }
+
+            document.getElementById('namePrefix').value = namePrefix;
+            document.getElementById('name').value = baseName;
+            document.getElementById('nameSuffix').value = nameSuffix;
             document.getElementById('type').value = currentCustomer.type;
-            document.getElementById('contactPerson').value = currentCustomer.contactPerson;
             document.getElementById('contactEmail').value = currentCustomer.contactEmail;
             document.getElementById('contactPhone').value = currentCustomer.contactPhone;
             document.getElementById('customerWebsite').value = currentCustomer.website || '';
@@ -2199,11 +2236,37 @@
             // Invoice type
             document.querySelector(`input[name="invoiceType"][value="${currentCustomer.invoiceType}"]`).checked = true;
 
-            // Header
-            if (currentCustomer.name) {
-                document.getElementById('customerName').textContent = currentCustomer.name;
-                document.getElementById('customerId').textContent = 'KD-' + String(currentCustomer.id).padStart(4, '0');
+            // Update display
+            updateCustomerNameDisplay();
+        }
+
+        function updateCustomerNameDisplay() {
+            const prefix = document.getElementById('namePrefix').value;
+            const baseName = document.getElementById('name').value;
+            const suffix = document.getElementById('nameSuffix').value;
+
+            // Build full name
+            let fullName = prefix;
+            if (baseName) {
+                fullName += ' ' + baseName;
             }
+            if (suffix) {
+                fullName += ' ' + suffix;
+            }
+
+            // Update preview
+            document.getElementById('customerNamePreview').textContent = fullName || 'KV Beispiel e.V.';
+
+            // Update header
+            document.getElementById('customerName').textContent = fullName || 'Neuer Kunde';
+
+            // Update ID display
+            const customerId = currentCustomer.id ? 'KD-' + String(currentCustomer.id).padStart(4, '0') : 'KD-XXXX';
+            document.getElementById('customerIdDisplay').textContent = customerId;
+            document.getElementById('customerId').textContent = customerId;
+
+            // Sync type dropdown with prefix
+            document.getElementById('type').value = prefix === 'OV' ? 'ortsverein' : 'kreisverband';
         }
 
         // ================================================================

@@ -1801,6 +1801,7 @@
         /* Größeres Badge neben dem Faktor-Feld - gleiche Größe wie Faktor-Anzeige */
         .factor-badge {
             min-width: 100px;
+            height: 100%;
             border-radius: var(--radius-lg);
             padding: var(--spacing-lg) var(--spacing-xl);
             display: flex;
@@ -1808,7 +1809,6 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            align-self: stretch;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
@@ -2655,7 +2655,7 @@
                             <input type="hidden" id="roleEffectiveDateTo" value="">
                         </div>
                         <!-- Badge neben dem Faktor -->
-                        <div id="factorBadgeContainer" style="display: none;"></div>
+                        <div id="factorBadgeContainer" style="display: none; align-self: stretch;"></div>
                         <div class="role-factor-display" id="roleFaktorDisplay">
                             <span class="factor-label">Faktor</span>
                             <span class="factor-value" id="displayFaktor">-</span>
@@ -3120,7 +3120,8 @@
 
             if (roleKey && CAREER_LEVELS[roleKey]) {
                 container.innerHTML = generateFactorBadge(roleKey);
-                container.style.display = 'block';
+                container.style.display = 'flex';
+                container.style.alignSelf = 'stretch';
             } else {
                 container.innerHTML = '';
                 container.style.display = 'none';
@@ -3228,7 +3229,7 @@
                 }[campaign.status] || campaign.status;
 
                 return `
-                    <div class="campaign-card status-${campaign.status}" onclick="window.location.href='/kampagnen.html'">
+                    <div class="campaign-card status-${campaign.status}" onclick="window.location.href='/kampagnen.html?view=${campaign.id}'">
                         <div class="campaign-header">
                             <div>
                                 <div class="campaign-title">${campaign.name}</div>
@@ -4651,9 +4652,6 @@
         // Rollen-Historie aus localStorage (für lokale Demo) oder Supabase
         let roleHistory = JSON.parse(localStorage.getItem('roleHistory') || '[]');
 
-        // Flag für doppelte Bestätigung bei KW-Überlappung
-        let overlapConfirmPending = false;
-
         // Prüfen ob Speicherbutton aktiviert werden soll
         function checkRoleCanBeSaved() {
             const roleSelect = document.getElementById('mainRole');
@@ -4711,30 +4709,6 @@
             } else {
                 warningEl.style.display = 'none';
             }
-
-            // Reset Bestätigungs-Flag wenn sich was ändert
-            resetOverlapConfirm();
-        }
-
-        // Reset der Überlappungs-Bestätigung
-        function resetOverlapConfirm() {
-            if (overlapConfirmPending) {
-                overlapConfirmPending = false;
-                const saveBtn = document.getElementById('saveRoleBtn');
-                const hint = document.getElementById('roleSaveHint');
-                if (saveBtn) {
-                    saveBtn.classList.remove('confirm-required');
-                    saveBtn.innerHTML = `
-                        <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Karrierestufe speichern
-                    `;
-                }
-                if (hint) {
-                    hint.textContent = '';
-                }
-            }
         }
 
         // KW in Datum umrechnen (Montag der KW)
@@ -4757,28 +4731,10 @@
             // Mindestens Rolle oder individueller Faktor muss ausgefüllt sein
             if (!roleSelect.value && !customFactor) return;
 
-            // Prüfe ob Überlappung vorhanden ist und ob Bestätigung noch aussteht
-            const hasOverlap = warningEl && warningEl.style.display !== 'none';
-
-            if (hasOverlap && !overlapConfirmPending) {
-                // Erste Klick bei Überlappung: Bestätigung anfordern
-                overlapConfirmPending = true;
-                saveBtn.classList.add('confirm-required');
-                saveBtn.innerHTML = `
-                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                    Erneut klicken zum Bestätigen
-                `;
-                hint.innerHTML = '<span style="color: var(--warning-color);">Überlappung erkannt - nochmal klicken um zu bestätigen</span>';
-                return;
-            }
-
-            // Reset des Bestätigungs-Flags
-            overlapConfirmPending = false;
+            // Überlappungswarnung ist bereits sichtbar (wurde bei KW-Auswahl geprüft)
+            // Benutzer hat sie gelesen und klickt bewusst auf Speichern → direkt speichern
 
             saveBtn.disabled = true;
-            saveBtn.classList.remove('confirm-required');
             saveBtn.classList.add('saving');
             saveBtn.innerHTML = `
                 <svg style="width: 16px; height: 16px; margin-right: 6px; animation: spin 1s linear infinite;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
