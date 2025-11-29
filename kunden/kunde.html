@@ -2459,9 +2459,15 @@
         }
 
         function updateCustomerNameDisplay() {
-            const prefix = document.getElementById('namePrefix').value;
-            const baseName = document.getElementById('name').value;
-            const suffix = document.getElementById('nameSuffix').value;
+            const prefixEl = document.getElementById('namePrefix');
+            const nameEl = document.getElementById('name');
+            const suffixEl = document.getElementById('nameSuffix');
+
+            if (!prefixEl || !nameEl || !suffixEl) return;
+
+            const prefix = prefixEl.value;
+            const baseName = nameEl.value;
+            const suffix = suffixEl.value;
 
             // Build full name
             let fullName = prefix;
@@ -2473,18 +2479,23 @@
             }
 
             // Update preview
-            document.getElementById('customerNamePreview').textContent = fullName || 'KV Beispiel e.V.';
+            const previewEl = document.getElementById('customerNamePreview');
+            if (previewEl) previewEl.textContent = fullName || 'KV Beispiel e.V.';
 
             // Update header
-            document.getElementById('customerName').textContent = fullName || 'Neuer Kunde';
+            const headerEl = document.getElementById('customerName');
+            if (headerEl) headerEl.textContent = fullName || 'Neuer Kunde';
 
             // Update ID display
             const customerId = currentCustomer.id ? 'KD-' + String(currentCustomer.id).padStart(4, '0') : 'KD-XXXX';
-            document.getElementById('customerIdDisplay').textContent = customerId;
-            document.getElementById('customerId').textContent = customerId;
+            const idDisplayEl = document.getElementById('customerIdDisplay');
+            if (idDisplayEl) idDisplayEl.textContent = customerId;
+            const idEl = document.getElementById('customerId');
+            if (idEl) idEl.textContent = customerId;
 
             // Sync type dropdown with prefix
-            document.getElementById('type').value = prefix === 'OV' ? 'ortsverein' : 'kreisverband';
+            const typeEl = document.getElementById('type');
+            if (typeEl) typeEl.value = prefix === 'OV' ? 'ortsverein' : 'kreisverband';
         }
 
         // ================================================================
