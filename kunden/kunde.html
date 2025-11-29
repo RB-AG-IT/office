@@ -1922,55 +1922,35 @@
                     <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
                         Links (werden vom Kunden übernommen, falls leer)
                     </p>
-                    <div class="form-group">
-                        <label class="form-label">Website</label>
-                        <input type="url" class="form-input" id="areaWebsite" placeholder="https://www.ortsverein-example.de">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Datenschutzerklärung (Link)</label>
-                        <input type="url" class="form-input" id="areaPrivacyPolicy" placeholder="https://www.ortsverein-example.de/datenschutz">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                        <div class="form-group">
+                            <label class="form-label">Website</label>
+                            <input type="url" class="form-input" id="areaWebsite" placeholder="https://www.ortsverein-example.de">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Datenschutzerklärung (Link)</label>
+                            <input type="url" class="form-input" id="areaPrivacyPolicy" placeholder="https://www.ortsverein-example.de/datenschutz">
+                        </div>
                     </div>
 
                     <!-- Ansprechpartner -->
-                    <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
-                        Ansprechpartner (wird vom Kunden übernommen, falls leer)
-                    </p>
-                    <div class="contact-person-grid">
-                        <div class="form-group">
-                            <label class="form-label">Vorname</label>
-                            <input type="text" class="form-input" id="areaContactFirstName" placeholder="Max">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Nachname</label>
-                            <input type="text" class="form-input" id="areaContactLastName" placeholder="Mustermann">
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Rolle</label>
-                            <select class="form-input" id="areaContactRole" onchange="handleAreaContactRoleChange()">
-                                <option value="">-- Auswählen --</option>
-                                <option value="geschaeftsfuehrer">Geschäftsführer</option>
-                                <option value="mitgliederbeauftragte">Mitgliederbeauftragte</option>
-                                <option value="stv_geschaeftsfuehrer">Stv. Geschäftsführer</option>
-                                <option value="oeffentlichkeitsarbeit">Öffentlichkeitsarbeit</option>
-                                <option value="vorstand">Vorstand</option>
-                                <option value="vorstandsvorsitzender">Vorstandsvorsitzender</option>
-                                <option value="bereitschaftsleiter">Bereitschaftsleiter</option>
-                                <option value="schatzmeister">Schatzmeister</option>
-                                <option value="sonstige">Sonstige</option>
-                            </select>
-                            <div class="sonstige-rolle-input" id="areaContactCustomRoleContainer">
-                                <input type="text" class="form-input" id="areaContactCustomRole" placeholder="Rolle beschreiben...">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">E-Mail</label>
-                            <input type="email" class="form-input" id="areaContactEmail" placeholder="email@example.de">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Telefon</label>
-                            <input type="tel" class="form-input" id="areaContactPhone" placeholder="+49 123 456789">
-                        </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                        <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: 0;">
+                            Ansprechpartner (wird vom Kunden übernommen, falls leer)
+                        </p>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="addAreaContactPerson()">
+                            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Hinzufügen
+                        </button>
                     </div>
+                    <div id="areaContactPersonsContainer">
+                        <!-- Ansprechpartner werden hier dynamisch eingefügt -->
+                    </div>
+                    <p class="empty-hint" id="noAreaContactsHint" style="font-size: var(--font-size-sm); color: var(--text-secondary); text-align: center; padding: var(--spacing-md); display: block;">
+                        Noch keine Ansprechpartner hinzugefügt
+                    </p>
                 </div>
 
                 <!-- Hinweis: Konditionen wurden zur Kampagne verschoben -->
@@ -3105,6 +3085,125 @@
         }
 
         let editingAreaIndex = null;
+        let areaContactPersons = [];
+
+        // Ansprechpartner-Funktionen für das Werbegebiet-Modal
+        function addAreaContactPerson() {
+            const newId = areaContactPersons.length > 0 ? Math.max(...areaContactPersons.map(c => c.id)) + 1 : 1;
+            areaContactPersons.push({
+                id: newId,
+                firstName: '',
+                lastName: '',
+                role: 'geschaeftsfuehrer',
+                customRole: '',
+                email: '',
+                phone: ''
+            });
+            renderAreaContactPersons();
+        }
+
+        async function removeAreaContactPerson(id) {
+            const confirmed = await showConfirm('Ansprechpartner entfernen', 'Möchten Sie diesen Ansprechpartner wirklich entfernen?', 'warning');
+            if (!confirmed) return;
+
+            areaContactPersons = areaContactPersons.filter(c => c.id !== id);
+            renderAreaContactPersons();
+        }
+
+        function updateAreaContactPerson(id, field, value) {
+            const contact = areaContactPersons.find(c => c.id === id);
+            if (contact) {
+                contact[field] = value;
+
+                // Bei Rolle "sonstige": Custom-Rolle Feld anzeigen/ausblenden
+                if (field === 'role') {
+                    const card = document.querySelector(`[data-area-contact-id="${id}"]`);
+                    if (card) {
+                        const customRoleInput = card.querySelector('.sonstige-rolle-input');
+                        if (customRoleInput) {
+                            if (value === 'sonstige') {
+                                customRoleInput.classList.add('show');
+                            } else {
+                                customRoleInput.classList.remove('show');
+                                contact.customRole = '';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function renderAreaContactPersons() {
+            const container = document.getElementById('areaContactPersonsContainer');
+            const emptyHint = document.getElementById('noAreaContactsHint');
+
+            if (areaContactPersons.length === 0) {
+                container.innerHTML = '';
+                emptyHint.style.display = 'block';
+                return;
+            }
+
+            emptyHint.style.display = 'none';
+
+            container.innerHTML = areaContactPersons.map(contact => {
+                const roleLabel = contact.role === 'sonstige' && contact.customRole
+                    ? contact.customRole
+                    : CONTACT_ROLES[contact.role] || 'Unbekannt';
+                const showCustomRole = contact.role === 'sonstige';
+
+                return `
+                    <div class="contact-person-card" data-area-contact-id="${contact.id}">
+                        <div class="contact-person-header">
+                            <span class="contact-person-role">${roleLabel}</span>
+                            <button class="contact-person-remove" onclick="removeAreaContactPerson(${contact.id})" title="Ansprechpartner entfernen">
+                                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="contact-person-grid">
+                            <div class="form-group">
+                                <label class="form-label">Vorname</label>
+                                <input type="text" class="form-input" value="${contact.firstName}"
+                                    onchange="updateAreaContactPerson(${contact.id}, 'firstName', this.value)"
+                                    placeholder="Vorname">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nachname</label>
+                                <input type="text" class="form-input" value="${contact.lastName}"
+                                    onchange="updateAreaContactPerson(${contact.id}, 'lastName', this.value)"
+                                    placeholder="Nachname">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Rolle</label>
+                                <select class="form-input" onchange="updateAreaContactPerson(${contact.id}, 'role', this.value)">
+                                    ${Object.entries(CONTACT_ROLES).map(([key, label]) =>
+                                        `<option value="${key}" ${contact.role === key ? 'selected' : ''}>${label}</option>`
+                                    ).join('')}
+                                </select>
+                                <div class="sonstige-rolle-input ${showCustomRole ? 'show' : ''}">
+                                    <input type="text" class="form-input" value="${contact.customRole || ''}"
+                                        onchange="updateAreaContactPerson(${contact.id}, 'customRole', this.value)"
+                                        placeholder="Rolle beschreiben...">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">E-Mail</label>
+                                <input type="email" class="form-input" value="${contact.email}"
+                                    onchange="updateAreaContactPerson(${contact.id}, 'email', this.value)"
+                                    placeholder="email@example.de">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Telefon</label>
+                                <input type="tel" class="form-input" value="${contact.phone}"
+                                    onchange="updateAreaContactPerson(${contact.id}, 'phone', this.value)"
+                                    placeholder="+49 123 456789">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
         // Switch tabs in area modal
         function switchAreaTab(tabName) {
@@ -3146,30 +3245,45 @@
             document.getElementById('areaWebsite').value = area.website || '';
             document.getElementById('areaPrivacyPolicy').value = area.privacyPolicy || '';
 
-            // Ansprechpartner laden (neues Format oder Legacy-Fallback)
-            if (area.contactFirstName !== undefined) {
-                document.getElementById('areaContactFirstName').value = area.contactFirstName || '';
-                document.getElementById('areaContactLastName').value = area.contactLastName || '';
-                document.getElementById('areaContactRole').value = area.contactRole || '';
-                document.getElementById('areaContactCustomRole').value = area.contactCustomRole || '';
-                if (area.contactRole === 'sonstige') {
-                    document.getElementById('areaContactCustomRoleContainer').classList.add('show');
-                } else {
-                    document.getElementById('areaContactCustomRoleContainer').classList.remove('show');
-                }
-                document.getElementById('areaContactEmail').value = area.contactEmail || '';
-                document.getElementById('areaContactPhone').value = area.contactPhone || '';
-            } else {
-                // Legacy-Daten: Versuche Name zu splitten
+            // Ansprechpartner laden (Array-Format oder Legacy-Fallback)
+            if (area.contactPersons && Array.isArray(area.contactPersons)) {
+                // Neues Array-Format
+                areaContactPersons = area.contactPersons.map((c, idx) => ({
+                    id: c.id || idx + 1,
+                    firstName: c.firstName || '',
+                    lastName: c.lastName || '',
+                    role: c.role || 'geschaeftsfuehrer',
+                    customRole: c.customRole || '',
+                    email: c.email || '',
+                    phone: c.phone || ''
+                }));
+            } else if (area.contactFirstName !== undefined) {
+                // Altes Einzelformat -> in Array konvertieren
+                areaContactPersons = [{
+                    id: 1,
+                    firstName: area.contactFirstName || '',
+                    lastName: area.contactLastName || '',
+                    role: area.contactRole || 'geschaeftsfuehrer',
+                    customRole: area.contactCustomRole || '',
+                    email: area.contactEmail || '',
+                    phone: area.contactPhone || ''
+                }];
+            } else if (area.contact) {
+                // Legacy-Format -> in Array konvertieren
                 const nameParts = (area.contact || '').split(' ');
-                document.getElementById('areaContactFirstName').value = nameParts[0] || '';
-                document.getElementById('areaContactLastName').value = nameParts.slice(1).join(' ') || '';
-                document.getElementById('areaContactRole').value = '';
-                document.getElementById('areaContactCustomRole').value = '';
-                document.getElementById('areaContactCustomRoleContainer').classList.remove('show');
-                document.getElementById('areaContactEmail').value = area.email || '';
-                document.getElementById('areaContactPhone').value = area.phone || '';
+                areaContactPersons = [{
+                    id: 1,
+                    firstName: nameParts[0] || '',
+                    lastName: nameParts.slice(1).join(' ') || '',
+                    role: 'geschaeftsfuehrer',
+                    customRole: '',
+                    email: area.email || '',
+                    phone: area.phone || ''
+                }];
+            } else {
+                areaContactPersons = [];
             }
+            renderAreaContactPersons();
 
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet bearbeiten';
 
@@ -3197,14 +3311,12 @@
             document.getElementById('areaBundesland').value = '';
             document.getElementById('areaWebsite').value = '';
             document.getElementById('areaPrivacyPolicy').value = '';
-            document.getElementById('areaContactFirstName').value = '';
-            document.getElementById('areaContactLastName').value = '';
-            document.getElementById('areaContactRole').value = '';
-            document.getElementById('areaContactCustomRole').value = '';
-            document.getElementById('areaContactCustomRoleContainer').classList.remove('show');
-            document.getElementById('areaContactEmail').value = '';
-            document.getElementById('areaContactPhone').value = '';
             document.getElementById('areaEinwohner').value = '';
+
+            // Ansprechpartner zurücksetzen
+            areaContactPersons = [];
+            renderAreaContactPersons();
+
             document.getElementById('areaModalTitle').textContent = 'Werbegebiet hinzufügen';
 
             // Bei Landesverband: Nur Kreisverband als Option anzeigen
@@ -3224,15 +3336,17 @@
 
             if (namePrefix && ovOption) {
                 if (namePrefix.value === 'Landesverband') {
-                    // Bei Landesverband: Ortsverein-Option ausblenden
-                    ovOption.style.display = 'none';
+                    // Bei Landesverband: Ortsverein-Option deaktiviert (ausgegraut)
+                    ovOption.disabled = true;
+                    ovOption.style.color = 'var(--text-secondary)';
                     // Falls OV ausgewählt war, auf KV wechseln
                     if (vereinstypSelect.value === 'OV') {
                         vereinstypSelect.value = 'KV';
                     }
                 } else {
-                    // Sonst: Ortsverein-Option anzeigen
-                    ovOption.style.display = '';
+                    // Sonst: Ortsverein-Option aktiviert
+                    ovOption.disabled = false;
+                    ovOption.style.color = '';
                 }
             }
         }
@@ -3275,19 +3389,6 @@
             updateAreaVereinstypOptions();
         }
 
-        // Rolle-Dropdown im Werbegebiet-Modal
-        function handleAreaContactRoleChange() {
-            const roleSelect = document.getElementById('areaContactRole');
-            const customRoleContainer = document.getElementById('areaContactCustomRoleContainer');
-
-            if (roleSelect.value === 'sonstige') {
-                customRoleContainer.classList.add('show');
-            } else {
-                customRoleContainer.classList.remove('show');
-                document.getElementById('areaContactCustomRole').value = '';
-            }
-        }
-
         function closeAddAreaModal() {
             document.getElementById('addAreaModal').classList.remove('show');
             editingAreaIndex = null;
@@ -3314,17 +3415,20 @@
                 bundesland: document.getElementById('areaBundesland').value.trim(),
                 website: document.getElementById('areaWebsite').value.trim(),
                 privacyPolicy: document.getElementById('areaPrivacyPolicy').value.trim(),
-                // Ansprechpartner (neues Format)
-                contactFirstName: document.getElementById('areaContactFirstName').value.trim(),
-                contactLastName: document.getElementById('areaContactLastName').value.trim(),
-                contactRole: document.getElementById('areaContactRole').value,
-                contactCustomRole: document.getElementById('areaContactCustomRole').value.trim(),
-                contactEmail: document.getElementById('areaContactEmail').value.trim(),
-                contactPhone: document.getElementById('areaContactPhone').value.trim(),
-                // Legacy-Kompatibilität: contact = Vorname + Nachname
-                contact: `${document.getElementById('areaContactFirstName').value.trim()} ${document.getElementById('areaContactLastName').value.trim()}`.trim(),
-                email: document.getElementById('areaContactEmail').value.trim(),
-                phone: document.getElementById('areaContactPhone').value.trim(),
+                // Ansprechpartner als Array
+                contactPersons: areaContactPersons.map(c => ({
+                    id: c.id,
+                    firstName: c.firstName,
+                    lastName: c.lastName,
+                    role: c.role,
+                    customRole: c.customRole,
+                    email: c.email,
+                    phone: c.phone
+                })),
+                // Legacy-Kompatibilität: Erster Ansprechpartner
+                contact: areaContactPersons.length > 0 ? `${areaContactPersons[0].firstName} ${areaContactPersons[0].lastName}`.trim() : '',
+                email: areaContactPersons.length > 0 ? areaContactPersons[0].email : '',
+                phone: areaContactPersons.length > 0 ? areaContactPersons[0].phone : '',
                 einwohner: parseInt(document.getElementById('areaEinwohner').value) || 0
             };
 
