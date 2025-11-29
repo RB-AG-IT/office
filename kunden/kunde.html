@@ -317,6 +317,135 @@
             display: block;
         }
 
+        /* Kreisverbände Liste */
+        .kreisverband-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .kreisverband-item {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .kreisverband-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .kreisverband-header:hover {
+            background: var(--bg-hover);
+        }
+
+        .kreisverband-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .kreisverband-name {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+        }
+
+        .kreisverband-meta {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .kreisverband-toggle {
+            color: var(--text-secondary);
+            transition: transform 0.2s;
+        }
+
+        .kreisverband-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .kreisverband-content {
+            padding: var(--spacing-md);
+            display: none;
+        }
+
+        .kreisverband-content.open {
+            display: block;
+        }
+
+        .ortsverein-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .ortsverein-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .ortsverein-item:hover {
+            border-color: var(--accent-color);
+        }
+
+        .ortsverein-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .ortsverein-name {
+            font-weight: 500;
+            font-size: var(--font-size-sm);
+        }
+
+        .ortsverein-address {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .ortsverein-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .add-ortsverein-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: var(--spacing-sm);
+        }
+
+        .add-ortsverein-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: var(--bg-hover);
+        }
+
+        .add-ortsverein-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
         /* Kampagnen Grid */
         .campaigns-grid {
             display: grid;
@@ -1260,6 +1389,7 @@
                     <label class="form-label">Kundenname *</label>
                     <div class="customer-name-row" style="display: flex; gap: var(--spacing-sm); align-items: center;">
                         <select class="form-input" id="namePrefix" style="width: 80px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
+                            <option value="LV">LV</option>
                             <option value="KV">KV</option>
                             <option value="OV">OV</option>
                         </select>
@@ -1287,8 +1417,9 @@
                     <label class="form-label">Telefon</label>
                     <input type="tel" class="form-input" id="contactPhone" placeholder="+49 621 12345">
                 </div>
-                <!-- Typ wird automatisch aus KV/OV Auswahl gesetzt -->
+                <!-- Typ wird automatisch aus LV/KV/OV Auswahl gesetzt -->
                 <select class="form-input" id="type" style="display: none;">
+                    <option value="landesverband">Landesverband</option>
                     <option value="kreisverband">Kreisverband</option>
                     <option value="ortsverein">Ortsverein</option>
                 </select>
@@ -1363,23 +1494,39 @@
             </p>
         </div>
 
-        <!-- Werbegebiete -->
+        <!-- Werbegebiete (Kreisverbände) -->
         <div class="section-card">
             <div class="section-header">
-                <h2 class="section-title">Werbegebiete (Ortsvereine)</h2>
+                <h2 class="section-title">Werbegebiete (Kreisverbände)</h2>
                 <button class="btn btn-secondary btn-small" onclick="openAddAreaModal()">
                     <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
-                    Hinzufügen
+                    Kreisverband hinzufügen
                 </button>
             </div>
             <div class="areas-container" id="areasContainer">
-                <!-- Areas will be rendered here -->
+                <!-- Areas/Kreisverbände will be rendered here -->
             </div>
             <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);">
-                Werbegebiete sind die Ortsvereine, für die separate Mitgliederformulare verwendet werden.
+                Kreisverbände, die zu diesem Landesverband gehören.
             </p>
+        </div>
+
+        <!-- Kreisverbände mit Ortsvereinen -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Kreisverbände</h2>
+            </div>
+            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                Übersicht der Kreisverbände mit ihren Ortsvereinen. Ortsvereine können pro Kreisverband hinzugefügt werden.
+            </p>
+            <div class="kreisverband-list" id="kreisverbandListContainer">
+                <!-- Kreisverbände mit Ortsvereinen werden hier gerendert -->
+            </div>
+            <div id="noKreisverbandMessage" style="text-align: center; padding: var(--spacing-lg); color: var(--text-secondary);">
+                Noch keine Kreisverbände hinzugefügt. Fügen Sie oben zuerst Kreisverbände hinzu.
+            </div>
         </div>
 
         <!-- Verträge -->
@@ -1830,6 +1977,56 @@
         </div>
     </div>
 
+    <!-- Modal: Ortsverein hinzufügen/bearbeiten -->
+    <div class="modal" id="ortsvereinModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="ortsvereinModalTitle">Ortsverein hinzufügen</h2>
+                <button class="modal-close" onclick="closeOrtsvereinModal()">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Ortsverein-Name *</label>
+                    <input type="text" class="form-input" id="ovName" placeholder="z.B. OV Ludwigshafen-Mitte">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Straße</label>
+                    <input type="text" class="form-input" id="ovStreet" placeholder="Straße und Hausnummer">
+                </div>
+                <div style="display: grid; grid-template-columns: 120px 1fr; gap: var(--spacing-md);">
+                    <div class="form-group">
+                        <label class="form-label">PLZ</label>
+                        <input type="text" class="form-input" id="ovZip" placeholder="12345">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ort</label>
+                        <input type="text" class="form-input" id="ovCity" placeholder="Stadt">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ansprechpartner</label>
+                    <input type="text" class="form-input" id="ovContact" placeholder="Vor- und Nachname">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-Mail</label>
+                    <input type="email" class="form-input" id="ovEmail" placeholder="email@example.de">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefon</label>
+                    <input type="tel" class="form-input" id="ovPhone" placeholder="+49 123 456789">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeOrtsvereinModal()">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="saveOrtsverein()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ================================================================
         // NAVIGATION & DIRTY STATE
@@ -1922,90 +2119,103 @@
         // ================================================================
 
         // Current customer data (loaded from URL parameter or new)
+        // Demo: Landesverband mit Kreisverbänden und Ortsvereinen
         let currentCustomer = {
             id: 1,
-            name: 'DRK Kreisverband Ludwigshafen',
-            type: 'kreisverband',
+            name: 'DRK Landesverband Rheinland-Pfalz',
+            type: 'landesverband',
             contactPerson: 'Dr. Maria Schmidt',
-            contactEmail: 'schmidt@drk-ludwigshafen.de',
-            contactPhone: '+49 621 57000',
-            website: 'https://www.drk-ludwigshafen.de',
-            privacyPolicy: 'https://www.drk-ludwigshafen.de/datenschutz',
+            contactEmail: 'schmidt@drk-rlp.de',
+            contactPhone: '+49 6131 57000',
+            website: 'https://www.drk-rlp.de',
+            privacyPolicy: 'https://www.drk-rlp.de/datenschutz',
             invoiceType: 'combined',
             areas: [
                 {
-                    name: 'Ludwigshafen-Mitte e.V.',
+                    name: 'KV Ludwigshafen',
                     street: 'Bahnhofstr. 45',
                     zip: '67059',
                     city: 'Ludwigshafen',
-                    website: 'https://www.drk-mitte-lu.de',
+                    website: 'https://www.drk-ludwigshafen.de',
                     privacyPolicy: '',
                     contact: 'Hans Müller',
-                    email: 'mueller@drk-mitte.de',
+                    email: 'mueller@drk-ludwigshafen.de',
                     phone: '+49 621 11111',
-                    // Konditionen
-                    population: 85000,
-                    sondLimitType: 'percent',
-                    sondMembersDirect: null,
-                    sondMembersPercent: 0.15,
-                    sondierung: [5, 4.5, 4, 3.5, 3],
-                    regular: [3, 2.8, 2.5, 2.3, 2],
-                    qualityBonus: true,
-                    stornoRules: [
-                        { threshold: 15, bonus: 3 },
-                        { threshold: 12, bonus: 3 },
-                        { threshold: 10, bonus: 3 },
-                        { threshold: 8, bonus: 1 }
-                    ],
-                    partialPayment: false,
-                    partialPaymentPercent: null,
-                    specialAgreements: ''
+                    // Ortsvereine dieses Kreisverbands
+                    ortsvereine: [
+                        {
+                            name: 'OV Ludwigshafen-Mitte',
+                            street: 'Hauptstr. 10',
+                            zip: '67059',
+                            city: 'Ludwigshafen',
+                            contact: 'Peter Schmidt',
+                            email: 'schmidt@ov-mitte.de',
+                            phone: '+49 621 11112'
+                        },
+                        {
+                            name: 'OV Ludwigshafen-Süd',
+                            street: 'Südring 5',
+                            zip: '67065',
+                            city: 'Ludwigshafen',
+                            contact: 'Anna Weber',
+                            email: 'weber@ov-sued.de',
+                            phone: '+49 621 11113'
+                        },
+                        {
+                            name: 'OV Oggersheim',
+                            street: 'Mannheimer Str. 22',
+                            zip: '67071',
+                            city: 'Ludwigshafen',
+                            contact: 'Klaus Bauer',
+                            email: 'bauer@ov-oggersheim.de',
+                            phone: '+49 621 11114'
+                        }
+                    ]
                 },
                 {
-                    name: 'Ludwigshafen-Süd e.V.',
-                    street: 'Südring 12',
-                    zip: '67065',
-                    city: 'Ludwigshafen',
-                    website: '',
+                    name: 'KV Mainz',
+                    street: 'Rheinstr. 100',
+                    zip: '55116',
+                    city: 'Mainz',
+                    website: 'https://www.drk-mainz.de',
                     privacyPolicy: '',
-                    contact: 'Anna Weber',
-                    email: 'weber@drk-sued.de',
-                    phone: '+49 621 22222',
-                    // Konditionen
-                    population: 45000,
-                    sondLimitType: 'members',
-                    sondMembersDirect: 100,
-                    sondMembersPercent: null,
-                    sondierung: [5, 4.5, 4, 3.5, 3],
-                    regular: [3, 2.8, 2.5, 2.3, 2],
-                    qualityBonus: false,
-                    stornoRules: [],
-                    partialPayment: false,
-                    partialPaymentPercent: null,
-                    specialAgreements: ''
+                    contact: 'Thomas Braun',
+                    email: 'braun@drk-mainz.de',
+                    phone: '+49 6131 22222',
+                    // Ortsvereine dieses Kreisverbands
+                    ortsvereine: [
+                        {
+                            name: 'OV Mainz-Altstadt',
+                            street: 'Domstr. 1',
+                            zip: '55116',
+                            city: 'Mainz',
+                            contact: 'Lisa Hoffmann',
+                            email: 'hoffmann@ov-altstadt.de',
+                            phone: '+49 6131 22223'
+                        },
+                        {
+                            name: 'OV Mainz-Neustadt',
+                            street: 'Neustadtstr. 50',
+                            zip: '55118',
+                            city: 'Mainz',
+                            contact: 'Michael Kern',
+                            email: 'kern@ov-neustadt.de',
+                            phone: '+49 6131 22224'
+                        }
+                    ]
                 },
                 {
-                    name: 'Oggersheim e.V.',
-                    street: '',
-                    zip: '',
-                    city: '',
+                    name: 'KV Kaiserslautern',
+                    street: 'Barbarossastr. 8',
+                    zip: '67655',
+                    city: 'Kaiserslautern',
                     website: '',
                     privacyPolicy: '',
-                    contact: '',
-                    email: '',
-                    phone: '',
-                    // Keine Konditionen gesetzt
-                    population: null,
-                    sondLimitType: 'members',
-                    sondMembersDirect: null,
-                    sondMembersPercent: null,
-                    sondierung: [],
-                    regular: [],
-                    qualityBonus: false,
-                    stornoRules: [],
-                    partialPayment: false,
-                    partialPaymentPercent: null,
-                    specialAgreements: ''
+                    contact: 'Sandra Klein',
+                    email: 'klein@drk-kl.de',
+                    phone: '+49 631 33333',
+                    // Noch keine Ortsvereine
+                    ortsvereine: []
                 }
             ],
             contracts: {
@@ -2437,14 +2647,19 @@
 
         function renderCustomerData() {
             // Parse existing name into parts or use stored parts
-            const namePrefix = currentCustomer.namePrefix || (currentCustomer.type === 'ortsverein' ? 'OV' : 'KV');
+            let namePrefix = currentCustomer.namePrefix;
+            if (!namePrefix) {
+                if (currentCustomer.type === 'landesverband') namePrefix = 'LV';
+                else if (currentCustomer.type === 'ortsverein') namePrefix = 'OV';
+                else namePrefix = 'KV';
+            }
             const nameSuffix = currentCustomer.nameSuffix || 'e.V.';
             // Extract base name from full name if not already parsed
             let baseName = currentCustomer.baseName || '';
             if (!baseName && currentCustomer.name) {
-                // Try to extract base name from full name like "DRK Kreisverband Ludwigshafen"
+                // Try to extract base name from full name like "DRK Landesverband Rheinland-Pfalz"
                 baseName = currentCustomer.name
-                    .replace(/^(DRK\s+)?(Kreisverband|Ortsverein|KV|OV)\s*/i, '')
+                    .replace(/^(DRK\s+)?(Landesverband|Kreisverband|Ortsverein|LV|KV|OV)\s*/i, '')
                     .replace(/\s+(e\.V\.|gGmbH|GmbH)$/i, '')
                     .trim();
             }
@@ -2502,7 +2717,11 @@
 
             // Sync type dropdown with prefix
             const typeEl = document.getElementById('type');
-            if (typeEl) typeEl.value = prefix === 'OV' ? 'ortsverein' : 'kreisverband';
+            if (typeEl) {
+                if (prefix === 'LV') typeEl.value = 'landesverband';
+                else if (prefix === 'OV') typeEl.value = 'ortsverein';
+                else typeEl.value = 'kreisverband';
+            }
         }
 
         // ================================================================
@@ -2672,7 +2891,8 @@
             const container = document.getElementById('areasContainer');
 
             if (currentCustomer.areas.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary); font-size: var(--font-size-sm);">Noch keine Werbegebiete hinzugefügt.</p>';
+                container.innerHTML = '<p style="color: var(--text-secondary); font-size: var(--font-size-sm);">Noch keine Kreisverbände hinzugefügt.</p>';
+                renderKreisverbandList(); // Update Kreisverbände-Bereich
                 return;
             }
 
@@ -2688,6 +2908,177 @@
                     </div>
                 `;
             }).join('');
+
+            // Update Kreisverbände-Bereich mit Ortsvereinen
+            renderKreisverbandList();
+        }
+
+        // ================================================================
+        // KREISVERBÄNDE MIT ORTSVEREINEN
+        // ================================================================
+
+        function renderKreisverbandList() {
+            const container = document.getElementById('kreisverbandListContainer');
+            const noMessage = document.getElementById('noKreisverbandMessage');
+
+            if (!container) return;
+
+            if (currentCustomer.areas.length === 0) {
+                container.innerHTML = '';
+                if (noMessage) noMessage.style.display = 'block';
+                return;
+            }
+
+            if (noMessage) noMessage.style.display = 'none';
+
+            container.innerHTML = currentCustomer.areas.map((kv, kvIndex) => {
+                const ortsvereine = kv.ortsvereine || [];
+                const ovCount = ortsvereine.length;
+
+                const ortsvereineHTML = ortsvereine.map((ov, ovIndex) => `
+                    <div class="ortsverein-item">
+                        <div class="ortsverein-info">
+                            <span class="ortsverein-name">${ov.name}</span>
+                            <span class="ortsverein-address">${ov.street ? ov.street + ', ' : ''}${ov.zip} ${ov.city}</span>
+                        </div>
+                        <div class="ortsverein-actions">
+                            <button class="btn btn-secondary btn-small" onclick="editOrtsverein(${kvIndex}, ${ovIndex})" title="Bearbeiten">
+                                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </button>
+                            <button class="btn btn-secondary btn-small" onclick="removeOrtsverein(${kvIndex}, ${ovIndex})" title="Entfernen" style="color: var(--error-color);">
+                                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="kreisverband-item">
+                        <div class="kreisverband-header" onclick="toggleKreisverband(${kvIndex})">
+                            <div class="kreisverband-info">
+                                <span class="kreisverband-name">${kv.name}</span>
+                                <span class="kreisverband-meta">${ovCount} Ortsverein${ovCount !== 1 ? 'e' : ''}</span>
+                            </div>
+                            <svg class="kreisverband-toggle" id="kv-toggle-${kvIndex}" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="kreisverband-content" id="kv-content-${kvIndex}">
+                            <div class="ortsverein-list">
+                                ${ortsvereineHTML || '<p style="color: var(--text-secondary); font-size: var(--font-size-sm);">Noch keine Ortsvereine</p>'}
+                            </div>
+                            <button class="add-ortsverein-btn" onclick="openAddOrtsvereinModal(${kvIndex})">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                Ortsverein hinzufügen
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleKreisverband(kvIndex) {
+            const content = document.getElementById(`kv-content-${kvIndex}`);
+            const toggle = document.getElementById(`kv-toggle-${kvIndex}`);
+
+            if (content && toggle) {
+                content.classList.toggle('open');
+                toggle.classList.toggle('open');
+            }
+        }
+
+        let editingOrtsvereinKvIndex = null;
+        let editingOrtsvereinOvIndex = null;
+
+        function openAddOrtsvereinModal(kvIndex) {
+            editingOrtsvereinKvIndex = kvIndex;
+            editingOrtsvereinOvIndex = null;
+
+            // Reset form
+            document.getElementById('ovName').value = '';
+            document.getElementById('ovStreet').value = '';
+            document.getElementById('ovZip').value = '';
+            document.getElementById('ovCity').value = '';
+            document.getElementById('ovContact').value = '';
+            document.getElementById('ovEmail').value = '';
+            document.getElementById('ovPhone').value = '';
+
+            document.getElementById('ortsvereinModalTitle').textContent = 'Ortsverein hinzufügen';
+            document.getElementById('ortsvereinModal').classList.add('show');
+        }
+
+        function editOrtsverein(kvIndex, ovIndex) {
+            editingOrtsvereinKvIndex = kvIndex;
+            editingOrtsvereinOvIndex = ovIndex;
+
+            const ov = currentCustomer.areas[kvIndex].ortsvereine[ovIndex];
+
+            document.getElementById('ovName').value = ov.name || '';
+            document.getElementById('ovStreet').value = ov.street || '';
+            document.getElementById('ovZip').value = ov.zip || '';
+            document.getElementById('ovCity').value = ov.city || '';
+            document.getElementById('ovContact').value = ov.contact || '';
+            document.getElementById('ovEmail').value = ov.email || '';
+            document.getElementById('ovPhone').value = ov.phone || '';
+
+            document.getElementById('ortsvereinModalTitle').textContent = 'Ortsverein bearbeiten';
+            document.getElementById('ortsvereinModal').classList.add('show');
+        }
+
+        function closeOrtsvereinModal() {
+            document.getElementById('ortsvereinModal').classList.remove('show');
+            editingOrtsvereinKvIndex = null;
+            editingOrtsvereinOvIndex = null;
+        }
+
+        function saveOrtsverein() {
+            const name = document.getElementById('ovName').value.trim();
+            if (!name) {
+                showAlert('Fehler', 'Bitte Ortsverein-Namen eingeben', 'warning');
+                return;
+            }
+
+            const ortsverein = {
+                name: name,
+                street: document.getElementById('ovStreet').value.trim(),
+                zip: document.getElementById('ovZip').value.trim(),
+                city: document.getElementById('ovCity').value.trim(),
+                contact: document.getElementById('ovContact').value.trim(),
+                email: document.getElementById('ovEmail').value.trim(),
+                phone: document.getElementById('ovPhone').value.trim()
+            };
+
+            // Sicherstellen dass ortsvereine Array existiert
+            if (!currentCustomer.areas[editingOrtsvereinKvIndex].ortsvereine) {
+                currentCustomer.areas[editingOrtsvereinKvIndex].ortsvereine = [];
+            }
+
+            if (editingOrtsvereinOvIndex !== null) {
+                // Bearbeiten
+                currentCustomer.areas[editingOrtsvereinKvIndex].ortsvereine[editingOrtsvereinOvIndex] = ortsverein;
+            } else {
+                // Neu hinzufügen
+                currentCustomer.areas[editingOrtsvereinKvIndex].ortsvereine.push(ortsverein);
+            }
+
+            hasUnsavedChanges = true;
+            closeOrtsvereinModal();
+            renderKreisverbandList();
+        }
+
+        async function removeOrtsverein(kvIndex, ovIndex) {
+            const confirmed = await showConfirm('Ortsverein entfernen', 'Möchten Sie diesen Ortsverein wirklich entfernen?', 'warning');
+            if (!confirmed) return;
+
+            currentCustomer.areas[kvIndex].ortsvereine.splice(ovIndex, 1);
+            hasUnsavedChanges = true;
+            renderKreisverbandList();
         }
 
         let editingAreaIndex = null;
