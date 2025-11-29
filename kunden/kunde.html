@@ -3282,10 +3282,15 @@
         // ================================================================
 
         function calculateMembers() {
-            const population = parseInt(document.getElementById('population').value) || 0;
-            const percent = parseFloat(document.getElementById('sondMembersPercent').value) || 0;
+            const populationEl = document.getElementById('population');
+            const percentEl = document.getElementById('sondMembersPercent');
+            const resultEl = document.getElementById('calculatedMembers');
+            if (!populationEl || !percentEl || !resultEl) return;
+
+            const population = parseInt(populationEl.value) || 0;
+            const percent = parseFloat(percentEl.value) || 0;
             const calculated = Math.floor(population * (percent / 100));
-            document.getElementById('calculatedMembers').textContent = calculated.toLocaleString('de-DE');
+            resultEl.textContent = calculated.toLocaleString('de-DE');
         }
 
         // ================================================================
@@ -3316,6 +3321,7 @@
 
         function addSpecialItem() {
             const tbody = document.getElementById('specialItemsBody');
+            if (!tbody) return;
             const rowId = Date.now();
             const row = document.createElement('tr');
             row.id = 'special-row-' + rowId;
@@ -3370,14 +3376,23 @@
 
         async function saveCustomer() {
             // Collect data
-            currentCustomer.name = document.getElementById('name').value.trim();
-            currentCustomer.type = document.getElementById('type').value;
-            currentCustomer.contactPerson = document.getElementById('contactPerson').value.trim();
-            currentCustomer.contactEmail = document.getElementById('contactEmail').value.trim();
-            currentCustomer.contactPhone = document.getElementById('contactPhone').value.trim();
-            currentCustomer.website = document.getElementById('customerWebsite').value.trim();
-            currentCustomer.privacyPolicy = document.getElementById('customerPrivacyPolicy').value.trim();
-            currentCustomer.invoiceType = document.querySelector('input[name="invoiceType"]:checked').value;
+            const nameEl = document.getElementById('name');
+            const typeEl = document.getElementById('type');
+            const contactPersonEl = document.getElementById('contactPerson');
+            const contactEmailEl = document.getElementById('contactEmail');
+            const contactPhoneEl = document.getElementById('contactPhone');
+            const websiteEl = document.getElementById('customerWebsite');
+            const privacyEl = document.getElementById('customerPrivacyPolicy');
+            const invoiceTypeEl = document.querySelector('input[name="invoiceType"]:checked');
+
+            currentCustomer.name = nameEl ? nameEl.value.trim() : '';
+            currentCustomer.type = typeEl ? typeEl.value : 'kreisverband';
+            currentCustomer.contactPerson = contactPersonEl ? contactPersonEl.value.trim() : '';
+            currentCustomer.contactEmail = contactEmailEl ? contactEmailEl.value.trim() : '';
+            currentCustomer.contactPhone = contactPhoneEl ? contactPhoneEl.value.trim() : '';
+            currentCustomer.website = websiteEl ? websiteEl.value.trim() : '';
+            currentCustomer.privacyPolicy = privacyEl ? privacyEl.value.trim() : '';
+            currentCustomer.invoiceType = invoiceTypeEl ? invoiceTypeEl.value : 'combined';
 
             if (!currentCustomer.name) {
                 await showAlert('Fehler', 'Bitte Kundennamen eingeben', 'warning');
