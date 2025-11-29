@@ -774,6 +774,15 @@
             display: block;
         }
 
+        /* Campaign Modal Tab Content */
+        .campaign-tab-content {
+            display: none;
+        }
+
+        .campaign-tab-content.active {
+            display: block;
+        }
+
         /* Konditionen Grid */
         .konditionen-section {
             margin-bottom: var(--spacing-lg);
@@ -1239,15 +1248,15 @@
             <div class="section-header">
                 <h2 class="section-title">Allgemeine Informationen</h2>
             </div>
-            <div class="form-grid">
-                <div class="form-group form-group-full">
+            <div class="form-grid" style="grid-template-columns: 1fr;">
+                <div class="form-group">
                     <label class="form-label">Kundenname *</label>
                     <div class="customer-name-row" style="display: flex; gap: var(--spacing-sm); align-items: center;">
                         <select class="form-input" id="namePrefix" style="width: 80px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
                             <option value="KV">KV</option>
                             <option value="OV">OV</option>
                         </select>
-                        <input type="text" class="form-input" id="name" placeholder="z.B. Ludwigshafen" style="flex: 0 1 200px; min-width: 120px;" oninput="updateCustomerNameDisplay()">
+                        <input type="text" class="form-input" id="name" placeholder="z.B. Ludwigshafen" style="flex: 1;" oninput="updateCustomerNameDisplay()">
                         <select class="form-input" id="nameSuffix" style="width: 100px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
                             <option value="e.V.">e.V.</option>
                             <option value="gGmbH">gGmbH</option>
@@ -1276,13 +1285,15 @@
                     <option value="kreisverband">Kreisverband</option>
                     <option value="ortsverein">Ortsverein</option>
                 </select>
-                <div class="form-group">
-                    <label class="form-label">Website</label>
-                    <input type="url" class="form-input" id="customerWebsite" placeholder="https://www.drk-example.de">
-                </div>
-                <div class="form-group form-group-full">
-                    <label class="form-label">Datenschutzerklärung (Link)</label>
-                    <input type="url" class="form-input" id="customerPrivacyPolicy" placeholder="https://www.drk-example.de/datenschutz">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                    <div class="form-group">
+                        <label class="form-label">Website</label>
+                        <input type="url" class="form-input" id="customerWebsite" placeholder="https://www.drk-example.de">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Datenschutzerklärung (Link)</label>
+                        <input type="url" class="form-input" id="customerPrivacyPolicy" placeholder="https://www.drk-example.de/datenschutz">
+                    </div>
                 </div>
             </div>
         </div>
@@ -1493,7 +1504,7 @@
 
             <div class="modal-body">
                 <!-- Tab: Allgemein -->
-                <div class="tab-content active" id="tab-allgemein">
+                <div class="campaign-tab-content active" id="campaign-tab-allgemein">
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">Kampagnenname *</label>
@@ -1546,7 +1557,7 @@
                 </div>
 
                 <!-- Tab: Ansprechpartner -->
-                <div class="tab-content" id="tab-ansprechpartner">
+                <div class="campaign-tab-content" id="campaign-tab-ansprechpartner">
                     <p style="color: var(--text-secondary); font-size: var(--font-size-xs); margin-bottom: var(--spacing-lg);">
                         an neue Fördermitglieder / Bei Beitragsanpassungen
                     </p>
@@ -1571,7 +1582,7 @@
                 </div>
 
                 <!-- Tab: Notizen -->
-                <div class="tab-content" id="tab-notizen">
+                <div class="campaign-tab-content" id="campaign-tab-notizen">
                     <div class="form-grid" style="margin-bottom: var(--spacing-lg);">
                         <div class="form-group">
                             <label class="form-label">DRK Kleidung - Wer kümmert sich?</label>
@@ -1716,7 +1727,10 @@
                     <div class="form-group">
                         <label class="form-label">Straße und Hausnummer</label>
                         <div style="display: grid; grid-template-columns: 4fr 1fr; gap: var(--spacing-sm);">
-                            <input type="text" class="form-input" id="areaStreet" placeholder="Musterstraße">
+                            <div class="autocomplete-container">
+                                <input type="text" class="form-input" id="areaStreet" placeholder="Beginnen Sie zu tippen für Vorschläge...">
+                                <div class="autocomplete-results" id="areaStreetAutocomplete"></div>
+                            </div>
                             <input type="text" class="form-input" id="areaHouseNumber" placeholder="Nr.">
                         </div>
                     </div>
@@ -2287,6 +2301,133 @@
                 });
             });
         }
+
+        // ================================================================
+        // ADDRESS AUTOCOMPLETE (Geoapify API)
+        // ================================================================
+
+        let autocompleteTimer = null;
+        let currentRequestId = 0;
+
+        // Kunden-Adresse Autocomplete
+        const customerStreetInput = document.getElementById('customerStreet');
+        const customerAutocompleteResults = document.getElementById('customerStreetAutocomplete');
+
+        if (customerStreetInput) {
+            customerStreetInput.addEventListener('input', function() {
+                searchAddress(this.value, 'customer');
+            });
+        }
+
+        // Werbegebiet-Adresse Autocomplete
+        const areaStreetInput = document.getElementById('areaStreet');
+        if (areaStreetInput) {
+            areaStreetInput.addEventListener('input', function() {
+                searchAddress(this.value, 'area');
+            });
+        }
+
+        async function searchAddress(query, target) {
+            const resultsContainer = target === 'customer'
+                ? document.getElementById('customerStreetAutocomplete')
+                : document.getElementById('areaStreetAutocomplete');
+
+            if (!resultsContainer) return;
+
+            if (query.length < 3) {
+                resultsContainer.classList.remove('show');
+                return;
+            }
+
+            if (autocompleteTimer) {
+                clearTimeout(autocompleteTimer);
+            }
+
+            currentRequestId++;
+            const thisRequestId = currentRequestId;
+
+            autocompleteTimer = setTimeout(async () => {
+                try {
+                    const url = `https://lgztglycqtiwcmiydxnm.supabase.co/functions/v1/address-search?query=${encodeURIComponent(query)}`;
+
+                    const response = await fetch(url, {
+                        headers: {
+                            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0',
+                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0'
+                        }
+                    });
+
+                    if (thisRequestId !== currentRequestId) return;
+
+                    const data = await response.json();
+
+                    if (!data.results || data.results.length === 0) {
+                        resultsContainer.classList.remove('show');
+                        return;
+                    }
+
+                    const streetResults = data.results.filter(result => result.street && result.street.trim() !== '');
+
+                    if (streetResults.length === 0) {
+                        resultsContainer.classList.remove('show');
+                        return;
+                    }
+
+                    resultsContainer.innerHTML = '';
+
+                    streetResults.slice(0, 5).forEach(result => {
+                        const item = document.createElement('div');
+                        item.className = 'autocomplete-item';
+
+                        const street = result.street || '';
+                        const houseNumber = result.housenumber || '';
+                        const postcode = result.postcode || '';
+                        const city = result.city || '';
+                        const country = result.country || '';
+                        const state = result.state || '';
+
+                        item.innerHTML = `
+                            <strong>${street} ${houseNumber}</strong>
+                            <span style="color: var(--text-secondary); margin-left: 8px;">${postcode} ${city}</span>
+                        `;
+
+                        item.addEventListener('click', function() {
+                            if (target === 'customer') {
+                                document.getElementById('customerStreet').value = street;
+                                document.getElementById('customerHouseNumber').value = houseNumber;
+                                document.getElementById('customerPostalCode').value = postcode;
+                                document.getElementById('customerCity').value = city;
+                                document.getElementById('customerCountry').value = country;
+                                document.getElementById('customerBundesland').value = state;
+                            } else {
+                                document.getElementById('areaStreet').value = street;
+                                document.getElementById('areaHouseNumber').value = houseNumber;
+                                document.getElementById('areaZip').value = postcode;
+                                document.getElementById('areaCity').value = city;
+                                document.getElementById('areaCountry').value = country;
+                                document.getElementById('areaBundesland').value = state;
+                            }
+                            resultsContainer.classList.remove('show');
+                        });
+
+                        resultsContainer.appendChild(item);
+                    });
+
+                    resultsContainer.classList.add('show');
+
+                } catch (error) {
+                    console.error('Address search error:', error);
+                    resultsContainer.classList.remove('show');
+                }
+            }, 300);
+        }
+
+        // Close autocomplete when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.autocomplete-container')) {
+                document.querySelectorAll('.autocomplete-results').forEach(r => r.classList.remove('show'));
+            }
+        });
 
         // ================================================================
         // DATA LOADING
@@ -3085,19 +3226,20 @@
         }
 
         function switchTab(tabName) {
-            // Update tab buttons
-            document.querySelectorAll('.modal-tab').forEach(tab => {
+            // Update tab buttons (nur im Campaign Modal)
+            document.querySelectorAll('#campaignModal .modal-tab').forEach(tab => {
                 tab.classList.remove('active');
                 if (tab.textContent.toLowerCase().includes(tabName.substring(0, 4))) {
                     tab.classList.add('active');
                 }
             });
 
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
+            // Update tab content (nur im Campaign Modal)
+            document.querySelectorAll('#campaignModal .campaign-tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            document.getElementById('tab-' + tabName).classList.add('active');
+            const modalTab = document.querySelector('#campaignModal #campaign-tab-' + tabName);
+            if (modalTab) modalTab.classList.add('active');
         }
 
         async function saveCampaign() {
