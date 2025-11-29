@@ -238,6 +238,83 @@
             height: 14px;
         }
 
+        /* Dropdown für Hinzufügen */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 180px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            width: 100%;
+            padding: 10px 14px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .dropdown-item:first-child {
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .dropdown-item:last-child {
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .dropdown-item:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-item:disabled:hover {
+            background: none;
+        }
+
+        .dropdown-item svg {
+            color: var(--text-secondary);
+        }
+
+        /* Einsatzgebiete Container */
+        .einsatzgebiete-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
         /* Ansprechpartner Cards */
         .contact-person-card {
             background: var(--bg-secondary);
@@ -1499,38 +1576,44 @@
             </p>
         </div>
 
-        <!-- Werbegebiete (Kreisverbände) - nur für Landesverband -->
-        <div class="section-card" id="sectionWerbegebiete">
+        <!-- Einsatzgebiete und Vereine -->
+        <div class="section-card" id="sectionEinsatzgebiete">
             <div class="section-header">
-                <h2 class="section-title" id="werbegebieteSectionTitle">Werbegebiete (Kreisverbände)</h2>
-                <button class="btn btn-secondary btn-small" onclick="openAddAreaModal()" id="addAreaBtn">
-                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    <span id="addAreaBtnText">Kreisverband hinzufügen</span>
-                </button>
+                <h2 class="section-title">Einsatzgebiete und Vereine</h2>
+                <div class="dropdown" id="addEinsatzgebietDropdown">
+                    <button class="btn btn-secondary btn-small" onclick="toggleAddEinsatzgebietDropdown()">
+                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span>Hinzufügen</span>
+                        <svg style="width: 12px; height: 12px; margin-left: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div class="dropdown-menu" id="addEinsatzgebietMenu">
+                        <button class="dropdown-item" id="addKreisverbandBtn" onclick="openAddAreaModal('kreisverband')">
+                            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                            Kreisverband
+                        </button>
+                        <button class="dropdown-item" id="addOrtsvereinBtn" onclick="openAddAreaModal('ortsverein')">
+                            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            Ortsverein
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="areas-container" id="areasContainer">
-                <!-- Areas/Kreisverbände will be rendered here -->
-            </div>
-            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: var(--spacing-sm);" id="werbegebieteHint">
-                Kreisverbände, die zu diesem Landesverband gehören.
-            </p>
-        </div>
 
-        <!-- Kreisverbände mit Ortsvereinen - nur für Landesverband -->
-        <div class="section-card" id="sectionKreisverbandeOrtsvereine">
-            <div class="section-header">
-                <h2 class="section-title">Kreisverbände</h2>
+            <!-- Einsatzgebiete Liste (KV's mit OV's darunter, dann nicht zugeordnete OV's) -->
+            <div class="einsatzgebiete-container" id="einsatzgebieteContainer">
+                <!-- Wird dynamisch gerendert -->
             </div>
-            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
-                Übersicht der Kreisverbände mit ihren Ortsvereinen. Ortsvereine können pro Kreisverband hinzugefügt werden.
-            </p>
-            <div class="kreisverband-list" id="kreisverbandListContainer">
-                <!-- Kreisverbände mit Ortsvereinen werden hier gerendert -->
-            </div>
-            <div id="noKreisverbandMessage" style="text-align: center; padding: var(--spacing-lg); color: var(--text-secondary);">
-                Noch keine Kreisverbände hinzugefügt. Fügen Sie oben zuerst Kreisverbände hinzu.
+            <div id="noEinsatzgebieteMessage" style="text-align: center; padding: var(--spacing-lg); color: var(--text-secondary);">
+                Noch keine Einsatzgebiete hinzugefügt.
             </div>
         </div>
 
@@ -1885,6 +1968,16 @@
                         <span style="font-size: 11px; color: var(--text-secondary);">z.B. KV Ludwigshafen e.V.</span>
                     </div>
 
+                    <!-- KV-Zuordnung (nur für OV bei LV-Kunde) -->
+                    <div class="form-group" id="kvZuordnungContainer" style="display: none;">
+                        <label class="form-label">Kreisverband-Zuordnung</label>
+                        <select class="form-input" id="areaKvZuordnung">
+                            <option value="">Keine Zuordnung</option>
+                            <!-- Wird dynamisch befüllt -->
+                        </select>
+                        <span style="font-size: 11px; color: var(--text-secondary);">Optional: Ordnet diesen Ortsverein einem Kreisverband zu</span>
+                    </div>
+
                     <!-- Adresse -->
                     <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
                         Adresse des Ortsvereins
@@ -2182,9 +2275,14 @@
             privacyPolicy: 'https://www.drk-rlp.de/datenschutz',
             invoiceType: 'combined',
             areas: [
+                // KV Ludwigshafen (Index 0)
                 {
                     name: 'KV Ludwigshafen',
-                    street: 'Bahnhofstr. 45',
+                    vereinstyp: 'KV',
+                    vereinsname: 'Ludwigshafen',
+                    rechtsform: 'e.V.',
+                    street: 'Bahnhofstr.',
+                    houseNumber: '45',
                     zip: '67059',
                     city: 'Ludwigshafen',
                     website: 'https://www.drk-ludwigshafen.de',
@@ -2192,40 +2290,16 @@
                     contact: 'Hans Müller',
                     email: 'mueller@drk-ludwigshafen.de',
                     phone: '+49 621 11111',
-                    // Ortsvereine dieses Kreisverbands
-                    ortsvereine: [
-                        {
-                            name: 'OV Ludwigshafen-Mitte',
-                            street: 'Hauptstr. 10',
-                            zip: '67059',
-                            city: 'Ludwigshafen',
-                            contact: 'Peter Schmidt',
-                            email: 'schmidt@ov-mitte.de',
-                            phone: '+49 621 11112'
-                        },
-                        {
-                            name: 'OV Ludwigshafen-Süd',
-                            street: 'Südring 5',
-                            zip: '67065',
-                            city: 'Ludwigshafen',
-                            contact: 'Anna Weber',
-                            email: 'weber@ov-sued.de',
-                            phone: '+49 621 11113'
-                        },
-                        {
-                            name: 'OV Oggersheim',
-                            street: 'Mannheimer Str. 22',
-                            zip: '67071',
-                            city: 'Ludwigshafen',
-                            contact: 'Klaus Bauer',
-                            email: 'bauer@ov-oggersheim.de',
-                            phone: '+49 621 11114'
-                        }
-                    ]
+                    kvZuordnung: null
                 },
+                // KV Mainz (Index 1)
                 {
                     name: 'KV Mainz',
-                    street: 'Rheinstr. 100',
+                    vereinstyp: 'KV',
+                    vereinsname: 'Mainz',
+                    rechtsform: 'e.V.',
+                    street: 'Rheinstr.',
+                    houseNumber: '100',
                     zip: '55116',
                     city: 'Mainz',
                     website: 'https://www.drk-mainz.de',
@@ -2233,31 +2307,16 @@
                     contact: 'Thomas Braun',
                     email: 'braun@drk-mainz.de',
                     phone: '+49 6131 22222',
-                    // Ortsvereine dieses Kreisverbands
-                    ortsvereine: [
-                        {
-                            name: 'OV Mainz-Altstadt',
-                            street: 'Domstr. 1',
-                            zip: '55116',
-                            city: 'Mainz',
-                            contact: 'Lisa Hoffmann',
-                            email: 'hoffmann@ov-altstadt.de',
-                            phone: '+49 6131 22223'
-                        },
-                        {
-                            name: 'OV Mainz-Neustadt',
-                            street: 'Neustadtstr. 50',
-                            zip: '55118',
-                            city: 'Mainz',
-                            contact: 'Michael Kern',
-                            email: 'kern@ov-neustadt.de',
-                            phone: '+49 6131 22224'
-                        }
-                    ]
+                    kvZuordnung: null
                 },
+                // KV Kaiserslautern (Index 2)
                 {
                     name: 'KV Kaiserslautern',
-                    street: 'Barbarossastr. 8',
+                    vereinstyp: 'KV',
+                    vereinsname: 'Kaiserslautern',
+                    rechtsform: 'e.V.',
+                    street: 'Barbarossastr.',
+                    houseNumber: '8',
                     zip: '67655',
                     city: 'Kaiserslautern',
                     website: '',
@@ -2265,8 +2324,97 @@
                     contact: 'Sandra Klein',
                     email: 'klein@drk-kl.de',
                     phone: '+49 631 33333',
-                    // Noch keine Ortsvereine
-                    ortsvereine: []
+                    kvZuordnung: null
+                },
+                // OV Ludwigshafen-Mitte (zugeordnet zu KV Ludwigshafen, Index 0)
+                {
+                    name: 'OV Ludwigshafen-Mitte',
+                    vereinstyp: 'OV',
+                    vereinsname: 'Ludwigshafen-Mitte',
+                    rechtsform: 'e.V.',
+                    street: 'Hauptstr.',
+                    houseNumber: '10',
+                    zip: '67059',
+                    city: 'Ludwigshafen',
+                    contact: 'Peter Schmidt',
+                    email: 'schmidt@ov-mitte.de',
+                    phone: '+49 621 11112',
+                    kvZuordnung: 0
+                },
+                // OV Ludwigshafen-Süd (zugeordnet zu KV Ludwigshafen, Index 0)
+                {
+                    name: 'OV Ludwigshafen-Süd',
+                    vereinstyp: 'OV',
+                    vereinsname: 'Ludwigshafen-Süd',
+                    rechtsform: 'e.V.',
+                    street: 'Südring',
+                    houseNumber: '5',
+                    zip: '67065',
+                    city: 'Ludwigshafen',
+                    contact: 'Anna Weber',
+                    email: 'weber@ov-sued.de',
+                    phone: '+49 621 11113',
+                    kvZuordnung: 0
+                },
+                // OV Oggersheim (zugeordnet zu KV Ludwigshafen, Index 0)
+                {
+                    name: 'OV Oggersheim',
+                    vereinstyp: 'OV',
+                    vereinsname: 'Oggersheim',
+                    rechtsform: 'e.V.',
+                    street: 'Mannheimer Str.',
+                    houseNumber: '22',
+                    zip: '67071',
+                    city: 'Ludwigshafen',
+                    contact: 'Klaus Bauer',
+                    email: 'bauer@ov-oggersheim.de',
+                    phone: '+49 621 11114',
+                    kvZuordnung: 0
+                },
+                // OV Mainz-Altstadt (zugeordnet zu KV Mainz, Index 1)
+                {
+                    name: 'OV Mainz-Altstadt',
+                    vereinstyp: 'OV',
+                    vereinsname: 'Mainz-Altstadt',
+                    rechtsform: 'e.V.',
+                    street: 'Domstr.',
+                    houseNumber: '1',
+                    zip: '55116',
+                    city: 'Mainz',
+                    contact: 'Lisa Hoffmann',
+                    email: 'hoffmann@ov-altstadt.de',
+                    phone: '+49 6131 22223',
+                    kvZuordnung: 1
+                },
+                // OV Mainz-Neustadt (zugeordnet zu KV Mainz, Index 1)
+                {
+                    name: 'OV Mainz-Neustadt',
+                    vereinstyp: 'OV',
+                    vereinsname: 'Mainz-Neustadt',
+                    rechtsform: 'e.V.',
+                    street: 'Neustadtstr.',
+                    houseNumber: '50',
+                    zip: '55118',
+                    city: 'Mainz',
+                    contact: 'Michael Kern',
+                    email: 'kern@ov-neustadt.de',
+                    phone: '+49 6131 22224',
+                    kvZuordnung: 1
+                },
+                // OV Speyer (nicht zugeordnet - alleinstehend)
+                {
+                    name: 'OV Speyer',
+                    vereinstyp: 'OV',
+                    vereinsname: 'Speyer',
+                    rechtsform: 'e.V.',
+                    street: 'Domplatz',
+                    houseNumber: '3',
+                    zip: '67346',
+                    city: 'Speyer',
+                    contact: 'Eva Schneider',
+                    email: 'schneider@ov-speyer.de',
+                    phone: '+49 6232 55555',
+                    kvZuordnung: null
                 }
             ],
             contracts: {
@@ -2519,7 +2667,7 @@
 
             renderCustomerData();
             renderContactPersons();
-            renderAreas();
+            renderEinsatzgebiete();
             renderContracts();
             renderInvoices();
             renderCampaigns();
@@ -3523,22 +3671,44 @@
             }
             renderAreaContactPersons();
 
-            document.getElementById('areaModalTitle').textContent = 'Werbegebiet bearbeiten';
+            // KV-Zuordnung laden und anzeigen/verstecken
+            const kvZuordnungContainer = document.getElementById('kvZuordnungContainer');
+            const kvZuordnungSelect = document.getElementById('areaKvZuordnung');
+            const namePrefix = document.getElementById('namePrefix');
 
-            // Bei Landesverband: Nur Kreisverband als Option anzeigen
-            updateAreaVereinstypOptions();
+            if (kvZuordnungContainer && kvZuordnungSelect && namePrefix) {
+                if (area.vereinstyp === 'OV' && namePrefix.value === 'Landesverband') {
+                    // Bei LV und OV: KV-Zuordnung anzeigen
+                    kvZuordnungContainer.style.display = '';
+                    populateKvZuordnungDropdown();
+                    // Aktuellen Wert setzen
+                    kvZuordnungSelect.value = area.kvZuordnung !== null && area.kvZuordnung !== undefined
+                        ? area.kvZuordnung.toString()
+                        : '';
+                } else {
+                    // Sonst: KV-Zuordnung verstecken
+                    kvZuordnungContainer.style.display = 'none';
+                }
+            }
+
+            // Modal-Titel setzen
+            const typeName = area.vereinstyp === 'OV' ? 'Ortsverein' : 'Kreisverband';
+            document.getElementById('areaModalTitle').textContent = `${typeName} bearbeiten`;
 
             // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
         }
 
-        function openAddAreaModal() {
+        function openAddAreaModal(type = 'kreisverband') {
             editingAreaIndex = null;
+
+            // Dropdown schließen
+            const menu = document.getElementById('addEinsatzgebietMenu');
+            if (menu) menu.classList.remove('show');
 
             // Stammdaten zurücksetzen
             document.getElementById('newAreaName').value = '';
-            document.getElementById('areaVereinstyp').value = 'KV';
             document.getElementById('areaVereinsname').value = '';
             document.getElementById('areaRechtsform').value = 'e.V.';
             document.getElementById('areaStreet').value = '';
@@ -3551,19 +3721,61 @@
             document.getElementById('areaPrivacyPolicy').value = '';
             document.getElementById('areaEinwohner').value = '';
 
+            // Vereinstyp setzen
+            const vereinstypSelect = document.getElementById('areaVereinstyp');
+            if (vereinstypSelect) {
+                vereinstypSelect.value = type === 'ortsverein' ? 'OV' : 'KV';
+            }
+
+            // KV-Zuordnung zurücksetzen und anzeigen/verstecken
+            const kvZuordnungContainer = document.getElementById('kvZuordnungContainer');
+            const kvZuordnungSelect = document.getElementById('areaKvZuordnung');
+            const namePrefix = document.getElementById('namePrefix');
+
+            if (kvZuordnungContainer && kvZuordnungSelect && namePrefix) {
+                if (type === 'ortsverein' && namePrefix.value === 'Landesverband') {
+                    // Bei LV und OV: KV-Zuordnung anzeigen
+                    kvZuordnungContainer.style.display = '';
+                    // Dropdown mit verfügbaren KV's befüllen
+                    populateKvZuordnungDropdown();
+                } else {
+                    // Sonst: KV-Zuordnung verstecken
+                    kvZuordnungContainer.style.display = 'none';
+                    kvZuordnungSelect.value = '';
+                }
+            }
+
             // Ansprechpartner zurücksetzen
             areaContactPersons = [];
             renderAreaContactPersons();
 
-            document.getElementById('areaModalTitle').textContent = 'Werbegebiet hinzufügen';
-
-            // Bei Landesverband: Nur Kreisverband als Option anzeigen
-            updateAreaVereinstypOptions();
+            // Modal-Titel setzen
+            const titleText = type === 'ortsverein' ? 'Ortsverein hinzufügen' : 'Kreisverband hinzufügen';
+            document.getElementById('areaModalTitle').textContent = titleText;
 
             // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
             document.getElementById('newAreaName').focus();
+        }
+
+        // Befüllt das KV-Zuordnung Dropdown mit verfügbaren Kreisverbänden
+        function populateKvZuordnungDropdown() {
+            const select = document.getElementById('areaKvZuordnung');
+            if (!select) return;
+
+            // Leeren
+            select.innerHTML = '<option value="">Keine Zuordnung</option>';
+
+            // Kreisverbände aus areas holen
+            const kreisverbände = (currentCustomer.areas || []).filter(a => a.vereinstyp === 'KV');
+
+            kreisverbände.forEach((kv, index) => {
+                const option = document.createElement('option');
+                option.value = index.toString();
+                option.textContent = kv.name || kv.vereinsname || `Kreisverband ${index + 1}`;
+                select.appendChild(option);
+            });
         }
 
         // Aktualisiert die Vereinstyp-Optionen basierend auf dem Kundentyp
@@ -3596,35 +3808,210 @@
 
             const customerType = namePrefix.value;
 
-            // Elemente holen
-            const sectionWerbegebiete = document.getElementById('sectionWerbegebiete');
-            const sectionKreisverbandeOV = document.getElementById('sectionKreisverbandeOrtsvereine');
-            const werbegebieteSectionTitle = document.getElementById('werbegebieteSectionTitle');
-            const addAreaBtnText = document.getElementById('addAreaBtnText');
-            const werbegebieteHint = document.getElementById('werbegebieteHint');
+            // Dropdown-Optionen aktualisieren
+            updateEinsatzgebietDropdownOptions();
+
+            // Einsatzgebiete neu rendern
+            renderEinsatzgebiete();
+        }
+
+        // Dropdown für Hinzufügen öffnen/schließen
+        function toggleAddEinsatzgebietDropdown() {
+            const menu = document.getElementById('addEinsatzgebietMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+
+                // Dropdown-Optionen aktualisieren
+                updateEinsatzgebietDropdownOptions();
+            }
+        }
+
+        // Dropdown schließen wenn außerhalb geklickt
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('addEinsatzgebietDropdown');
+            const menu = document.getElementById('addEinsatzgebietMenu');
+            if (dropdown && menu && !dropdown.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // Aktualisiert die Dropdown-Optionen basierend auf dem Kundentyp
+        function updateEinsatzgebietDropdownOptions() {
+            const namePrefix = document.getElementById('namePrefix');
+            const addKvBtn = document.getElementById('addKreisverbandBtn');
+            const addOvBtn = document.getElementById('addOrtsvereinBtn');
+
+            if (!namePrefix || !addKvBtn || !addOvBtn) return;
+
+            const customerType = namePrefix.value;
 
             if (customerType === 'Landesverband') {
-                // Landesverband: Beide Sections anzeigen, KV-Beschriftung
-                if (sectionWerbegebiete) sectionWerbegebiete.style.display = '';
-                if (sectionKreisverbandeOV) sectionKreisverbandeOV.style.display = '';
-                if (werbegebieteSectionTitle) werbegebieteSectionTitle.textContent = 'Werbegebiete (Kreisverbände)';
-                if (addAreaBtnText) addAreaBtnText.textContent = 'Kreisverband hinzufügen';
-                if (werbegebieteHint) werbegebieteHint.textContent = 'Kreisverbände, die zu diesem Landesverband gehören.';
-            } else if (customerType === 'Kreisverband') {
-                // Kreisverband: Werbegebiete anzeigen mit OV-Beschriftung, KV-Übersicht ausblenden
-                if (sectionWerbegebiete) sectionWerbegebiete.style.display = '';
-                if (sectionKreisverbandeOV) sectionKreisverbandeOV.style.display = 'none';
-                if (werbegebieteSectionTitle) werbegebieteSectionTitle.textContent = 'Werbegebiete (Ortsvereine)';
-                if (addAreaBtnText) addAreaBtnText.textContent = 'Ortsverein hinzufügen';
-                if (werbegebieteHint) werbegebieteHint.textContent = 'Ortsvereine, die zu diesem Kreisverband gehören.';
-            } else if (customerType === 'Ortsverein') {
-                // Ortsverein: Beide Sections ausblenden (OV hat keine Untereinheiten)
-                if (sectionWerbegebiete) sectionWerbegebiete.style.display = 'none';
-                if (sectionKreisverbandeOV) sectionKreisverbandeOV.style.display = 'none';
+                // LV: Beide Optionen verfügbar
+                addKvBtn.disabled = false;
+                addOvBtn.disabled = false;
+            } else {
+                // KV oder OV: Nur OV hinzufügbar, KV ausgegraut
+                addKvBtn.disabled = true;
+                addOvBtn.disabled = false;
+            }
+        }
+
+        // Rendert die Einsatzgebiete-Liste (KV's mit OV's darunter, dann nicht zugeordnete OV's)
+        function renderEinsatzgebiete() {
+            const container = document.getElementById('einsatzgebieteContainer');
+            const noMessage = document.getElementById('noEinsatzgebieteMessage');
+
+            if (!container) return;
+
+            const areas = currentCustomer.areas || [];
+
+            // Keine Einsatzgebiete
+            if (areas.length === 0) {
+                container.innerHTML = '';
+                if (noMessage) noMessage.style.display = 'block';
+                return;
             }
 
-            // Auch die Modal-Optionen aktualisieren
-            updateAreaVereinstypOptions();
+            if (noMessage) noMessage.style.display = 'none';
+
+            // Kreisverbände sammeln (mit Index)
+            const kreisverbände = areas
+                .map((area, index) => ({ ...area, originalIndex: index }))
+                .filter(a => a.vereinstyp === 'KV');
+
+            // Ortsvereine mit KV-Zuordnung
+            const ortsvereineZugeordnet = areas
+                .map((area, index) => ({ ...area, originalIndex: index }))
+                .filter(a => a.vereinstyp === 'OV' && a.kvZuordnung !== null && a.kvZuordnung !== undefined);
+
+            // Ortsvereine ohne KV-Zuordnung
+            const ortsvereineOhneZuordnung = areas
+                .map((area, index) => ({ ...area, originalIndex: index }))
+                .filter(a => a.vereinstyp === 'OV' && (a.kvZuordnung === null || a.kvZuordnung === undefined));
+
+            let html = '';
+
+            // 1. Kreisverbände mit ihren OV's rendern
+            kreisverbände.forEach((kv) => {
+                // OV's die diesem KV zugeordnet sind
+                const zugeordneteOVs = ortsvereineZugeordnet.filter(ov => ov.kvZuordnung === kv.originalIndex);
+                const ovCount = zugeordneteOVs.length;
+
+                // OV's HTML
+                const ortsvereineHTML = zugeordneteOVs.map(ov => `
+                    <div class="ortsverein-item">
+                        <div class="ortsverein-info">
+                            <span class="ortsverein-name">${ov.name}</span>
+                            <span class="ortsverein-address">${ov.street ? ov.street + ' ' + (ov.houseNumber || '') + ', ' : ''}${ov.zip || ''} ${ov.city || ''}</span>
+                        </div>
+                        <div class="ortsverein-actions">
+                            <button class="btn btn-secondary btn-small" onclick="editArea(${ov.originalIndex})" title="Bearbeiten">
+                                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </button>
+                            <button class="btn btn-secondary btn-small" onclick="removeArea(${ov.originalIndex})" title="Entfernen" style="color: var(--error-color);">
+                                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                html += `
+                    <div class="kreisverband-item">
+                        <div class="kreisverband-header" onclick="toggleKreisverband(${kv.originalIndex})">
+                            <div class="kreisverband-info">
+                                <span class="kreisverband-name">${kv.name}</span>
+                                <span class="kreisverband-meta">${ovCount} Ortsverein${ovCount !== 1 ? 'e' : ''}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); editArea(${kv.originalIndex})" title="Bearbeiten">
+                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); removeKreisverband(${kv.originalIndex})" title="Löschen" style="color: var(--error-color);">
+                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                                <svg class="kreisverband-toggle" id="kv-toggle-${kv.originalIndex}" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="kreisverband-content" id="kv-content-${kv.originalIndex}">
+                            <div class="ortsverein-list">
+                                ${ortsvereineHTML || '<p style="color: var(--text-secondary); font-size: var(--font-size-sm);">Noch keine Ortsvereine zugeordnet</p>'}
+                            </div>
+                            <button class="add-ortsverein-btn" onclick="openAddAreaModal('ortsverein'); prefillKvZuordnung(${kv.originalIndex});">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                Ortsverein hinzufügen
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // 2. Nicht zugeordnete Ortsvereine rendern
+            if (ortsvereineOhneZuordnung.length > 0) {
+                html += `
+                    <div class="standalone-ortsvereine">
+                        <h4 style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--spacing-sm); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                            Nicht zugeordnete Ortsvereine
+                        </h4>
+                        <div class="ortsverein-list">
+                `;
+
+                ortsvereineOhneZuordnung.forEach(ov => {
+                    html += `
+                        <div class="ortsverein-item">
+                            <div class="ortsverein-info">
+                                <span class="ortsverein-name">${ov.name}</span>
+                                <span class="ortsverein-address">${ov.street ? ov.street + ' ' + (ov.houseNumber || '') + ', ' : ''}${ov.zip || ''} ${ov.city || ''}</span>
+                            </div>
+                            <div class="ortsverein-actions">
+                                <button class="btn btn-secondary btn-small" onclick="editArea(${ov.originalIndex})" title="Bearbeiten">
+                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                                <button class="btn btn-secondary btn-small" onclick="removeArea(${ov.originalIndex})" title="Entfernen" style="color: var(--error-color);">
+                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Prefill KV-Zuordnung wenn OV von einem KV aus hinzugefügt wird
+        function prefillKvZuordnung(kvIndex) {
+            setTimeout(() => {
+                const select = document.getElementById('areaKvZuordnung');
+                const container = document.getElementById('kvZuordnungContainer');
+                const namePrefix = document.getElementById('namePrefix');
+
+                if (select && container && namePrefix && namePrefix.value === 'Landesverband') {
+                    container.style.display = '';
+                    populateKvZuordnungDropdown();
+                    select.value = kvIndex.toString();
+                }
+            }, 100);
         }
 
         function closeAddAreaModal() {
@@ -3638,6 +4025,11 @@
                 showToast('Bitte einen Namen eingeben', 'warning');
                 return;
             }
+
+            // KV-Zuordnung auslesen (Index des KV in areas Array)
+            const kvZuordnungSelect = document.getElementById('areaKvZuordnung');
+            const kvZuordnungValue = kvZuordnungSelect ? kvZuordnungSelect.value : '';
+            const kvZuordnungIndex = kvZuordnungValue !== '' ? parseInt(kvZuordnungValue) : null;
 
             const areaData = {
                 // Stammdaten
@@ -3653,6 +4045,8 @@
                 bundesland: document.getElementById('areaBundesland').value.trim(),
                 website: document.getElementById('areaWebsite').value.trim(),
                 privacyPolicy: document.getElementById('areaPrivacyPolicy').value.trim(),
+                // KV-Zuordnung (null = keine Zuordnung)
+                kvZuordnung: kvZuordnungIndex,
                 // Ansprechpartner als Array
                 contactPersons: areaContactPersons.map(c => ({
                     id: c.id,
@@ -3672,13 +4066,15 @@
 
             if (editingAreaIndex !== null) {
                 currentCustomer.areas[editingAreaIndex] = areaData;
-                showToast('Werbegebiet aktualisiert', 'success');
+                showToast('Einsatzgebiet aktualisiert', 'success');
             } else {
                 currentCustomer.areas.push(areaData);
-                showToast('Werbegebiet hinzugefügt', 'success');
+                const typeName = areaData.vereinstyp === 'OV' ? 'Ortsverein' : 'Kreisverband';
+                showToast(`${typeName} hinzugefügt`, 'success');
             }
 
-            renderAreas();
+            hasUnsavedChanges = true;
+            renderEinsatzgebiete();
             closeAddAreaModal();
         }
 
@@ -3697,11 +4093,117 @@
         }
 
         async function removeArea(index) {
-            const confirmed = await showConfirm('Werbegebiet wirklich entfernen?', 'Werbegebiet löschen', 'error');
+            const area = currentCustomer.areas[index];
+            const typeName = area.vereinstyp === 'OV' ? 'Ortsverein' : 'Einsatzgebiet';
+            const confirmed = await showConfirm(`${typeName} wirklich entfernen?`, `${typeName} löschen`, 'error');
             if (confirmed) {
+                // Bei Löschen eines KV: Zuordnungen der OV's aufheben
+                if (area.vereinstyp === 'KV') {
+                    currentCustomer.areas.forEach(a => {
+                        if (a.kvZuordnung === index) {
+                            a.kvZuordnung = null;
+                        } else if (a.kvZuordnung > index) {
+                            // Index anpassen für nachfolgende KV's
+                            a.kvZuordnung--;
+                        }
+                    });
+                }
+
                 currentCustomer.areas.splice(index, 1);
-                renderAreas();
-                showToast('Werbegebiet entfernt', 'success');
+
+                // Alle kvZuordnung-Indizes anpassen die größer als der gelöschte Index sind
+                currentCustomer.areas.forEach(a => {
+                    if (a.kvZuordnung !== null && a.kvZuordnung > index) {
+                        a.kvZuordnung--;
+                    }
+                });
+
+                hasUnsavedChanges = true;
+                renderEinsatzgebiete();
+                showToast(`${typeName} entfernt`, 'success');
+            }
+        }
+
+        // Kreisverband löschen mit doppelter Bestätigung wenn OV's zugeordnet sind
+        async function removeKreisverband(index) {
+            const kv = currentCustomer.areas[index];
+            if (!kv || kv.vereinstyp !== 'KV') return;
+
+            // Prüfen ob OV's zugeordnet sind
+            const zugeordneteOVs = currentCustomer.areas.filter(a => a.vereinstyp === 'OV' && a.kvZuordnung === index);
+
+            if (zugeordneteOVs.length > 0) {
+                // Doppelte Bestätigung mit Auswahl
+                const deleteOVsToo = await showConfirm(
+                    `Kreisverband "${kv.name}" löschen`,
+                    `Dieser Kreisverband hat ${zugeordneteOVs.length} zugeordnete Ortsverein${zugeordneteOVs.length !== 1 ? 'e' : ''}.\n\nMöchten Sie auch alle Ortsvereine löschen?`,
+                    'error',
+                    'Ja, alle löschen',
+                    'Nein, nur Kreisverband'
+                );
+
+                if (deleteOVsToo === null) {
+                    // Abgebrochen
+                    return;
+                }
+
+                if (deleteOVsToo) {
+                    // Alle OV's und den KV löschen
+                    // Erst OV's löschen (von hinten nach vorne um Index-Probleme zu vermeiden)
+                    const indicesToDelete = currentCustomer.areas
+                        .map((a, i) => ({ ...a, index: i }))
+                        .filter(a => (a.vereinstyp === 'OV' && a.kvZuordnung === index) || a.index === index)
+                        .map(a => a.index)
+                        .sort((a, b) => b - a); // Absteigend sortieren
+
+                    indicesToDelete.forEach(i => {
+                        currentCustomer.areas.splice(i, 1);
+                    });
+
+                    // Alle kvZuordnung-Indizes anpassen
+                    currentCustomer.areas.forEach(a => {
+                        if (a.kvZuordnung !== null) {
+                            const deletedBefore = indicesToDelete.filter(i => i < a.kvZuordnung).length;
+                            a.kvZuordnung -= deletedBefore;
+                        }
+                    });
+
+                    hasUnsavedChanges = true;
+                    renderEinsatzgebiete();
+                    showToast('Kreisverband und Ortsvereine gelöscht', 'success');
+                } else {
+                    // Nur KV löschen, OV's behalten (Zuordnung aufheben)
+                    currentCustomer.areas.forEach(a => {
+                        if (a.kvZuordnung === index) {
+                            a.kvZuordnung = null;
+                        } else if (a.kvZuordnung > index) {
+                            a.kvZuordnung--;
+                        }
+                    });
+
+                    currentCustomer.areas.splice(index, 1);
+
+                    hasUnsavedChanges = true;
+                    renderEinsatzgebiete();
+                    showToast('Kreisverband gelöscht, Ortsvereine behalten', 'success');
+                }
+            } else {
+                // Keine OV's zugeordnet, normale Bestätigung
+                const confirmed = await showConfirm('Kreisverband wirklich löschen?', `"${kv.name}" löschen`, 'error');
+                if (confirmed) {
+                    currentCustomer.areas.splice(index, 1);
+
+                    // Alle kvZuordnung-Indizes anpassen
+                    currentCustomer.areas.forEach(a => {
+                        if (a.kvZuordnung !== null && a.kvZuordnung > index) {
+                            a.kvZuordnung--;
+                        }
+                    });
+
+                    hasUnsavedChanges = true;
+                    renderEinsatzgebiete();
+                    showToast('Kreisverband gelöscht', 'success');
+                }
             }
         }
 
