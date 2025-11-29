@@ -2240,8 +2240,6 @@
         // ================================================================
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('[DEBUG] DOMContentLoaded gestartet - Version 2');
-
             // Check if editing existing customer
             const urlParams = new URLSearchParams(window.location.search);
             const customerId = urlParams.get('id');
@@ -2251,41 +2249,12 @@
             }
             // Demo-Daten bleiben erhalten (in currentCustomer definiert)
 
-            try {
-                console.log('[DEBUG] renderCustomerData...');
-                renderCustomerData();
-                console.log('[DEBUG] renderCustomerData OK');
-            } catch(e) { console.error('[DEBUG] renderCustomerData FEHLER:', e); }
-
-            try {
-                console.log('[DEBUG] renderContactPersons...');
-                renderContactPersons();
-                console.log('[DEBUG] renderContactPersons OK');
-            } catch(e) { console.error('[DEBUG] renderContactPersons FEHLER:', e); }
-
-            try {
-                console.log('[DEBUG] renderAreas...');
-                renderAreas();
-                console.log('[DEBUG] renderAreas OK');
-            } catch(e) { console.error('[DEBUG] renderAreas FEHLER:', e); }
-
-            try {
-                console.log('[DEBUG] renderContracts...');
-                renderContracts();
-                console.log('[DEBUG] renderContracts OK');
-            } catch(e) { console.error('[DEBUG] renderContracts FEHLER:', e); }
-
-            try {
-                console.log('[DEBUG] renderInvoices...');
-                renderInvoices();
-                console.log('[DEBUG] renderInvoices OK');
-            } catch(e) { console.error('[DEBUG] renderInvoices FEHLER:', e); }
-
-            try {
-                console.log('[DEBUG] renderCampaigns...');
-                renderCampaigns();
-                console.log('[DEBUG] renderCampaigns OK');
-            } catch(e) { console.error('[DEBUG] renderCampaigns FEHLER:', e); }
+            renderCustomerData();
+            renderContactPersons();
+            renderAreas();
+            renderContracts();
+            renderInvoices();
+            renderCampaigns();
 
             // Setup population calculator (nur wenn Elemente existieren)
             const sondMembersPercentEl = document.getElementById('sondMembersPercent');
@@ -2294,9 +2263,7 @@
             if (populationEl) populationEl.addEventListener('input', calculateMembers);
 
             // Setup profile tabs
-            console.log('[DEBUG] setupTabs...');
             setupTabs();
-            console.log('[DEBUG] setupTabs OK - INIT KOMPLETT');
         });
 
         // ================================================================
@@ -2492,9 +2459,15 @@
         }
 
         function updateCustomerNameDisplay() {
-            const prefix = document.getElementById('namePrefix').value;
-            const baseName = document.getElementById('name').value;
-            const suffix = document.getElementById('nameSuffix').value;
+            const prefixEl = document.getElementById('namePrefix');
+            const nameEl = document.getElementById('name');
+            const suffixEl = document.getElementById('nameSuffix');
+
+            if (!prefixEl || !nameEl || !suffixEl) return;
+
+            const prefix = prefixEl.value;
+            const baseName = nameEl.value;
+            const suffix = suffixEl.value;
 
             // Build full name
             let fullName = prefix;
@@ -2506,18 +2479,23 @@
             }
 
             // Update preview
-            document.getElementById('customerNamePreview').textContent = fullName || 'KV Beispiel e.V.';
+            const previewEl = document.getElementById('customerNamePreview');
+            if (previewEl) previewEl.textContent = fullName || 'KV Beispiel e.V.';
 
             // Update header
-            document.getElementById('customerName').textContent = fullName || 'Neuer Kunde';
+            const headerEl = document.getElementById('customerName');
+            if (headerEl) headerEl.textContent = fullName || 'Neuer Kunde';
 
             // Update ID display
             const customerId = currentCustomer.id ? 'KD-' + String(currentCustomer.id).padStart(4, '0') : 'KD-XXXX';
-            document.getElementById('customerIdDisplay').textContent = customerId;
-            document.getElementById('customerId').textContent = customerId;
+            const idDisplayEl = document.getElementById('customerIdDisplay');
+            if (idDisplayEl) idDisplayEl.textContent = customerId;
+            const idEl = document.getElementById('customerId');
+            if (idEl) idEl.textContent = customerId;
 
             // Sync type dropdown with prefix
-            document.getElementById('type').value = prefix === 'OV' ? 'ortsverein' : 'kreisverband';
+            const typeEl = document.getElementById('type');
+            if (typeEl) typeEl.value = prefix === 'OV' ? 'ortsverein' : 'kreisverband';
         }
 
         // ================================================================
