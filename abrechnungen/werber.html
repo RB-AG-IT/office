@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Werber-Abrechnung - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../modal-system.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -1290,15 +1291,16 @@
             });
         });
 
-        function processAbrechnung(quartal, year) {
-            if (confirm(`Stornorücklagen-Abrechnung für ${quartal} ${year} durchführen?\n\nACHTUNG: Nach der Abrechnung ist dieses Quartal eingefroren. Nachträgliche Stornos sind dann für die Abrechnung irrelevant.`)) {
-                alert(`Abrechnung für ${quartal} ${year} wurde durchgeführt.\n\nDas Quartal ist jetzt abgeschlossen.`);
+        async function processAbrechnung(quartal, year) {
+            const confirmed = await showConfirm('Abrechnung durchführen', `Stornorücklagen-Abrechnung für ${quartal} ${year} durchführen?\n\nACHTUNG: Nach der Abrechnung ist dieses Quartal eingefroren. Nachträgliche Stornos sind dann für die Abrechnung irrelevant.`, 'warning');
+            if (confirmed) {
+                await showAlert('Erfolg', `Abrechnung für ${quartal} ${year} wurde durchgeführt.\n\nDas Quartal ist jetzt abgeschlossen.`, 'success');
                 // In real implementation: Update status and re-render
             }
         }
 
-        function exportAbrechnung() {
-            alert('Export wird vorbereitet...\n\nVerfügbare Formate:\n- Excel (.xlsx)\n- CSV (.csv)\n- PDF (.pdf)');
+        async function exportAbrechnung() {
+            await showAlert('Export', 'Export wird vorbereitet...\n\nVerfügbare Formate:\n- Excel (.xlsx)\n- CSV (.csv)\n- PDF (.pdf)', 'info');
         }
 
         // Initial render

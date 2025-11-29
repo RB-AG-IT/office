@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kunde bearbeiten - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../modal-system.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -1465,9 +1466,10 @@
         // ================================================================
         let hasUnsavedChanges = false;
 
-        function goBack() {
+        async function goBack() {
             if (hasUnsavedChanges) {
-                if (!confirm('Sie haben ungespeicherte Änderungen.\n\nMöchten Sie wirklich ohne Speichern verlassen?')) {
+                const confirmed = await showConfirm('Ungespeicherte Änderungen', 'Sie haben ungespeicherte Änderungen.\n\nMöchten Sie wirklich ohne Speichern verlassen?', 'warning');
+                if (!confirmed) {
                     return;
                 }
             }
@@ -2411,17 +2413,17 @@
             document.getElementById('tab-' + tabName).classList.add('active');
         }
 
-        function saveCampaign() {
+        async function saveCampaign() {
             const name = document.getElementById('campaignName').value.trim();
             const areaIndex = document.getElementById('campaignArea').value;
 
             if (!name) {
-                alert('Bitte Kampagnennamen eingeben');
+                await showAlert('Fehler', 'Bitte Kampagnennamen eingeben', 'warning');
                 return;
             }
 
             if (areaIndex === '') {
-                alert('Bitte Werbegebiet auswählen');
+                await showAlert('Fehler', 'Bitte Werbegebiet auswählen', 'warning');
                 return;
             }
 
@@ -2538,7 +2540,7 @@
         // SAVE CUSTOMER
         // ================================================================
 
-        function saveCustomer() {
+        async function saveCustomer() {
             // Collect data
             currentCustomer.name = document.getElementById('name').value.trim();
             currentCustomer.type = document.getElementById('type').value;
@@ -2550,7 +2552,7 @@
             currentCustomer.invoiceType = document.querySelector('input[name="invoiceType"]:checked').value;
 
             if (!currentCustomer.name) {
-                alert('Bitte Kundennamen eingeben');
+                await showAlert('Fehler', 'Bitte Kundennamen eingeben', 'warning');
                 return;
             }
 
@@ -2563,7 +2565,7 @@
             // Reset dirty state before redirect
             hasUnsavedChanges = false;
 
-            alert('Kunde erfolgreich gespeichert!');
+            await showAlert('Erfolg', 'Kunde erfolgreich gespeichert!', 'success');
 
             // Redirect to overview
             history.back();

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datensätze - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../modal-system.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -799,15 +800,15 @@
             // In real app: update table columns
         }
 
-        function saveTemplate() {
-            const name = prompt('Vorlagenname eingeben:');
+        async function saveTemplate() {
+            const name = await showPrompt('Vorlage speichern', 'Vorlagenname eingeben:');
             if (name) {
                 templates[name] = [...currentColumns];
-                alert('Vorlage "' + name + '" wurde gespeichert.');
+                await showAlert('Gespeichert', 'Vorlage "' + name + '" wurde gespeichert.', 'success');
             }
         }
 
-        function saveNewTemplate() {
+        async function saveNewTemplate() {
             const name = document.getElementById('templateName').value;
             if (name) {
                 const selected = [];
@@ -815,7 +816,7 @@
                     selected.push(cb.value);
                 });
                 templates[name] = selected;
-                alert('Vorlage "' + name + '" wurde gespeichert.');
+                await showAlert('Gespeichert', 'Vorlage "' + name + '" wurde gespeichert.', 'success');
                 closeTemplateModal();
             }
         }
@@ -829,8 +830,8 @@
             document.getElementById('importModal').classList.remove('show');
         }
 
-        function executeImport() {
-            alert('Import erfolgreich!');
+        async function executeImport() {
+            await showAlert('Import', 'Import erfolgreich!', 'success');
             closeImportModal();
         }
 
@@ -842,9 +843,9 @@
             document.getElementById('exportModal').classList.remove('show');
         }
 
-        function executeExport() {
+        async function executeExport() {
             const format = document.getElementById('exportFormat').value;
-            alert('Export als ' + format.toUpperCase() + ' wird gestartet...');
+            await showAlert('Export', 'Export als ' + format.toUpperCase() + ' wird gestartet...', 'info');
             closeExportModal();
         }
 
@@ -870,25 +871,26 @@
             });
         }
 
-        function executeStorno() {
+        async function executeStorno() {
             const reason = document.querySelector('input[name="stornoReason"]:checked');
             if (!reason) {
-                alert('Bitte Stornogrund auswählen.');
+                await showAlert('Fehler', 'Bitte Stornogrund auswählen.', 'warning');
                 return;
             }
-            if (confirm('Datensatz wirklich stornieren?')) {
+            const confirmed = await showConfirm('Storno bestätigen', 'Datensatz wirklich stornieren?', 'warning');
+            if (confirmed) {
                 const record = dummyData.find(r => r.id === currentStornoId);
                 if (record) {
                     record.status = 'storniert';
                     renderTable(dummyData);
                 }
-                alert('Datensatz wurde storniert.');
+                await showAlert('Storniert', 'Datensatz wurde storniert.', 'success');
                 closeStornoModal();
             }
         }
 
-        function viewRecord(id) {
-            alert('Details für Datensatz #' + id);
+        async function viewRecord(id) {
+            await showAlert('Details', 'Details für Datensatz #' + id, 'info');
         }
     </script>
 </body>

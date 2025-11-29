@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mitarbeiter Profil - RB Inside</title>
     <link rel="stylesheet" href="../styles.css">
+    <script src="../modal-system.js"></script>
 
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2761,9 +2762,10 @@
         // ================================================================
         let hasUnsavedChanges = false;
 
-        function goBack() {
+        async function goBack() {
             if (hasUnsavedChanges) {
-                if (!confirm('Sie haben ungespeicherte Änderungen.\n\nMöchten Sie wirklich ohne Speichern verlassen?')) {
+                const confirmed = await showConfirm('Ungespeicherte Änderungen', 'Sie haben ungespeicherte Änderungen.\n\nMöchten Sie wirklich ohne Speichern verlassen?', 'warning');
+                if (!confirmed) {
                     return;
                 }
             }
@@ -3426,14 +3428,14 @@
 
                 // Validation
                 if (!firstName || !lastName || !email || !mainRole) {
-                    alert('Bitte füllen Sie alle Pflichtfelder aus:\n- Vorname\n- Nachname\n- E-Mail\n- Haupt-Rolle');
+                    await showAlert('Pflichtfelder', 'Bitte füllen Sie alle Pflichtfelder aus:\n- Vorname\n- Nachname\n- E-Mail\n- Haupt-Rolle', 'warning');
                     return;
                 }
 
                 // Email validation
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
-                    alert('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+                    await showAlert('E-Mail ungültig', 'Bitte geben Sie eine gültige E-Mail-Adresse ein.', 'warning');
                     return;
                 }
 
@@ -3441,7 +3443,7 @@
                 const isVatLiable = document.getElementById('vatLiable').checked;
                 const vatNumber = document.getElementById('vatNumber').value.trim();
                 if (isVatLiable && !vatNumber) {
-                    alert('Bei Umsatzsteuerpflicht ist die Umsatzsteuer-ID ein Pflichtfeld.');
+                    await showAlert('USt-ID erforderlich', 'Bei Umsatzsteuerpflicht ist die Umsatzsteuer-ID ein Pflichtfeld.', 'warning');
                     document.getElementById('vatNumber').focus();
                     return;
                 }
@@ -3662,14 +3664,14 @@
                 // Reset dirty state before redirect
                 hasUnsavedChanges = false;
 
-                alert('✅ Mitarbeiter erfolgreich gespeichert!');
+                await showAlert('Erfolg', 'Mitarbeiter erfolgreich gespeichert!', 'success');
 
                 // Redirect to overview
                 history.back();
 
             } catch (error) {
                 console.error('Save error:', error);
-                alert(`❌ Fehler beim Speichern:\n${error.message}\n\nBitte versuchen Sie es erneut oder kontaktieren Sie den Support.`);
+                await showAlert('Fehler beim Speichern', `${error.message}\n\nBitte versuchen Sie es erneut oder kontaktieren Sie den Support.`, 'error');
 
                 // Restore button
                 const saveBtn = event.target;
@@ -3998,8 +4000,8 @@
         });
 
         // Manuelle KW-Eingabe (Von) - Klick auf KW-Anzeige
-        document.getElementById('kwNumber').addEventListener('click', function() {
-            const input = prompt('Kalenderwoche eingeben (1-52):', currentKwWeek);
+        document.getElementById('kwNumber').addEventListener('click', async function() {
+            const input = await showPrompt('Kalenderwoche', 'Kalenderwoche eingeben (1-52):', String(currentKwWeek));
             if (input !== null) {
                 const week = parseInt(input);
                 if (week >= 1 && week <= getWeeksInYear(currentKwYear)) {
@@ -4009,8 +4011,8 @@
             }
         });
 
-        document.getElementById('kwYear').addEventListener('click', function() {
-            const input = prompt('Jahr eingeben:', currentKwYear);
+        document.getElementById('kwYear').addEventListener('click', async function() {
+            const input = await showPrompt('Jahr', 'Jahr eingeben:', String(currentKwYear));
             if (input !== null) {
                 const year = parseInt(input);
                 if (year >= 2020 && year <= 2100) {
@@ -4079,8 +4081,8 @@
         });
 
         // Manuelle Bis-Eingabe - Klick auf KW-Anzeige
-        document.getElementById('roleKwToNumber').addEventListener('click', function() {
-            const input = prompt('Kalenderwoche eingeben (1-52, oder leer für ∞):', roleKwToUnlimited ? '' : roleKwToWeek);
+        document.getElementById('roleKwToNumber').addEventListener('click', async function() {
+            const input = await showPrompt('Kalenderwoche Bis', 'Kalenderwoche eingeben (1-52, oder leer für ∞):', roleKwToUnlimited ? '' : String(roleKwToWeek));
             if (input === null) return;
 
             if (input.trim() === '' || input === '∞') {
@@ -4100,7 +4102,7 @@
             updateRoleKwToDisplay();
         });
 
-        document.getElementById('roleKwToYear').addEventListener('click', function() {
+        document.getElementById('roleKwToYear').addEventListener('click', async function() {
             if (roleKwToUnlimited) {
                 // Erst KW setzen
                 roleKwToUnlimited = false;
@@ -4109,7 +4111,7 @@
                 updateRoleKwToDisplay();
                 return;
             }
-            const input = prompt('Jahr eingeben:', roleKwToYear);
+            const input = await showPrompt('Jahr Bis', 'Jahr eingeben:', String(roleKwToYear));
             if (input !== null) {
                 const year = parseInt(input);
                 if (year >= 2020 && year <= 2100) {
@@ -4852,7 +4854,7 @@
 
             } catch (error) {
                 console.error('Load user error:', error);
-                alert(`❌ Fehler beim Laden der Benutzerdaten:\n${error.message}`);
+                await showAlert('Fehler', `Fehler beim Laden der Benutzerdaten:\n${error.message}`, 'error');
             }
         }
 
@@ -4877,7 +4879,7 @@
             const userId = new URLSearchParams(window.location.search).get('id');
 
             if (!userId) {
-                alert('Fehler: Kein Benutzer ausgewählt');
+                await showAlert('Fehler', 'Fehler: Kein Benutzer ausgewählt', 'error');
                 return;
             }
 
@@ -4922,11 +4924,11 @@
 
                 // UI aktualisieren
                 showHvContract(newFileName, now);
-                alert('✅ HV Vertrag erfolgreich hochgeladen!');
+                await showAlert('Erfolg', 'HV Vertrag erfolgreich hochgeladen!', 'success');
 
             } catch (error) {
                 console.error('Upload error:', error);
-                alert('❌ Fehler beim Hochladen: ' + error.message);
+                await showAlert('Fehler', 'Fehler beim Hochladen: ' + error.message, 'error');
             }
         }
 
@@ -4944,18 +4946,18 @@
             const documentName = document.getElementById('otherContractName').value.trim();
 
             if (!documentName) {
-                alert('Bitte geben Sie einen Dokumentnamen ein.');
+                await showAlert('Fehler', 'Bitte geben Sie einen Dokumentnamen ein.', 'warning');
                 return;
             }
 
             if (!pendingOtherContractFile) {
-                alert('Bitte wählen Sie eine Datei aus.');
+                await showAlert('Fehler', 'Bitte wählen Sie eine Datei aus.', 'warning');
                 return;
             }
 
             const userId = new URLSearchParams(window.location.search).get('id');
             if (!userId) {
-                alert('Fehler: Kein Benutzer ausgewählt');
+                await showAlert('Fehler', 'Fehler: Kein Benutzer ausgewählt', 'error');
                 return;
             }
 
@@ -5010,11 +5012,11 @@
                 document.getElementById('uploadOtherBtn').disabled = true;
                 pendingOtherContractFile = null;
 
-                alert('✅ Vereinbarung erfolgreich hochgeladen!');
+                await showAlert('Erfolg', 'Vereinbarung erfolgreich hochgeladen!', 'success');
 
             } catch (error) {
                 console.error('Upload error:', error);
-                alert('❌ Fehler beim Hochladen: ' + error.message);
+                await showAlert('Fehler', 'Fehler beim Hochladen: ' + error.message, 'error');
             }
         }
 
@@ -5077,7 +5079,7 @@
 
         // Löschanfrage für Vertrag erstellen
         async function requestContractDeletion(contractId, contractName) {
-            const confirmed = confirm(`Möchten Sie "${contractName || 'diesen Vertrag'}" wirklich löschen?\n\nDie Löschung muss vom Backoffice bestätigt werden.`);
+            const confirmed = await showConfirm('Vertrag löschen', `Möchten Sie "${contractName || 'diesen Vertrag'}" wirklich löschen?\n\nDie Löschung muss vom Backoffice bestätigt werden.`, 'warning');
 
             if (!confirmed) return;
 
@@ -5115,11 +5117,11 @@
 
                 if (deleteError) throw deleteError;
 
-                alert('✅ Löschanfrage wurde erstellt.\n\nDas Backoffice wird die Anfrage bearbeiten.');
+                await showAlert('Erfolg', 'Löschanfrage wurde erstellt.\n\nDas Backoffice wird die Anfrage bearbeiten.', 'success');
 
             } catch (error) {
                 console.error('Deletion request error:', error);
-                alert('❌ Fehler beim Erstellen der Löschanfrage: ' + error.message);
+                await showAlert('Fehler', 'Fehler beim Erstellen der Löschanfrage: ' + error.message, 'error');
             }
         }
 

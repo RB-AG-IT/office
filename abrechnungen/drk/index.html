@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRK-Abrechnungen - RB Inside Office</title>
     <link rel="stylesheet" href="../../styles.css">
+    <script src="../../modal-system.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
@@ -976,42 +977,43 @@
             console.log('Filter:', { kampagne, zeitraum, status });
         }
 
-        function createRechnung(id) {
+        async function createRechnung(id) {
             if (id) {
-                alert(`Rechnung für ${id} wird erstellt...`);
+                await showAlert('Rechnung erstellen', `Rechnung für ${id} wird erstellt...`, 'info');
             } else {
-                alert('Neue DRK-Rechnung erstellen...');
+                await showAlert('Rechnung erstellen', 'Neue DRK-Rechnung erstellen...', 'info');
             }
         }
 
-        function viewMitgliederliste(id) {
-            alert(`Mitgliederliste für ${id} wird angezeigt...`);
+        async function viewMitgliederliste(id) {
+            await showAlert('Mitgliederliste', `Mitgliederliste für ${id} wird angezeigt...`, 'info');
         }
 
-        function viewRechnung(id) {
-            alert(`Rechnungsdetails für ${id}`);
+        async function viewRechnung(id) {
+            await showAlert('Rechnungsdetails', `Rechnungsdetails für ${id}`, 'info');
         }
 
-        function downloadPDF(id) {
-            alert(`PDF für ${id} wird heruntergeladen...`);
+        async function downloadPDF(id) {
+            await showAlert('Download', `PDF für ${id} wird heruntergeladen...`, 'info');
         }
 
-        function markAsPaid(id) {
-            if (confirm(`Rechnung ${id} als bezahlt markieren?`)) {
-                alert('Rechnung als bezahlt markiert!');
+        async function markAsPaid(id) {
+            const confirmed = await showConfirm('Als bezahlt markieren', `Rechnung ${id} als bezahlt markieren?`, 'question');
+            if (confirmed) {
+                await showAlert('Erfolg', 'Rechnung als bezahlt markiert!', 'success');
             }
         }
 
-        function viewStornoDetails() {
-            alert('Storno-Details werden angezeigt...');
+        async function viewStornoDetails() {
+            await showAlert('Storno-Details', 'Storno-Details werden angezeigt...', 'info');
         }
 
-        function createEndabrechnung() {
-            alert('Endabrechnung wird erstellt...');
+        async function createEndabrechnung() {
+            await showAlert('Endabrechnung', 'Endabrechnung wird erstellt...', 'info');
         }
 
-        function exportDRK() {
-            alert('DRK-Abrechnungen werden exportiert...');
+        async function exportDRK() {
+            await showAlert('Export', 'DRK-Abrechnungen werden exportiert...', 'info');
         }
     </script>
 </body>
