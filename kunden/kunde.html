@@ -1387,13 +1387,21 @@
             <div class="form-grid" style="grid-template-columns: 1fr;">
                 <div class="form-group">
                     <label class="form-label">Kundenname *</label>
-                    <div class="customer-name-row" style="display: flex; gap: var(--spacing-sm); align-items: center;">
-                        <select class="form-input" id="namePrefix" style="width: 80px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
-                            <option value="LV">LV</option>
-                            <option value="KV">KV</option>
-                            <option value="OV">OV</option>
+                    <div class="customer-name-row" style="display: flex; gap: var(--spacing-sm); align-items: center; flex-wrap: wrap;">
+                        <select class="form-input" id="organisation" style="width: 100px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
+                            <option value="DRK" selected>DRK</option>
+                            <option value="ASB">ASB</option>
+                            <option value="JUH">JUH</option>
+                            <option value="MHD">MHD</option>
+                            <option value="DLRG">DLRG</option>
+                            <option value="">- andere -</option>
                         </select>
-                        <input type="text" class="form-input" id="name" placeholder="z.B. Ludwigshafen" style="flex: 1;" oninput="updateCustomerNameDisplay()">
+                        <select class="form-input" id="namePrefix" style="width: 140px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
+                            <option value="Landesverband">Landesverband</option>
+                            <option value="Kreisverband" selected>Kreisverband</option>
+                            <option value="Ortsverein">Ortsverein</option>
+                        </select>
+                        <input type="text" class="form-input" id="name" placeholder="z.B. Ludwigshafen" style="flex: 1; min-width: 150px;" oninput="updateCustomerNameDisplay()">
                         <select class="form-input" id="nameSuffix" style="width: 100px; flex-shrink: 0;" onchange="updateCustomerNameDisplay()">
                             <option value="e.V.">e.V.</option>
                             <option value="gGmbH">gGmbH</option>
@@ -1406,7 +1414,7 @@
                         </div>
                     </div>
                     <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px;">
-                        Vorschau: <strong id="customerNamePreview">KV Ludwigshafen e.V.</strong>
+                        Vorschau: <strong id="customerNamePreview">DRK Kreisverband Ludwigshafen e.V.</strong>
                     </p>
                 </div>
                 <div class="form-group">
@@ -2122,6 +2130,7 @@
         // Demo: Landesverband mit Kreisverbänden und Ortsvereinen
         let currentCustomer = {
             id: 1,
+            organisation: 'DRK',
             name: 'DRK Landesverband Rheinland-Pfalz',
             type: 'landesverband',
             contactPerson: 'Dr. Maria Schmidt',
@@ -2647,11 +2656,12 @@
 
         function renderCustomerData() {
             // Parse existing name into parts or use stored parts
+            const organisation = currentCustomer.organisation || 'DRK';
             let namePrefix = currentCustomer.namePrefix;
             if (!namePrefix) {
-                if (currentCustomer.type === 'landesverband') namePrefix = 'LV';
-                else if (currentCustomer.type === 'ortsverein') namePrefix = 'OV';
-                else namePrefix = 'KV';
+                if (currentCustomer.type === 'landesverband') namePrefix = 'Landesverband';
+                else if (currentCustomer.type === 'ortsverein') namePrefix = 'Ortsverein';
+                else namePrefix = 'Kreisverband';
             }
             const nameSuffix = currentCustomer.nameSuffix || 'e.V.';
             // Extract base name from full name if not already parsed
@@ -2659,11 +2669,13 @@
             if (!baseName && currentCustomer.name) {
                 // Try to extract base name from full name like "DRK Landesverband Rheinland-Pfalz"
                 baseName = currentCustomer.name
-                    .replace(/^(DRK\s+)?(Landesverband|Kreisverband|Ortsverein|LV|KV|OV)\s*/i, '')
+                    .replace(/^(DRK|ASB|JUH|MHD|DLRG)?\s*(Landesverband|Kreisverband|Ortsverein|LV|KV|OV)\s*/i, '')
                     .replace(/\s+(e\.V\.|gGmbH|GmbH)$/i, '')
                     .trim();
             }
 
+            const orgEl = document.getElementById('organisation');
+            if (orgEl) orgEl.value = organisation;
             document.getElementById('namePrefix').value = namePrefix;
             document.getElementById('name').value = baseName;
             document.getElementById('nameSuffix').value = nameSuffix;
@@ -2681,18 +2693,22 @@
         }
 
         function updateCustomerNameDisplay() {
+            const orgEl = document.getElementById('organisation');
             const prefixEl = document.getElementById('namePrefix');
             const nameEl = document.getElementById('name');
             const suffixEl = document.getElementById('nameSuffix');
 
             if (!prefixEl || !nameEl || !suffixEl) return;
 
+            const org = orgEl ? orgEl.value : 'DRK';
             const prefix = prefixEl.value;
             const baseName = nameEl.value;
             const suffix = suffixEl.value;
 
-            // Build full name
-            let fullName = prefix;
+            // Build full name (z.B. "DRK Kreisverband Ludwigshafen e.V.")
+            let fullName = '';
+            if (org) fullName += org + ' ';
+            fullName += prefix;
             if (baseName) {
                 fullName += ' ' + baseName;
             }
@@ -2702,7 +2718,7 @@
 
             // Update preview
             const previewEl = document.getElementById('customerNamePreview');
-            if (previewEl) previewEl.textContent = fullName || 'KV Beispiel e.V.';
+            if (previewEl) previewEl.textContent = fullName || 'DRK Kreisverband Beispiel e.V.';
 
             // Update header
             const headerEl = document.getElementById('customerName');
@@ -2718,8 +2734,8 @@
             // Sync type dropdown with prefix
             const typeEl = document.getElementById('type');
             if (typeEl) {
-                if (prefix === 'LV') typeEl.value = 'landesverband';
-                else if (prefix === 'OV') typeEl.value = 'ortsverein';
+                if (prefix === 'Landesverband') typeEl.value = 'landesverband';
+                else if (prefix === 'Ortsverein') typeEl.value = 'ortsverein';
                 else typeEl.value = 'kreisverband';
             }
         }
@@ -3774,7 +3790,10 @@
 
         async function saveCustomer() {
             // Collect data
+            const orgEl = document.getElementById('organisation');
+            const prefixEl = document.getElementById('namePrefix');
             const nameEl = document.getElementById('name');
+            const suffixEl = document.getElementById('nameSuffix');
             const typeEl = document.getElementById('type');
             const contactPersonEl = document.getElementById('contactPerson');
             const contactEmailEl = document.getElementById('contactEmail');
@@ -3783,7 +3802,17 @@
             const privacyEl = document.getElementById('customerPrivacyPolicy');
             const invoiceTypeEl = document.querySelector('input[name="invoiceType"]:checked');
 
-            currentCustomer.name = nameEl ? nameEl.value.trim() : '';
+            currentCustomer.organisation = orgEl ? orgEl.value : 'DRK';
+            currentCustomer.namePrefix = prefixEl ? prefixEl.value : 'Kreisverband';
+            currentCustomer.baseName = nameEl ? nameEl.value.trim() : '';
+            currentCustomer.nameSuffix = suffixEl ? suffixEl.value : 'e.V.';
+            // Build full name
+            let fullName = currentCustomer.organisation ? currentCustomer.organisation + ' ' : '';
+            fullName += currentCustomer.namePrefix;
+            if (currentCustomer.baseName) fullName += ' ' + currentCustomer.baseName;
+            if (currentCustomer.nameSuffix) fullName += ' ' + currentCustomer.nameSuffix;
+            currentCustomer.name = fullName.trim();
+
             currentCustomer.type = typeEl ? typeEl.value : 'kreisverband';
             currentCustomer.contactPerson = contactPersonEl ? contactPersonEl.value.trim() : '';
             currentCustomer.contactEmail = contactEmailEl ? contactEmailEl.value.trim() : '';
@@ -3792,7 +3821,7 @@
             currentCustomer.privacyPolicy = privacyEl ? privacyEl.value.trim() : '';
             currentCustomer.invoiceType = invoiceTypeEl ? invoiceTypeEl.value : 'combined';
 
-            if (!currentCustomer.name) {
+            if (!currentCustomer.baseName) {
                 await showAlert('Fehler', 'Bitte Kundennamen eingeben', 'warning');
                 return;
             }
