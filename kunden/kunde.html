@@ -1542,7 +1542,7 @@
             <div class="section-header">
                 <h2 class="section-title">Einsatzgebiete und Vereine</h2>
                 <div class="dropdown" id="addEinsatzgebietDropdown">
-                    <button class="btn btn-secondary btn-small" onclick="toggleAddEinsatzgebietDropdown()">
+                    <button class="btn btn-secondary btn-small" id="addEinsatzgebietBtn" onclick="toggleAddEinsatzgebietDropdown()">
                         <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
@@ -3330,11 +3330,69 @@
 
             const customerType = namePrefix.value;
 
+            // Bei OV-Kunde: Automatisch Einsatzgebiet aus Kundendaten anlegen
+            if (customerType === 'Ortsverein') {
+                createOrUpdateOvEinsatzgebiet();
+            }
+
             // Dropdown-Optionen aktualisieren
             updateEinsatzgebietDropdownOptions();
 
             // Einsatzgebiete neu rendern
             renderEinsatzgebiete();
+        }
+
+        // Erstellt oder aktualisiert das Einsatzgebiet für OV-Kunden automatisch aus Kundendaten
+        function createOrUpdateOvEinsatzgebiet() {
+            if (!currentCustomer.areas) {
+                currentCustomer.areas = [];
+            }
+
+            // Kundendaten auslesen
+            const kundenName = document.getElementById('name')?.value || '';
+            const kundenStreet = document.getElementById('street')?.value || '';
+            const kundenHouseNumber = document.getElementById('houseNumber')?.value || '';
+            const kundenZip = document.getElementById('zip')?.value || '';
+            const kundenCity = document.getElementById('city')?.value || '';
+            const kundenCountry = document.getElementById('country')?.value || '';
+            const kundenBundesland = document.getElementById('bundesland')?.value || '';
+            const kundenWebsite = document.getElementById('website')?.value || '';
+
+            const areaData = {
+                name: kundenName,
+                vereinstyp: 'OV',
+                vereinsname: kundenName,
+                rechtsform: 'e.V.',
+                street: kundenStreet,
+                houseNumber: kundenHouseNumber,
+                zip: kundenZip,
+                city: kundenCity,
+                country: kundenCountry,
+                bundesland: kundenBundesland,
+                website: kundenWebsite,
+                privacyPolicy: '',
+                kvZuordnung: null,
+                isKreisverbandsgebiet: false,
+                contactPersons: [],
+                einwohner: 0
+            };
+
+            if (currentCustomer.areas.length === 0) {
+                // Noch kein Einsatzgebiet - neu anlegen
+                currentCustomer.areas.push(areaData);
+            } else {
+                // Bestehendes Einsatzgebiet aktualisieren (nur Basisdaten, nicht Ansprechpartner etc.)
+                const existingArea = currentCustomer.areas[0];
+                existingArea.name = kundenName;
+                existingArea.vereinstyp = 'OV';
+                existingArea.street = kundenStreet;
+                existingArea.houseNumber = kundenHouseNumber;
+                existingArea.zip = kundenZip;
+                existingArea.city = kundenCity;
+                existingArea.country = kundenCountry;
+                existingArea.bundesland = kundenBundesland;
+                existingArea.website = kundenWebsite;
+            }
         }
 
         // Dropdown für Hinzufügen öffnen/schließen
@@ -3362,19 +3420,35 @@
             const namePrefix = document.getElementById('namePrefix');
             const addKvBtn = document.getElementById('addKreisverbandBtn');
             const addOvBtn = document.getElementById('addOrtsvereinBtn');
+            const dropdown = document.getElementById('addEinsatzgebietDropdown');
+            const mainBtn = document.getElementById('addEinsatzgebietBtn');
 
-            if (!namePrefix || !addKvBtn || !addOvBtn) return;
+            if (!namePrefix || !addKvBtn || !addOvBtn || !dropdown) return;
 
             const customerType = namePrefix.value;
 
             if (customerType === 'Landesverband') {
-                // LV: Beide Optionen verfügbar
+                // LV: Beide Optionen verfügbar, Dropdown sichtbar
+                dropdown.style.display = '';
+                if (mainBtn) mainBtn.disabled = false;
                 addKvBtn.disabled = false;
                 addOvBtn.disabled = false;
-            } else {
-                // KV oder OV: Nur OV hinzufügbar, KV ausgegraut
+            } else if (customerType === 'Kreisverband') {
+                // KV: Nur OV hinzufügbar, KV ausgegraut, Dropdown sichtbar
+                dropdown.style.display = '';
+                if (mainBtn) mainBtn.disabled = false;
                 addKvBtn.disabled = true;
                 addOvBtn.disabled = false;
+            } else if (customerType === 'Ortsverein') {
+                // OV: Einsatzgebiet wird automatisch angelegt - Haupt-Button komplett ausgegraut
+                dropdown.style.display = '';
+                if (mainBtn) mainBtn.disabled = true;
+                addKvBtn.disabled = true;
+                addOvBtn.disabled = true;
+            } else {
+                // Sonstiger Typ: Dropdown verstecken
+                dropdown.style.display = 'none';
+                if (mainBtn) mainBtn.disabled = false;
             }
         }
 
@@ -3399,6 +3473,35 @@
             if (noMessage) noMessage.style.display = 'none';
 
             let html = '';
+
+            // Sonderfall: Kunde ist Ortsverein (nur 1 Einsatzgebiet möglich, automatisch aus Kundendaten)
+            if (kundenTyp === 'Ortsverein') {
+                const area = { ...areas[0], originalIndex: 0 };
+
+                html = `
+                    <div class="ortsverein-list">
+                        <div class="ortsverein-item">
+                            <div class="ortsverein-info">
+                                <span class="ortsverein-name">${area.name || '(Name fehlt)'}</span>
+                                <span class="ortsverein-address">${area.street ? area.street + ' ' + (area.houseNumber || '') + ', ' : ''}${area.zip || ''} ${area.city || ''}</span>
+                            </div>
+                            <div class="ortsverein-actions">
+                                <button class="btn btn-secondary btn-small" onclick="editArea(0)" title="Bearbeiten">
+                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
+                        Basisdaten werden automatisch aus den Kundendaten übernommen.
+                    </p>
+                `;
+
+                container.innerHTML = html;
+                return;
+            }
 
             // Sonderfall: Kunde ist Kreisverband
             if (kundenTyp === 'Kreisverband') {
