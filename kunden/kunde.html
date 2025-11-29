@@ -2246,23 +2246,8 @@
 
             if (customerId) {
                 loadCustomerData(customerId);
-            } else {
-                // New customer
-                currentCustomer = {
-                    id: null,
-                    name: '',
-                    type: 'kreisverband',
-                    contactPerson: '',
-                    contactEmail: '',
-                    contactPhone: '',
-                    website: '',
-                    privacyPolicy: '',
-                    areas: [],
-                    invoiceType: 'combined',
-                    contracts: { avv: [], rahmenvertrag: [] },
-                    campaigns: []
-                };
             }
+            // Demo-Daten bleiben erhalten (in currentCustomer definiert)
 
             renderCustomerData();
             renderContactPersons();
@@ -2271,9 +2256,11 @@
             renderInvoices();
             renderCampaigns();
 
-            // Setup population calculator
-            document.getElementById('sondMembersPercent').addEventListener('input', calculateMembers);
-            document.getElementById('population').addEventListener('input', calculateMembers);
+            // Setup population calculator (nur wenn Elemente existieren)
+            const sondMembersPercentEl = document.getElementById('sondMembersPercent');
+            const populationEl = document.getElementById('population');
+            if (sondMembersPercentEl) sondMembersPercentEl.addEventListener('input', calculateMembers);
+            if (populationEl) populationEl.addEventListener('input', calculateMembers);
 
             // Setup profile tabs
             setupTabs();
