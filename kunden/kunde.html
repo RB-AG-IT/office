@@ -2240,6 +2240,8 @@
         // ================================================================
 
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('[DEBUG] DOMContentLoaded gestartet - Version 2');
+
             // Check if editing existing customer
             const urlParams = new URLSearchParams(window.location.search);
             const customerId = urlParams.get('id');
@@ -2249,12 +2251,41 @@
             }
             // Demo-Daten bleiben erhalten (in currentCustomer definiert)
 
-            renderCustomerData();
-            renderContactPersons();
-            renderAreas();
-            renderContracts();
-            renderInvoices();
-            renderCampaigns();
+            try {
+                console.log('[DEBUG] renderCustomerData...');
+                renderCustomerData();
+                console.log('[DEBUG] renderCustomerData OK');
+            } catch(e) { console.error('[DEBUG] renderCustomerData FEHLER:', e); }
+
+            try {
+                console.log('[DEBUG] renderContactPersons...');
+                renderContactPersons();
+                console.log('[DEBUG] renderContactPersons OK');
+            } catch(e) { console.error('[DEBUG] renderContactPersons FEHLER:', e); }
+
+            try {
+                console.log('[DEBUG] renderAreas...');
+                renderAreas();
+                console.log('[DEBUG] renderAreas OK');
+            } catch(e) { console.error('[DEBUG] renderAreas FEHLER:', e); }
+
+            try {
+                console.log('[DEBUG] renderContracts...');
+                renderContracts();
+                console.log('[DEBUG] renderContracts OK');
+            } catch(e) { console.error('[DEBUG] renderContracts FEHLER:', e); }
+
+            try {
+                console.log('[DEBUG] renderInvoices...');
+                renderInvoices();
+                console.log('[DEBUG] renderInvoices OK');
+            } catch(e) { console.error('[DEBUG] renderInvoices FEHLER:', e); }
+
+            try {
+                console.log('[DEBUG] renderCampaigns...');
+                renderCampaigns();
+                console.log('[DEBUG] renderCampaigns OK');
+            } catch(e) { console.error('[DEBUG] renderCampaigns FEHLER:', e); }
 
             // Setup population calculator (nur wenn Elemente existieren)
             const sondMembersPercentEl = document.getElementById('sondMembersPercent');
@@ -2263,7 +2294,9 @@
             if (populationEl) populationEl.addEventListener('input', calculateMembers);
 
             // Setup profile tabs
+            console.log('[DEBUG] setupTabs...');
             setupTabs();
+            console.log('[DEBUG] setupTabs OK - INIT KOMPLETT');
         });
 
         // ================================================================
