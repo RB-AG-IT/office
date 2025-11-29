@@ -1357,9 +1357,13 @@
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 
-        /* Confirm Modal */
+        /* Confirm Modal - höherer z-index damit es über anderen Modals erscheint */
+        .confirm-modal { z-index: 11000 !important; }
         .confirm-modal .modal-content { max-width: 420px; text-align: center; }
         .confirm-modal .modal-body { padding: var(--spacing-xl); }
+
+        /* Body scroll lock wenn Modal offen */
+        body.modal-open { overflow: hidden; }
         .confirm-icon { width: 56px; height: 56px; margin: 0 auto var(--spacing-lg); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .confirm-icon.warning { background: #fef3c7; color: #f59e0b; }
         .confirm-icon.error { background: #fee2e2; color: #ef4444; }
@@ -2091,6 +2095,19 @@
             }, 4000);
         }
 
+        // Hilfsfunktionen für Modal Scroll-Lock
+        function lockBodyScroll() {
+            document.body.classList.add('modal-open');
+        }
+
+        function unlockBodyScroll() {
+            // Nur entsperren wenn keine Modals mehr offen sind
+            const openModals = document.querySelectorAll('.modal.show');
+            if (openModals.length === 0) {
+                document.body.classList.remove('modal-open');
+            }
+        }
+
         function showConfirm(message, title = 'Bestätigung', type = 'warning') {
             return new Promise((resolve) => {
                 const modal = document.getElementById('confirmModal');
@@ -2107,10 +2124,11 @@
                 iconEl.innerHTML = icons[type] || icons.warning;
 
                 modal.classList.add('show');
+                lockBodyScroll();
                 const okBtn = document.getElementById('confirmOkBtn');
                 const cancelBtn = document.getElementById('confirmCancelBtn');
 
-                const cleanup = () => { modal.classList.remove('show'); okBtn.onclick = null; cancelBtn.onclick = null; };
+                const cleanup = () => { modal.classList.remove('show'); unlockBodyScroll(); okBtn.onclick = null; cancelBtn.onclick = null; };
                 okBtn.onclick = () => { cleanup(); resolve(true); };
                 cancelBtn.onclick = () => { cleanup(); resolve(false); };
                 modal.onclick = (e) => { if (e.target === modal) { cleanup(); resolve(false); } };
@@ -2913,10 +2931,12 @@
             document.getElementById('deleteConfirmWarning').style.display = 'none';
             document.getElementById('deleteConfirmBtn').textContent = 'Löschen';
             document.getElementById('deleteConfirmModal').classList.add('show');
+            lockBodyScroll();
         }
 
         function closeDeleteConfirmModal() {
             document.getElementById('deleteConfirmModal').classList.remove('show');
+            unlockBodyScroll();
             pendingDelete = null;
             deleteStep = 1;
         }
@@ -3210,6 +3230,7 @@
             // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
+            lockBodyScroll();
         }
 
         function openAddAreaModal(type = 'kreisverband') {
@@ -3301,6 +3322,7 @@
             // Modal öffnen
             switchAreaTab('stammdaten');
             document.getElementById('addAreaModal').classList.add('show');
+            lockBodyScroll();
             document.getElementById('newAreaName').focus();
         }
 
@@ -3797,6 +3819,7 @@
 
         function closeAddAreaModal() {
             document.getElementById('addAreaModal').classList.remove('show');
+            unlockBodyScroll();
             editingAreaIndex = null;
         }
 
@@ -4334,10 +4357,12 @@
             // Reset to first tab
             switchTab('allgemein');
             document.getElementById('campaignModal').classList.add('show');
+            lockBodyScroll();
         }
 
         function closeCampaignModal() {
             document.getElementById('campaignModal').classList.remove('show');
+            unlockBodyScroll();
             editingCampaignId = null;
         }
 
@@ -4553,6 +4578,7 @@
             modal.addEventListener('click', function(e) {
                 if (e.target === this) {
                     this.classList.remove('show');
+                    unlockBodyScroll();
                 }
             });
         });
