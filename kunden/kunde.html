@@ -1964,8 +1964,8 @@
     </div>
 
     <!-- Modal: Ortsverein hinzufügen/bearbeiten -->
-    <div class="modal" id="ortsvereinModal">
-        <div class="modal-content" style="max-width: 500px;">
+    <div class="modal modal-large" id="ortsvereinModal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
                 <h2 class="modal-title" id="ortsvereinModalTitle">Ortsverein hinzufügen</h2>
                 <button class="modal-close" onclick="closeOrtsvereinModal()">
@@ -1975,42 +1975,100 @@
                 </button>
             </div>
             <div class="modal-body">
+                <!-- Name & Einwohner -->
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-md);">
                     <div class="form-group">
-                        <label class="form-label">Ortsverein-Name *</label>
-                        <input type="text" class="form-input" id="ovName" placeholder="z.B. OV Ludwigshafen-Mitte">
+                        <label class="form-label">Name des Werbegebiets *</label>
+                        <input type="text" class="form-input" id="ovName" placeholder="z.B. Oggersheim-Ruchheim">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Einwohnerzahl</label>
-                        <input type="number" class="form-input" id="ovEinwohner" placeholder="z.B. 15000" min="0">
+                        <input type="number" class="form-input" id="ovEinwohner" placeholder="z.B. 45000" min="0">
                     </div>
                 </div>
+
+                <!-- Vereinsname -->
                 <div class="form-group">
-                    <label class="form-label">Straße</label>
-                    <input type="text" class="form-input" id="ovStreet" placeholder="Straße und Hausnummer">
+                    <label class="form-label">Vereinsname</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="padding: 8px 12px; background: var(--bg-secondary); border-radius: var(--radius-md); font-size: var(--font-size-sm); color: var(--text-secondary);">Ortsverein</span>
+                        <input type="text" class="form-input" id="ovVereinsname" placeholder="z.B. Ludwigshafen-Mitte" style="flex: 1;">
+                        <select class="form-input" id="ovRechtsform" style="width: auto; min-width: 100px;">
+                            <option value="e.V.">e.V.</option>
+                            <option value="gGmbH">gGmbH</option>
+                            <option value="GmbH">GmbH</option>
+                            <option value="">- keine -</option>
+                        </select>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-secondary);">z.B. OV Ludwigshafen-Mitte e.V.</span>
                 </div>
-                <div style="display: grid; grid-template-columns: 120px 1fr; gap: var(--spacing-md);">
+
+                <!-- Adresse -->
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                    Adresse des Ortsvereins
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Straße und Hausnummer</label>
+                    <div style="display: grid; grid-template-columns: 4fr 1fr; gap: var(--spacing-sm);">
+                        <div class="autocomplete-container">
+                            <input type="text" class="form-input" id="ovStreet" placeholder="Beginnen Sie zu tippen für Vorschläge...">
+                            <div class="autocomplete-results" id="ovStreetAutocomplete"></div>
+                        </div>
+                        <input type="text" class="form-input" id="ovHouseNumber" placeholder="Nr.">
+                    </div>
+                </div>
+                <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">PLZ</label>
-                        <input type="text" class="form-input" id="ovZip" placeholder="12345">
+                        <input type="text" class="form-input" id="ovZip" placeholder="67059" maxlength="5">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Ort</label>
-                        <input type="text" class="form-input" id="ovCity" placeholder="Stadt">
+                        <label class="form-label">Stadt</label>
+                        <input type="text" class="form-input" id="ovCity" placeholder="Ludwigshafen">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Land</label>
+                        <input type="text" class="form-input" id="ovCountry" placeholder="Wird automatisch ausgefüllt" readonly style="background: var(--bg-secondary); cursor: not-allowed;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bundesland</label>
+                        <input type="text" class="form-input" id="ovBundesland" placeholder="Wird automatisch ausgefüllt" readonly style="background: var(--bg-secondary); cursor: not-allowed;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Ansprechpartner</label>
-                    <input type="text" class="form-input" id="ovContact" placeholder="Vor- und Nachname">
+
+                <!-- Website & Datenschutz -->
+                <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                    Links (werden vom Kunden übernommen, falls leer)
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                    <div class="form-group">
+                        <label class="form-label">Website</label>
+                        <input type="url" class="form-input" id="ovWebsite" placeholder="https://www.ortsverein-example.de">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Datenschutzerklärung (Link)</label>
+                        <input type="url" class="form-input" id="ovPrivacyPolicy" placeholder="https://www.ortsverein-example.de/datenschutz">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">E-Mail</label>
-                    <input type="email" class="form-input" id="ovEmail" placeholder="email@example.de">
+
+                <!-- Ansprechpartner -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: var(--spacing-md) 0; padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                    <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin: 0;">
+                        Ansprechpartner (wird vom Kunden übernommen, falls leer)
+                    </p>
+                    <button type="button" class="btn btn-secondary btn-small" onclick="addOvContactPerson()">
+                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Hinzufügen
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Telefon</label>
-                    <input type="tel" class="form-input" id="ovPhone" placeholder="+49 123 456789">
+                <div id="ovContactPersonsContainer">
+                    <!-- Ansprechpartner werden hier dynamisch eingefügt -->
                 </div>
+                <p class="empty-hint" id="noOvContactsHint" style="font-size: var(--font-size-sm); color: var(--text-secondary); text-align: center; padding: var(--spacing-md); display: block;">
+                    Noch keine Ansprechpartner hinzugefügt
+                </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeOrtsvereinModal()">Abbrechen</button>
@@ -2998,6 +3056,125 @@
 
         let editingOrtsvereinKvIndex = null;
         let editingOrtsvereinOvIndex = null;
+        let ovContactPersons = [];
+
+        // Ansprechpartner-Funktionen für das Ortsverein-Modal
+        function addOvContactPerson() {
+            const newId = ovContactPersons.length > 0 ? Math.max(...ovContactPersons.map(c => c.id)) + 1 : 1;
+            ovContactPersons.push({
+                id: newId,
+                firstName: '',
+                lastName: '',
+                role: 'geschaeftsfuehrer',
+                customRole: '',
+                email: '',
+                phone: ''
+            });
+            renderOvContactPersons();
+        }
+
+        async function removeOvContactPerson(id) {
+            const confirmed = await showConfirm('Ansprechpartner entfernen', 'Möchten Sie diesen Ansprechpartner wirklich entfernen?', 'warning');
+            if (!confirmed) return;
+
+            ovContactPersons = ovContactPersons.filter(c => c.id !== id);
+            renderOvContactPersons();
+        }
+
+        function updateOvContactPerson(id, field, value) {
+            const contact = ovContactPersons.find(c => c.id === id);
+            if (contact) {
+                contact[field] = value;
+
+                // Bei Rolle "sonstige": Custom-Rolle Feld anzeigen/ausblenden
+                if (field === 'role') {
+                    const card = document.querySelector(`[data-ov-contact-id="${id}"]`);
+                    if (card) {
+                        const customRoleInput = card.querySelector('.sonstige-rolle-input');
+                        if (customRoleInput) {
+                            if (value === 'sonstige') {
+                                customRoleInput.classList.add('show');
+                            } else {
+                                customRoleInput.classList.remove('show');
+                                contact.customRole = '';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function renderOvContactPersons() {
+            const container = document.getElementById('ovContactPersonsContainer');
+            const emptyHint = document.getElementById('noOvContactsHint');
+
+            if (ovContactPersons.length === 0) {
+                container.innerHTML = '';
+                emptyHint.style.display = 'block';
+                return;
+            }
+
+            emptyHint.style.display = 'none';
+
+            container.innerHTML = ovContactPersons.map(contact => {
+                const roleLabel = contact.role === 'sonstige' && contact.customRole
+                    ? contact.customRole
+                    : CONTACT_ROLES[contact.role] || 'Unbekannt';
+                const showCustomRole = contact.role === 'sonstige';
+
+                return `
+                    <div class="contact-person-card" data-ov-contact-id="${contact.id}">
+                        <div class="contact-person-header">
+                            <span class="contact-person-role">${roleLabel}</span>
+                            <button class="contact-person-remove" onclick="removeOvContactPerson(${contact.id})" title="Ansprechpartner entfernen">
+                                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="contact-person-grid">
+                            <div class="form-group">
+                                <label class="form-label">Vorname</label>
+                                <input type="text" class="form-input" value="${contact.firstName}"
+                                    onchange="updateOvContactPerson(${contact.id}, 'firstName', this.value)"
+                                    placeholder="Vorname">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nachname</label>
+                                <input type="text" class="form-input" value="${contact.lastName}"
+                                    onchange="updateOvContactPerson(${contact.id}, 'lastName', this.value)"
+                                    placeholder="Nachname">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Rolle</label>
+                                <select class="form-input" onchange="updateOvContactPerson(${contact.id}, 'role', this.value)">
+                                    ${Object.entries(CONTACT_ROLES).map(([key, label]) =>
+                                        `<option value="${key}" ${contact.role === key ? 'selected' : ''}>${label}</option>`
+                                    ).join('')}
+                                </select>
+                                <div class="sonstige-rolle-input ${showCustomRole ? 'show' : ''}">
+                                    <input type="text" class="form-input" value="${contact.customRole || ''}"
+                                        onchange="updateOvContactPerson(${contact.id}, 'customRole', this.value)"
+                                        placeholder="Rolle beschreiben...">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">E-Mail</label>
+                                <input type="email" class="form-input" value="${contact.email}"
+                                    onchange="updateOvContactPerson(${contact.id}, 'email', this.value)"
+                                    placeholder="email@example.de">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Telefon</label>
+                                <input type="tel" class="form-input" value="${contact.phone}"
+                                    onchange="updateOvContactPerson(${contact.id}, 'phone', this.value)"
+                                    placeholder="+49 123 456789">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
         function openAddOrtsvereinModal(kvIndex) {
             editingOrtsvereinKvIndex = kvIndex;
@@ -3005,12 +3182,21 @@
 
             // Reset form
             document.getElementById('ovName').value = '';
+            document.getElementById('ovEinwohner').value = '';
+            document.getElementById('ovVereinsname').value = '';
+            document.getElementById('ovRechtsform').value = 'e.V.';
             document.getElementById('ovStreet').value = '';
+            document.getElementById('ovHouseNumber').value = '';
             document.getElementById('ovZip').value = '';
             document.getElementById('ovCity').value = '';
-            document.getElementById('ovContact').value = '';
-            document.getElementById('ovEmail').value = '';
-            document.getElementById('ovPhone').value = '';
+            document.getElementById('ovCountry').value = '';
+            document.getElementById('ovBundesland').value = '';
+            document.getElementById('ovWebsite').value = '';
+            document.getElementById('ovPrivacyPolicy').value = '';
+
+            // Ansprechpartner zurücksetzen
+            ovContactPersons = [];
+            renderOvContactPersons();
 
             document.getElementById('ortsvereinModalTitle').textContent = 'Ortsverein hinzufügen';
             document.getElementById('ortsvereinModal').classList.add('show');
@@ -3023,12 +3209,45 @@
             const ov = currentCustomer.areas[kvIndex].ortsvereine[ovIndex];
 
             document.getElementById('ovName').value = ov.name || '';
+            document.getElementById('ovEinwohner').value = ov.einwohner || '';
+            document.getElementById('ovVereinsname').value = ov.vereinsname || '';
+            document.getElementById('ovRechtsform').value = ov.rechtsform || 'e.V.';
             document.getElementById('ovStreet').value = ov.street || '';
+            document.getElementById('ovHouseNumber').value = ov.houseNumber || '';
             document.getElementById('ovZip').value = ov.zip || '';
             document.getElementById('ovCity').value = ov.city || '';
-            document.getElementById('ovContact').value = ov.contact || '';
-            document.getElementById('ovEmail').value = ov.email || '';
-            document.getElementById('ovPhone').value = ov.phone || '';
+            document.getElementById('ovCountry').value = ov.country || '';
+            document.getElementById('ovBundesland').value = ov.bundesland || '';
+            document.getElementById('ovWebsite').value = ov.website || '';
+            document.getElementById('ovPrivacyPolicy').value = ov.privacyPolicy || '';
+
+            // Ansprechpartner laden (Array-Format oder Legacy-Fallback)
+            if (ov.contactPersons && Array.isArray(ov.contactPersons)) {
+                ovContactPersons = ov.contactPersons.map((c, idx) => ({
+                    id: c.id || idx + 1,
+                    firstName: c.firstName || '',
+                    lastName: c.lastName || '',
+                    role: c.role || 'geschaeftsfuehrer',
+                    customRole: c.customRole || '',
+                    email: c.email || '',
+                    phone: c.phone || ''
+                }));
+            } else if (ov.contact) {
+                // Legacy-Format -> in Array konvertieren
+                const nameParts = (ov.contact || '').split(' ');
+                ovContactPersons = [{
+                    id: 1,
+                    firstName: nameParts[0] || '',
+                    lastName: nameParts.slice(1).join(' ') || '',
+                    role: 'geschaeftsfuehrer',
+                    customRole: '',
+                    email: ov.email || '',
+                    phone: ov.phone || ''
+                }];
+            } else {
+                ovContactPersons = [];
+            }
+            renderOvContactPersons();
 
             document.getElementById('ortsvereinModalTitle').textContent = 'Ortsverein bearbeiten';
             document.getElementById('ortsvereinModal').classList.add('show');
@@ -3049,12 +3268,31 @@
 
             const ortsverein = {
                 name: name,
+                einwohner: parseInt(document.getElementById('ovEinwohner').value) || 0,
+                vereinsname: document.getElementById('ovVereinsname').value.trim(),
+                rechtsform: document.getElementById('ovRechtsform').value,
                 street: document.getElementById('ovStreet').value.trim(),
+                houseNumber: document.getElementById('ovHouseNumber').value.trim(),
                 zip: document.getElementById('ovZip').value.trim(),
                 city: document.getElementById('ovCity').value.trim(),
-                contact: document.getElementById('ovContact').value.trim(),
-                email: document.getElementById('ovEmail').value.trim(),
-                phone: document.getElementById('ovPhone').value.trim()
+                country: document.getElementById('ovCountry').value.trim(),
+                bundesland: document.getElementById('ovBundesland').value.trim(),
+                website: document.getElementById('ovWebsite').value.trim(),
+                privacyPolicy: document.getElementById('ovPrivacyPolicy').value.trim(),
+                // Ansprechpartner als Array
+                contactPersons: ovContactPersons.map(c => ({
+                    id: c.id,
+                    firstName: c.firstName,
+                    lastName: c.lastName,
+                    role: c.role,
+                    customRole: c.customRole,
+                    email: c.email,
+                    phone: c.phone
+                })),
+                // Legacy-Kompatibilität
+                contact: ovContactPersons.length > 0 ? `${ovContactPersons[0].firstName} ${ovContactPersons[0].lastName}`.trim() : '',
+                email: ovContactPersons.length > 0 ? ovContactPersons[0].email : '',
+                phone: ovContactPersons.length > 0 ? ovContactPersons[0].phone : ''
             };
 
             // Sicherstellen dass ortsvereine Array existiert
