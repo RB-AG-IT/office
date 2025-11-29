@@ -3130,7 +3130,17 @@
 
             // Stammdaten laden
             document.getElementById('newAreaName').value = area.name;
-            document.getElementById('areaVereinstyp').value = area.vereinstyp || 'KV';
+
+            // Vereinstyp setzen und bei OV-Kunde deaktivieren
+            const vereinstypSelect = document.getElementById('areaVereinstyp');
+            const kundenTyp = document.getElementById('namePrefix')?.value || '';
+            if (kundenTyp === 'Ortsverein') {
+                vereinstypSelect.value = 'OV';
+                vereinstypSelect.disabled = true;
+            } else {
+                vereinstypSelect.value = area.vereinstyp || 'KV';
+                vereinstypSelect.disabled = false;
+            }
             document.getElementById('areaVereinsname').value = area.vereinsname || '';
             document.getElementById('areaRechtsform').value = area.rechtsform || 'e.V.';
             document.getElementById('areaStreet').value = area.street || '';
@@ -3254,10 +3264,17 @@
             document.getElementById('areaPrivacyPolicy').value = '';
             document.getElementById('areaEinwohner').value = '';
 
-            // Vereinstyp setzen
+            // Vereinstyp setzen und bei OV-Kunde deaktivieren
             const vereinstypSelect = document.getElementById('areaVereinstyp');
+            const kundenTyp = document.getElementById('namePrefix')?.value || '';
             if (vereinstypSelect) {
-                vereinstypSelect.value = type === 'ortsverein' ? 'OV' : 'KV';
+                if (kundenTyp === 'Ortsverein') {
+                    vereinstypSelect.value = 'OV';
+                    vereinstypSelect.disabled = true;
+                } else {
+                    vereinstypSelect.value = type === 'ortsverein' ? 'OV' : 'KV';
+                    vereinstypSelect.disabled = false;
+                }
             }
 
             // KV-Zuordnung zurücksetzen und anzeigen/verstecken
