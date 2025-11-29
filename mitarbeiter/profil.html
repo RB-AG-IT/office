@@ -977,6 +977,16 @@
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
+        .btn-save-role.confirm-required {
+            background: linear-gradient(135deg, var(--warning-color, #f59e0b) 0%, #d97706 100%);
+            animation: pulse-warning 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-warning {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+        }
+
         /* KW Overlap Warning */
         .kw-overlap-warning {
             animation: slideIn 0.3s ease;
@@ -2544,13 +2554,12 @@
                 <!-- Aktuelle Rolle -->
                 <div class="current-role-display">
                     <div class="current-role-header" style="display: flex; align-items: center; gap: var(--spacing-sm);">
-                        <div id="currentRoleMiniWappen" style="display: none;"></div>
                         <span class="current-role-label">Aktuelle Karrierestufe</span>
                         <span class="current-role-badge" id="currentRoleBadge">-</span>
+                        <div id="currentRoleMiniWappen" style="display: none;"></div>
                     </div>
                     <div class="current-role-info">
-                        <div class="role-info-item" style="display: flex; align-items: center; gap: 8px;">
-                            <div id="currentFaktorMiniWappen" style="display: none;"></div>
+                        <div class="role-info-item">
                             <span class="role-info-label">Faktor</span>
                             <span class="role-info-value" id="currentFaktor">-</span>
                         </div>
@@ -2950,7 +2959,6 @@
         // Aktualisiert das Mini-Badge neben "Aktuelle Karrierestufe"
         function updateCurrentRoleMiniWappen(roleKey) {
             const wappenContainer = document.getElementById('currentRoleMiniWappen');
-            const faktorWappenContainer = document.getElementById('currentFaktorMiniWappen');
 
             if (roleKey && CAREER_LEVELS[roleKey]) {
                 const miniBadgeHtml = generateMiniBadge(roleKey);
@@ -2958,18 +2966,10 @@
                     wappenContainer.innerHTML = miniBadgeHtml;
                     wappenContainer.style.display = 'block';
                 }
-                if (faktorWappenContainer) {
-                    faktorWappenContainer.innerHTML = miniBadgeHtml;
-                    faktorWappenContainer.style.display = 'block';
-                }
             } else {
                 if (wappenContainer) {
                     wappenContainer.innerHTML = '';
                     wappenContainer.style.display = 'none';
-                }
-                if (faktorWappenContainer) {
-                    faktorWappenContainer.innerHTML = '';
-                    faktorWappenContainer.style.display = 'none';
                 }
             }
         }
@@ -4366,6 +4366,9 @@
         // Rollen-Historie aus localStorage (für lokale Demo) oder Supabase
         let roleHistory = JSON.parse(localStorage.getItem('roleHistory') || '[]');
 
+        // Flag für doppelte Bestätigung bei KW-Überlappung
+        let overlapConfirmPending = false;
+
         // Prüfen ob Speicherbutton aktiviert werden soll
         function checkRoleCanBeSaved() {
             const roleSelect = document.getElementById('mainRole');
@@ -4423,6 +4426,30 @@
             } else {
                 warningEl.style.display = 'none';
             }
+
+            // Reset Bestätigungs-Flag wenn sich was ändert
+            resetOverlapConfirm();
+        }
+
+        // Reset der Überlappungs-Bestätigung
+        function resetOverlapConfirm() {
+            if (overlapConfirmPending) {
+                overlapConfirmPending = false;
+                const saveBtn = document.getElementById('saveRoleBtn');
+                const hint = document.getElementById('roleSaveHint');
+                if (saveBtn) {
+                    saveBtn.classList.remove('confirm-required');
+                    saveBtn.innerHTML = `
+                        <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Karrierestufe speichern
+                    `;
+                }
+                if (hint) {
+                    hint.textContent = '';
+                }
+            }
         }
 
         // KW in Datum umrechnen (Montag der KW)
@@ -4440,11 +4467,33 @@
             const customFactor = customFactorInput.value ? parseFloat(customFactorInput.value) : null;
             const saveBtn = document.getElementById('saveRoleBtn');
             const hint = document.getElementById('roleSaveHint');
+            const warningEl = document.getElementById('kwOverlapWarning');
 
             // Mindestens Rolle oder individueller Faktor muss ausgefüllt sein
             if (!roleSelect.value && !customFactor) return;
 
+            // Prüfe ob Überlappung vorhanden ist und ob Bestätigung noch aussteht
+            const hasOverlap = warningEl && warningEl.style.display !== 'none';
+
+            if (hasOverlap && !overlapConfirmPending) {
+                // Erste Klick bei Überlappung: Bestätigung anfordern
+                overlapConfirmPending = true;
+                saveBtn.classList.add('confirm-required');
+                saveBtn.innerHTML = `
+                    <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    Erneut klicken zum Bestätigen
+                `;
+                hint.innerHTML = '<span style="color: var(--warning-color);">Überlappung erkannt - nochmal klicken um zu bestätigen</span>';
+                return;
+            }
+
+            // Reset des Bestätigungs-Flags
+            overlapConfirmPending = false;
+
             saveBtn.disabled = true;
+            saveBtn.classList.remove('confirm-required');
             saveBtn.classList.add('saving');
             saveBtn.innerHTML = `
                 <svg style="width: 16px; height: 16px; margin-right: 6px; animation: spin 1s linear infinite;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4578,13 +4627,15 @@
                 return `
                     <div class="role-history-item ${isFirst ? 'current' : 'inactive'}" ${entry.customFactor ? 'style="border-left-color: #FF6B6B;"' : ''}>
                         <div class="role-history-header" style="display: flex; align-items: center; gap: 10px;">
-                            ${miniBadgeHtml}
-                            <div style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
                                 <span class="role-history-name">${displayName}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${miniBadgeHtml}
                                 <span class="role-history-duration-badge" ${entry.customFactor ? 'style="background: #FF6B6B; color: white;"' : ''}>Faktor ${displayFactor}</span>
                             </div>
                         </div>
-                        <div class="role-history-dates" style="margin-left: ${miniBadgeHtml ? '42px' : '0'};">KW ${entry.fromKw}/${entry.fromYear} - ${toText}</div>
+                        <div class="role-history-dates">KW ${entry.fromKw}/${entry.fromYear} - ${toText}</div>
                     </div>
                 `;
             }).join('');
