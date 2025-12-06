@@ -987,12 +987,21 @@
             const filtersLeft = document.getElementById('shellFiltersLeft');
             if (config.periodFilter) {
                 filtersLeft.style.display = 'flex';
+                const selectedOpt = config.periodFilter.find(opt => opt.selected) || config.periodFilter[0];
                 filtersLeft.innerHTML = `
-                    <select class="toolbar-filter" id="shellPeriodFilter" onchange="handleShellPeriodChange()">
-                        ${config.periodFilter.map(opt =>
-                            `<option value="${opt.value}"${opt.selected ? ' selected' : ''}>${opt.label}</option>`
-                        ).join('')}
-                    </select>
+                    <div class="toolbar-nav-dropdown toolbar-nav-click" id="shellPeriodDropdown">
+                        <div class="toolbar-nav-trigger" onclick="toggleShellPeriodDropdown()">
+                            <span id="shellPeriodDropdownText">${selectedOpt.label}</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="toolbar-nav-menu">
+                            ${config.periodFilter.map(opt =>
+                                `<div class="toolbar-nav-option${opt.selected ? ' active' : ''}" data-value="${opt.value}" onclick="selectShellPeriod('${opt.value}', '${opt.label}')">${opt.label}</div>`
+                            ).join('')}
+                        </div>
+                    </div>
                 `;
             } else {
                 filtersLeft.style.display = 'none';
@@ -1029,9 +1038,38 @@
             }
         }
 
-        function handleShellPeriodChange() {
-            const select = document.getElementById('shellPeriodFilter');
-            const value = select.value;
+        // Shell Period Dropdown Toggle (Click-based)
+        function toggleShellPeriodDropdown() {
+            const dropdown = document.getElementById('shellPeriodDropdown');
+            if (dropdown) dropdown.classList.toggle('open');
+        }
+
+        // Shell Period Dropdown - Option auswählen
+        function selectShellPeriod(value, label) {
+            const dropdown = document.getElementById('shellPeriodDropdown');
+            const textEl = document.getElementById('shellPeriodDropdownText');
+
+            // Slide-Up Animation
+            textEl.style.transform = 'translateY(-100%)';
+            textEl.style.opacity = '0';
+
+            setTimeout(() => {
+                textEl.style.transition = 'none';
+                textEl.textContent = label;
+                textEl.style.transform = 'translateY(100%)';
+                textEl.offsetHeight;
+                textEl.style.transition = '';
+                textEl.style.transform = 'translateY(0)';
+                textEl.style.opacity = '1';
+            }, 150);
+
+            // Update active state
+            document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.value === value);
+            });
+
+            // Close dropdown
+            dropdown.classList.remove('open');
 
             // Send message to iframe
             const iframe = document.querySelector('#content-container iframe');
@@ -1045,27 +1083,33 @@
                     iframe.contentWindow.postMessage({ type: 'openDateRangeModal' }, '*');
                 }
             }
-
-            // Reset to "Individuell" text if switching away from custom
-            if (value !== 'custom') {
-                const customOption = select.querySelector('option[value="custom"]');
-                if (customOption) {
-                    customOption.textContent = 'Individuell';
-                }
-            }
         }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('shellPeriodDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
 
         // Listen for messages from iframe
         window.addEventListener('message', function(e) {
             // Update shell period filter text when custom date range is applied
             if (e.data && e.data.type === 'customDateRangeApplied') {
-                const select = document.getElementById('shellPeriodFilter');
-                if (select) {
-                    const customOption = select.querySelector('option[value="custom"]');
-                    if (customOption) {
-                        customOption.textContent = e.data.dateRangeText;
-                    }
+                const textEl = document.getElementById('shellPeriodDropdownText');
+                if (textEl) {
+                    textEl.textContent = e.data.dateRangeText;
                 }
+                // Also update the dropdown option text
+                const customOption = document.querySelector('#shellPeriodDropdown .toolbar-nav-option[data-value="custom"]');
+                if (customOption) {
+                    customOption.textContent = e.data.dateRangeText;
+                }
+                // Update active state
+                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === 'custom');
+                });
             }
         });
 
