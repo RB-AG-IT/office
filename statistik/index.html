@@ -15,34 +15,40 @@
         }
 
         .page-container {
+            padding: 0;
+        }
+
+        .content-area {
             padding: var(--spacing-lg);
             max-width: 1800px;
             margin: 0 auto;
         }
 
-        .page-header {
+        /* Custom Date Range */
+        .custom-date-range {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: var(--spacing-lg);
+            gap: 8px;
         }
 
-        .page-title {
-            font-size: 22px;
-            font-weight: 600;
+        .custom-date-range input[type="date"] {
+            height: 36px;
+            padding: 0 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            background: var(--bg-secondary);
             color: var(--text-primary);
         }
 
-        /* Filter Bar */
+        .custom-date-range input[type="date"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        /* Legacy Filter Bar (not used anymore) */
         .filter-bar {
-            background: var(--bg-primary);
-            border-radius: 10px;
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-sm);
-            align-items: center;
+            display: none;
         }
 
         .filter-group {
@@ -405,92 +411,61 @@
 </head>
 <body>
     <div class="page-container">
-        <!-- Header Actions -->
-        <div class="page-header" style="justify-content: flex-end;">
-            <button class="btn btn-secondary btn-sm" onclick="exportStats()">
-                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                Export
-            </button>
-        </div>
-
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-            <div class="filter-group">
-                <label>Zeitraum</label>
-                <select id="filterPeriod" onchange="applyFilters()">
+        <!-- Action Toolbar -->
+        <div class="action-toolbar">
+            <div class="toolbar-left">
+                <div class="toolbar-tabs">
+                    <button class="toolbar-tab active" data-category="werber">Werber</button>
+                    <button class="toolbar-tab" data-category="kunden">Kunden / Gebiete</button>
+                    <button class="toolbar-tab" data-category="kampagnen">Kampagnen</button>
+                </div>
+            </div>
+            <div class="toolbar-center">
+                <!-- Zeitraum Dropdown -->
+                <select class="toolbar-filter" id="filterPeriod" onchange="applyFilters()">
+                    <option value="custom">Individuell</option>
                     <option value="week">Diese Woche</option>
                     <option value="month" selected>Dieser Monat</option>
                     <option value="quarter">Dieses Quartal</option>
                     <option value="year">Dieses Jahr</option>
                     <option value="all">Gesamt</option>
                 </select>
-            </div>
-            <div class="filter-group">
-                <label>Kampagne</label>
-                <select id="filterCampaign" onchange="applyFilters()">
-                    <option value="">Alle Kampagnen</option>
-                    <option value="1">Frühjahrskampagne 2024</option>
-                    <option value="2">Sommerkampagne 2024</option>
-                    <option value="3">Herbstkampagne 2024</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Kunde</label>
-                <select id="filterCustomer" onchange="applyFilters()">
-                    <option value="">Alle Kunden</option>
-                    <option value="1">DRK KV Ludwigshafen</option>
-                    <option value="2">DRK KV Mannheim</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Werbegebiet</label>
-                <select id="filterArea" onchange="applyFilters()">
-                    <option value="">Alle Gebiete</option>
-                    <option value="1">Ludwigshafen-Mitte</option>
-                    <option value="2">Ludwigshafen-Süd</option>
-                </select>
-            </div>
-            <div class="filter-divider"></div>
-            <div class="filter-group">
-                <label>Teamchef</label>
-                <select id="filterTeamchef" onchange="applyFilters()">
-                    <option value="">Alle Teamchefs</option>
-                    <option value="1">Michael Wagner</option>
-                    <option value="2">Sandra Hoffmann</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Werber</label>
-                <select id="filterWerber" onchange="applyFilters()">
+
+                <!-- Individuelle Zeitraum-Eingabe (versteckt, wenn nicht "Individuell" ausgewählt) -->
+                <div class="custom-date-range" id="customDateRange" style="display: none;">
+                    <input type="date" class="toolbar-filter" id="dateFrom" style="width: 130px;">
+                    <span style="color: var(--text-secondary); font-size: 12px;">bis</span>
+                    <input type="date" class="toolbar-filter" id="dateTo" style="width: 130px;">
+                </div>
+
+                <!-- Suchfeld -->
+                <div class="toolbar-search">
+                    <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" class="toolbar-search-input" id="searchInput" placeholder="Suchen...">
+                </div>
+
+                <!-- Kontextabhängiges Filter-Dropdown -->
+                <select class="toolbar-filter" id="contextFilter" onchange="applyFilters()">
+                    <!-- Wird dynamisch befüllt je nach Tab -->
                     <option value="">Alle Werber</option>
-                    <option value="1">Anna Schmidt</option>
-                    <option value="2">Max Müller</option>
+                    <option value="werber">Werber</option>
+                    <option value="teamleiter">Teamleiter</option>
+                    <option value="quality">Quality</option>
                 </select>
+            </div>
+            <div class="toolbar-right">
+                <button class="toolbar-btn toolbar-btn-primary" onclick="exportStats()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Export</span>
+                </button>
             </div>
         </div>
 
-        <!-- Category Tabs -->
-        <div class="category-tabs">
-            <button class="category-tab active" onclick="showCategory('werber')">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                Werber
-            </button>
-            <button class="category-tab" onclick="showCategory('teamleiter')">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-                Teamleiter
-            </button>
-            <button class="category-tab" onclick="showCategory('kunden')">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                Kunden / Gebiete
-            </button>
-            <button class="category-tab" onclick="showCategory('kampagnen')">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                Kampagnen
-            </button>
-        </div>
-
+        <div class="content-area">
         <!-- WERBER SECTION -->
         <div id="section-werber" class="category-section">
             <div class="section">
@@ -880,194 +855,6 @@
                                 <td class="right value-money">275 €</td>
                                 <td class="right value-money">4.403 €</td>
                                 <td class="right value-money value-highlight">1.380 €</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TEAMLEITER SECTION -->
-        <div id="section-teamleiter" class="category-section" style="display: none;">
-            <div class="section">
-                <div class="section-header">
-                    <div class="section-title">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-                        Teamleiter-Provisionen & Statistiken
-                        <span class="section-badge">2 TCs</span>
-                    </div>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th>Teamleiter</th>
-                                <th class="right">Team</th>
-                                <th class="right">Brutto MG</th>
-                                <th class="right">Storno</th>
-                                <th class="right">Netto MG</th>
-                                <th class="right">Team-JE</th>
-                                <th class="right">Team-EH</th>
-                                <th class="right">TC-Provision</th>
-                                <th class="right">TC-Rücklage</th>
-                                <th class="right">TC-Vorschuss</th>
-                                <th class="right">Ausgezahlt</th>
-                                <th class="right">Offen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">MW</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Michael Wagner</div>
-                                            <div class="name-sub">Senior TC</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right">3 Werber</td>
-                                <td class="right">98</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot medium"></span>
-                                        <span>11 (11,2%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">87</td>
-                                <td class="right value-money">12.960 €</td>
-                                <td class="right">1.080</td>
-                                <td class="right value-money value-positive">1.080 €</td>
-                                <td class="right">
-                                    <span class="mini-badge open">216 € offen</span>
-                                </td>
-                                <td class="right">
-                                    <span class="value-warning">400 € offen</span>
-                                </td>
-                                <td class="right value-money">464 €</td>
-                                <td class="right value-money value-highlight">616 €</td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="12">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">TC-Provision/EH</span>
-                                            <span class="detail-value">1,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">TC-Rücklage %</span>
-                                            <span class="detail-value">20%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage gesamt</span>
-                                            <span class="detail-value">648 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage ausgezahlt</span>
-                                            <span class="detail-value">432 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø MG/Werber</span>
-                                            <span class="detail-value">32,7</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø JE/Werber</span>
-                                            <span class="detail-value">4.320 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø Storno Team</span>
-                                            <span class="detail-value">11,2%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Bester Werber</span>
-                                            <span class="detail-value">Anna Schmidt</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">SH</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Sandra Hoffmann</div>
-                                            <div class="name-sub">TC</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right">2 Werber</td>
-                                <td class="right">83</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot low"></span>
-                                        <span>7 (8,4%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">76</td>
-                                <td class="right value-money">8.880 €</td>
-                                <td class="right">740</td>
-                                <td class="right value-money value-positive">740 €</td>
-                                <td class="right">
-                                    <span class="mini-badge paid">0 € offen</span>
-                                </td>
-                                <td class="right value-muted">0 €</td>
-                                <td class="right value-money">592 €</td>
-                                <td class="right value-money value-highlight">148 €</td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="12">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">TC-Provision/EH</span>
-                                            <span class="detail-value">1,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">TC-Rücklage %</span>
-                                            <span class="detail-value">20%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage gesamt</span>
-                                            <span class="detail-value">444 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage ausgezahlt</span>
-                                            <span class="detail-value">444 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø MG/Werber</span>
-                                            <span class="detail-value">41,5</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø JE/Werber</span>
-                                            <span class="detail-value">4.440 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø Storno Team</span>
-                                            <span class="detail-value">8,4%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Bester Werber</span>
-                                            <span class="detail-value">Lisa Bauer</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td><strong>Gesamt</strong></td>
-                                <td class="right">5 Werber</td>
-                                <td class="right">181</td>
-                                <td class="right">18 (9,9%)</td>
-                                <td class="right value-highlight">163</td>
-                                <td class="right value-money">21.840 €</td>
-                                <td class="right">1.820</td>
-                                <td class="right value-money value-positive">1.820 €</td>
-                                <td class="right">216 € offen</td>
-                                <td class="right">400 € offen</td>
-                                <td class="right value-money">1.056 €</td>
-                                <td class="right value-money value-highlight">764 €</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -1605,19 +1392,80 @@
             </div>
         </div>
 
-    </div>
+        </div><!-- Ende content-area -->
+    </div><!-- Ende page-container -->
 
     <script>
+        // Aktueller Tab
+        let currentCategory = 'werber';
+
+        // Filter-Optionen je nach Tab
+        const filterOptions = {
+            werber: [
+                { value: '', label: 'Alle Werber' },
+                { value: 'werber', label: 'Werber' },
+                { value: 'teamleiter', label: 'Teamleiter' },
+                { value: 'quality', label: 'Quality' }
+            ],
+            kunden: [
+                { value: '', label: 'Alle' },
+                { value: 'kunden', label: 'Kunden' },
+                { value: 'werbegebiete', label: 'Werbegebiete' }
+            ],
+            kampagnen: [
+                { value: '', label: 'Alle Kampagnen' }
+            ]
+        };
+
         // Category tabs
         function showCategory(category) {
+            currentCategory = category;
+
             // Update tabs
-            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-            event.target.closest('.category-tab').classList.add('active');
+            document.querySelectorAll('.toolbar-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.toolbar-tab[data-category="${category}"]`).classList.add('active');
 
             // Show/hide sections
             document.querySelectorAll('.category-section').forEach(s => s.style.display = 'none');
             document.getElementById('section-' + category).style.display = 'block';
+
+            // Update context filter dropdown
+            updateContextFilter(category);
         }
+
+        // Context Filter aktualisieren
+        function updateContextFilter(category) {
+            const contextFilter = document.getElementById('contextFilter');
+            const options = filterOptions[category] || [];
+
+            contextFilter.innerHTML = options.map(opt =>
+                `<option value="${opt.value}">${opt.label}</option>`
+            ).join('');
+        }
+
+        // Tab-Klicks initialisieren
+        document.querySelectorAll('.toolbar-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const category = this.dataset.category;
+                showCategory(category);
+            });
+        });
+
+        // Zeitraum-Dropdown: Individuell zeigen/verstecken
+        document.getElementById('filterPeriod').addEventListener('change', function() {
+            const customDateRange = document.getElementById('customDateRange');
+            if (this.value === 'custom') {
+                customDateRange.style.display = 'flex';
+            } else {
+                customDateRange.style.display = 'none';
+            }
+            applyFilters();
+        });
+
+        // Suche
+        document.getElementById('searchInput').addEventListener('input', function() {
+            applyFilters();
+        });
 
         // Toggle detail row
         function toggleDetail(row) {
@@ -1630,7 +1478,11 @@
 
         // Filter function
         function applyFilters() {
-            console.log('Applying filters...');
+            const period = document.getElementById('filterPeriod').value;
+            const search = document.getElementById('searchInput').value;
+            const contextFilter = document.getElementById('contextFilter').value;
+
+            console.log('Applying filters:', { period, search, contextFilter, category: currentCategory });
             // In real app: reload data based on filters
         }
 
@@ -1638,6 +1490,9 @@
         async function exportStats() {
             await showAlert('Export', 'Statistik wird als PDF exportiert...', 'info');
         }
+
+        // Initial: Context Filter befüllen
+        updateContextFilter('werber');
     </script>
 </body>
 </html>
