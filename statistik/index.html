@@ -1856,12 +1856,23 @@
             customDateFrom = dateFrom;
             customDateTo = dateTo;
 
-            // Update option text with date range
-            const customOption = document.querySelector('#filterPeriod option[value="custom"]');
+            // Format date range for display
             const fromDate = new Date(dateFrom);
             const toDate = new Date(dateTo);
-            const formatDate = (d) => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
-            customOption.textContent = `${formatDate(fromDate)} - ${formatDate(toDate)}`;
+            const formatDate = (d) => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            const dateRangeText = `${formatDate(fromDate)} - ${formatDate(toDate)}`;
+
+            // Update option text with date range (for standalone page)
+            const customOption = document.querySelector('#filterPeriod option[value="custom"]');
+            customOption.textContent = dateRangeText;
+
+            // Send message to parent shell to update its dropdown
+            if (window.self !== window.top) {
+                window.parent.postMessage({
+                    type: 'customDateRangeApplied',
+                    dateRangeText: dateRangeText
+                }, '*');
+            }
 
             previousPeriodValue = 'custom';
             closeDateRangeModal();
