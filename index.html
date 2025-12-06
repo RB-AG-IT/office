@@ -1045,7 +1045,29 @@
                     iframe.contentWindow.postMessage({ type: 'openDateRangeModal' }, '*');
                 }
             }
+
+            // Reset to "Individuell" text if switching away from custom
+            if (value !== 'custom') {
+                const customOption = select.querySelector('option[value="custom"]');
+                if (customOption) {
+                    customOption.textContent = 'Individuell';
+                }
+            }
         }
+
+        // Listen for messages from iframe
+        window.addEventListener('message', function(e) {
+            // Update shell period filter text when custom date range is applied
+            if (e.data && e.data.type === 'customDateRangeApplied') {
+                const select = document.getElementById('shellPeriodFilter');
+                if (select) {
+                    const customOption = select.querySelector('option[value="custom"]');
+                    if (customOption) {
+                        customOption.textContent = e.data.dateRangeText;
+                    }
+                }
+            }
+        });
 
         function loadPage(page) {
             const container = document.getElementById('content-container');
