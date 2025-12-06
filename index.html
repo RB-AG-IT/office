@@ -524,6 +524,11 @@
                 </div>
             </div>
 
+            <!-- Zeitraum Filter - links von Searchbar -->
+            <div class="toolbar-filters-left" id="shellFiltersLeft" style="display: none;">
+                <!-- Wird dynamisch befüllt -->
+            </div>
+
             <!-- Center: Searchbar (absolut zentriert) -->
             <div class="toolbar-search">
                 <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -532,7 +537,7 @@
                 <input type="search" class="toolbar-search-input" id="shellSearchInput" name="site-search" placeholder="Suchen..." autocomplete="off">
             </div>
 
-            <!-- Flexible: Filter Dropdowns -->
+            <!-- Kontext Filter - rechts von Searchbar -->
             <div class="toolbar-filters" id="shellFilters">
                 <!-- Wird dynamisch befüllt -->
             </div>
@@ -898,6 +903,15 @@
                     { value: 'kunden', label: 'Kunden / Gebiete' },
                     { value: 'kampagnen', label: 'Kampagnen' }
                 ],
+                periodFilter: [
+                    { value: 'custom', label: 'Individuell' },
+                    { value: 'today', label: 'Heute' },
+                    { value: 'week', label: 'Diese Woche' },
+                    { value: 'month', label: 'Dieser Monat', selected: true },
+                    { value: 'quarter', label: 'Dieses Quartal' },
+                    { value: 'year', label: 'Dieses Jahr' },
+                    { value: 'all', label: 'Gesamt' }
+                ],
                 searchPlaceholder: 'Statistik suchen...',
                 actionBtn: { text: 'Export', icon: 'download' }
             }
@@ -968,6 +982,22 @@
             } else {
                 actionBtn.style.display = 'none';
             }
+
+            // Update Period Filter (links von Searchbar)
+            const filtersLeft = document.getElementById('shellFiltersLeft');
+            if (config.periodFilter) {
+                filtersLeft.style.display = 'flex';
+                filtersLeft.innerHTML = `
+                    <select class="toolbar-filter" id="shellPeriodFilter" onchange="handleShellPeriodChange()">
+                        ${config.periodFilter.map(opt =>
+                            `<option value="${opt.value}"${opt.selected ? ' selected' : ''}>${opt.label}</option>`
+                        ).join('')}
+                    </select>
+                `;
+            } else {
+                filtersLeft.style.display = 'none';
+                filtersLeft.innerHTML = '';
+            }
         }
 
         function selectShellNavOption(value, label) {
@@ -996,6 +1026,24 @@
             const iframe = document.querySelector('#content-container iframe');
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({ type: 'navFilter', value: value }, '*');
+            }
+        }
+
+        function handleShellPeriodChange() {
+            const select = document.getElementById('shellPeriodFilter');
+            const value = select.value;
+
+            // Send message to iframe
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'periodFilter', value: value }, '*');
+            }
+
+            // Handle "Individuell" - open date picker modal in iframe
+            if (value === 'custom') {
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'openDateRangeModal' }, '*');
+                }
             }
         }
 
