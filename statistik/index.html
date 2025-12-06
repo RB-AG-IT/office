@@ -223,8 +223,14 @@
             text-align: center;
         }
 
+        .calendar-today-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+
         .calendar-today-btn {
-            padding: 4px 12px;
+            padding: 4px 16px;
             font-size: 12px;
             font-weight: 500;
             border: 1px solid var(--border-color);
@@ -1527,8 +1533,8 @@
     </div><!-- Ende page-container -->
 
     <!-- Custom Date Range Modal -->
-    <div class="date-range-modal" id="dateRangeModal" onclick="if(event.target === this) closeDateRangeModal()">
-        <div class="date-range-modal-content">
+    <div class="date-range-modal" id="dateRangeModal" onmousedown="if(event.target === this) closeDateRangeModal()">
+        <div class="date-range-modal-content" onmousedown="event.stopPropagation()">
             <div class="date-range-modal-header">
                 <h3>Individueller Zeitraum</h3>
                 <button class="date-range-modal-close" onclick="closeDateRangeModal()">
@@ -1561,7 +1567,7 @@
                             </svg>
                         </button>
 
-                        <!-- Year Selector -->
+                        <!-- Year Selector (centered) -->
                         <div class="calendar-year-selector">
                             <button type="button" class="calendar-year-btn" onclick="changeCalendarYear(-1)" title="Vorheriges Jahr">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1576,15 +1582,17 @@
                             </button>
                         </div>
 
-                        <!-- Today Button -->
-                        <button type="button" class="calendar-today-btn" onclick="goToToday()" title="Zum aktuellen Monat">Heute</button>
-
                         <!-- Right Arrow (next months) -->
                         <button type="button" class="calendar-nav-btn" onclick="navigateCalendar(3)" title="3 Monate vor">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
                         </button>
+                    </div>
+
+                    <!-- Today Button (centered, own row) -->
+                    <div class="calendar-today-row">
+                        <button type="button" class="calendar-today-btn" onclick="goToToday()" title="Zum aktuellen Monat">Heute</button>
                     </div>
 
                     <!-- Months Grid -->
