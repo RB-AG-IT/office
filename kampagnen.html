@@ -5061,24 +5061,42 @@
     </div>
 </div>
 
-<!-- Action Bar -->
-<div style="margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center;">
-    <div style="display: flex; gap: var(--spacing-md);">
-        <select id="statusFilter" class="form-input" style="min-width: 140px; width: auto;">
-            <option value="">Alle Status</option>
-            <option value="active">Aktiv</option>
-            <option value="planned">Geplant</option>
-            <option value="inactive">Inaktiv</option>
+<!-- Action Toolbar -->
+<div class="action-toolbar">
+    <div class="toolbar-left">
+        <div class="toolbar-tabs">
+            <button class="toolbar-tab active" data-filter="">Alle</button>
+            <button class="toolbar-tab" data-filter="active">Aktiv</button>
+            <button class="toolbar-tab" data-filter="planned">Geplant</button>
+            <button class="toolbar-tab" data-filter="inactive">Inaktiv</button>
+        </div>
+    </div>
+    <div class="toolbar-center">
+        <div class="toolbar-search">
+            <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" class="toolbar-search-input" id="searchInput" placeholder="Kampagne suchen...">
+        </div>
+
+        <select class="toolbar-filter" id="statusFilter" onchange="renderCampaigns()">
+            <option value="">Alle Kampagnen</option>
+            <option value="active">Aktive</option>
+            <option value="planned">Geplante</option>
+            <option value="inactive">Inaktive</option>
         </select>
     </div>
-
-    <button class="btn btn-primary" onclick="openCampaignModal()">
-        <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Neue Kampagne
-    </button>
+    <div class="toolbar-right">
+        <button class="toolbar-btn toolbar-btn-primary" onclick="openCampaignModal()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>Neue Kampagne</span>
+        </button>
+    </div>
 </div>
+
+<div class="content-area">
 
 <!-- Campaign Grid -->
 <div class="campaign-grid" id="campaignGrid">
@@ -5093,6 +5111,8 @@
     <h3>Keine Kampagnen gefunden</h3>
     <p class="text-secondary text-sm">Erstellen Sie Ihre erste Kampagne</p>
 </div>
+
+</div><!-- Ende content-area -->
 
 <script>
 // ============================================
@@ -5444,13 +5464,23 @@ function renderCampaigns() {
     const grid = document.getElementById('campaignGrid');
     const emptyState = document.getElementById('emptyState');
     const statusFilter = document.getElementById('statusFilter').value;
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
     let filteredCampaigns = campaigns;
 
+    // Status-Filter
     if (statusFilter) {
-        filteredCampaigns = campaigns.filter(c => {
+        filteredCampaigns = filteredCampaigns.filter(c => {
             const status = getCampaignStatus(c.kwFrom, c.kwTo);
             return status === statusFilter;
+        });
+    }
+
+    // Such-Filter
+    if (searchTerm) {
+        filteredCampaigns = filteredCampaigns.filter(c => {
+            return c.name.toLowerCase().includes(searchTerm);
         });
     }
 
@@ -9258,6 +9288,31 @@ function calculateSondMembers(index) {
     const calculated = Math.floor(population * (percent / 100));
     document.getElementById(`eg-calculated-members-${index}`).textContent = calculated;
 }
+
+// ============================================
+// TOOLBAR EVENT HANDLERS
+// ============================================
+
+// Tab-Klicks für Status-Filter
+document.querySelectorAll('.toolbar-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        // Aktiven Tab aktualisieren
+        document.querySelectorAll('.toolbar-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+
+        // Status-Filter-Dropdown synchronisieren
+        const filterValue = this.dataset.filter;
+        document.getElementById('statusFilter').value = filterValue;
+
+        // Kampagnen neu rendern
+        renderCampaigns();
+    });
+});
+
+// Such-Input Event
+document.getElementById('searchInput').addEventListener('input', function() {
+    renderCampaigns();
+});
 
 // Initial render
 renderCampaigns();
