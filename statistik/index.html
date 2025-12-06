@@ -143,52 +143,90 @@
             background: var(--bg-primary);
         }
 
-        /* Calendar Toggle Button */
-        .calendar-toggle-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            height: 44px;
-            padding: 0 16px;
-            border: 1px dashed var(--border-color);
-            border-radius: var(--radius-md);
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .calendar-toggle-btn:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-            background: var(--bg-hover);
-        }
-
-        .calendar-toggle-btn.active {
-            border-style: solid;
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
-        .calendar-toggle-btn svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Calendar Container */
+        /* Calendar Container - always visible */
         .calendar-container {
-            display: none;
+            display: flex;
+            flex-direction: column;
             gap: 12px;
             padding-top: 8px;
             border-top: 1px solid var(--border-color);
             margin-top: 4px;
         }
 
-        .calendar-container.show {
+        /* Calendar Navigation */
+        .calendar-nav {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px;
+        }
+
+        .calendar-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.15s;
+        }
+
+        .calendar-nav-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .calendar-nav-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .calendar-year-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calendar-year-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.15s;
+        }
+
+        .calendar-year-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .calendar-year-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .calendar-year-display {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* Calendar Months Grid */
+        .calendar-months-grid {
+            display: flex;
+            gap: 12px;
         }
 
         /* Single Month Calendar */
@@ -277,6 +315,17 @@
 
         .calendar-day.range-start.range-end {
             border-radius: 4px;
+        }
+
+        /* Hover preview styles */
+        .calendar-day.hover-end {
+            background: rgba(99, 102, 241, 0.6);
+            color: white;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .calendar-day.in-range.hover-preview {
+            background: rgba(99, 102, 241, 0.1);
         }
 
         .date-range-modal-footer {
@@ -1488,19 +1537,46 @@
                     </div>
                 </div>
 
-                <!-- Calendar Toggle Button -->
-                <button type="button" class="calendar-toggle-btn" id="calendarToggleBtn" onclick="toggleCalendarView()">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span>Im Kalender auswählen</span>
-                </button>
-
                 <!-- 3-Month Calendar Container -->
                 <div class="calendar-container" id="calendarContainer">
-                    <div class="calendar-month" id="calendarMonth1"></div>
-                    <div class="calendar-month" id="calendarMonth2"></div>
-                    <div class="calendar-month" id="calendarMonth3"></div>
+                    <!-- Navigation Bar -->
+                    <div class="calendar-nav">
+                        <!-- Left Arrow (previous months) -->
+                        <button type="button" class="calendar-nav-btn" onclick="navigateCalendar(-3)" title="3 Monate zurück">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+
+                        <!-- Year Selector -->
+                        <div class="calendar-year-selector">
+                            <button type="button" class="calendar-year-btn" onclick="changeCalendarYear(-1)" title="Vorheriges Jahr">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                            </button>
+                            <span class="calendar-year-display" id="calendarYearDisplay">2025</span>
+                            <button type="button" class="calendar-year-btn" onclick="changeCalendarYear(1)" title="Nächstes Jahr">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Right Arrow (next months) -->
+                        <button type="button" class="calendar-nav-btn" onclick="navigateCalendar(3)" title="3 Monate vor">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Months Grid -->
+                    <div class="calendar-months-grid">
+                        <div class="calendar-month" id="calendarMonth1"></div>
+                        <div class="calendar-month" id="calendarMonth2"></div>
+                        <div class="calendar-month" id="calendarMonth3"></div>
+                    </div>
                 </div>
             </div>
             <div class="date-range-modal-footer">
@@ -2095,7 +2171,10 @@
 
         let calendarStartDate = null;
         let calendarEndDate = null;
+        let calendarHoverDate = null; // For live preview
         let isSelectingStart = true; // true = selecting start, false = selecting end
+        let calendarBaseYear = new Date().getFullYear();
+        let calendarBaseMonth = new Date().getMonth(); // The rightmost month displayed
         const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 
         // Parse German date format (TT.MM.JJJJ)
@@ -2158,33 +2237,38 @@
             }
         }
 
-        // Toggle calendar visibility
-        function toggleCalendarView() {
-            const modal = document.getElementById('dateRangeModal');
-            const container = document.getElementById('calendarContainer');
-            const btn = document.getElementById('calendarToggleBtn');
+        // Navigate months (shift by n months)
+        function navigateCalendar(months) {
+            calendarBaseMonth += months;
 
-            const isOpen = container.classList.contains('show');
-
-            if (isOpen) {
-                container.classList.remove('show');
-                modal.classList.remove('calendar-open');
-                btn.classList.remove('active');
-            } else {
-                container.classList.add('show');
-                modal.classList.add('calendar-open');
-                btn.classList.add('active');
-                renderCalendars();
+            // Handle year overflow
+            while (calendarBaseMonth > 11) {
+                calendarBaseMonth -= 12;
+                calendarBaseYear++;
             }
+            while (calendarBaseMonth < 0) {
+                calendarBaseMonth += 12;
+                calendarBaseYear--;
+            }
+
+            renderCalendars();
         }
 
-        // Render 3 months (current + 2 previous)
-        function renderCalendars() {
-            const today = new Date();
+        // Change year (keep same months)
+        function changeCalendarYear(delta) {
+            calendarBaseYear += delta;
+            renderCalendars();
+        }
 
-            // Render 3 months: 2 months ago, 1 month ago, current month
+        // Render 3 months based on current navigation state
+        function renderCalendars() {
+            // Update year display
+            const yearDisplay = document.getElementById('calendarYearDisplay');
+            if (yearDisplay) yearDisplay.textContent = calendarBaseYear;
+
+            // Render 3 months: 2 months before base, 1 month before base, base month
             for (let i = 0; i < 3; i++) {
-                const monthDate = new Date(today.getFullYear(), today.getMonth() - (2 - i), 1);
+                const monthDate = new Date(calendarBaseYear, calendarBaseMonth - (2 - i), 1);
                 renderMonth(document.getElementById(`calendarMonth${i + 1}`), monthDate);
             }
         }
@@ -2228,6 +2312,7 @@
             // Current month days
             for (let day = 1; day <= lastDay.getDate(); day++) {
                 const date = new Date(year, month, day);
+                const current = date.getTime();
                 let classes = 'calendar-day';
 
                 // Check if today
@@ -2235,11 +2320,10 @@
                     classes += ' today';
                 }
 
-                // Check if in range
+                // Check if in range (completed selection)
                 if (calendarStartDate && calendarEndDate) {
                     const start = calendarStartDate.getTime();
                     const end = calendarEndDate.getTime();
-                    const current = date.getTime();
 
                     if (current === start && current === end) {
                         classes += ' range-start range-end';
@@ -2250,11 +2334,31 @@
                     } else if (current > start && current < end) {
                         classes += ' in-range';
                     }
-                } else if (calendarStartDate && date.getTime() === calendarStartDate.getTime()) {
-                    classes += ' selected';
+                }
+                // Live hover preview (when start selected but no end yet)
+                else if (calendarStartDate && !calendarEndDate && calendarHoverDate) {
+                    const start = calendarStartDate.getTime();
+                    const hover = calendarHoverDate.getTime();
+
+                    // Determine range direction (hover can be before or after start)
+                    const rangeStart = Math.min(start, hover);
+                    const rangeEnd = Math.max(start, hover);
+
+                    if (current === start) {
+                        classes += hover < start ? ' range-end' : ' range-start';
+                    } else if (current === hover) {
+                        classes += ' hover-end';
+                    } else if (current > rangeStart && current < rangeEnd) {
+                        classes += ' in-range hover-preview';
+                    }
+                }
+                // Just start date selected (no hover)
+                else if (calendarStartDate && date.getTime() === calendarStartDate.getTime()) {
+                    classes += ' range-start';
                 }
 
-                html += `<div class="${classes}" data-date="${formatISODate(date)}" onclick="selectCalendarDate('${formatISODate(date)}')">${day}</div>`;
+                const dateStr = formatISODate(date);
+                html += `<div class="${classes}" data-date="${dateStr}" onclick="selectCalendarDate('${dateStr}')" onmouseenter="handleDayHover('${dateStr}')" onmouseleave="handleDayLeave()">${day}</div>`;
             }
 
             // Next month days (fill remaining cells)
@@ -2276,6 +2380,7 @@
                 // First click: set start date
                 calendarStartDate = date;
                 calendarEndDate = null;
+                calendarHoverDate = null;
                 isSelectingStart = false;
             } else {
                 // Second click: set end date
@@ -2286,6 +2391,7 @@
                 } else {
                     calendarEndDate = date;
                 }
+                calendarHoverDate = null;
                 isSelectingStart = true;
             }
 
@@ -2294,6 +2400,23 @@
             document.getElementById('dateToInput').value = formatGermanDate(calendarEndDate);
 
             renderCalendars();
+        }
+
+        // Handle hover on calendar day (for live range preview)
+        function handleDayHover(isoDate) {
+            // Only show preview when start is selected but end is not
+            if (calendarStartDate && !calendarEndDate) {
+                calendarHoverDate = new Date(isoDate);
+                renderCalendars();
+            }
+        }
+
+        // Handle mouse leave from calendar day
+        function handleDayLeave() {
+            if (calendarHoverDate) {
+                calendarHoverDate = null;
+                renderCalendars();
+            }
         }
 
         // Date Range Modal öffnen
@@ -2324,12 +2447,12 @@
                 toInput.value = '';
             }
 
-            // Close calendar by default
-            document.getElementById('calendarContainer').classList.remove('show');
-            modal.classList.remove('calendar-open');
-            document.getElementById('calendarToggleBtn').classList.remove('active');
-
+            // Always show calendar in expanded mode
+            modal.classList.add('calendar-open');
             modal.classList.add('active');
+
+            // Render calendars immediately
+            renderCalendars();
         }
 
         // Date Range Modal schließen
