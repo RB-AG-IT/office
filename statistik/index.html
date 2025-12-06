@@ -1565,6 +1565,7 @@
             if (period === 'custom') {
                 openDateRangeModal();
             } else {
+                resetCustomOptionText();
                 previousPeriodValue = period;
                 applyFilters();
             }
@@ -1606,8 +1607,23 @@
 
             customDateFrom = dateFrom;
             customDateTo = dateTo;
+
+            // Update option text with date range
+            const customOption = document.querySelector('#filterPeriod option[value="custom"]');
+            const fromDate = new Date(dateFrom);
+            const toDate = new Date(dateTo);
+            const formatDate = (d) => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+            customOption.textContent = `${formatDate(fromDate)} - ${formatDate(toDate)}`;
+
+            previousPeriodValue = 'custom';
             closeDateRangeModal();
             applyFilters();
+        }
+
+        // Reset custom option text when other period is selected
+        function resetCustomOptionText() {
+            const customOption = document.querySelector('#filterPeriod option[value="custom"]');
+            customOption.textContent = 'Individuell';
         }
 
         // Suche
