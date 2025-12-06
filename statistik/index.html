@@ -54,7 +54,8 @@
         .date-range-modal-content {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
-            width: 320px;
+            width: 420px;
+            max-width: 95vw;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             transform: scale(0.9);
             transition: transform 0.2s ease;
@@ -62,6 +63,10 @@
 
         .date-range-modal.active .date-range-modal-content {
             transform: scale(1);
+        }
+
+        .date-range-modal.calendar-open .date-range-modal-content {
+            width: 720px;
         }
 
         .date-range-modal-header {
@@ -98,10 +103,17 @@
             gap: 16px;
         }
 
+        /* Date Input Row */
+        .date-inputs-row {
+            display: flex;
+            gap: 16px;
+        }
+
         .date-range-field {
             display: flex;
             flex-direction: column;
             gap: 6px;
+            flex: 1;
         }
 
         .date-range-field label {
@@ -110,7 +122,7 @@
             color: var(--text-secondary);
         }
 
-        .date-range-field input[type="date"] {
+        .date-range-field input[type="text"] {
             height: 40px;
             padding: 0 12px;
             border: 1px solid var(--border-color);
@@ -118,11 +130,153 @@
             font-size: 14px;
             background: var(--bg-secondary);
             color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
         }
 
-        .date-range-field input[type="date"]:focus {
+        .date-range-field input[type="text"]:focus {
             outline: none;
             border-color: var(--accent-color);
+        }
+
+        .date-range-field input[type="text"].active {
+            border-color: var(--accent-color);
+            background: var(--bg-primary);
+        }
+
+        /* Calendar Toggle Button */
+        .calendar-toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            height: 44px;
+            padding: 0 16px;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-toggle-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: var(--bg-hover);
+        }
+
+        .calendar-toggle-btn.active {
+            border-style: solid;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .calendar-toggle-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Calendar Container */
+        .calendar-container {
+            display: none;
+            gap: 12px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 4px;
+        }
+
+        .calendar-container.show {
+            display: flex;
+        }
+
+        /* Single Month Calendar */
+        .calendar-month {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .calendar-month-header {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            padding: 8px 0;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 4px;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding: 4px 0;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--text-primary);
+        }
+
+        .calendar-day:hover {
+            background: var(--bg-hover);
+        }
+
+        .calendar-day.other-month {
+            color: var(--text-secondary);
+            opacity: 0.4;
+        }
+
+        .calendar-day.today {
+            font-weight: 600;
+            border: 1px solid var(--accent-color);
+        }
+
+        .calendar-day.selected {
+            background: var(--accent-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.in-range {
+            background: rgba(99, 102, 241, 0.15);
+            border-radius: 0;
+        }
+
+        .calendar-day.range-start {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .calendar-day.range-end {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .calendar-day.range-start.range-end {
+            border-radius: 4px;
         }
 
         .date-range-modal-footer {
@@ -1322,13 +1476,31 @@
                 </button>
             </div>
             <div class="date-range-modal-body">
-                <div class="date-range-field">
-                    <label>Von</label>
-                    <input type="date" id="dateFrom">
+                <!-- Date Input Row -->
+                <div class="date-inputs-row">
+                    <div class="date-range-field">
+                        <label>Von</label>
+                        <input type="text" id="dateFromInput" placeholder="TT.MM.JJJJ" maxlength="10">
+                    </div>
+                    <div class="date-range-field">
+                        <label>Bis</label>
+                        <input type="text" id="dateToInput" placeholder="TT.MM.JJJJ" maxlength="10">
+                    </div>
                 </div>
-                <div class="date-range-field">
-                    <label>Bis</label>
-                    <input type="date" id="dateTo">
+
+                <!-- Calendar Toggle Button -->
+                <button type="button" class="calendar-toggle-btn" id="calendarToggleBtn" onclick="toggleCalendarView()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Im Kalender auswählen</span>
+                </button>
+
+                <!-- 3-Month Calendar Container -->
+                <div class="calendar-container" id="calendarContainer">
+                    <div class="calendar-month" id="calendarMonth1"></div>
+                    <div class="calendar-month" id="calendarMonth2"></div>
+                    <div class="calendar-month" id="calendarMonth3"></div>
                 </div>
             </div>
             <div class="date-range-modal-footer">
@@ -1917,12 +2089,246 @@
             }
         }
 
+        // ================================================================
+        // DATE RANGE PICKER - Calendar + Input Mask
+        // ================================================================
+
+        let calendarStartDate = null;
+        let calendarEndDate = null;
+        let isSelectingStart = true; // true = selecting start, false = selecting end
+        const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+        // Parse German date format (TT.MM.JJJJ)
+        function parseGermanDate(str) {
+            if (!str || str.length !== 10) return null;
+            const parts = str.split('.');
+            if (parts.length !== 3) return null;
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const year = parseInt(parts[2], 10);
+            if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+            const date = new Date(year, month, day);
+            if (date.getDate() !== day || date.getMonth() !== month || date.getFullYear() !== year) return null;
+            return date;
+        }
+
+        // Format date to German format (TT.MM.JJJJ)
+        function formatGermanDate(date) {
+            if (!date) return '';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        // Format date to ISO (YYYY-MM-DD)
+        function formatISODate(date) {
+            if (!date) return '';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${year}-${month}-${day}`;
+        }
+
+        // Date input mask handler
+        function handleDateInputMask(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Only digits
+            if (value.length > 8) value = value.slice(0, 8);
+
+            // Auto-insert dots
+            if (value.length >= 4) {
+                value = value.slice(0, 2) + '.' + value.slice(2, 4) + '.' + value.slice(4);
+            } else if (value.length >= 2) {
+                value = value.slice(0, 2) + '.' + value.slice(2);
+            }
+
+            e.target.value = value;
+
+            // Update calendar when valid date is entered
+            if (value.length === 10) {
+                const date = parseGermanDate(value);
+                if (date) {
+                    if (e.target.id === 'dateFromInput') {
+                        calendarStartDate = date;
+                    } else {
+                        calendarEndDate = date;
+                    }
+                    renderCalendars();
+                }
+            }
+        }
+
+        // Toggle calendar visibility
+        function toggleCalendarView() {
+            const modal = document.getElementById('dateRangeModal');
+            const container = document.getElementById('calendarContainer');
+            const btn = document.getElementById('calendarToggleBtn');
+
+            const isOpen = container.classList.contains('show');
+
+            if (isOpen) {
+                container.classList.remove('show');
+                modal.classList.remove('calendar-open');
+                btn.classList.remove('active');
+            } else {
+                container.classList.add('show');
+                modal.classList.add('calendar-open');
+                btn.classList.add('active');
+                renderCalendars();
+            }
+        }
+
+        // Render 3 months (current + 2 previous)
+        function renderCalendars() {
+            const today = new Date();
+
+            // Render 3 months: 2 months ago, 1 month ago, current month
+            for (let i = 0; i < 3; i++) {
+                const monthDate = new Date(today.getFullYear(), today.getMonth() - (2 - i), 1);
+                renderMonth(document.getElementById(`calendarMonth${i + 1}`), monthDate);
+            }
+        }
+
+        // Render single month
+        function renderMonth(container, monthDate) {
+            const year = monthDate.getFullYear();
+            const month = monthDate.getMonth();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // First day of month (0 = Sunday, 1 = Monday, ...)
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+
+            // Adjust for Monday start (German calendar)
+            let startOffset = firstDay.getDay() - 1;
+            if (startOffset < 0) startOffset = 6;
+
+            let html = `
+                <div class="calendar-month-header">${monthNames[month]} ${year}</div>
+                <div class="calendar-weekdays">
+                    <div class="calendar-weekday">Mo</div>
+                    <div class="calendar-weekday">Di</div>
+                    <div class="calendar-weekday">Mi</div>
+                    <div class="calendar-weekday">Do</div>
+                    <div class="calendar-weekday">Fr</div>
+                    <div class="calendar-weekday">Sa</div>
+                    <div class="calendar-weekday">So</div>
+                </div>
+                <div class="calendar-days">
+            `;
+
+            // Previous month days
+            const prevMonth = new Date(year, month, 0);
+            for (let i = startOffset - 1; i >= 0; i--) {
+                const day = prevMonth.getDate() - i;
+                html += `<div class="calendar-day other-month">${day}</div>`;
+            }
+
+            // Current month days
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(year, month, day);
+                let classes = 'calendar-day';
+
+                // Check if today
+                if (date.getTime() === today.getTime()) {
+                    classes += ' today';
+                }
+
+                // Check if in range
+                if (calendarStartDate && calendarEndDate) {
+                    const start = calendarStartDate.getTime();
+                    const end = calendarEndDate.getTime();
+                    const current = date.getTime();
+
+                    if (current === start && current === end) {
+                        classes += ' range-start range-end';
+                    } else if (current === start) {
+                        classes += ' range-start';
+                    } else if (current === end) {
+                        classes += ' range-end';
+                    } else if (current > start && current < end) {
+                        classes += ' in-range';
+                    }
+                } else if (calendarStartDate && date.getTime() === calendarStartDate.getTime()) {
+                    classes += ' selected';
+                }
+
+                html += `<div class="${classes}" data-date="${formatISODate(date)}" onclick="selectCalendarDate('${formatISODate(date)}')">${day}</div>`;
+            }
+
+            // Next month days (fill remaining cells)
+            const totalCells = startOffset + lastDay.getDate();
+            const remainingCells = (7 - (totalCells % 7)) % 7;
+            for (let day = 1; day <= remainingCells; day++) {
+                html += `<div class="calendar-day other-month">${day}</div>`;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Handle calendar date selection
+        function selectCalendarDate(isoDate) {
+            const date = new Date(isoDate);
+
+            if (isSelectingStart || !calendarStartDate) {
+                // First click: set start date
+                calendarStartDate = date;
+                calendarEndDate = null;
+                isSelectingStart = false;
+            } else {
+                // Second click: set end date
+                if (date < calendarStartDate) {
+                    // If clicked before start, swap
+                    calendarEndDate = calendarStartDate;
+                    calendarStartDate = date;
+                } else {
+                    calendarEndDate = date;
+                }
+                isSelectingStart = true;
+            }
+
+            // Update input fields
+            document.getElementById('dateFromInput').value = formatGermanDate(calendarStartDate);
+            document.getElementById('dateToInput').value = formatGermanDate(calendarEndDate);
+
+            renderCalendars();
+        }
+
         // Date Range Modal öffnen
         function openDateRangeModal() {
             const modal = document.getElementById('dateRangeModal');
-            // Aktuelle Werte setzen falls vorhanden
-            if (customDateFrom) document.getElementById('dateFrom').value = customDateFrom;
-            if (customDateTo) document.getElementById('dateTo').value = customDateTo;
+            const fromInput = document.getElementById('dateFromInput');
+            const toInput = document.getElementById('dateToInput');
+
+            // Reset calendar state
+            calendarStartDate = null;
+            calendarEndDate = null;
+            isSelectingStart = true;
+
+            // Set existing values if available
+            if (customDateFrom) {
+                const fromDate = new Date(customDateFrom);
+                calendarStartDate = fromDate;
+                fromInput.value = formatGermanDate(fromDate);
+            } else {
+                fromInput.value = '';
+            }
+
+            if (customDateTo) {
+                const toDate = new Date(customDateTo);
+                calendarEndDate = toDate;
+                toInput.value = formatGermanDate(toDate);
+            } else {
+                toInput.value = '';
+            }
+
+            // Close calendar by default
+            document.getElementById('calendarContainer').classList.remove('show');
+            modal.classList.remove('calendar-open');
+            document.getElementById('calendarToggleBtn').classList.remove('active');
+
             modal.classList.add('active');
         }
 
@@ -1930,6 +2336,8 @@
         function closeDateRangeModal() {
             const modal = document.getElementById('dateRangeModal');
             modal.classList.remove('active');
+            modal.classList.remove('calendar-open');
+
             // Zurück zum vorherigen Wert wenn abgebrochen
             if (!customDateFrom || !customDateTo) {
                 document.getElementById('filterPeriod').value = previousPeriodValue;
@@ -1946,25 +2354,27 @@
 
         // Custom Date Range anwenden
         function applyCustomDateRange() {
-            const dateFrom = document.getElementById('dateFrom').value;
-            const dateTo = document.getElementById('dateTo').value;
+            const fromInput = document.getElementById('dateFromInput').value;
+            const toInput = document.getElementById('dateToInput').value;
 
-            if (!dateFrom || !dateTo) {
-                alert('Bitte beide Daten auswählen');
+            const fromDate = parseGermanDate(fromInput);
+            const toDate = parseGermanDate(toInput);
+
+            if (!fromDate || !toDate) {
+                alert('Bitte beide Daten im Format TT.MM.JJJJ eingeben');
                 return;
             }
 
-            if (new Date(dateFrom) > new Date(dateTo)) {
+            if (fromDate > toDate) {
                 alert('Das Start-Datum muss vor dem End-Datum liegen');
                 return;
             }
 
-            customDateFrom = dateFrom;
-            customDateTo = dateTo;
+            // Store as ISO format internally
+            customDateFrom = formatISODate(fromDate);
+            customDateTo = formatISODate(toDate);
 
             // Format date range for display
-            const fromDate = new Date(dateFrom);
-            const toDate = new Date(dateTo);
             const formatDate = (d) => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
             const dateRangeText = `${formatDate(fromDate)} - ${formatDate(toDate)}`;
 
@@ -1992,6 +2402,15 @@
             closeDateRangeModal();
             applyFilters();
         }
+
+        // Initialize date input masks
+        document.addEventListener('DOMContentLoaded', function() {
+            const fromInput = document.getElementById('dateFromInput');
+            const toInput = document.getElementById('dateToInput');
+
+            if (fromInput) fromInput.addEventListener('input', handleDateInputMask);
+            if (toInput) toInput.addEventListener('input', handleDateInputMask);
+        });
 
         // Reset custom option text when other period is selected
         function resetCustomOptionText() {
