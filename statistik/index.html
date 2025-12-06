@@ -2386,7 +2386,9 @@
 
         // Handle calendar date selection
         function selectCalendarDate(isoDate) {
-            const date = new Date(isoDate);
+            // Parse as local date (not UTC) to avoid timezone issues
+            const [year, month, day] = isoDate.split('-').map(Number);
+            const date = new Date(year, month - 1, day);
 
             if (isSelectingStart || !calendarStartDate) {
                 // First click: set start date
@@ -2435,7 +2437,9 @@
                 if (dayEl && !dayEl.classList.contains('other-month')) {
                     // Only show preview when start is selected but end is not
                     if (calendarStartDate && !calendarEndDate) {
-                        const newHoverDate = new Date(dayEl.dataset.date);
+                        // Parse as local date (not UTC)
+                        const [y, m, d] = dayEl.dataset.date.split('-').map(Number);
+                        const newHoverDate = new Date(y, m - 1, d);
                         // Only re-render if hover date actually changed
                         if (!calendarHoverDate || calendarHoverDate.getTime() !== newHoverDate.getTime()) {
                             calendarHoverDate = newHoverDate;
@@ -2535,8 +2539,13 @@
             customDateFrom = formatISODate(fromDate);
             customDateTo = formatISODate(toDate);
 
-            // Format date range for display
-            const formatDate = (d) => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            // Format date range for display (DD.MM.YY)
+            const formatDate = (d) => {
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = String(d.getFullYear()).slice(-2);
+                return `${day}.${month}.${year}`;
+            };
             const dateRangeText = `${formatDate(fromDate)} - ${formatDate(toDate)}`;
 
             // Update hidden select option text
