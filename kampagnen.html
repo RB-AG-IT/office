@@ -5061,11 +5061,19 @@
     <!-- Action Toolbar -->
     <div class="action-toolbar">
         <div class="toolbar-left">
-            <div class="toolbar-tabs">
-                <button class="toolbar-tab active" data-filter="">Alle</button>
-                <button class="toolbar-tab" data-filter="active">Aktiv</button>
-                <button class="toolbar-tab" data-filter="planned">Geplant</button>
-                <button class="toolbar-tab" data-filter="inactive">Inaktiv</button>
+            <div class="toolbar-nav-dropdown" id="statusDropdown">
+                <div class="toolbar-nav-trigger">
+                    <span id="statusDropdownText">Alle Kampagnen</span>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+                <div class="toolbar-nav-menu">
+                    <div class="toolbar-nav-option active" data-value="" onclick="selectStatus('', 'Alle Kampagnen')">Alle Kampagnen</div>
+                    <div class="toolbar-nav-option" data-value="active" onclick="selectStatus('active', 'Aktive')">Aktive</div>
+                    <div class="toolbar-nav-option" data-value="planned" onclick="selectStatus('planned', 'Geplante')">Geplante</div>
+                    <div class="toolbar-nav-option" data-value="inactive" onclick="selectStatus('inactive', 'Inaktive')">Inaktive</div>
+                </div>
             </div>
         </div>
         <!-- Searchbar - absolut zentriert -->
@@ -9294,21 +9302,33 @@ function calculateSondMembers(index) {
 // TOOLBAR EVENT HANDLERS
 // ============================================
 
-// Tab-Klicks für Status-Filter
-document.querySelectorAll('.toolbar-tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-        // Aktiven Tab aktualisieren
-        document.querySelectorAll('.toolbar-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
+// Status Dropdown (Hover)
+function selectStatus(value, label) {
+    // Update trigger text with animation
+    const textEl = document.getElementById('statusDropdownText');
+    textEl.style.transform = 'translateY(-100%)';
+    textEl.style.opacity = '0';
 
-        // Status-Filter-Dropdown synchronisieren
-        const filterValue = this.dataset.filter;
-        document.getElementById('statusFilter').value = filterValue;
+    setTimeout(() => {
+        textEl.textContent = label;
+        textEl.style.transform = 'translateY(100%)';
+        setTimeout(() => {
+            textEl.style.transform = 'translateY(0)';
+            textEl.style.opacity = '1';
+        }, 20);
+    }, 150);
 
-        // Kampagnen neu rendern
-        renderCampaigns();
+    // Update active state
+    document.querySelectorAll('#statusDropdown .toolbar-nav-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.value === value);
     });
-});
+
+    // Status-Filter-Dropdown synchronisieren
+    document.getElementById('statusFilter').value = value;
+
+    // Kampagnen neu rendern
+    renderCampaigns();
+}
 
 // Such-Input Event
 document.getElementById('searchInput').addEventListener('input', function() {

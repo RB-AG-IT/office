@@ -1143,6 +1143,134 @@ body {
 }
 
 /* ========================================
+   TOOLBAR NAVIGATION DROPDOWN (ersetzt Tabs)
+   Öffnet auf Hover
+   ======================================== */
+
+.toolbar-nav-dropdown {
+    position: relative;
+    min-width: 180px;
+    height: 36px;
+}
+
+.toolbar-nav-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    padding: 0 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    overflow: hidden;
+}
+
+.toolbar-nav-trigger span {
+    display: inline-block;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.toolbar-nav-trigger:hover {
+    border-color: var(--accent-color);
+    background: var(--bg-primary);
+}
+
+.toolbar-nav-trigger svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.toolbar-nav-dropdown:hover .toolbar-nav-trigger svg {
+    transform: rotate(180deg);
+}
+
+.toolbar-nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 100;
+}
+
+.toolbar-nav-dropdown:hover .toolbar-nav-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.toolbar-nav-option {
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.1s ease;
+}
+
+.toolbar-nav-option:first-child {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.toolbar-nav-option:last-child {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.toolbar-nav-option:hover {
+    background: var(--bg-hover);
+}
+
+.toolbar-nav-option.active {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* ========================================
+   SLIDE UP ANIMATION
+   ======================================== */
+
+.toolbar-text-animate {
+    display: inline-block;
+    overflow: hidden;
+}
+
+.toolbar-text-animate span {
+    display: inline-block;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.toolbar-text-animate.slide-out span {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.toolbar-text-animate.slide-in span {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
+.toolbar-text-animate.slide-in.active span,
+.toolbar-text-animate span {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* ========================================
    TOOLBAR TABS (Pill Style)
    ======================================== */
 

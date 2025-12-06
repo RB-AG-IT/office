@@ -452,10 +452,18 @@
         <!-- Action Toolbar -->
         <div class="action-toolbar">
             <div class="toolbar-left">
-                <div class="toolbar-tabs">
-                    <button class="toolbar-tab active" data-filter="alle">Beide</button>
-                    <button class="toolbar-tab" data-filter="mitarbeiter">Mitarbeiter</button>
-                    <button class="toolbar-tab" data-filter="kunde">Kunden</button>
+                <div class="toolbar-nav-dropdown" id="viewDropdown">
+                    <div class="toolbar-nav-trigger">
+                        <span id="viewDropdownText">Alle Benutzer</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                    <div class="toolbar-nav-menu">
+                        <div class="toolbar-nav-option active" data-value="alle" onclick="selectView('alle', 'Alle Benutzer')">Alle Benutzer</div>
+                        <div class="toolbar-nav-option" data-value="mitarbeiter" onclick="selectView('mitarbeiter', 'Mitarbeiter')">Mitarbeiter</div>
+                        <div class="toolbar-nav-option" data-value="kunde" onclick="selectView('kunde', 'Kunden')">Kunden</div>
+                    </div>
                 </div>
             </div>
             <!-- Searchbar - absolut zentriert -->
@@ -865,18 +873,32 @@
         // EVENT HANDLERS
         // ================================================================
 
-        // Tabs
-        document.querySelectorAll('.toolbar-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.toolbar-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                currentFilter = this.dataset.filter;
+        // View Filter Dropdown (Hover)
+        function selectView(value, label) {
+            currentFilter = value;
 
-                // Update Stufen-Filter opacity based on tab
-                updateStufenFilterVisibility();
-                renderUsers();
+            // Update trigger text with animation
+            const textEl = document.getElementById('viewDropdownText');
+            textEl.style.transform = 'translateY(-100%)';
+            textEl.style.opacity = '0';
+
+            setTimeout(() => {
+                textEl.textContent = label;
+                textEl.style.transform = 'translateY(100%)';
+                setTimeout(() => {
+                    textEl.style.transform = 'translateY(0)';
+                    textEl.style.opacity = '1';
+                }, 20);
+            }, 150);
+
+            // Update active state
+            document.querySelectorAll('#viewDropdown .toolbar-nav-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.value === value);
             });
-        });
+
+            updateStufenFilterVisibility();
+            renderUsers();
+        }
 
         function updateStufenFilterVisibility() {
             const mitarbeiterOptions = document.querySelectorAll('[data-type="mitarbeiter"]');
