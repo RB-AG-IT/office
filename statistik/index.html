@@ -494,6 +494,152 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        /* Clickable Cells */
+        .clickable-cell {
+            cursor: pointer;
+            padding: 8px 14px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+
+        .clickable-cell:hover {
+            background: var(--bg-hover);
+        }
+
+        .cell-value {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .cell-sub {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Detail Popup */
+        .detail-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .detail-popup.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .detail-popup-content {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            width: 400px;
+            max-width: 90vw;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.2s ease;
+        }
+
+        .detail-popup.active .detail-popup-content {
+            transform: scale(1);
+        }
+
+        .detail-popup-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .detail-popup-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .detail-popup-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--text-secondary);
+            border-radius: 4px;
+        }
+
+        .detail-popup-close:hover {
+            background: var(--bg-secondary);
+        }
+
+        .detail-popup-body {
+            padding: 20px;
+        }
+
+        .detail-row-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .detail-row-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .detail-row-total {
+            background: var(--bg-secondary);
+            margin: 0 -20px;
+            padding: 12px 20px;
+            margin-bottom: -20px;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        .detail-row-total .detail-row-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .detail-row-total .detail-row-value {
+            color: var(--accent-color);
+        }
+
+        /* Werber compact table */
+        .werber-compact td {
+            vertical-align: middle;
+        }
+
+        .werber-compact .name-cell {
+            gap: 8px;
+        }
+
+        .werber-compact .avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 10px;
+        }
     </style>
 </head>
 <body>
@@ -560,391 +706,26 @@
             <div class="section">
                 <div class="section-header">
                     <div class="section-title">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Werber-Provisionen & Finanzen
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        Werber Übersicht
                         <span class="section-badge">5 Werber</span>
                     </div>
                 </div>
                 <div style="overflow-x: auto;">
-                    <table class="stats-table">
+                    <table class="stats-table werber-compact">
                         <thead>
                             <tr>
-                                <th>Werber</th>
-                                <th class="right">Brutto MG</th>
-                                <th class="right">Storno</th>
-                                <th class="right">Netto MG</th>
-                                <th class="right">JE</th>
-                                <th class="right">EH</th>
-                                <th class="right">Provision</th>
-                                <th class="right">Stornorücklage</th>
-                                <th class="right">Vorschuss</th>
-                                <th class="right">Empf.-Prov.</th>
-                                <th class="right">Ausgezahlt</th>
-                                <th class="right">Offen</th>
+                                <th>Name</th>
+                                <th class="right clickable-header">Netto MG</th>
+                                <th class="right clickable-header">Netto Summe</th>
+                                <th class="right clickable-header">Stornoquote</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar">AS</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Anna Schmidt</div>
-                                            <div class="name-sub">TC: M. Wagner</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right">52</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot low"></span>
-                                        <span>4 (7,7%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">48</td>
-                                <td class="right value-money">6.240 €</td>
-                                <td class="right">520</td>
-                                <td class="right value-money value-positive">2.080 €</td>
-                                <td class="right">
-                                    <span class="mini-badge open">416 € offen</span>
-                                </td>
-                                <td class="right">
-                                    <span class="value-warning">500 € offen</span>
-                                </td>
-                                <td class="right value-money">180 €</td>
-                                <td class="right value-money">1.344 €</td>
-                                <td class="right value-money value-highlight">916 €</td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="12">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Provision/EH</span>
-                                            <span class="detail-value">4,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Stornorücklage %</span>
-                                            <span class="detail-value">20%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage gesamt</span>
-                                            <span class="detail-value">1.248 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage ausgezahlt</span>
-                                            <span class="detail-value">832 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Vorschuss gesamt</span>
-                                            <span class="detail-value">1.500 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Vorschuss getilgt</span>
-                                            <span class="detail-value">1.000 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empfohlene Werber</span>
-                                            <span class="detail-value">2 (Max M., Tim K.)</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empf.-EH gesamt</span>
-                                            <span class="detail-value">360 EH</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar">MM</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Max Müller</div>
-                                            <div class="name-sub">TC: S. Hoffmann</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right">38</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot medium"></span>
-                                        <span>5 (13,2%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">33</td>
-                                <td class="right value-money">4.560 €</td>
-                                <td class="right">380</td>
-                                <td class="right value-money value-positive">1.520 €</td>
-                                <td class="right">
-                                    <span class="mini-badge open">304 € offen</span>
-                                </td>
-                                <td class="right value-muted">0 €</td>
-                                <td class="right value-money">0 €</td>
-                                <td class="right value-money">1.216 €</td>
-                                <td class="right value-money value-highlight">304 €</td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="12">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Provision/EH</span>
-                                            <span class="detail-value">4,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Stornorücklage %</span>
-                                            <span class="detail-value">20%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage gesamt</span>
-                                            <span class="detail-value">912 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage ausgezahlt</span>
-                                            <span class="detail-value">608 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Vorschuss gesamt</span>
-                                            <span class="detail-value">0 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Vorschuss getilgt</span>
-                                            <span class="detail-value">0 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empfohlen von</span>
-                                            <span class="detail-value">Anna Schmidt</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empf.-Prov. an Empf.</span>
-                                            <span class="detail-value">190 €</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar">TK</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Tim Krause</div>
-                                            <div class="name-sub">TC: M. Wagner</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right">28</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot high"></span>
-                                        <span>6 (21,4%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">22</td>
-                                <td class="right value-money">3.360 €</td>
-                                <td class="right">280</td>
-                                <td class="right value-money value-positive">1.120 €</td>
-                                <td class="right">
-                                    <span class="mini-badge storno">672 € offen</span>
-                                </td>
-                                <td class="right">
-                                    <span class="value-warning">800 € offen</span>
-                                </td>
-                                <td class="right value-money">0 €</td>
-                                <td class="right value-money">0 €</td>
-                                <td class="right value-money value-negative">-352 €</td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="12">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Provision/EH</span>
-                                            <span class="detail-value">4,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Stornorücklage %</span>
-                                            <span class="detail-value">20%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage gesamt</span>
-                                            <span class="detail-value">672 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage ausgezahlt</span>
-                                            <span class="detail-value">0 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Vorschuss gesamt</span>
-                                            <span class="detail-value">800 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Vorschuss getilgt</span>
-                                            <span class="detail-value">0 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empfohlen von</span>
-                                            <span class="detail-value">Anna Schmidt</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Hinweis</span>
-                                            <span class="detail-value value-negative">Hohe Stornoquote!</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar">LB</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Lisa Bauer</div>
-                                            <div class="name-sub">TC: S. Hoffmann</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right">45</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot low"></span>
-                                        <span>2 (4,4%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">43</td>
-                                <td class="right value-money">5.400 €</td>
-                                <td class="right">450</td>
-                                <td class="right value-money value-positive">1.800 €</td>
-                                <td class="right">
-                                    <span class="mini-badge paid">0 € offen</span>
-                                </td>
-                                <td class="right value-muted">0 €</td>
-                                <td class="right value-money">95 €</td>
-                                <td class="right value-money">1.535 €</td>
-                                <td class="right value-money value-highlight">360 €</td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="12">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Provision/EH</span>
-                                            <span class="detail-value">4,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Stornorücklage %</span>
-                                            <span class="detail-value">20%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage gesamt</span>
-                                            <span class="detail-value">1.080 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage ausgezahlt</span>
-                                            <span class="detail-value">1.080 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empfohlene Werber</span>
-                                            <span class="detail-value">1 (Jan S.)</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empf.-EH gesamt</span>
-                                            <span class="detail-value">190 EH</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø JE/MG</span>
-                                            <span class="detail-value">125,58 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Einsatztage</span>
-                                            <span class="detail-value">12 Tage</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar">JS</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Jan Schulz</div>
-                                            <div class="name-sub">TC: S. Hoffmann</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right">18</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot low"></span>
-                                        <span>1 (5,6%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">17</td>
-                                <td class="right value-money">2.280 €</td>
-                                <td class="right">190</td>
-                                <td class="right value-money value-positive">760 €</td>
-                                <td class="right">
-                                    <span class="mini-badge open">152 € offen</span>
-                                </td>
-                                <td class="right">
-                                    <span class="value-warning">300 € offen</span>
-                                </td>
-                                <td class="right value-money">0 €</td>
-                                <td class="right value-money">308 €</td>
-                                <td class="right value-money value-highlight">152 €</td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="12">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Provision/EH</span>
-                                            <span class="detail-value">4,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Stornorücklage %</span>
-                                            <span class="detail-value">20%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage gesamt</span>
-                                            <span class="detail-value">456 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Rücklage ausgezahlt</span>
-                                            <span class="detail-value">304 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Vorschuss gesamt</span>
-                                            <span class="detail-value">300 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Vorschuss getilgt</span>
-                                            <span class="detail-value">0 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empfohlen von</span>
-                                            <span class="detail-value">Lisa Bauer</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Neuer Werber seit</span>
-                                            <span class="detail-value">01.11.2024</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tbody id="werberTableBody">
+                            <!-- Wird per JS befüllt -->
                         </tbody>
-                        <tfoot>
-                            <tr>
-                                <td><strong>Gesamt</strong></td>
-                                <td class="right">181</td>
-                                <td class="right">18 (9,9%)</td>
-                                <td class="right value-highlight">163</td>
-                                <td class="right value-money">21.840 €</td>
-                                <td class="right">1.820</td>
-                                <td class="right value-money value-positive">7.280 €</td>
-                                <td class="right">1.544 € offen</td>
-                                <td class="right">1.600 € offen</td>
-                                <td class="right value-money">275 €</td>
-                                <td class="right value-money">4.403 €</td>
-                                <td class="right value-money value-highlight">1.380 €</td>
-                            </tr>
+                        <tfoot id="werberTableFoot">
+                            <!-- Wird per JS befüllt -->
                         </tfoot>
                     </table>
                 </div>
@@ -1512,6 +1293,40 @@
         </div>
     </div>
 
+    <!-- MG/Summe Detail Popup -->
+    <div class="detail-popup" id="mgSummePopup" onclick="if(event.target === this) closeDetailPopup('mgSummePopup')">
+        <div class="detail-popup-content">
+            <div class="detail-popup-header">
+                <h3 id="mgSummePopupTitle">Details</h3>
+                <button class="detail-popup-close" onclick="closeDetailPopup('mgSummePopup')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="detail-popup-body" id="mgSummePopupBody">
+                <!-- Dynamisch befüllt -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Stornoquote Detail Popup -->
+    <div class="detail-popup" id="stornoPopup" onclick="if(event.target === this) closeDetailPopup('stornoPopup')">
+        <div class="detail-popup-content">
+            <div class="detail-popup-header">
+                <h3 id="stornoPopupTitle">Stornoquote Details</h3>
+                <button class="detail-popup-close" onclick="closeDetailPopup('stornoPopup')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="detail-popup-body" id="stornoPopupBody">
+                <!-- Dynamisch befüllt -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // Aktueller Tab
         let currentCategory = 'werber';
@@ -1533,6 +1348,408 @@
                 { value: '', label: 'Alle Kampagnen' }
             ]
         };
+
+        // Werber Daten mit Aufschlüsselung
+        const werberData = [
+            {
+                id: 1,
+                name: 'Max Mustermann',
+                shortName: 'M. Mustermann',
+                initials: 'MM',
+                color: '#667eea',
+                // MG Aufschlüsselung
+                mg: {
+                    nmg: 18,
+                    erh: 12,
+                    total: 30
+                },
+                // Summe Aufschlüsselung (JE = Jahresbeitrag, EH = Einzelhöhe)
+                summe: {
+                    nmg: { je: 2340, eh: 19500 },
+                    erh: { je: 1560, eh: 13000 },
+                    total: { je: 3900, eh: 32500 }
+                },
+                // Stornoquote
+                storno: {
+                    mg: 8.5,
+                    summe: 6.2
+                }
+            },
+            {
+                id: 2,
+                name: 'Anna Schmidt',
+                shortName: 'A. Schmidt',
+                initials: 'AS',
+                color: '#10b981',
+                mg: {
+                    nmg: 22,
+                    erh: 8,
+                    total: 30
+                },
+                summe: {
+                    nmg: { je: 2860, eh: 23833 },
+                    erh: { je: 1040, eh: 8667 },
+                    total: { je: 3900, eh: 32500 }
+                },
+                storno: {
+                    mg: 5.2,
+                    summe: 4.8
+                }
+            },
+            {
+                id: 3,
+                name: 'Thomas Weber',
+                shortName: 'T. Weber',
+                initials: 'TW',
+                color: '#f59e0b',
+                mg: {
+                    nmg: 15,
+                    erh: 10,
+                    total: 25
+                },
+                summe: {
+                    nmg: { je: 1950, eh: 16250 },
+                    erh: { je: 1300, eh: 10833 },
+                    total: { je: 3250, eh: 27083 }
+                },
+                storno: {
+                    mg: 12.0,
+                    summe: 9.5
+                }
+            },
+            {
+                id: 4,
+                name: 'Lisa Meier',
+                shortName: 'L. Meier',
+                initials: 'LM',
+                color: '#8b5cf6',
+                mg: {
+                    nmg: 28,
+                    erh: 7,
+                    total: 35
+                },
+                summe: {
+                    nmg: { je: 3640, eh: 30333 },
+                    erh: { je: 910, eh: 7583 },
+                    total: { je: 4550, eh: 37917 }
+                },
+                storno: {
+                    mg: 4.1,
+                    summe: 3.8
+                }
+            },
+            {
+                id: 5,
+                name: 'Stefan Braun',
+                shortName: 'S. Braun',
+                initials: 'SB',
+                color: '#ef4444',
+                mg: {
+                    nmg: 20,
+                    erh: 13,
+                    total: 33
+                },
+                summe: {
+                    nmg: { je: 2600, eh: 21667 },
+                    erh: { je: 1690, eh: 14083 },
+                    total: { je: 4290, eh: 35750 }
+                },
+                storno: {
+                    mg: 9.8,
+                    summe: 7.2
+                }
+            }
+        ];
+
+        // Formatierung Funktionen
+        function formatMoney(value) {
+            return value.toLocaleString('de-DE') + ' €';
+        }
+
+        function formatPercent(value) {
+            return value.toFixed(1) + '%';
+        }
+
+        // Durchschnittliche Stornoquote berechnen
+        function getAverageStorno(werber) {
+            return (werber.storno.mg + werber.storno.summe) / 2;
+        }
+
+        // Stornoquote Farbe
+        function getStornoColor(value) {
+            if (value < 6) return 'value-positive';
+            if (value < 10) return 'value-warning';
+            return 'value-negative';
+        }
+
+        // Werber Tabelle rendern
+        function renderWerberTable() {
+            const tbody = document.getElementById('werberTableBody');
+            const tfoot = document.getElementById('werberTableFoot');
+
+            // Totals berechnen
+            const totals = {
+                mg: { nmg: 0, erh: 0, total: 0 },
+                summe: { nmg: { je: 0, eh: 0 }, erh: { je: 0, eh: 0 }, total: { je: 0, eh: 0 } },
+                storno: { mg: 0, summe: 0 }
+            };
+
+            let html = '';
+            werberData.forEach(w => {
+                const avgStorno = getAverageStorno(w);
+                const stornoClass = getStornoColor(avgStorno);
+
+                html += `
+                    <tr>
+                        <td>
+                            <div class="name-cell">
+                                <div class="avatar" style="background: linear-gradient(135deg, ${w.color} 0%, ${w.color}dd 100%);">${w.initials}</div>
+                                <span class="name-main">${w.shortName}</span>
+                            </div>
+                        </td>
+                        <td class="right">
+                            <div class="clickable-cell" onclick="showMgDetail(${w.id}, 'mg')">
+                                <div class="cell-value">${w.mg.total}</div>
+                            </div>
+                        </td>
+                        <td class="right">
+                            <div class="clickable-cell" onclick="showMgDetail(${w.id}, 'summe')">
+                                <div class="cell-value">${formatMoney(w.summe.total.je)}</div>
+                                <div class="cell-sub">/ ${formatMoney(w.summe.total.eh)}</div>
+                            </div>
+                        </td>
+                        <td class="right">
+                            <div class="clickable-cell" onclick="showStornoDetail(${w.id})">
+                                <div class="cell-value ${stornoClass}">${formatPercent(avgStorno)}</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                // Totals addieren
+                totals.mg.nmg += w.mg.nmg;
+                totals.mg.erh += w.mg.erh;
+                totals.mg.total += w.mg.total;
+                totals.summe.nmg.je += w.summe.nmg.je;
+                totals.summe.nmg.eh += w.summe.nmg.eh;
+                totals.summe.erh.je += w.summe.erh.je;
+                totals.summe.erh.eh += w.summe.erh.eh;
+                totals.summe.total.je += w.summe.total.je;
+                totals.summe.total.eh += w.summe.total.eh;
+                totals.storno.mg += w.storno.mg;
+                totals.storno.summe += w.storno.summe;
+            });
+
+            tbody.innerHTML = html;
+
+            // Footer mit Totals
+            const avgStornoMg = totals.storno.mg / werberData.length;
+            const avgStornoSumme = totals.storno.summe / werberData.length;
+            const avgStornoTotal = (avgStornoMg + avgStornoSumme) / 2;
+            const totalStornoClass = getStornoColor(avgStornoTotal);
+
+            tfoot.innerHTML = `
+                <tr>
+                    <td><strong>Gesamt</strong></td>
+                    <td class="right">
+                        <div class="clickable-cell" onclick="showTotalMgDetail('mg')">
+                            <div class="cell-value value-highlight">${totals.mg.total}</div>
+                        </div>
+                    </td>
+                    <td class="right">
+                        <div class="clickable-cell" onclick="showTotalMgDetail('summe')">
+                            <div class="cell-value value-highlight">${formatMoney(totals.summe.total.je)}</div>
+                            <div class="cell-sub">/ ${formatMoney(totals.summe.total.eh)}</div>
+                        </div>
+                    </td>
+                    <td class="right">
+                        <div class="clickable-cell" onclick="showTotalStornoDetail()">
+                            <div class="cell-value ${totalStornoClass}">${formatPercent(avgStornoTotal)}</div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            // Badge aktualisieren
+            document.querySelector('#section-werber .section-badge').textContent = werberData.length + ' Werber';
+        }
+
+        // MG/Summe Detail Popup anzeigen
+        function showMgDetail(werberId, type) {
+            const werber = werberData.find(w => w.id === werberId);
+            if (!werber) return;
+
+            const popup = document.getElementById('mgSummePopup');
+            const title = document.getElementById('mgSummePopupTitle');
+            const body = document.getElementById('mgSummePopupBody');
+
+            if (type === 'mg') {
+                title.textContent = `Netto MG - ${werber.shortName}`;
+                body.innerHTML = `
+                    <div class="detail-row-item">
+                        <span class="detail-row-label">Netto NMG</span>
+                        <span class="detail-row-value">${werber.mg.nmg}</span>
+                    </div>
+                    <div class="detail-row-item">
+                        <span class="detail-row-label">Netto ERH</span>
+                        <span class="detail-row-value">${werber.mg.erh}</span>
+                    </div>
+                    <div class="detail-row-item detail-row-total">
+                        <span class="detail-row-label">Gesamt MG</span>
+                        <span class="detail-row-value">${werber.mg.total}</span>
+                    </div>
+                `;
+            } else {
+                title.textContent = `Netto Summe - ${werber.shortName}`;
+                body.innerHTML = `
+                    <div class="detail-row-item">
+                        <span class="detail-row-label">Netto NMG Summe (JE / EH)</span>
+                        <span class="detail-row-value">${formatMoney(werber.summe.nmg.je)} / ${formatMoney(werber.summe.nmg.eh)}</span>
+                    </div>
+                    <div class="detail-row-item">
+                        <span class="detail-row-label">Netto ERH Summe (JE / EH)</span>
+                        <span class="detail-row-value">${formatMoney(werber.summe.erh.je)} / ${formatMoney(werber.summe.erh.eh)}</span>
+                    </div>
+                    <div class="detail-row-item detail-row-total">
+                        <span class="detail-row-label">Gesamt (JE / EH)</span>
+                        <span class="detail-row-value">${formatMoney(werber.summe.total.je)} / ${formatMoney(werber.summe.total.eh)}</span>
+                    </div>
+                `;
+            }
+
+            popup.classList.add('active');
+        }
+
+        // Stornoquote Detail Popup anzeigen
+        function showStornoDetail(werberId) {
+            const werber = werberData.find(w => w.id === werberId);
+            if (!werber) return;
+
+            const popup = document.getElementById('stornoPopup');
+            const title = document.getElementById('stornoPopupTitle');
+            const body = document.getElementById('stornoPopupBody');
+
+            const avgStorno = getAverageStorno(werber);
+
+            title.textContent = `Stornoquote - ${werber.shortName}`;
+            body.innerHTML = `
+                <div class="detail-row-item">
+                    <span class="detail-row-label">Stornoquote MG</span>
+                    <span class="detail-row-value ${getStornoColor(werber.storno.mg)}">${formatPercent(werber.storno.mg)}</span>
+                </div>
+                <div class="detail-row-item">
+                    <span class="detail-row-label">Stornoquote Summe</span>
+                    <span class="detail-row-value ${getStornoColor(werber.storno.summe)}">${formatPercent(werber.storno.summe)}</span>
+                </div>
+                <div class="detail-row-item detail-row-total">
+                    <span class="detail-row-label">Durchschnitt</span>
+                    <span class="detail-row-value ${getStornoColor(avgStorno)}">${formatPercent(avgStorno)}</span>
+                </div>
+            `;
+
+            popup.classList.add('active');
+        }
+
+        // Gesamt MG/Summe Detail
+        function showTotalMgDetail(type) {
+            const popup = document.getElementById('mgSummePopup');
+            const title = document.getElementById('mgSummePopupTitle');
+            const body = document.getElementById('mgSummePopupBody');
+
+            // Totals berechnen
+            const totals = {
+                mg: { nmg: 0, erh: 0, total: 0 },
+                summe: { nmg: { je: 0, eh: 0 }, erh: { je: 0, eh: 0 }, total: { je: 0, eh: 0 } }
+            };
+
+            werberData.forEach(w => {
+                totals.mg.nmg += w.mg.nmg;
+                totals.mg.erh += w.mg.erh;
+                totals.mg.total += w.mg.total;
+                totals.summe.nmg.je += w.summe.nmg.je;
+                totals.summe.nmg.eh += w.summe.nmg.eh;
+                totals.summe.erh.je += w.summe.erh.je;
+                totals.summe.erh.eh += w.summe.erh.eh;
+                totals.summe.total.je += w.summe.total.je;
+                totals.summe.total.eh += w.summe.total.eh;
+            });
+
+            if (type === 'mg') {
+                title.textContent = 'Netto MG - Gesamt';
+                body.innerHTML = `
+                    <div class="detail-row-item">
+                        <span class="detail-row-label">Netto NMG</span>
+                        <span class="detail-row-value">${totals.mg.nmg}</span>
+                    </div>
+                    <div class="detail-row-item">
+                        <span class="detail-row-label">Netto ERH</span>
+                        <span class="detail-row-value">${totals.mg.erh}</span>
+                    </div>
+                    <div class="detail-row-item detail-row-total">
+                        <span class="detail-row-label">Gesamt MG</span>
+                        <span class="detail-row-value">${totals.mg.total}</span>
+                    </div>
+                `;
+            } else {
+                title.textContent = 'Netto Summe - Gesamt';
+                body.innerHTML = `
+                    <div class="detail-row-item">
+                        <span class="detail-row-label">Netto NMG Summe (JE / EH)</span>
+                        <span class="detail-row-value">${formatMoney(totals.summe.nmg.je)} / ${formatMoney(totals.summe.nmg.eh)}</span>
+                    </div>
+                    <div class="detail-row-item">
+                        <span class="detail-row-label">Netto ERH Summe (JE / EH)</span>
+                        <span class="detail-row-value">${formatMoney(totals.summe.erh.je)} / ${formatMoney(totals.summe.erh.eh)}</span>
+                    </div>
+                    <div class="detail-row-item detail-row-total">
+                        <span class="detail-row-label">Gesamt (JE / EH)</span>
+                        <span class="detail-row-value">${formatMoney(totals.summe.total.je)} / ${formatMoney(totals.summe.total.eh)}</span>
+                    </div>
+                `;
+            }
+
+            popup.classList.add('active');
+        }
+
+        // Gesamt Stornoquote Detail
+        function showTotalStornoDetail() {
+            const popup = document.getElementById('stornoPopup');
+            const title = document.getElementById('stornoPopupTitle');
+            const body = document.getElementById('stornoPopupBody');
+
+            let totalMg = 0, totalSumme = 0;
+            werberData.forEach(w => {
+                totalMg += w.storno.mg;
+                totalSumme += w.storno.summe;
+            });
+
+            const avgMg = totalMg / werberData.length;
+            const avgSumme = totalSumme / werberData.length;
+            const avgTotal = (avgMg + avgSumme) / 2;
+
+            title.textContent = 'Stornoquote - Gesamt';
+            body.innerHTML = `
+                <div class="detail-row-item">
+                    <span class="detail-row-label">Ø Stornoquote MG</span>
+                    <span class="detail-row-value ${getStornoColor(avgMg)}">${formatPercent(avgMg)}</span>
+                </div>
+                <div class="detail-row-item">
+                    <span class="detail-row-label">Ø Stornoquote Summe</span>
+                    <span class="detail-row-value ${getStornoColor(avgSumme)}">${formatPercent(avgSumme)}</span>
+                </div>
+                <div class="detail-row-item detail-row-total">
+                    <span class="detail-row-label">Ø Gesamt</span>
+                    <span class="detail-row-value ${getStornoColor(avgTotal)}">${formatPercent(avgTotal)}</span>
+                </div>
+            `;
+
+            popup.classList.add('active');
+        }
+
+        // Detail Popup schließen
+        function closeDetailPopup(popupId) {
+            document.getElementById(popupId).classList.remove('active');
+        }
 
         // Category Dropdown (Hover)
         function selectCategory(value, label) {
@@ -1686,6 +1903,9 @@
 
         // Initial: Context Filter befüllen
         updateContextFilter('werber');
+
+        // Initial: Werber Tabelle rendern
+        renderWerberTable();
 
         // Erkennen ob in iframe -> Toolbar verstecken
         if (window.self !== window.top) {
