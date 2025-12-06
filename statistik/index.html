@@ -2223,6 +2223,17 @@
 
             e.target.value = value;
 
+            // Handle from field cleared - reset entire selection
+            if (e.target.id === 'dateFromInput' && value.length === 0) {
+                calendarStartDate = null;
+                calendarEndDate = null;
+                calendarHoverDate = null;
+                isSelectingStart = true;
+                document.getElementById('dateToInput').value = '';
+                renderCalendars();
+                return;
+            }
+
             // Update calendar when valid date is entered
             if (value.length === 10) {
                 const date = parseGermanDate(value);
