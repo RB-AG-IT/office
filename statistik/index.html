@@ -318,15 +318,9 @@
             border-radius: 4px;
         }
 
-        /* Hover preview styles */
-        .calendar-day.hover-end {
-            background: rgba(99, 102, 241, 0.6);
-            color: white;
-            border-radius: 0 4px 4px 0;
-        }
-
+        /* Hover preview uses same styles as final selection */
         .calendar-day.in-range.hover-preview {
-            background: rgba(99, 102, 241, 0.1);
+            background: rgba(99, 102, 241, 0.15);
         }
 
         .date-range-modal-footer {
@@ -2357,9 +2351,11 @@
                     const rangeEnd = Math.max(start, hover);
 
                     if (current === start) {
+                        // Start becomes end if hovering before it
                         classes += hover < start ? ' range-end' : ' range-start';
                     } else if (current === hover) {
-                        classes += ' hover-end';
+                        // Hover becomes start or end based on direction
+                        classes += hover < start ? ' range-start' : ' range-end';
                     } else if (current > rangeStart && current < rangeEnd) {
                         classes += ' in-range hover-preview';
                     }
