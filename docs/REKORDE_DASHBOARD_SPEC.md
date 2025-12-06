@@ -107,7 +107,11 @@ Jeder Tab zeigt das gleiche Dashboard-Layout mit Adaptionen + nur die entspreche
 ---
 
 ### QUALITY
-*TODO: Rekorde noch zu definieren*
+*Quality = Ziel/Target für Teamleistung*
+
+- Höchster Ø JE (EH) pro Tag pro Person im Team (wo Quality eingetragen war)
+- Höchster Ø JE (EH) pro Woche pro Person im Team
+- Meiste Tage am Stück Quality-Ziel erreicht (Streak)
 
 ---
 
