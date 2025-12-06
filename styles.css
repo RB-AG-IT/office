@@ -1085,42 +1085,54 @@ body {
    ======================================== */
 
 .action-toolbar {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-md);
     padding: 10px var(--spacing-md);
     background: var(--bg-primary);
     border-bottom: 1px solid var(--border-color);
     min-height: 56px;
-    flex-wrap: wrap;
 }
 
-/* Drei Hauptbereiche */
-.toolbar-left,
-.toolbar-center,
-.toolbar-right {
+/* FESTE POSITIONEN - bewegen sich nie */
+.toolbar-left {
+    position: absolute;
+    left: var(--spacing-md);
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
 }
 
-.toolbar-left {
-    flex-shrink: 0;
-}
-
-.toolbar-center {
-    flex: 1;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-width: 0;
+.toolbar-search {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    z-index: 1;
 }
 
 .toolbar-right {
-    flex-shrink: 0;
-    justify-content: flex-end;
+    position: absolute;
+    right: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* FLEXIBLE BEREICHE - für Dropdowns */
+.toolbar-center {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.toolbar-filters {
+    position: absolute;
+    left: 280px;
+    display: flex;
+    gap: var(--spacing-sm);
 }
 
 /* Einheitliche Element-Höhe: 36px */
@@ -1189,21 +1201,6 @@ body {
 /* ========================================
    TOOLBAR SUCHFELD
    ======================================== */
-
-.toolbar-search {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 320px;
-    z-index: 1;
-}
-
-.toolbar-filters {
-    position: absolute;
-    left: 0;
-    display: flex;
-    gap: var(--spacing-sm);
-}
 
 .toolbar-search-input {
     width: 100%;
@@ -1410,17 +1407,19 @@ body {
         flex-direction: column;
         align-items: stretch;
         padding: var(--spacing-sm);
+        min-height: auto;
     }
 
     .toolbar-left,
-    .toolbar-center,
     .toolbar-right {
+        position: relative;
+        left: auto;
+        right: auto;
         width: 100%;
-        justify-content: flex-start;
     }
 
     .toolbar-center {
-        order: -1;
+        width: 100%;
         flex-direction: column;
         gap: var(--spacing-sm);
     }
