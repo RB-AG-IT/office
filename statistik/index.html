@@ -2358,7 +2358,7 @@
                 }
 
                 const dateStr = formatISODate(date);
-                html += `<div class="${classes}" data-date="${dateStr}" onclick="selectCalendarDate('${dateStr}')" onmouseenter="handleDayHover('${dateStr}')" onmouseleave="handleDayLeave()">${day}</div>`;
+                html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
             }
 
             // Next month days (fill remaining cells)
@@ -2402,21 +2402,44 @@
             renderCalendars();
         }
 
-        // Handle hover on calendar day (for live range preview)
-        function handleDayHover(isoDate) {
-            // Only show preview when start is selected but end is not
-            if (calendarStartDate && !calendarEndDate) {
-                calendarHoverDate = new Date(isoDate);
-                renderCalendars();
-            }
-        }
+        // Setup calendar event delegation (attach once, works even after re-render)
+        function setupCalendarEvents() {
+            const container = document.getElementById('calendarContainer');
+            if (!container || container.dataset.eventsAttached) return;
 
-        // Handle mouse leave from calendar day
-        function handleDayLeave() {
-            if (calendarHoverDate) {
-                calendarHoverDate = null;
-                renderCalendars();
-            }
+            container.dataset.eventsAttached = 'true';
+
+            // Click event delegation
+            container.addEventListener('click', function(e) {
+                const dayEl = e.target.closest('.calendar-day[data-date]');
+                if (dayEl && !dayEl.classList.contains('other-month')) {
+                    selectCalendarDate(dayEl.dataset.date);
+                }
+            });
+
+            // Hover event delegation
+            container.addEventListener('mouseover', function(e) {
+                const dayEl = e.target.closest('.calendar-day[data-date]');
+                if (dayEl && !dayEl.classList.contains('other-month')) {
+                    // Only show preview when start is selected but end is not
+                    if (calendarStartDate && !calendarEndDate) {
+                        const newHoverDate = new Date(dayEl.dataset.date);
+                        // Only re-render if hover date actually changed
+                        if (!calendarHoverDate || calendarHoverDate.getTime() !== newHoverDate.getTime()) {
+                            calendarHoverDate = newHoverDate;
+                            renderCalendars();
+                        }
+                    }
+                }
+            });
+
+            // Mouse leave from container clears hover
+            container.addEventListener('mouseleave', function() {
+                if (calendarHoverDate) {
+                    calendarHoverDate = null;
+                    renderCalendars();
+                }
+            });
         }
 
         // Date Range Modal öffnen
@@ -2450,6 +2473,9 @@
             // Always show calendar in expanded mode
             modal.classList.add('calendar-open');
             modal.classList.add('active');
+
+            // Setup event delegation (only once)
+            setupCalendarEvents();
 
             // Render calendars immediately
             renderCalendars();
