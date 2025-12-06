@@ -2535,8 +2535,13 @@
             customDateFrom = formatISODate(fromDate);
             customDateTo = formatISODate(toDate);
 
-            // Format date range for display
-            const formatDate = (d) => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            // Format date range for display (DD.MM.YY)
+            const formatDate = (d) => {
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = String(d.getFullYear()).slice(-2);
+                return `${day}.${month}.${year}`;
+            };
             const dateRangeText = `${formatDate(fromDate)} - ${formatDate(toDate)}`;
 
             // Update hidden select option text
