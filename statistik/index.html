@@ -261,6 +261,7 @@
         .calendar-days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(6, 1fr);
             gap: 2px;
         }
 
@@ -2372,9 +2373,9 @@
                 html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
             }
 
-            // Next month days (fill remaining cells)
+            // Next month days (fill to always have 42 cells = 6 rows)
             const totalCells = startOffset + lastDay.getDate();
-            const remainingCells = (7 - (totalCells % 7)) % 7;
+            const remainingCells = 42 - totalCells;
             for (let day = 1; day <= remainingCells; day++) {
                 html += `<div class="calendar-day other-month">${day}</div>`;
             }
