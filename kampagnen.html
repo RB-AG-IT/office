@@ -18,6 +18,11 @@
             overflow-x: hidden;
         }
 
+        /* Toolbar verstecken wenn in iframe (Shell hat eigene) */
+        body.in-iframe .action-toolbar {
+            display: none !important;
+        }
+
         * {
             box-sizing: border-box;
         }
@@ -9304,18 +9309,26 @@ function calculateSondMembers(index) {
 
 // Status Dropdown (Hover)
 function selectStatus(value, label) {
-    // Update trigger text with animation
+    // Update trigger text with slide-up animation
     const textEl = document.getElementById('statusDropdownText');
+
+    // Phase 1: Slide out (nach oben)
     textEl.style.transform = 'translateY(-100%)';
     textEl.style.opacity = '0';
 
     setTimeout(() => {
+        // Phase 2: Text ändern und Position zurücksetzen (ohne Animation)
+        textEl.style.transition = 'none';
         textEl.textContent = label;
         textEl.style.transform = 'translateY(100%)';
-        setTimeout(() => {
-            textEl.style.transform = 'translateY(0)';
-            textEl.style.opacity = '1';
-        }, 20);
+
+        // Force reflow
+        textEl.offsetHeight;
+
+        // Phase 3: Slide in (nach oben in Position)
+        textEl.style.transition = '';
+        textEl.style.transform = 'translateY(0)';
+        textEl.style.opacity = '1';
     }, 150);
 
     // Update active state
@@ -9356,6 +9369,18 @@ if (viewId) {
         viewCampaign(campaignId);
     }
 }
+
+// Erkennen ob in iframe -> Toolbar verstecken
+if (window.self !== window.top) {
+    document.body.classList.add('in-iframe');
+}
+
+// Listen for filter messages from parent shell
+window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'navFilter') {
+        selectStatus(e.data.value, document.querySelector(`#statusDropdown [data-value="${e.data.value}"]`)?.textContent || e.data.value);
+    }
+});
 </script>
 
 </body>
