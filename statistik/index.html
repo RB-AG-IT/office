@@ -223,6 +223,24 @@
             text-align: center;
         }
 
+        .calendar-today-btn {
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.15s;
+        }
+
+        .calendar-today-btn:hover {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
         /* Calendar Months Grid */
         .calendar-months-grid {
             display: flex;
@@ -1558,6 +1576,9 @@
                             </button>
                         </div>
 
+                        <!-- Today Button -->
+                        <button type="button" class="calendar-today-btn" onclick="goToToday()" title="Zum aktuellen Monat">Heute</button>
+
                         <!-- Right Arrow (next months) -->
                         <button type="button" class="calendar-nav-btn" onclick="navigateCalendar(3)" title="3 Monate vor">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2263,6 +2284,14 @@
         // Change year (keep same months)
         function changeCalendarYear(delta) {
             calendarBaseYear += delta;
+            renderCalendars();
+        }
+
+        // Jump to today (current month as rightmost)
+        function goToToday() {
+            const today = new Date();
+            calendarBaseYear = today.getFullYear();
+            calendarBaseMonth = today.getMonth();
             renderCalendars();
         }
 
