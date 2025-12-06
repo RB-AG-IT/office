@@ -496,10 +496,18 @@
         <!-- Action Toolbar -->
         <div class="action-toolbar">
             <div class="toolbar-left">
-                <div class="toolbar-tabs">
-                    <button class="toolbar-tab active" data-category="werber">Werber</button>
-                    <button class="toolbar-tab" data-category="kunden">Kunden / Gebiete</button>
-                    <button class="toolbar-tab" data-category="kampagnen">Kampagnen</button>
+                <div class="toolbar-nav-dropdown" id="categoryDropdown">
+                    <div class="toolbar-nav-trigger">
+                        <span id="categoryDropdownText">Werber</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                    <div class="toolbar-nav-menu">
+                        <div class="toolbar-nav-option active" data-value="werber" onclick="selectCategory('werber', 'Werber')">Werber</div>
+                        <div class="toolbar-nav-option" data-value="kunden" onclick="selectCategory('kunden', 'Kunden / Gebiete')">Kunden / Gebiete</div>
+                        <div class="toolbar-nav-option" data-value="kampagnen" onclick="selectCategory('kampagnen', 'Kampagnen')">Kampagnen</div>
+                    </div>
                 </div>
             </div>
             <!-- Searchbar - absolut zentriert -->
@@ -1521,20 +1529,35 @@
             ]
         };
 
-        // Category tabs
-        function showCategory(category) {
-            currentCategory = category;
+        // Category Dropdown (Hover)
+        function selectCategory(value, label) {
+            currentCategory = value;
 
-            // Update tabs
-            document.querySelectorAll('.toolbar-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.toolbar-tab[data-category="${category}"]`).classList.add('active');
+            // Update trigger text with animation
+            const textEl = document.getElementById('categoryDropdownText');
+            textEl.style.transform = 'translateY(-100%)';
+            textEl.style.opacity = '0';
+
+            setTimeout(() => {
+                textEl.textContent = label;
+                textEl.style.transform = 'translateY(100%)';
+                setTimeout(() => {
+                    textEl.style.transform = 'translateY(0)';
+                    textEl.style.opacity = '1';
+                }, 20);
+            }, 150);
+
+            // Update active state
+            document.querySelectorAll('#categoryDropdown .toolbar-nav-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.value === value);
+            });
 
             // Show/hide sections
             document.querySelectorAll('.category-section').forEach(s => s.style.display = 'none');
-            document.getElementById('section-' + category).style.display = 'block';
+            document.getElementById('section-' + value).style.display = 'block';
 
             // Update context filter dropdown
-            updateContextFilter(category);
+            updateContextFilter(value);
         }
 
         // Context Filter aktualisieren
@@ -1546,14 +1569,6 @@
                 `<option value="${opt.value}">${opt.label}</option>`
             ).join('');
         }
-
-        // Tab-Klicks initialisieren
-        document.querySelectorAll('.toolbar-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const category = this.dataset.category;
-                showCategory(category);
-            });
-        });
 
         // Custom Date Range State
         let customDateFrom = null;
