@@ -21,9 +21,22 @@
         .app-container {
             display: grid;
             grid-template-columns: 56px 1fr;
-            grid-template-rows: 65px 1fr;
+            grid-template-rows: 65px 56px 1fr;
             height: 100vh;
             transition: grid-template-columns 0.3s ease;
+        }
+
+        /* Persistente Action Toolbar */
+        .shell-action-toolbar {
+            grid-column: 2;
+            grid-row: 2;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 10px var(--spacing-md);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            min-height: 56px;
         }
 
         .app-container.expanded {
@@ -263,7 +276,7 @@
         /* Main Content Area - VOLLBILD OHNE SCROLLEN */
         .content-area {
             grid-column: 2;
-            grid-row: 2;
+            grid-row: 3;
             overflow: hidden;
             padding: 0;
             background: var(--bg-secondary);
@@ -493,6 +506,47 @@
                 </div>
             </div>
         </header>
+
+        <!-- Persistente Action Toolbar (flackert nicht bei Navigation) -->
+        <div class="shell-action-toolbar" id="shellToolbar">
+            <!-- Left: Navigation Dropdown -->
+            <div class="toolbar-left">
+                <div class="toolbar-nav-dropdown" id="shellNavDropdown">
+                    <div class="toolbar-nav-trigger">
+                        <span id="shellNavText">Dashboard</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                    <div class="toolbar-nav-menu" id="shellNavMenu">
+                        <!-- Wird dynamisch befüllt -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center: Searchbar (absolut zentriert) -->
+            <div class="toolbar-search">
+                <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" class="toolbar-search-input" id="shellSearchInput" placeholder="Suchen...">
+            </div>
+
+            <!-- Flexible: Filter Dropdowns -->
+            <div class="toolbar-filters" id="shellFilters">
+                <!-- Wird dynamisch befüllt -->
+            </div>
+
+            <!-- Right: Action Button -->
+            <div class="toolbar-right">
+                <button class="toolbar-btn toolbar-btn-primary" id="shellActionBtn" style="display: none;">
+                    <svg id="shellActionIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span id="shellActionText">Aktion</span>
+                </button>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <main class="content-area">
@@ -808,6 +862,143 @@
             });
         });
 
+        // ================================================================
+        // SHELL TOOLBAR CONFIGURATION
+        // ================================================================
+
+        const toolbarConfig = {
+            dashboard: {
+                showToolbar: false
+            },
+            users: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'alle', label: 'Alle Benutzer', active: true },
+                    { value: 'mitarbeiter', label: 'Mitarbeiter' },
+                    { value: 'kunde', label: 'Kunden' }
+                ],
+                searchPlaceholder: 'Benutzer suchen...',
+                actionBtn: { text: 'Benutzer anlegen', icon: 'plus' }
+            },
+            campaigns: {
+                showToolbar: true,
+                navOptions: [
+                    { value: '', label: 'Alle Kampagnen', active: true },
+                    { value: 'active', label: 'Aktive' },
+                    { value: 'planned', label: 'Geplante' },
+                    { value: 'inactive', label: 'Inaktive' }
+                ],
+                searchPlaceholder: 'Kampagne suchen...',
+                actionBtn: { text: 'Neue Kampagne', icon: 'plus' }
+            },
+            statistics: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'werber', label: 'Werber', active: true },
+                    { value: 'kunden', label: 'Kunden / Gebiete' },
+                    { value: 'kampagnen', label: 'Kampagnen' }
+                ],
+                searchPlaceholder: 'Statistik suchen...',
+                actionBtn: { text: 'Export', icon: 'download' }
+            }
+        };
+
+        let currentShellNav = null;
+
+        function updateShellToolbar(page) {
+            const config = toolbarConfig[page];
+            const toolbar = document.getElementById('shellToolbar');
+            const actionBtn = document.getElementById('shellActionBtn');
+
+            if (!config || !config.showToolbar) {
+                toolbar.style.display = 'none';
+                return;
+            }
+
+            toolbar.style.display = 'flex';
+
+            // Update Nav Dropdown with animation
+            if (config.navOptions) {
+                const navText = document.getElementById('shellNavText');
+                const navMenu = document.getElementById('shellNavMenu');
+                const activeOption = config.navOptions.find(o => o.active) || config.navOptions[0];
+
+                // Slide-up animation for nav text
+                if (currentShellNav !== page) {
+                    navText.style.transition = 'none';
+                    navText.style.transform = 'translateY(100%)';
+                    navText.style.opacity = '0';
+                    navText.offsetHeight; // Force reflow
+                    navText.style.transition = '';
+
+                    setTimeout(() => {
+                        navText.textContent = activeOption.label;
+                        navText.style.transform = 'translateY(0)';
+                        navText.style.opacity = '1';
+                    }, 50);
+                }
+
+                // Build menu options
+                navMenu.innerHTML = config.navOptions.map(opt =>
+                    `<div class="toolbar-nav-option${opt.active ? ' active' : ''}"
+                          data-value="${opt.value}"
+                          onclick="selectShellNavOption('${opt.value}', '${opt.label}')">${opt.label}</div>`
+                ).join('');
+
+                currentShellNav = page;
+            }
+
+            // Update Search placeholder with animation
+            const searchInput = document.getElementById('shellSearchInput');
+            if (config.searchPlaceholder) {
+                searchInput.placeholder = config.searchPlaceholder;
+            }
+
+            // Update Action Button
+            if (config.actionBtn) {
+                actionBtn.style.display = 'flex';
+                document.getElementById('shellActionText').textContent = config.actionBtn.text;
+
+                // Update icon
+                const iconPath = config.actionBtn.icon === 'download'
+                    ? 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                    : 'M12 4v16m8-8H4';
+                document.getElementById('shellActionIcon').innerHTML =
+                    `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>`;
+            } else {
+                actionBtn.style.display = 'none';
+            }
+        }
+
+        function selectShellNavOption(value, label) {
+            const navText = document.getElementById('shellNavText');
+
+            // Slide-up animation
+            navText.style.transform = 'translateY(-100%)';
+            navText.style.opacity = '0';
+
+            setTimeout(() => {
+                navText.style.transition = 'none';
+                navText.textContent = label;
+                navText.style.transform = 'translateY(100%)';
+                navText.offsetHeight;
+                navText.style.transition = '';
+                navText.style.transform = 'translateY(0)';
+                navText.style.opacity = '1';
+            }, 150);
+
+            // Update active state
+            document.querySelectorAll('#shellNavMenu .toolbar-nav-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.value === value);
+            });
+
+            // Send message to iframe to filter
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'navFilter', value: value }, '*');
+            }
+        }
+
         function loadPage(page) {
             const container = document.getElementById('content-container');
 
@@ -851,8 +1042,12 @@
                 titleElement.textContent = pageTitles[page];
             }
 
+            // Update shell toolbar
+            updateShellToolbar(page);
+
             // Check if user is logged in
             if (!currentUser) {
+                document.getElementById('shellToolbar').style.display = 'none';
                 container.classList.add('no-iframe');
                 container.innerHTML = `
                     <div style="text-align: center; max-width: 400px; margin: 0 auto;">

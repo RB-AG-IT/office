@@ -18,6 +18,11 @@
             background: var(--bg-secondary);
         }
 
+        /* Toolbar verstecken wenn in iframe (Shell hat eigene) */
+        body.in-iframe .action-toolbar {
+            display: none !important;
+        }
+
         .page-container {
             padding: 0;
         }
@@ -1139,12 +1144,27 @@
         // ================================================================
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Erkennen ob in iframe -> Toolbar verstecken
+            if (window.self !== window.top) {
+                document.body.classList.add('in-iframe');
+            }
+
             // Load dummy data (später durch Supabase ersetzen)
             users = [...dummyUsers];
             renderUsers();
 
-            // TODO: Live-Update für Online-Status implementieren
-            // setInterval(() => { ... }, 30000);
+            // Listen for filter messages from parent shell
+            window.addEventListener('message', function(e) {
+                if (e.data && e.data.type === 'navFilter') {
+                    document.getElementById('viewDropdown')
+                        ?.querySelectorAll('.toolbar-nav-option')
+                        .forEach(opt => {
+                            if (opt.dataset.value === e.data.value) {
+                                opt.click();
+                            }
+                        });
+                }
+            });
         });
     </script>
 </body>

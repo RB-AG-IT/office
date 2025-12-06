@@ -14,6 +14,11 @@
             background: var(--bg-secondary);
         }
 
+        /* Toolbar verstecken wenn in iframe (Shell hat eigene) */
+        body.in-iframe .action-toolbar {
+            display: none !important;
+        }
+
         .page-container {
             padding: 0;
         }
@@ -1681,6 +1686,18 @@
 
         // Initial: Context Filter befüllen
         updateContextFilter('werber');
+
+        // Erkennen ob in iframe -> Toolbar verstecken
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
+
+        // Listen for filter messages from parent shell
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'navFilter') {
+                selectCategory(e.data.value, document.querySelector(`#categoryDropdown [data-value="${e.data.value}"]`)?.textContent || e.data.value);
+            }
+        });
     </script>
 </body>
 </html>
