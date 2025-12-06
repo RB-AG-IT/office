@@ -1,11 +1,12 @@
 # Rekorde & Dashboard Spezifikation
 
-## Dashboard Tabs (5 Tabs)
-1. Werben
-2. Teamleitung
-3. Empfehlung
-4. Recruiting
-5. (5. Tab noch zu klären)
+## Dashboard Tabs (6 Tabs)
+1. **Allgemein** - Zusammenfassung aller anderen Tabs
+2. Werben
+3. Teamleitung
+4. Empfehlung
+5. Recruiting
+6. Quality
 
 Jeder Tab zeigt das gleiche Dashboard-Layout mit Adaptionen + nur die entsprechenden Rekorde unten.
 
@@ -39,10 +40,21 @@ Jeder Tab zeigt das gleiche Dashboard-Layout mit Adaptionen + nur die entspreche
 
 ### Info-Icons (i)
 - Tooltips zur Erklärung bei allen Metriken
+- Erscheinen bei HOVER (nicht Klick)
 
 ---
 
-## REKORDE (All-Time, immer mit Datum)
+## REKORDE
+
+### Filter
+- Standard: Pro Jahr
+- Option: Gesamt (All-Time)
+- Immer mit Datum angezeigt
+
+### "Allgemein" Rekorde (Streaks etc.)
+- Werden in JEDEM Tab ganz unten angezeigt
+
+---
 
 ### WERBEN
 *Jeweils pro Tag UND pro Woche:*
@@ -94,23 +106,37 @@ Jeder Tab zeigt das gleiche Dashboard-Layout mit Adaptionen + nur die entspreche
 
 ---
 
+### QUALITY
+*TODO: Rekorde noch zu definieren*
+
+---
+
 ## Tab-spezifische Anpassungen
+
+### Tab: Allgemein
+- Zusammenfassung aller anderen Tabs
+- Alle Rekorde-Kategorien anzeigen
 
 ### Tab: Werben
 - Standard-Dashboard
-- Rekorde: Werben + Allgemein
+- Rekorde: Werben + Allgemein (unten)
 
 ### Tab: Teamleitung
-- Dashboard zeigt Team-Daten für gewählten Zeitraum (falls vorhanden)
-- Rekorde: Teamchef/Teamleitung
+- Dashboard zeigt Team-Daten für gewählten Zeitraum
+- Falls kein Teamleiter: Tab leer / "Keine Daten"
+- Rekorde: Teamchef/Teamleitung + Allgemein (unten)
 
 ### Tab: Empfehlung
 - Dashboard zeigt Durchschnittswerte aller Empfehlungen
-- Rekorde: Empfehlungen
+- Rekorde: Empfehlungen + Allgemein (unten)
 
 ### Tab: Recruiting
 - Dashboard zeigt Durchschnittswerte aller Recruitments
-- Rekorde: Recruiting
+- Rekorde: Recruiting + Allgemein (unten)
+
+### Tab: Quality
+- Dashboard zeigt Quality-spezifische Daten
+- Rekorde: Quality + Allgemein (unten)
 
 ---
 
