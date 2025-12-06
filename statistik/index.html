@@ -24,26 +24,108 @@
             margin: 0 auto;
         }
 
-        /* Custom Date Range */
-        .custom-date-range {
+        /* Date Range Modal */
+        .date-range-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
         }
 
-        .custom-date-range input[type="date"] {
-            height: 36px;
-            padding: 0 10px;
+        .date-range-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .date-range-modal-content {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            width: 320px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.2s ease;
+        }
+
+        .date-range-modal.active .date-range-modal-content {
+            transform: scale(1);
+        }
+
+        .date-range-modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .date-range-modal-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .date-range-modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--text-secondary);
+            border-radius: 4px;
+        }
+
+        .date-range-modal-close:hover {
+            background: var(--bg-secondary);
+        }
+
+        .date-range-modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .date-range-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .date-range-field label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .date-range-field input[type="date"] {
+            height: 40px;
+            padding: 0 12px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            font-size: 13px;
+            font-size: 14px;
             background: var(--bg-secondary);
             color: var(--text-primary);
         }
 
-        .custom-date-range input[type="date"]:focus {
+        .date-range-field input[type="date"]:focus {
             outline: none;
             border-color: var(--accent-color);
+        }
+
+        .date-range-modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
         }
 
         /* Legacy Filter Bar (not used anymore) */
@@ -439,7 +521,7 @@
                 </select>
 
                 <!-- Zeitraum Dropdown -->
-                <select class="toolbar-filter" id="filterPeriod" onchange="applyFilters()">
+                <select class="toolbar-filter" id="filterPeriod" onchange="handlePeriodChange()">
                     <option value="custom">Individuell</option>
                     <option value="week">Diese Woche</option>
                     <option value="month" selected>Dieser Monat</option>
@@ -447,13 +529,6 @@
                     <option value="year">Dieses Jahr</option>
                     <option value="all">Gesamt</option>
                 </select>
-
-                <!-- Individuelle Zeitraum-Eingabe (versteckt, wenn nicht "Individuell" ausgewählt) -->
-                <div class="custom-date-range" id="customDateRange" style="display: none;">
-                    <input type="date" class="toolbar-filter" id="dateFrom" style="width: 130px;">
-                    <span style="color: var(--text-secondary); font-size: 12px;">bis</span>
-                    <input type="date" class="toolbar-filter" id="dateTo" style="width: 130px;">
-                </div>
             </div>
             <div class="toolbar-right">
                 <button class="toolbar-btn toolbar-btn-primary" onclick="exportStats()">
@@ -1395,6 +1470,34 @@
         </div><!-- Ende content-area -->
     </div><!-- Ende page-container -->
 
+    <!-- Custom Date Range Modal -->
+    <div class="date-range-modal" id="dateRangeModal" onclick="if(event.target === this) closeDateRangeModal()">
+        <div class="date-range-modal-content">
+            <div class="date-range-modal-header">
+                <h3>Individueller Zeitraum</h3>
+                <button class="date-range-modal-close" onclick="closeDateRangeModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="date-range-modal-body">
+                <div class="date-range-field">
+                    <label>Von</label>
+                    <input type="date" id="dateFrom">
+                </div>
+                <div class="date-range-field">
+                    <label>Bis</label>
+                    <input type="date" id="dateTo">
+                </div>
+            </div>
+            <div class="date-range-modal-footer">
+                <button class="btn btn-secondary" onclick="closeDateRangeModal()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="applyCustomDateRange()">Anwenden</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Aktueller Tab
         let currentCategory = 'werber';
@@ -1451,16 +1554,61 @@
             });
         });
 
-        // Zeitraum-Dropdown: Individuell zeigen/verstecken
-        document.getElementById('filterPeriod').addEventListener('change', function() {
-            const customDateRange = document.getElementById('customDateRange');
-            if (this.value === 'custom') {
-                customDateRange.style.display = 'flex';
+        // Custom Date Range State
+        let customDateFrom = null;
+        let customDateTo = null;
+        let previousPeriodValue = 'month';
+
+        // Zeitraum-Dropdown Handler
+        function handlePeriodChange() {
+            const period = document.getElementById('filterPeriod').value;
+            if (period === 'custom') {
+                openDateRangeModal();
             } else {
-                customDateRange.style.display = 'none';
+                previousPeriodValue = period;
+                applyFilters();
             }
+        }
+
+        // Date Range Modal öffnen
+        function openDateRangeModal() {
+            const modal = document.getElementById('dateRangeModal');
+            // Aktuelle Werte setzen falls vorhanden
+            if (customDateFrom) document.getElementById('dateFrom').value = customDateFrom;
+            if (customDateTo) document.getElementById('dateTo').value = customDateTo;
+            modal.classList.add('active');
+        }
+
+        // Date Range Modal schließen
+        function closeDateRangeModal() {
+            const modal = document.getElementById('dateRangeModal');
+            modal.classList.remove('active');
+            // Zurück zum vorherigen Wert wenn abgebrochen
+            if (!customDateFrom || !customDateTo) {
+                document.getElementById('filterPeriod').value = previousPeriodValue;
+            }
+        }
+
+        // Custom Date Range anwenden
+        function applyCustomDateRange() {
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+
+            if (!dateFrom || !dateTo) {
+                alert('Bitte beide Daten auswählen');
+                return;
+            }
+
+            if (new Date(dateFrom) > new Date(dateTo)) {
+                alert('Das Start-Datum muss vor dem End-Datum liegen');
+                return;
+            }
+
+            customDateFrom = dateFrom;
+            customDateTo = dateTo;
+            closeDateRangeModal();
             applyFilters();
-        });
+        }
 
         // Suche
         document.getElementById('searchInput').addEventListener('input', function() {
