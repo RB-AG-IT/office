@@ -70,6 +70,88 @@
             font-weight: 500;
         }
 
+        .section-expand-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .section-expand-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .letzte100-table tbody tr {
+            cursor: pointer;
+        }
+
+        .letzte100-table tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Hierarchische Kunden/Gebiete Darstellung */
+        .kunde-row {
+            background: var(--bg-secondary);
+            font-weight: 500;
+        }
+
+        .kunde-row td:first-child {
+            padding-left: 14px;
+        }
+
+        .gebiet-row td:first-child {
+            padding-left: 44px;
+        }
+
+        .gebiet-row td:first-child::before {
+            content: '→';
+            margin-right: 8px;
+            color: var(--text-tertiary);
+        }
+
+        .entity-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--accent-color), #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .entity-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .entity-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .entity-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .status-valid {
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .status-storno {
+            color: #ef4444;
+            font-weight: 500;
+        }
+
         /* Stats Table */
         .stats-table {
             width: 100%;
@@ -1401,17 +1483,15 @@
             <div class="toolbar-left">
                 <div class="toolbar-nav-dropdown" id="categoryDropdown">
                     <div class="toolbar-nav-trigger">
-                        <span id="categoryDropdownText">Kunden</span>
+                        <span id="categoryDropdownText">Werber</span>
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </div>
                     <div class="toolbar-nav-menu">
-                        <div class="toolbar-nav-option active" data-value="kunden" onclick="selectCategory('kunden', 'Kunden')">Kunden</div>
-                        <div class="toolbar-nav-option" data-value="gebiete" onclick="selectCategory('gebiete', 'Einsatzgebiete')">Einsatzgebiete</div>
+                        <div class="toolbar-nav-option active" data-value="werber" onclick="selectCategory('werber', 'Werber')">Werber</div>
+                        <div class="toolbar-nav-option" data-value="kunden" onclick="selectCategory('kunden', 'Kunden / Gebiete')">Kunden / Gebiete</div>
                         <div class="toolbar-nav-option" data-value="kampagnen" onclick="selectCategory('kampagnen', 'Kampagnen')">Kampagnen</div>
-                        <div class="toolbar-nav-divider"></div>
-                        <div class="toolbar-nav-option" data-value="letzte100" onclick="selectCategory('letzte100', 'Letzte Datensätze (100)')">Letzte Datensätze (100)</div>
                     </div>
                 </div>
             </div>
@@ -1440,30 +1520,30 @@
         </div>
 
         <div class="content-area">
-            <!-- OVERVIEW VIEW: Lists of Kunden/Gebiete/Kampagnen -->
+            <!-- OVERVIEW VIEW: Lists of Werber/Kunden/Kampagnen -->
             <div class="overview-view" id="overviewView">
-                <!-- KUNDEN SECTION -->
-                <div id="section-kunden" class="category-section">
+                <!-- WERBER SECTION -->
+                <div id="section-werber" class="category-section">
                     <div class="section">
                         <div class="section-header">
                             <div class="section-title">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                Kunden Übersicht
-                                <span class="section-badge" id="kundenBadge">2 Kunden</span>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                Werber Übersicht
+                                <span class="section-badge" id="werberBadge">4 Werber</span>
                             </div>
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="stats-table">
                                 <thead>
                                     <tr>
-                                        <th>Kunde</th>
+                                        <th>Werber</th>
                                         <th class="right">Datensätze</th>
                                         <th class="right">Netto JE</th>
                                         <th class="right">Stornoquote</th>
                                         <th class="center" style="width: 60px;"></th>
                                     </tr>
                                 </thead>
-                                <tbody id="kundenTableBody">
+                                <tbody id="werberTableBody">
                                     <!-- Wird per JS befüllt -->
                                 </tbody>
                             </table>
@@ -1471,28 +1551,28 @@
                     </div>
                 </div>
 
-                <!-- GEBIETE SECTION -->
-                <div id="section-gebiete" class="category-section" style="display: none;">
+                <!-- KUNDEN / GEBIETE SECTION (hierarchisch) -->
+                <div id="section-kunden" class="category-section" style="display: none;">
                     <div class="section">
                         <div class="section-header">
                             <div class="section-title">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                Einsatzgebiete Übersicht
-                                <span class="section-badge" id="gebieteBadge">5 Gebiete</span>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                Kunden & Einsatzgebiete
+                                <span class="section-badge" id="kundenBadge">2 Kunden</span>
                             </div>
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="stats-table">
                                 <thead>
                                     <tr>
-                                        <th>Einsatzgebiet</th>
+                                        <th>Kunde / Gebiet</th>
                                         <th class="right">Datensätze</th>
                                         <th class="right">Netto JE</th>
                                         <th class="right">Stornoquote</th>
                                         <th class="center" style="width: 60px;"></th>
                                     </tr>
                                 </thead>
-                                <tbody id="gebieteTableBody">
+                                <tbody id="kundenGebieteTableBody">
                                     <!-- Wird per JS befüllt -->
                                 </tbody>
                             </table>
@@ -1522,6 +1602,42 @@
                                     </tr>
                                 </thead>
                                 <tbody id="kampagnenTableBody">
+                                    <!-- Wird per JS befüllt -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LETZTE 100 DATENSÄTZE SECTION (immer sichtbar unten) -->
+                <div id="section-letzte100" class="category-section" style="margin-top: 24px;">
+                    <div class="section">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Letzte 100 Datensätze
+                                <span class="section-badge" id="letzte100Badge">100</span>
+                            </div>
+                            <button class="section-expand-btn" onclick="toggleLetzte100()">
+                                <svg id="letzte100ExpandIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px; transition: transform 0.2s;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="letzte100Content" style="overflow-x: auto;">
+                            <table class="stats-table letzte100-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 90px;">Datum</th>
+                                        <th style="width: 60px;">Art</th>
+                                        <th>Name</th>
+                                        <th>Kunde</th>
+                                        <th>Gebiet</th>
+                                        <th class="right" style="width: 90px;">Beitrag</th>
+                                        <th class="center" style="width: 80px;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="letzte100TableBody">
                                     <!-- Wird per JS befüllt -->
                                 </tbody>
                             </table>
@@ -2073,6 +2189,15 @@
             { id: 3, name: 'Herbstkampagne 2024', initials: 'HK', color: '#6366f1', records: 28, nettoJE: 4290, storno: 7.1, gebieteIds: [2, 5] }
         ];
 
+        const werberData = [
+            { id: 1, name: 'Max Mustermann', initials: 'MM', color: '#8b5cf6', records: 45, nettoJE: 5850, storno: 8.9 },
+            { id: 2, name: 'Anna Schmidt', initials: 'AS', color: '#ec4899', records: 38, nettoJE: 4940, storno: 10.5 },
+            { id: 3, name: 'Peter Weber', initials: 'PW', color: '#06b6d4', records: 52, nettoJE: 6760, storno: 7.7 },
+            { id: 4, name: 'Lisa Müller', initials: 'LM', color: '#f97316', records: 28, nettoJE: 3640, storno: 12.1 }
+        ];
+
+        let letzte100Expanded = true;
+
         // Generate 100 dummy records with ALL form fields
         const recordsData = (function() {
             const vornamen = ['Max', 'Erika', 'Hans', 'Maria', 'Peter', 'Sabine', 'Thomas', 'Laura', 'Michael', 'Julia', 'Andreas', 'Claudia', 'Stefan', 'Martina', 'Christian', 'Nicole', 'Markus', 'Sandra', 'Frank', 'Petra', 'Jürgen', 'Monika', 'Uwe', 'Karin', 'Ralf', 'Birgit', 'Bernd', 'Heike', 'Dirk', 'Anja'];
@@ -2219,7 +2344,13 @@
                     teamchef: teamchefs[Math.floor(Math.random() * teamchefs.length)],
 
                     // Einheiten (EH) berechnet aus JE
-                    eh: je / 60
+                    eh: je / 60,
+
+                    // IDs für Filterung
+                    kundeId: kunde === 'DRK KV Ludwigshafen' ? 1 : 2,
+                    gebietId: area === 'Ludwigshafen-Mitte' ? 1 : area === 'Ludwigshafen-Süd' ? 2 : area === 'Oggersheim' ? 3 : area === 'Mannheim-Nord' ? 4 : 5,
+                    werberId: Math.floor(Math.random() * 4) + 1, // 1-4 matching werberData
+                    beitrag: amount // Alias für Anzeige in Letzte 100
                 };
 
                 // ERH-spezifische Felder
@@ -2336,9 +2467,10 @@
                 document.body.classList.add('in-iframe');
             }
 
-            renderKundenTable();
-            renderGebieteTable();
+            renderWerberTable();
+            renderKundenGebieteTable();
             renderKampagnenTable();
+            renderLetzte100Table();
             setupColumnCheckboxes();
             setupStornoReasons();
         });
@@ -2348,10 +2480,9 @@
             // Navigation filter from shell
             if (e.data && e.data.type === 'navFilter') {
                 const labelMap = {
-                    'kunden': 'Kunden',
-                    'gebiete': 'Einsatzgebiete',
-                    'kampagnen': 'Kampagnen',
-                    'letzte100': 'Letzte Datensätze (100)'
+                    'werber': 'Werber',
+                    'kunden': 'Kunden / Gebiete',
+                    'kampagnen': 'Kampagnen'
                 };
                 selectCategory(e.data.value, labelMap[e.data.value] || e.data.value);
             }
@@ -2404,15 +2535,14 @@
             }
 
             // Show correct section or detail view
-            if (value === 'letzte100') {
-                showLast100Records();
-            } else {
-                showOverviewView();
-                document.querySelectorAll('.category-section').forEach(sec => {
-                    sec.style.display = 'none';
-                });
-                document.getElementById('section-' + value).style.display = 'block';
-            }
+            showOverviewView();
+            // Hide main category sections (not letzte100)
+            ['section-werber', 'section-kunden', 'section-kampagnen'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            document.getElementById('section-' + value).style.display = 'block';
+            // Letzte 100 is always visible at the bottom
+            document.getElementById('section-letzte100').style.display = 'block';
         }
 
         // ========== VIEW SWITCHING ==========
@@ -2430,11 +2560,7 @@
         }
 
         function goBack() {
-            if (currentCategory === 'letzte100') {
-                selectCategory('kunden', 'Kunden');
-            } else {
-                showOverviewView();
-            }
+            showOverviewView();
             currentEntity = null;
         }
 
@@ -2444,15 +2570,50 @@
         }
 
         // ========== TABLE RENDERING ==========
-        function renderKundenTable() {
-            const tbody = document.getElementById('kundenTableBody');
-            tbody.innerHTML = kundenData.map(kunde => `
+        function renderWerberTable() {
+            const tbody = document.getElementById('werberTableBody');
+            tbody.innerHTML = werberData.map(werber => `
                 <tr>
                     <td>
                         <div class="name-cell">
-                            <div class="avatar" style="background: linear-gradient(135deg, ${kunde.color} 0%, ${adjustColor(kunde.color, -20)} 100%);">${kunde.initials}</div>
+                            <div class="avatar" style="background: linear-gradient(135deg, ${werber.color} 0%, ${adjustColor(werber.color, -20)} 100%);">${werber.initials}</div>
                             <div class="name-info">
-                                <div class="name-main">${kunde.name}</div>
+                                <div class="name-main">${werber.name}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="right value-highlight">${werber.records}</td>
+                    <td class="right value-money">${formatCurrency(werber.nettoJE)}</td>
+                    <td class="right">${werber.storno.toFixed(1)}%</td>
+                    <td class="center">
+                        <button class="dashboard-btn" onclick="openWerberRecords(${werber.id})" title="Datensätze anzeigen">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            document.getElementById('werberBadge').textContent = `${werberData.length} Werber`;
+        }
+
+        function renderKundenGebieteTable() {
+            const tbody = document.getElementById('kundenGebieteTableBody');
+            let html = '';
+
+            kundenData.forEach(kunde => {
+                // Get gebiete for this kunde
+                const kundeGebiete = gebieteData.filter(g => g.kundeId === kunde.id);
+
+                // Kunde Hauptzeile
+                html += `
+                <tr class="kunde-row">
+                    <td>
+                        <div class="entity-info">
+                            <div class="entity-avatar" style="background: linear-gradient(135deg, ${kunde.color} 0%, ${adjustColor(kunde.color, -20)} 100%);">${kunde.initials}</div>
+                            <div>
+                                <div class="entity-name">${kunde.name}</div>
+                                <div class="entity-subtitle">${kundeGebiete.length} Werbegebiete</div>
                             </div>
                         </div>
                     </td>
@@ -2460,42 +2621,94 @@
                     <td class="right value-money">${formatCurrency(kunde.nettoJE)}</td>
                     <td class="right">${kunde.storno.toFixed(1)}%</td>
                     <td class="center">
-                        <button class="dashboard-btn" onclick="openKundeRecords(${kunde.id})" title="Datensätze anzeigen">
+                        <button class="dashboard-btn" onclick="openKundeRecords(${kunde.id})" title="Alle Datensätze anzeigen">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
                         </button>
                     </td>
-                </tr>
-            `).join('');
-            document.getElementById('kundenBadge').textContent = `${kundenData.length} Kunden`;
-        }
+                </tr>`;
 
-        function renderGebieteTable() {
-            const tbody = document.getElementById('gebieteTableBody');
-            tbody.innerHTML = gebieteData.map(gebiet => `
-                <tr>
+                // Gebiete unter diesem Kunden
+                kundeGebiete.forEach(gebiet => {
+                    html += `
+                <tr class="gebiet-row">
                     <td>
-                        <div class="name-cell">
-                            <div class="avatar" style="background: linear-gradient(135deg, ${gebiet.color} 0%, ${adjustColor(gebiet.color, -20)} 100%);">${gebiet.initials}</div>
-                            <div class="name-info">
-                                <div class="name-main">${gebiet.name}</div>
-                            </div>
-                        </div>
+                        <span class="entity-name" style="font-weight: 400;">${gebiet.name}</span>
                     </td>
-                    <td class="right value-highlight">${gebiet.records}</td>
+                    <td class="right">${gebiet.records}</td>
                     <td class="right value-money">${formatCurrency(gebiet.nettoJE)}</td>
                     <td class="right">${gebiet.storno.toFixed(1)}%</td>
                     <td class="center">
-                        <button class="dashboard-btn" onclick="openGebietRecords(${gebiet.id})" title="Datensätze anzeigen">
+                        <button class="dashboard-btn" onclick="openGebietRecords(${gebiet.id})" title="Datensätze für ${gebiet.name} anzeigen">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
                         </button>
                     </td>
+                </tr>`;
+                });
+            });
+
+            tbody.innerHTML = html;
+            document.getElementById('kundenBadge').textContent = `${kundenData.length} Kunden`;
+        }
+
+        function renderLetzte100Table() {
+            const tbody = document.getElementById('letzte100TableBody');
+            const last100 = recordsData.slice(0, 100);
+
+            tbody.innerHTML = last100.map(record => {
+                const kunde = kundenData.find(k => k.id === record.kundeId) || { name: '-' };
+                const gebiet = gebieteData.find(g => g.id === record.gebietId) || { name: '-' };
+                const isActive = record.status === 'active';
+                const statusClass = isActive ? 'status-valid' : 'status-storno';
+                const statusLabel = isActive ? 'Gültig' : 'Storno';
+                const typeLabel = record.type.toUpperCase();
+
+                return `
+                <tr onclick="openRecordDetail(${record.id})">
+                    <td>${formatDate(record.date)}</td>
+                    <td><span class="badge badge-${record.type}">${typeLabel}</span></td>
+                    <td>${record.name}</td>
+                    <td>${kunde.name}</td>
+                    <td>${gebiet.name}</td>
+                    <td class="right">${formatCurrency(record.beitrag)}</td>
+                    <td class="center"><span class="${statusClass}">${statusLabel}</span></td>
                 </tr>
-            `).join('');
-            document.getElementById('gebieteBadge').textContent = `${gebieteData.length} Gebiete`;
+            `}).join('');
+
+            document.getElementById('letzte100Badge').textContent = last100.length;
+        }
+
+        function toggleLetzte100() {
+            letzte100Expanded = !letzte100Expanded;
+            const content = document.getElementById('letzte100Content');
+            const icon = document.getElementById('letzte100ExpandIcon');
+
+            if (letzte100Expanded) {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        function openWerberRecords(werberId) {
+            const werber = werberData.find(w => w.id === werberId);
+            if (werber) {
+                currentEntity = { type: 'werber', id: werberId };
+                const werberRecords = recordsData.filter(r => r.werberId === werberId);
+                showDetailView(werber.name, `${werberRecords.length} Datensätze`, werberRecords);
+            }
+        }
+
+        function openRecordDetail(recordId) {
+            const record = recordsData.find(r => r.id === recordId);
+            if (record) {
+                openInfoModal(record);
+            }
         }
 
         function renderKampagnenTable() {
