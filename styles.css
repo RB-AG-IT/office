@@ -1321,6 +1321,69 @@ body {
     opacity: 1;
 }
 
+/* Animated Search Placeholder */
+.toolbar-search-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.toolbar-search-placeholder {
+    position: absolute;
+    left: 36px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 13px;
+    pointer-events: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.toolbar-search-placeholder.slide-out {
+    transform: translateY(-150%);
+    opacity: 0;
+}
+
+.toolbar-search-placeholder.slide-in {
+    transform: translateY(150%);
+    opacity: 0;
+}
+
+.toolbar-search-input:focus + .toolbar-search-placeholder,
+.toolbar-search-input:not(:placeholder-shown) + .toolbar-search-placeholder {
+    opacity: 0;
+}
+
+/* Animated Toolbar Button Text */
+.toolbar-btn span {
+    display: inline-block;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.toolbar-btn.slide-out span {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.toolbar-btn.slide-in span {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
+/* Toolbar Right Container Animation */
+.toolbar-right {
+    display: flex;
+    gap: 8px;
+}
+
+.toolbar-right .toolbar-btn {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.toolbar-right.animating .toolbar-btn {
+    transform: translateY(-10px);
+    opacity: 0;
+}
+
 /* ========================================
    TOOLBAR TABS (Pill Style)
    ======================================== */

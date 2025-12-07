@@ -586,11 +586,12 @@
             </div>
 
             <!-- Center: Searchbar (absolut zentriert) -->
-            <div class="toolbar-search">
+            <div class="toolbar-search toolbar-search-wrapper">
                 <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <input type="search" class="toolbar-search-input" id="shellSearchInput" name="site-search" placeholder="Suchen..." autocomplete="off" data-lpignore="true" data-form-type="other" role="searchbox">
+                <input type="search" class="toolbar-search-input" id="shellSearchInput" name="site-search" placeholder=" " autocomplete="off" data-lpignore="true" data-form-type="other" role="searchbox">
+                <span class="toolbar-search-placeholder" id="shellSearchPlaceholder">Suchen...</span>
             </div>
 
             <!-- Kontext Filter - rechts von Searchbar -->
@@ -1141,14 +1142,33 @@
             }
 
             // Update Search placeholder with animation
-            const searchInput = document.getElementById('shellSearchInput');
-            if (config.searchPlaceholder) {
-                searchInput.placeholder = config.searchPlaceholder;
+            const searchPlaceholder = document.getElementById('shellSearchPlaceholder');
+            if (config.searchPlaceholder && searchPlaceholder.textContent !== config.searchPlaceholder) {
+                // Slide out
+                searchPlaceholder.classList.add('slide-out');
+
+                setTimeout(() => {
+                    // Change text and prepare slide in
+                    searchPlaceholder.textContent = config.searchPlaceholder;
+                    searchPlaceholder.classList.remove('slide-out');
+                    searchPlaceholder.classList.add('slide-in');
+
+                    // Force reflow
+                    searchPlaceholder.offsetHeight;
+
+                    // Slide in
+                    setTimeout(() => {
+                        searchPlaceholder.classList.remove('slide-in');
+                    }, 20);
+                }, 150);
             }
 
-            // Update Action Buttons (multiple buttons support)
+            // Update Action Buttons with animation
+            const previousButtons = toolbarRight.innerHTML;
+            let newButtonsHtml = '';
+
             if (config.actionButtons && config.actionButtons.length > 0) {
-                toolbarRight.innerHTML = config.actionButtons.map(btn => {
+                newButtonsHtml = config.actionButtons.map(btn => {
                     const iconPath = getIconPath(btn.icon);
                     const primaryClass = btn.primary ? ' toolbar-btn-primary' : '';
                     return `<button class="toolbar-btn${primaryClass}" onclick="shellToolbarAction('${btn.action}')">
@@ -1161,14 +1181,28 @@
             } else if (config.actionBtn) {
                 // Backwards compatibility: single button
                 const iconPath = getIconPath(config.actionBtn.icon);
-                toolbarRight.innerHTML = `<button class="toolbar-btn toolbar-btn-primary" onclick="shellToolbarAction('${config.actionBtn.action || 'default'}')">
+                newButtonsHtml = `<button class="toolbar-btn toolbar-btn-primary" onclick="shellToolbarAction('${config.actionBtn.action || 'default'}')">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
                     </svg>
                     <span>${config.actionBtn.text}</span>
                 </button>`;
-            } else {
-                toolbarRight.innerHTML = '';
+            }
+
+            // Animate if content changed
+            if (previousButtons !== newButtonsHtml) {
+                // Slide out existing buttons
+                toolbarRight.classList.add('animating');
+
+                setTimeout(() => {
+                    // Update content
+                    toolbarRight.innerHTML = newButtonsHtml;
+
+                    // Slide in new buttons
+                    setTimeout(() => {
+                        toolbarRight.classList.remove('animating');
+                    }, 20);
+                }, 150);
             }
 
             // Update Period Filter (links von Searchbar)
