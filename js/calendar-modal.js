@@ -347,7 +347,7 @@ const CalendarModal = (function() {
         if (!date) return '';
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
+        const year = String(date.getFullYear()).slice(-2);
         return `${day}.${month}.${year}`;
     }
 
@@ -357,7 +357,11 @@ const CalendarModal = (function() {
         if (parts.length !== 3) return null;
         const day = parseInt(parts[0], 10);
         const month = parseInt(parts[1], 10) - 1;
-        const year = parseInt(parts[2], 10);
+        let year = parseInt(parts[2], 10);
+        // Zweistelliges Jahr zu vierstellig konvertieren
+        if (year < 100) {
+            year = year < 50 ? 2000 + year : 1900 + year;
+        }
         if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
         const date = new Date(year, month, day);
         if (date.getDate() !== day || date.getMonth() !== month) return null;
