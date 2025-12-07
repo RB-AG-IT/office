@@ -726,6 +726,7 @@
 
         // Current user state
         let currentUser = null;
+        let cachedUserProfile = null; // Cache für Profildaten (verhindert Flackern)
 
         // ================================================================
         // AUTH FUNCTIONS
@@ -820,10 +821,13 @@
             }
         }
 
-        async function updateAccountMenu() {
+        async function updateAccountMenu(forceRefresh = false) {
             const accountMenu = document.querySelector('.account-menu');
 
             if (!currentUser) {
+                // Clear cache on logout
+                cachedUserProfile = null;
+
                 // Show login button
                 accountMenu.style.cursor = 'pointer';
                 accountMenu.onclick = openLoginModal;
@@ -839,7 +843,13 @@
                     </div>
                 `;
             } else {
-                // Load user profile
+                // Use cached data if available and same user (prevents flicker)
+                if (cachedUserProfile && cachedUserProfile.userId === currentUser.id && !forceRefresh) {
+                    // Already showing correct profile, skip update
+                    return;
+                }
+
+                // Load user profile from database
                 const { data: userData } = await supabase
                     .from('users')
                     .select('name, email')
@@ -852,17 +862,33 @@
                     .eq('id', currentUser.id)
                     .single();
 
-                // Load profile photo
-                const { data: profileData } = await supabase
+                // Load profile photo (try multiple fields)
+                const { data: profileData, error: profileError } = await supabase
                     .from('user_profiles')
-                    .select('photo_intern_url')
+                    .select('photo_intern_url, photo_url, avatar_url')
                     .eq('user_id', currentUser.id)
                     .single();
+
+                // Debug: Log profile data
+                if (profileError) {
+                    console.log('Profile photo error:', profileError.message);
+                }
+                console.log('Profile data:', profileData);
 
                 const userName = userData?.name || currentUser.email.split('@')[0];
                 const userRole = rolesData?.main_role || 'user';
                 const initials = getInitials(userName);
-                const photoUrl = profileData?.photo_intern_url;
+                // Try multiple possible photo URL fields
+                const photoUrl = profileData?.photo_intern_url || profileData?.photo_url || profileData?.avatar_url;
+
+                // Cache the profile data
+                cachedUserProfile = {
+                    userId: currentUser.id,
+                    userName,
+                    userRole,
+                    initials,
+                    photoUrl
+                };
 
                 // Role labels (aus Base)
                 const roleLabels = {
@@ -929,11 +955,20 @@
             await updateAccountMenu();
         }
 
-        // Listen for auth state changes
+        // Listen for auth state changes (ignoriere Token-Refresh um Flackern zu verhindern)
         supabase.auth.onAuthStateChange((event, session) => {
+            // Ignoriere Token-Refresh Events - diese ändern den User nicht
+            if (event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+                return;
+            }
+
             if (event === 'SIGNED_IN') {
-                currentUser = session.user;
-                updateAccountMenu();
+                // Nur updaten wenn sich der User wirklich geändert hat
+                const newUserId = session?.user?.id;
+                if (currentUser?.id !== newUserId) {
+                    currentUser = session.user;
+                    updateAccountMenu(true); // Force refresh bei neuem User
+                }
             } else if (event === 'SIGNED_OUT') {
                 currentUser = null;
                 updateAccountMenu();
