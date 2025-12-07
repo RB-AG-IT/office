@@ -1141,9 +1141,13 @@
 
             // Handle "Individuell" - open date picker modal in iframe
             if (value === 'custom') {
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage({ type: 'openDateRangeModal' }, '*');
-                }
+                // Small delay to ensure periodFilter message is processed first
+                setTimeout(() => {
+                    const iframeEl = document.querySelector('#content-container iframe');
+                    if (iframeEl && iframeEl.contentWindow) {
+                        iframeEl.contentWindow.postMessage({ type: 'openDateRangeModal' }, '*');
+                    }
+                }, 50);
             }
         }
 
