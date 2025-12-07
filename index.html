@@ -1163,46 +1163,74 @@
                 }, 150);
             }
 
-            // Update Action Buttons with animation
-            const previousButtons = toolbarRight.innerHTML;
-            let newButtonsHtml = '';
+            // Update Action Buttons with text-only animation
+            const existingButtons = toolbarRight.querySelectorAll('.toolbar-btn');
+            let newButtonsConfig = [];
 
             if (config.actionButtons && config.actionButtons.length > 0) {
-                newButtonsHtml = config.actionButtons.map(btn => {
+                newButtonsConfig = config.actionButtons;
+            } else if (config.actionBtn) {
+                newButtonsConfig = [{ ...config.actionBtn, primary: true }];
+            }
+
+            // Check if same number of buttons and same icons (only text changed)
+            const sameStructure = existingButtons.length === newButtonsConfig.length &&
+                Array.from(existingButtons).every((btn, i) => {
+                    const currentIcon = btn.querySelector('svg path')?.getAttribute('d');
+                    const newIcon = getIconPath(newButtonsConfig[i]?.icon);
+                    return currentIcon === newIcon;
+                });
+
+            if (sameStructure && existingButtons.length > 0) {
+                // Only animate text changes
+                existingButtons.forEach((btn, i) => {
+                    const span = btn.querySelector('span');
+                    const newText = newButtonsConfig[i].text;
+
+                    if (span && span.textContent !== newText) {
+                        // Slide out
+                        btn.classList.add('slide-out');
+
+                        setTimeout(() => {
+                            // Update text and prepare slide in
+                            span.textContent = newText;
+                            btn.classList.remove('slide-out');
+                            btn.classList.add('slide-in');
+
+                            // Trigger reflow and slide in
+                            btn.offsetHeight;
+                            setTimeout(() => {
+                                btn.classList.remove('slide-in');
+                            }, 20);
+                        }, 150);
+                    }
+
+                    // Update action
+                    btn.onclick = () => shellToolbarAction(newButtonsConfig[i].action || 'default');
+                });
+            } else {
+                // Different structure - rebuild buttons with container animation
+                const newButtonsHtml = newButtonsConfig.map(btn => {
                     const iconPath = getIconPath(btn.icon);
                     const primaryClass = btn.primary ? ' toolbar-btn-primary' : '';
-                    return `<button class="toolbar-btn${primaryClass}" onclick="shellToolbarAction('${btn.action}')">
+                    return `<button class="toolbar-btn${primaryClass}" onclick="shellToolbarAction('${btn.action || 'default'}')">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
                         </svg>
                         <span>${btn.text}</span>
                     </button>`;
                 }).join('');
-            } else if (config.actionBtn) {
-                // Backwards compatibility: single button
-                const iconPath = getIconPath(config.actionBtn.icon);
-                newButtonsHtml = `<button class="toolbar-btn toolbar-btn-primary" onclick="shellToolbarAction('${config.actionBtn.action || 'default'}')">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
-                    </svg>
-                    <span>${config.actionBtn.text}</span>
-                </button>`;
-            }
 
-            // Animate if content changed
-            if (previousButtons !== newButtonsHtml) {
-                // Slide out existing buttons
-                toolbarRight.classList.add('animating');
+                if (toolbarRight.innerHTML !== newButtonsHtml) {
+                    toolbarRight.classList.add('animating');
 
-                setTimeout(() => {
-                    // Update content
-                    toolbarRight.innerHTML = newButtonsHtml;
-
-                    // Slide in new buttons
                     setTimeout(() => {
-                        toolbarRight.classList.remove('animating');
-                    }, 20);
-                }, 150);
+                        toolbarRight.innerHTML = newButtonsHtml;
+                        setTimeout(() => {
+                            toolbarRight.classList.remove('animating');
+                        }, 20);
+                    }, 150);
+                }
             }
 
             // Update Period Filter (links von Searchbar)
