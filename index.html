@@ -1208,28 +1208,37 @@
                     btn.onclick = () => shellToolbarAction(newButtonsConfig[i].action || 'default');
                 });
             } else {
-                // Different number of buttons - rebuild with container animation
-                const newButtonsHtml = newButtonsConfig.map(btn => {
-                    const iconPath = getIconPath(btn.icon);
-                    const primaryClass = btn.primary ? ' toolbar-btn-primary' : '';
-                    return `<button class="toolbar-btn${primaryClass}" onclick="shellToolbarAction('${btn.action || 'default'}')">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
-                        </svg>
-                        <span>${btn.text}</span>
-                    </button>`;
-                }).join('');
+                // Different number of buttons - animate content only, not container position
+                const existingBtns = toolbarRight.querySelectorAll('.toolbar-btn');
 
-                if (toolbarRight.innerHTML !== newButtonsHtml) {
-                    toolbarRight.classList.add('animating');
+                // Phase 1: Slide out existing button content
+                existingBtns.forEach(btn => btn.classList.add('slide-out'));
 
+                setTimeout(() => {
+                    // Phase 2: Replace with new buttons (already with slide-in class)
+                    const newButtonsHtml = newButtonsConfig.map(btn => {
+                        const iconPath = getIconPath(btn.icon);
+                        const primaryClass = btn.primary ? ' toolbar-btn-primary' : '';
+                        return `<button class="toolbar-btn${primaryClass} slide-in" onclick="shellToolbarAction('${btn.action || 'default'}')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
+                            </svg>
+                            <span>${btn.text}</span>
+                        </button>`;
+                    }).join('');
+
+                    toolbarRight.innerHTML = newButtonsHtml;
+
+                    // Force reflow
+                    toolbarRight.offsetHeight;
+
+                    // Phase 3: Slide in new content
                     setTimeout(() => {
-                        toolbarRight.innerHTML = newButtonsHtml;
-                        setTimeout(() => {
-                            toolbarRight.classList.remove('animating');
-                        }, 20);
-                    }, 150);
-                }
+                        toolbarRight.querySelectorAll('.toolbar-btn').forEach(btn => {
+                            btn.classList.remove('slide-in');
+                        });
+                    }, 20);
+                }, 150);
             }
 
             // Update Period Filter (links von Searchbar)
