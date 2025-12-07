@@ -1280,13 +1280,19 @@
         // MESSAGE LISTENER (from Shell)
         // ========================================
         window.addEventListener('message', function(e) {
+            // Zeitraum ändern: Im Dashboard bleiben, Daten aktualisieren
             if (e.data && e.data.type === 'periodFilter') {
-                // Bei Zeitraumänderung: Zurück zur Übersicht mit Zeitraum-Parameter
-                window.location.href = `index.html?period=${e.data.value}`;
+                updatePeriodDisplay(e.data.value);
+                // TODO: Daten für neuen Zeitraum laden
+                console.log('Dashboard: Period changed to', e.data.value);
             }
+            // Individueller Zeitraum: Modal im Dashboard öffnen
             if (e.data && e.data.type === 'openDateRangeModal') {
-                // Bei "Individuell": Zurück zur Übersicht, dort Modal öffnen
-                window.location.href = 'index.html?openDateModal=true';
+                openDateRangeModal();
+            }
+            // Kategorie ändern (Werber/Kunden): Zurück zur Übersicht
+            if (e.data && e.data.type === 'navFilter') {
+                window.location.href = `index.html?category=${e.data.value}`;
             }
         });
 

@@ -2713,6 +2713,20 @@
 
         // URL Parameter verarbeiten (vom Dashboard zurückkommend)
         const pageParams = new URLSearchParams(window.location.search);
+
+        // Kategorie-Parameter (Werber/Kunden/etc.) - vom Dashboard zurück
+        if (pageParams.get('category')) {
+            const category = pageParams.get('category');
+            const categoryOption = document.querySelector(`#categoryDropdown [data-value="${category}"]`);
+            if (categoryOption) {
+                selectCategory(category, categoryOption.textContent);
+            }
+            // Shell über Kategorieänderung informieren
+            window.parent.postMessage({ type: 'navFilterChanged', value: category }, '*');
+            history.replaceState(null, '', window.location.pathname);
+        }
+
+        // Period-Parameter (falls nötig)
         if (pageParams.get('period')) {
             const period = pageParams.get('period');
             document.getElementById('filterPeriod').value = period;
@@ -2723,12 +2737,11 @@
                     opt.classList.toggle('active', opt.dataset.value === period);
                 });
             }
-            // Shell über Zeitraumänderung informieren
             window.parent.postMessage({ type: 'periodChanged', value: period }, '*');
             applyFilters();
-            // URL bereinigen
             history.replaceState(null, '', window.location.pathname);
         }
+
         if (pageParams.get('openDateModal') === 'true') {
             setTimeout(() => openDateRangeModal(), 100);
             history.replaceState(null, '', window.location.pathname);
