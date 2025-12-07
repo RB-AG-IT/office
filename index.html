@@ -661,6 +661,64 @@
         </div>
     </div>
 
+    <!-- Calendar Modal für individuelle Zeitraumauswahl -->
+    <div class="calendar-modal" id="shellCalendarModal">
+        <div class="calendar-modal-content">
+            <div class="calendar-modal-header">
+                <h3>Individueller Zeitraum</h3>
+                <button class="calendar-modal-close" onclick="closeShellCalendarModal()">&times;</button>
+            </div>
+            <div class="calendar-modal-body">
+                <!-- Datum-Eingabefelder -->
+                <div class="calendar-inputs">
+                    <div class="calendar-field">
+                        <label>Von</label>
+                        <input type="text" id="shellDateFrom" placeholder="TT.MM.JJJJ" maxlength="10" autocomplete="off">
+                    </div>
+                    <div class="calendar-field">
+                        <label>Bis</label>
+                        <input type="text" id="shellDateTo" placeholder="TT.MM.JJJJ" maxlength="10" autocomplete="off">
+                    </div>
+                </div>
+
+                <!-- Kalender Navigation -->
+                <div class="calendar-nav">
+                    <button type="button" class="calendar-nav-btn" onclick="shellCalendarNavigate(-3)">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <div class="calendar-year-selector">
+                        <button type="button" class="calendar-year-btn" onclick="shellCalendarChangeYear(-1)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <span class="calendar-year-display" id="shellCalendarYear">2025</span>
+                        <button type="button" class="calendar-year-btn" onclick="shellCalendarChangeYear(1)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                    <button type="button" class="calendar-nav-btn" onclick="shellCalendarNavigate(3)">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+
+                <!-- Heute Button -->
+                <div class="calendar-today-row">
+                    <button type="button" class="calendar-today-btn" onclick="shellCalendarGoToday()">Heute</button>
+                </div>
+
+                <!-- 3-Monats-Kalender -->
+                <div class="calendar-months-grid">
+                    <div class="calendar-month" id="shellCalMonth1"></div>
+                    <div class="calendar-month" id="shellCalMonth2"></div>
+                    <div class="calendar-month" id="shellCalMonth3"></div>
+                </div>
+            </div>
+            <div class="calendar-modal-footer">
+                <button class="btn-cancel" onclick="closeShellCalendarModal()">Abbrechen</button>
+                <button class="btn-apply" onclick="applyShellDateRange()">Anwenden</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ================================================================
         // SUPABASE SETUP
@@ -1139,15 +1197,9 @@
                 iframe.contentWindow.postMessage({ type: 'periodFilter', value: value }, '*');
             }
 
-            // Handle "Individuell" - open date picker modal in iframe
+            // Handle "Individuell" - Kalender-Modal öffnen
             if (value === 'custom') {
-                // Small delay to ensure periodFilter message is processed first
-                setTimeout(() => {
-                    const iframeEl = document.querySelector('#content-container iframe');
-                    if (iframeEl && iframeEl.contentWindow) {
-                        iframeEl.contentWindow.postMessage({ type: 'openDateRangeModal' }, '*');
-                    }
-                }, 50);
+                openShellCalendarModal();
             }
         }
 
@@ -1413,6 +1465,173 @@
             if (e.data && e.data.type === 'searchResults') {
                 showShellSearchResults(e.data);
             }
+        });
+
+        // ================================================================
+        // SHELL CALENDAR MODAL
+        // ================================================================
+
+        let shellCalStartDate = null;
+        let shellCalEndDate = null;
+        let shellCalYear = new Date().getFullYear();
+        let shellCalMonth = new Date().getMonth();
+        const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+        function openShellCalendarModal() {
+            const modal = document.getElementById('shellCalendarModal');
+            shellCalStartDate = null;
+            shellCalEndDate = null;
+            document.getElementById('shellDateFrom').value = '';
+            document.getElementById('shellDateTo').value = '';
+            modal.classList.add('active');
+            renderShellCalendars();
+        }
+
+        function closeShellCalendarModal() {
+            document.getElementById('shellCalendarModal').classList.remove('active');
+        }
+
+        function shellCalendarNavigate(months) {
+            shellCalMonth += months;
+            while (shellCalMonth > 11) { shellCalMonth -= 12; shellCalYear++; }
+            while (shellCalMonth < 0) { shellCalMonth += 12; shellCalYear--; }
+            renderShellCalendars();
+        }
+
+        function shellCalendarChangeYear(delta) {
+            shellCalYear += delta;
+            renderShellCalendars();
+        }
+
+        function shellCalendarGoToday() {
+            const today = new Date();
+            shellCalYear = today.getFullYear();
+            shellCalMonth = today.getMonth();
+            renderShellCalendars();
+        }
+
+        function renderShellCalendars() {
+            document.getElementById('shellCalendarYear').textContent = shellCalYear;
+            for (let i = 0; i < 3; i++) {
+                const monthDate = new Date(shellCalYear, shellCalMonth - (2 - i), 1);
+                renderShellMonth(document.getElementById(`shellCalMonth${i + 1}`), monthDate);
+            }
+        }
+
+        function renderShellMonth(container, monthDate) {
+            const year = monthDate.getFullYear();
+            const month = monthDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const startOffset = (firstDay === 0 ? 6 : firstDay - 1);
+
+            let html = `<div class="calendar-month-header">${monthNames[month]} ${year}</div>`;
+            html += '<div class="calendar-weekdays"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>';
+            html += '<div class="calendar-days">';
+
+            for (let i = 0; i < startOffset; i++) {
+                html += '<span class="calendar-day other-month"></span>';
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                let classes = 'calendar-day';
+
+                if (shellCalStartDate && date.getTime() === shellCalStartDate.getTime()) classes += ' selected start';
+                if (shellCalEndDate && date.getTime() === shellCalEndDate.getTime()) classes += ' selected end';
+                if (shellCalStartDate && shellCalEndDate && date > shellCalStartDate && date < shellCalEndDate) classes += ' in-range';
+
+                const today = new Date();
+                if (date.toDateString() === today.toDateString()) classes += ' today';
+
+                html += `<span class="${classes}" data-date="${dateStr}" onclick="selectShellCalendarDate('${dateStr}')">${day}</span>`;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function selectShellCalendarDate(dateStr) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const date = new Date(y, m - 1, d);
+
+            if (!shellCalStartDate || shellCalEndDate) {
+                shellCalStartDate = date;
+                shellCalEndDate = null;
+            } else if (date < shellCalStartDate) {
+                shellCalStartDate = date;
+            } else {
+                shellCalEndDate = date;
+            }
+
+            const formatDate = (d) => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+            document.getElementById('shellDateFrom').value = shellCalStartDate ? formatDate(shellCalStartDate) : '';
+            document.getElementById('shellDateTo').value = shellCalEndDate ? formatDate(shellCalEndDate) : '';
+
+            renderShellCalendars();
+        }
+
+        function applyShellDateRange() {
+            const fromInput = document.getElementById('shellDateFrom').value;
+            const toInput = document.getElementById('shellDateTo').value;
+
+            if (!fromInput || !toInput) {
+                showAlert('Fehler', 'Bitte beide Daten auswählen', 'warning');
+                return;
+            }
+
+            // Format für Anzeige (DD.MM.YY)
+            const formatShort = (str) => {
+                const parts = str.split('.');
+                return `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}`;
+            };
+            const dateRangeText = `${formatShort(fromInput)} - ${formatShort(toInput)}`;
+
+            // Update dropdown text
+            document.getElementById('shellPeriodDropdownText').textContent = dateRangeText;
+
+            // Update active state
+            document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.value === 'custom');
+            });
+
+            // Update option text
+            const customOption = document.querySelector('#shellPeriodDropdown .toolbar-nav-option[data-value="custom"]');
+            if (customOption) customOption.textContent = dateRangeText;
+
+            // Send to iframe
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    type: 'customDateRangeApplied',
+                    dateRangeText: dateRangeText,
+                    dateFrom: fromInput,
+                    dateTo: toInput
+                }, '*');
+            }
+
+            closeShellCalendarModal();
+        }
+
+        // Input masks for date fields
+        document.getElementById('shellDateFrom')?.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '').slice(0, 8);
+            if (v.length > 4) v = v.slice(0,2) + '.' + v.slice(2,4) + '.' + v.slice(4);
+            else if (v.length > 2) v = v.slice(0,2) + '.' + v.slice(2);
+            e.target.value = v;
+        });
+
+        document.getElementById('shellDateTo')?.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '').slice(0, 8);
+            if (v.length > 4) v = v.slice(0,2) + '.' + v.slice(2,4) + '.' + v.slice(4);
+            else if (v.length > 2) v = v.slice(0,2) + '.' + v.slice(2);
+            e.target.value = v;
+        });
+
+        // Close modal on backdrop click
+        document.getElementById('shellCalendarModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeShellCalendarModal();
         });
     </script>
 </body>
