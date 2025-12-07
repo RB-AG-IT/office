@@ -804,6 +804,594 @@
             align-items: center;
             gap: 4px;
         }
+
+        /* Selection Checkboxes */
+        .col-checkbox {
+            width: 40px;
+            text-align: center;
+        }
+
+        .row-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--accent-color);
+        }
+
+        .data-table tr.selected {
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .data-table tr.selected:hover {
+            background: rgba(99, 102, 241, 0.12);
+        }
+
+        /* Selection Actions Bar */
+        .selection-actions {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: var(--spacing-md);
+            animation: slideDown 0.2s ease;
+        }
+
+        .selection-actions.visible {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .selection-count {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .selection-actions .btn-delete {
+            background: white;
+            color: #ef4444;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .selection-actions .btn-delete:hover {
+            background: #fef2f2;
+        }
+
+        .selection-actions .btn-delete svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .selection-actions .btn-cancel {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .selection-actions .btn-cancel:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Inline Editing */
+        .data-table td.editable {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .data-table td.editable:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .data-table td.editing {
+            padding: 0;
+        }
+
+        .data-table td.editing .edit-input {
+            width: 100%;
+            height: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--accent-color);
+            border-radius: 0;
+            font-size: 13px;
+            font-family: inherit;
+            background: white;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        /* Save Notification Toast */
+        .save-toast {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .save-toast.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .save-toast svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Audit Log Panel */
+        .audit-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 380px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 999;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .audit-panel.collapsed {
+            width: auto;
+        }
+
+        .audit-panel.collapsed .audit-content {
+            display: none;
+        }
+
+        .audit-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .audit-header:hover {
+            background: var(--bg-hover);
+        }
+
+        .audit-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .audit-title svg {
+            width: 16px;
+            height: 16px;
+            color: var(--accent-color);
+        }
+
+        .audit-badge {
+            background: var(--accent-color);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .audit-toggle {
+            width: 20px;
+            height: 20px;
+            color: var(--text-secondary);
+            transition: transform 0.2s;
+        }
+
+        .audit-panel.collapsed .audit-toggle {
+            transform: rotate(180deg);
+        }
+
+        .audit-content {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .audit-list {
+            padding: 8px;
+        }
+
+        .audit-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: background 0.2s;
+        }
+
+        .audit-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .audit-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .audit-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .audit-icon.edit {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
+
+        .audit-icon.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .audit-icon.create {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .audit-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .audit-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .audit-action {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .audit-meta {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 8px;
+        }
+
+        .audit-field {
+            background: var(--bg-secondary);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 10px;
+        }
+
+        .audit-empty {
+            padding: 30px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Delete Confirmation Modal */
+        .delete-confirm-content {
+            text-align: center;
+            padding: var(--spacing-md) 0;
+        }
+
+        .delete-confirm-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        .delete-confirm-icon svg {
+            width: 30px;
+            height: 30px;
+            color: #ef4444;
+        }
+
+        .delete-confirm-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .delete-confirm-count {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 8px;
+        }
+
+        .delete-confirm-warning {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Info Button in Table */
+        .info-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            margin-left: 6px;
+        }
+
+        .info-btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .info-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Record Detail Modal */
+        .record-detail-modal .modal-content {
+            max-width: 800px;
+            max-height: 85vh;
+        }
+
+        .record-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .record-detail-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .record-detail-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 4px;
+        }
+
+        .record-detail-info .meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .record-detail-badges {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .record-detail-sections {
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+
+        .record-section {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .record-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .record-fields {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .record-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .record-field.full-width {
+            grid-column: span 2;
+        }
+
+        .record-field-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .record-field-value {
+            font-size: 13px;
+            color: var(--text-primary);
+            padding: 8px 10px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .record-field-value:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-primary);
+        }
+
+        .record-field-value.editing {
+            padding: 0;
+            background: transparent;
+        }
+
+        .record-field-value.editing input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid var(--accent-color);
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .record-field-value.empty {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Selection Actions Extended */
+        .selection-actions .btn-mail,
+        .selection-actions .btn-pdf {
+            background: white;
+            color: var(--text-primary);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .selection-actions .btn-mail:hover {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .selection-actions .btn-pdf:hover {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .selection-actions .btn-mail svg,
+        .selection-actions .btn-pdf svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Mail Type Modal */
+        .mail-type-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mail-type-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mail-type-option:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-primary);
+        }
+
+        .mail-type-option.selected {
+            border-color: var(--accent-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .mail-type-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mail-type-icon.nmg { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .mail-type-icon.erh { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+        .mail-type-icon.iban { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+        .mail-type-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .mail-type-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 2px;
+        }
+
+        .mail-type-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -966,41 +1554,62 @@
                                 <span class="detail-tab-badge" id="bestandTabBadge">0</span>
                             </button>
                         </div>
-                        <div style="margin-left: auto; display: flex; gap: 8px;">
-                            <button class="toolbar-btn" onclick="openColumnModal()">
+                        <div style="margin-left: auto; display: flex; gap: 8px;" id="detailToolbarButtons">
+                            <!-- Records Tab Buttons -->
+                            <button class="toolbar-btn records-toolbar-btn" onclick="openColumnModal()">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
                                 <span>Spalten</span>
                             </button>
-                            <button class="toolbar-btn" onclick="saveTemplate()">
+                            <button class="toolbar-btn records-toolbar-btn" onclick="saveTemplate()">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                                 </svg>
                                 <span>Speichern</span>
+                            </button>
+                            <!-- Bestand Tab Button -->
+                            <button class="toolbar-btn toolbar-btn-primary bestand-toolbar-btn" onclick="openBestandUploadModal()" style="display: none;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                </svg>
+                                <span>Hochladen</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- Records View (Neumitglieder / Erhöhungen) -->
                     <div class="records-view" id="recordsView">
+                        <!-- Selection Actions Bar -->
+                        <div class="selection-actions" id="selectionActions">
+                            <span class="selection-count" id="selectionCount">0 ausgewählt</span>
+                            <button class="btn-mail" onclick="openMailModal()">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                Mail senden
+                            </button>
+                            <button class="btn-pdf" onclick="downloadPDFs()">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                PDF Download
+                            </button>
+                            <button class="btn-delete" onclick="deleteSelectedRecords()">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Löschen
+                            </button>
+                            <button class="btn-cancel" onclick="clearSelection()">Auswahl aufheben</button>
+                        </div>
+
                         <div class="data-section">
-                            <table class="data-table">
+                            <table class="data-table" id="recordsTable">
                                 <thead>
                                     <tr id="recordsTableHeader">
-                                        <th class="col-datum">Datum</th>
-                                        <th class="col-art">Art</th>
-                                        <th class="col-name">Name</th>
-                                        <th class="col-adresse">Adresse</th>
-                                        <th class="col-email">Email</th>
-                                        <th class="col-werbegebiet">Werbegebiet</th>
-                                        <th class="col-kunde">Kunde</th>
-                                        <th class="col-werber">Werber</th>
-                                        <th class="col-teamchef">Teamchef</th>
-                                        <th class="col-je" style="text-align: right;">JE</th>
-                                        <th class="col-status">Status</th>
-                                        <th class="col-actions"></th>
+                                        <!-- Wird per JS befüllt -->
                                     </tr>
                                 </thead>
                                 <tbody id="recordsTableBody">
@@ -1021,25 +1630,6 @@
 
                     <!-- Bestandsmitglieder View -->
                     <div class="bestand-view" id="bestandView">
-                        <div class="bestand-upload-section">
-                            <div class="bestand-upload-info">
-                                <div class="bestand-upload-icon">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                    </svg>
-                                </div>
-                                <div class="bestand-upload-text">
-                                    <h4>Bestandsmitglieder hochladen</h4>
-                                    <p>Excel oder CSV mit bestehenden Mitgliedern für Erhöhungen</p>
-                                </div>
-                            </div>
-                            <button class="toolbar-btn toolbar-btn-primary" onclick="openBestandUploadModal()">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                </svg>
-                                <span>Hochladen</span>
-                            </button>
-                        </div>
                         <div class="data-section">
                             <table class="data-table">
                                 <thead>
@@ -1324,6 +1914,144 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Datensätze löschen</h2>
+                <button class="modal-close" onclick="closeDeleteModal()">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-confirm-content">
+                    <div class="delete-confirm-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </div>
+                    <div class="delete-confirm-text">Möchten Sie wirklich</div>
+                    <div class="delete-confirm-count" id="deleteCount">0 Datensätze</div>
+                    <div class="delete-confirm-text">unwiderruflich löschen?</div>
+                    <div class="delete-confirm-warning">Diese Aktion kann nicht rückgängig gemacht werden.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Abbrechen</button>
+                <button type="button" class="btn" style="background: #ef4444; color: white;" onclick="confirmDelete()">Endgültig löschen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Record Detail Modal -->
+    <div class="modal record-detail-modal" id="recordDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Datensatz bearbeiten</h2>
+                <button class="modal-close" onclick="closeRecordDetailModal()">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="recordDetailBody">
+                <!-- Wird per JS befüllt -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeRecordDetailModal()">Schließen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mail Type Modal -->
+    <div class="modal" id="mailModal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Mail erneut senden</h2>
+                <button class="modal-close" onclick="closeMailModal()">
+                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: var(--spacing-md); font-size: 13px; color: var(--text-secondary);">
+                    Wählen Sie den Mail-Typ für <strong id="mailRecordCount">0</strong> ausgewählte Datensätze:
+                </p>
+                <div class="mail-type-options">
+                    <div class="mail-type-option" data-type="nmg" onclick="selectMailType('nmg')">
+                        <div class="mail-type-icon nmg">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
+                        </div>
+                        <div class="mail-type-info">
+                            <h4>Neumitglied (NMG)</h4>
+                            <p>Willkommens-Mail für neue Mitglieder</p>
+                        </div>
+                    </div>
+                    <div class="mail-type-option" data-type="erh" onclick="selectMailType('erh')">
+                        <div class="mail-type-icon erh">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                        </div>
+                        <div class="mail-type-info">
+                            <h4>Erhöhung (ERH)</h4>
+                            <p>Bestätigung für Beitragserhöhung</p>
+                        </div>
+                    </div>
+                    <div class="mail-type-option" data-type="iban" onclick="selectMailType('iban')">
+                        <div class="mail-type-icon iban">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                            </svg>
+                        </div>
+                        <div class="mail-type-info">
+                            <h4>IBAN-Bestätigung</h4>
+                            <p>Kontodaten-Bestätigung anfordern</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeMailModal()">Abbrechen</button>
+                <button type="button" class="btn btn-primary" id="sendMailBtn" onclick="sendSelectedMails()" disabled>Mail senden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Toast Notification -->
+    <div class="save-toast" id="saveToast">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <span id="saveToastText">Änderungen gespeichert</span>
+    </div>
+
+    <!-- Audit Log Panel -->
+    <div class="audit-panel collapsed" id="auditPanel">
+        <div class="audit-header" onclick="toggleAuditPanel()">
+            <div class="audit-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Letzte Änderungen
+                <span class="audit-badge" id="auditBadge">0</span>
+            </div>
+            <svg class="audit-toggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+            </svg>
+        </div>
+        <div class="audit-content">
+            <div class="audit-list" id="auditList">
+                <div class="audit-empty">Keine Änderungen vorhanden</div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ========== DUMMY DATA ==========
         const kundenData = [
@@ -1575,6 +2303,18 @@
 
         // Detail Tab State
         let currentDetailTab = 'records';
+
+        // Selection State
+        let selectedRecords = new Set();
+
+        // Audit Log (max 25 entries)
+        const auditLog = [];
+        const MAX_AUDIT_ENTRIES = 25;
+
+        // Editable columns (which columns can be edited inline)
+        const editableColumns = ['firstName', 'lastName', 'name', 'email', 'phoneMobile', 'phoneFixed',
+            'street', 'houseNumber', 'zipCode', 'city', 'country', 'accountHolder', 'iban', 'bic',
+            'amount', 'notes', 'bankName', 'company', 'salutation', 'title'];
 
         // Bestandsmitglieder Data (per Gebiet/Entity)
         // Key = "gebiet_1" or "kunde_1", value = array of Bestandsmitglieder
@@ -1831,7 +2571,12 @@
 
             // Render table header dynamically
             const thead = document.getElementById('recordsTableHeader');
-            thead.innerHTML = currentColumns.map(col => {
+            const allChecked = pageRecords.length > 0 && pageRecords.every(r => selectedRecords.has(r.id));
+            thead.innerHTML = `
+                <th class="col-checkbox">
+                    <input type="checkbox" class="row-checkbox" id="selectAllCheckbox"
+                           onchange="toggleSelectAll(this.checked)" ${allChecked ? 'checked' : ''}>
+                </th>` + currentColumns.map(col => {
                 const config = allColumns[col];
                 const isActive = currentSort.field === col;
                 const sortClass = isActive ? `sortable active${currentSort.direction === 'desc' ? ' desc' : ''}` : 'sortable';
@@ -1850,21 +2595,31 @@
             // Render table body dynamically
             const tbody = document.getElementById('recordsTableBody');
             tbody.innerHTML = pageRecords.map(row => {
+                const isSelected = selectedRecords.has(row.id);
                 const cells = currentColumns.map(col => {
                     const config = allColumns[col];
                     const value = row[col];
                     const align = config.align === 'right' ? 'text-align: right;' : '';
                     const formatted = formatCellValue(value, config.format, row);
-                    return `<td style="${align}" title="${escapeHtml(String(value || ''))}">${formatted}</td>`;
+                    const isEditable = editableColumns.includes(col);
+                    const editClass = isEditable ? 'editable' : '';
+                    const editHandler = isEditable ? `ondblclick="startEditing(this, ${row.id}, '${col}')"` : '';
+                    return `<td class="${editClass}" style="${align}" title="${escapeHtml(String(value || ''))}" data-col="${col}" data-id="${row.id}" ${editHandler}>${formatted}</td>`;
                 }).join('');
 
                 return `
-                    <tr>
+                    <tr class="${isSelected ? 'selected' : ''}" data-id="${row.id}">
+                        <td class="col-checkbox">
+                            <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''}
+                                   onchange="toggleRecordSelection(${row.id}, this.checked)">
+                            <button class="info-btn" onclick="openRecordDetail(${row.id})" title="Details anzeigen">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </button>
+                        </td>
                         ${cells}
                         <td>
-                            <button class="action-btn" onclick="viewRecord(${row.id})" title="Details">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            </button>
                             ${row.status === 'active' ? `
                             <button class="action-btn danger" onclick="openStornoModal(${row.id}, '${escapeHtml(row.name)}', ${row.je})" title="Stornieren">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -2329,6 +3084,14 @@
             document.getElementById('recordsView').classList.toggle('hidden', tab !== 'records');
             document.getElementById('bestandView').classList.toggle('active', tab === 'bestand');
 
+            // Toggle toolbar buttons
+            document.querySelectorAll('.records-toolbar-btn').forEach(btn => {
+                btn.style.display = tab === 'records' ? '' : 'none';
+            });
+            document.querySelectorAll('.bestand-toolbar-btn').forEach(btn => {
+                btn.style.display = tab === 'bestand' ? '' : 'none';
+            });
+
             // Render Bestandsmitglieder if switching to that tab
             if (tab === 'bestand' && currentEntity) {
                 renderBestandsmitglieder();
@@ -2445,6 +3208,9 @@
             document.getElementById('recordsView').classList.remove('hidden');
             document.getElementById('bestandView').classList.remove('active');
 
+            // Clear selection on view change
+            clearSelection();
+
             // Call original
             originalShowDetailView(title, subtitle, records);
 
@@ -2454,6 +3220,576 @@
             const bestandCount = key ? (bestandsmitgliederData[key]?.length || 0) : 0;
             document.getElementById('bestandTabBadge').textContent = bestandCount;
         };
+
+        // ========== SELECTION FUNCTIONS ==========
+        function toggleRecordSelection(id, checked) {
+            if (checked) {
+                selectedRecords.add(id);
+            } else {
+                selectedRecords.delete(id);
+            }
+            updateSelectionUI();
+        }
+
+        function toggleSelectAll(checked) {
+            const sortedRecords = sortRecords([...currentRecords]);
+            const startIndex = (currentPage - 1) * PAGE_SIZE;
+            const endIndex = Math.min(startIndex + PAGE_SIZE, sortedRecords.length);
+            const pageRecords = sortedRecords.slice(startIndex, endIndex);
+
+            pageRecords.forEach(record => {
+                if (checked) {
+                    selectedRecords.add(record.id);
+                } else {
+                    selectedRecords.delete(record.id);
+                }
+            });
+
+            updateSelectionUI();
+            // Re-render to update checkboxes
+            renderRecordsTable(currentRecords, false);
+        }
+
+        function clearSelection() {
+            selectedRecords.clear();
+            updateSelectionUI();
+            renderRecordsTable(currentRecords, false);
+        }
+
+        function updateSelectionUI() {
+            const count = selectedRecords.size;
+            const selectionBar = document.getElementById('selectionActions');
+            const countEl = document.getElementById('selectionCount');
+
+            if (count > 0) {
+                selectionBar.classList.add('visible');
+                countEl.textContent = `${count} ausgewählt`;
+            } else {
+                selectionBar.classList.remove('visible');
+            }
+
+            // Update row highlighting
+            document.querySelectorAll('#recordsTableBody tr').forEach(tr => {
+                const id = parseInt(tr.dataset.id);
+                tr.classList.toggle('selected', selectedRecords.has(id));
+                const cb = tr.querySelector('.row-checkbox');
+                if (cb) cb.checked = selectedRecords.has(id);
+            });
+        }
+
+        // ========== DELETE FUNCTIONS ==========
+        function deleteSelectedRecords() {
+            const count = selectedRecords.size;
+            if (count === 0) return;
+
+            document.getElementById('deleteCount').textContent = `${count} ${count === 1 ? 'Datensatz' : 'Datensätze'}`;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+
+        function confirmDelete() {
+            const deletedIds = [...selectedRecords];
+            const deletedRecords = recordsData.filter(r => selectedRecords.has(r.id));
+
+            // Add to audit log
+            deletedRecords.forEach(record => {
+                addAuditEntry('delete', record.id, record.name, null, null, null);
+            });
+
+            // Remove from recordsData
+            deletedIds.forEach(id => {
+                const index = recordsData.findIndex(r => r.id === id);
+                if (index > -1) {
+                    recordsData.splice(index, 1);
+                }
+            });
+
+            // Clear selection and close modal
+            selectedRecords.clear();
+            closeDeleteModal();
+            updateSelectionUI();
+
+            // Re-filter and render
+            const filtered = recordsData.filter(r => {
+                if (currentCategory === 'kunden' && currentEntity) {
+                    return r.kunde === currentEntity.name;
+                } else if (currentCategory === 'gebiete' && currentEntity) {
+                    return r.area === currentEntity.name;
+                }
+                return true;
+            });
+
+            renderRecordsTable(filtered);
+            showSaveToast(`${deletedIds.length} ${deletedIds.length === 1 ? 'Datensatz' : 'Datensätze'} gelöscht`);
+        }
+
+        // ========== INLINE EDITING ==========
+        let currentEditCell = null;
+
+        function startEditing(cell, recordId, column) {
+            // If already editing another cell, save it first
+            if (currentEditCell) {
+                finishEditing(currentEditCell);
+            }
+
+            const record = recordsData.find(r => r.id === recordId);
+            if (!record) return;
+
+            const currentValue = record[column] || '';
+            const config = allColumns[column];
+
+            // Store original state
+            cell.dataset.originalValue = currentValue;
+            cell.classList.add('editing');
+
+            // Create input
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'edit-input';
+            input.value = currentValue;
+            input.dataset.recordId = recordId;
+            input.dataset.column = column;
+
+            // Clear cell and add input
+            cell.innerHTML = '';
+            cell.appendChild(input);
+
+            // Focus and select
+            input.focus();
+            input.select();
+
+            // Event handlers
+            input.addEventListener('blur', () => finishEditing(cell));
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelEditing(cell);
+                }
+            });
+
+            currentEditCell = cell;
+        }
+
+        function finishEditing(cell) {
+            const input = cell.querySelector('.edit-input');
+            if (!input) return;
+
+            const recordId = parseInt(input.dataset.recordId);
+            const column = input.dataset.column;
+            const newValue = input.value;
+            const originalValue = cell.dataset.originalValue;
+
+            const record = recordsData.find(r => r.id === recordId);
+            if (!record) return;
+
+            // Check if value changed
+            if (newValue !== originalValue) {
+                // Update record
+                record[column] = newValue;
+
+                // Update combined fields if needed
+                if (column === 'firstName' || column === 'lastName') {
+                    record.name = `${record.firstName} ${record.lastName}`;
+                }
+                if (['street', 'houseNumber', 'zipCode', 'city'].includes(column)) {
+                    record.address = `${record.street} ${record.houseNumber}, ${record.zipCode} ${record.city}`;
+                }
+
+                // Add to audit log
+                addAuditEntry('edit', recordId, record.name, column, originalValue, newValue);
+
+                // Show toast
+                showSaveToast('Änderung gespeichert');
+            }
+
+            // Restore cell display
+            cell.classList.remove('editing');
+            const config = allColumns[column];
+            cell.innerHTML = formatCellValue(record[column], config?.format, record);
+            cell.title = escapeHtml(String(record[column] || ''));
+
+            currentEditCell = null;
+        }
+
+        function cancelEditing(cell) {
+            const originalValue = cell.dataset.originalValue;
+            const input = cell.querySelector('.edit-input');
+            if (input) {
+                input.value = originalValue;
+            }
+            cell.classList.remove('editing');
+
+            const column = input?.dataset.column;
+            const config = allColumns[column];
+            cell.innerHTML = formatCellValue(originalValue, config?.format, null);
+            cell.title = escapeHtml(String(originalValue || ''));
+
+            currentEditCell = null;
+        }
+
+        // ========== SAVE TOAST ==========
+        function showSaveToast(message = 'Änderungen gespeichert') {
+            const toast = document.getElementById('saveToast');
+            const textEl = document.getElementById('saveToastText');
+            textEl.textContent = message;
+            toast.classList.add('visible');
+
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 2500);
+        }
+
+        // ========== AUDIT LOG ==========
+        function addAuditEntry(action, recordId, recordName, field, oldValue, newValue) {
+            const entry = {
+                id: Date.now(),
+                action: action, // 'edit', 'delete', 'create'
+                recordId: recordId,
+                recordName: recordName,
+                field: field,
+                oldValue: oldValue,
+                newValue: newValue,
+                timestamp: new Date()
+            };
+
+            auditLog.unshift(entry);
+
+            // Keep only last 25
+            if (auditLog.length > MAX_AUDIT_ENTRIES) {
+                auditLog.pop();
+            }
+
+            renderAuditLog();
+        }
+
+        function renderAuditLog() {
+            const container = document.getElementById('auditList');
+            const badge = document.getElementById('auditBadge');
+
+            badge.textContent = auditLog.length;
+
+            if (auditLog.length === 0) {
+                container.innerHTML = '<div class="audit-empty">Keine Änderungen vorhanden</div>';
+                return;
+            }
+
+            container.innerHTML = auditLog.map(entry => {
+                let iconClass, iconSvg, actionText;
+
+                switch (entry.action) {
+                    case 'edit':
+                        iconClass = 'edit';
+                        iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>';
+                        const fieldLabel = allColumns[entry.field]?.label || entry.field;
+                        actionText = `<span class="audit-field">${fieldLabel}</span> geändert bei ${escapeHtml(entry.recordName)}`;
+                        break;
+                    case 'delete':
+                        iconClass = 'delete';
+                        iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>';
+                        actionText = `${escapeHtml(entry.recordName)} gelöscht`;
+                        break;
+                    case 'create':
+                        iconClass = 'create';
+                        iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>';
+                        actionText = `${escapeHtml(entry.recordName)} erstellt`;
+                        break;
+                }
+
+                const timeAgo = formatTimeAgo(entry.timestamp);
+
+                return `
+                    <div class="audit-item">
+                        <div class="audit-icon ${iconClass}">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconSvg}</svg>
+                        </div>
+                        <div class="audit-details">
+                            <div class="audit-action">${actionText}</div>
+                            <div class="audit-meta">
+                                <span>${timeAgo}</span>
+                                ${entry.action === 'edit' ? `<span>"${escapeHtml(String(entry.oldValue || '-'))}" → "${escapeHtml(String(entry.newValue || '-'))}"</span>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffSec = Math.floor(diffMs / 1000);
+            const diffMin = Math.floor(diffSec / 60);
+            const diffHour = Math.floor(diffMin / 60);
+
+            if (diffSec < 60) return 'Gerade eben';
+            if (diffMin < 60) return `vor ${diffMin} Min.`;
+            if (diffHour < 24) return `vor ${diffHour} Std.`;
+            return date.toLocaleDateString('de-DE');
+        }
+
+        function toggleAuditPanel() {
+            const panel = document.getElementById('auditPanel');
+            panel.classList.toggle('collapsed');
+        }
+
+        // ========== RECORD DETAIL MODAL ==========
+        let currentDetailRecordId = null;
+
+        function openRecordDetail(recordId) {
+            const record = recordsData.find(r => r.id === recordId);
+            if (!record) return;
+
+            currentDetailRecordId = recordId;
+            const body = document.getElementById('recordDetailBody');
+
+            const initials = (record.firstName?.[0] || '') + (record.lastName?.[0] || '');
+
+            body.innerHTML = `
+                <div class="record-detail-header">
+                    <div class="record-detail-avatar">${initials.toUpperCase()}</div>
+                    <div class="record-detail-info">
+                        <h3>${escapeHtml(record.name)}</h3>
+                        <div class="meta">${escapeHtml(record.email)} · ${record.area}</div>
+                    </div>
+                    <div class="record-detail-badges">
+                        <span class="badge ${record.type}">${record.type.toUpperCase()}</span>
+                        <span class="badge ${record.status}">${record.status === 'active' ? 'Aktiv' : 'Storniert'}</span>
+                    </div>
+                </div>
+
+                <div class="record-detail-sections">
+                    <div class="record-section">
+                        <div class="record-section-title">Persönliche Daten</div>
+                        <div class="record-fields">
+                            ${renderDetailField('salutation', 'Anrede', record)}
+                            ${renderDetailField('title', 'Titel', record)}
+                            ${renderDetailField('firstName', 'Vorname', record)}
+                            ${renderDetailField('lastName', 'Nachname', record)}
+                            ${renderDetailField('company', 'Firma', record)}
+                            ${renderDetailField('birthDate', 'Geburtsdatum', record)}
+                            ${renderDetailField('email', 'E-Mail', record, true)}
+                            ${renderDetailField('phoneMobile', 'Telefon Mobil', record)}
+                            ${renderDetailField('phoneFixed', 'Telefon Festnetz', record)}
+                        </div>
+                    </div>
+
+                    <div class="record-section">
+                        <div class="record-section-title">Anschrift</div>
+                        <div class="record-fields">
+                            ${renderDetailField('street', 'Straße', record)}
+                            ${renderDetailField('houseNumber', 'Hausnummer', record)}
+                            ${renderDetailField('zipCode', 'PLZ', record)}
+                            ${renderDetailField('city', 'Ort', record)}
+                            ${renderDetailField('country', 'Land', record)}
+                        </div>
+                    </div>
+
+                    <div class="record-section">
+                        <div class="record-section-title">Zahlungsinformation</div>
+                        <div class="record-fields">
+                            ${renderDetailField('accountHolder', 'Kontoinhaber', record)}
+                            ${renderDetailField('bankName', 'Bank', record)}
+                            ${renderDetailField('iban', 'IBAN', record, true)}
+                            ${renderDetailField('bic', 'BIC', record)}
+                        </div>
+                    </div>
+
+                    <div class="record-section">
+                        <div class="record-section-title">Beitrag</div>
+                        <div class="record-fields">
+                            ${renderDetailField('amount', 'Beitrag (pro Intervall)', record)}
+                            ${renderDetailField('intervalLabel', 'Intervall', record)}
+                            ${renderDetailField('je', 'Jahreseuros', record)}
+                            ${renderDetailField('eh', 'Einheiten', record)}
+                            <div class="record-field">
+                                <span class="record-field-label">Spendenquittung</span>
+                                <div class="record-field-value">${record.spendenquittung ? 'Ja' : 'Nein'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="record-section">
+                        <div class="record-section-title">Zuordnungen & Status</div>
+                        <div class="record-fields">
+                            <div class="record-field"><span class="record-field-label">Werbegebiet</span><div class="record-field-value">${escapeHtml(record.area)}</div></div>
+                            <div class="record-field"><span class="record-field-label">Kunde</span><div class="record-field-value">${escapeHtml(record.kunde)}</div></div>
+                            <div class="record-field"><span class="record-field-label">Werber</span><div class="record-field-value">${escapeHtml(record.werber)}</div></div>
+                            <div class="record-field"><span class="record-field-label">Teamchef</span><div class="record-field-value">${escapeHtml(record.teamchef)}</div></div>
+                            <div class="record-field"><span class="record-field-label">Erstellt am</span><div class="record-field-value">${formatDate(record.date)}</div></div>
+                            ${record.laterStartDate ? `<div class="record-field"><span class="record-field-label">Start ab</span><div class="record-field-value">${formatDate(record.laterStartDate)}</div></div>` : ''}
+                        </div>
+                    </div>
+
+                    ${record.notes ? `
+                    <div class="record-section">
+                        <div class="record-section-title">Anmerkungen</div>
+                        <div class="record-fields">
+                            ${renderDetailField('notes', 'Notizen', record, true)}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${record.type === 'erh' ? `
+                    <div class="record-section">
+                        <div class="record-section-title">Erhöhungs-Details</div>
+                        <div class="record-fields">
+                            ${renderDetailField('memberNumber', 'Mitgliedsnummer', record)}
+                            ${renderDetailField('memberSince', 'Mitglied seit', record)}
+                            ${renderDetailField('oldAmount', 'Alter Beitrag', record)}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            // Setup click handlers for editable fields
+            body.querySelectorAll('.record-field-value[data-editable="true"]').forEach(el => {
+                el.addEventListener('click', () => startDetailFieldEdit(el));
+            });
+
+            document.getElementById('recordDetailModal').classList.add('show');
+        }
+
+        function renderDetailField(field, label, record, fullWidth = false) {
+            const value = record[field];
+            const isEmpty = value === null || value === undefined || value === '';
+            const isEditable = editableColumns.includes(field);
+
+            return `
+                <div class="record-field ${fullWidth ? 'full-width' : ''}">
+                    <span class="record-field-label">${label}</span>
+                    <div class="record-field-value ${isEmpty ? 'empty' : ''}"
+                         data-field="${field}"
+                         data-editable="${isEditable}"
+                         ${isEditable ? 'style="cursor: pointer;"' : ''}>
+                        ${isEmpty ? '(nicht angegeben)' : escapeHtml(String(value))}
+                    </div>
+                </div>`;
+        }
+
+        function startDetailFieldEdit(el) {
+            if (el.dataset.editable !== 'true') return;
+            if (el.classList.contains('editing')) return;
+
+            const field = el.dataset.field;
+            const record = recordsData.find(r => r.id === currentDetailRecordId);
+            if (!record) return;
+
+            const currentValue = record[field] || '';
+            el.dataset.originalValue = currentValue;
+            el.classList.add('editing');
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+
+            el.innerHTML = '';
+            el.appendChild(input);
+            input.focus();
+            input.select();
+
+            input.addEventListener('blur', () => finishDetailFieldEdit(el, input, field));
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') input.blur();
+                if (e.key === 'Escape') {
+                    el.classList.remove('editing');
+                    el.innerHTML = el.dataset.originalValue || '(nicht angegeben)';
+                }
+            });
+        }
+
+        function finishDetailFieldEdit(el, input, field) {
+            const newValue = input.value;
+            const originalValue = el.dataset.originalValue;
+            const record = recordsData.find(r => r.id === currentDetailRecordId);
+
+            if (record && newValue !== originalValue) {
+                record[field] = newValue;
+
+                // Update combined fields
+                if (field === 'firstName' || field === 'lastName') {
+                    record.name = `${record.firstName} ${record.lastName}`;
+                }
+                if (['street', 'houseNumber', 'zipCode', 'city'].includes(field)) {
+                    record.address = `${record.street} ${record.houseNumber}, ${record.zipCode} ${record.city}`;
+                }
+
+                addAuditEntry('edit', currentDetailRecordId, record.name, field, originalValue, newValue);
+                showSaveToast('Änderung gespeichert');
+
+                // Update table if visible
+                renderRecordsTable(currentRecords, false);
+            }
+
+            el.classList.remove('editing');
+            el.innerHTML = newValue || '(nicht angegeben)';
+            if (!newValue) el.classList.add('empty');
+            else el.classList.remove('empty');
+        }
+
+        function closeRecordDetailModal() {
+            document.getElementById('recordDetailModal').classList.remove('show');
+            currentDetailRecordId = null;
+        }
+
+        // ========== MAIL FUNCTIONS ==========
+        let selectedMailType = null;
+
+        function openMailModal() {
+            if (selectedRecords.size === 0) return;
+            selectedMailType = null;
+
+            document.getElementById('mailRecordCount').textContent = selectedRecords.size;
+            document.querySelectorAll('.mail-type-option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById('sendMailBtn').disabled = true;
+            document.getElementById('mailModal').classList.add('show');
+        }
+
+        function closeMailModal() {
+            document.getElementById('mailModal').classList.remove('show');
+        }
+
+        function selectMailType(type) {
+            selectedMailType = type;
+            document.querySelectorAll('.mail-type-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.type === type);
+            });
+            document.getElementById('sendMailBtn').disabled = false;
+        }
+
+        async function sendSelectedMails() {
+            if (!selectedMailType || selectedRecords.size === 0) return;
+
+            const typeLabels = { nmg: 'Neumitglied', erh: 'Erhöhung', iban: 'IBAN-Bestätigung' };
+            const count = selectedRecords.size;
+
+            closeMailModal();
+
+            // Simulate sending
+            showSaveToast(`${count} ${typeLabels[selectedMailType]}-Mails werden gesendet...`);
+
+            // Clear selection after action
+            clearSelection();
+        }
+
+        // ========== PDF DOWNLOAD ==========
+        async function downloadPDFs() {
+            if (selectedRecords.size === 0) return;
+
+            const count = selectedRecords.size;
+            showSaveToast(`${count} Beitrittserklärung${count > 1 ? 'en' : ''} werden heruntergeladen...`);
+
+            // Simulate download delay
+            setTimeout(() => {
+                showSaveToast(`Download abgeschlossen`);
+                clearSelection();
+            }, 1500);
+        }
     </script>
 </body>
 </html>
