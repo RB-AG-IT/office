@@ -1492,6 +1492,7 @@
                         <div class="toolbar-nav-option active" data-value="werber" onclick="selectCategory('werber', 'Werber')">Werber</div>
                         <div class="toolbar-nav-option" data-value="kunden" onclick="selectCategory('kunden', 'Kunden / Gebiete')">Kunden / Gebiete</div>
                         <div class="toolbar-nav-option" data-value="kampagnen" onclick="selectCategory('kampagnen', 'Kampagnen')">Kampagnen</div>
+                        <div class="toolbar-nav-option" data-value="letzte100" onclick="selectCategory('letzte100', 'Letzte 100 Datensätze')">Letzte 100 Datensätze</div>
                     </div>
                 </div>
             </div>
@@ -1609,8 +1610,8 @@
                     </div>
                 </div>
 
-                <!-- LETZTE 100 DATENSÄTZE SECTION (immer sichtbar unten) -->
-                <div id="section-letzte100" class="category-section" style="margin-top: 24px;">
+                <!-- LETZTE 100 DATENSÄTZE SECTION -->
+                <div id="section-letzte100" class="category-section" style="display: none;">
                     <div class="section">
                         <div class="section-header">
                             <div class="section-title">
@@ -1618,13 +1619,8 @@
                                 Letzte 100 Datensätze
                                 <span class="section-badge" id="letzte100Badge">100</span>
                             </div>
-                            <button class="section-expand-btn" onclick="toggleLetzte100()">
-                                <svg id="letzte100ExpandIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px; transition: transform 0.2s;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-                            </button>
                         </div>
-                        <div id="letzte100Content" style="overflow-x: auto;">
+                        <div style="overflow-x: auto;">
                             <table class="stats-table letzte100-table">
                                 <thead>
                                     <tr>
@@ -2196,8 +2192,6 @@
             { id: 4, name: 'Lisa Müller', initials: 'LM', color: '#f97316', records: 28, nettoJE: 3640, storno: 12.1 }
         ];
 
-        let letzte100Expanded = true;
-
         // Generate 100 dummy records with ALL form fields
         const recordsData = (function() {
             const vornamen = ['Max', 'Erika', 'Hans', 'Maria', 'Peter', 'Sabine', 'Thomas', 'Laura', 'Michael', 'Julia', 'Andreas', 'Claudia', 'Stefan', 'Martina', 'Christian', 'Nicole', 'Markus', 'Sandra', 'Frank', 'Petra', 'Jürgen', 'Monika', 'Uwe', 'Karin', 'Ralf', 'Birgit', 'Bernd', 'Heike', 'Dirk', 'Anja'];
@@ -2482,7 +2476,8 @@
                 const labelMap = {
                     'werber': 'Werber',
                     'kunden': 'Kunden / Gebiete',
-                    'kampagnen': 'Kampagnen'
+                    'kampagnen': 'Kampagnen',
+                    'letzte100': 'Letzte 100 Datensätze'
                 };
                 selectCategory(e.data.value, labelMap[e.data.value] || e.data.value);
             }
@@ -2536,13 +2531,12 @@
 
             // Show correct section or detail view
             showOverviewView();
-            // Hide main category sections (not letzte100)
-            ['section-werber', 'section-kunden', 'section-kampagnen'].forEach(id => {
+            // Hide all category sections
+            ['section-werber', 'section-kunden', 'section-kampagnen', 'section-letzte100'].forEach(id => {
                 document.getElementById(id).style.display = 'none';
             });
+            // Show selected section
             document.getElementById('section-' + value).style.display = 'block';
-            // Letzte 100 is always visible at the bottom
-            document.getElementById('section-letzte100').style.display = 'block';
         }
 
         // ========== VIEW SWITCHING ==========
@@ -2679,20 +2673,6 @@
             `}).join('');
 
             document.getElementById('letzte100Badge').textContent = last100.length;
-        }
-
-        function toggleLetzte100() {
-            letzte100Expanded = !letzte100Expanded;
-            const content = document.getElementById('letzte100Content');
-            const icon = document.getElementById('letzte100ExpandIcon');
-
-            if (letzte100Expanded) {
-                content.style.display = 'block';
-                icon.style.transform = 'rotate(0deg)';
-            } else {
-                content.style.display = 'none';
-                icon.style.transform = 'rotate(-90deg)';
-            }
         }
 
         function openWerberRecords(werberId) {
