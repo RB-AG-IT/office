@@ -37,6 +37,7 @@
             background: var(--bg-primary);
             border-bottom: 1px solid var(--border-color);
             min-height: 56px;
+            z-index: 100;
         }
 
         .app-container.expanded {
@@ -317,6 +318,61 @@
         }
 
         /* Responsive */
+        /* Shell Search Dropdown */
+        .shell-search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            display: none;
+            max-height: 320px;
+            overflow-y: auto;
+            margin-top: 4px;
+        }
+
+        .shell-search-dropdown.active {
+            display: block;
+        }
+
+        .shell-search-dropdown-header {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .shell-search-result-item {
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .shell-search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .shell-search-result-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .shell-search-no-results {
+            padding: 20px 14px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
         @media (max-width: 1024px) {
             .app-container {
                 grid-template-columns: 60px 1fr;
@@ -551,6 +607,12 @@
                     <span id="shellActionText">Aktion</span>
                 </button>
             </div>
+
+            <!-- Search Dropdown (positioned relative to toolbar) -->
+            <div class="shell-search-dropdown" id="shellSearchDropdown">
+                <div class="shell-search-dropdown-header" id="shellSearchDropdownHeader">Ergebnisse</div>
+                <div id="shellSearchResults"></div>
+            </div>
         </div>
 
         <!-- Main Content -->
@@ -561,6 +623,7 @@
                 <p style="color: var(--text-secondary); font-size: 14px;">Bereit für den Start?</p>
             </div>
         </main>
+
     </div>
 
     <!-- Login Modal -->
@@ -1282,6 +1345,9 @@
         // SEARCH FUNCTIONALITY
         // ================================================================
         const shellSearchInput = document.getElementById('shellSearchInput');
+        const shellSearchDropdown = document.getElementById('shellSearchDropdown');
+        const shellSearchResults = document.getElementById('shellSearchResults');
+        const shellSearchDropdownHeader = document.getElementById('shellSearchDropdownHeader');
         let searchTimeout;
 
         shellSearchInput.addEventListener('input', function(e) {
@@ -1300,11 +1366,49 @@
         // Clear search when focus lost
         shellSearchInput.addEventListener('blur', function() {
             setTimeout(() => {
-                const iframe = document.querySelector('#content-container iframe');
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage({ type: 'searchClear' }, '*');
-                }
+                closeShellSearchDropdown();
             }, 200);
+        });
+
+        function closeShellSearchDropdown() {
+            shellSearchDropdown.classList.remove('active');
+        }
+
+        function showShellSearchResults(data) {
+            if (!data || !data.results || data.results.length === 0) {
+                if (data && data.query && data.query.length > 0) {
+                    shellSearchDropdownHeader.textContent = data.headerText || 'Ergebnisse';
+                    shellSearchResults.innerHTML = '<div class="shell-search-no-results">Keine Ergebnisse gefunden</div>';
+                    shellSearchDropdown.classList.add('active');
+                } else {
+                    closeShellSearchDropdown();
+                }
+                return;
+            }
+
+            shellSearchDropdownHeader.textContent = data.headerText || 'Ergebnisse';
+            shellSearchResults.innerHTML = data.results.map(item =>
+                `<div class="shell-search-result-item" onclick="handleShellSearchSelect(${item.id}, '${item.name.replace(/'/g, "\\'")}')">${item.name}</div>`
+            ).join('');
+            shellSearchDropdown.classList.add('active');
+        }
+
+        function handleShellSearchSelect(id, name) {
+            closeShellSearchDropdown();
+            shellSearchInput.value = '';
+
+            // Tell iframe to navigate to selected item
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'searchSelect', id: id, name: name }, '*');
+            }
+        }
+
+        // Listen for search results from iframe
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'searchResults') {
+                showShellSearchResults(e.data);
+            }
         });
     </script>
 </body>
