@@ -859,18 +859,52 @@
             { id: 3, name: 'Herbstkampagne 2024', initials: 'HK', color: '#6366f1', records: 28, nettoJE: 4290, storno: 7.1, gebieteIds: [2, 5] }
         ];
 
-        const recordsData = [
-            { id: 1, date: '2024-11-25', type: 'nmg', name: 'Max Mustermann', address: 'Hauptstr. 12, 67059 Ludwigshafen', email: 'max@email.de', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 120, status: 'active' },
-            { id: 2, date: '2024-11-25', type: 'nmg', name: 'Erika Musterfrau', address: 'Bahnhofstr. 5, 67059 Ludwigshafen', email: 'erika@email.de', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 180, status: 'active' },
-            { id: 3, date: '2024-11-24', type: 'erh', name: 'Hans Weber', address: 'Gartenweg 8, 67063 Ludwigshafen', email: 'hans.w@gmx.de', area: 'Ludwigshafen-Süd', kunde: 'DRK KV Ludwigshafen', werber: 'Max Müller', teamchef: 'Sandra Hoffmann', je: 60, status: 'active' },
-            { id: 4, date: '2024-11-24', type: 'nmg', name: 'Maria Schmidt', address: 'Ringstr. 22, 67071 Ludwigshafen', email: 'maria.s@web.de', area: 'Oggersheim', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 120, status: 'storniert' },
-            { id: 5, date: '2024-11-23', type: 'nmg', name: 'Peter Becker', address: 'Am Markt 3, 67059 Ludwigshafen', email: 'p.becker@t-online.de', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Max Müller', teamchef: 'Sandra Hoffmann', je: 240, status: 'active' },
-            { id: 6, date: '2024-11-23', type: 'erh', name: 'Sabine König', address: 'Waldstr. 15, 67063 Ludwigshafen', email: 's.koenig@email.de', area: 'Ludwigshafen-Süd', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 60, status: 'active' },
-            { id: 7, date: '2024-11-22', type: 'nmg', name: 'Thomas Fischer', address: 'Beethovenstr. 7, 67059 Ludwigshafen', email: 't.fischer@gmail.com', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Max Müller', teamchef: 'Sandra Hoffmann', je: 120, status: 'active' },
-            { id: 8, date: '2024-11-22', type: 'nmg', name: 'Laura Hoffmann', address: 'Schillerstr. 19, 67071 Ludwigshafen', email: 'l.hoffmann@web.de', area: 'Oggersheim', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 180, status: 'active' },
-            { id: 9, date: '2024-11-21', type: 'nmg', name: 'Michael Braun', address: 'Rheinstr. 44, 67063 Ludwigshafen', email: 'm.braun@gmx.de', area: 'Ludwigshafen-Süd', kunde: 'DRK KV Ludwigshafen', werber: 'Max Müller', teamchef: 'Sandra Hoffmann', je: 120, status: 'storniert' },
-            { id: 10, date: '2024-11-21', type: 'erh', name: 'Julia Wagner', address: 'Mozartstr. 11, 67059 Ludwigshafen', email: 'j.wagner@email.de', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 120, status: 'active' },
-        ];
+        // Generate 100 dummy records
+        const recordsData = (function() {
+            const vornamen = ['Max', 'Erika', 'Hans', 'Maria', 'Peter', 'Sabine', 'Thomas', 'Laura', 'Michael', 'Julia', 'Andreas', 'Claudia', 'Stefan', 'Martina', 'Christian', 'Nicole', 'Markus', 'Sandra', 'Frank', 'Petra', 'Jürgen', 'Monika', 'Uwe', 'Karin', 'Ralf', 'Birgit', 'Bernd', 'Heike', 'Dirk', 'Anja'];
+            const nachnamen = ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann', 'Koch', 'Richter', 'Klein', 'Wolf', 'Schröder', 'Neumann', 'Schwarz', 'Braun', 'Zimmermann', 'Krüger', 'Hartmann', 'Lange', 'Werner', 'Krause', 'Meier'];
+            const strassen = ['Hauptstr.', 'Bahnhofstr.', 'Gartenweg', 'Ringstr.', 'Am Markt', 'Waldstr.', 'Beethovenstr.', 'Schillerstr.', 'Rheinstr.', 'Mozartstr.', 'Goethestr.', 'Kirchstr.', 'Schulstr.', 'Bergstr.', 'Lindenstr.'];
+            const areas = ['Ludwigshafen-Mitte', 'Ludwigshafen-Süd', 'Oggersheim', 'Mannheim-Nord', 'Mannheim-Süd'];
+            const kunden = ['DRK KV Ludwigshafen', 'DRK KV Mannheim'];
+            const werber = ['Anna Schmidt', 'Max Müller', 'Tim Bauer', 'Lisa Weber'];
+            const teamchefs = ['Michael Wagner', 'Sandra Hoffmann', 'Klaus Meier'];
+            const jeWerte = [60, 120, 180, 240];
+            const types = ['nmg', 'nmg', 'nmg', 'erh']; // 75% NMG, 25% ERH
+
+            const records = [];
+            const startDate = new Date('2024-11-25');
+
+            for (let i = 1; i <= 100; i++) {
+                const dayOffset = Math.floor((i - 1) / 4); // ~4 records per day
+                const date = new Date(startDate);
+                date.setDate(date.getDate() - dayOffset);
+                const dateStr = date.toISOString().split('T')[0];
+
+                const vorname = vornamen[Math.floor(Math.random() * vornamen.length)];
+                const nachname = nachnamen[Math.floor(Math.random() * nachnamen.length)];
+                const strasse = strassen[Math.floor(Math.random() * strassen.length)];
+                const hausnr = Math.floor(Math.random() * 99) + 1;
+                const plz = ['67059', '67063', '67071', '68159', '68161'][Math.floor(Math.random() * 5)];
+                const area = areas[Math.floor(Math.random() * areas.length)];
+                const kunde = area.startsWith('Mannheim') ? 'DRK KV Mannheim' : 'DRK KV Ludwigshafen';
+
+                records.push({
+                    id: i,
+                    date: dateStr,
+                    type: types[Math.floor(Math.random() * types.length)],
+                    name: `${vorname} ${nachname}`,
+                    address: `${strasse} ${hausnr}, ${plz} ${area.split('-')[0]}`,
+                    email: `${vorname.toLowerCase()}.${nachname.toLowerCase()}@email.de`,
+                    area: area,
+                    kunde: kunde,
+                    werber: werber[Math.floor(Math.random() * werber.length)],
+                    teamchef: teamchefs[Math.floor(Math.random() * teamchefs.length)],
+                    je: jeWerte[Math.floor(Math.random() * jeWerte.length)],
+                    status: Math.random() > 0.1 ? 'active' : 'storniert' // 10% storniert
+                });
+            }
+            return records;
+        })();
 
         // ========== STATE ==========
         let currentCategory = 'kunden';
