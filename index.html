@@ -1110,6 +1110,17 @@
                     opt.classList.toggle('active', opt.dataset.value === 'custom');
                 });
             }
+            // Update shell when period changed from iframe (e.g. returning from dashboard)
+            if (e.data && e.data.type === 'periodChanged') {
+                const textEl = document.getElementById('shellPeriodDropdownText');
+                const option = document.querySelector(`#shellPeriodDropdown .toolbar-nav-option[data-value="${e.data.value}"]`);
+                if (textEl && option) {
+                    textEl.textContent = option.textContent;
+                }
+                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === e.data.value);
+                });
+            }
         });
 
         function loadPage(page) {
