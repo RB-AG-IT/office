@@ -402,6 +402,162 @@
         }
 
         /* Column Settings Modal */
+        .column-groups {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .column-group {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .column-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .column-group-header:hover {
+            background: var(--bg-hover);
+        }
+
+        .column-group-header svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s;
+        }
+
+        .column-group.collapsed .column-group-header svg {
+            transform: rotate(-90deg);
+        }
+
+        .column-group.collapsed .column-group-items {
+            display: none;
+        }
+
+        .column-group-items {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .column-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: grab;
+            transition: all 0.2s;
+            font-size: 13px;
+            background: var(--bg-primary);
+        }
+
+        .column-item:hover {
+            border-color: var(--accent-color);
+        }
+
+        .column-item.selected {
+            border-color: var(--accent-color);
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .column-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .column-item.drag-over {
+            border-color: var(--accent-color);
+            border-style: dashed;
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .column-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .column-item .drag-handle {
+            color: var(--text-secondary);
+            cursor: grab;
+            flex-shrink: 0;
+        }
+
+        .column-item .drag-handle svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .column-item .column-label {
+            flex: 1;
+        }
+
+        /* Selected columns preview */
+        .selected-columns-preview {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: var(--bg-secondary);
+            border-radius: 6px;
+        }
+
+        .selected-columns-preview-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .selected-columns-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .selected-column-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: grab;
+        }
+
+        .selected-column-tag.dragging {
+            opacity: 0.5;
+        }
+
+        .selected-column-tag.drag-over {
+            background: var(--accent-hover);
+        }
+
+        .selected-column-tag .remove-btn {
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .selected-column-tag .remove-btn:hover {
+            opacity: 1;
+        }
+
+        /* Legacy support */
         .column-checkboxes {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -607,6 +763,46 @@
             background: var(--bg-secondary);
             color: var(--text-secondary);
             cursor: not-allowed;
+        }
+
+        /* Sortable Table Headers */
+        .data-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.15s;
+        }
+
+        .data-table th.sortable:hover {
+            color: var(--accent-color);
+        }
+
+        .data-table th.sortable.active {
+            color: var(--accent-color);
+        }
+
+        .data-table th .sort-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-left: 4px;
+            opacity: 0.4;
+            transition: opacity 0.15s, transform 0.15s;
+            vertical-align: middle;
+        }
+
+        .data-table th.sortable:hover .sort-icon,
+        .data-table th.sortable.active .sort-icon {
+            opacity: 1;
+        }
+
+        .data-table th.sortable.desc .sort-icon {
+            transform: rotate(180deg);
+        }
+
+        .th-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
     </style>
 </head>
@@ -874,36 +1070,139 @@
 
     <!-- Column Settings Modal -->
     <div class="modal" id="columnModal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 700px; max-height: 85vh;">
             <div class="modal-header">
-                <h2 class="modal-title">Spalten auswählen</h2>
+                <h2 class="modal-title">Spalten auswählen & sortieren</h2>
                 <button class="modal-close" onclick="closeColumnModal()">
                     <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
-            <div class="modal-body">
-                <p style="margin-bottom: var(--spacing-md); font-size: 13px; color: var(--text-secondary);">
-                    Wählen Sie die Spalten aus, die in der Tabelle angezeigt werden sollen:
-                </p>
-                <div class="column-checkboxes" id="columnCheckboxes">
-                    <label class="column-checkbox selected"><input type="checkbox" value="datum" checked> Datum</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="art" checked> Art</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="name" checked> Name</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="adresse" checked> Adresse</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="email" checked> Email</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="werbegebiet" checked> Werbegebiet</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="kunde" checked> Kunde</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="werber" checked> Werber</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="teamchef" checked> Teamchef</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="je" checked> Jahreseuros</label>
-                    <label class="column-checkbox selected"><input type="checkbox" value="status" checked> Status</label>
-                    <label class="column-checkbox"><input type="checkbox" value="eh"> Einheiten</label>
-                    <label class="column-checkbox"><input type="checkbox" value="telefon"> Telefon</label>
-                    <label class="column-checkbox"><input type="checkbox" value="geburtsdatum"> Geburtsdatum</label>
-                    <label class="column-checkbox"><input type="checkbox" value="iban"> IBAN</label>
+            <div class="modal-body" style="overflow-y: auto; max-height: 60vh;">
+                <!-- Selected Columns Preview (Drag to reorder) -->
+                <div class="selected-columns-preview">
+                    <div class="selected-columns-preview-title">Aktive Spalten (ziehen zum Sortieren)</div>
+                    <div class="selected-columns-list" id="selectedColumnsList">
+                        <!-- Wird per JS befüllt -->
+                    </div>
                 </div>
+
+                <p style="margin: var(--spacing-md) 0 var(--spacing-sm); font-size: 12px; color: var(--text-secondary);">
+                    Spalten an-/abwählen:
+                </p>
+
+                <div class="column-groups" id="columnGroups">
+                    <!-- Persönliche Daten -->
+                    <div class="column-group">
+                        <div class="column-group-header" onclick="toggleColumnGroup(this)">
+                            <span>Persönliche Daten</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                        <div class="column-group-items">
+                            <label class="column-item" data-col="date"><input type="checkbox" value="date"> <span class="column-label">Datum</span></label>
+                            <label class="column-item" data-col="type"><input type="checkbox" value="type"> <span class="column-label">Art (NMG/ERH)</span></label>
+                            <label class="column-item" data-col="salutation"><input type="checkbox" value="salutation"> <span class="column-label">Anrede</span></label>
+                            <label class="column-item" data-col="title"><input type="checkbox" value="title"> <span class="column-label">Titel</span></label>
+                            <label class="column-item" data-col="company"><input type="checkbox" value="company"> <span class="column-label">Firma</span></label>
+                            <label class="column-item" data-col="firstName"><input type="checkbox" value="firstName"> <span class="column-label">Vorname</span></label>
+                            <label class="column-item" data-col="lastName"><input type="checkbox" value="lastName"> <span class="column-label">Nachname</span></label>
+                            <label class="column-item" data-col="name"><input type="checkbox" value="name"> <span class="column-label">Name (kombiniert)</span></label>
+                            <label class="column-item" data-col="birthDate"><input type="checkbox" value="birthDate"> <span class="column-label">Geburtsdatum</span></label>
+                            <label class="column-item" data-col="email"><input type="checkbox" value="email"> <span class="column-label">E-Mail</span></label>
+                            <label class="column-item" data-col="phoneMobile"><input type="checkbox" value="phoneMobile"> <span class="column-label">Telefon Mobil</span></label>
+                            <label class="column-item" data-col="phoneFixed"><input type="checkbox" value="phoneFixed"> <span class="column-label">Telefon Festnetz</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Anschrift -->
+                    <div class="column-group">
+                        <div class="column-group-header" onclick="toggleColumnGroup(this)">
+                            <span>Anschrift</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                        <div class="column-group-items">
+                            <label class="column-item" data-col="street"><input type="checkbox" value="street"> <span class="column-label">Straße</span></label>
+                            <label class="column-item" data-col="houseNumber"><input type="checkbox" value="houseNumber"> <span class="column-label">Hausnummer</span></label>
+                            <label class="column-item" data-col="zipCode"><input type="checkbox" value="zipCode"> <span class="column-label">PLZ</span></label>
+                            <label class="column-item" data-col="city"><input type="checkbox" value="city"> <span class="column-label">Ort</span></label>
+                            <label class="column-item" data-col="country"><input type="checkbox" value="country"> <span class="column-label">Land</span></label>
+                            <label class="column-item" data-col="address"><input type="checkbox" value="address"> <span class="column-label">Adresse (kombiniert)</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Zahlungsinformation -->
+                    <div class="column-group">
+                        <div class="column-group-header" onclick="toggleColumnGroup(this)">
+                            <span>Zahlungsinformation</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                        <div class="column-group-items">
+                            <label class="column-item" data-col="accountHolder"><input type="checkbox" value="accountHolder"> <span class="column-label">Kontoinhaber</span></label>
+                            <label class="column-item" data-col="bankName"><input type="checkbox" value="bankName"> <span class="column-label">Bank</span></label>
+                            <label class="column-item" data-col="iban"><input type="checkbox" value="iban"> <span class="column-label">IBAN</span></label>
+                            <label class="column-item" data-col="bic"><input type="checkbox" value="bic"> <span class="column-label">BIC</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Beitrag -->
+                    <div class="column-group">
+                        <div class="column-group-header" onclick="toggleColumnGroup(this)">
+                            <span>Beitrag</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                        <div class="column-group-items">
+                            <label class="column-item" data-col="amount"><input type="checkbox" value="amount"> <span class="column-label">Beitrag (pro Intervall)</span></label>
+                            <label class="column-item" data-col="intervalLabel"><input type="checkbox" value="intervalLabel"> <span class="column-label">Intervall</span></label>
+                            <label class="column-item" data-col="je"><input type="checkbox" value="je"> <span class="column-label">Jahreseuros (JE)</span></label>
+                            <label class="column-item" data-col="eh"><input type="checkbox" value="eh"> <span class="column-label">Einheiten (EH)</span></label>
+                            <label class="column-item" data-col="spendenquittung"><input type="checkbox" value="spendenquittung"> <span class="column-label">Spendenquittung</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Zuordnungen -->
+                    <div class="column-group">
+                        <div class="column-group-header" onclick="toggleColumnGroup(this)">
+                            <span>Zuordnungen</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                        <div class="column-group-items">
+                            <label class="column-item" data-col="area"><input type="checkbox" value="area"> <span class="column-label">Werbegebiet</span></label>
+                            <label class="column-item" data-col="kunde"><input type="checkbox" value="kunde"> <span class="column-label">Kunde</span></label>
+                            <label class="column-item" data-col="werber"><input type="checkbox" value="werber"> <span class="column-label">Werber</span></label>
+                            <label class="column-item" data-col="teamchef"><input type="checkbox" value="teamchef"> <span class="column-label">Teamchef</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Status & Sonstiges -->
+                    <div class="column-group">
+                        <div class="column-group-header" onclick="toggleColumnGroup(this)">
+                            <span>Status & Sonstiges</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                        <div class="column-group-items">
+                            <label class="column-item" data-col="status"><input type="checkbox" value="status"> <span class="column-label">Status</span></label>
+                            <label class="column-item" data-col="laterStartDate"><input type="checkbox" value="laterStartDate"> <span class="column-label">Späteres Startdatum</span></label>
+                            <label class="column-item" data-col="notes"><input type="checkbox" value="notes"> <span class="column-label">Anmerkungen</span></label>
+                            <label class="column-item" data-col="contactEmail"><input type="checkbox" value="contactEmail"> <span class="column-label">Kontakt Email erlaubt</span></label>
+                            <label class="column-item" data-col="contactPhone"><input type="checkbox" value="contactPhone"> <span class="column-label">Kontakt Telefon erlaubt</span></label>
+                        </div>
+                    </div>
+
+                    <!-- ERH-Felder -->
+                    <div class="column-group collapsed">
+                        <div class="column-group-header" onclick="toggleColumnGroup(this)">
+                            <span>Erhöhungs-Felder (nur ERH)</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                        <div class="column-group-items">
+                            <label class="column-item" data-col="memberNumber"><input type="checkbox" value="memberNumber"> <span class="column-label">Mitgliedsnummer</span></label>
+                            <label class="column-item" data-col="memberSince"><input type="checkbox" value="memberSince"> <span class="column-label">Mitglied seit</span></label>
+                            <label class="column-item" data-col="oldAmount"><input type="checkbox" value="oldAmount"> <span class="column-label">Alter Beitrag</span></label>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
                     <div class="form-group">
                         <label class="form-label">Vorlage speichern als:</label>
@@ -1046,7 +1345,7 @@
             { id: 3, name: 'Herbstkampagne 2024', initials: 'HK', color: '#6366f1', records: 28, nettoJE: 4290, storno: 7.1, gebieteIds: [2, 5] }
         ];
 
-        // Generate 100 dummy records
+        // Generate 100 dummy records with ALL form fields
         const recordsData = (function() {
             const vornamen = ['Max', 'Erika', 'Hans', 'Maria', 'Peter', 'Sabine', 'Thomas', 'Laura', 'Michael', 'Julia', 'Andreas', 'Claudia', 'Stefan', 'Martina', 'Christian', 'Nicole', 'Markus', 'Sandra', 'Frank', 'Petra', 'Jürgen', 'Monika', 'Uwe', 'Karin', 'Ralf', 'Birgit', 'Bernd', 'Heike', 'Dirk', 'Anja'];
             const nachnamen = ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann', 'Koch', 'Richter', 'Klein', 'Wolf', 'Schröder', 'Neumann', 'Schwarz', 'Braun', 'Zimmermann', 'Krüger', 'Hartmann', 'Lange', 'Werner', 'Krause', 'Meier'];
@@ -1057,9 +1356,58 @@
             const teamchefs = ['Michael Wagner', 'Sandra Hoffmann', 'Klaus Meier'];
             const jeWerte = [60, 120, 180, 240];
             const types = ['nmg', 'nmg', 'nmg', 'erh']; // 75% NMG, 25% ERH
+            const anreden = ['Herr', 'Frau', 'Divers'];
+            const titel = ['', '', '', '', 'Dr.', 'Prof.', 'Prof. Dr.']; // Meist kein Titel
+            const firmen = ['', '', '', '', '', 'Musterfirma GmbH', 'Beispiel AG', 'Test & Co. KG'];
+            const intervalle = ['monthly', 'quarterly', 'halfyearly', 'yearly'];
+            const intervallLabels = { monthly: 'Monatlich', quarterly: 'Vierteljährlich', halfyearly: 'Halbjährlich', yearly: 'Jährlich' };
+            const intervallMultiplier = { monthly: 12, quarterly: 4, halfyearly: 2, yearly: 1 };
+            const banken = ['Sparkasse Ludwigshafen', 'Volksbank Rhein-Neckar', 'Deutsche Bank', 'Commerzbank', 'ING DiBa', 'Postbank'];
+            const laender = ['Deutschland', 'Deutschland', 'Deutschland', 'Deutschland', 'Österreich', 'Schweiz'];
 
             const records = [];
             const startDate = new Date('2024-11-25');
+
+            // Generate random IBAN (German format)
+            function generateIBAN() {
+                const bankCode = ['37040044', '50010517', '67050505', '54550010'][Math.floor(Math.random() * 4)];
+                const accountNr = String(Math.floor(Math.random() * 9999999999)).padStart(10, '0');
+                return `DE${String(Math.floor(Math.random() * 90) + 10).padStart(2, '0')} ${bankCode.substring(0,4)} ${bankCode.substring(4)} ${accountNr.substring(0,4)} ${accountNr.substring(4,8)} ${accountNr.substring(8)}`;
+            }
+
+            // Generate random BIC
+            function generateBIC() {
+                const bics = ['COBADEFFXXX', 'DEUTDEDB', 'GENODEF1S01', 'PBNKDEFF', 'INGDDEFF'];
+                return bics[Math.floor(Math.random() * bics.length)];
+            }
+
+            // Generate random phone number
+            function generatePhone(mobile = false) {
+                if (mobile) {
+                    const prefix = ['0151', '0152', '0157', '0160', '0170', '0171', '0175', '0176', '0177', '0178', '0179'];
+                    return `${prefix[Math.floor(Math.random() * prefix.length)]} ${Math.floor(Math.random() * 90000000) + 10000000}`;
+                } else {
+                    return `0621 ${Math.floor(Math.random() * 9000000) + 1000000}`;
+                }
+            }
+
+            // Generate random birth date (18-85 years old)
+            function generateBirthDate() {
+                const today = new Date();
+                const minAge = 18, maxAge = 85;
+                const year = today.getFullYear() - minAge - Math.floor(Math.random() * (maxAge - minAge));
+                const month = Math.floor(Math.random() * 12);
+                const day = Math.floor(Math.random() * 28) + 1;
+                return new Date(year, month, day).toISOString().split('T')[0];
+            }
+
+            // Generate member since date for ERH (1-10 years ago)
+            function generateMemberSince() {
+                const today = new Date();
+                const yearsAgo = Math.floor(Math.random() * 10) + 1;
+                const date = new Date(today.getFullYear() - yearsAgo, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
+                return date.toISOString().split('T')[0];
+            }
 
             for (let i = 1; i <= 100; i++) {
                 const dayOffset = Math.floor((i - 1) / 4); // ~4 records per day
@@ -1072,23 +1420,89 @@
                 const strasse = strassen[Math.floor(Math.random() * strassen.length)];
                 const hausnr = Math.floor(Math.random() * 99) + 1;
                 const plz = ['67059', '67063', '67071', '68159', '68161'][Math.floor(Math.random() * 5)];
+                const city = ['Ludwigshafen', 'Mannheim'][Math.floor(Math.random() * 2)];
                 const area = areas[Math.floor(Math.random() * areas.length)];
                 const kunde = area.startsWith('Mannheim') ? 'DRK KV Mannheim' : 'DRK KV Ludwigshafen';
+                const type = types[Math.floor(Math.random() * types.length)];
+                const interval = intervalle[Math.floor(Math.random() * intervalle.length)];
+                const je = jeWerte[Math.floor(Math.random() * jeWerte.length)];
+                const amount = je / intervallMultiplier[interval]; // Beitrag pro Intervall
+                const anrede = anreden[Math.floor(Math.random() * anreden.length)];
+                const titelVal = titel[Math.floor(Math.random() * titel.length)];
+                const firma = firmen[Math.floor(Math.random() * firmen.length)];
+                const land = laender[Math.floor(Math.random() * laender.length)];
 
-                records.push({
+                const record = {
+                    // System-Felder
                     id: i,
-                    date: dateStr,
-                    type: types[Math.floor(Math.random() * types.length)],
-                    name: `${vorname} ${nachname}`,
-                    address: `${strasse} ${hausnr}, ${plz} ${area.split('-')[0]}`,
+                    status: Math.random() > 0.1 ? 'active' : 'storniert',
+
+                    // Persönliche Daten
+                    type: type,
+                    salutation: anrede,
+                    title: titelVal,
+                    company: firma,
+                    firstName: vorname,
+                    lastName: nachname,
+                    name: `${vorname} ${nachname}`, // Kombiniert für Anzeige
+                    birthDate: generateBirthDate(),
                     email: `${vorname.toLowerCase()}.${nachname.toLowerCase()}@email.de`,
+                    phoneMobile: Math.random() > 0.3 ? generatePhone(true) : '',
+                    phoneFixed: Math.random() > 0.5 ? generatePhone(false) : '',
+
+                    // Anschrift
+                    street: strasse,
+                    houseNumber: String(hausnr),
+                    zipCode: plz,
+                    city: city,
+                    country: land,
+                    address: `${strasse} ${hausnr}, ${plz} ${city}`, // Kombiniert für Anzeige
+
+                    // Zahlungsinformation
+                    accountHolder: `${vorname} ${nachname}`,
+                    bankName: banken[Math.floor(Math.random() * banken.length)],
+                    iban: generateIBAN(),
+                    bic: generateBIC(),
+
+                    // Beitrag
+                    amount: amount,
+                    interval: interval,
+                    intervalLabel: intervallLabels[interval],
+                    je: je, // Jahreseuros
+                    spendenquittung: Math.random() > 0.7,
+
+                    // Einwilligungen
+                    consent1: true,
+                    consent2: true,
+                    consent3: true,
+                    contactEmail: Math.random() > 0.2,
+                    contactPhone: Math.random() > 0.4,
+
+                    // Sonstiges
+                    laterStartDate: Math.random() > 0.9 ? new Date(Date.now() + Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : '',
+                    notes: Math.random() > 0.8 ? 'Kunde wünscht Kontakt nur per Email' : '',
+                    createdAt: dateStr,
+                    date: dateStr, // Alias für Anzeige
+
+                    // Externe Zuordnungen
                     area: area,
                     kunde: kunde,
                     werber: werber[Math.floor(Math.random() * werber.length)],
                     teamchef: teamchefs[Math.floor(Math.random() * teamchefs.length)],
-                    je: jeWerte[Math.floor(Math.random() * jeWerte.length)],
-                    status: Math.random() > 0.1 ? 'active' : 'storniert' // 10% storniert
-                });
+
+                    // Einheiten (EH) berechnet aus JE
+                    eh: je / 60
+                };
+
+                // ERH-spezifische Felder
+                if (type === 'erh') {
+                    record.memberNumber = `M-${2020 - Math.floor(Math.random() * 5)}-${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
+                    record.memberSince = generateMemberSince();
+                    record.oldAmount = [5, 10, 15][Math.floor(Math.random() * 3)];
+                    record.oldInterval = 'monthly';
+                }
+
+                records.push(record);
             }
             return records;
         })();
@@ -1097,7 +1511,62 @@
         let currentCategory = 'kunden';
         let currentEntity = null;
         let currentStornoId = null;
-        let currentColumns = ['datum', 'art', 'name', 'adresse', 'email', 'werbegebiet', 'kunde', 'werber', 'teamchef', 'je', 'status'];
+
+        // Column Configuration - ALL available columns with labels
+        const allColumns = {
+            // Persönliche Daten
+            date: { label: 'Datum', width: '90px', format: 'date' },
+            type: { label: 'Art', width: '60px', format: 'badge' },
+            salutation: { label: 'Anrede', width: '70px' },
+            title: { label: 'Titel', width: '70px' },
+            company: { label: 'Firma', width: '140px' },
+            firstName: { label: 'Vorname', width: '100px' },
+            lastName: { label: 'Nachname', width: '100px' },
+            name: { label: 'Name', width: '150px' },
+            birthDate: { label: 'Geburtsdatum', width: '100px', format: 'date' },
+            email: { label: 'E-Mail', width: '180px' },
+            phoneMobile: { label: 'Tel. Mobil', width: '130px' },
+            phoneFixed: { label: 'Tel. Festnetz', width: '130px' },
+            // Anschrift
+            street: { label: 'Straße', width: '120px' },
+            houseNumber: { label: 'Nr.', width: '50px' },
+            zipCode: { label: 'PLZ', width: '60px' },
+            city: { label: 'Ort', width: '120px' },
+            country: { label: 'Land', width: '100px' },
+            address: { label: 'Adresse', width: '200px' },
+            // Zahlungsinformation
+            accountHolder: { label: 'Kontoinhaber', width: '140px' },
+            bankName: { label: 'Bank', width: '150px' },
+            iban: { label: 'IBAN', width: '220px' },
+            bic: { label: 'BIC', width: '100px' },
+            // Beitrag
+            amount: { label: 'Beitrag', width: '80px', format: 'currency', align: 'right' },
+            intervalLabel: { label: 'Intervall', width: '100px' },
+            je: { label: 'JE', width: '70px', format: 'currency', align: 'right' },
+            eh: { label: 'EH', width: '50px', align: 'right' },
+            spendenquittung: { label: 'Quittung', width: '70px', format: 'boolean' },
+            // Zuordnungen
+            area: { label: 'Werbegebiet', width: '140px' },
+            kunde: { label: 'Kunde', width: '160px' },
+            werber: { label: 'Werber', width: '120px' },
+            teamchef: { label: 'Teamchef', width: '120px' },
+            // Status & Sonstiges
+            status: { label: 'Status', width: '80px', format: 'status' },
+            laterStartDate: { label: 'Start ab', width: '90px', format: 'date' },
+            notes: { label: 'Anmerkungen', width: '200px' },
+            contactEmail: { label: 'Kontakt Email', width: '90px', format: 'boolean' },
+            contactPhone: { label: 'Kontakt Tel.', width: '90px', format: 'boolean' },
+            // ERH-spezifisch
+            memberNumber: { label: 'Mitgl.Nr.', width: '90px' },
+            memberSince: { label: 'Mitglied seit', width: '100px', format: 'date' },
+            oldAmount: { label: 'Alter Beitrag', width: '90px', format: 'currency', align: 'right' }
+        };
+
+        // Default visible columns (in order)
+        let currentColumns = ['date', 'type', 'name', 'address', 'email', 'area', 'kunde', 'werber', 'teamchef', 'je', 'status'];
+
+        // Sorting state
+        let currentSort = { field: 'date', direction: 'desc' };
 
         // Pagination
         const PAGE_SIZE = 100;
@@ -1351,44 +1820,137 @@
             currentRecords = records;
             if (resetPage) currentPage = 1;
 
-            const totalRecords = records.length;
+            // Sort records
+            const sortedRecords = sortRecords([...records]);
+
+            const totalRecords = sortedRecords.length;
             const totalPages = Math.ceil(totalRecords / PAGE_SIZE);
             const startIndex = (currentPage - 1) * PAGE_SIZE;
             const endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
-            const pageRecords = records.slice(startIndex, endIndex);
+            const pageRecords = sortedRecords.slice(startIndex, endIndex);
 
+            // Render table header dynamically
+            const thead = document.getElementById('recordsTableHeader');
+            thead.innerHTML = currentColumns.map(col => {
+                const config = allColumns[col];
+                const isActive = currentSort.field === col;
+                const sortClass = isActive ? `sortable active${currentSort.direction === 'desc' ? ' desc' : ''}` : 'sortable';
+                const align = config.align === 'right' ? 'text-align: right;' : '';
+                return `
+                    <th class="${sortClass}" style="width: ${config.width}; ${align}" data-col="${col}" onclick="sortByColumn('${col}')">
+                        <span class="th-content">
+                            ${config.label}
+                            <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                            </svg>
+                        </span>
+                    </th>`;
+            }).join('') + '<th style="width: 70px;"></th>';
+
+            // Render table body dynamically
             const tbody = document.getElementById('recordsTableBody');
-            tbody.innerHTML = pageRecords.map(row => `
-                <tr>
-                    <td class="col-datum">${formatDate(row.date)}</td>
-                    <td class="col-art"><span class="badge ${row.type}">${row.type.toUpperCase()}</span></td>
-                    <td class="col-name" title="${row.name}">${row.name}</td>
-                    <td class="col-adresse" title="${row.address}">${row.address}</td>
-                    <td class="col-email" title="${row.email}">${row.email}</td>
-                    <td class="col-werbegebiet" title="${row.area}">${row.area}</td>
-                    <td class="col-kunde" title="${row.kunde}">${row.kunde}</td>
-                    <td class="col-werber">${row.werber}</td>
-                    <td class="col-teamchef">${row.teamchef}</td>
-                    <td class="col-je" style="text-align: right;"><span class="je-value">${row.je} €</span></td>
-                    <td class="col-status"><span class="badge ${row.status}">${row.status === 'active' ? 'Aktiv' : 'Storniert'}</span></td>
-                    <td class="col-actions">
-                        <button class="action-btn" onclick="viewRecord(${row.id})" title="Details">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        </button>
-                        ${row.status === 'active' ? `
-                        <button class="action-btn danger" onclick="openStornoModal(${row.id}, '${row.name}', ${row.je})" title="Stornieren">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                        ` : ''}
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = pageRecords.map(row => {
+                const cells = currentColumns.map(col => {
+                    const config = allColumns[col];
+                    const value = row[col];
+                    const align = config.align === 'right' ? 'text-align: right;' : '';
+                    const formatted = formatCellValue(value, config.format, row);
+                    return `<td style="${align}" title="${escapeHtml(String(value || ''))}">${formatted}</td>`;
+                }).join('');
+
+                return `
+                    <tr>
+                        ${cells}
+                        <td>
+                            <button class="action-btn" onclick="viewRecord(${row.id})" title="Details">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                            ${row.status === 'active' ? `
+                            <button class="action-btn danger" onclick="openStornoModal(${row.id}, '${escapeHtml(row.name)}', ${row.je})" title="Stornieren">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                            ` : ''}
+                        </td>
+                    </tr>`;
+            }).join('');
 
             // Update pagination info
             document.querySelector('.pagination-info').textContent = `Zeige ${startIndex + 1}-${endIndex} von ${totalRecords} Einträgen`;
 
             // Update pagination buttons
             renderPaginationButtons(totalPages);
+        }
+
+        // Sort records based on current sort state
+        function sortRecords(records) {
+            return records.sort((a, b) => {
+                let valA = a[currentSort.field];
+                let valB = b[currentSort.field];
+
+                // Handle null/undefined
+                if (valA == null) valA = '';
+                if (valB == null) valB = '';
+
+                // Handle different types
+                if (typeof valA === 'number' && typeof valB === 'number') {
+                    return currentSort.direction === 'asc' ? valA - valB : valB - valA;
+                }
+
+                // Handle dates
+                if (currentSort.field.toLowerCase().includes('date') || currentSort.field === 'memberSince') {
+                    const dateA = new Date(valA);
+                    const dateB = new Date(valB);
+                    return currentSort.direction === 'asc' ? dateA - dateB : dateB - dateA;
+                }
+
+                // String comparison
+                const strA = String(valA).toLowerCase();
+                const strB = String(valB).toLowerCase();
+                if (currentSort.direction === 'asc') {
+                    return strA.localeCompare(strB, 'de');
+                } else {
+                    return strB.localeCompare(strA, 'de');
+                }
+            });
+        }
+
+        // Sort by column header click
+        function sortByColumn(col) {
+            if (currentSort.field === col) {
+                // Toggle direction
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                // New column
+                currentSort = { field: col, direction: 'asc' };
+            }
+            renderRecordsTable(currentRecords, false);
+        }
+
+        // Format cell value based on format type
+        function formatCellValue(value, format, row) {
+            if (value == null || value === '') return '-';
+
+            switch (format) {
+                case 'date':
+                    return formatDate(value);
+                case 'badge':
+                    return `<span class="badge ${value}">${String(value).toUpperCase()}</span>`;
+                case 'status':
+                    return `<span class="badge ${value}">${value === 'active' ? 'Aktiv' : 'Storniert'}</span>`;
+                case 'currency':
+                    return `<span class="je-value">${value} €</span>`;
+                case 'boolean':
+                    return value ? '✓' : '-';
+                default:
+                    return escapeHtml(String(value));
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function renderPaginationButtons(totalPages) {
@@ -1528,7 +2090,19 @@
         }
 
         // ========== COLUMN SETTINGS ==========
+        let draggedTag = null;
+
         function openColumnModal() {
+            // Sync checkboxes with currentColumns
+            document.querySelectorAll('.column-item input').forEach(cb => {
+                const isSelected = currentColumns.includes(cb.value);
+                cb.checked = isSelected;
+                cb.closest('.column-item').classList.toggle('selected', isSelected);
+            });
+
+            // Render selected columns preview
+            renderSelectedColumnsPreview();
+
             document.getElementById('columnModal').classList.add('show');
         }
 
@@ -1536,27 +2110,120 @@
             document.getElementById('columnModal').classList.remove('show');
         }
 
+        function toggleColumnGroup(header) {
+            header.closest('.column-group').classList.toggle('collapsed');
+        }
+
         function setupColumnCheckboxes() {
-            document.querySelectorAll('.column-checkbox input').forEach(cb => {
+            document.querySelectorAll('.column-item input').forEach(cb => {
                 cb.addEventListener('change', function() {
-                    this.closest('.column-checkbox').classList.toggle('selected', this.checked);
+                    const col = this.value;
+                    this.closest('.column-item').classList.toggle('selected', this.checked);
+
+                    if (this.checked) {
+                        // Add to currentColumns if not already there
+                        if (!currentColumns.includes(col)) {
+                            currentColumns.push(col);
+                        }
+                    } else {
+                        // Remove from currentColumns
+                        currentColumns = currentColumns.filter(c => c !== col);
+                    }
+
+                    renderSelectedColumnsPreview();
                 });
             });
         }
 
-        function applyColumns() {
-            const selected = [];
-            document.querySelectorAll('.column-checkbox input:checked').forEach(cb => {
-                selected.push(cb.value);
+        function renderSelectedColumnsPreview() {
+            const container = document.getElementById('selectedColumnsList');
+            container.innerHTML = currentColumns.map((col, index) => {
+                const config = allColumns[col];
+                return `
+                    <span class="selected-column-tag" draggable="true" data-col="${col}" data-index="${index}">
+                        ${config ? config.label : col}
+                        <span class="remove-btn" onclick="removeColumn('${col}')">×</span>
+                    </span>`;
+            }).join('');
+
+            // Setup drag events for tags
+            setupTagDragEvents();
+        }
+
+        function setupTagDragEvents() {
+            const tags = document.querySelectorAll('.selected-column-tag');
+
+            tags.forEach(tag => {
+                tag.addEventListener('dragstart', function(e) {
+                    draggedTag = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                tag.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                    draggedTag = null;
+                    document.querySelectorAll('.selected-column-tag').forEach(t => t.classList.remove('drag-over'));
+                });
+
+                tag.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    if (draggedTag && draggedTag !== this) {
+                        this.classList.add('drag-over');
+                    }
+                });
+
+                tag.addEventListener('dragleave', function() {
+                    this.classList.remove('drag-over');
+                });
+
+                tag.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+
+                    if (draggedTag && draggedTag !== this) {
+                        const fromIndex = parseInt(draggedTag.dataset.index);
+                        const toIndex = parseInt(this.dataset.index);
+
+                        // Reorder currentColumns
+                        const [moved] = currentColumns.splice(fromIndex, 1);
+                        currentColumns.splice(toIndex, 0, moved);
+
+                        renderSelectedColumnsPreview();
+                    }
+                });
             });
-            currentColumns = selected;
+        }
+
+        function removeColumn(col) {
+            currentColumns = currentColumns.filter(c => c !== col);
+
+            // Uncheck the checkbox
+            const cb = document.querySelector(`.column-item[data-col="${col}"] input`);
+            if (cb) {
+                cb.checked = false;
+                cb.closest('.column-item').classList.remove('selected');
+            }
+
+            renderSelectedColumnsPreview();
+        }
+
+        function applyColumns() {
             closeColumnModal();
-            // TODO: Update table columns visibility
+            // Re-render table with new columns
+            if (currentRecords.length > 0) {
+                renderRecordsTable(currentRecords, false);
+            }
         }
 
         async function saveTemplate() {
             const name = await showPrompt('Vorlage speichern', 'Vorlagenname eingeben:');
             if (name) {
+                // Save template to localStorage
+                const templates = JSON.parse(localStorage.getItem('columnTemplates') || '{}');
+                templates[name] = [...currentColumns];
+                localStorage.setItem('columnTemplates', JSON.stringify(templates));
                 await showAlert('Gespeichert', 'Vorlage "' + name + '" wurde gespeichert.', 'success');
             }
         }
@@ -1564,7 +2231,12 @@
         async function saveNewTemplate() {
             const name = document.getElementById('templateName').value;
             if (name) {
+                // Save template to localStorage
+                const templates = JSON.parse(localStorage.getItem('columnTemplates') || '{}');
+                templates[name] = [...currentColumns];
+                localStorage.setItem('columnTemplates', JSON.stringify(templates));
                 await showAlert('Gespeichert', 'Vorlage "' + name + '" wurde gespeichert.', 'success');
+                document.getElementById('templateName').value = '';
                 closeColumnModal();
             }
         }
