@@ -4,11 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mitarbeiter Dashboard - RB Inside Office</title>
-    <link rel="stylesheet" href="../styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../js/calendar-modal.js"></script>
     <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-hover: #f1f3f4;
+            --text-primary: #1a1a1a;
+            --text-secondary: #5f6368;
+            --text-tertiary: #9aa0a6;
+            --border-color: #e8eaed;
+            --accent-color: #6366f1;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow-y: auto;
             height: 100%;
             margin: 0;
@@ -125,302 +139,10 @@
             margin-bottom: 16px;
         }
 
-        /* Main Metric Block */
-        .metric-main {
-            display: flex;
-            align-items: baseline;
-            gap: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 16px;
-        }
-
-        .metric-main .value {
-            font-size: 42px;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1;
-        }
-
-        .metric-main .label {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .metric-main .secondary {
-            display: flex;
-            gap: 20px;
-        }
-
-        .metric-main .secondary-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-main .secondary-value {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .metric-main .secondary-label {
-            font-size: 11px;
-            color: var(--text-tertiary);
-        }
-
-        /* Sub Metrics Row */
-        .sub-metrics {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .sub-metric {
-            padding: 12px 16px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-        }
-
-        .sub-metric-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .sub-metric-title {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .sub-metric-badge {
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
-
-        .sub-metric-badge.good {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .sub-metric-values {
-            display: flex;
-            gap: 16px;
-        }
-
-        .sub-metric-value {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sub-metric-value .num {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .sub-metric-value .unit {
-            font-size: 10px;
-            color: var(--text-tertiary);
-        }
-
-        /* Kompakte Übersicht */
-        .overview-main {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 12px;
-        }
-
-        .overview-block {}
-
-        .overview-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .overview-row {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-        }
-
-        .overview-row .big {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .overview-row .medium {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .overview-row .sep {
-            color: var(--border-color);
-            font-weight: 300;
-        }
-
-        .overview-row small {
-            font-size: 11px;
-            color: var(--text-tertiary);
-            font-weight: 500;
-        }
-
-        .overview-storno {
-            text-align: right;
-        }
-
-        .storno-row {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 6px;
-            margin-bottom: 4px;
-        }
-
-        .storno-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .storno-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .storno-val {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .storno-val.bad {
-            color: #ef4444;
-        }
-
-        .storno-val.good {
-            color: #10b981;
-        }
-
-        .storno-detail {
-            font-size: 11px;
-            color: var(--text-tertiary);
-        }
-
-        .overview-subs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .overview-sub {
-            padding: 12px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-        }
-
-        .overview-sub-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .overview-sub-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .storno-badge {
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .storno-badge.bad {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
-
-        .storno-badge.good {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .overview-sub-values {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .overview-sub-values .sep {
-            color: var(--border-color);
-            font-weight: 300;
-        }
-
-        .overview-sub-values small {
-            font-size: 10px;
-            color: var(--text-tertiary);
-            font-weight: 500;
-        }
-
-        /* Storno Section */
-        .storno-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .storno-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-        }
-
-        .storno-item .label {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .storno-item .value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #ef4444;
-        }
-
-        .storno-item .value.good {
-            color: #10b981;
-        }
-
-        .storno-item .detail {
-            font-size: 11px;
-            color: var(--text-tertiary);
-            margin-left: 8px;
-        }
-
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 12px;
         }
 
@@ -455,7 +177,7 @@
             height: 200px;
         }
 
-        /* Rekorde - Schlicht */
+        /* Rekorde */
         .rekorde-header {
             display: flex;
             justify-content: space-between;
@@ -502,10 +224,6 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .rekorde-table {
-            width: 100%;
-        }
-
         .rekorde-row {
             display: flex;
             justify-content: space-between;
@@ -544,6 +262,27 @@
             text-align: right;
         }
 
+        /* Storno Popup */
+        .storno-trigger {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .storno-popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 100;
+            min-width: 160px;
+        }
+
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -554,17 +293,13 @@
         /* Responsive */
         @media (max-width: 1200px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); }
-            .rekorde-list { grid-template-columns: repeat(2, 1fr); }
             .charts-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 768px) {
             .tabs { flex-wrap: wrap; }
             .tab { flex: none; width: calc(33.33% - 4px); }
-            .sub-metrics { grid-template-columns: 1fr; }
-            .storno-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .rekorde-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -572,14 +307,14 @@
     <div class="dashboard-container">
         <!-- Header -->
         <div class="dashboard-header">
-            <button class="back-btn" onclick="goBack()">
+            <button class="back-btn">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
             </button>
             <div class="header-info">
-                <h1 id="employeeName">Max Mustermann</h1>
-                <div class="period" id="headerPeriod">Dieses Jahr</div>
+                <h1>Max Mustermann</h1>
+                <div class="period">Dieses Jahr</div>
             </div>
         </div>
 
@@ -596,147 +331,251 @@
         <!-- Tab: Allgemein -->
         <div class="tab-content active" id="tab-allgemein">
 
-            <!-- Variante 2A - Statistik Header -->
+            <!-- Statistik Header -->
             <div class="section" style="padding: 24px;">
                 <!-- Gesamt - Hauptzeile -->
                 <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
-                    <div style="display: flex; align-items: center; gap: 40px;">
-                        <div>
-                            <div style="font-size: 52px; font-weight: 800; color: var(--text-primary); line-height: 1;">47</div>
-                            <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">MITGLIEDSCHAFTEN</div>
+                    <!-- Linke Seite: Zahlen -->
+                    <div>
+                        <div class="info-trigger" style="display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px; cursor: pointer; position: relative;">
+                            <span style="font-size: 10px; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px;">Netto Zahlen</span>
+                            <span style="width: 14px; height: 14px; border-radius: 50%; background: var(--accent-color); color: white; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center;">i</span>
+                            <div class="info-popup" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 100; min-width: 220px; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                                Bei diesen Zahlen wurden bereits Stornos abgezogen. Es handelt sich um die tatsächlichen Netto-Werte.
+                            </div>
                         </div>
-                        <div style="width: 1px; height: 50px; background: var(--border-color);"></div>
-                        <div>
-                            <div style="font-size: 32px; font-weight: 700; color: var(--text-primary); line-height: 1;">5.640 <span style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                            <div style="font-size: 20px; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">470 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">EH</span></div>
-                        </div>
-                        <div style="width: 1px; height: 50px; background: var(--border-color);"></div>
-                        <div>
-                            <div style="font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1;">120 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE/MG</span></div>
-                            <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 2px;">Ø BEITRAG</div>
+                        <div style="display: flex; align-items: center; gap: 40px;">
+                            <div>
+                                <div style="font-size: 52px; font-weight: 800; color: var(--text-primary); line-height: 1;">47</div>
+                                <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">MITGLIEDSCHAFTEN</div>
+                            </div>
+                            <div style="width: 1px; height: 50px; background: var(--border-color);"></div>
+                            <div>
+                                <div style="font-size: 32px; font-weight: 700; color: var(--text-primary); line-height: 1;">5.640 <span style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
+                                <div style="font-size: 20px; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">470 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">EH</span></div>
+                            </div>
                         </div>
                     </div>
-                    <!-- Storno klickbar -->
-                    <div class="storno-trigger" style="position: relative; cursor: pointer;">
-                        <div style="background: var(--bg-secondary); padding: 12px 20px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 24px; font-weight: 700; color: #ef4444;">6,4%</div>
-                            <div style="font-size: 10px; color: var(--text-tertiary); text-transform: uppercase;">Storno</div>
+                    <!-- Rechte Seite: Durchschnittsbeiträge + Stornoquote -->
+                    <div style="display: flex; gap: 8px;">
+                        <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">120 <span style="font-size: 10px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
+                            <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Ø pro Neumitglied</div>
                         </div>
-                        <div class="storno-popup" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 100; min-width: 160px;">
-                            <div style="font-size: 12px; margin-bottom: 8px;"><span style="color: var(--text-tertiary);">Storno MG:</span> <span style="font-weight: 600; color: #ef4444;">6,4%</span> <span style="color: var(--text-tertiary); font-size: 10px;">(3)</span></div>
-                            <div style="font-size: 12px;"><span style="color: var(--text-tertiary);">Storno JE:</span> <span style="font-weight: 600; color: #10b981;">4,3%</span></div>
+                        <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">95 <span style="font-size: 10px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
+                            <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Ø pro Erhöhung</div>
+                        </div>
+                        <div class="storno-trigger">
+                            <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 18px; font-weight: 700; color: #ef4444;">6,4%</div>
+                                <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Stornoquote</div>
+                            </div>
+                            <div class="storno-popup">
+                                <div style="font-size: 12px; margin-bottom: 8px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600; color: #ef4444;">6,4%</span> <span style="color: var(--text-tertiary); font-size: 10px;">(3)</span></div>
+                                <div style="font-size: 12px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600; color: #10b981;">4,3%</span></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Aufgeteilt -->
+                <!-- Aufgeteilt: Neumitglieder / Beitragsanpassungen -->
                 <div style="display: flex; gap: 32px; padding-top: 20px; align-items: flex-start;">
                     <div style="flex: 1;">
                         <div style="font-size: 10px; font-weight: 600; color: #10b981; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Neumitglieder</div>
-                        <div style="display: flex; align-items: baseline; gap: 16px;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
                             <span style="font-size: 28px; font-weight: 700; color: var(--text-primary);">32</span>
-                            <span style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">3.840 JE</span>
-                            <span style="font-size: 14px; color: var(--text-tertiary);">320 EH</span>
-                            <!-- Storno klickbar -->
-                            <span class="storno-trigger" style="position: relative; cursor: pointer; margin-left: auto;">
+                            <div>
+                                <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">3.840 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
+                                <div style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">320 <span style="font-size: 10px;">EH</span></div>
+                            </div>
+                            <span class="storno-trigger" style="margin-left: auto;">
                                 <span style="font-size: 13px; font-weight: 600; color: #ef4444; background: rgba(239,68,68,0.1); padding: 4px 10px; border-radius: 6px;">6,3%</span>
-                                <div class="storno-popup" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 100; min-width: 140px;">
-                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">MG:</span> <span style="font-weight: 600;">6,3%</span> (2)</div>
-                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">JE:</span> <span style="font-weight: 600;">5,2%</span></div>
+                                <div class="storno-popup">
+                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">6,3%</span> (2)</div>
+                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">5,2%</span></div>
                                 </div>
                             </span>
                         </div>
                     </div>
                     <div style="width: 1px; background: var(--border-color); align-self: stretch;"></div>
                     <div style="flex: 1;">
-                        <div style="font-size: 10px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Beitragsanpassungen</div>
-                        <div style="display: flex; align-items: baseline; gap: 16px;">
+                        <div style="font-size: 10px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Positive Beitragsanpassungen</div>
+                        <div style="display: flex; align-items: center; gap: 16px;">
                             <span style="font-size: 28px; font-weight: 700; color: var(--text-primary);">15</span>
-                            <span style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">1.800 JE</span>
-                            <span style="font-size: 14px; color: var(--text-tertiary);">150 EH</span>
-                            <span class="storno-trigger" style="position: relative; cursor: pointer; margin-left: auto;">
+                            <div>
+                                <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">1.800 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
+                                <div style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">150 <span style="font-size: 10px;">EH</span></div>
+                            </div>
+                            <span class="storno-trigger" style="margin-left: auto;">
                                 <span style="font-size: 13px; font-weight: 600; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 10px; border-radius: 6px;">0,0%</span>
-                                <div class="storno-popup" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 100; min-width: 140px;">
-                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">MG:</span> <span style="font-weight: 600;">0,0%</span> (0)</div>
-                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">JE:</span> <span style="font-weight: 600;">0,0%</span></div>
+                                <div class="storno-popup">
+                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">0,0%</span> (0)</div>
+                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">0,0%</span></div>
                                 </div>
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Storno Info-Felder -->
-                <div style="display: flex; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                    <div style="flex: 1; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 11px; color: var(--text-secondary);">Storno NMG</span>
-                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">2 <span style="color: var(--text-tertiary); font-weight: 400;">(240 JE)</span></span>
+                <!-- Trennlinie -->
+                <div style="margin-top: 32px; border-top: 2px solid var(--border-color);"></div>
+
+                <!-- Stornos Abschnitt (Accordion) -->
+                <div style="margin-top: 24px; padding: 20px; background: rgba(239,68,68,0.03); border: 1px solid rgba(239,68,68,0.12); border-radius: 10px;">
+                    <div class="storno-accordion-trigger" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                        <svg class="storno-accordion-arrow" style="width: 16px; height: 16px; color: #ef4444; transition: transform 0.2s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                        <span style="font-size: 11px; font-weight: 600; color: #ef4444; text-transform: uppercase; letter-spacing: 0.5px;">Stornos</span>
                     </div>
-                    <div style="flex: 1; background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.15); border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 11px; color: var(--text-secondary);">Storno ERH</span>
-                        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">0 <span style="color: var(--text-tertiary); font-weight: 400;">(0 JE)</span></span>
+
+                    <div class="storno-accordion-content" style="display: none; margin-top: 16px;">
+
+                    <!-- Stornos Hauptzeile -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 40px;">
+                            <div>
+                                <div style="font-size: 42px; font-weight: 800; color: #ef4444; line-height: 1;">3</div>
+                                <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">MITGLIEDSCHAFTEN</div>
+                            </div>
+                            <div style="width: 1px; height: 40px; background: var(--border-color);"></div>
+                            <div>
+                                <div style="font-size: 26px; font-weight: 700; color: #ef4444; line-height: 1;">360 <span style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
+                                <div style="font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">30 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">EH</span></div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); padding: 12px 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 20px; font-weight: 700; color: #ef4444;">120 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); text-transform: uppercase;">Ø Beitrag pro Storno</div>
+                            </div>
+                            <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); padding: 12px 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 20px; font-weight: 700; color: #ef4444;">6,4%</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); text-transform: uppercase;">Stornoquote</div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Stornos aufgeteilt -->
+                    <div style="display: flex; gap: 32px; padding-top: 16px; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 10px; font-weight: 600; color: #10b981; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Neumitglieder</div>
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <span style="font-size: 24px; font-weight: 700; color: #ef4444;">2</span>
+                                <div>
+                                    <div style="font-size: 16px; font-weight: 600; color: var(--text-secondary);">240 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
+                                    <div style="font-size: 13px; font-weight: 500; color: var(--text-tertiary);">20 <span style="font-size: 10px;">EH</span></div>
+                                </div>
+                                <span style="font-size: 13px; font-weight: 600; color: #ef4444; background: rgba(239,68,68,0.1); padding: 4px 10px; border-radius: 6px; margin-left: auto;">6,3%</span>
+                            </div>
+                        </div>
+                        <div style="width: 1px; background: var(--border-color); align-self: stretch;"></div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 10px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Positive Beitragsanpassungen</div>
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <span style="font-size: 24px; font-weight: 700; color: #ef4444;">1</span>
+                                <div>
+                                    <div style="font-size: 16px; font-weight: 600; color: var(--text-secondary);">120 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
+                                    <div style="font-size: 13px; font-weight: 500; color: var(--text-tertiary);">10 <span style="font-size: 10px;">EH</span></div>
+                                </div>
+                                <span style="font-size: 13px; font-weight: 600; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 10px; border-radius: 6px; margin-left: auto;">6,7%</span>
+                            </div>
+                        </div>
+                    </div>
+                    </div><!-- Ende storno-accordion-content -->
                 </div>
             </div>
 
             <!-- Weitere Kennzahlen -->
             <div class="section">
                 <div class="section-title">Weitere Kennzahlen</div>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="value">34</div>
-                        <div class="label">Ø Alter Neumitglieder</div>
+
+                <!-- Quoten Abschnitt -->
+                <div style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <div class="info-trigger" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; position: relative;">
+                            <span style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Quoten</span>
+                            <span style="width: 14px; height: 14px; border-radius: 50%; background: var(--accent-color); color: white; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center;">i</span>
+                            <div class="info-popup" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 100; min-width: 250px; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                                Die Quoten gelten unabhängig von der Zeitraumauswahl oben. Du kannst wählen ob sie pro Jahr oder gesamt berechnet werden.
+                            </div>
+                        </div>
+                        <div class="quoten-filter" style="display: flex; gap: 4px;">
+                            <button class="rekorde-filter-btn active" data-quoten="jahr">Pro Jahr</button>
+                            <button class="rekorde-filter-btn" data-quoten="gesamt">Gesamt</button>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="value">120</div>
-                        <div class="label">Ø Beitrag Neumitglieder (JE)</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="value">120</div>
-                        <div class="label">Ø Beitragsanpassung (JE)</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="value">2,4</div>
-                        <div class="label">Ø Neumitglieder pro Tag</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="value">19</div>
-                        <div class="label">Arbeitstage im Zeitraum</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="value">87%</div>
-                        <div class="label">Anteil mit Telefonnummer</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="value">64%</div>
-                        <div class="label">Anteil mit E-Mail</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="value">59%</div>
-                        <div class="label">Anteil Monatszahler</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="value">23%</div>
-                        <div class="label">Anteil Quartalszahler</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="value">14</div>
-                        <div class="label">Bester Tag (Neumitglieder)</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="value">87%</div>
+                            <div class="label">Schriebe mit Telefonnummer</div>
+                            <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 4px;">Tel Opt In: 72%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value">64%</div>
+                            <div class="label">Schriebe mit E-Mail</div>
+                            <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 4px;">E-Mail Opt In: 58%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value">34</div>
+                            <div class="label">Ø Alter deiner Schriebe</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value">2,4</div>
+                            <div class="label">Ø Schriebe pro Tag</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value">12</div>
+                            <div class="label">Ø Schriebe pro Woche</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Charts -->
             <div class="section">
-                <div class="section-title">Visualisierungen</div>
-                <div class="charts-grid">
-                    <div>
-                        <div class="chart-container">
-                            <canvas id="weekChart"></canvas>
-                        </div>
+                <div class="section-title">Visualisierung</div>
+                <div class="chart-container" style="height: 280px;">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Zahlungsrhythmus -->
+            <div class="section">
+                <div class="section-title">Zahlungsrhythmus</div>
+                <div style="display: flex; align-items: center; gap: 40px;">
+                    <div style="width: 200px; height: 200px;">
+                        <canvas id="rhythmusChart"></canvas>
                     </div>
-                    <div>
-                        <div class="chart-container">
-                            <canvas id="frequencyChart"></canvas>
+                    <div style="flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px;">
+                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #6366f1;"></div>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">59%</div>
+                                <div style="font-size: 11px; color: var(--text-tertiary);">Monatlich</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px;">
+                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #10b981;"></div>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">23%</div>
+                                <div style="font-size: 11px; color: var(--text-tertiary);">Vierteljährlich</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px;">
+                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #f59e0b;"></div>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">11%</div>
+                                <div style="font-size: 11px; color: var(--text-tertiary);">Halbjährlich</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px;">
+                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #8b5cf6;"></div>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">7%</div>
+                                <div style="font-size: 11px; color: var(--text-tertiary);">Jährlich</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -747,161 +586,158 @@
                 <div class="rekorde-header">
                     <div class="section-title" style="margin-bottom: 0;">Rekorde</div>
                     <div class="rekorde-filter">
+                        <button class="rekorde-filter-btn">2024</button>
                         <button class="rekorde-filter-btn active">2025</button>
                         <button class="rekorde-filter-btn">Gesamt</button>
                     </div>
                 </div>
 
-                <!-- Pro Tag -->
-                <div class="rekorde-group">
-                    <div class="rekorde-group-title">Pro Tag</div>
-                    <div class="rekorde-table">
-                        <div class="rekorde-row">
-                            <span class="label">Meiste Gesamt</span>
-                            <div class="data">
-                                <span class="value">14</span>
-                                <span class="date">15.03.2025</span>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;">
+                    <!-- Pro Tag -->
+                    <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px;">
+                        <div style="font-size: 10px; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Pro Tag</div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Gesamt</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
                             </div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">14</div>
                         </div>
-                        <div class="rekorde-row">
-                            <span class="label">Meiste Neumitglieder</span>
-                            <div class="data">
-                                <span class="value">11</span>
-                                <span class="date">15.03.2025</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Neumitglieder</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
                             </div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">11</div>
                         </div>
-                        <div class="rekorde-row">
-                            <span class="label">Meiste Beitragsanpassungen</span>
-                            <div class="data">
-                                <span class="value">6</span>
-                                <span class="date">22.02.2025</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Erhöhungen</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">22.02.25 (KW 8)</div>
                             </div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">6</div>
                         </div>
-                        <div class="rekorde-row">
-                            <span class="label">Meiste Jahreseuros</span>
-                            <div class="data">
-                                <span class="value">1.680</span>
-                                <span class="date">15.03.2025</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0;">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste JE</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">1.680 JE</div>
+                                <div style="font-size: 9px; color: var(--text-tertiary);">140 EH</div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Pro Woche -->
-                <div class="rekorde-group">
-                    <div class="rekorde-group-title">Pro Woche</div>
-                    <div class="rekorde-table">
-                        <div class="rekorde-row">
-                            <span class="label">Meiste Gesamt</span>
-                            <div class="data">
-                                <span class="value">52</span>
-                                <span class="date">KW 11/2025</span>
+                    <!-- Pro Woche -->
+                    <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px;">
+                        <div style="font-size: 10px; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Pro Woche</div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Gesamt</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">KW 11/25</div>
                             </div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">52</div>
                         </div>
-                        <div class="rekorde-row">
-                            <span class="label">Meiste Neumitglieder</span>
-                            <div class="data">
-                                <span class="value">38</span>
-                                <span class="date">KW 11/2025</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Neumitglieder</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">KW 11/25</div>
                             </div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">38</div>
                         </div>
-                        <div class="rekorde-row">
-                            <span class="label">Meiste Beitragsanpassungen</span>
-                            <div class="data">
-                                <span class="value">18</span>
-                                <span class="date">KW 08/2025</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Erhöhungen</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">KW 8/25</div>
                             </div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">18</div>
                         </div>
-                        <div class="rekorde-row">
-                            <span class="label">Meiste Jahreseuros</span>
-                            <div class="data">
-                                <span class="value">6.240</span>
-                                <span class="date">KW 11/2025</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0;">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste JE</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">KW 11/25</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">6.240 JE</div>
+                                <div style="font-size: 9px; color: var(--text-tertiary);">520 EH</div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Allgemein -->
-                <div class="rekorde-group">
-                    <div class="rekorde-group-title">Allgemein</div>
-                    <div class="rekorde-table">
-                        <div class="rekorde-row">
-                            <span class="label">Höchster Einzelbeitrag</span>
-                            <div class="data">
-                                <span class="value">480 JE</span>
-                                <span class="date">08.01.2025</span>
+                    <!-- Bestleistungen -->
+                    <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px;">
+                        <div style="font-size: 10px; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Bestleistungen</div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Höchster Einzelbeitrag</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">08.01.25 (KW 2)</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">480 JE</div>
+                                <div style="font-size: 9px; color: var(--text-tertiary);">40 EH</div>
                             </div>
                         </div>
-                        <div class="rekorde-row">
-                            <span class="label">Höchste Beitragsanpassung</span>
-                            <div class="data">
-                                <span class="value">360 JE</span>
-                                <span class="date">22.02.2025</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Höchste Erhöhung</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">22.02.25 (KW 8)</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">360 JE</div>
+                                <div style="font-size: 9px; color: var(--text-tertiary);">30 EH</div>
                             </div>
                         </div>
-                        <div class="rekorde-row">
-                            <span class="label">Längste Stunden-Serie</span>
-                            <div class="data">
-                                <span class="value">9 Std.</span>
-                                <span class="date">15.03.2025</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Längste Stunden-Serie</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
                             </div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">9 Std.</div>
                         </div>
-                        <div class="rekorde-row">
-                            <span class="label">Längste 15-Min-Serie</span>
-                            <div class="data">
-                                <span class="value">14 Zyklen</span>
-                                <span class="date">15.03.2025</span>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0;">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">Längste 15-Min-Serie</div>
+                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
                             </div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">14 Zyklen</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tab: Werben -->
+        <!-- Andere Tabs (Platzhalter) -->
         <div class="tab-content" id="tab-werben">
             <div class="empty-state">Werben-spezifische Daten</div>
         </div>
-
-        <!-- Tab: Teamleitung -->
         <div class="tab-content" id="tab-teamleitung">
             <div class="empty-state">Keine Teamleitungs-Daten vorhanden</div>
         </div>
-
-        <!-- Tab: Empfehlung -->
         <div class="tab-content" id="tab-empfehlung">
             <div class="empty-state">Empfehlung-Daten</div>
         </div>
-
-        <!-- Tab: Recruiting -->
         <div class="tab-content" id="tab-recruiting">
             <div class="empty-state">Recruiting-Daten</div>
         </div>
-
-        <!-- Tab: Quality -->
         <div class="tab-content" id="tab-quality">
             <div class="empty-state">Keine Quality-Daten vorhanden</div>
         </div>
     </div>
 
     <script>
-        // URL Params
-        const urlParams = new URLSearchParams(window.location.search);
-        const employeeId = urlParams.get('id');
-        const employeeName = urlParams.get('name');
-        let currentPeriod = 'year';
-
-        if (employeeName) {
-            document.getElementById('employeeName').textContent = decodeURIComponent(employeeName);
-            document.title = `${decodeURIComponent(employeeName)} - Dashboard`;
-        }
-
-        // Navigation
-        function goBack() {
-            window.location.href = 'index.html';
-        }
-
         // Tabs
         document.querySelectorAll('.tab').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -920,130 +756,41 @@
             });
         });
 
-        // Date Range Modal - using shared CalendarModal
-        function openDateRangeModal() {
-            CalendarModal.open(function(from, to, displayText) {
-                document.getElementById('headerPeriod').textContent = displayText;
-                window.parent.postMessage({ type: 'customDateRangeApplied', dateRangeText: displayText }, '*');
+        // Quoten Filter
+        document.querySelectorAll('.quoten-filter .rekorde-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.parentElement.querySelectorAll('.rekorde-filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
             });
-        }
-
-        // Period Labels
-        const periodLabels = {
-            'week': 'Diese Woche',
-            'month': 'Dieser Monat',
-            'quarter': 'Dieses Quartal',
-            'year': 'Dieses Jahr',
-            'all': 'Gesamt',
-            'custom': 'Individuell'
-        };
-
-        function updatePeriodDisplay(value) {
-            currentPeriod = value;
-            document.getElementById('headerPeriod').textContent = periodLabels[value] || value;
-        }
-
-        // Message Listener
-        window.addEventListener('message', function(e) {
-            if (e.data && e.data.type === 'periodFilter') {
-                updatePeriodDisplay(e.data.value);
-            }
-            if (e.data && e.data.type === 'openDateRangeModal') {
-                openDateRangeModal();
-            }
-            if (e.data && e.data.type === 'navFilter') {
-                window.location.href = `index.html?category=${e.data.value}`;
-            }
-            if (e.data && e.data.type === 'searchQuery') {
-                handleSearch(e.data.query);
-            }
-            if (e.data && e.data.type === 'searchSelect') {
-                switchToWerber(e.data.id, e.data.name);
-            }
         });
 
-        // Werber Search
-        const werberList = [
-            { id: 1, name: 'Max Mustermann' },
-            { id: 2, name: 'Anna Schmidt' },
-            { id: 3, name: 'Peter Müller' },
-            { id: 4, name: 'Julia Weber' },
-            { id: 5, name: 'Thomas Fischer' },
-            { id: 6, name: 'Sarah Becker' },
-            { id: 7, name: 'Michael Wagner' },
-            { id: 8, name: 'Laura Hoffmann' },
-            { id: 9, name: 'David Schneider' },
-            { id: 10, name: 'Lisa Meyer' }
-        ];
-
-        function handleSearch(query) {
-            if (!query || query.length < 1) {
-                // Send empty results to shell
-                window.parent.postMessage({ type: 'searchResults', results: [], query: '' }, '*');
-                return;
-            }
-
-            const matches = werberList.filter(w =>
-                w.name.toLowerCase().includes(query.toLowerCase())
-            ).slice(0, 8);
-
-            // Send results to shell for display
-            window.parent.postMessage({
-                type: 'searchResults',
-                results: matches,
-                query: query,
-                headerText: 'Werber'
-            }, '*');
-        }
-
-        function switchToWerber(id, name) {
-            window.location.href = `dashboard.html?id=${id}&name=${encodeURIComponent(name)}`;
-        }
-
-        // Charts
-        Chart.defaults.font.family = "'Inter', -apple-system, sans-serif";
-        Chart.defaults.color = '#6b7280';
-
-        new Chart(document.getElementById('weekChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
-                datasets: [{
-                    label: 'Mitgliedschaften',
-                    data: [6, 9, 7, 11, 8, 4, 2],
-                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-                    x: { grid: { display: false } }
+        // Storno Accordion Toggle
+        document.querySelectorAll('.storno-accordion-trigger').forEach(trigger => {
+            trigger.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const arrow = this.querySelector('.storno-accordion-arrow');
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    arrow.style.transform = 'rotate(90deg)';
+                } else {
+                    content.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
                 }
-            }
+            });
         });
 
-        new Chart(document.getElementById('frequencyChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Monatlich', 'Vierteljährlich', 'Halbjährlich', 'Jährlich'],
-                datasets: [{
-                    data: [28, 11, 5, 3],
-                    backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { padding: 12, font: { size: 10 } } }
+        // Info Popup Toggle
+        document.querySelectorAll('.info-trigger').forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const popup = this.querySelector('.info-popup');
+                if (popup) {
+                    document.querySelectorAll('.info-popup').forEach(p => {
+                        if (p !== popup) p.style.display = 'none';
+                    });
+                    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
                 }
-            }
+            });
         });
 
         // Storno Popup Toggle
@@ -1051,18 +798,197 @@
             trigger.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const popup = this.querySelector('.storno-popup');
-                // Close all other popups
-                document.querySelectorAll('.storno-popup').forEach(p => {
-                    if (p !== popup) p.style.display = 'none';
-                });
-                // Toggle this popup
-                popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+                if (popup) {
+                    document.querySelectorAll('.storno-popup').forEach(p => {
+                        if (p !== popup) p.style.display = 'none';
+                    });
+                    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+                }
             });
         });
 
-        // Close popups when clicking outside
         document.addEventListener('click', function() {
             document.querySelectorAll('.storno-popup').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.info-popup').forEach(p => p.style.display = 'none');
+        });
+
+        // Charts
+        Chart.defaults.font.family = "'Inter', -apple-system, sans-serif";
+        Chart.defaults.color = '#6b7280';
+
+        // Beispieldaten für eine Woche
+        const chartData = {
+            labels: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+            nmgJE: [960, 1440, 1080, 1800, 1200, 600, 360],   // Neumitglieder JE
+            erhJE: [480, 360, 600, 720, 480, 240, 120],        // Erhöhungen JE
+            nmgAnzahl: [4, 6, 5, 8, 5, 3, 2],                  // Anzahl Neumitglieder
+            erhAnzahl: [2, 3, 2, 3, 3, 1, 0],                  // Anzahl Erhöhungen
+            gesamtAnzahl: [6, 9, 7, 11, 8, 4, 2]               // Gesamt Anzahl
+        };
+
+        new Chart(document.getElementById('mainChart'), {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Neumitglieder',
+                        data: chartData.nmgJE,
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 4, bottomRight: 4 },
+                        stack: 'je',
+                        order: 2
+                    },
+                    {
+                        label: 'Erhöhungen',
+                        data: chartData.erhJE,
+                        backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                        borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+                        stack: 'je',
+                        order: 2
+                    },
+                    {
+                        label: 'Anzahl Mitglieder',
+                        data: chartData.gesamtAnzahl,
+                        type: 'line',
+                        borderColor: '#6366f1',
+                        backgroundColor: '#6366f1',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            padding: 16,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: { size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#1a1a1a',
+                        bodyColor: '#5f6368',
+                        borderColor: '#e8eaed',
+                        borderWidth: 1,
+                        padding: 12,
+                        boxPadding: 6,
+                        usePointStyle: true,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const datasetIndex = context.datasetIndex;
+                                const value = context.parsed.y;
+
+                                if (datasetIndex === 0) {
+                                    // Neumitglieder
+                                    const anzahl = chartData.nmgAnzahl[index];
+                                    return 'Neumitglieder (' + anzahl + '): ' + value.toLocaleString('de-DE') + ' JE';
+                                } else if (datasetIndex === 1) {
+                                    // Erhöhungen
+                                    const anzahl = chartData.erhAnzahl[index];
+                                    return 'Erhöhungen (' + anzahl + '): ' + value.toLocaleString('de-DE') + ' JE';
+                                } else {
+                                    // Anzahl Linie
+                                    return 'Anzahl Mitglieder: ' + value;
+                                }
+                            },
+                            afterBody: function(context) {
+                                const index = context[0].dataIndex;
+                                const totalJE = chartData.nmgJE[index] + chartData.erhJE[index];
+                                const totalEH = Math.round(totalJE / 12);
+                                return '\nGesamt: ' + totalJE.toLocaleString('de-DE') + ' JE\n' + totalEH.toLocaleString('de-DE') + ' EH';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Jahreseuros (JE)',
+                            font: { size: 11, weight: 500 }
+                        },
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        stacked: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('de-DE');
+                            }
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Anzahl',
+                            font: { size: 11, weight: 500 }
+                        },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Zahlungsrhythmus Donut Chart
+        new Chart(document.getElementById('rhythmusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Monatlich', 'Vierteljährlich', 'Halbjährlich', 'Jährlich'],
+                datasets: [{
+                    data: [59, 23, 11, 7],
+                    backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '65%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#1a1a1a',
+                        bodyColor: '#5f6368',
+                        borderColor: '#e8eaed',
+                        borderWidth: 1,
+                        padding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
         });
     </script>
 </body>
