@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitarbeiter Dashboard - RB Inside Office</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ========================================
+           DASHBOARD STYLES
+           ======================================== */
+
+        body {
+            overflow-y: auto;
+            height: 100%;
+            margin: 0;
+            background: var(--bg-secondary);
+        }
+
+        .dashboard-container {
+            padding: var(--spacing-lg);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header mit Zurück-Button */
+        .dashboard-header {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: var(--spacing-sm);
+            left: var(--spacing-sm);
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            padding: 0;
+        }
+
+        .back-arrow:hover {
+            color: var(--text-primary);
+            transform: translateX(-2px);
+        }
+
+        .back-arrow svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: var(--spacing-md);
+        }
+
+        .header-info h1 {
+            font-size: var(--font-size-heading);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-xs) 0;
+        }
+
+        .header-info .subtitle {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        /* Zeitraum-Auswahl im Header */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-secondary);
+            padding: 4px;
+            border-radius: var(--radius-md);
+        }
+
+        .period-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .period-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .period-btn.active {
+            background: var(--bg-primary);
+            color: var(--accent-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ========================================
+           TABS
+           ======================================== */
+
+        .tabs-container {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .tabs-nav {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 var(--spacing-md);
+        }
+
+        .tab-btn {
+            padding: 16px 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+            padding: var(--spacing-xl);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ========================================
+           METRIC CARDS
+           ======================================== */
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .metric-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            position: relative;
+        }
+
+        .metric-card.highlight-blue {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .metric-card.highlight-green {
+            border-left: 4px solid #10b981;
+        }
+
+        .metric-card.highlight-purple {
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .metric-card.highlight-orange {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .metric-card.highlight-red {
+            border-left: 4px solid #ef4444;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .metric-sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .metric-detail {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: var(--spacing-sm);
+        }
+
+        .metric-storno {
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .metric-storno.zero {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        /* Info Tooltip */
+        .info-icon {
+            width: 14px;
+            height: 14px;
+            color: var(--text-tertiary);
+            cursor: help;
+            position: relative;
+        }
+
+        .info-icon:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        /* ========================================
+           CHARTS SECTION
+           ======================================== */
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .chart-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+
+        /* Donut Chart Center Text */
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-center-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .donut-center-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* ========================================
+           ADDITIONAL METRICS
+           ======================================== */
+
+        .additional-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .mini-metric {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .mini-metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .mini-metric-icon.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .mini-metric-icon.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .mini-metric-icon.purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+        .mini-metric-icon.orange { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+        .mini-metric-content {
+            flex: 1;
+        }
+
+        .mini-metric-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .mini-metric-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* ========================================
+           REKORDE SECTION
+           ======================================== */
+
+        .rekorde-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            margin-top: var(--spacing-xl);
+        }
+
+        .rekorde-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .rekorde-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .rekorde-filter {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-primary);
+            padding: 3px;
+            border-radius: var(--radius-sm);
+        }
+
+        .rekorde-filter-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .rekorde-filter-btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .rekorde-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .rekord-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .rekord-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+        }
+
+        .rekord-content {
+            flex: 1;
+        }
+
+        .rekord-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+
+        .rekord-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .rekord-date {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        /* Rekorde Kategorien */
+        .rekorde-category {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .rekorde-category-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* ========================================
+           ALLGEMEIN REKORDE (immer unten)
+           ======================================== */
+
+        .allgemein-rekorde {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            margin-top: var(--spacing-xl);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .allgemein-rekorde .rekorde-title {
+            color: var(--accent-color);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xxl);
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tabs-nav {
+                overflow-x: auto;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <button class="back-arrow" onclick="goBack()" title="Zurück">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+
+            <div class="header-content">
+                <div class="header-info">
+                    <h1 id="employeeName">Max Mustermann</h1>
+                    <p class="subtitle">Mitarbeiter-Dashboard</p>
+                </div>
+
+                <div class="header-controls">
+                    <div class="period-selector">
+                        <button class="period-btn" data-period="day">Tag</button>
+                        <button class="period-btn" data-period="week" >Woche</button>
+                        <button class="period-btn active" data-period="month">Monat</button>
+                        <button class="period-btn" data-period="quarter">Quartal</button>
+                        <button class="period-btn" data-period="year">Jahr</button>
+                        <button class="period-btn" data-period="custom">Individuell</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tabs-nav">
+                <button class="tab-btn active" data-tab="allgemein">Allgemein</button>
+                <button class="tab-btn" data-tab="werben">Werben</button>
+                <button class="tab-btn" data-tab="teamleitung">Teamleitung</button>
+                <button class="tab-btn" data-tab="empfehlung">Empfehlung</button>
+                <button class="tab-btn" data-tab="recruiting">Recruiting</button>
+                <button class="tab-btn" data-tab="quality">Quality</button>
+            </div>
+
+            <!-- Tab: Allgemein -->
+            <div class="tab-content active" id="tab-allgemein">
+                <!-- Hauptmetriken -->
+                <div class="metrics-grid">
+                    <div class="metric-card highlight-blue">
+                        <span class="metric-storno">2 Storno</span>
+                        <div class="metric-label">
+                            MG Gesamt
+                            <span class="info-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                <span class="tooltip">Alle Mitgliedschaften im Zeitraum</span>
+                            </span>
+                        </div>
+                        <div class="metric-value">45</div>
+                        <div class="metric-sub">5.400,00 JE</div>
+                        <div class="metric-detail">(450,00 EH)</div>
+                    </div>
+
+                    <div class="metric-card highlight-green">
+                        <span class="metric-storno">1 Storno</span>
+                        <div class="metric-label">
+                            NMG (Neu)
+                            <span class="info-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                <span class="tooltip">Neue Mitgliedschaften</span>
+                            </span>
+                        </div>
+                        <div class="metric-value">28</div>
+                        <div class="metric-sub">3.360,00 JE</div>
+                        <div class="metric-detail">(280,00 EH)</div>
+                    </div>
+
+                    <div class="metric-card highlight-purple">
+                        <span class="metric-storno zero">0 Storno</span>
+                        <div class="metric-label">
+                            ERH
+                            <span class="info-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                <span class="tooltip">Beitragserhöhungen</span>
+                            </span>
+                        </div>
+                        <div class="metric-value">17</div>
+                        <div class="metric-sub">2.040,00 JE</div>
+                        <div class="metric-detail">(170,00 EH)</div>
+                    </div>
+
+                    <div class="metric-card highlight-orange">
+                        <div class="metric-label">
+                            Stornoquote
+                            <span class="info-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                <span class="tooltip">Median der Stornoquoten</span>
+                            </span>
+                        </div>
+                        <div class="metric-value">4,4%</div>
+                        <div class="metric-sub">3 von 45 MG</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Ø Alter NMG</div>
+                        <div class="metric-value">34</div>
+                        <div class="metric-sub">Jahre</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Beitragsschnitt</div>
+                        <div class="metric-value">120,00</div>
+                        <div class="metric-sub">JE pro MG</div>
+                        <div class="metric-detail">(10,00 EH)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">ERH-Schnitt</div>
+                        <div class="metric-value">120,00</div>
+                        <div class="metric-sub">JE pro ERH</div>
+                        <div class="metric-detail">(10,00 EH)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">MG Tagesdurchschnitt</div>
+                        <div class="metric-value">2,3</div>
+                        <div class="metric-sub">MG pro Tag</div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-title">Wochenübersicht</div>
+                        <div class="chart-container">
+                            <canvas id="weekChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-title">Zahlungsfrequenz</div>
+                        <div class="chart-container">
+                            <canvas id="frequencyChart"></canvas>
+                            <div class="donut-center">
+                                <div class="donut-center-value">45</div>
+                                <div class="donut-center-label">Gesamt</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-title">Altersverteilung</div>
+                        <div class="chart-container">
+                            <canvas id="ageChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-title">Kontaktdaten</div>
+                        <div class="chart-container" style="display: flex; flex-direction: column; justify-content: center; gap: 16px;">
+                            <div class="mini-metric">
+                                <div class="mini-metric-icon blue">📞</div>
+                                <div class="mini-metric-content">
+                                    <div class="mini-metric-value">87%</div>
+                                    <div class="mini-metric-label">mit Telefonnummer</div>
+                                </div>
+                            </div>
+                            <div class="mini-metric">
+                                <div class="mini-metric-icon green">📧</div>
+                                <div class="mini-metric-content">
+                                    <div class="mini-metric-value">62%</div>
+                                    <div class="mini-metric-label">mit E-Mail</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rekorde für diesen Tab -->
+                <div class="rekorde-section">
+                    <div class="rekorde-header">
+                        <div class="rekorde-title">🏆 Rekorde</div>
+                        <div class="rekorde-filter">
+                            <button class="rekorde-filter-btn active">2025</button>
+                            <button class="rekorde-filter-btn">Gesamt</button>
+                        </div>
+                    </div>
+
+                    <!-- Werben Rekorde -->
+                    <div class="rekorde-category">
+                        <div class="rekorde-category-title">Werben</div>
+                        <div class="rekorde-grid">
+                            <div class="rekord-card">
+                                <div class="rekord-icon">🎯</div>
+                                <div class="rekord-content">
+                                    <div class="rekord-label">Meiste MG (Tag)</div>
+                                    <div class="rekord-value">12 MG</div>
+                                    <div class="rekord-date">15.03.2025</div>
+                                </div>
+                            </div>
+                            <div class="rekord-card">
+                                <div class="rekord-icon">📅</div>
+                                <div class="rekord-content">
+                                    <div class="rekord-label">Meiste MG (Woche)</div>
+                                    <div class="rekord-value">45 MG</div>
+                                    <div class="rekord-date">KW 12/2025</div>
+                                </div>
+                            </div>
+                            <div class="rekord-card">
+                                <div class="rekord-icon">💰</div>
+                                <div class="rekord-content">
+                                    <div class="rekord-label">Meiste JE (Tag)</div>
+                                    <div class="rekord-value">1.440 JE (120 EH)</div>
+                                    <div class="rekord-date">15.03.2025</div>
+                                </div>
+                            </div>
+                            <div class="rekord-card">
+                                <div class="rekord-icon">⬆️</div>
+                                <div class="rekord-content">
+                                    <div class="rekord-label">Höchste ERH</div>
+                                    <div class="rekord-value">360 JE (30 EH)</div>
+                                    <div class="rekord-date">22.02.2025</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Allgemein Rekorde (immer unten) -->
+                <div class="allgemein-rekorde">
+                    <div class="rekorde-header">
+                        <div class="rekorde-title">⚡ Allgemeine Rekorde</div>
+                    </div>
+                    <div class="rekorde-grid">
+                        <div class="rekord-card">
+                            <div class="rekord-icon">📝</div>
+                            <div class="rekord-content">
+                                <div class="rekord-label">Höchster Schrieb</div>
+                                <div class="rekord-value">480 JE (40 EH)</div>
+                                <div class="rekord-date">08.01.2025</div>
+                            </div>
+                        </div>
+                        <div class="rekord-card">
+                            <div class="rekord-icon">⏰</div>
+                            <div class="rekord-content">
+                                <div class="rekord-label">Längste Stunden-Streak</div>
+                                <div class="rekord-value">8 Stunden</div>
+                                <div class="rekord-date">15.03.2025</div>
+                            </div>
+                        </div>
+                        <div class="rekord-card">
+                            <div class="rekord-icon">⚡</div>
+                            <div class="rekord-content">
+                                <div class="rekord-label">Längste 15-Min Streak</div>
+                                <div class="rekord-value">12 Zyklen</div>
+                                <div class="rekord-date">15.03.2025</div>
+                            </div>
+                        </div>
+                        <div class="rekord-card">
+                            <div class="rekord-icon">🔥</div>
+                            <div class="rekord-content">
+                                <div class="rekord-label">Längste 30-Min Streak</div>
+                                <div class="rekord-value">8 Zyklen</div>
+                                <div class="rekord-date">10.02.2025</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Werben -->
+            <div class="tab-content" id="tab-werben">
+                <p>Werben-Tab Inhalt (gleiche Struktur wie Allgemein)</p>
+            </div>
+
+            <!-- Tab: Teamleitung -->
+            <div class="tab-content" id="tab-teamleitung">
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <div class="empty-state-text">Keine Teamleitungs-Daten vorhanden</div>
+                </div>
+            </div>
+
+            <!-- Tab: Empfehlung -->
+            <div class="tab-content" id="tab-empfehlung">
+                <p>Empfehlung-Tab Inhalt</p>
+            </div>
+
+            <!-- Tab: Recruiting -->
+            <div class="tab-content" id="tab-recruiting">
+                <p>Recruiting-Tab Inhalt</p>
+            </div>
+
+            <!-- Tab: Quality -->
+            <div class="tab-content" id="tab-quality">
+                <div class="empty-state">
+                    <div class="empty-state-icon">✨</div>
+                    <div class="empty-state-text">Keine Quality-Daten vorhanden</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // TAB NAVIGATION
+        // ========================================
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active from all
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                // Add active to clicked
+                btn.classList.add('active');
+                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ========================================
+        // PERIOD SELECTOR
+        // ========================================
+
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                // TODO: Load data for selected period
+            });
+        });
+
+        // ========================================
+        // BACK BUTTON
+        // ========================================
+
+        function goBack() {
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'navigate', target: 'statistik' }, '*');
+            } else {
+                window.history.back();
+            }
+        }
+
+        // ========================================
+        // CHARTS
+        // ========================================
+
+        // Week Chart (Bar + Line)
+        const weekCtx = document.getElementById('weekChart').getContext('2d');
+        new Chart(weekCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+                datasets: [
+                    {
+                        label: 'MG',
+                        data: [5, 8, 6, 9, 7, 6, 4],
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        label: 'JE',
+                        data: [600, 960, 720, 1080, 840, 720, 480],
+                        type: 'line',
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'MG'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'JE'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Frequency Donut Chart
+        const freqCtx = document.getElementById('frequencyChart').getContext('2d');
+        new Chart(freqCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Monatlich', 'Quartärlich', 'Halbjährlich', 'Jährlich'],
+                datasets: [{
+                    data: [25, 10, 5, 5],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#10b981',
+                        '#f59e0b',
+                        '#8b5cf6'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    }
+                }
+            }
+        });
+
+        // Age Histogram
+        const ageCtx = document.getElementById('ageChart').getContext('2d');
+        new Chart(ageCtx, {
+            type: 'bar',
+            data: {
+                labels: ['18-25', '26-35', '36-45', '46-55', '56-65', '65+'],
+                datasets: [{
+                    label: 'Anzahl MG',
+                    data: [8, 15, 12, 6, 3, 1],
+                    backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // ========================================
+        // REKORDE FILTER
+        // ========================================
+
+        document.querySelectorAll('.rekorde-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const parent = btn.parentElement;
+                parent.querySelectorAll('.rekorde-filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                // TODO: Filter records by year
+            });
+        });
+    </script>
+</body>
+</html>
