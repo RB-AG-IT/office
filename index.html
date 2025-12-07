@@ -1172,43 +1172,40 @@
                 newButtonsConfig = [{ ...config.actionBtn, primary: true }];
             }
 
-            // Check if same number of buttons and same icons (only text changed)
-            const sameStructure = existingButtons.length === newButtonsConfig.length &&
-                Array.from(existingButtons).every((btn, i) => {
-                    const currentIcon = btn.querySelector('svg path')?.getAttribute('d');
-                    const newIcon = getIconPath(newButtonsConfig[i]?.icon);
-                    return currentIcon === newIcon;
-                });
-
-            if (sameStructure && existingButtons.length > 0) {
-                // Only animate text changes
+            // Same number of buttons = animate text only, update icon instantly
+            if (existingButtons.length === newButtonsConfig.length && existingButtons.length > 0) {
                 existingButtons.forEach((btn, i) => {
                     const span = btn.querySelector('span');
+                    const svgPath = btn.querySelector('svg path');
                     const newText = newButtonsConfig[i].text;
+                    const newIcon = getIconPath(newButtonsConfig[i].icon);
 
+                    // Animate text if changed
                     if (span && span.textContent !== newText) {
-                        // Slide out
                         btn.classList.add('slide-out');
 
                         setTimeout(() => {
-                            // Update text and prepare slide in
                             span.textContent = newText;
+                            // Update icon silently
+                            if (svgPath) svgPath.setAttribute('d', newIcon);
                             btn.classList.remove('slide-out');
                             btn.classList.add('slide-in');
 
-                            // Trigger reflow and slide in
                             btn.offsetHeight;
                             setTimeout(() => {
                                 btn.classList.remove('slide-in');
                             }, 20);
                         }, 150);
+                    } else if (svgPath) {
+                        // Just update icon if text is same
+                        svgPath.setAttribute('d', newIcon);
                     }
 
                     // Update action
                     btn.onclick = () => shellToolbarAction(newButtonsConfig[i].action || 'default');
                 });
             } else {
-                // Different structure - rebuild buttons with container animation
+                // Different number of buttons - rebuild with container animation
                 const newButtonsHtml = newButtonsConfig.map(btn => {
                     const iconPath = getIconPath(btn.icon);
                     const primaryClass = btn.primary ? ' toolbar-btn-primary' : '';

@@ -2455,43 +2455,16 @@
             }
         });
 
-        // ========== CATEGORY SELECTION ==========
+        // ========== CATEGORY SELECTION (controlled by Shell) ==========
         function selectCategory(value, label) {
             currentCategory = value;
-
-            // Update trigger text with slide-up animation (only if not in iframe)
-            const textEl = document.getElementById('categoryDropdownText');
-            if (textEl) {
-                // Phase 1: Slide out (nach oben)
-                textEl.style.transform = 'translateY(-100%)';
-                textEl.style.opacity = '0';
-
-                setTimeout(() => {
-                    // Phase 2: Text ändern und Position zurücksetzen (ohne Animation)
-                    textEl.style.transition = 'none';
-                    textEl.textContent = label;
-                    textEl.style.transform = 'translateY(100%)';
-
-                    // Force reflow
-                    textEl.offsetHeight;
-
-                    // Phase 3: Slide in (nach oben in Position)
-                    textEl.style.transition = '';
-                    textEl.style.transform = 'translateY(0)';
-                    textEl.style.opacity = '1';
-                }, 150);
-
-                // Update active state
-                document.querySelectorAll('#categoryDropdown .toolbar-nav-option').forEach(opt => {
-                    opt.classList.toggle('active', opt.dataset.value === value);
-                });
-            }
 
             // Show correct section or detail view
             showOverviewView();
             // Hide all category sections
             ['section-werber', 'section-kunden', 'section-kampagnen', 'section-letzte100'].forEach(id => {
-                document.getElementById(id).style.display = 'none';
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
             });
             // Show selected section
             document.getElementById('section-' + value).style.display = 'block';
