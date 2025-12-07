@@ -892,36 +892,65 @@
             setupStornoReasons();
         });
 
+        // ========== SHELL MESSAGE HANDLER ==========
+        window.addEventListener('message', function(e) {
+            // Navigation filter from shell
+            if (e.data && e.data.type === 'navFilter') {
+                const labelMap = {
+                    'kunden': 'Kunden',
+                    'gebiete': 'Einsatzgebiete',
+                    'kampagnen': 'Kampagnen',
+                    'letzte100': 'Letzte Datensätze (100)'
+                };
+                selectCategory(e.data.value, labelMap[e.data.value] || e.data.value);
+            }
+
+            // Search query from shell
+            if (e.data && e.data.type === 'searchQuery') {
+                handleSearch(e.data.query);
+            }
+
+            // Toolbar action from shell
+            if (e.data && e.data.type === 'toolbarAction') {
+                if (e.data.action === 'openImportModal') {
+                    openImportModal();
+                } else if (e.data.action === 'openExportModal') {
+                    openExportModal();
+                }
+            }
+        });
+
         // ========== CATEGORY SELECTION ==========
         function selectCategory(value, label) {
             currentCategory = value;
 
-            // Update trigger text with slide-up animation
+            // Update trigger text with slide-up animation (only if not in iframe)
             const textEl = document.getElementById('categoryDropdownText');
+            if (textEl) {
+                // Phase 1: Slide out (nach oben)
+                textEl.style.transform = 'translateY(-100%)';
+                textEl.style.opacity = '0';
 
-            // Phase 1: Slide out (nach oben)
-            textEl.style.transform = 'translateY(-100%)';
-            textEl.style.opacity = '0';
+                setTimeout(() => {
+                    // Phase 2: Text ändern und Position zurücksetzen (ohne Animation)
+                    textEl.style.transition = 'none';
+                    textEl.textContent = label;
+                    textEl.style.transform = 'translateY(100%)';
 
-            setTimeout(() => {
-                // Phase 2: Text ändern und Position zurücksetzen (ohne Animation)
-                textEl.style.transition = 'none';
-                textEl.textContent = label;
-                textEl.style.transform = 'translateY(100%)';
+                    // Force reflow
+                    textEl.offsetHeight;
 
-                // Force reflow
-                textEl.offsetHeight;
+                    // Phase 3: Slide in (nach oben in Position)
+                    textEl.style.transition = '';
+                    textEl.style.transform = 'translateY(0)';
+                    textEl.style.opacity = '1';
+                }, 150);
 
-                // Phase 3: Slide in (nach oben in Position)
-                textEl.style.transition = '';
-                textEl.style.transform = 'translateY(0)';
-                textEl.style.opacity = '1';
-            }, 150);
-
-            // Update active state
-            document.querySelectorAll('#categoryDropdown .toolbar-nav-option').forEach(opt => {
-                opt.classList.toggle('active', opt.dataset.value === value);
-            });
+                // Update active state
+                document.querySelectorAll('#categoryDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === value);
+                });
+            }
 
             // Show correct section or detail view
             if (value === 'letzte100') {
@@ -1150,10 +1179,54 @@
 
         // ========== SEARCH / FILTER ==========
         function filterList() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            // Filter based on current category
-            // For now just log
-            console.log('Filtering:', search);
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                handleSearch(searchInput.value);
+            }
+        }
+
+        function handleSearch(query) {
+            const search = query.toLowerCase().trim();
+
+            if (currentCategory === 'kunden') {
+                // Filter Kunden table
+                const rows = document.querySelectorAll('#kundenTableBody tr');
+                rows.forEach(row => {
+                    const name = row.querySelector('.name-main')?.textContent.toLowerCase() || '';
+                    row.style.display = name.includes(search) ? '' : 'none';
+                });
+            } else if (currentCategory === 'gebiete') {
+                // Filter Gebiete table
+                const rows = document.querySelectorAll('#gebieteTableBody tr');
+                rows.forEach(row => {
+                    const name = row.querySelector('.name-main')?.textContent.toLowerCase() || '';
+                    row.style.display = name.includes(search) ? '' : 'none';
+                });
+            } else if (currentCategory === 'kampagnen') {
+                // Filter Kampagnen table (including sub-rows)
+                const rows = document.querySelectorAll('#kampagnenTableBody tr');
+                let lastKampagneVisible = false;
+                rows.forEach(row => {
+                    const name = row.querySelector('.name-main')?.textContent.toLowerCase() || '';
+                    if (row.classList.contains('sub-row')) {
+                        // Sub-row: show if parent is visible or if matches
+                        row.style.display = (lastKampagneVisible || name.includes(search)) ? '' : 'none';
+                    } else {
+                        // Main row
+                        lastKampagneVisible = name.includes(search);
+                        row.style.display = lastKampagneVisible ? '' : 'none';
+                    }
+                });
+            }
+
+            // If in detail view, filter records
+            if (document.getElementById('detailView').classList.contains('active')) {
+                const rows = document.querySelectorAll('#recordsTableBody tr');
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(search) ? '' : 'none';
+                });
+            }
         }
 
         // ========== HELPER FUNCTIONS ==========
