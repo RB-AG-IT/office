@@ -6,6 +6,7 @@
     <title>Mitarbeiter Dashboard - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/calendar-modal.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -550,118 +551,6 @@
             color: var(--text-secondary);
         }
 
-        /* Date Range Modal */
-        .date-range-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s;
-        }
-
-        .date-range-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .date-range-modal-content {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            width: 400px;
-            max-width: 95vw;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .date-range-modal-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .date-range-modal-header h3 {
-            font-size: 15px;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .date-range-modal-close {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 18px;
-        }
-
-        .date-range-modal-body {
-            padding: 20px;
-        }
-
-        .date-inputs-row {
-            display: flex;
-            gap: 16px;
-        }
-
-        .date-range-field {
-            flex: 1;
-        }
-
-        .date-range-field label {
-            display: block;
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-
-        .date-range-field input {
-            width: 100%;
-            height: 40px;
-            padding: 0 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 14px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            box-sizing: border-box;
-        }
-
-        .date-range-modal-footer {
-            padding: 16px 20px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-        }
-
-        .btn-cancel, .btn-apply {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-cancel {
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-        }
-
-        .btn-apply {
-            background: var(--accent-color);
-            color: white;
-        }
-
         /* Responsive */
         @media (max-width: 1200px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); }
@@ -975,32 +864,6 @@
         </div>
     </div>
 
-    <!-- Date Range Modal -->
-    <div class="date-range-modal" id="dateRangeModal">
-        <div class="date-range-modal-content">
-            <div class="date-range-modal-header">
-                <h3>Individueller Zeitraum</h3>
-                <button class="date-range-modal-close" onclick="closeDateRangeModal()">×</button>
-            </div>
-            <div class="date-range-modal-body">
-                <div class="date-inputs-row">
-                    <div class="date-range-field">
-                        <label>Von</label>
-                        <input type="text" id="dateFrom" placeholder="TT.MM.JJJJ">
-                    </div>
-                    <div class="date-range-field">
-                        <label>Bis</label>
-                        <input type="text" id="dateTo" placeholder="TT.MM.JJJJ">
-                    </div>
-                </div>
-            </div>
-            <div class="date-range-modal-footer">
-                <button class="btn-cancel" onclick="closeDateRangeModal()">Abbrechen</button>
-                <button class="btn-apply" onclick="applyDateRange()">Anwenden</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         // URL Params
         const urlParams = new URLSearchParams(window.location.search);
@@ -1036,23 +899,12 @@
             });
         });
 
-        // Date Range Modal
+        // Date Range Modal - using shared CalendarModal
         function openDateRangeModal() {
-            document.getElementById('dateRangeModal').classList.add('active');
-        }
-
-        function closeDateRangeModal() {
-            document.getElementById('dateRangeModal').classList.remove('active');
-        }
-
-        function applyDateRange() {
-            const from = document.getElementById('dateFrom').value;
-            const to = document.getElementById('dateTo').value;
-            if (from && to) {
-                document.getElementById('headerPeriod').textContent = `${from} - ${to}`;
-                window.parent.postMessage({ type: 'customDateRangeApplied', dateRangeText: `${from} - ${to}` }, '*');
-                closeDateRangeModal();
-            }
+            CalendarModal.open(function(from, to, displayText) {
+                document.getElementById('headerPeriod').textContent = displayText;
+                window.parent.postMessage({ type: 'customDateRangeApplied', dateRangeText: displayText }, '*');
+            });
         }
 
         // Period Labels
