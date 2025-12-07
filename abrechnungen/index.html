@@ -15,6 +15,11 @@
             background: var(--bg-secondary);
         }
 
+        /* Toolbar verstecken wenn in iframe (Shell hat eigene) */
+        body.in-iframe .action-toolbar {
+            display: none !important;
+        }
+
         .page-container {
             padding: 0;
             max-width: none;
@@ -537,6 +542,29 @@
 
         async function exportGesamt() {
             await showAlert('Export', 'Gesamtübersicht wird exportiert...', 'info');
+        }
+
+        // ========== IFRAME / SHELL INTEGRATION ==========
+        // Detect if in iframe
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
+
+        // Listen for messages from shell
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'searchQuery') {
+                handleSearch(e.data.query);
+            }
+        });
+
+        // Search/filter function
+        function handleSearch(query) {
+            const search = query.toLowerCase().trim();
+            // Filter table rows
+            document.querySelectorAll('.stats-table tbody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
         }
     </script>
 </body>

@@ -14,6 +14,11 @@
             background: var(--bg-secondary);
         }
 
+        /* Toolbar verstecken wenn in iframe (Shell hat eigene) */
+        body.in-iframe .action-toolbar {
+            display: none !important;
+        }
+
         .page-container {
             padding: var(--spacing-lg);
             max-width: 1400px;
@@ -977,6 +982,29 @@
                 currentRequestId = null;
             }
         });
+
+        // ========== IFRAME / SHELL INTEGRATION ==========
+        // Detect if in iframe
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
+
+        // Listen for messages from shell
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'searchQuery') {
+                handleSearch(e.data.query);
+            }
+        });
+
+        // Search/filter function
+        function handleSearch(query) {
+            const search = query.toLowerCase().trim();
+            // Filter request rows
+            document.querySelectorAll('.request-row').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
     </script>
 </body>
 </html>
