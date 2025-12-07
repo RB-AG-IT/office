@@ -471,6 +471,56 @@
             font-weight: 500;
         }
 
+        .section-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-collapse {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-collapse:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        /* Aufklappbare Zeilen */
+        .expandable-row {
+            cursor: pointer;
+        }
+
+        .expandable-row:hover {
+            background: var(--bg-hover) !important;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .expandable-row.collapsed .expand-icon {
+            transform: rotate(-90deg);
+        }
+
+        .child-row {
+            display: none;
+        }
+
+        .child-row.visible {
+            display: table-row;
+        }
+
         /* Stats Table */
         .stats-table {
             width: 100%;
@@ -510,6 +560,13 @@
         .stats-table tfoot td {
             font-weight: 600;
             background: var(--bg-secondary);
+        }
+
+        /* Gesamt-Zeile oben */
+        .stats-table .totals-row td {
+            font-weight: 600;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border-color);
         }
 
         /* Name Cell */
@@ -1010,22 +1067,27 @@
                     </div>
                 </div>
                 <div style="overflow-x: auto;">
-                    <table class="stats-table werber-compact">
+                    <table class="stats-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th class="right clickable-header">Netto MG</th>
-                                <th class="right clickable-header">Netto Summe</th>
-                                <th class="right clickable-header">Stornoquote</th>
+                                <th class="right">Netto MG</th>
+                                <th class="right">Netto JE / EH</th>
+                                <th class="right">Stornoquote</th>
+                                <th class="right">Empf. / Recr.</th>
+                                <th class="right">Wochen TL</th>
+                                <th class="right">Werbewochen</th>
+                                <th class="right">Ø Beitrag/MG</th>
+                                <th class="right">Ø MG/Tag</th>
                                 <th class="center" style="width: 60px;"></th>
                             </tr>
                         </thead>
+                        <tbody id="werberTableHead">
+                            <!-- Gesamt-Zeile oben - wird per JS befüllt -->
+                        </tbody>
                         <tbody id="werberTableBody">
                             <!-- Wird per JS befüllt -->
                         </tbody>
-                        <tfoot id="werberTableFoot">
-                            <!-- Wird per JS befüllt -->
-                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -1037,260 +1099,43 @@
                 <div class="section-header">
                     <div class="section-title">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                        Kunden & Werbegebiete - Kosten / Einnahmen / Marge
-                        <span class="section-badge">2 Kunden</span>
+                        Kunden & Werbegebiete
+                        <span class="section-badge" id="kundenBadge">2 Kunden</span>
+                    </div>
+                    <div class="section-actions">
+                        <button class="btn-collapse" onclick="toggleAllKunden(true)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            Alle ausklappen
+                        </button>
+                        <button class="btn-collapse" onclick="toggleAllKunden(false)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                            Alle einklappen
+                        </button>
                     </div>
                 </div>
                 <div style="overflow-x: auto;">
-                    <table class="stats-table">
+                    <table class="stats-table" id="kundenTable">
                         <thead>
                             <tr>
                                 <th>Kunde / Gebiet</th>
+                                <th class="right">Brutto MG</th>
+                                <th class="right">Brutto JE</th>
                                 <th class="right">Netto MG</th>
-                                <th class="right">Storno</th>
                                 <th class="right">Netto JE</th>
-                                <th class="right">Einnahmen</th>
-                                <th class="right">Kosten Werber</th>
-                                <th class="right">Kosten TC</th>
-                                <th class="right">Kosten Empf.</th>
-                                <th class="right">Kosten Recr.</th>
-                                <th class="right">Kosten Ges.</th>
-                                <th class="right">Marge</th>
-                                <th class="right">Marge %</th>
+                                <th class="right">Storno MG</th>
+                                <th class="right">Storno JE</th>
+                                <th class="right">Storno %</th>
+                                <th class="right">Ø MG/Tag/Bot.</th>
+                                <th class="right">Ø JE/Tag/Bot.</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr style="background: var(--bg-hover);">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">KV</div>
-                                        <div class="name-info">
-                                            <div class="name-main">DRK KV Ludwigshafen</div>
-                                            <div class="name-sub">3 Werbegebiete</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">118</td>
-                                <td class="right">13 (9,9%)</td>
-                                <td class="right value-money">15.340 €</td>
-                                <td class="right value-money value-positive">9.204 €</td>
-                                <td class="right value-money value-negative">-5.112 €</td>
-                                <td class="right value-money value-negative">-1.278 €</td>
-                                <td class="right value-money value-negative">-180 €</td>
-                                <td class="right value-money value-negative">-250 €</td>
-                                <td class="right value-money">-6.820 €</td>
-                                <td class="right value-money value-positive">+2.384 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 26%;"></div>
-                                        </div>
-                                        <span class="value-positive">+26%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 40px;">
-                                    <div class="name-info">
-                                        <div class="name-main">→ Ludwigshafen-Mitte e.V.</div>
-                                    </div>
-                                </td>
-                                <td class="right">52</td>
-                                <td class="right">5 (8,8%)</td>
-                                <td class="right value-money">6.760 €</td>
-                                <td class="right value-money">4.056 €</td>
-                                <td class="right value-money">-2.253 €</td>
-                                <td class="right value-money">-563 €</td>
-                                <td class="right value-money">-80 €</td>
-                                <td class="right value-money">-100 €</td>
-                                <td class="right value-money">-2.996 €</td>
-                                <td class="right value-money value-positive">+1.060 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 26%;"></div>
-                                        </div>
-                                        <span class="value-positive">+26%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 40px;">
-                                    <div class="name-info">
-                                        <div class="name-main">→ Ludwigshafen-Süd e.V.</div>
-                                    </div>
-                                </td>
-                                <td class="right">38</td>
-                                <td class="right">5 (11,6%)</td>
-                                <td class="right value-money">4.940 €</td>
-                                <td class="right value-money">2.964 €</td>
-                                <td class="right value-money">-1.647 €</td>
-                                <td class="right value-money">-412 €</td>
-                                <td class="right value-money">-60 €</td>
-                                <td class="right value-money">-80 €</td>
-                                <td class="right value-money">-2.199 €</td>
-                                <td class="right value-money value-positive">+765 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 26%;"></div>
-                                        </div>
-                                        <span class="value-positive">+26%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 40px;">
-                                    <div class="name-info">
-                                        <div class="name-main">→ Oggersheim e.V.</div>
-                                    </div>
-                                </td>
-                                <td class="right">28</td>
-                                <td class="right">3 (9,7%)</td>
-                                <td class="right value-money">3.640 €</td>
-                                <td class="right value-money">2.184 €</td>
-                                <td class="right value-money">-1.213 €</td>
-                                <td class="right value-money">-303 €</td>
-                                <td class="right value-money">-40 €</td>
-                                <td class="right value-money">-70 €</td>
-                                <td class="right value-money">-1.626 €</td>
-                                <td class="right value-money value-positive">+558 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 26%;"></div>
-                                        </div>
-                                        <span class="value-positive">+26%</span>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr style="background: var(--bg-hover);">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">KV</div>
-                                        <div class="name-info">
-                                            <div class="name-main">DRK KV Mannheim</div>
-                                            <div class="name-sub">2 Werbegebiete</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">45</td>
-                                <td class="right">5 (10,0%)</td>
-                                <td class="right value-money">6.500 €</td>
-                                <td class="right value-money value-positive">3.575 €</td>
-                                <td class="right value-money value-negative">-2.167 €</td>
-                                <td class="right value-money value-negative">-542 €</td>
-                                <td class="right value-money value-negative">-95 €</td>
-                                <td class="right value-money value-negative">-150 €</td>
-                                <td class="right value-money">-2.954 €</td>
-                                <td class="right value-money value-positive">+621 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 17%;"></div>
-                                        </div>
-                                        <span class="value-positive">+17%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 40px;">
-                                    <div class="name-info">
-                                        <div class="name-main">→ Mannheim-Nord e.V.</div>
-                                    </div>
-                                </td>
-                                <td class="right">28</td>
-                                <td class="right">3 (9,7%)</td>
-                                <td class="right value-money">4.060 €</td>
-                                <td class="right value-money">2.233 €</td>
-                                <td class="right value-money">-1.353 €</td>
-                                <td class="right value-money">-338 €</td>
-                                <td class="right value-money">-60 €</td>
-                                <td class="right value-money">-80 €</td>
-                                <td class="right value-money">-1.831 €</td>
-                                <td class="right value-money value-positive">+402 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 18%;"></div>
-                                        </div>
-                                        <span class="value-positive">+18%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 40px;">
-                                    <div class="name-info">
-                                        <div class="name-main">→ Mannheim-Süd e.V.</div>
-                                    </div>
-                                </td>
-                                <td class="right">17</td>
-                                <td class="right">2 (10,5%)</td>
-                                <td class="right value-money">2.440 €</td>
-                                <td class="right value-money">1.342 €</td>
-                                <td class="right value-money">-813 €</td>
-                                <td class="right value-money">-203 €</td>
-                                <td class="right value-money">-35 €</td>
-                                <td class="right value-money">-70 €</td>
-                                <td class="right value-money">-1.121 €</td>
-                                <td class="right value-money value-positive">+221 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 16%;"></div>
-                                        </div>
-                                        <span class="value-positive">+16%</span>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tbody id="kundenTableHead">
+                            <!-- Gesamt-Zeile oben - wird per JS befüllt -->
                         </tbody>
-                        <tfoot>
-                            <tr>
-                                <td><strong>Gesamt</strong></td>
-                                <td class="right value-highlight">163</td>
-                                <td class="right">18 (9,9%)</td>
-                                <td class="right value-money">21.840 €</td>
-                                <td class="right value-money value-positive">12.779 €</td>
-                                <td class="right value-money">-7.280 €</td>
-                                <td class="right value-money">-1.820 €</td>
-                                <td class="right value-money">-275 €</td>
-                                <td class="right value-money">-400 €</td>
-                                <td class="right value-money">-9.775 €</td>
-                                <td class="right value-money value-positive">+3.004 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 24%;"></div>
-                                        </div>
-                                        <span class="value-positive">+24%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tfoot>
+                        <tbody id="kundenTableBody">
+                            <!-- Wird per JS befüllt -->
+                        </tbody>
                     </table>
-                </div>
-                <div class="summary-grid">
-                    <div class="summary-card">
-                        <div class="summary-label">Einnahmen (Konditionen)</div>
-                        <div class="summary-value value-positive">12.779 €</div>
-                        <div class="summary-sub">0,60 € × 21.298 EH (Netto)</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-label">Kosten Werber</div>
-                        <div class="summary-value">7.280 €</div>
-                        <div class="summary-sub">4,00 € × 1.820 EH</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-label">Kosten TC</div>
-                        <div class="summary-value">1.820 €</div>
-                        <div class="summary-sub">1,00 € × 1.820 EH</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-label">Netto Marge</div>
-                        <div class="summary-value value-positive">+3.004 €</div>
-                        <div class="summary-sub">23,5% Marge</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1302,260 +1147,43 @@
                     <div class="section-title">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                         Kampagnen-Übersicht
-                        <span class="section-badge">3 Kampagnen</span>
+                        <span class="section-badge" id="kampagnenBadge">3 Kampagnen</span>
+                    </div>
+                    <div class="section-actions">
+                        <button class="btn-collapse" onclick="toggleAllKampagnen(true)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            Alle ausklappen
+                        </button>
+                        <button class="btn-collapse" onclick="toggleAllKampagnen(false)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                            Alle einklappen
+                        </button>
                     </div>
                 </div>
                 <div style="overflow-x: auto;">
-                    <table class="stats-table">
+                    <table class="stats-table" id="kampagnenTable">
                         <thead>
                             <tr>
-                                <th>Kampagne</th>
+                                <th>Kampagne / Gebiet</th>
                                 <th class="right">Zeitraum</th>
+                                <th class="right">Werber</th>
                                 <th class="right">Brutto MG</th>
-                                <th class="right">Storno</th>
+                                <th class="right">Brutto JE</th>
                                 <th class="right">Netto MG</th>
                                 <th class="right">Netto JE</th>
-                                <th class="right">Einnahmen</th>
-                                <th class="right">Kosten Ges.</th>
-                                <th class="right">Marge</th>
-                                <th class="right">Marge %</th>
+                                <th class="right">Storno MG</th>
+                                <th class="right">Storno JE</th>
+                                <th class="right">Storno %</th>
+                                <th class="right">Ø MG/Tag/Bot.</th>
+                                <th class="right">Ø JE/Tag/Bot.</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">FK</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Frühjahrskampagne 2024</div>
-                                            <div class="name-sub">DRK KV Ludwigshafen</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right value-muted">01.03 - 30.04</td>
-                                <td class="right">85</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot low"></span>
-                                        <span>6 (7,1%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">79</td>
-                                <td class="right value-money">10.270 €</td>
-                                <td class="right value-money value-positive">5.648 €</td>
-                                <td class="right value-money">-4.567 €</td>
-                                <td class="right value-money value-positive">+1.081 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 19%;"></div>
-                                        </div>
-                                        <span class="value-positive">+19%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="10">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Kondition/EH</span>
-                                            <span class="detail-value">0,55 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Werber-Prov./EH</span>
-                                            <span class="detail-value">4,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">TC-Prov./EH</span>
-                                            <span class="detail-value">1,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empf.-Prov./EH</span>
-                                            <span class="detail-value">0,50 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Werber eingesetzt</span>
-                                            <span class="detail-value">4</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Einsatztage gesamt</span>
-                                            <span class="detail-value">42</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø MG/Tag</span>
-                                            <span class="detail-value">2,0</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø JE/MG</span>
-                                            <span class="detail-value">130 €</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">SK</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Sommerkampagne 2024</div>
-                                            <div class="name-sub">DRK KV Mannheim</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right value-muted">01.06 - 31.07</td>
-                                <td class="right">50</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot medium"></span>
-                                        <span>6 (12,0%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">44</td>
-                                <td class="right value-money">6.380 €</td>
-                                <td class="right value-money value-positive">3.509 €</td>
-                                <td class="right value-money">-2.924 €</td>
-                                <td class="right value-money value-positive">+585 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 17%;"></div>
-                                        </div>
-                                        <span class="value-positive">+17%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="10">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Kondition/EH</span>
-                                            <span class="detail-value">0,55 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Werber-Prov./EH</span>
-                                            <span class="detail-value">4,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">TC-Prov./EH</span>
-                                            <span class="detail-value">1,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empf.-Prov./EH</span>
-                                            <span class="detail-value">0,50 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Werber eingesetzt</span>
-                                            <span class="detail-value">3</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Einsatztage gesamt</span>
-                                            <span class="detail-value">28</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø MG/Tag</span>
-                                            <span class="detail-value">1,8</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Hinweis</span>
-                                            <span class="detail-value value-warning">Stornoquote beobachten</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr class="expandable-row" onclick="toggleDetail(this)">
-                                <td>
-                                    <div class="name-cell">
-                                        <div class="avatar" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">HK</div>
-                                        <div class="name-info">
-                                            <div class="name-main">Herbstkampagne 2024</div>
-                                            <div class="name-sub">DRK KV Ludwigshafen</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="right value-muted">01.09 - laufend</td>
-                                <td class="right">46</td>
-                                <td class="right">
-                                    <div class="storno-indicator">
-                                        <span class="storno-dot medium"></span>
-                                        <span>6 (13,0%)</span>
-                                    </div>
-                                </td>
-                                <td class="right value-highlight">40</td>
-                                <td class="right value-money">5.190 €</td>
-                                <td class="right value-money value-positive">3.114 €</td>
-                                <td class="right value-money">-2.284 €</td>
-                                <td class="right value-money value-positive">+830 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 27%;"></div>
-                                        </div>
-                                        <span class="value-positive">+27%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="detail-row">
-                                <td colspan="10">
-                                    <div class="detail-content">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Kondition/EH</span>
-                                            <span class="detail-value">0,60 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Werber-Prov./EH</span>
-                                            <span class="detail-value">4,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">TC-Prov./EH</span>
-                                            <span class="detail-value">1,00 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Empf.-Prov./EH</span>
-                                            <span class="detail-value">0,50 €</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Werber eingesetzt</span>
-                                            <span class="detail-value">5</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Einsatztage gesamt</span>
-                                            <span class="detail-value">18 (laufend)</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Ø MG/Tag</span>
-                                            <span class="detail-value">2,6</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Status</span>
-                                            <span class="detail-value value-positive">Aktiv</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tbody id="kampagnenTableHead">
+                            <!-- Gesamt-Zeile oben - wird per JS befüllt -->
                         </tbody>
-                        <tfoot>
-                            <tr>
-                                <td><strong>Gesamt</strong></td>
-                                <td class="right"></td>
-                                <td class="right">181</td>
-                                <td class="right">18 (9,9%)</td>
-                                <td class="right value-highlight">163</td>
-                                <td class="right value-money">21.840 €</td>
-                                <td class="right value-money value-positive">12.271 €</td>
-                                <td class="right value-money">-9.775 €</td>
-                                <td class="right value-money value-positive">+2.496 €</td>
-                                <td class="right">
-                                    <div class="marge-bar">
-                                        <div class="marge-visual">
-                                            <div class="marge-fill positive" style="width: 20%;"></div>
-                                        </div>
-                                        <span class="value-positive">+20%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tfoot>
+                        <tbody id="kampagnenTableBody">
+                            <!-- Wird per JS befüllt -->
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -1707,11 +1335,7 @@
                 initials: 'MM',
                 color: '#667eea',
                 // MG Aufschlüsselung
-                mg: {
-                    nmg: 18,
-                    erh: 12,
-                    total: 30
-                },
+                mg: { nmg: 18, erh: 12, total: 30 },
                 // Summe Aufschlüsselung (JE = Jahresbeitrag, EH = Einzelhöhe)
                 summe: {
                     nmg: { je: 2340, eh: 19500 },
@@ -1719,10 +1343,12 @@
                     total: { je: 3900, eh: 32500 }
                 },
                 // Stornoquote
-                storno: {
-                    mg: 8.5,
-                    summe: 6.2
-                }
+                storno: { mg: 8.5, summe: 6.2 },
+                // Neue Felder
+                empfehlungen: 5,
+                recruitments: 2,
+                wochenTeamleitung: 3,
+                werbewochen: 6
             },
             {
                 id: 2,
@@ -1730,20 +1356,17 @@
                 shortName: 'A. Schmidt',
                 initials: 'AS',
                 color: '#10b981',
-                mg: {
-                    nmg: 22,
-                    erh: 8,
-                    total: 30
-                },
+                mg: { nmg: 22, erh: 8, total: 30 },
                 summe: {
                     nmg: { je: 2860, eh: 23833 },
                     erh: { je: 1040, eh: 8667 },
                     total: { je: 3900, eh: 32500 }
                 },
-                storno: {
-                    mg: 5.2,
-                    summe: 4.8
-                }
+                storno: { mg: 5.2, summe: 4.8 },
+                empfehlungen: 8,
+                recruitments: 1,
+                wochenTeamleitung: 0,
+                werbewochen: 6
             },
             {
                 id: 3,
@@ -1751,20 +1374,17 @@
                 shortName: 'T. Weber',
                 initials: 'TW',
                 color: '#f59e0b',
-                mg: {
-                    nmg: 15,
-                    erh: 10,
-                    total: 25
-                },
+                mg: { nmg: 15, erh: 10, total: 25 },
                 summe: {
                     nmg: { je: 1950, eh: 16250 },
                     erh: { je: 1300, eh: 10833 },
                     total: { je: 3250, eh: 27083 }
                 },
-                storno: {
-                    mg: 12.0,
-                    summe: 9.5
-                }
+                storno: { mg: 12.0, summe: 9.5 },
+                empfehlungen: 3,
+                recruitments: 0,
+                wochenTeamleitung: 0,
+                werbewochen: 5
             },
             {
                 id: 4,
@@ -1772,20 +1392,17 @@
                 shortName: 'L. Meier',
                 initials: 'LM',
                 color: '#8b5cf6',
-                mg: {
-                    nmg: 28,
-                    erh: 7,
-                    total: 35
-                },
+                mg: { nmg: 28, erh: 7, total: 35 },
                 summe: {
                     nmg: { je: 3640, eh: 30333 },
                     erh: { je: 910, eh: 7583 },
                     total: { je: 4550, eh: 37917 }
                 },
-                storno: {
-                    mg: 4.1,
-                    summe: 3.8
-                }
+                storno: { mg: 4.1, summe: 3.8 },
+                empfehlungen: 12,
+                recruitments: 3,
+                wochenTeamleitung: 4,
+                werbewochen: 6
             },
             {
                 id: 5,
@@ -1793,20 +1410,230 @@
                 shortName: 'S. Braun',
                 initials: 'SB',
                 color: '#ef4444',
-                mg: {
-                    nmg: 20,
-                    erh: 13,
-                    total: 33
-                },
+                mg: { nmg: 20, erh: 13, total: 33 },
                 summe: {
                     nmg: { je: 2600, eh: 21667 },
                     erh: { je: 1690, eh: 14083 },
                     total: { je: 4290, eh: 35750 }
                 },
-                storno: {
-                    mg: 9.8,
-                    summe: 7.2
-                }
+                storno: { mg: 9.8, summe: 7.2 },
+                empfehlungen: 6,
+                recruitments: 1,
+                wochenTeamleitung: 2,
+                werbewochen: 6
+            }
+        ];
+
+        // Kunden/Gebiete Daten
+        const kundenData = [
+            {
+                id: 1,
+                name: 'DRK KV Ludwigshafen',
+                initials: 'KV',
+                color: '#ef4444',
+                expanded: true,
+                // Brutto/Netto/Storno für MG, NMG, ERH
+                brutto: { mg: 131, nmg: 85, erh: 46, je: 17030 },
+                netto: { mg: 118, nmg: 78, erh: 40, je: 15340 },
+                storno: { mg: 13, nmg: 7, erh: 6, je: 1690 },
+                // Durchschnitte
+                werbewochen: 6,
+                botschafter: 3,
+                gebiete: [
+                    {
+                        id: 11,
+                        name: 'Ludwigshafen-Mitte e.V.',
+                        brutto: { mg: 57, nmg: 38, erh: 19, je: 7410 },
+                        netto: { mg: 52, nmg: 35, erh: 17, je: 6760 },
+                        storno: { mg: 5, nmg: 3, erh: 2, je: 650 },
+                        werbewochen: 6,
+                        botschafter: 1
+                    },
+                    {
+                        id: 12,
+                        name: 'Ludwigshafen-Süd e.V.',
+                        brutto: { mg: 43, nmg: 28, erh: 15, je: 5590 },
+                        netto: { mg: 38, nmg: 25, erh: 13, je: 4940 },
+                        storno: { mg: 5, nmg: 3, erh: 2, je: 650 },
+                        werbewochen: 6,
+                        botschafter: 1
+                    },
+                    {
+                        id: 13,
+                        name: 'Oggersheim e.V.',
+                        brutto: { mg: 31, nmg: 19, erh: 12, je: 4030 },
+                        netto: { mg: 28, nmg: 18, erh: 10, je: 3640 },
+                        storno: { mg: 3, nmg: 1, erh: 2, je: 390 },
+                        werbewochen: 5,
+                        botschafter: 1
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: 'DRK KV Mannheim',
+                initials: 'KV',
+                color: '#ef4444',
+                expanded: true,
+                brutto: { mg: 50, nmg: 32, erh: 18, je: 7150 },
+                netto: { mg: 45, nmg: 30, erh: 15, je: 6500 },
+                storno: { mg: 5, nmg: 2, erh: 3, je: 650 },
+                werbewochen: 5,
+                botschafter: 2,
+                gebiete: [
+                    {
+                        id: 21,
+                        name: 'Mannheim-Nord e.V.',
+                        brutto: { mg: 31, nmg: 20, erh: 11, je: 4433 },
+                        netto: { mg: 28, nmg: 19, erh: 9, je: 4060 },
+                        storno: { mg: 3, nmg: 1, erh: 2, je: 373 },
+                        werbewochen: 5,
+                        botschafter: 1
+                    },
+                    {
+                        id: 22,
+                        name: 'Mannheim-Süd e.V.',
+                        brutto: { mg: 19, nmg: 12, erh: 7, je: 2717 },
+                        netto: { mg: 17, nmg: 11, erh: 6, je: 2440 },
+                        storno: { mg: 2, nmg: 1, erh: 1, je: 277 },
+                        werbewochen: 5,
+                        botschafter: 1
+                    }
+                ]
+            }
+        ];
+
+        // Kampagnen Daten
+        const kampagnenData = [
+            {
+                id: 1,
+                name: 'Herbstkampagne 2024',
+                zeitraum: '01.09. - 30.11.2024',
+                wochen: 13,
+                werberEingesetzt: 4,
+                expanded: true,
+                brutto: { mg: 156, je: 20280 },
+                netto: { mg: 140, je: 18200 },
+                storno: { mg: 16, je: 2080 },
+                botschafter: 4,
+                gebiete: [
+                    {
+                        id: 11,
+                        name: 'Ludwigshafen-Mitte e.V.',
+                        zeitraum: '01.09. - 31.10.2024',
+                        wochen: 9,
+                        werberEingesetzt: 2,
+                        brutto: { mg: 68, je: 8840 },
+                        netto: { mg: 62, je: 8060 },
+                        storno: { mg: 6, je: 780 },
+                        botschafter: 2
+                    },
+                    {
+                        id: 12,
+                        name: 'Ludwigshafen-Süd e.V.',
+                        zeitraum: '15.09. - 15.11.2024',
+                        wochen: 9,
+                        werberEingesetzt: 1,
+                        brutto: { mg: 45, je: 5850 },
+                        netto: { mg: 40, je: 5200 },
+                        storno: { mg: 5, je: 650 },
+                        botschafter: 1
+                    },
+                    {
+                        id: 13,
+                        name: 'Mannheim-Nord e.V.',
+                        zeitraum: '01.10. - 30.11.2024',
+                        wochen: 9,
+                        werberEingesetzt: 1,
+                        brutto: { mg: 43, je: 5590 },
+                        netto: { mg: 38, je: 4940 },
+                        storno: { mg: 5, je: 650 },
+                        botschafter: 1
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: 'Frühjahrswerbeaktion 2024',
+                zeitraum: '01.03. - 31.05.2024',
+                wochen: 13,
+                werberEingesetzt: 3,
+                expanded: true,
+                brutto: { mg: 98, je: 12740 },
+                netto: { mg: 89, je: 11570 },
+                storno: { mg: 9, je: 1170 },
+                botschafter: 3,
+                gebiete: [
+                    {
+                        id: 21,
+                        name: 'Oggersheim e.V.',
+                        zeitraum: '01.03. - 30.04.2024',
+                        wochen: 9,
+                        werberEingesetzt: 2,
+                        brutto: { mg: 52, je: 6760 },
+                        netto: { mg: 47, je: 6110 },
+                        storno: { mg: 5, je: 650 },
+                        botschafter: 2
+                    },
+                    {
+                        id: 22,
+                        name: 'Mannheim-Süd e.V.',
+                        zeitraum: '01.04. - 31.05.2024',
+                        wochen: 9,
+                        werberEingesetzt: 1,
+                        brutto: { mg: 46, je: 5980 },
+                        netto: { mg: 42, je: 5460 },
+                        storno: { mg: 4, je: 520 },
+                        botschafter: 1
+                    }
+                ]
+            },
+            {
+                id: 3,
+                name: 'Sommer-Intensivwerbung',
+                zeitraum: '15.06. - 31.08.2024',
+                wochen: 11,
+                werberEingesetzt: 5,
+                expanded: true,
+                brutto: { mg: 210, je: 27300 },
+                netto: { mg: 188, je: 24440 },
+                storno: { mg: 22, je: 2860 },
+                botschafter: 5,
+                gebiete: [
+                    {
+                        id: 31,
+                        name: 'Ludwigshafen-Mitte e.V.',
+                        zeitraum: '15.06. - 15.08.2024',
+                        wochen: 9,
+                        werberEingesetzt: 2,
+                        brutto: { mg: 85, je: 11050 },
+                        netto: { mg: 76, je: 9880 },
+                        storno: { mg: 9, je: 1170 },
+                        botschafter: 2
+                    },
+                    {
+                        id: 32,
+                        name: 'Mannheim-Nord e.V.',
+                        zeitraum: '01.07. - 31.08.2024',
+                        wochen: 9,
+                        werberEingesetzt: 2,
+                        brutto: { mg: 78, je: 10140 },
+                        netto: { mg: 70, je: 9100 },
+                        storno: { mg: 8, je: 1040 },
+                        botschafter: 2
+                    },
+                    {
+                        id: 33,
+                        name: 'Oggersheim e.V.',
+                        zeitraum: '15.07. - 31.08.2024',
+                        wochen: 7,
+                        werberEingesetzt: 1,
+                        brutto: { mg: 47, je: 6110 },
+                        netto: { mg: 42, je: 5460 },
+                        storno: { mg: 5, je: 650 },
+                        botschafter: 1
+                    }
+                ]
             }
         ];
 
@@ -1841,20 +1668,28 @@
 
         // Werber Tabelle rendern
         function renderWerberTable() {
+            const thead = document.getElementById('werberTableHead');
             const tbody = document.getElementById('werberTableBody');
-            const tfoot = document.getElementById('werberTableFoot');
 
             // Totals berechnen
             const totals = {
                 mg: { nmg: 0, erh: 0, total: 0 },
                 summe: { nmg: { je: 0, eh: 0 }, erh: { je: 0, eh: 0 }, total: { je: 0, eh: 0 } },
-                storno: { mg: 0, summe: 0 }
+                storno: { mg: 0, summe: 0 },
+                empfehlungen: 0,
+                recruitments: 0,
+                wochenTeamleitung: 0,
+                werbewochen: 0
             };
 
             let html = '';
             werberData.forEach(w => {
                 const avgStorno = getAverageStorno(w);
                 const stornoClass = getStornoColor(avgStorno);
+                // Berechnete Werte
+                const avgBeitragProMg = w.mg.total > 0 ? w.summe.total.je / w.mg.total : 0;
+                const arbeitstage = w.werbewochen * 5;
+                const avgMgProTag = arbeitstage > 0 ? w.mg.total / arbeitstage : 0;
 
                 html += `
                     <tr>
@@ -1880,6 +1715,21 @@
                                 <div class="cell-value ${stornoClass}">${formatPercent(avgStorno)}</div>
                             </div>
                         </td>
+                        <td class="right">
+                            <div class="cell-value">${w.empfehlungen} / ${w.recruitments}</div>
+                        </td>
+                        <td class="right">
+                            <div class="cell-value">${w.wochenTeamleitung}</div>
+                        </td>
+                        <td class="right">
+                            <div class="cell-value">${w.werbewochen}</div>
+                        </td>
+                        <td class="right">
+                            <div class="cell-value">${formatMoney(avgBeitragProMg)}</div>
+                        </td>
+                        <td class="right">
+                            <div class="cell-value">${avgMgProTag.toFixed(1)}</div>
+                        </td>
                         <td class="center">
                             <button class="dashboard-btn" onclick="openDashboard(${w.id}, '${w.name}')" title="Dashboard öffnen">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1902,18 +1752,25 @@
                 totals.summe.total.eh += w.summe.total.eh;
                 totals.storno.mg += w.storno.mg;
                 totals.storno.summe += w.storno.summe;
+                totals.empfehlungen += w.empfehlungen;
+                totals.recruitments += w.recruitments;
+                totals.wochenTeamleitung += w.wochenTeamleitung;
+                totals.werbewochen += w.werbewochen;
             });
 
             tbody.innerHTML = html;
 
-            // Footer mit Totals
+            // Gesamt-Zeile OBEN (im thead-tbody)
             const avgStornoMg = totals.storno.mg / werberData.length;
             const avgStornoSumme = totals.storno.summe / werberData.length;
             const avgStornoTotal = (avgStornoMg + avgStornoSumme) / 2;
             const totalStornoClass = getStornoColor(avgStornoTotal);
+            const totalAvgBeitrag = totals.mg.total > 0 ? totals.summe.total.je / totals.mg.total : 0;
+            const totalArbeitstage = totals.werbewochen * 5;
+            const totalAvgMgProTag = totalArbeitstage > 0 ? totals.mg.total / totalArbeitstage : 0;
 
-            tfoot.innerHTML = `
-                <tr>
+            thead.innerHTML = `
+                <tr class="totals-row">
                     <td><strong>Gesamt</strong></td>
                     <td class="right">
                         <div class="clickable-cell" onclick="showTotalMgDetail('mg')">
@@ -1931,12 +1788,308 @@
                             <div class="cell-value ${totalStornoClass}">${formatPercent(avgStornoTotal)}</div>
                         </div>
                     </td>
+                    <td class="right">
+                        <div class="cell-value value-highlight">${totals.empfehlungen} / ${totals.recruitments}</div>
+                    </td>
+                    <td class="right">
+                        <div class="cell-value">${totals.wochenTeamleitung}</div>
+                    </td>
+                    <td class="right">
+                        <div class="cell-value">${totals.werbewochen}</div>
+                    </td>
+                    <td class="right">
+                        <div class="cell-value">${formatMoney(totalAvgBeitrag)}</div>
+                    </td>
+                    <td class="right">
+                        <div class="cell-value">${totalAvgMgProTag.toFixed(1)}</div>
+                    </td>
                     <td></td>
                 </tr>
             `;
 
             // Badge aktualisieren
             document.querySelector('#section-werber .section-badge').textContent = werberData.length + ' Werber';
+        }
+
+        // Kunden Tabelle rendern
+        function renderKundenTable() {
+            const thead = document.getElementById('kundenTableHead');
+            const tbody = document.getElementById('kundenTableBody');
+
+            // Totals berechnen
+            const totals = {
+                brutto: { mg: 0, je: 0 },
+                netto: { mg: 0, je: 0 },
+                storno: { mg: 0, je: 0 },
+                werbewochen: 0,
+                botschafter: 0
+            };
+
+            let html = '';
+            kundenData.forEach(k => {
+                const stornoQuoteMg = k.brutto.mg > 0 ? (k.storno.mg / k.brutto.mg * 100) : 0;
+                const stornoQuoteJe = k.brutto.je > 0 ? (k.storno.je / k.brutto.je * 100) : 0;
+                const arbeitstage = k.werbewochen * 5;
+                const avgMgProTagBot = arbeitstage > 0 && k.botschafter > 0 ? k.netto.mg / arbeitstage / k.botschafter : 0;
+                const avgJeProTagBot = arbeitstage > 0 && k.botschafter > 0 ? k.netto.je / arbeitstage / k.botschafter : 0;
+                const expandedClass = k.expanded ? '' : 'collapsed';
+
+                html += `
+                    <tr class="expandable-row ${expandedClass}" data-kunde-id="${k.id}" onclick="toggleKunde(${k.id})" style="background: var(--bg-hover);">
+                        <td>
+                            <div class="name-cell">
+                                <svg class="expand-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                                <div class="avatar" style="background: linear-gradient(135deg, ${k.color} 0%, ${k.color}dd 100%);">${k.initials}</div>
+                                <div class="name-info">
+                                    <div class="name-main">${k.name}</div>
+                                    <div class="name-sub">${k.gebiete.length} Werbegebiete</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="right value-highlight">${k.brutto.mg}</td>
+                        <td class="right">${formatMoney(k.brutto.je)}</td>
+                        <td class="right value-highlight">${k.netto.mg}</td>
+                        <td class="right">${formatMoney(k.netto.je)}</td>
+                        <td class="right">${k.storno.mg}</td>
+                        <td class="right">${formatMoney(k.storno.je)}</td>
+                        <td class="right">${formatPercent(stornoQuoteMg)}</td>
+                        <td class="right">${avgMgProTagBot.toFixed(1)}</td>
+                        <td class="right">${formatMoney(avgJeProTagBot)}</td>
+                    </tr>
+                `;
+
+                // Gebiete als Kinder
+                k.gebiete.forEach(g => {
+                    const gStornoQuoteMg = g.brutto.mg > 0 ? (g.storno.mg / g.brutto.mg * 100) : 0;
+                    const gStornoQuoteJe = g.brutto.je > 0 ? (g.storno.je / g.brutto.je * 100) : 0;
+                    const gArbeitstage = g.werbewochen * 5;
+                    const gAvgMgProTagBot = gArbeitstage > 0 && g.botschafter > 0 ? g.netto.mg / gArbeitstage / g.botschafter : 0;
+                    const gAvgJeProTagBot = gArbeitstage > 0 && g.botschafter > 0 ? g.netto.je / gArbeitstage / g.botschafter : 0;
+                    const visibleClass = k.expanded ? 'visible' : '';
+
+                    html += `
+                        <tr class="child-row ${visibleClass}" data-parent-id="${k.id}">
+                            <td style="padding-left: 56px;">
+                                <div class="name-info">
+                                    <div class="name-main">→ ${g.name}</div>
+                                </div>
+                            </td>
+                            <td class="right">${g.brutto.mg}</td>
+                            <td class="right">${formatMoney(g.brutto.je)}</td>
+                            <td class="right">${g.netto.mg}</td>
+                            <td class="right">${formatMoney(g.netto.je)}</td>
+                            <td class="right">${g.storno.mg}</td>
+                            <td class="right">${formatMoney(g.storno.je)}</td>
+                            <td class="right">${formatPercent(gStornoQuoteMg)}</td>
+                            <td class="right">${gAvgMgProTagBot.toFixed(1)}</td>
+                            <td class="right">${formatMoney(gAvgJeProTagBot)}</td>
+                        </tr>
+                    `;
+                });
+
+                // Totals addieren
+                totals.brutto.mg += k.brutto.mg;
+                totals.brutto.je += k.brutto.je;
+                totals.netto.mg += k.netto.mg;
+                totals.netto.je += k.netto.je;
+                totals.storno.mg += k.storno.mg;
+                totals.storno.je += k.storno.je;
+                totals.werbewochen += k.werbewochen;
+                totals.botschafter += k.botschafter;
+            });
+
+            tbody.innerHTML = html;
+
+            // Gesamt-Zeile OBEN
+            const totalStornoQuoteMg = totals.brutto.mg > 0 ? (totals.storno.mg / totals.brutto.mg * 100) : 0;
+            const totalStornoQuoteJe = totals.brutto.je > 0 ? (totals.storno.je / totals.brutto.je * 100) : 0;
+            const totalArbeitstage = totals.werbewochen * 5;
+            const totalAvgMgProTagBot = totalArbeitstage > 0 && totals.botschafter > 0 ? totals.netto.mg / totalArbeitstage / totals.botschafter : 0;
+            const totalAvgJeProTagBot = totalArbeitstage > 0 && totals.botschafter > 0 ? totals.netto.je / totalArbeitstage / totals.botschafter : 0;
+
+            thead.innerHTML = `
+                <tr class="totals-row">
+                    <td><strong>Gesamt</strong></td>
+                    <td class="right value-highlight">${totals.brutto.mg}</td>
+                    <td class="right">${formatMoney(totals.brutto.je)}</td>
+                    <td class="right value-highlight">${totals.netto.mg}</td>
+                    <td class="right">${formatMoney(totals.netto.je)}</td>
+                    <td class="right">${totals.storno.mg}</td>
+                    <td class="right">${formatMoney(totals.storno.je)}</td>
+                    <td class="right">${formatPercent(totalStornoQuoteMg)}</td>
+                    <td class="right">${totalAvgMgProTagBot.toFixed(1)}</td>
+                    <td class="right">${formatMoney(totalAvgJeProTagBot)}</td>
+                </tr>
+            `;
+
+            // Badge aktualisieren
+            document.getElementById('kundenBadge').textContent = kundenData.length + ' Kunden';
+        }
+
+        // Kunde auf-/zuklappen
+        function toggleKunde(kundeId) {
+            const kunde = kundenData.find(k => k.id === kundeId);
+            if (kunde) {
+                kunde.expanded = !kunde.expanded;
+                const row = document.querySelector(`tr[data-kunde-id="${kundeId}"]`);
+                const children = document.querySelectorAll(`tr[data-parent-id="${kundeId}"]`);
+
+                row.classList.toggle('collapsed', !kunde.expanded);
+                children.forEach(child => child.classList.toggle('visible', kunde.expanded));
+            }
+        }
+
+        // Alle Kunden auf-/zuklappen
+        function toggleAllKunden(expand) {
+            kundenData.forEach(k => k.expanded = expand);
+            renderKundenTable();
+        }
+
+        // Kampagnen Tabelle rendern
+        function renderKampagnenTable() {
+            const thead = document.getElementById('kampagnenTableHead');
+            const tbody = document.getElementById('kampagnenTableBody');
+
+            // Totals berechnen
+            const totals = {
+                werber: 0,
+                brutto: { mg: 0, je: 0 },
+                netto: { mg: 0, je: 0 },
+                storno: { mg: 0, je: 0 },
+                wochen: 0,
+                botschafter: 0
+            };
+
+            let html = '';
+            kampagnenData.forEach(k => {
+                const stornoQuoteMg = k.brutto.mg > 0 ? (k.storno.mg / k.brutto.mg * 100) : 0;
+                const arbeitstage = k.wochen * 5;
+                const avgMgProTagBot = arbeitstage > 0 && k.botschafter > 0 ? k.netto.mg / arbeitstage / k.botschafter : 0;
+                const avgJeProTagBot = arbeitstage > 0 && k.botschafter > 0 ? k.netto.je / arbeitstage / k.botschafter : 0;
+                const expandedClass = k.expanded ? '' : 'collapsed';
+
+                html += `
+                    <tr class="expandable-row ${expandedClass}" data-kampagne-id="${k.id}" onclick="toggleKampagne(${k.id})" style="background: var(--bg-hover);">
+                        <td>
+                            <div class="name-cell">
+                                <svg class="expand-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                                <div class="avatar" style="background: linear-gradient(135deg, #3b82f6 0%, #3b82f6dd 100%);">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div class="name-info">
+                                    <div class="name-main">${k.name}</div>
+                                    <div class="name-sub">${k.gebiete.length} Werbegebiete</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="right">${k.zeitraum}</td>
+                        <td class="right value-highlight">${k.werberEingesetzt}</td>
+                        <td class="right value-highlight">${k.brutto.mg}</td>
+                        <td class="right">${formatMoney(k.brutto.je)}</td>
+                        <td class="right value-highlight">${k.netto.mg}</td>
+                        <td class="right">${formatMoney(k.netto.je)}</td>
+                        <td class="right">${k.storno.mg}</td>
+                        <td class="right">${formatMoney(k.storno.je)}</td>
+                        <td class="right">${formatPercent(stornoQuoteMg)}</td>
+                        <td class="right">${avgMgProTagBot.toFixed(1)}</td>
+                        <td class="right">${formatMoney(avgJeProTagBot)}</td>
+                    </tr>
+                `;
+
+                // Gebiete als Kinder
+                k.gebiete.forEach(g => {
+                    const gStornoQuoteMg = g.brutto.mg > 0 ? (g.storno.mg / g.brutto.mg * 100) : 0;
+                    const gArbeitstage = g.wochen * 5;
+                    const gAvgMgProTagBot = gArbeitstage > 0 && g.botschafter > 0 ? g.netto.mg / gArbeitstage / g.botschafter : 0;
+                    const gAvgJeProTagBot = gArbeitstage > 0 && g.botschafter > 0 ? g.netto.je / gArbeitstage / g.botschafter : 0;
+                    const visibleClass = k.expanded ? 'visible' : '';
+
+                    html += `
+                        <tr class="child-row ${visibleClass}" data-kampagne-parent-id="${k.id}">
+                            <td style="padding-left: 56px;">
+                                <div class="name-info">
+                                    <div class="name-main">→ ${g.name}</div>
+                                </div>
+                            </td>
+                            <td class="right">${g.zeitraum}</td>
+                            <td class="right">${g.werberEingesetzt}</td>
+                            <td class="right">${g.brutto.mg}</td>
+                            <td class="right">${formatMoney(g.brutto.je)}</td>
+                            <td class="right">${g.netto.mg}</td>
+                            <td class="right">${formatMoney(g.netto.je)}</td>
+                            <td class="right">${g.storno.mg}</td>
+                            <td class="right">${formatMoney(g.storno.je)}</td>
+                            <td class="right">${formatPercent(gStornoQuoteMg)}</td>
+                            <td class="right">${gAvgMgProTagBot.toFixed(1)}</td>
+                            <td class="right">${formatMoney(gAvgJeProTagBot)}</td>
+                        </tr>
+                    `;
+                });
+
+                // Totals addieren
+                totals.werber += k.werberEingesetzt;
+                totals.brutto.mg += k.brutto.mg;
+                totals.brutto.je += k.brutto.je;
+                totals.netto.mg += k.netto.mg;
+                totals.netto.je += k.netto.je;
+                totals.storno.mg += k.storno.mg;
+                totals.storno.je += k.storno.je;
+                totals.wochen += k.wochen;
+                totals.botschafter += k.botschafter;
+            });
+
+            tbody.innerHTML = html;
+
+            // Gesamt-Zeile OBEN
+            const totalStornoQuoteMg = totals.brutto.mg > 0 ? (totals.storno.mg / totals.brutto.mg * 100) : 0;
+            const totalArbeitstage = totals.wochen * 5;
+            const totalAvgMgProTagBot = totalArbeitstage > 0 && totals.botschafter > 0 ? totals.netto.mg / totalArbeitstage / totals.botschafter : 0;
+            const totalAvgJeProTagBot = totalArbeitstage > 0 && totals.botschafter > 0 ? totals.netto.je / totalArbeitstage / totals.botschafter : 0;
+
+            thead.innerHTML = `
+                <tr class="totals-row">
+                    <td><strong>Gesamt</strong></td>
+                    <td class="right">-</td>
+                    <td class="right value-highlight">${totals.werber}</td>
+                    <td class="right value-highlight">${totals.brutto.mg}</td>
+                    <td class="right">${formatMoney(totals.brutto.je)}</td>
+                    <td class="right value-highlight">${totals.netto.mg}</td>
+                    <td class="right">${formatMoney(totals.netto.je)}</td>
+                    <td class="right">${totals.storno.mg}</td>
+                    <td class="right">${formatMoney(totals.storno.je)}</td>
+                    <td class="right">${formatPercent(totalStornoQuoteMg)}</td>
+                    <td class="right">${totalAvgMgProTagBot.toFixed(1)}</td>
+                    <td class="right">${formatMoney(totalAvgJeProTagBot)}</td>
+                </tr>
+            `;
+
+            // Badge aktualisieren
+            document.getElementById('kampagnenBadge').textContent = kampagnenData.length + ' Kampagnen';
+        }
+
+        // Kampagne auf-/zuklappen
+        function toggleKampagne(kampagneId) {
+            const kampagne = kampagnenData.find(k => k.id === kampagneId);
+            if (kampagne) {
+                kampagne.expanded = !kampagne.expanded;
+                const row = document.querySelector(`tr[data-kampagne-id="${kampagneId}"]`);
+                const children = document.querySelectorAll(`tr[data-kampagne-parent-id="${kampagneId}"]`);
+
+                row.classList.toggle('collapsed', !kampagne.expanded);
+                children.forEach(child => child.classList.toggle('visible', kampagne.expanded));
+            }
+        }
+
+        // Alle Kampagnen auf-/zuklappen
+        function toggleAllKampagnen(expand) {
+            kampagnenData.forEach(k => k.expanded = expand);
+            renderKampagnenTable();
         }
 
         // MG/Summe Detail Popup anzeigen
@@ -2723,8 +2876,10 @@
         // Initial: Context Filter befüllen
         updateContextFilter('werber');
 
-        // Initial: Werber Tabelle rendern
+        // Initial: Tabellen rendern
         renderWerberTable();
+        renderKundenTable();
+        renderKampagnenTable();
 
         // Erkennen ob in iframe -> Toolbar verstecken
         if (window.self !== window.top) {
