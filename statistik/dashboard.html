@@ -1327,6 +1327,15 @@
     </div>
 
     <script>
+        // URL Parameter lesen (für Kategorie beim Zurücknavigieren)
+        const backParams = new URLSearchParams(window.location.search);
+        const backCategory = backParams.get('category') || 'werber';
+
+        // Back Button - zurück zur Statistik-Übersicht mit gleicher Kategorie
+        document.querySelector('.back-btn').addEventListener('click', function() {
+            window.location.href = `index.html?category=${backCategory}`;
+        });
+
         // Tabs
         document.querySelectorAll('.tab').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1577,6 +1586,31 @@
                         }
                     }
                 }
+            }
+        });
+
+        // ================================================================
+        // MESSAGE LISTENER - Kommunikation mit Shell
+        // ================================================================
+
+        // Nachrichten von der Shell empfangen
+        window.addEventListener('message', function(e) {
+            // Kategorie-Wechsel (Werber/Kunden/Kampagnen) -> zurück zur Übersicht
+            if (e.data && e.data.type === 'navFilter') {
+                window.location.href = `index.html?category=${e.data.value}`;
+            }
+
+            // Zeitraum-Änderung -> Shell handled das Modal jetzt selbst
+            // Hier nur reagieren wenn die Shell Daten sendet
+            if (e.data && e.data.type === 'periodFilter') {
+                // TODO: Daten neu laden wenn Backend angebunden
+                console.log('Period changed to:', e.data.value);
+            }
+
+            // Custom Date Range wurde in der Shell ausgewählt
+            if (e.data && e.data.type === 'customDateRangeApplied') {
+                console.log('Custom date range:', e.data.dateFrom, '-', e.data.dateTo);
+                // TODO: Daten mit neuem Zeitraum laden
             }
         });
     </script>
