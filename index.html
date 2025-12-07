@@ -969,9 +969,9 @@
                     { value: 'custom', label: 'Individuell' },
                     { value: 'today', label: 'Heute' },
                     { value: 'week', label: 'Diese Woche' },
-                    { value: 'month', label: 'Dieser Monat', selected: true },
+                    { value: 'month', label: 'Dieser Monat' },
                     { value: 'quarter', label: 'Dieses Quartal' },
-                    { value: 'year', label: 'Dieses Jahr' },
+                    { value: 'year', label: 'Dieses Jahr', selected: true },
                     { value: 'all', label: 'Gesamt' }
                 ],
                 searchPlaceholder: 'Statistik suchen...',
@@ -1141,9 +1141,13 @@
 
             // Handle "Individuell" - open date picker modal in iframe
             if (value === 'custom') {
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage({ type: 'openDateRangeModal' }, '*');
-                }
+                // Small delay to ensure periodFilter message is processed first
+                setTimeout(() => {
+                    const iframeEl = document.querySelector('#content-container iframe');
+                    if (iframeEl && iframeEl.contentWindow) {
+                        iframeEl.contentWindow.postMessage({ type: 'openDateRangeModal' }, '*');
+                    }
+                }, 50);
             }
         }
 
