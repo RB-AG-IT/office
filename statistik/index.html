@@ -512,6 +512,13 @@
             background: var(--bg-secondary);
         }
 
+        /* Gesamt-Zeile oben */
+        .stats-table .totals-row td {
+            font-weight: 600;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border-color);
+        }
+
         /* Name Cell */
         .name-cell {
             display: flex;
@@ -1010,22 +1017,27 @@
                     </div>
                 </div>
                 <div style="overflow-x: auto;">
-                    <table class="stats-table werber-compact">
+                    <table class="stats-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th class="right clickable-header">Netto MG</th>
-                                <th class="right clickable-header">Netto Summe</th>
-                                <th class="right clickable-header">Stornoquote</th>
+                                <th class="right">Netto MG</th>
+                                <th class="right">Netto JE / EH</th>
+                                <th class="right">Stornoquote</th>
+                                <th class="right">Empf. / Recr.</th>
+                                <th class="right">Wochen TL</th>
+                                <th class="right">Werbewochen</th>
+                                <th class="right">Ø Beitrag/MG</th>
+                                <th class="right">Ø MG/Tag</th>
                                 <th class="center" style="width: 60px;"></th>
                             </tr>
                         </thead>
+                        <tbody id="werberTableHead">
+                            <!-- Gesamt-Zeile oben - wird per JS befüllt -->
+                        </tbody>
                         <tbody id="werberTableBody">
                             <!-- Wird per JS befüllt -->
                         </tbody>
-                        <tfoot id="werberTableFoot">
-                            <!-- Wird per JS befüllt -->
-                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -1707,11 +1719,7 @@
                 initials: 'MM',
                 color: '#667eea',
                 // MG Aufschlüsselung
-                mg: {
-                    nmg: 18,
-                    erh: 12,
-                    total: 30
-                },
+                mg: { nmg: 18, erh: 12, total: 30 },
                 // Summe Aufschlüsselung (JE = Jahresbeitrag, EH = Einzelhöhe)
                 summe: {
                     nmg: { je: 2340, eh: 19500 },
@@ -1719,10 +1727,12 @@
                     total: { je: 3900, eh: 32500 }
                 },
                 // Stornoquote
-                storno: {
-                    mg: 8.5,
-                    summe: 6.2
-                }
+                storno: { mg: 8.5, summe: 6.2 },
+                // Neue Felder
+                empfehlungen: 5,
+                recruitments: 2,
+                wochenTeamleitung: 3,
+                werbewochen: 6
             },
             {
                 id: 2,
@@ -1730,20 +1740,17 @@
                 shortName: 'A. Schmidt',
                 initials: 'AS',
                 color: '#10b981',
-                mg: {
-                    nmg: 22,
-                    erh: 8,
-                    total: 30
-                },
+                mg: { nmg: 22, erh: 8, total: 30 },
                 summe: {
                     nmg: { je: 2860, eh: 23833 },
                     erh: { je: 1040, eh: 8667 },
                     total: { je: 3900, eh: 32500 }
                 },
-                storno: {
-                    mg: 5.2,
-                    summe: 4.8
-                }
+                storno: { mg: 5.2, summe: 4.8 },
+                empfehlungen: 8,
+                recruitments: 1,
+                wochenTeamleitung: 0,
+                werbewochen: 6
             },
             {
                 id: 3,
@@ -1751,20 +1758,17 @@
                 shortName: 'T. Weber',
                 initials: 'TW',
                 color: '#f59e0b',
-                mg: {
-                    nmg: 15,
-                    erh: 10,
-                    total: 25
-                },
+                mg: { nmg: 15, erh: 10, total: 25 },
                 summe: {
                     nmg: { je: 1950, eh: 16250 },
                     erh: { je: 1300, eh: 10833 },
                     total: { je: 3250, eh: 27083 }
                 },
-                storno: {
-                    mg: 12.0,
-                    summe: 9.5
-                }
+                storno: { mg: 12.0, summe: 9.5 },
+                empfehlungen: 3,
+                recruitments: 0,
+                wochenTeamleitung: 0,
+                werbewochen: 5
             },
             {
                 id: 4,
@@ -1772,20 +1776,17 @@
                 shortName: 'L. Meier',
                 initials: 'LM',
                 color: '#8b5cf6',
-                mg: {
-                    nmg: 28,
-                    erh: 7,
-                    total: 35
-                },
+                mg: { nmg: 28, erh: 7, total: 35 },
                 summe: {
                     nmg: { je: 3640, eh: 30333 },
                     erh: { je: 910, eh: 7583 },
                     total: { je: 4550, eh: 37917 }
                 },
-                storno: {
-                    mg: 4.1,
-                    summe: 3.8
-                }
+                storno: { mg: 4.1, summe: 3.8 },
+                empfehlungen: 12,
+                recruitments: 3,
+                wochenTeamleitung: 4,
+                werbewochen: 6
             },
             {
                 id: 5,
@@ -1793,20 +1794,17 @@
                 shortName: 'S. Braun',
                 initials: 'SB',
                 color: '#ef4444',
-                mg: {
-                    nmg: 20,
-                    erh: 13,
-                    total: 33
-                },
+                mg: { nmg: 20, erh: 13, total: 33 },
                 summe: {
                     nmg: { je: 2600, eh: 21667 },
                     erh: { je: 1690, eh: 14083 },
                     total: { je: 4290, eh: 35750 }
                 },
-                storno: {
-                    mg: 9.8,
-                    summe: 7.2
-                }
+                storno: { mg: 9.8, summe: 7.2 },
+                empfehlungen: 6,
+                recruitments: 1,
+                wochenTeamleitung: 2,
+                werbewochen: 6
             }
         ];
 
@@ -1841,20 +1839,28 @@
 
         // Werber Tabelle rendern
         function renderWerberTable() {
+            const thead = document.getElementById('werberTableHead');
             const tbody = document.getElementById('werberTableBody');
-            const tfoot = document.getElementById('werberTableFoot');
 
             // Totals berechnen
             const totals = {
                 mg: { nmg: 0, erh: 0, total: 0 },
                 summe: { nmg: { je: 0, eh: 0 }, erh: { je: 0, eh: 0 }, total: { je: 0, eh: 0 } },
-                storno: { mg: 0, summe: 0 }
+                storno: { mg: 0, summe: 0 },
+                empfehlungen: 0,
+                recruitments: 0,
+                wochenTeamleitung: 0,
+                werbewochen: 0
             };
 
             let html = '';
             werberData.forEach(w => {
                 const avgStorno = getAverageStorno(w);
                 const stornoClass = getStornoColor(avgStorno);
+                // Berechnete Werte
+                const avgBeitragProMg = w.mg.total > 0 ? w.summe.total.je / w.mg.total : 0;
+                const arbeitstage = w.werbewochen * 5;
+                const avgMgProTag = arbeitstage > 0 ? w.mg.total / arbeitstage : 0;
 
                 html += `
                     <tr>
@@ -1880,6 +1886,21 @@
                                 <div class="cell-value ${stornoClass}">${formatPercent(avgStorno)}</div>
                             </div>
                         </td>
+                        <td class="right">
+                            <div class="cell-value">${w.empfehlungen} / ${w.recruitments}</div>
+                        </td>
+                        <td class="right">
+                            <div class="cell-value">${w.wochenTeamleitung}</div>
+                        </td>
+                        <td class="right">
+                            <div class="cell-value">${w.werbewochen}</div>
+                        </td>
+                        <td class="right">
+                            <div class="cell-value">${formatMoney(avgBeitragProMg)}</div>
+                        </td>
+                        <td class="right">
+                            <div class="cell-value">${avgMgProTag.toFixed(1)}</div>
+                        </td>
                         <td class="center">
                             <button class="dashboard-btn" onclick="openDashboard(${w.id}, '${w.name}')" title="Dashboard öffnen">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1902,18 +1923,25 @@
                 totals.summe.total.eh += w.summe.total.eh;
                 totals.storno.mg += w.storno.mg;
                 totals.storno.summe += w.storno.summe;
+                totals.empfehlungen += w.empfehlungen;
+                totals.recruitments += w.recruitments;
+                totals.wochenTeamleitung += w.wochenTeamleitung;
+                totals.werbewochen += w.werbewochen;
             });
 
             tbody.innerHTML = html;
 
-            // Footer mit Totals
+            // Gesamt-Zeile OBEN (im thead-tbody)
             const avgStornoMg = totals.storno.mg / werberData.length;
             const avgStornoSumme = totals.storno.summe / werberData.length;
             const avgStornoTotal = (avgStornoMg + avgStornoSumme) / 2;
             const totalStornoClass = getStornoColor(avgStornoTotal);
+            const totalAvgBeitrag = totals.mg.total > 0 ? totals.summe.total.je / totals.mg.total : 0;
+            const totalArbeitstage = totals.werbewochen * 5;
+            const totalAvgMgProTag = totalArbeitstage > 0 ? totals.mg.total / totalArbeitstage : 0;
 
-            tfoot.innerHTML = `
-                <tr>
+            thead.innerHTML = `
+                <tr class="totals-row">
                     <td><strong>Gesamt</strong></td>
                     <td class="right">
                         <div class="clickable-cell" onclick="showTotalMgDetail('mg')">
@@ -1930,6 +1958,21 @@
                         <div class="clickable-cell" onclick="showTotalStornoDetail()">
                             <div class="cell-value ${totalStornoClass}">${formatPercent(avgStornoTotal)}</div>
                         </div>
+                    </td>
+                    <td class="right">
+                        <div class="cell-value value-highlight">${totals.empfehlungen} / ${totals.recruitments}</div>
+                    </td>
+                    <td class="right">
+                        <div class="cell-value">${totals.wochenTeamleitung}</div>
+                    </td>
+                    <td class="right">
+                        <div class="cell-value">${totals.werbewochen}</div>
+                    </td>
+                    <td class="right">
+                        <div class="cell-value">${formatMoney(totalAvgBeitrag)}</div>
+                    </td>
+                    <td class="right">
+                        <div class="cell-value">${totalAvgMgProTag.toFixed(1)}</div>
                     </td>
                     <td></td>
                 </tr>
