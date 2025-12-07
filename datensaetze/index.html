@@ -14,6 +14,11 @@
             background: var(--bg-secondary);
         }
 
+        /* Toolbar verstecken wenn in iframe (Shell hat eigene) */
+        body.in-iframe .action-toolbar {
+            display: none !important;
+        }
+
         .page-container {
             padding: 0;
         }
@@ -666,14 +671,11 @@
                             </tbody>
                         </table>
                         <div class="pagination" id="recordsPagination">
-                            <div class="pagination-info">Zeige 1-20 von 142 Einträgen</div>
+                            <div class="pagination-info">Zeige 1-100 von 142 Einträgen</div>
                             <div class="pagination-buttons">
                                 <button class="pagination-btn" disabled>&lt;</button>
                                 <button class="pagination-btn active">1</button>
                                 <button class="pagination-btn">2</button>
-                                <button class="pagination-btn">3</button>
-                                <button class="pagination-btn">...</button>
-                                <button class="pagination-btn">8</button>
                                 <button class="pagination-btn">&gt;</button>
                             </div>
                         </div>
@@ -852,9 +854,9 @@
         ];
 
         const kampagnenData = [
-            { id: 1, name: 'Frühjahrskampagne 2024', initials: 'FK', color: '#10b981', records: 85, nettoJE: 11050, storno: 8.5 },
-            { id: 2, name: 'Sommerkampagne 2024', initials: 'SK', color: '#f59e0b', records: 50, nettoJE: 6500, storno: 12.0 },
-            { id: 3, name: 'Herbstkampagne 2024', initials: 'HK', color: '#6366f1', records: 28, nettoJE: 4290, storno: 7.1 }
+            { id: 1, name: 'Frühjahrskampagne 2024', initials: 'FK', color: '#10b981', records: 85, nettoJE: 11050, storno: 8.5, gebieteIds: [1, 2, 3] },
+            { id: 2, name: 'Sommerkampagne 2024', initials: 'SK', color: '#f59e0b', records: 50, nettoJE: 6500, storno: 12.0, gebieteIds: [1, 4] },
+            { id: 3, name: 'Herbstkampagne 2024', initials: 'HK', color: '#6366f1', records: 28, nettoJE: 4290, storno: 7.1, gebieteIds: [2, 5] }
         ];
 
         const recordsData = [
@@ -878,6 +880,11 @@
 
         // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', function() {
+            // Detect if in iframe
+            if (window.self !== window.top) {
+                document.body.classList.add('in-iframe');
+            }
+
             renderKundenTable();
             renderGebieteTable();
             renderKampagnenTable();
@@ -886,9 +893,30 @@
         });
 
         // ========== CATEGORY SELECTION ==========
-        function selectCategory(value, text) {
+        function selectCategory(value, label) {
             currentCategory = value;
-            document.getElementById('categoryDropdownText').textContent = text;
+
+            // Update trigger text with slide-up animation
+            const textEl = document.getElementById('categoryDropdownText');
+
+            // Phase 1: Slide out (nach oben)
+            textEl.style.transform = 'translateY(-100%)';
+            textEl.style.opacity = '0';
+
+            setTimeout(() => {
+                // Phase 2: Text ändern und Position zurücksetzen (ohne Animation)
+                textEl.style.transition = 'none';
+                textEl.textContent = label;
+                textEl.style.transform = 'translateY(100%)';
+
+                // Force reflow
+                textEl.offsetHeight;
+
+                // Phase 3: Slide in (nach oben in Position)
+                textEl.style.transition = '';
+                textEl.style.transform = 'translateY(0)';
+                textEl.style.opacity = '1';
+            }, 150);
 
             // Update active state
             document.querySelectorAll('#categoryDropdown .toolbar-nav-option').forEach(opt => {
@@ -992,13 +1020,19 @@
 
         function renderKampagnenTable() {
             const tbody = document.getElementById('kampagnenTableBody');
-            tbody.innerHTML = kampagnenData.map(kampagne => `
-                <tr>
+            let html = '';
+
+            kampagnenData.forEach(kampagne => {
+                // Kampagne Hauptzeile
+                const kampagneGebiete = gebieteData.filter(g => kampagne.gebieteIds.includes(g.id));
+                html += `
+                <tr style="background: var(--bg-hover);">
                     <td>
                         <div class="name-cell">
                             <div class="avatar" style="background: linear-gradient(135deg, ${kampagne.color} 0%, ${adjustColor(kampagne.color, -20)} 100%);">${kampagne.initials}</div>
                             <div class="name-info">
                                 <div class="name-main">${kampagne.name}</div>
+                                <div class="name-sub">${kampagneGebiete.length} Einsatzgebiete</div>
                             </div>
                         </div>
                     </td>
@@ -1006,14 +1040,38 @@
                     <td class="right value-money">${formatCurrency(kampagne.nettoJE)}</td>
                     <td class="right">${kampagne.storno.toFixed(1)}%</td>
                     <td class="center">
-                        <button class="dashboard-btn" onclick="openKampagneRecords(${kampagne.id})" title="Datensätze anzeigen">
+                        <button class="dashboard-btn" onclick="openKampagneRecords(${kampagne.id})" title="Alle Datensätze anzeigen">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
                         </button>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`;
+
+                // Gebiete unter dieser Kampagne
+                kampagneGebiete.forEach(gebiet => {
+                    html += `
+                <tr class="sub-row">
+                    <td style="padding-left: 56px;">
+                        <div class="name-info">
+                            <div class="name-main" style="font-weight: 400;">→ ${gebiet.name}</div>
+                        </div>
+                    </td>
+                    <td class="right">${gebiet.records}</td>
+                    <td class="right value-money">${formatCurrency(gebiet.nettoJE)}</td>
+                    <td class="right">${gebiet.storno.toFixed(1)}%</td>
+                    <td class="center">
+                        <button class="dashboard-btn" onclick="openKampagneGebietRecords(${kampagne.id}, ${gebiet.id})" title="Datensätze für ${gebiet.name} anzeigen">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>`;
+                });
+            });
+
+            tbody.innerHTML = html;
             document.getElementById('kampagnenBadge').textContent = `${kampagnenData.length} Kampagnen`;
         }
 
@@ -1073,6 +1131,20 @@
             if (kampagne) {
                 currentEntity = { type: 'kampagne', id: kampagneId };
                 showDetailView(kampagne.name, `${kampagne.records} Datensätze`, recordsData);
+            }
+        }
+
+        function openKampagneGebietRecords(kampagneId, gebietId) {
+            const kampagne = kampagnenData.find(k => k.id === kampagneId);
+            const gebiet = gebieteData.find(g => g.id === gebietId);
+            if (kampagne && gebiet) {
+                currentEntity = { type: 'kampagne_gebiet', kampagneId: kampagneId, gebietId: gebietId };
+                const filteredRecords = recordsData.filter(r => r.area === gebiet.name);
+                showDetailView(
+                    `${kampagne.name} → ${gebiet.name}`,
+                    `${filteredRecords.length || gebiet.records} Datensätze`,
+                    filteredRecords.length > 0 ? filteredRecords : recordsData
+                );
             }
         }
 
