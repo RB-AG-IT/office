@@ -912,6 +912,11 @@
         let currentStornoId = null;
         let currentColumns = ['datum', 'art', 'name', 'adresse', 'email', 'werbegebiet', 'kunde', 'werber', 'teamchef', 'je', 'status'];
 
+        // Pagination
+        const PAGE_SIZE = 100;
+        let currentPage = 1;
+        let currentRecords = [];
+
         // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', function() {
             // Detect if in iframe
@@ -1138,9 +1143,19 @@
             document.getElementById('kampagnenBadge').textContent = `${kampagnenData.length} Kampagnen`;
         }
 
-        function renderRecordsTable(records) {
+        function renderRecordsTable(records, resetPage = true) {
+            // Store records for pagination
+            currentRecords = records;
+            if (resetPage) currentPage = 1;
+
+            const totalRecords = records.length;
+            const totalPages = Math.ceil(totalRecords / PAGE_SIZE);
+            const startIndex = (currentPage - 1) * PAGE_SIZE;
+            const endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
+            const pageRecords = records.slice(startIndex, endIndex);
+
             const tbody = document.getElementById('recordsTableBody');
-            tbody.innerHTML = records.map(row => `
+            tbody.innerHTML = pageRecords.map(row => `
                 <tr>
                     <td class="col-datum">${formatDate(row.date)}</td>
                     <td class="col-art"><span class="badge ${row.type}">${row.type.toUpperCase()}</span></td>
@@ -1167,7 +1182,35 @@
             `).join('');
 
             // Update pagination info
-            document.querySelector('.pagination-info').textContent = `Zeige 1-${records.length} von ${records.length} Einträgen`;
+            document.querySelector('.pagination-info').textContent = `Zeige ${startIndex + 1}-${endIndex} von ${totalRecords} Einträgen`;
+
+            // Update pagination buttons
+            renderPaginationButtons(totalPages);
+        }
+
+        function renderPaginationButtons(totalPages) {
+            const container = document.querySelector('.pagination-buttons');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&lt;</button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="pagination-btn${i === currentPage ? ' active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            html += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&gt;</button>`;
+
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(currentRecords.length / PAGE_SIZE);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderRecordsTable(currentRecords, false);
         }
 
         // ========== OPEN RECORDS ==========
