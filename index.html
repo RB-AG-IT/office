@@ -1277,6 +1277,35 @@
                 }
             }
         });
+
+        // ================================================================
+        // SEARCH FUNCTIONALITY
+        // ================================================================
+        const shellSearchInput = document.getElementById('shellSearchInput');
+        let searchTimeout;
+
+        shellSearchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'searchQuery', query: query }, '*');
+                }
+            }, 150);
+        });
+
+        // Clear search when focus lost
+        shellSearchInput.addEventListener('blur', function() {
+            setTimeout(() => {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'searchClear' }, '*');
+                }
+            }, 200);
+        });
     </script>
 </body>
 </html>

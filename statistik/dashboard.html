@@ -760,6 +760,94 @@
             .detail-grid { grid-template-columns: repeat(2, 1fr); }
             .rekorde-grid { grid-template-columns: 1fr; }
         }
+
+        /* ========================================
+           SEARCH DROPDOWN
+           ======================================== */
+        .search-dropdown {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            max-width: 90vw;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .search-dropdown.active {
+            display: block;
+        }
+
+        .search-dropdown-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .search-result-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .search-result-info {
+            flex: 1;
+        }
+
+        .search-result-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .search-result-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .search-no-results {
+            padding: 24px 16px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -1187,6 +1275,12 @@
         </div>
     </div>
 
+    <!-- Search Dropdown -->
+    <div class="search-dropdown" id="searchDropdown">
+        <div class="search-dropdown-header">Werber</div>
+        <div id="searchResults"></div>
+    </div>
+
     <script>
         // ========================================
         // URL PARAMS & INIT
@@ -1293,6 +1387,78 @@
             // Kategorie ändern (Werber/Kunden): Zurück zur Übersicht
             if (e.data && e.data.type === 'navFilter') {
                 window.location.href = `index.html?category=${e.data.value}`;
+            }
+            // Suche: Werber-Dropdown anzeigen
+            if (e.data && e.data.type === 'searchQuery') {
+                handleSearch(e.data.query);
+            }
+            // Suche schließen
+            if (e.data && e.data.type === 'searchClear') {
+                closeSearch();
+            }
+        });
+
+        // ========================================
+        // WERBER SEARCH
+        // ========================================
+        // Demo-Daten (in Produktion aus API)
+        const werberList = [
+            { id: 1, name: 'Max Mustermann', mg: 47, je: 5640 },
+            { id: 2, name: 'Anna Schmidt', mg: 38, je: 4560 },
+            { id: 3, name: 'Peter Müller', mg: 52, je: 6240 },
+            { id: 4, name: 'Julia Weber', mg: 29, je: 3480 },
+            { id: 5, name: 'Thomas Fischer', mg: 41, je: 4920 },
+            { id: 6, name: 'Sarah Becker', mg: 35, je: 4200 },
+            { id: 7, name: 'Michael Wagner', mg: 44, je: 5280 },
+            { id: 8, name: 'Laura Hoffmann', mg: 31, je: 3720 },
+            { id: 9, name: 'David Schneider', mg: 48, je: 5760 },
+            { id: 10, name: 'Lisa Meyer', mg: 33, je: 3960 }
+        ];
+
+        function handleSearch(query) {
+            const dropdown = document.getElementById('searchDropdown');
+            const resultsContainer = document.getElementById('searchResults');
+
+            if (!query || query.length < 1) {
+                dropdown.classList.remove('active');
+                return;
+            }
+
+            const searchLower = query.toLowerCase();
+            const matches = werberList.filter(w =>
+                w.name.toLowerCase().includes(searchLower)
+            ).slice(0, 8);
+
+            if (matches.length === 0) {
+                resultsContainer.innerHTML = '<div class="search-no-results">Keine Werber gefunden</div>';
+            } else {
+                resultsContainer.innerHTML = matches.map(w => `
+                    <div class="search-result-item" onclick="switchToWerber(${w.id}, '${w.name}')">
+                        <div class="search-result-avatar">${w.name.charAt(0)}</div>
+                        <div class="search-result-info">
+                            <div class="search-result-name">${w.name}</div>
+                            <div class="search-result-meta">${w.mg} MG · ${w.je.toLocaleString('de-DE')} JE</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            dropdown.classList.add('active');
+        }
+
+        function closeSearch() {
+            document.getElementById('searchDropdown').classList.remove('active');
+        }
+
+        function switchToWerber(id, name) {
+            // Zum ausgewählten Werber navigieren (bleibt im Dashboard)
+            window.location.href = `dashboard.html?id=${id}&name=${encodeURIComponent(name)}`;
+        }
+
+        // Klick außerhalb schließt Dropdown
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-dropdown')) {
+                closeSearch();
             }
         });
 
