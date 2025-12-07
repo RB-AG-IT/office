@@ -228,6 +228,157 @@
             color: var(--text-tertiary);
         }
 
+        /* Kompakte Übersicht */
+        .overview-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 12px;
+        }
+
+        .overview-block {}
+
+        .overview-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .overview-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .overview-row .big {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .overview-row .medium {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .overview-row .sep {
+            color: var(--border-color);
+            font-weight: 300;
+        }
+
+        .overview-row small {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .overview-storno {
+            text-align: right;
+        }
+
+        .storno-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .storno-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .storno-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .storno-val {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .storno-val.bad {
+            color: #ef4444;
+        }
+
+        .storno-val.good {
+            color: #10b981;
+        }
+
+        .storno-detail {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .overview-subs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .overview-sub {
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .overview-sub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .overview-sub-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .storno-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .storno-badge.bad {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .storno-badge.good {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .overview-sub-values {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .overview-sub-values .sep {
+            color: var(--border-color);
+            font-weight: 300;
+        }
+
+        .overview-sub-values small {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
         /* Storno Section */
         .storno-grid {
             display: grid;
@@ -599,101 +750,62 @@
         <!-- Tab: Allgemein -->
         <div class="tab-content active" id="tab-allgemein">
 
-            <!-- Mitgliedschaften Gesamt -->
+            <!-- Gesamt + Storno kompakt -->
             <div class="section">
-                <div class="section-title">Mitgliedschaften Gesamt</div>
-                <div class="metric-main">
-                    <div>
-                        <div class="value">47</div>
-                        <div class="label">Anzahl</div>
-                    </div>
-                    <div class="secondary">
-                        <div class="secondary-item">
-                            <div class="secondary-value">5.640</div>
-                            <div class="secondary-label">Jahreseuros</div>
+                <div class="section-title">Übersicht</div>
+
+                <!-- Hauptzeile: Gesamt -->
+                <div class="overview-main">
+                    <div class="overview-block">
+                        <div class="overview-label">Gesamt</div>
+                        <div class="overview-row">
+                            <span class="big">47</span>
+                            <span class="sep">|</span>
+                            <span class="medium">5.640 <small>JE</small></span>
+                            <span class="sep">|</span>
+                            <span class="medium">470 <small>EH</small></span>
                         </div>
-                        <div class="secondary-item">
-                            <div class="secondary-value">470</div>
-                            <div class="secondary-label">Einheiten</div>
+                    </div>
+                    <div class="overview-storno">
+                        <div class="storno-row">
+                            <span class="storno-label">Storno Gesamt:</span>
+                            <span class="storno-val bad">6,4%</span>
+                            <span class="storno-detail">(3)</span>
+                        </div>
+                        <div class="storno-row">
+                            <span class="storno-label">Storno JE:</span>
+                            <span class="storno-val good">4,3%</span>
+                            <span class="storno-detail">(240)</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="sub-metrics">
-                    <div class="sub-metric">
-                        <div class="sub-metric-header">
-                            <div class="sub-metric-title">Neue Mitgliedschaften</div>
-                            <div class="sub-metric-badge">2 Storno</div>
+                <!-- Unterzeilen: Neumitglieder + Beitragsanpassungen -->
+                <div class="overview-subs">
+                    <div class="overview-sub">
+                        <div class="overview-sub-header">
+                            <span class="overview-sub-label">Neumitglieder</span>
+                            <span class="storno-badge bad">2 Storno</span>
                         </div>
-                        <div class="sub-metric-values">
-                            <div class="sub-metric-value">
-                                <div class="num">32</div>
-                                <div class="unit">Anzahl</div>
-                            </div>
-                            <div class="sub-metric-value">
-                                <div class="num">3.840</div>
-                                <div class="unit">Jahreseuros</div>
-                            </div>
-                            <div class="sub-metric-value">
-                                <div class="num">320</div>
-                                <div class="unit">Einheiten</div>
-                            </div>
+                        <div class="overview-sub-values">
+                            <span>32</span>
+                            <span class="sep">|</span>
+                            <span>3.840 <small>JE</small></span>
+                            <span class="sep">|</span>
+                            <span>320 <small>EH</small></span>
                         </div>
                     </div>
-
-                    <div class="sub-metric">
-                        <div class="sub-metric-header">
-                            <div class="sub-metric-title">Erhöhungen</div>
-                            <div class="sub-metric-badge good">0 Storno</div>
+                    <div class="overview-sub">
+                        <div class="overview-sub-header">
+                            <span class="overview-sub-label">Positive Beitragsanpassungen</span>
+                            <span class="storno-badge good">0 Storno</span>
                         </div>
-                        <div class="sub-metric-values">
-                            <div class="sub-metric-value">
-                                <div class="num">15</div>
-                                <div class="unit">Anzahl</div>
-                            </div>
-                            <div class="sub-metric-value">
-                                <div class="num">1.800</div>
-                                <div class="unit">Jahreseuros</div>
-                            </div>
-                            <div class="sub-metric-value">
-                                <div class="num">150</div>
-                                <div class="unit">Einheiten</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stornoquoten -->
-            <div class="section">
-                <div class="section-title">Stornoquoten</div>
-                <div class="storno-grid">
-                    <div class="storno-item">
-                        <span class="label">Mitgliedschaften</span>
-                        <div>
-                            <span class="value">6,4%</span>
-                            <span class="detail">3 von 47</span>
-                        </div>
-                    </div>
-                    <div class="storno-item">
-                        <span class="label">Jahreseuros</span>
-                        <div>
-                            <span class="value good">4,3%</span>
-                            <span class="detail">240 von 5.640</span>
-                        </div>
-                    </div>
-                    <div class="storno-item">
-                        <span class="label">Neue Mitgliedschaften</span>
-                        <div>
-                            <span class="value">6,3%</span>
-                            <span class="detail">2 von 32</span>
-                        </div>
-                    </div>
-                    <div class="storno-item">
-                        <span class="label">Erhöhungen</span>
-                        <div>
-                            <span class="value good">0,0%</span>
-                            <span class="detail">0 von 15</span>
+                        <div class="overview-sub-values">
+                            <span>15</span>
+                            <span class="sep">|</span>
+                            <span>1.800 <small>JE</small></span>
+                            <span class="sep">|</span>
+                            <span>150 <small>EH</small></span>
                         </div>
                     </div>
                 </div>
@@ -705,43 +817,43 @@
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="value">34</div>
-                        <div class="label">Durchschnittsalter (Jahre)</div>
+                        <div class="label">Ø Alter Neumitglieder</div>
                     </div>
                     <div class="stat-item">
                         <div class="value">120</div>
-                        <div class="label">Beitragsschnitt (Jahreseuros)</div>
+                        <div class="label">Ø Beitrag Neumitglieder (JE)</div>
                     </div>
                     <div class="stat-item">
                         <div class="value">120</div>
-                        <div class="label">Erhöhungsschnitt (Jahreseuros)</div>
+                        <div class="label">Ø Beitragsanpassung (JE)</div>
                     </div>
                     <div class="stat-item">
                         <div class="value">2,4</div>
-                        <div class="label">Mitgliedschaften pro Tag</div>
+                        <div class="label">Ø Neumitglieder pro Tag</div>
                     </div>
                     <div class="stat-item">
                         <div class="value">19</div>
-                        <div class="label">Arbeitstage</div>
+                        <div class="label">Arbeitstage im Zeitraum</div>
                     </div>
                     <div class="stat-item">
                         <div class="value">87%</div>
-                        <div class="label">Mit Telefonnummer</div>
+                        <div class="label">Anteil mit Telefonnummer</div>
                     </div>
                     <div class="stat-item">
                         <div class="value">64%</div>
-                        <div class="label">Mit E-Mail</div>
+                        <div class="label">Anteil mit E-Mail</div>
                     </div>
                     <div class="stat-item">
                         <div class="value">59%</div>
-                        <div class="label">Monatszahler</div>
+                        <div class="label">Anteil Monatszahler</div>
                     </div>
                     <div class="stat-item">
                         <div class="value">23%</div>
-                        <div class="label">Quartalszahler</div>
+                        <div class="label">Anteil Quartalszahler</div>
                     </div>
                     <div class="stat-item">
                         <div class="value">14</div>
-                        <div class="label">Bester Tag (Anzahl)</div>
+                        <div class="label">Bester Tag (Neumitglieder)</div>
                     </div>
                 </div>
             </div>
@@ -777,17 +889,17 @@
                     <div class="rekorde-category-title">Pro Tag</div>
                     <div class="rekorde-list">
                         <div class="rekord-item">
-                            <div class="label">Meiste Mitgliedschaften</div>
+                            <div class="label">Meiste Gesamt</div>
                             <div class="value">14</div>
                             <div class="date">15.03.2025</div>
                         </div>
                         <div class="rekord-item">
-                            <div class="label">Meiste Neue</div>
+                            <div class="label">Meiste Neumitglieder</div>
                             <div class="value">11</div>
                             <div class="date">15.03.2025</div>
                         </div>
                         <div class="rekord-item">
-                            <div class="label">Meiste Erhöhungen</div>
+                            <div class="label">Meiste Beitragsanpassungen</div>
                             <div class="value">6</div>
                             <div class="date">22.02.2025</div>
                         </div>
@@ -803,17 +915,17 @@
                     <div class="rekorde-category-title">Pro Woche</div>
                     <div class="rekorde-list">
                         <div class="rekord-item">
-                            <div class="label">Meiste Mitgliedschaften</div>
+                            <div class="label">Meiste Gesamt</div>
                             <div class="value">52</div>
                             <div class="date">KW 11/2025</div>
                         </div>
                         <div class="rekord-item">
-                            <div class="label">Meiste Neue</div>
+                            <div class="label">Meiste Neumitglieder</div>
                             <div class="value">38</div>
                             <div class="date">KW 11/2025</div>
                         </div>
                         <div class="rekord-item">
-                            <div class="label">Meiste Erhöhungen</div>
+                            <div class="label">Meiste Beitragsanpassungen</div>
                             <div class="value">18</div>
                             <div class="date">KW 08/2025</div>
                         </div>
@@ -836,7 +948,7 @@
                         <div class="date">08.01.2025</div>
                     </div>
                     <div class="rekord-item">
-                        <div class="label">Höchste Einzelerhöhung</div>
+                        <div class="label">Höchste Beitragsanpassung</div>
                         <div class="value">360 Jahreseuros</div>
                         <div class="date">22.02.2025</div>
                     </div>
