@@ -550,60 +550,6 @@
             color: var(--text-secondary);
         }
 
-        /* Search Dropdown */
-        .search-dropdown {
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-            z-index: 10000;
-            display: none;
-            max-height: 320px;
-            overflow-y: auto;
-        }
-
-        .search-dropdown.active {
-            display: block;
-        }
-
-        .search-dropdown-header {
-            padding: 10px 14px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .search-result-item {
-            padding: 10px 14px;
-            font-size: 13px;
-            color: var(--text-primary);
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-result-item:hover {
-            background: var(--bg-secondary);
-        }
-
-        .search-no-results {
-            padding: 20px 14px;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
-
         /* Date Range Modal */
         .date-range-modal {
             position: fixed;
@@ -1055,12 +1001,6 @@
         </div>
     </div>
 
-    <!-- Search Dropdown -->
-    <div class="search-dropdown" id="searchDropdown">
-        <div class="search-dropdown-header">Werber</div>
-        <div id="searchResults"></div>
-    </div>
-
     <script>
         // URL Params
         const urlParams = new URLSearchParams(window.location.search);
@@ -1144,8 +1084,8 @@
             if (e.data && e.data.type === 'searchQuery') {
                 handleSearch(e.data.query);
             }
-            if (e.data && e.data.type === 'searchClear') {
-                closeSearch();
+            if (e.data && e.data.type === 'searchSelect') {
+                switchToWerber(e.data.id, e.data.name);
             }
         });
 
@@ -1164,11 +1104,9 @@
         ];
 
         function handleSearch(query) {
-            const dropdown = document.getElementById('searchDropdown');
-            const resultsContainer = document.getElementById('searchResults');
-
             if (!query || query.length < 1) {
-                dropdown.classList.remove('active');
+                // Send empty results to shell
+                window.parent.postMessage({ type: 'searchResults', results: [], query: '' }, '*');
                 return;
             }
 
@@ -1176,30 +1114,18 @@
                 w.name.toLowerCase().includes(query.toLowerCase())
             ).slice(0, 8);
 
-            if (matches.length === 0) {
-                resultsContainer.innerHTML = '<div class="search-no-results">Keine Werber gefunden</div>';
-            } else {
-                resultsContainer.innerHTML = matches.map(w => `
-                    <div class="search-result-item" onclick="switchToWerber(${w.id}, '${w.name}')">${w.name}</div>
-                `).join('');
-            }
-
-            dropdown.classList.add('active');
-        }
-
-        function closeSearch() {
-            document.getElementById('searchDropdown').classList.remove('active');
+            // Send results to shell for display
+            window.parent.postMessage({
+                type: 'searchResults',
+                results: matches,
+                query: query,
+                headerText: 'Werber'
+            }, '*');
         }
 
         function switchToWerber(id, name) {
             window.location.href = `dashboard.html?id=${id}&name=${encodeURIComponent(name)}`;
         }
-
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.search-dropdown')) {
-                closeSearch();
-            }
-        });
 
         // Charts
         Chart.defaults.font.family = "'Inter', -apple-system, sans-serif";
