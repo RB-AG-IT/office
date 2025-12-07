@@ -1121,6 +1121,17 @@
                     opt.classList.toggle('active', opt.dataset.value === e.data.value);
                 });
             }
+            // Update shell when category changed from iframe (e.g. returning from dashboard)
+            if (e.data && e.data.type === 'navFilterChanged') {
+                const textEl = document.getElementById('shellNavDropdownText');
+                const option = document.querySelector(`#shellNavDropdown .toolbar-nav-option[data-value="${e.data.value}"]`);
+                if (textEl && option) {
+                    textEl.textContent = option.textContent;
+                }
+                document.querySelectorAll('#shellNavDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === e.data.value);
+                });
+            }
         });
 
         function loadPage(page) {
