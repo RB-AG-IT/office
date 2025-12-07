@@ -481,6 +481,133 @@
             border-color: var(--accent-color);
             background: rgba(99, 102, 241, 0.05);
         }
+
+        /* Detail Tabs */
+        .detail-tabs {
+            display: flex;
+            gap: 4px;
+            margin-left: var(--spacing-lg);
+        }
+
+        .detail-tab {
+            padding: 6px 14px;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .detail-tab.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .detail-tab-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .detail-tab:not(.active) .detail-tab-badge {
+            background: var(--bg-hover);
+        }
+
+        /* Bestandsmitglieder View */
+        .bestand-view {
+            display: none;
+        }
+
+        .bestand-view.active {
+            display: block;
+        }
+
+        .records-view {
+            display: block;
+        }
+
+        .records-view.hidden {
+            display: none;
+        }
+
+        .bestand-upload-section {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bestand-upload-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bestand-upload-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .bestand-upload-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .bestand-upload-text h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 2px 0;
+        }
+
+        .bestand-upload-text p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Erhöhung Button */
+        .erhoehung-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            background: #10b981;
+            color: white;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .erhoehung-btn:hover {
+            background: #059669;
+        }
+
+        .erhoehung-btn:disabled {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -632,6 +759,17 @@
                             <div class="detail-title" id="detailTitle">DRK KV Ludwigshafen</div>
                             <div class="detail-subtitle" id="detailSubtitle">142 Datensätze</div>
                         </div>
+                        <!-- Detail Tabs -->
+                        <div class="detail-tabs" id="detailTabs">
+                            <button class="detail-tab active" onclick="switchDetailTab('records')">
+                                Neumitglieder / Erhöhungen
+                                <span class="detail-tab-badge" id="recordsTabBadge">100</span>
+                            </button>
+                            <button class="detail-tab" onclick="switchDetailTab('bestand')">
+                                Bestandsmitglieder
+                                <span class="detail-tab-badge" id="bestandTabBadge">0</span>
+                            </button>
+                        </div>
                         <div style="margin-left: auto; display: flex; gap: 8px;">
                             <button class="toolbar-btn" onclick="openColumnModal()">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -648,35 +786,84 @@
                             </button>
                         </div>
                     </div>
-                    <div class="data-section">
-                        <table class="data-table">
-                            <thead>
-                                <tr id="recordsTableHeader">
-                                    <th class="col-datum">Datum</th>
-                                    <th class="col-art">Art</th>
-                                    <th class="col-name">Name</th>
-                                    <th class="col-adresse">Adresse</th>
-                                    <th class="col-email">Email</th>
-                                    <th class="col-werbegebiet">Werbegebiet</th>
-                                    <th class="col-kunde">Kunde</th>
-                                    <th class="col-werber">Werber</th>
-                                    <th class="col-teamchef">Teamchef</th>
-                                    <th class="col-je" style="text-align: right;">JE</th>
-                                    <th class="col-status">Status</th>
-                                    <th class="col-actions"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="recordsTableBody">
-                                <!-- Wird per JS befüllt -->
-                            </tbody>
-                        </table>
-                        <div class="pagination" id="recordsPagination">
-                            <div class="pagination-info">Zeige 1-100 von 142 Einträgen</div>
-                            <div class="pagination-buttons">
-                                <button class="pagination-btn" disabled>&lt;</button>
-                                <button class="pagination-btn active">1</button>
-                                <button class="pagination-btn">2</button>
-                                <button class="pagination-btn">&gt;</button>
+
+                    <!-- Records View (Neumitglieder / Erhöhungen) -->
+                    <div class="records-view" id="recordsView">
+                        <div class="data-section">
+                            <table class="data-table">
+                                <thead>
+                                    <tr id="recordsTableHeader">
+                                        <th class="col-datum">Datum</th>
+                                        <th class="col-art">Art</th>
+                                        <th class="col-name">Name</th>
+                                        <th class="col-adresse">Adresse</th>
+                                        <th class="col-email">Email</th>
+                                        <th class="col-werbegebiet">Werbegebiet</th>
+                                        <th class="col-kunde">Kunde</th>
+                                        <th class="col-werber">Werber</th>
+                                        <th class="col-teamchef">Teamchef</th>
+                                        <th class="col-je" style="text-align: right;">JE</th>
+                                        <th class="col-status">Status</th>
+                                        <th class="col-actions"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recordsTableBody">
+                                    <!-- Wird per JS befüllt -->
+                                </tbody>
+                            </table>
+                            <div class="pagination" id="recordsPagination">
+                                <div class="pagination-info">Zeige 1-100 von 142 Einträgen</div>
+                                <div class="pagination-buttons">
+                                    <button class="pagination-btn" disabled>&lt;</button>
+                                    <button class="pagination-btn active">1</button>
+                                    <button class="pagination-btn">2</button>
+                                    <button class="pagination-btn">&gt;</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bestandsmitglieder View -->
+                    <div class="bestand-view" id="bestandView">
+                        <div class="bestand-upload-section">
+                            <div class="bestand-upload-info">
+                                <div class="bestand-upload-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                    </svg>
+                                </div>
+                                <div class="bestand-upload-text">
+                                    <h4>Bestandsmitglieder hochladen</h4>
+                                    <p>Excel oder CSV mit bestehenden Mitgliedern für Erhöhungen</p>
+                                </div>
+                            </div>
+                            <button class="toolbar-btn toolbar-btn-primary" onclick="openBestandUploadModal()">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                <span>Hochladen</span>
+                            </button>
+                        </div>
+                        <div class="data-section">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 140px;">Name</th>
+                                        <th style="width: 180px;">Adresse</th>
+                                        <th style="width: 160px;">Email</th>
+                                        <th style="width: 100px;">Mitglied seit</th>
+                                        <th style="width: 80px; text-align: right;">Aktuell JE</th>
+                                        <th style="width: 100px;">Status</th>
+                                        <th style="width: 100px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bestandTableBody">
+                                    <!-- Wird per JS befüllt -->
+                                </tbody>
+                            </table>
+                            <div class="pagination" id="bestandPagination">
+                                <div class="pagination-info" id="bestandPaginationInfo">Keine Bestandsmitglieder</div>
+                                <div class="pagination-buttons" id="bestandPaginationButtons"></div>
                             </div>
                         </div>
                     </div>
@@ -859,24 +1046,79 @@
             { id: 3, name: 'Herbstkampagne 2024', initials: 'HK', color: '#6366f1', records: 28, nettoJE: 4290, storno: 7.1, gebieteIds: [2, 5] }
         ];
 
-        const recordsData = [
-            { id: 1, date: '2024-11-25', type: 'nmg', name: 'Max Mustermann', address: 'Hauptstr. 12, 67059 Ludwigshafen', email: 'max@email.de', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 120, status: 'active' },
-            { id: 2, date: '2024-11-25', type: 'nmg', name: 'Erika Musterfrau', address: 'Bahnhofstr. 5, 67059 Ludwigshafen', email: 'erika@email.de', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 180, status: 'active' },
-            { id: 3, date: '2024-11-24', type: 'erh', name: 'Hans Weber', address: 'Gartenweg 8, 67063 Ludwigshafen', email: 'hans.w@gmx.de', area: 'Ludwigshafen-Süd', kunde: 'DRK KV Ludwigshafen', werber: 'Max Müller', teamchef: 'Sandra Hoffmann', je: 60, status: 'active' },
-            { id: 4, date: '2024-11-24', type: 'nmg', name: 'Maria Schmidt', address: 'Ringstr. 22, 67071 Ludwigshafen', email: 'maria.s@web.de', area: 'Oggersheim', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 120, status: 'storniert' },
-            { id: 5, date: '2024-11-23', type: 'nmg', name: 'Peter Becker', address: 'Am Markt 3, 67059 Ludwigshafen', email: 'p.becker@t-online.de', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Max Müller', teamchef: 'Sandra Hoffmann', je: 240, status: 'active' },
-            { id: 6, date: '2024-11-23', type: 'erh', name: 'Sabine König', address: 'Waldstr. 15, 67063 Ludwigshafen', email: 's.koenig@email.de', area: 'Ludwigshafen-Süd', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 60, status: 'active' },
-            { id: 7, date: '2024-11-22', type: 'nmg', name: 'Thomas Fischer', address: 'Beethovenstr. 7, 67059 Ludwigshafen', email: 't.fischer@gmail.com', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Max Müller', teamchef: 'Sandra Hoffmann', je: 120, status: 'active' },
-            { id: 8, date: '2024-11-22', type: 'nmg', name: 'Laura Hoffmann', address: 'Schillerstr. 19, 67071 Ludwigshafen', email: 'l.hoffmann@web.de', area: 'Oggersheim', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 180, status: 'active' },
-            { id: 9, date: '2024-11-21', type: 'nmg', name: 'Michael Braun', address: 'Rheinstr. 44, 67063 Ludwigshafen', email: 'm.braun@gmx.de', area: 'Ludwigshafen-Süd', kunde: 'DRK KV Ludwigshafen', werber: 'Max Müller', teamchef: 'Sandra Hoffmann', je: 120, status: 'storniert' },
-            { id: 10, date: '2024-11-21', type: 'erh', name: 'Julia Wagner', address: 'Mozartstr. 11, 67059 Ludwigshafen', email: 'j.wagner@email.de', area: 'Ludwigshafen-Mitte', kunde: 'DRK KV Ludwigshafen', werber: 'Anna Schmidt', teamchef: 'Michael Wagner', je: 120, status: 'active' },
-        ];
+        // Generate 100 dummy records
+        const recordsData = (function() {
+            const vornamen = ['Max', 'Erika', 'Hans', 'Maria', 'Peter', 'Sabine', 'Thomas', 'Laura', 'Michael', 'Julia', 'Andreas', 'Claudia', 'Stefan', 'Martina', 'Christian', 'Nicole', 'Markus', 'Sandra', 'Frank', 'Petra', 'Jürgen', 'Monika', 'Uwe', 'Karin', 'Ralf', 'Birgit', 'Bernd', 'Heike', 'Dirk', 'Anja'];
+            const nachnamen = ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann', 'Koch', 'Richter', 'Klein', 'Wolf', 'Schröder', 'Neumann', 'Schwarz', 'Braun', 'Zimmermann', 'Krüger', 'Hartmann', 'Lange', 'Werner', 'Krause', 'Meier'];
+            const strassen = ['Hauptstr.', 'Bahnhofstr.', 'Gartenweg', 'Ringstr.', 'Am Markt', 'Waldstr.', 'Beethovenstr.', 'Schillerstr.', 'Rheinstr.', 'Mozartstr.', 'Goethestr.', 'Kirchstr.', 'Schulstr.', 'Bergstr.', 'Lindenstr.'];
+            const areas = ['Ludwigshafen-Mitte', 'Ludwigshafen-Süd', 'Oggersheim', 'Mannheim-Nord', 'Mannheim-Süd'];
+            const kunden = ['DRK KV Ludwigshafen', 'DRK KV Mannheim'];
+            const werber = ['Anna Schmidt', 'Max Müller', 'Tim Bauer', 'Lisa Weber'];
+            const teamchefs = ['Michael Wagner', 'Sandra Hoffmann', 'Klaus Meier'];
+            const jeWerte = [60, 120, 180, 240];
+            const types = ['nmg', 'nmg', 'nmg', 'erh']; // 75% NMG, 25% ERH
+
+            const records = [];
+            const startDate = new Date('2024-11-25');
+
+            for (let i = 1; i <= 100; i++) {
+                const dayOffset = Math.floor((i - 1) / 4); // ~4 records per day
+                const date = new Date(startDate);
+                date.setDate(date.getDate() - dayOffset);
+                const dateStr = date.toISOString().split('T')[0];
+
+                const vorname = vornamen[Math.floor(Math.random() * vornamen.length)];
+                const nachname = nachnamen[Math.floor(Math.random() * nachnamen.length)];
+                const strasse = strassen[Math.floor(Math.random() * strassen.length)];
+                const hausnr = Math.floor(Math.random() * 99) + 1;
+                const plz = ['67059', '67063', '67071', '68159', '68161'][Math.floor(Math.random() * 5)];
+                const area = areas[Math.floor(Math.random() * areas.length)];
+                const kunde = area.startsWith('Mannheim') ? 'DRK KV Mannheim' : 'DRK KV Ludwigshafen';
+
+                records.push({
+                    id: i,
+                    date: dateStr,
+                    type: types[Math.floor(Math.random() * types.length)],
+                    name: `${vorname} ${nachname}`,
+                    address: `${strasse} ${hausnr}, ${plz} ${area.split('-')[0]}`,
+                    email: `${vorname.toLowerCase()}.${nachname.toLowerCase()}@email.de`,
+                    area: area,
+                    kunde: kunde,
+                    werber: werber[Math.floor(Math.random() * werber.length)],
+                    teamchef: teamchefs[Math.floor(Math.random() * teamchefs.length)],
+                    je: jeWerte[Math.floor(Math.random() * jeWerte.length)],
+                    status: Math.random() > 0.1 ? 'active' : 'storniert' // 10% storniert
+                });
+            }
+            return records;
+        })();
 
         // ========== STATE ==========
         let currentCategory = 'kunden';
         let currentEntity = null;
         let currentStornoId = null;
         let currentColumns = ['datum', 'art', 'name', 'adresse', 'email', 'werbegebiet', 'kunde', 'werber', 'teamchef', 'je', 'status'];
+
+        // Pagination
+        const PAGE_SIZE = 100;
+        let currentPage = 1;
+        let currentRecords = [];
+
+        // Detail Tab State
+        let currentDetailTab = 'records';
+
+        // Bestandsmitglieder Data (per Gebiet/Entity)
+        // Key = "gebiet_1" or "kunde_1", value = array of Bestandsmitglieder
+        const bestandsmitgliederData = {};
+
+        // Dummy Bestandsmitglieder für Demo (für Ludwigshafen-Mitte)
+        bestandsmitgliederData['gebiet_1'] = [
+            { id: 1, name: 'Werner Schulze', address: 'Friedrichstr. 45, 67059 Ludwigshafen', email: 'w.schulze@web.de', memberSince: '2019-03-15', currentJE: 60, hasErhoehung: false },
+            { id: 2, name: 'Helga Neumann', address: 'Kaiserstr. 23, 67059 Ludwigshafen', email: 'h.neumann@gmx.de', memberSince: '2020-07-22', currentJE: 120, hasErhoehung: false },
+            { id: 3, name: 'Dieter Lange', address: 'Bismarckstr. 8, 67059 Ludwigshafen', email: 'd.lange@t-online.de', memberSince: '2018-11-03', currentJE: 60, hasErhoehung: true },
+            { id: 4, name: 'Ingrid Vogel', address: 'Parkstr. 17, 67059 Ludwigshafen', email: 'i.vogel@email.de', memberSince: '2021-02-14', currentJE: 180, hasErhoehung: false },
+            { id: 5, name: 'Günther Maier', address: 'Schulweg 3, 67059 Ludwigshafen', email: 'g.maier@yahoo.de', memberSince: '2017-09-28', currentJE: 60, hasErhoehung: false }
+        ];
 
         // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', function() {
@@ -1104,9 +1346,19 @@
             document.getElementById('kampagnenBadge').textContent = `${kampagnenData.length} Kampagnen`;
         }
 
-        function renderRecordsTable(records) {
+        function renderRecordsTable(records, resetPage = true) {
+            // Store records for pagination
+            currentRecords = records;
+            if (resetPage) currentPage = 1;
+
+            const totalRecords = records.length;
+            const totalPages = Math.ceil(totalRecords / PAGE_SIZE);
+            const startIndex = (currentPage - 1) * PAGE_SIZE;
+            const endIndex = Math.min(startIndex + PAGE_SIZE, totalRecords);
+            const pageRecords = records.slice(startIndex, endIndex);
+
             const tbody = document.getElementById('recordsTableBody');
-            tbody.innerHTML = records.map(row => `
+            tbody.innerHTML = pageRecords.map(row => `
                 <tr>
                     <td class="col-datum">${formatDate(row.date)}</td>
                     <td class="col-art"><span class="badge ${row.type}">${row.type.toUpperCase()}</span></td>
@@ -1133,7 +1385,35 @@
             `).join('');
 
             // Update pagination info
-            document.querySelector('.pagination-info').textContent = `Zeige 1-${records.length} von ${records.length} Einträgen`;
+            document.querySelector('.pagination-info').textContent = `Zeige ${startIndex + 1}-${endIndex} von ${totalRecords} Einträgen`;
+
+            // Update pagination buttons
+            renderPaginationButtons(totalPages);
+        }
+
+        function renderPaginationButtons(totalPages) {
+            const container = document.querySelector('.pagination-buttons');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&lt;</button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="pagination-btn${i === currentPage ? ' active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            html += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&gt;</button>`;
+
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(currentRecords.length / PAGE_SIZE);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderRecordsTable(currentRecords, false);
         }
 
         // ========== OPEN RECORDS ==========
@@ -1363,6 +1643,145 @@
         async function viewRecord(id) {
             await showAlert('Details', 'Details für Datensatz #' + id, 'info');
         }
+
+        // ========== DETAIL TABS ==========
+        function switchDetailTab(tab) {
+            currentDetailTab = tab;
+
+            // Update tab buttons
+            document.querySelectorAll('.detail-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(tab === 'records' ? 'Neumitglieder' : 'Bestandsmitglieder'));
+            });
+
+            // Show/hide views
+            document.getElementById('recordsView').classList.toggle('hidden', tab !== 'records');
+            document.getElementById('bestandView').classList.toggle('active', tab === 'bestand');
+
+            // Render Bestandsmitglieder if switching to that tab
+            if (tab === 'bestand' && currentEntity) {
+                renderBestandsmitglieder();
+            }
+        }
+
+        function getBestandKey() {
+            if (!currentEntity) return null;
+            if (currentEntity.type === 'gebiet') return `gebiet_${currentEntity.id}`;
+            if (currentEntity.type === 'kunde') return `kunde_${currentEntity.id}`;
+            if (currentEntity.type === 'kampagne_gebiet') return `gebiet_${currentEntity.gebietId}`;
+            return null;
+        }
+
+        function renderBestandsmitglieder() {
+            const key = getBestandKey();
+            const bestand = key ? (bestandsmitgliederData[key] || []) : [];
+            const tbody = document.getElementById('bestandTableBody');
+
+            if (bestand.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            Keine Bestandsmitglieder hochgeladen.<br>
+                            <small>Laden Sie eine Excel oder CSV-Datei hoch, um Bestandsmitglieder zu importieren.</small>
+                        </td>
+                    </tr>`;
+                document.getElementById('bestandPaginationInfo').textContent = 'Keine Bestandsmitglieder';
+                document.getElementById('bestandPaginationButtons').innerHTML = '';
+            } else {
+                tbody.innerHTML = bestand.map(m => `
+                    <tr>
+                        <td title="${m.name}">${m.name}</td>
+                        <td title="${m.address}">${m.address}</td>
+                        <td title="${m.email}">${m.email}</td>
+                        <td>${formatDate(m.memberSince)}</td>
+                        <td style="text-align: right;">${m.currentJE} €</td>
+                        <td>
+                            ${m.hasErhoehung
+                                ? '<span class="badge erh">Erhöht</span>'
+                                : '<span class="badge active">Aktiv</span>'}
+                        </td>
+                        <td>
+                            ${m.hasErhoehung
+                                ? '<button class="erhoehung-btn" disabled>Bereits erhöht</button>'
+                                : `<button class="erhoehung-btn" onclick="createErhoehung(${m.id})">+ Erhöhung</button>`}
+                        </td>
+                    </tr>
+                `).join('');
+                document.getElementById('bestandPaginationInfo').textContent = `${bestand.length} Bestandsmitglieder`;
+            }
+
+            // Update badge
+            document.getElementById('bestandTabBadge').textContent = bestand.length;
+        }
+
+        async function createErhoehung(bestandId) {
+            const key = getBestandKey();
+            if (!key) return;
+
+            const bestand = bestandsmitgliederData[key];
+            const member = bestand.find(m => m.id === bestandId);
+            if (!member) return;
+
+            const confirmed = await showConfirm(
+                'Erhöhung erstellen',
+                `Möchten Sie eine Erhöhung für "${member.name}" erstellen?\n\nAktueller JE: ${member.currentJE} €`
+            );
+
+            if (confirmed) {
+                // Mark as erhöht
+                member.hasErhoehung = true;
+
+                // Create new ERH record
+                const newRecord = {
+                    id: recordsData.length + 1,
+                    date: new Date().toISOString().split('T')[0],
+                    type: 'erh',
+                    name: member.name,
+                    address: member.address,
+                    email: member.email,
+                    area: currentEntity.type === 'gebiet' ? gebieteData.find(g => g.id === currentEntity.id)?.name : 'Unbekannt',
+                    kunde: currentEntity.type === 'kunde' ? kundenData.find(k => k.id === currentEntity.id)?.name : 'DRK KV Ludwigshafen',
+                    werber: 'System Import',
+                    teamchef: 'System',
+                    je: 60, // Erhöhung um 60€
+                    status: 'active'
+                };
+
+                recordsData.unshift(newRecord);
+
+                // Update badges
+                const recordsCount = currentRecords.length + 1;
+                document.getElementById('recordsTabBadge').textContent = recordsCount;
+
+                // Re-render
+                renderBestandsmitglieder();
+                await showAlert('Erhöhung erstellt', `Erhöhung für "${member.name}" wurde erstellt und erscheint jetzt im Tab "Neumitglieder / Erhöhungen".`, 'success');
+            }
+        }
+
+        async function openBestandUploadModal() {
+            await showAlert('Upload', 'Bestandsmitglieder-Upload wird implementiert...\n\nHier können Sie eine Excel oder CSV-Datei mit Bestandsmitgliedern hochladen.', 'info');
+        }
+
+        // Update showDetailView to also update tab badges
+        const originalShowDetailView = showDetailView;
+        showDetailView = function(title, subtitle, records) {
+            // Reset to records tab
+            currentDetailTab = 'records';
+            document.querySelectorAll('.detail-tab').forEach((btn, i) => {
+                btn.classList.toggle('active', i === 0);
+            });
+            document.getElementById('recordsView').classList.remove('hidden');
+            document.getElementById('bestandView').classList.remove('active');
+
+            // Call original
+            originalShowDetailView(title, subtitle, records);
+
+            // Update badges
+            document.getElementById('recordsTabBadge').textContent = records.length;
+            const key = getBestandKey();
+            const bestandCount = key ? (bestandsmitgliederData[key]?.length || 0) : 0;
+            document.getElementById('bestandTabBadge').textContent = bestandCount;
+        };
     </script>
 </body>
 </html>
