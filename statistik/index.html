@@ -2789,7 +2789,24 @@
             if (e.data && e.data.type === 'openDateRangeModal') {
                 openDateRangeModal();
             }
+            if (e.data && e.data.type === 'searchQuery') {
+                handleSearch(e.data.query);
+            }
         });
+
+        // Search/filter function
+        function handleSearch(query) {
+            const search = query.toLowerCase().trim();
+
+            // Filter all visible stats tables
+            document.querySelectorAll('.section').forEach(section => {
+                const rows = section.querySelectorAll('.stats-table tbody tr');
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(search) ? '' : 'none';
+                });
+            });
+        }
     </script>
 </body>
 </html>

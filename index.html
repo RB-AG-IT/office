@@ -598,14 +598,9 @@
                 <!-- Wird dynamisch befüllt -->
             </div>
 
-            <!-- Right: Action Button -->
-            <div class="toolbar-right">
-                <button class="toolbar-btn toolbar-btn-primary" id="shellActionBtn" style="display: none;">
-                    <svg id="shellActionIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    <span id="shellActionText">Aktion</span>
-                </button>
+            <!-- Right: Action Buttons -->
+            <div class="toolbar-right" id="shellToolbarRight">
+                <!-- Wird dynamisch befüllt -->
             </div>
 
             <!-- Search Dropdown (positioned relative to toolbar) -->
@@ -1034,6 +1029,21 @@
                 ],
                 searchPlaceholder: 'Statistik suchen...',
                 actionBtn: { text: 'Export', icon: 'download' }
+            },
+            records: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'kunden', label: 'Kunden', active: true },
+                    { value: 'gebiete', label: 'Einsatzgebiete' },
+                    { value: 'kampagnen', label: 'Kampagnen' },
+                    { value: 'divider', label: '---' },
+                    { value: 'letzte100', label: 'Letzte Datensätze (100)' }
+                ],
+                searchPlaceholder: 'Datensätze suchen...',
+                actionButtons: [
+                    { id: 'import', text: 'Import', icon: 'download', action: 'openImportModal' },
+                    { id: 'export', text: 'Export', icon: 'upload', action: 'openExportModal', primary: true }
+                ]
             }
         };
 
@@ -1042,7 +1052,7 @@
         function updateShellToolbar(page) {
             const config = toolbarConfig[page];
             const toolbar = document.getElementById('shellToolbar');
-            const actionBtn = document.getElementById('shellActionBtn');
+            const toolbarRight = document.getElementById('shellToolbarRight');
 
             if (!config || !config.showToolbar) {
                 toolbar.style.display = 'none';
@@ -1055,7 +1065,7 @@
             if (config.navOptions) {
                 const navText = document.getElementById('shellNavText');
                 const navMenu = document.getElementById('shellNavMenu');
-                const activeOption = config.navOptions.find(o => o.active) || config.navOptions[0];
+                const activeOption = config.navOptions.find(o => o.active && o.value !== 'divider') || config.navOptions[0];
 
                 // Slide-up animation for nav text
                 if (currentShellNav !== page) {
@@ -1072,12 +1082,15 @@
                     }, 50);
                 }
 
-                // Build menu options
-                navMenu.innerHTML = config.navOptions.map(opt =>
-                    `<div class="toolbar-nav-option${opt.active ? ' active' : ''}"
+                // Build menu options (with divider support)
+                navMenu.innerHTML = config.navOptions.map(opt => {
+                    if (opt.value === 'divider') {
+                        return '<div class="toolbar-nav-divider"></div>';
+                    }
+                    return `<div class="toolbar-nav-option${opt.active ? ' active' : ''}"
                           data-value="${opt.value}"
-                          onclick="selectShellNavOption('${opt.value}', '${opt.label}')">${opt.label}</div>`
-                ).join('');
+                          onclick="selectShellNavOption('${opt.value}', '${opt.label}')">${opt.label}</div>`;
+                }).join('');
 
                 currentShellNav = page;
             }
@@ -1088,19 +1101,29 @@
                 searchInput.placeholder = config.searchPlaceholder;
             }
 
-            // Update Action Button
-            if (config.actionBtn) {
-                actionBtn.style.display = 'flex';
-                document.getElementById('shellActionText').textContent = config.actionBtn.text;
-
-                // Update icon
-                const iconPath = config.actionBtn.icon === 'download'
-                    ? 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                    : 'M12 4v16m8-8H4';
-                document.getElementById('shellActionIcon').innerHTML =
-                    `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>`;
+            // Update Action Buttons (multiple buttons support)
+            if (config.actionButtons && config.actionButtons.length > 0) {
+                toolbarRight.innerHTML = config.actionButtons.map(btn => {
+                    const iconPath = getIconPath(btn.icon);
+                    const primaryClass = btn.primary ? ' toolbar-btn-primary' : '';
+                    return `<button class="toolbar-btn${primaryClass}" onclick="shellToolbarAction('${btn.action}')">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
+                        </svg>
+                        <span>${btn.text}</span>
+                    </button>`;
+                }).join('');
+            } else if (config.actionBtn) {
+                // Backwards compatibility: single button
+                const iconPath = getIconPath(config.actionBtn.icon);
+                toolbarRight.innerHTML = `<button class="toolbar-btn toolbar-btn-primary" onclick="shellToolbarAction('${config.actionBtn.action || 'default'}')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
+                    </svg>
+                    <span>${config.actionBtn.text}</span>
+                </button>`;
             } else {
-                actionBtn.style.display = 'none';
+                toolbarRight.innerHTML = '';
             }
 
             // Update Period Filter (links von Searchbar)
@@ -1126,6 +1149,25 @@
             } else {
                 filtersLeft.style.display = 'none';
                 filtersLeft.innerHTML = '';
+            }
+        }
+
+        // Icon path helper
+        function getIconPath(icon) {
+            const icons = {
+                'plus': 'M12 4v16m8-8H4',
+                'download': 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4',
+                'upload': 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12',
+                'export': 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+            };
+            return icons[icon] || icons['plus'];
+        }
+
+        // Toolbar action handler - forwards to iframe
+        function shellToolbarAction(action) {
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'toolbarAction', action: action }, '*');
             }
         }
 
