@@ -1834,17 +1834,8 @@
         function openDashboard(werberId, werberName) {
             // URL mit Werber-ID und Name als Parameter
             const dashboardUrl = `dashboard.html?id=${werberId}&name=${encodeURIComponent(werberName)}`;
-
-            // Wenn in iframe, Parent mitteilen
-            if (window.parent !== window) {
-                window.parent.postMessage({
-                    type: 'navigate',
-                    target: 'statistik/dashboard',
-                    params: { id: werberId, name: werberName }
-                }, '*');
-            } else {
-                window.location.href = dashboardUrl;
-            }
+            // Direkt im aktuellen Fenster/iframe navigieren
+            window.location.href = dashboardUrl;
         }
 
         // Werber Tabelle rendern
