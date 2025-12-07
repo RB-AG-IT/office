@@ -107,7 +107,19 @@ Jeder Tab zeigt das gleiche Dashboard-Layout mit Adaptionen + nur die entspreche
 ---
 
 ### QUALITY
-*TODO: Rekorde noch zu definieren*
+*Quality = Qualitätssicherungs-Rolle vor Ort (wie Teamleiter-Status)*
+*Ziel: Niedrige Stornoquote gewährleisten, Team-Performance sichern*
+
+**Relevante Metriken:**
+- Stornoquote in der Woche (wo Quality anwesend)
+- Ø Tagesleistung pro Person im Team
+- Ø Beitrag pro MG (zu hoch = stornoanfällig)
+
+**Rekorde:**
+- Niedrigste Stornoquote in einer Woche (als Quality)
+- Höchste Ø Tagesleistung pro Person
+- Optimaler Ø Beitrag pro MG
+- Meiste Wochen Quality am Stück
 
 ---
 
@@ -135,7 +147,10 @@ Jeder Tab zeigt das gleiche Dashboard-Layout mit Adaptionen + nur die entspreche
 - Rekorde: Recruiting + Allgemein (unten)
 
 ### Tab: Quality
-- Dashboard zeigt Quality-spezifische Daten
+- Dashboard zeigt Zeiträume wo man Quality war
+- Team-Performance während dieser Zeiträume
+- Stornoquoten, Ø Tagesleistung, Ø Beitrag pro MG
+- Falls nie Quality: Tab leer / "Keine Daten"
 - Rekorde: Quality + Allgemein (unten)
 
 ---

@@ -863,6 +863,36 @@
             font-size: 10px;
         }
 
+        /* Dashboard Button */
+        .dashboard-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .dashboard-btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .dashboard-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .stats-table th.center,
+        .stats-table td.center {
+            text-align: center;
+        }
+
         /* Click-based Dropdown (ohne Hover) */
         .toolbar-nav-click:hover .toolbar-nav-menu {
             opacity: 0;
@@ -986,6 +1016,7 @@
                                 <th class="right clickable-header">Netto MG</th>
                                 <th class="right clickable-header">Netto Summe</th>
                                 <th class="right clickable-header">Stornoquote</th>
+                                <th class="center" style="width: 60px;"></th>
                             </tr>
                         </thead>
                         <tbody id="werberTableBody">
@@ -1799,6 +1830,23 @@
             return 'value-negative';
         }
 
+        // Dashboard öffnen
+        function openDashboard(werberId, werberName) {
+            // URL mit Werber-ID und Name als Parameter
+            const dashboardUrl = `dashboard.html?id=${werberId}&name=${encodeURIComponent(werberName)}`;
+
+            // Wenn in iframe, Parent mitteilen
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigate',
+                    target: 'statistik/dashboard',
+                    params: { id: werberId, name: werberName }
+                }, '*');
+            } else {
+                window.location.href = dashboardUrl;
+            }
+        }
+
         // Werber Tabelle rendern
         function renderWerberTable() {
             const tbody = document.getElementById('werberTableBody');
@@ -1839,6 +1887,13 @@
                             <div class="clickable-cell" onclick="showStornoDetail(${w.id})">
                                 <div class="cell-value ${stornoClass}">${formatPercent(avgStorno)}</div>
                             </div>
+                        </td>
+                        <td class="center">
+                            <button class="dashboard-btn" onclick="openDashboard(${w.id}, '${w.name}')" title="Dashboard öffnen">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -1884,6 +1939,7 @@
                             <div class="cell-value ${totalStornoClass}">${formatPercent(avgStornoTotal)}</div>
                         </div>
                     </td>
+                    <td></td>
                 </tr>
             `;
 
