@@ -14,6 +14,11 @@
             background: var(--bg-secondary);
         }
 
+        /* Toolbar verstecken wenn in iframe (Shell hat eigene) */
+        body.in-iframe .action-toolbar {
+            display: none !important;
+        }
+
         .page-container {
             padding: var(--spacing-lg);
             max-width: 1400px;
@@ -1613,6 +1618,29 @@ Ihr DRK {werbegebiet}</textarea>
 
         // Initialize preview
         updatePreview();
+
+        // ========== IFRAME / SHELL INTEGRATION ==========
+        // Detect if in iframe
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
+
+        // Listen for messages from shell
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'searchQuery') {
+                handleSearch(e.data.query);
+            }
+        });
+
+        // Search/filter function
+        function handleSearch(query) {
+            const search = query.toLowerCase().trim();
+            // Filter template cards
+            document.querySelectorAll('.template-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
     </script>
 </body>
 </html>
