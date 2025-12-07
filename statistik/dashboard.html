@@ -13,6 +13,7 @@
             --gradient-purple: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --gradient-orange: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --gradient-gold: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+            --gradient-red: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
             --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             --card-hover-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
@@ -26,30 +27,28 @@
 
         .dashboard-container {
             padding: var(--spacing-lg);
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
         /* ========================================
-           MODERN HEADER
+           HEADER
            ======================================== */
-
         .dashboard-header {
             background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             border-radius: 20px;
-            padding: 24px 32px;
-            margin-bottom: 24px;
+            padding: 20px 32px;
+            margin-bottom: 20px;
             box-shadow: var(--card-shadow);
             position: relative;
             border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
         }
 
         .back-arrow {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border: none;
             background: var(--bg-secondary);
             border-radius: 10px;
@@ -59,6 +58,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             color: var(--text-secondary);
+            flex-shrink: 0;
         }
 
         .back-arrow:hover {
@@ -73,32 +73,30 @@
         }
 
         .header-content {
+            flex: 1;
             text-align: center;
-            padding-top: 8px;
         }
 
         .header-content h1 {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
             color: var(--text-primary);
-            margin: 0 0 4px 0;
-            letter-spacing: -0.5px;
+            margin: 0;
         }
 
-        .header-content .subtitle {
+        .header-period {
+            font-size: 13px;
             color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
+            margin-top: 4px;
         }
 
         /* ========================================
-           TABS - Modern Pills Style
+           TABS
            ======================================== */
-
         .tabs-container {
             background: var(--bg-primary);
-            border-radius: 20px;
-            margin-bottom: 24px;
+            border-radius: 16px;
+            margin-bottom: 20px;
             box-shadow: var(--card-shadow);
             overflow: hidden;
             border: 1px solid var(--border-color);
@@ -107,14 +105,14 @@
         .tabs-nav {
             display: flex;
             gap: 4px;
-            padding: 12px;
+            padding: 10px;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
         }
 
         .tab-btn {
             flex: 1;
-            padding: 12px 20px;
+            padding: 10px 16px;
             border: none;
             background: transparent;
             color: var(--text-secondary);
@@ -122,7 +120,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         .tab-btn:hover {
@@ -138,7 +136,7 @@
 
         .tab-content {
             display: none;
-            padding: 24px;
+            padding: 20px;
         }
 
         .tab-content.active {
@@ -146,32 +144,48 @@
         }
 
         /* ========================================
-           METRIC CARDS - Modern Glass Style
+           SECTION HEADERS
            ======================================== */
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
         }
 
-        .metric-card {
+        .section-header h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .section-header .icon {
+            font-size: 20px;
+        }
+
+        /* ========================================
+           HAUPT-METRIKEN (MG, JE, EH - alle groß!)
+           ======================================== */
+        .main-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .main-metric-card {
             background: var(--bg-primary);
             border-radius: 16px;
-            padding: 20px;
-            position: relative;
+            padding: 24px;
             border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
+            position: relative;
             overflow: hidden;
         }
 
-        .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--card-hover-shadow);
-        }
-
-        .metric-card::before {
+        .main-metric-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -180,84 +194,183 @@
             height: 4px;
         }
 
-        .metric-card.blue::before { background: var(--gradient-blue); }
-        .metric-card.green::before { background: var(--gradient-green); }
-        .metric-card.purple::before { background: var(--gradient-purple); }
-        .metric-card.orange::before { background: var(--gradient-orange); }
-        .metric-card.gold::before { background: var(--gradient-gold); }
+        .main-metric-card.blue::before { background: var(--gradient-blue); }
+        .main-metric-card.green::before { background: var(--gradient-green); }
+        .main-metric-card.purple::before { background: var(--gradient-purple); }
 
-        .metric-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+        .main-metric-row {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 12px;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
         }
 
-        .metric-icon.blue { background: rgba(102, 126, 234, 0.1); }
-        .metric-icon.green { background: rgba(16, 185, 129, 0.1); }
-        .metric-icon.purple { background: rgba(139, 92, 246, 0.1); }
-        .metric-icon.orange { background: rgba(245, 158, 11, 0.1); }
-
-        .metric-label {
-            font-size: 12px;
+        .main-metric-label {
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .metric-value {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--text-primary);
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-
-        .metric-sub {
-            font-size: 14px;
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-
-        .metric-detail {
-            font-size: 12px;
-            color: var(--text-tertiary);
-            margin-top: 4px;
-        }
-
-        .metric-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
+        .main-metric-badge {
             font-size: 11px;
             font-weight: 600;
             padding: 4px 10px;
             border-radius: 20px;
-        }
-
-        .metric-badge.storno {
             background: rgba(239, 68, 68, 0.1);
             color: #ef4444;
         }
 
-        .metric-badge.success {
+        .main-metric-badge.success {
             background: rgba(16, 185, 129, 0.1);
             color: #10b981;
         }
 
+        .main-metric-values {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .main-metric-value-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-metric-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .main-metric-value.je { color: #10b981; }
+        .main-metric-value.eh { color: #8b5cf6; }
+
+        .main-metric-unit {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ========================================
+           STORNO DETAILS (Separate Karten)
+           ======================================== */
+        .storno-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .storno-card {
+            background: var(--bg-primary);
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .storno-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-red);
+            border-radius: 14px 14px 0 0;
+        }
+
+        .storno-card-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .storno-card-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ef4444;
+            margin-bottom: 4px;
+        }
+
+        .storno-card-value.good {
+            color: #10b981;
+        }
+
+        .storno-card-detail {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* ========================================
+           DETAIL-KARTEN GRID
+           ======================================== */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .detail-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .detail-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .detail-card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .detail-card-icon.blue { background: rgba(99, 102, 241, 0.1); }
+        .detail-card-icon.green { background: rgba(16, 185, 129, 0.1); }
+        .detail-card-icon.purple { background: rgba(139, 92, 246, 0.1); }
+        .detail-card-icon.orange { background: rgba(245, 158, 11, 0.1); }
+        .detail-card-icon.red { background: rgba(239, 68, 68, 0.1); }
+
+        .detail-card-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .detail-card-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
         /* Info Tooltip */
-        .info-trigger {
-            width: 16px;
-            height: 16px;
+        .info-icon {
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             background: var(--bg-secondary);
             display: inline-flex;
@@ -265,55 +378,47 @@
             justify-content: center;
             cursor: help;
             position: relative;
-        }
-
-        .info-trigger svg {
-            width: 10px;
-            height: 10px;
+            font-size: 9px;
             color: var(--text-tertiary);
         }
 
-        .info-trigger:hover .tooltip {
+        .info-icon:hover .tooltip {
             opacity: 1;
             visibility: visible;
-            transform: translateY(0);
         }
 
         .tooltip {
             position: absolute;
             bottom: calc(100% + 8px);
             left: 50%;
-            transform: translateX(-50%) translateY(4px);
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 12px;
+            transform: translateX(-50%);
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
             font-weight: 500;
-            color: var(--text-primary);
             white-space: nowrap;
-            box-shadow: var(--card-shadow);
             opacity: 0;
             visibility: hidden;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
             z-index: 100;
         }
 
         /* ========================================
-           CHARTS - Modern Card Style
+           CHARTS
            ======================================== */
-
-        .charts-section {
+        .charts-row {
             display: grid;
-            grid-template-columns: 1.5fr 1fr;
+            grid-template-columns: 1.5fr 1fr 1fr;
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .chart-card {
             background: var(--bg-primary);
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 14px;
+            padding: 20px;
             border: 1px solid var(--border-color);
         }
 
@@ -321,21 +426,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .chart-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-primary);
         }
 
         .chart-container {
             position: relative;
-            height: 220px;
+            height: 200px;
         }
 
-        /* Donut Center */
         .donut-wrapper {
             position: relative;
         }
@@ -346,84 +450,28 @@
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            pointer-events: none;
         }
 
         .donut-center-value {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 800;
             color: var(--text-primary);
         }
 
         .donut-center-label {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-secondary);
             font-weight: 600;
         }
 
         /* ========================================
-           ADDITIONAL METRICS ROW
+           REKORDE SECTION
            ======================================== */
-
-        .metrics-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .mini-metric {
-            background: var(--bg-primary);
-            border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .mini-metric:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--card-hover-shadow);
-        }
-
-        .mini-metric-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-        }
-
-        .mini-metric-icon.blue { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1)); }
-        .mini-metric-icon.green { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1)); }
-        .mini-metric-icon.purple { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1)); }
-        .mini-metric-icon.orange { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1)); }
-
-        .mini-metric-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .mini-metric-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        /* ========================================
-           REKORDE SECTION - Achievement Style
-           ======================================== */
-
         .rekorde-section {
             background: var(--bg-primary);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
             border: 1px solid var(--border-color);
         }
 
@@ -431,20 +479,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .rekorde-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-
-        .rekorde-title-icon {
-            font-size: 24px;
+            gap: 8px;
         }
 
         .rekorde-filter {
@@ -452,17 +496,17 @@
             gap: 4px;
             background: var(--bg-secondary);
             padding: 4px;
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         .rekorde-filter-btn {
-            padding: 8px 16px;
+            padding: 6px 14px;
             border: none;
             background: transparent;
             color: var(--text-secondary);
             font-size: 12px;
             font-weight: 600;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -470,11 +514,10 @@
         .rekorde-filter-btn.active {
             background: var(--bg-primary);
             color: var(--accent-color);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .rekorde-category {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
         .rekorde-category:last-child {
@@ -482,12 +525,12 @@
         }
 
         .rekorde-category-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -502,119 +545,220 @@
 
         .rekorde-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
 
         .rekord-card {
             background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 16px;
+            border-radius: 10px;
+            padding: 14px;
             display: flex;
             align-items: center;
-            gap: 14px;
-            transition: all 0.3s ease;
+            gap: 12px;
+            transition: all 0.2s;
             border: 1px solid transparent;
         }
 
         .rekord-card:hover {
             border-color: var(--accent-color);
-            transform: translateX(4px);
         }
 
         .rekord-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 18px;
             background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            flex-shrink: 0;
         }
 
         .rekord-content {
             flex: 1;
+            min-width: 0;
         }
 
         .rekord-label {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-secondary);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
 
         .rekord-value {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--text-primary);
             margin: 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .rekord-date {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-tertiary);
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
-        /* Allgemein Rekorde - Special Style */
+        /* Allgemein Rekorde */
         .allgemein-rekorde {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.1);
-        }
-
-        .allgemein-rekorde .rekorde-title {
-            color: var(--accent-color);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(139, 92, 246, 0.03));
+            border-color: rgba(99, 102, 241, 0.15);
         }
 
         .allgemein-rekorde .rekord-icon {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 50px 20px;
             color: var(--text-secondary);
         }
 
         .empty-state-icon {
-            font-size: 56px;
-            margin-bottom: 16px;
+            font-size: 48px;
+            margin-bottom: 12px;
             opacity: 0.4;
         }
 
-        .empty-state-text {
+        /* Date Range Modal */
+        .date-range-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .date-range-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .date-range-modal-content {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            width: 720px;
+            max-width: 95vw;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .date-range-modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .date-range-modal-header h3 {
             font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .date-range-modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--text-secondary);
+        }
+
+        .date-range-modal-body {
+            padding: 20px;
+        }
+
+        .date-inputs-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .date-range-field {
+            flex: 1;
+        }
+
+        .date-range-field label {
+            display: block;
+            font-size: 12px;
             font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .date-range-field input {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            box-sizing: border-box;
+        }
+
+        .date-range-modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel, .btn-apply {
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-cancel {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .btn-apply {
+            background: var(--accent-color);
+            color: white;
         }
 
         /* Responsive */
-        @media (max-width: 1200px) {
-            .metrics-grid, .metrics-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .charts-section {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 1400px) {
+            .detail-grid { grid-template-columns: repeat(4, 1fr); }
+            .rekorde-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 1100px) {
+            .main-metrics { grid-template-columns: 1fr; }
+            .storno-section { grid-template-columns: repeat(2, 1fr); }
+            .detail-grid { grid-template-columns: repeat(3, 1fr); }
+            .charts-row { grid-template-columns: 1fr; }
+            .rekorde-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
-            .tabs-nav {
-                flex-wrap: wrap;
-            }
-            .tab-btn {
-                flex: none;
-                width: calc(33.33% - 4px);
-            }
-            .metrics-grid, .metrics-row {
-                grid-template-columns: 1fr;
-            }
+            .tabs-nav { flex-wrap: wrap; }
+            .tab-btn { width: calc(33.33% - 4px); flex: none; }
+            .storno-section { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: repeat(2, 1fr); }
+            .rekorde-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -627,10 +771,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
             </button>
-
             <div class="header-content">
                 <h1 id="employeeName">Max Mustermann</h1>
-                <p class="subtitle">Mitarbeiter-Dashboard</p>
+                <div class="header-period" id="headerPeriod">Zeitraum: Dieses Jahr</div>
             </div>
         </div>
 
@@ -647,69 +790,185 @@
 
             <!-- Tab: Allgemein -->
             <div class="tab-content active" id="tab-allgemein">
-                <!-- Hauptmetriken -->
-                <div class="metrics-grid">
-                    <div class="metric-card blue">
-                        <span class="metric-badge storno">3 Storno</span>
-                        <div class="metric-icon blue">📊</div>
-                        <div class="metric-label">
-                            MG Gesamt
-                            <span class="info-trigger">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke-width="2" stroke-linecap="round"/></svg>
-                                <span class="tooltip">Alle Mitgliedschaften im gewählten Zeitraum</span>
-                            </span>
+
+                <!-- HAUPT-METRIKEN: MG Gesamt, NMG, ERH - jeweils mit Anzahl, JE, EH groß -->
+                <div class="section-header">
+                    <span class="icon">📊</span>
+                    <h2>Mitgliedschaften</h2>
+                </div>
+
+                <div class="main-metrics">
+                    <!-- MG Gesamt -->
+                    <div class="main-metric-card blue">
+                        <div class="main-metric-row">
+                            <div class="main-metric-label">
+                                MG Gesamt
+                                <span class="info-icon">i<span class="tooltip">Alle Mitgliedschaften im Zeitraum</span></span>
+                            </div>
+                            <span class="main-metric-badge">3 Storno</span>
                         </div>
-                        <div class="metric-value">47</div>
-                        <div class="metric-sub">5.640,00 JE</div>
-                        <div class="metric-detail">(470,00 EH)</div>
+                        <div class="main-metric-values">
+                            <div class="main-metric-value-group">
+                                <div class="main-metric-value">47</div>
+                                <div class="main-metric-unit">Anzahl</div>
+                            </div>
+                            <div class="main-metric-value-group">
+                                <div class="main-metric-value je">5.640</div>
+                                <div class="main-metric-unit">JE</div>
+                            </div>
+                            <div class="main-metric-value-group">
+                                <div class="main-metric-value eh">470</div>
+                                <div class="main-metric-unit">EH</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="metric-card green">
-                        <span class="metric-badge storno">2 Storno</span>
-                        <div class="metric-icon green">🆕</div>
-                        <div class="metric-label">
-                            NMG (Neu)
-                            <span class="info-trigger">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke-width="2" stroke-linecap="round"/></svg>
-                                <span class="tooltip">Neue Mitgliedschaften</span>
-                            </span>
+                    <!-- NMG -->
+                    <div class="main-metric-card green">
+                        <div class="main-metric-row">
+                            <div class="main-metric-label">
+                                NMG (Neu)
+                                <span class="info-icon">i<span class="tooltip">Neue Mitgliedschaften</span></span>
+                            </div>
+                            <span class="main-metric-badge">2 Storno</span>
                         </div>
-                        <div class="metric-value">32</div>
-                        <div class="metric-sub">3.840,00 JE</div>
-                        <div class="metric-detail">(320,00 EH)</div>
+                        <div class="main-metric-values">
+                            <div class="main-metric-value-group">
+                                <div class="main-metric-value">32</div>
+                                <div class="main-metric-unit">Anzahl</div>
+                            </div>
+                            <div class="main-metric-value-group">
+                                <div class="main-metric-value je">3.840</div>
+                                <div class="main-metric-unit">JE</div>
+                            </div>
+                            <div class="main-metric-value-group">
+                                <div class="main-metric-value eh">320</div>
+                                <div class="main-metric-unit">EH</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="metric-card purple">
-                        <span class="metric-badge success">0 Storno</span>
-                        <div class="metric-icon purple">⬆️</div>
-                        <div class="metric-label">
-                            ERH
-                            <span class="info-trigger">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke-width="2" stroke-linecap="round"/></svg>
-                                <span class="tooltip">Beitragserhöhungen</span>
-                            </span>
+                    <!-- ERH -->
+                    <div class="main-metric-card purple">
+                        <div class="main-metric-row">
+                            <div class="main-metric-label">
+                                ERH (Erhöhungen)
+                                <span class="info-icon">i<span class="tooltip">Beitragserhöhungen</span></span>
+                            </div>
+                            <span class="main-metric-badge success">0 Storno</span>
                         </div>
-                        <div class="metric-value">15</div>
-                        <div class="metric-sub">1.800,00 JE</div>
-                        <div class="metric-detail">(150,00 EH)</div>
-                    </div>
-
-                    <div class="metric-card orange">
-                        <div class="metric-icon orange">📉</div>
-                        <div class="metric-label">
-                            Stornoquote
-                            <span class="info-trigger">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 16v-4M12 8h.01" stroke-width="2" stroke-linecap="round"/></svg>
-                                <span class="tooltip">Median der MG und Summen Stornoquote</span>
-                            </span>
+                        <div class="main-metric-values">
+                            <div class="main-metric-value-group">
+                                <div class="main-metric-value">15</div>
+                                <div class="main-metric-unit">Anzahl</div>
+                            </div>
+                            <div class="main-metric-value-group">
+                                <div class="main-metric-value je">1.800</div>
+                                <div class="main-metric-unit">JE</div>
+                            </div>
+                            <div class="main-metric-value-group">
+                                <div class="main-metric-value eh">150</div>
+                                <div class="main-metric-unit">EH</div>
+                            </div>
                         </div>
-                        <div class="metric-value">5,3%</div>
-                        <div class="metric-sub">3 von 47 MG</div>
                     </div>
                 </div>
 
-                <!-- Charts -->
-                <div class="charts-section">
+                <!-- STORNO DETAILS -->
+                <div class="section-header">
+                    <span class="icon">📉</span>
+                    <h2>Storno-Analyse</h2>
+                </div>
+
+                <div class="storno-section">
+                    <div class="storno-card">
+                        <div class="storno-card-label">Stornoquote MG</div>
+                        <div class="storno-card-value">6,4%</div>
+                        <div class="storno-card-detail">3 von 47 MG storniert</div>
+                    </div>
+                    <div class="storno-card">
+                        <div class="storno-card-label">Stornoquote JE</div>
+                        <div class="storno-card-value good">4,3%</div>
+                        <div class="storno-card-detail">240 von 5.640 JE</div>
+                    </div>
+                    <div class="storno-card">
+                        <div class="storno-card-label">Stornoquote NMG</div>
+                        <div class="storno-card-value">6,3%</div>
+                        <div class="storno-card-detail">2 von 32 NMG</div>
+                    </div>
+                    <div class="storno-card">
+                        <div class="storno-card-label">Stornoquote ERH</div>
+                        <div class="storno-card-value good">0,0%</div>
+                        <div class="storno-card-detail">0 von 15 ERH</div>
+                    </div>
+                </div>
+
+                <!-- DETAIL-KARTEN -->
+                <div class="section-header">
+                    <span class="icon">📈</span>
+                    <h2>Weitere Kennzahlen</h2>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <div class="detail-card-icon blue">👴</div>
+                        <div class="detail-card-value">34</div>
+                        <div class="detail-card-label">Ø Alter NMG (Jahre)</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-icon green">💰</div>
+                        <div class="detail-card-value">120</div>
+                        <div class="detail-card-label">Beitragsschnitt (JE)</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-icon purple">📈</div>
+                        <div class="detail-card-value">120</div>
+                        <div class="detail-card-label">ERH-Schnitt (JE)</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-icon orange">📅</div>
+                        <div class="detail-card-value">2,4</div>
+                        <div class="detail-card-label">MG pro Tag (Ø)</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-icon blue">📞</div>
+                        <div class="detail-card-value">87%</div>
+                        <div class="detail-card-label">Mit Telefonnummer</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-icon green">📧</div>
+                        <div class="detail-card-value">64%</div>
+                        <div class="detail-card-label">Mit E-Mail</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-icon purple">🔄</div>
+                        <div class="detail-card-value">59%</div>
+                        <div class="detail-card-label">Monatszahler</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-icon orange">📊</div>
+                        <div class="detail-card-value">23%</div>
+                        <div class="detail-card-label">Quartalszahler</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-icon red">⏰</div>
+                        <div class="detail-card-value">19</div>
+                        <div class="detail-card-label">Arbeitstage</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-card-icon blue">🏆</div>
+                        <div class="detail-card-value">14</div>
+                        <div class="detail-card-label">Bester Tag (MG)</div>
+                    </div>
+                </div>
+
+                <!-- CHARTS -->
+                <div class="section-header">
+                    <span class="icon">📉</span>
+                    <h2>Visualisierungen</h2>
+                </div>
+
+                <div class="charts-row">
                     <div class="chart-card">
                         <div class="chart-header">
                             <div class="chart-title">📈 Wochenübersicht</div>
@@ -718,7 +977,6 @@
                             <canvas id="weekChart"></canvas>
                         </div>
                     </div>
-
                     <div class="chart-card">
                         <div class="chart-header">
                             <div class="chart-title">🔄 Zahlungsfrequenz</div>
@@ -727,13 +985,10 @@
                             <canvas id="frequencyChart"></canvas>
                             <div class="donut-center">
                                 <div class="donut-center-value">47</div>
-                                <div class="donut-center-label">GESAMT</div>
+                                <div class="donut-center-label">MG</div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="charts-section">
                     <div class="chart-card">
                         <div class="chart-header">
                             <div class="chart-title">👥 Altersverteilung</div>
@@ -742,69 +997,12 @@
                             <canvas id="ageChart"></canvas>
                         </div>
                     </div>
-
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div class="chart-title">📋 Weitere Kennzahlen</div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 12px; padding-top: 8px;">
-                            <div class="mini-metric" style="padding: 14px;">
-                                <div class="mini-metric-icon blue">📞</div>
-                                <div>
-                                    <div class="mini-metric-value">87%</div>
-                                    <div class="mini-metric-label">mit Telefonnummer</div>
-                                </div>
-                            </div>
-                            <div class="mini-metric" style="padding: 14px;">
-                                <div class="mini-metric-icon green">📧</div>
-                                <div>
-                                    <div class="mini-metric-value">64%</div>
-                                    <div class="mini-metric-label">mit E-Mail</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Zusätzliche Metriken -->
-                <div class="metrics-row">
-                    <div class="mini-metric">
-                        <div class="mini-metric-icon blue">👴</div>
-                        <div>
-                            <div class="mini-metric-value">34</div>
-                            <div class="mini-metric-label">Ø Alter NMG (Jahre)</div>
-                        </div>
-                    </div>
-                    <div class="mini-metric">
-                        <div class="mini-metric-icon green">💰</div>
-                        <div>
-                            <div class="mini-metric-value">120,00</div>
-                            <div class="mini-metric-label">Beitragsschnitt (JE)</div>
-                        </div>
-                    </div>
-                    <div class="mini-metric">
-                        <div class="mini-metric-icon purple">📈</div>
-                        <div>
-                            <div class="mini-metric-value">120,00</div>
-                            <div class="mini-metric-label">ERH-Schnitt (JE)</div>
-                        </div>
-                    </div>
-                    <div class="mini-metric">
-                        <div class="mini-metric-icon orange">📅</div>
-                        <div>
-                            <div class="mini-metric-value">2,4</div>
-                            <div class="mini-metric-label">MG Tagesdurchschnitt</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Rekorde: Werben -->
+                <!-- REKORDE: WERBEN -->
                 <div class="rekorde-section">
                     <div class="rekorde-header">
-                        <div class="rekorde-title">
-                            <span class="rekorde-title-icon">🏆</span>
-                            Rekorde - Werben
-                        </div>
+                        <div class="rekorde-title">🏆 Rekorde - Werben</div>
                         <div class="rekorde-filter">
                             <button class="rekorde-filter-btn active">2025</button>
                             <button class="rekorde-filter-btn">Gesamt</button>
@@ -888,15 +1086,11 @@
                     </div>
                 </div>
 
-                <!-- Allgemein Rekorde -->
+                <!-- ALLGEMEINE REKORDE -->
                 <div class="rekorde-section allgemein-rekorde">
                     <div class="rekorde-header">
-                        <div class="rekorde-title">
-                            <span class="rekorde-title-icon">⚡</span>
-                            Allgemeine Rekorde
-                        </div>
+                        <div class="rekorde-title">⚡ Allgemeine Rekorde</div>
                     </div>
-
                     <div class="rekorde-grid">
                         <div class="rekord-card">
                             <div class="rekord-icon">📝</div>
@@ -917,7 +1111,7 @@
                         <div class="rekord-card">
                             <div class="rekord-icon">⏰</div>
                             <div class="rekord-content">
-                                <div class="rekord-label">Längste Stunden-Streak</div>
+                                <div class="rekord-label">Stunden-Streak</div>
                                 <div class="rekord-value">9 Stunden</div>
                                 <div class="rekord-date">📅 15.03.2025</div>
                             </div>
@@ -925,17 +1119,9 @@
                         <div class="rekord-card">
                             <div class="rekord-icon">⚡</div>
                             <div class="rekord-content">
-                                <div class="rekord-label">Längste 15-Min Streak</div>
+                                <div class="rekord-label">15-Min Streak</div>
                                 <div class="rekord-value">14 Zyklen</div>
                                 <div class="rekord-date">📅 15.03.2025</div>
-                            </div>
-                        </div>
-                        <div class="rekord-card">
-                            <div class="rekord-icon">🔥</div>
-                            <div class="rekord-content">
-                                <div class="rekord-label">Längste 30-Min Streak</div>
-                                <div class="rekord-value">10 Zyklen</div>
-                                <div class="rekord-date">📅 10.02.2025</div>
                             </div>
                         </div>
                     </div>
@@ -944,45 +1130,71 @@
 
             <!-- Tab: Werben -->
             <div class="tab-content" id="tab-werben">
-                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">Werben-Tab: Gleiche Struktur wie Allgemein, nur Werben-spezifische Daten</p>
+                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">Werben-spezifische Daten (gleiche Struktur)</p>
             </div>
 
             <!-- Tab: Teamleitung -->
             <div class="tab-content" id="tab-teamleitung">
                 <div class="empty-state">
                     <div class="empty-state-icon">👥</div>
-                    <div class="empty-state-text">Keine Teamleitungs-Daten vorhanden</div>
+                    <div>Keine Teamleitungs-Daten vorhanden</div>
                 </div>
             </div>
 
             <!-- Tab: Empfehlung -->
             <div class="tab-content" id="tab-empfehlung">
-                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">Empfehlung-Tab: Durchschnittswerte aller Empfehlungen</p>
+                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">Empfehlung-Daten</p>
             </div>
 
             <!-- Tab: Recruiting -->
             <div class="tab-content" id="tab-recruiting">
-                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">Recruiting-Tab: Durchschnittswerte aller Recruitments</p>
+                <p style="color: var(--text-secondary); text-align: center; padding: 40px;">Recruiting-Daten</p>
             </div>
 
             <!-- Tab: Quality -->
             <div class="tab-content" id="tab-quality">
                 <div class="empty-state">
                     <div class="empty-state-icon">✨</div>
-                    <div class="empty-state-text">Keine Quality-Daten vorhanden</div>
+                    <div>Keine Quality-Daten vorhanden</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Modal -->
+    <div class="date-range-modal" id="dateRangeModal">
+        <div class="date-range-modal-content">
+            <div class="date-range-modal-header">
+                <h3>Individueller Zeitraum</h3>
+                <button class="date-range-modal-close" onclick="closeDateRangeModal()">✕</button>
+            </div>
+            <div class="date-range-modal-body">
+                <div class="date-inputs-row">
+                    <div class="date-range-field">
+                        <label>Von</label>
+                        <input type="text" id="dateFrom" placeholder="TT.MM.JJJJ">
+                    </div>
+                    <div class="date-range-field">
+                        <label>Bis</label>
+                        <input type="text" id="dateTo" placeholder="TT.MM.JJJJ">
+                    </div>
+                </div>
+            </div>
+            <div class="date-range-modal-footer">
+                <button class="btn-cancel" onclick="closeDateRangeModal()">Abbrechen</button>
+                <button class="btn-apply" onclick="applyDateRange()">Anwenden</button>
             </div>
         </div>
     </div>
 
     <script>
         // ========================================
-        // URL PARAMETER & INIT
+        // URL PARAMS & INIT
         // ========================================
-
         const urlParams = new URLSearchParams(window.location.search);
         const employeeId = urlParams.get('id');
         const employeeName = urlParams.get('name');
+        let currentPeriod = 'year';
 
         if (employeeName) {
             document.getElementById('employeeName').textContent = decodeURIComponent(employeeName);
@@ -992,7 +1204,6 @@
         // ========================================
         // NAVIGATION
         // ========================================
-
         function goBack() {
             window.location.href = 'index.html';
         }
@@ -1000,7 +1211,6 @@
         // ========================================
         // TAB NAVIGATION
         // ========================================
-
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1013,7 +1223,6 @@
         // ========================================
         // REKORDE FILTER
         // ========================================
-
         document.querySelectorAll('.rekorde-filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const parent = btn.parentElement;
@@ -1023,16 +1232,72 @@
         });
 
         // ========================================
+        // DATE RANGE MODAL
+        // ========================================
+        function openDateRangeModal() {
+            document.getElementById('dateRangeModal').classList.add('active');
+        }
+
+        function closeDateRangeModal() {
+            document.getElementById('dateRangeModal').classList.remove('active');
+        }
+
+        function applyDateRange() {
+            const from = document.getElementById('dateFrom').value;
+            const to = document.getElementById('dateTo').value;
+            if (from && to) {
+                const dateRangeText = `${from} - ${to}`;
+                document.getElementById('headerPeriod').textContent = `Zeitraum: ${dateRangeText}`;
+                // Notify parent shell
+                window.parent.postMessage({
+                    type: 'customDateRangeApplied',
+                    dateRangeText: dateRangeText
+                }, '*');
+                closeDateRangeModal();
+                // Here: reload data for this date range
+            }
+        }
+
+        // ========================================
+        // PERIOD TEXT MAPPING
+        // ========================================
+        const periodLabels = {
+            'week': 'Diese Woche',
+            'month': 'Dieser Monat',
+            'quarter': 'Dieses Quartal',
+            'year': 'Dieses Jahr',
+            'all': 'Gesamt',
+            'custom': 'Individuell'
+        };
+
+        function updatePeriodDisplay(value) {
+            currentPeriod = value;
+            const label = periodLabels[value] || value;
+            document.getElementById('headerPeriod').textContent = `Zeitraum: ${label}`;
+        }
+
+        // ========================================
+        // MESSAGE LISTENER (from Shell)
+        // ========================================
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'periodFilter') {
+                // Bei Zeitraumänderung: Zurück zur Übersicht mit Zeitraum-Parameter
+                window.location.href = `index.html?period=${e.data.value}`;
+            }
+            if (e.data && e.data.type === 'openDateRangeModal') {
+                // Bei "Individuell": Zurück zur Übersicht, dort Modal öffnen
+                window.location.href = 'index.html?openDateModal=true';
+            }
+        });
+
+        // ========================================
         // CHARTS
         // ========================================
-
-        // Chart.js default styling
-        Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
-        Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#6b7280';
+        Chart.defaults.font.family = "'Inter', -apple-system, sans-serif";
+        Chart.defaults.color = '#6b7280';
 
         // Week Chart
-        const weekCtx = document.getElementById('weekChart').getContext('2d');
-        new Chart(weekCtx, {
+        new Chart(document.getElementById('weekChart'), {
             type: 'bar',
             data: {
                 labels: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
@@ -1041,7 +1306,7 @@
                         label: 'MG',
                         data: [6, 9, 7, 11, 8, 4, 2],
                         backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                        borderRadius: 6,
+                        borderRadius: 4,
                         order: 2
                     },
                     {
@@ -1054,62 +1319,33 @@
                         tension: 0.4,
                         yAxisID: 'y1',
                         order: 1,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#10b981'
+                        pointRadius: 3
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
+                interaction: { intersect: false, mode: 'index' },
                 plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20,
-                            font: { weight: '600' }
-                        }
-                    }
+                    legend: { position: 'top', labels: { usePointStyle: true, padding: 15, font: { size: 11 } } }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        position: 'left',
-                        grid: { color: 'rgba(0,0,0,0.05)' },
-                        title: { display: true, text: 'MG', font: { weight: '600' } }
-                    },
-                    y1: {
-                        beginAtZero: true,
-                        position: 'right',
-                        grid: { drawOnChartArea: false },
-                        title: { display: true, text: 'JE', font: { weight: '600' } }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false } },
+                    x: { grid: { display: false } }
                 }
             }
         });
 
         // Frequency Donut
-        const freqCtx = document.getElementById('frequencyChart').getContext('2d');
-        new Chart(freqCtx, {
+        new Chart(document.getElementById('frequencyChart'), {
             type: 'doughnut',
             data: {
                 labels: ['Monatlich', 'Quartärlich', 'Halbjährlich', 'Jährlich'],
                 datasets: [{
                     data: [28, 11, 5, 3],
-                    backgroundColor: [
-                        '#6366f1',
-                        '#10b981',
-                        '#f59e0b',
-                        '#8b5cf6'
-                    ],
+                    backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6'],
                     borderWidth: 0,
                     spacing: 2
                 }]
@@ -1119,26 +1355,17 @@
                 maintainAspectRatio: false,
                 cutout: '70%',
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 16,
-                            font: { size: 11, weight: '600' }
-                        }
-                    }
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12, font: { size: 10 } } }
                 }
             }
         });
 
         // Age Chart
-        const ageCtx = document.getElementById('ageChart').getContext('2d');
-        new Chart(ageCtx, {
+        new Chart(document.getElementById('ageChart'), {
             type: 'bar',
             data: {
                 labels: ['18-25', '26-35', '36-45', '46-55', '56-65', '65+'],
                 datasets: [{
-                    label: 'Anzahl',
                     data: [9, 16, 11, 7, 3, 1],
                     backgroundColor: [
                         'rgba(99, 102, 241, 0.9)',
@@ -1148,23 +1375,16 @@
                         'rgba(99, 102, 241, 0.3)',
                         'rgba(99, 102, 241, 0.15)'
                     ],
-                    borderRadius: 6
+                    borderRadius: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.05)' }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { display: false } }
                 }
             }
         });
