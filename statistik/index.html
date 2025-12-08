@@ -1049,10 +1049,10 @@
             text-align: left;
             font-size: 10px;
             font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            border-bottom: 3px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
+            color: #525252;
+            background: #e5e5e5;
+            border-bottom: 3px solid #a3a3a3;
+            border-right: 1px solid #d4d4d4;
             white-space: nowrap;
             user-select: none;
             position: relative;
@@ -1124,14 +1124,14 @@
 
         /* Totals Row */
         .table .totals-row td {
-            background: var(--bg-secondary) !important;
+            background: #e5e5e5 !important;
             font-weight: 600;
-            border-bottom: 3px solid var(--border-color);
+            border-bottom: 3px solid #a3a3a3;
             padding: 10px 12px;
         }
 
         .table .totals-row:hover td {
-            background: var(--bg-hover) !important;
+            background: #d9d9d9 !important;
         }
 
         .totals-count {
@@ -2092,11 +2092,11 @@
 
         // Formatierung Funktionen
         function formatMoney(value) {
-            return value.toLocaleString('de-DE') + ' €';
+            return value.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
         }
 
         function formatPercent(value) {
-            return value.toFixed(1) + '%';
+            return value.toFixed(1).replace('.', ',') + '%';
         }
 
         // Durchschnittliche Stornoquote berechnen
@@ -2162,7 +2162,7 @@
                         <td class="right">${w.mg.total}</td>
                         <td class="right">${formatMoney(w.summe.total.je)}</td>
                         <td class="right ${stornoClass}">${formatPercent(avgStorno)}</td>
-                        <td class="right">${avgMgProTag.toFixed(1)}</td>
+                        <td class="right">${avgMgProTag.toFixed(1).replace('.', ',')}</td>
                         <td class="right">${formatMoney(avgUmsatzProTag)}</td>
                         <td class="center">
                             <button class="btn-stats disabled" title="Statistik">
