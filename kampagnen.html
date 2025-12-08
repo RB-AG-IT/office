@@ -7231,7 +7231,7 @@ function renderKWDetails(campaign) {
                             ${werberWithLabels.length > 0 ? werberWithLabels.map(w => `
                                 <div class="kw-team-member">
                                     <div class="kw-team-member-left">
-                                        <div class="user-badge user-badge--werber user-badge--small">
+                                        <div class="user-badge user-badge--werber user-badge--mini">
                                             <div class="user-badge__avatar">${getInitials(w.name)}</div>
                                             <div class="user-badge__info">
                                                 <span class="user-badge__name">${w.name}</span>
@@ -7321,7 +7321,7 @@ function renderKWDetails(campaign) {
                                                             return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + (isInOtherWg ? ' in-other-wg' : '') + '" data-ma-id="' + m.id + '">' +
                                                                 '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
                                                                     ' onchange="toggleWgMaZuordnungLive(' + kw + ', \'' + wg.id + '\', ' + m.id + ', this.checked)">' +
-                                                                '<div class="user-badge user-badge--werber user-badge--small" style="flex: 1;">' +
+                                                                '<div class="user-badge user-badge--werber user-badge--mini" style="flex: 1;">' +
                                                                     '<div class="user-badge__avatar">' + initials + '</div>' +
                                                                     '<div class="user-badge__info">' +
                                                                         '<span class="user-badge__name">' + m.name + '</span>' +
@@ -7908,6 +7908,9 @@ function renderLastSchriebe(campaign) {
         const badgeClass = schrieb.typ === 'NMG' ? 'user-badge--neumitglied' : 'user-badge--erhoehung';
         const typeLabel = schrieb.typ === 'NMG' ? 'Neumitglied' : 'Erhöhung';
 
+        // Botschafter Initialen
+        const botschafterInitials = getInitials(schrieb.botschafter);
+
         html += `
             <div class="schrieb-compact" onclick="openSchriebDetails(${schrieb.id})" title="${schrieb.memberName} - ${schrieb.eh} EH">
                 <div class="schrieb-compact-header">
@@ -7932,7 +7935,13 @@ function renderLastSchriebe(campaign) {
                         ${ibanHtml}
                     </div>
                     <span class="schrieb-compact-time">${schrieb.uhrzeit}</span>
-                    <span class="schrieb-compact-botschafter" title="Botschafter: ${schrieb.botschafter}">${schrieb.botschafter}</span>
+                    <div class="user-badge user-badge--werber user-badge--mini">
+                        <div class="user-badge__avatar">${botschafterInitials}</div>
+                        <div class="user-badge__info">
+                            <span class="user-badge__name">${schrieb.botschafter}</span>
+                            <span class="user-badge__type">Werber</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
