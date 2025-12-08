@@ -7024,7 +7024,7 @@ function renderKWDetails(campaign) {
             // TC zuerst - als Werber-Badge mit TC Extra
             if (tc) {
                 const tcInitials = getInitials(tc.name);
-                const tcIsQM = tc.id === qmId || (tc.additionalRoles && tc.additionalRoles.includes('quality_manager'));
+                const tcIsQM = tc.id === qmId; // Nur eingetragener QM
                 pills += '<div class="user-badge user-badge--werber user-badge--mini">' +
                     '<div class="user-badge__avatar">' + tcInitials + '</div>' +
                     '<div class="user-badge__info">' +
@@ -7036,7 +7036,7 @@ function renderKWDetails(campaign) {
             // Dann Werber alphabetisch sortiert
             werberSorted.forEach(w => {
                 const wInitials = getInitials(w.name);
-                const wIsQM = w.id === qmId || (w.additionalRoles && w.additionalRoles.includes('quality_manager'));
+                const wIsQM = w.id === qmId; // Nur eingetragener QM
                 pills += '<div class="user-badge user-badge--werber user-badge--mini">' +
                     '<div class="user-badge__avatar">' + wInitials + '</div>' +
                     '<div class="user-badge__info">' +
@@ -7080,12 +7080,7 @@ function renderKWDetails(campaign) {
                         </div>
                         <div class="kw-header-badges">
                             ${assignment.qualityManager ? `
-                                <span class="kw-quality-ribbon" title="Quality Manager eingeteilt">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6z"/>
-                                    </svg>
-                                    <span class="ribbon-q">Q</span>
-                                </span>
+                                <span class="user-badge__extra user-badge__extra--q" title="Quality Manager eingeteilt">Q</span>
                             ` : ''}
                             <span class="kw-badge count">${totalCount} Pers.</span>
                         </div>
@@ -7210,12 +7205,7 @@ function renderKWDetails(campaign) {
                                 Challenge
                             </div>
                             ${assignment.qualityManager ? `
-                                <span class="kw-challenge-qm-badge">
-                                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 12px; height: 12px;">
-                                        <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6z"/>
-                                    </svg>
-                                    QM aktiv
-                                </span>
+                                <span class="user-badge__extra user-badge__extra--q" style="font-size: 10px; padding: 2px 6px;">Q</span>
                             ` : ''}
                         </div>
 
@@ -7288,7 +7278,7 @@ function renderKWDetails(campaign) {
 
                         <div class="kw-team-list">
                             ${werberWithLabels.length > 0 ? werberWithLabels.map(w => {
-                                const wIsQM = w.id === qmId || w.isQM || (w.additionalRoles && w.additionalRoles.includes('quality_manager'));
+                                const wIsQM = w.id === qmId; // Nur eingetragener QM
                                 return `
                                 <div class="kw-team-member">
                                     <div class="kw-team-member-left">
@@ -7378,7 +7368,7 @@ function renderKWDetails(campaign) {
                                                             const isInOtherWg = maCurrentWg && maCurrentWg !== wg.id;
                                                             const initials = getInitials(m.name);
                                                             const mIsTC = m.id === tcId;
-                                                            const mIsQM = m.id === qmId || (m.additionalRoles && m.additionalRoles.includes('quality_manager'));
+                                                            const mIsQM = m.id === qmId; // Nur eingetragener QM
 
                                                             return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + (isInOtherWg ? ' in-other-wg' : '') + '" data-ma-id="' + m.id + '">' +
                                                                 '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
