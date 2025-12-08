@@ -772,15 +772,6 @@
             display: block;
         }
 
-        /* Storno View */
-        .storno-view {
-            display: none;
-        }
-
-        .storno-view.active {
-            display: block;
-        }
-
         .records-view {
             display: block;
         }
@@ -1674,10 +1665,6 @@
                                 Bestandsmitglieder
                                 <span class="detail-tab-badge" id="bestandTabBadge">0</span>
                             </button>
-                            <button class="detail-tab" onclick="switchDetailTab('storno')">
-                                Storno
-                                <span class="detail-tab-badge" id="stornoTabBadge">0</span>
-                            </button>
                         </div>
                         <div style="margin-left: auto; display: flex; gap: 8px;" id="detailToolbarButtons">
                             <!-- Records Tab Buttons -->
@@ -1779,31 +1766,6 @@
                         </div>
                     </div>
 
-                    <!-- Storno View -->
-                    <div class="storno-view" id="stornoView">
-                        <div class="data-section">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 80px;">Typ</th>
-                                        <th style="width: 140px;">Name</th>
-                                        <th style="width: 100px;">Datum</th>
-                                        <th style="width: 100px;">Storniert am</th>
-                                        <th style="width: 180px;">Adresse</th>
-                                        <th style="width: 80px; text-align: right;">JE</th>
-                                        <th style="width: 120px;">Grund</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="stornoTableBody">
-                                    <!-- Wird per JS befüllt -->
-                                </tbody>
-                            </table>
-                            <div class="pagination" id="stornoPagination">
-                                <div class="pagination-info" id="stornoPaginationInfo">Keine Stornierungen</div>
-                                <div class="pagination-buttons" id="stornoPaginationButtons"></div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div><!-- Ende content-area -->
@@ -2590,14 +2552,6 @@
             document.getElementById('detailTitle').textContent = title;
             document.getElementById('detailSubtitle').textContent = subtitle;
             renderRecordsTable(records);
-
-            // Update storno badge count
-            const stornoCount = records.filter(r => r.status === 'storniert').length;
-            document.getElementById('stornoTabBadge').textContent = stornoCount;
-
-            // Update records badge (only active)
-            const activeCount = records.filter(r => r.status === 'active').length;
-            document.getElementById('recordsTabBadge').textContent = activeCount;
         }
 
         function goBack() {
@@ -3308,18 +3262,9 @@
                 const record = recordsData.find(r => r.id === currentStornoId);
                 if (record) {
                     record.status = 'storniert';
-                    record.stornoDate = new Date().toISOString().split('T')[0];
-                    record.stornoReason = reason.closest('.storno-reason').querySelector('label')?.textContent || reason.value;
-
                     // Re-render if in detail view
                     if (currentEntity) {
-                        renderRecordsTable(currentRecords);
-                        // Update storno badge
-                        const stornoCount = currentRecords.filter(r => r.status === 'storniert').length;
-                        document.getElementById('stornoTabBadge').textContent = stornoCount;
-                        // Update records badge
-                        const activeCount = currentRecords.filter(r => r.status === 'active').length;
-                        document.getElementById('recordsTabBadge').textContent = activeCount;
+                        renderRecordsTable(recordsData);
                     }
                 }
                 await showAlert('Storniert', 'Datensatz wurde storniert.', 'success');
@@ -3337,18 +3282,12 @@
 
             // Update tab buttons
             document.querySelectorAll('.detail-tab').forEach(btn => {
-                const btnText = btn.textContent.toLowerCase();
-                let isActive = false;
-                if (tab === 'records' && btnText.includes('neumitglieder')) isActive = true;
-                if (tab === 'bestand' && btnText.includes('bestandsmitglieder')) isActive = true;
-                if (tab === 'storno' && btnText.includes('storno')) isActive = true;
-                btn.classList.toggle('active', isActive);
+                btn.classList.toggle('active', btn.textContent.includes(tab === 'records' ? 'Neumitglieder' : 'Bestandsmitglieder'));
             });
 
             // Show/hide views
             document.getElementById('recordsView').classList.toggle('hidden', tab !== 'records');
             document.getElementById('bestandView').classList.toggle('active', tab === 'bestand');
-            document.getElementById('stornoView').classList.toggle('active', tab === 'storno');
 
             // Toggle toolbar buttons
             document.querySelectorAll('.records-toolbar-btn').forEach(btn => {
@@ -3361,11 +3300,6 @@
             // Render Bestandsmitglieder if switching to that tab
             if (tab === 'bestand' && currentEntity) {
                 renderBestandsmitglieder();
-            }
-
-            // Render Stornierungen if switching to that tab
-            if (tab === 'storno' && currentEntity) {
-                renderStornierungen();
             }
         }
 
@@ -3417,50 +3351,6 @@
 
             // Update badge
             document.getElementById('bestandTabBadge').textContent = bestand.length;
-        }
-
-        function renderStornierungen() {
-            // Get stornierte records from current records
-            const stornoRecords = currentRecords.filter(r => r.status === 'storniert');
-            const tbody = document.getElementById('stornoTableBody');
-
-            if (stornoRecords.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                            Keine Stornierungen vorhanden.<br>
-                            <small>Stornierte Datensätze werden hier angezeigt.</small>
-                        </td>
-                    </tr>`;
-                document.getElementById('stornoPaginationInfo').textContent = 'Keine Stornierungen';
-                document.getElementById('stornoPaginationButtons').innerHTML = '';
-            } else {
-                tbody.innerHTML = stornoRecords.map(r => {
-                    const typeClass = r.type === 'nmg' ? 'user-badge--storno' : 'user-badge--storno';
-                    const typeLabel = r.type === 'nmg' ? 'Ehem. Neumitglied' : 'Ehem. Erhöhung';
-                    return `
-                    <tr>
-                        <td>
-                            <div class="user-badge ${typeClass} user-badge--small">
-                                <div class="user-badge__avatar"></div>
-                                <div class="user-badge__info">
-                                    <span class="user-badge__type">${r.type.toUpperCase()}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td title="${r.name}">${r.name}</td>
-                        <td>${formatDate(r.date)}</td>
-                        <td>${formatDate(r.stornoDate || r.date)}</td>
-                        <td title="${r.address || ''}">${r.address || '-'}</td>
-                        <td style="text-align: right;">${r.je} €</td>
-                        <td>${r.stornoReason || 'Nicht angegeben'}</td>
-                    </tr>`;
-                }).join('');
-                document.getElementById('stornoPaginationInfo').textContent = `${stornoRecords.length} Stornierungen`;
-            }
-
-            // Update badge
-            document.getElementById('stornoTabBadge').textContent = stornoRecords.length;
         }
 
         async function createErhoehung(bestandId) {
