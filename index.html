@@ -1039,9 +1039,10 @@
                 showToolbar: true,
                 navOptions: [
                     { value: 'alle', label: 'Alle Benutzer', active: true },
-                    { value: 'mitarbeiter', label: 'Mitarbeiter' },
+                    { value: 'werber', label: 'Werber' },
                     { value: 'kunde', label: 'Kunden' }
                 ],
+                stufenFilter: true,
                 searchPlaceholder: 'Benutzer suchen...',
                 actionBtn: { text: 'Benutzer anlegen', icon: 'plus' }
             },
@@ -1309,6 +1310,55 @@
                 filtersLeft.style.display = 'none';
                 filtersLeft.innerHTML = '';
             }
+
+            // Update Stufen Filter (rechts von Searchbar)
+            const filtersRight = document.getElementById('shellFilters');
+            if (config.stufenFilter) {
+                filtersRight.style.display = 'flex';
+                filtersRight.innerHTML = `
+                    <div class="toolbar-nav-dropdown toolbar-nav-click multi-select" id="shellStufenDropdown">
+                        <div class="toolbar-nav-trigger" onclick="toggleShellStufenDropdown()">
+                            <span id="shellStufenDropdownText">Alle Stufen</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="toolbar-nav-menu stufen-menu">
+                            <div class="toolbar-nav-option stufen-option active" data-value="all" onclick="toggleStufenOption(this, 'all')">
+                                <span class="stufen-check">✓</span> Alle Stufen
+                            </div>
+                            <div class="stufen-divider"></div>
+                            <div class="toolbar-nav-option stufen-option" data-value="SMA" onclick="toggleStufenOption(this, 'SMA')">
+                                <span class="stufen-check">✓</span> SMA - Starting Marketing Advisor
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="EMA" onclick="toggleStufenOption(this, 'EMA')">
+                                <span class="stufen-check">✓</span> EMA - Executive Marketing Advisor
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="JMM" onclick="toggleStufenOption(this, 'JMM')">
+                                <span class="stufen-check">✓</span> JMM - Junior Marketing Manager
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="EMM" onclick="toggleStufenOption(this, 'EMM')">
+                                <span class="stufen-check">✓</span> EMM - Executive Marketing Manager
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="CEMM" onclick="toggleStufenOption(this, 'CEMM')">
+                                <span class="stufen-check">✓</span> CEMM - Chief Executive Marketing Manager
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="SPB" onclick="toggleStufenOption(this, 'SPB')">
+                                <span class="stufen-check">✓</span> SPB - Spitzenbotschafter
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="KAD" onclick="toggleStufenOption(this, 'KAD')">
+                                <span class="stufen-check">✓</span> KAD - Kadermanager
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="FUE" onclick="toggleStufenOption(this, 'FUE')">
+                                <span class="stufen-check">✓</span> FUE - Führungsebene
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                filtersRight.style.display = 'none';
+                filtersRight.innerHTML = '';
+            }
         }
 
         // Icon path helper
@@ -1396,6 +1446,63 @@
             const iframe = document.querySelector('#content-container iframe');
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({ type: 'periodFilter', value: value }, '*');
+            }
+        }
+
+        // Shell Stufen Dropdown Toggle
+        function toggleShellStufenDropdown() {
+            const dropdown = document.getElementById('shellStufenDropdown');
+            if (dropdown) dropdown.classList.toggle('open');
+        }
+
+        // Track selected stufen
+        let selectedStufen = ['all'];
+
+        // Toggle Stufen Option
+        function toggleStufenOption(el, value) {
+            event.stopPropagation();
+
+            if (value === 'all') {
+                // Select "Alle" and deselect others
+                selectedStufen = ['all'];
+                document.querySelectorAll('#shellStufenDropdown .stufen-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === 'all');
+                });
+            } else {
+                // Deselect "Alle" and toggle this option
+                const allOption = document.querySelector('#shellStufenDropdown .stufen-option[data-value="all"]');
+                allOption.classList.remove('active');
+                selectedStufen = selectedStufen.filter(s => s !== 'all');
+
+                if (el.classList.contains('active')) {
+                    el.classList.remove('active');
+                    selectedStufen = selectedStufen.filter(s => s !== value);
+                } else {
+                    el.classList.add('active');
+                    selectedStufen.push(value);
+                }
+
+                // If nothing selected, select "Alle"
+                if (selectedStufen.length === 0) {
+                    selectedStufen = ['all'];
+                    allOption.classList.add('active');
+                }
+            }
+
+            // Update text
+            const textEl = document.getElementById('shellStufenDropdownText');
+            if (selectedStufen.includes('all')) {
+                textEl.textContent = 'Alle Stufen';
+            } else if (selectedStufen.length === 1) {
+                textEl.textContent = selectedStufen[0];
+            } else {
+                textEl.textContent = `${selectedStufen.length} Stufen`;
+            }
+
+            // Send to iframe
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'stufenFilter', stufen: selectedStufen }, '*');
             }
 
             // Handle "Individuell" - Kalender-Modal öffnen
