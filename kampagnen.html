@@ -2069,22 +2069,12 @@
             box-shadow: var(--shadow-sm);
         }
 
-        /* Oben: Name links, EH rechts */
+        /* Oben: Member-Badge links, EH rechts */
         .schrieb-compact-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 4px;
-        }
-
-        .schrieb-compact-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1;
+            gap: 8px;
         }
 
         .schrieb-compact-eh {
@@ -2092,9 +2082,10 @@
             font-weight: 700;
             color: var(--accent-color);
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
-        /* ERH/NMG Type Pill - unter EH */
+        /* Legacy - nicht mehr verwendet */
         .schrieb-compact-badges {
             display: flex;
             flex-direction: column;
@@ -2826,16 +2817,33 @@
             gap: var(--spacing-md);
         }
 
-        /* Unter dem Namen: WG Pill + Standort (vertikal) */
+        /* Member Container mit user-badge */
+        .schrieb-compact-member {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .schrieb-compact-member .user-badge {
+            margin-bottom: 4px;
+        }
+
+        .schrieb-compact-member .user-badge__name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 120px;
+        }
+
+        /* Unter dem user-badge: WG Badge + Standort (vertikal) */
         .schrieb-compact-location {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             gap: 2px;
-            margin-top: 3px;
+            margin-left: 32px; /* Avatar-Breite + gap ausrichten */
         }
 
-        .schrieb-compact-wg-pill {
+        .schrieb-wg-badge {
             display: inline-block;
             padding: 1px 6px;
             background: var(--color-werbegebiet-bg);
@@ -7896,25 +7904,27 @@ function renderLastSchriebe(campaign) {
             ? '<span class="schrieb-iban filled" title="IBAN nachgetragen">IBAN</span>'
             : '<span class="schrieb-iban missing" title="IBAN fehlt noch">IBAN</span>';
 
-        // Typ-Pill (NMG oder ERH)
-        const typPill = schrieb.typ
-            ? `<span class="schrieb-typ-pill ${schrieb.typ.toLowerCase()}">${schrieb.typ}</span>`
-            : '';
+        // User-Badge Klasse basierend auf Typ
+        const badgeClass = schrieb.typ === 'NMG' ? 'user-badge--neumitglied' : 'user-badge--erhoehung';
+        const typeLabel = schrieb.typ === 'NMG' ? 'Neumitglied' : 'Erhöhung';
 
         html += `
             <div class="schrieb-compact" onclick="openSchriebDetails(${schrieb.id})" title="${schrieb.memberName} - ${schrieb.eh} EH">
                 <div class="schrieb-compact-header">
-                    <div>
-                        <span class="schrieb-compact-name">${schrieb.memberName}</span>
+                    <div class="schrieb-compact-member">
+                        <div class="user-badge ${badgeClass} user-badge--small">
+                            <div class="user-badge__avatar"></div>
+                            <div class="user-badge__info">
+                                <span class="user-badge__name">${schrieb.memberName}</span>
+                                <span class="user-badge__type">${typeLabel}</span>
+                            </div>
+                        </div>
                         <div class="schrieb-compact-location">
-                            <span class="schrieb-compact-wg-pill">${schrieb.werbegebiet}</span>
+                            <span class="schrieb-wg-badge">${schrieb.werbegebiet}</span>
                             <span class="schrieb-compact-strasse"><span class="location-emoji">📍</span>${schrieb.strasse} ${schrieb.hausnr}</span>
                         </div>
                     </div>
-                    <div class="schrieb-compact-badges">
-                        <span class="schrieb-compact-eh">${schrieb.eh} EH</span>
-                        ${typPill}
-                    </div>
+                    <span class="schrieb-compact-eh">${schrieb.eh} EH</span>
                 </div>
                 <div class="schrieb-compact-footer">
                     <div class="schrieb-compact-status">
