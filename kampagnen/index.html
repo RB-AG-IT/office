@@ -892,21 +892,35 @@
             flex: 1;
         }
 
-        /* Team Pills im Header (eingeklappt) */
+        /* Team Pills im Header (eingeklappt) - scrollbar */
         .kw-header-team {
             display: flex;
             align-items: center;
             gap: 6px;
             flex: 1;
+            min-width: 0; /* Wichtig für Scroll-Verhalten */
             overflow-x: auto;
             overflow-y: hidden;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
-            padding: 2px 0;
+            scrollbar-width: thin; /* Firefox - schmale Scrollbar */
+            scrollbar-color: var(--border-color) transparent;
+            padding: 4px 0;
         }
 
         .kw-header-team::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
+            height: 4px; /* Schmale Scrollbar */
+        }
+
+        .kw-header-team::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .kw-header-team::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 2px;
+        }
+
+        .kw-header-team::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
         }
 
         .kw-header-pill {
@@ -1044,6 +1058,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            flex-shrink: 0; /* Bleibt fest rechts */
         }
 
         /* Quality Ribbon Badge - Schleifen-Abzeichen mit Q */
@@ -5361,7 +5376,20 @@ const employees = [
     { id: 4, name: 'Lisa Weber', role: 'SMA', additionalRoles: ['quality_manager'] },
     { id: 5, name: 'Peter Fischer', role: 'SPB', additionalRoles: [] },
     { id: 6, name: 'Sarah Klein', role: 'SMA', additionalRoles: [] },
-    { id: 7, name: 'Michael Becker', role: 'SMA', additionalRoles: ['recruiting_manager'] }
+    { id: 7, name: 'Michael Becker', role: 'SMA', additionalRoles: ['recruiting_manager'] },
+    { id: 8, name: 'Julia Hoffmann', role: 'EMA', additionalRoles: [] },
+    { id: 9, name: 'Daniel Wagner', role: 'JMM', additionalRoles: [] },
+    { id: 10, name: 'Laura Schneider', role: 'SMA', additionalRoles: [] },
+    { id: 11, name: 'Markus Braun', role: 'EMA', additionalRoles: ['quality_manager'] },
+    { id: 12, name: 'Sophie Meyer', role: 'SMA', additionalRoles: [] },
+    { id: 13, name: 'Florian Wolf', role: 'JMM', additionalRoles: [] },
+    { id: 14, name: 'Hannah Richter', role: 'SMA', additionalRoles: [] },
+    { id: 15, name: 'Tobias Krause', role: 'EMA', additionalRoles: [] },
+    { id: 16, name: 'Lena Hartmann', role: 'SMA', additionalRoles: [] },
+    { id: 17, name: 'Christian Zimmer', role: 'KAD', additionalRoles: ['quality_manager'] },
+    { id: 18, name: 'Marie König', role: 'SMA', additionalRoles: [] },
+    { id: 19, name: 'Sebastian Fuchs', role: 'FUE', additionalRoles: [] },
+    { id: 20, name: 'Nina Berger', role: 'SMA', additionalRoles: [] }
 ];
 
 // Campaign storage
@@ -7142,9 +7170,10 @@ function renderKWDetails(campaign) {
 
         // Generiere Header Team Pills HTML als mini badges
         const qmId = assignment.qualityManager;
+        const qm = qmId ? employees.find(e => e.id === qmId) : null;
         const headerTeamPillsHtml = (() => {
             let pills = '';
-            // TC zuerst - als Werber-Badge mit TC Extra
+            // 1. TC zuerst - als Werber-Badge mit TC Extra
             if (tc) {
                 const tcInitials = getInitials(tc.name);
                 const tcIsQM = tc.id === qmId; // Nur eingetragener QM
@@ -7157,16 +7186,27 @@ function renderKWDetails(campaign) {
                     '</div>' +
                 '</div>';
             }
-            // Dann Werber alphabetisch sortiert
-            werberSorted.forEach(w => {
+            // 2. QM direkt nach TC (wenn vorhanden und nicht gleich TC)
+            if (qm && qm.id !== tcId) {
+                const qmInitials = getInitials(qm.name);
+                const qmStufe = qm.role || '';
+                pills += '<div class="user-badge user-badge--werber user-badge--small">' +
+                    '<div class="user-badge__avatar">' + qmInitials + getStufeBadge(qmStufe) + '</div>' +
+                    '<div class="user-badge__info">' +
+                        '<span class="user-badge__name">' + qm.name + '</span>' +
+                        getBadgeTypeRow('Werber', false, true) +
+                    '</div>' +
+                '</div>';
+            }
+            // 3. Dann restliche Werber alphabetisch sortiert (ohne TC und QM)
+            werberSorted.filter(w => w.id !== tcId && w.id !== qmId).forEach(w => {
                 const wInitials = getInitials(w.name);
-                const wIsQM = w.id === qmId; // Nur eingetragener QM
                 const wStufe = w.role || '';
                 pills += '<div class="user-badge user-badge--werber user-badge--small">' +
                     '<div class="user-badge__avatar">' + wInitials + getStufeBadge(wStufe) + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + w.name + '</span>' +
-                        getBadgeTypeRow('Werber', false, wIsQM) +
+                        getBadgeTypeRow('Werber', false, false) +
                     '</div>' +
                 '</div>';
             });
@@ -7204,9 +7244,6 @@ function renderKWDetails(campaign) {
                             ${headerTeamPillsHtml}
                         </div>
                         <div class="kw-header-badges">
-                            ${assignment.qualityManager ? `
-                                <span class="user-badge__extra user-badge__extra--q" title="Quality Manager eingeteilt">Q</span>
-                            ` : ''}
                             <span class="kw-badge count">${totalCount} Pers.</span>
                         </div>
                     </div>
