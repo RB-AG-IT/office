@@ -5713,6 +5713,40 @@ function getBadgeTypeRow(label, isTC = false, isQ = false) {
     return `<span class="user-badge__type">${label}</span>`;
 }
 
+// Stufen-Badge HTML generieren (für Avatar)
+function getStufeBadge(stufe) {
+    if (!stufe) return '';
+    const s = stufe.toLowerCase();
+    return `<span class="user-badge__stufe user-badge__stufe--${s}">${stufe.toUpperCase()}</span>`;
+}
+
+// Komplettes Werber-Badge generieren (zentrale Helper-Funktion)
+function createWerberBadge(options = {}) {
+    const {
+        name = 'Unbekannt',
+        size = '',           // '', 'small', 'mini', 'large'
+        isTC = false,
+        isQ = false,
+        stufe = '',          // 'SMA', 'EMA', 'JMM', 'EMM', 'CEMM', 'SPB', 'KAD', 'FUE'
+        style = ''           // zusätzliche inline styles
+    } = options;
+
+    const initials = getInitials(name);
+    const sizeClass = size ? `user-badge--${size}` : '';
+    const styleAttr = style ? ` style="${style}"` : '';
+
+    return `<div class="user-badge user-badge--werber ${sizeClass}"${styleAttr}>
+        <div class="user-badge__avatar">
+            ${initials}
+            ${getStufeBadge(stufe)}
+        </div>
+        <div class="user-badge__info">
+            <span class="user-badge__name">${name}</span>
+            ${getBadgeTypeRow('Werber', isTC, isQ)}
+        </div>
+    </div>`;
+}
+
 // Tab-Wechsel Funktion
 function switchMainTab(tabName) {
     // Tabs aktualisieren
@@ -6826,10 +6860,14 @@ function renderTCProvision(campaign) {
         const tcName = tc ? tc.name : 'Unbekannt';
         const tcInitials = getInitials(tcName);
 
+        const tcStufe = tc?.role || '';
         html += `
             <div class="tc-provision-row">
                 <div class="user-badge user-badge--werber user-badge--small">
-                    <div class="user-badge__avatar">${tcInitials}</div>
+                    <div class="user-badge__avatar">
+                        ${tcInitials}
+                        ${getStufeBadge(tcStufe)}
+                    </div>
                     <div class="user-badge__info">
                         <span class="user-badge__name">${tcName}</span>
                         ${getBadgeTypeRow('Werber', true, false)}
@@ -7063,8 +7101,9 @@ function renderKWDetails(campaign) {
             if (tc) {
                 const tcInitials = getInitials(tc.name);
                 const tcIsQM = tc.id === qmId; // Nur eingetragener QM
+                const tcStufe = tc.role || '';
                 pills += '<div class="user-badge user-badge--werber user-badge--mini">' +
-                    '<div class="user-badge__avatar">' + tcInitials + '</div>' +
+                    '<div class="user-badge__avatar">' + tcInitials + getStufeBadge(tcStufe) + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + tc.name + '</span>' +
                         getBadgeTypeRow('Werber', true, tcIsQM) +
@@ -7075,8 +7114,9 @@ function renderKWDetails(campaign) {
             werberSorted.forEach(w => {
                 const wInitials = getInitials(w.name);
                 const wIsQM = w.id === qmId; // Nur eingetragener QM
+                const wStufe = w.role || '';
                 pills += '<div class="user-badge user-badge--werber user-badge--mini">' +
-                    '<div class="user-badge__avatar">' + wInitials + '</div>' +
+                    '<div class="user-badge__avatar">' + wInitials + getStufeBadge(wStufe) + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + w.name + '</span>' +
                         getBadgeTypeRow('Werber', false, wIsQM) +
@@ -7317,17 +7357,17 @@ function renderKWDetails(campaign) {
                         <div class="kw-team-list">
                             ${werberWithLabels.length > 0 ? werberWithLabels.map(w => {
                                 const wIsQM = w.id === qmId; // Nur eingetragener QM
+                                const wStufe = w.role || '';
                                 return `
                                 <div class="kw-team-member">
                                     <div class="kw-team-member-left">
                                         <div class="user-badge user-badge--werber user-badge--mini">
-                                            <div class="user-badge__avatar">${getInitials(w.name)}</div>
+                                            <div class="user-badge__avatar">${getInitials(w.name)}${getStufeBadge(wStufe)}</div>
                                             <div class="user-badge__info">
                                                 <span class="user-badge__name">${w.name}</span>
                                                 ${getBadgeTypeRow('Werber', false, wIsQM)}
                                             </div>
                                         </div>
-                                        ${getStufeLabel(w.role || 'SMA')}
                                     </div>
                                     ${renderAttendanceTracker(campaign.id, kw, w.id, w.name)}
                                     <div class="kw-team-member-right">
@@ -7411,12 +7451,13 @@ function renderKWDetails(campaign) {
                                                             const initials = getInitials(m.name);
                                                             const mIsTC = m.id === tcId;
                                                             const mIsQM = m.id === qmId; // Nur eingetragener QM
+                                                            const mStufe = m.role || '';
 
                                                             return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + (isInOtherWg ? ' in-other-wg' : '') + '" data-ma-id="' + m.id + '">' +
                                                                 '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
                                                                     ' onchange="toggleWgMaZuordnungLive(' + kw + ', \'' + wg.id + '\', ' + m.id + ', this.checked)">' +
                                                                 '<div class="user-badge user-badge--werber user-badge--mini" style="flex: 1;">' +
-                                                                    '<div class="user-badge__avatar">' + initials + '</div>' +
+                                                                    '<div class="user-badge__avatar">' + initials + getStufeBadge(mStufe) + '</div>' +
                                                                     '<div class="user-badge__info">' +
                                                                         '<span class="user-badge__name">' + m.name + '</span>' +
                                                                         getBadgeTypeRow('Werber', mIsTC, mIsQM) +
@@ -8039,7 +8080,7 @@ function renderLastSchriebe(campaign) {
                         ${ibanHtml}
                     </div>
                     <div class="user-badge user-badge--werber user-badge--mini">
-                        <div class="user-badge__avatar">${botschafterInitials}</div>
+                        <div class="user-badge__avatar">${botschafterInitials}${getStufeBadge(schrieb.botschafterStufe || '')}</div>
                         <div class="user-badge__info">
                             <span class="user-badge__name">${schrieb.botschafter}</span>
                             <span class="user-badge__type">Werber</span>
@@ -8156,7 +8197,7 @@ function renderMitgliedCardLarge(mitglied) {
                     ${ibanHtml}
                 </div>
                 <div class="user-badge user-badge--werber user-badge--mini">
-                    <div class="user-badge__avatar">${botschafterInitials}</div>
+                    <div class="user-badge__avatar">${botschafterInitials}${getStufeBadge(mitglied.botschafterStufe || '')}</div>
                     <div class="user-badge__info">
                         <span class="user-badge__name">${mitglied.botschafter}</span>
                         <span class="user-badge__type">Werber</span>
