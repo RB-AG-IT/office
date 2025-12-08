@@ -2077,12 +2077,20 @@
             gap: 8px;
         }
 
+        /* Rechts oben: Uhrzeit + EH vertikal */
+        .schrieb-compact-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
         .schrieb-compact-eh {
             font-size: 12px;
             font-weight: 700;
             color: var(--accent-color);
             white-space: nowrap;
-            flex-shrink: 0;
         }
 
         /* Legacy - nicht mehr verwendet */
@@ -2855,7 +2863,14 @@
             font-size: 9px;
         }
 
-        /* Unten: Status links, Uhrzeit mitte, Botschafter rechts */
+        /* Uhrzeit rechts oben */
+        .schrieb-compact-time {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        /* Unten: Status links, Botschafter rechts */
         .schrieb-compact-footer {
             display: flex;
             align-items: center;
@@ -2870,22 +2885,6 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .schrieb-compact-time {
-            flex: 0 0 auto;
-            text-align: center;
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 11px;
-        }
-
-        .schrieb-compact-footer .user-badge--mini {
-            flex: 1;
-            justify-content: flex-end;
-            min-width: 0;
         }
 
         .schrieb-status-icon {
@@ -7965,14 +7964,16 @@ function renderLastSchriebe(campaign) {
                             <span class="schrieb-compact-strasse"><span class="location-emoji">📍</span>${schrieb.strasse} ${schrieb.hausnr}</span>
                         </div>
                     </div>
-                    <span class="schrieb-compact-eh">${schrieb.eh} EH</span>
+                    <div class="schrieb-compact-meta">
+                        <span class="schrieb-compact-time">${schrieb.uhrzeit}</span>
+                        <span class="schrieb-compact-eh">${schrieb.eh} EH</span>
+                    </div>
                 </div>
                 <div class="schrieb-compact-footer">
                     <div class="schrieb-compact-status">
                         ${emailIcon}
                         ${ibanHtml}
                     </div>
-                    <span class="schrieb-compact-time">${schrieb.uhrzeit}</span>
                     <div class="user-badge user-badge--werber user-badge--mini">
                         <div class="user-badge__avatar">${botschafterInitials}</div>
                         <div class="user-badge__info">
