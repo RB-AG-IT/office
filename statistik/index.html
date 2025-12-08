@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistik - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/table-system.css">
     <script src="../js/modal-system.js"></script>
     <script src="../js/badge-system.js"></script>
     <style>
@@ -976,12 +977,9 @@
             cursor: pointer;
         }
 
-        /* ========== NEUE TABELLEN-VORLAGE ========== */
+        /* ========== SEITEN-SPEZIFISCHE STYLES ========== */
+        /* Tabelle ohne Rahmen, margin-bottom für spacing */
         .table-wrap {
-            background: var(--bg-primary);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             margin-bottom: var(--spacing-lg);
         }
 
@@ -1001,152 +999,41 @@
             font-weight: 600;
         }
 
-        .table-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 12px;
-            background: var(--bg-primary);
+        /* Kleinere Buttons/Icons für Statistik-Seite */
+        .table .btn-stats {
+            width: 24px;
+            height: 24px;
         }
 
-        .btn-toggle-all {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            font-size: 10px;
-            color: var(--text-secondary);
-            background: transparent;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.15s;
+        .table .btn-stats svg {
+            width: 14px;
+            height: 14px;
         }
 
-        .btn-toggle-all:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
+        .table .dropdown-btn {
+            width: 24px;
+            height: 24px;
         }
 
-        .btn-toggle-all svg {
-            width: 12px;
-            height: 12px;
-            transition: transform 0.2s;
+        .table .dropdown-btn svg {
+            width: 14px;
+            height: 14px;
         }
 
-        .table-container {
-            overflow-x: auto;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
+        .table .dropdown-item {
             font-size: 11px;
         }
 
-        .table th {
-            padding: 10px 12px;
-            text-align: left;
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            border-bottom: 3px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
-            white-space: nowrap;
-            user-select: none;
-            position: relative;
+        .table .dropdown-item svg {
+            width: 12px;
+            height: 12px;
         }
 
-        .table th:last-child,
-        .table th:nth-last-child(2) {
-            border-right: none;
+        .table .dropdown-menu {
+            min-width: 140px;
         }
 
-        .table th.sortable {
-            cursor: pointer;
-            padding-right: 24px;
-        }
-
-        .table th.sortable:hover {
-            background: var(--bg-hover);
-        }
-
-        /* Sort Arrows */
-        .sort-arrows {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-        }
-
-        .sort-arrows svg {
-            width: 8px;
-            height: 8px;
-            color: var(--border-color);
-            transition: color 0.15s;
-        }
-
-        .table th.sort-asc .arrow-up,
-        .table th.sort-desc .arrow-down {
-            color: var(--text-primary);
-        }
-
-        .table th.sortable:hover .sort-arrows svg {
-            color: var(--text-secondary);
-        }
-
-        .table td {
-            padding: 8px 12px;
-            border-bottom: 1px solid var(--border-color);
-            border-right: 1px solid rgba(0,0,0,0.03);
-            white-space: nowrap;
-        }
-
-        .table td:last-child {
-            border-right: none;
-        }
-
-        .table tbody tr:nth-child(odd) {
-            background: var(--bg-secondary);
-        }
-
-        .table tbody tr:nth-child(even) {
-            background: var(--bg-primary);
-        }
-
-        .table tbody tr:hover {
-            background: var(--bg-hover);
-        }
-
-        /* Totals Row */
-        .table .totals-row td {
-            background: var(--bg-secondary) !important;
-            font-weight: 600;
-            border-bottom: 3px solid var(--border-color);
-            padding: 10px 12px;
-        }
-
-        .table .totals-row:hover td {
-            background: var(--bg-hover) !important;
-        }
-
-        .totals-count {
-            font-weight: 400;
-            font-size: 10px;
-            color: var(--text-secondary);
-            margin-left: 8px;
-        }
-
-        /* Value Colors */
-        .value-pos { color: #22c55e; }
-        .value-neg { color: #ef4444; }
-        .value-warn { color: #eab308; }
-
-        /* Action Buttons */
+        /* Action Buttons Container */
         .action-buttons {
             display: flex;
             align-items: center;
@@ -1154,178 +1041,8 @@
             gap: 4px;
         }
 
-        .btn-stats {
-            width: 24px;
-            height: 24px;
-            border: none;
-            background: transparent;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            transition: all 0.15s;
-        }
-
-        .btn-stats:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .btn-stats.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .btn-stats svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-btn {
-            width: 24px;
-            height: 24px;
-            border: none;
-            background: transparent;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            transition: all 0.15s;
-        }
-
-        .dropdown-btn:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .dropdown-btn svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            right: 0;
-            top: 100%;
-            margin-top: 4px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            min-width: 140px;
-            z-index: 100;
-            display: none;
-        }
-
-        .dropdown-menu.open {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            font-size: 11px;
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: background 0.1s;
-        }
-
-        .dropdown-item:first-child {
-            border-radius: 6px 6px 0 0;
-        }
-
-        .dropdown-item:last-child {
-            border-radius: 0 0 6px 6px;
-        }
-
-        .dropdown-item:hover {
-            background: var(--bg-hover);
-        }
-
-        .dropdown-item svg {
-            width: 12px;
-            height: 12px;
-            color: var(--text-secondary);
-        }
-
-        .dropdown-item.danger {
-            color: #ef4444;
-        }
-
-        .dropdown-item.danger svg {
-            color: #ef4444;
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 4px 0;
-        }
-
-        /* Expandable Rows */
-        .expandable-row {
-            cursor: pointer;
-        }
-
-        .expand-icon {
-            width: 14px;
-            height: 14px;
-            color: var(--text-secondary);
-            flex-shrink: 0;
-            transition: transform 0.2s;
-            transform: rotate(-90deg);
-        }
-
-        .expandable-row.open .expand-icon {
-            transform: rotate(0deg);
-        }
-
-        .no-expand-spacer {
-            width: 14px;
-            flex-shrink: 0;
-        }
-
-        .child-row {
-            display: none;
-        }
-
-        .child-row.visible {
-            display: table-row;
-        }
-
-        .child-row td {
-            background: var(--bg-primary) !important;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .child-row:hover td {
-            background: var(--bg-hover) !important;
-        }
-
         .child-row .name-cell {
             padding-left: 24px;
-        }
-
-        .child-indent {
-            width: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            color: var(--border-color);
-            font-size: 10px;
         }
     </style>
 </head>
@@ -2092,11 +1809,11 @@
 
         // Formatierung Funktionen
         function formatMoney(value) {
-            return value.toLocaleString('de-DE') + ' €';
+            return value.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
         }
 
         function formatPercent(value) {
-            return value.toFixed(1) + '%';
+            return value.toFixed(1).replace('.', ',') + '%';
         }
 
         // Durchschnittliche Stornoquote berechnen
@@ -2162,7 +1879,7 @@
                         <td class="right">${w.mg.total}</td>
                         <td class="right">${formatMoney(w.summe.total.je)}</td>
                         <td class="right ${stornoClass}">${formatPercent(avgStorno)}</td>
-                        <td class="right">${avgMgProTag.toFixed(1)}</td>
+                        <td class="right">${avgMgProTag.toFixed(1).replace('.', ',')}</td>
                         <td class="right">${formatMoney(avgUmsatzProTag)}</td>
                         <td class="center">
                             <button class="btn-stats disabled" title="Statistik">
