@@ -851,8 +851,24 @@
         .kw-header-wg-list {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
+        }
+
+        /* Trennlinie zwischen WG-Badges */
+        .kw-header-wg-list .user-badge {
+            position: relative;
+        }
+
+        .kw-header-wg-list .user-badge + .user-badge::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 60%;
+            background: var(--border-color);
         }
 
         .kw-header-wg {
@@ -914,7 +930,7 @@
         .kw-header-team {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             flex: 1;
             min-width: 0;
             overflow-x: auto;
@@ -934,6 +950,22 @@
         /* Badges dürfen nicht schrumpfen oder überlappen */
         .kw-header-team .user-badge {
             flex-shrink: 0;
+        }
+
+        /* Trennlinie zwischen Badges */
+        .kw-header-team .user-badge + .user-badge::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 60%;
+            background: var(--border-color);
+        }
+
+        .kw-header-team .user-badge {
+            position: relative;
         }
 
         .kw-header-pill {
@@ -7191,7 +7223,7 @@ function renderKWDetails(campaign) {
                 const tcInitials = getInitials(tc.name);
                 const tcIsQM = tc.id === qmId; // Nur eingetragener QM
                 const tcStufe = tc.role || '';
-                pills += '<div class="user-badge user-badge--werber user-badge--small">' +
+                pills += '<div class="user-badge user-badge--werber">' +
                     '<div class="user-badge__avatar">' + tcInitials + getStufeBadge(tcStufe) + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + tc.name + '</span>' +
@@ -7203,7 +7235,7 @@ function renderKWDetails(campaign) {
             if (qm && qm.id !== tcId) {
                 const qmInitials = getInitials(qm.name);
                 const qmStufe = qm.role || '';
-                pills += '<div class="user-badge user-badge--werber user-badge--small">' +
+                pills += '<div class="user-badge user-badge--werber">' +
                     '<div class="user-badge__avatar">' + qmInitials + getStufeBadge(qmStufe) + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + qm.name + '</span>' +
@@ -7215,7 +7247,7 @@ function renderKWDetails(campaign) {
             werberSorted.filter(w => w.id !== tcId && w.id !== qmId).forEach(w => {
                 const wInitials = getInitials(w.name);
                 const wStufe = w.role || '';
-                pills += '<div class="user-badge user-badge--werber user-badge--small">' +
+                pills += '<div class="user-badge user-badge--werber">' +
                     '<div class="user-badge__avatar">' + wInitials + getStufeBadge(wStufe) + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + w.name + '</span>' +
@@ -7230,11 +7262,11 @@ function renderKWDetails(campaign) {
         const totalEinwohner = activeWerbegebiete.reduce((sum, wg) => sum + (wg.einwohner || 0), 0);
         const einwohnerFormatted = totalEinwohner.toLocaleString('de-DE');
 
-        // Werbegebiete-Namen für zweite Zeile als mini badges
+        // Werbegebiete-Namen für zweite Zeile als badges
         const wgNamesHtml = activeWerbegebiete.map(wg => {
             const wgName = wg.name.replace(' e.V.', '');
             const wgInitials = getInitials(wgName);
-            return '<div class="user-badge user-badge--werbegebiet user-badge--small">' +
+            return '<div class="user-badge user-badge--werbegebiet">' +
                 '<div class="user-badge__avatar">' + wgInitials + '</div>' +
                 '<div class="user-badge__info">' +
                     '<span class="user-badge__name">' + wgName + '</span>' +
