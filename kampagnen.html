@@ -5598,7 +5598,7 @@ function renderCampaigns() {
                                 <span class="user-badge__type">Kampagne</span>
                             </div>
                         </div>
-                        <div class="campaign-meta" style="margin-top: 8px;">${startDate} - ${endDate} (KW ${campaign.kwFrom}-${campaign.kwTo}) · ${weekCount} W.</div>
+                        <div class="campaign-meta" style="margin-top: 12px;">${startDate} - ${endDate} (KW ${campaign.kwFrom}-${campaign.kwTo}) · ${weekCount} W.</div>
                     </div>
                     <span class="campaign-status ${status}">${statusLabels[status]}</span>
                 </div>
@@ -7385,12 +7385,16 @@ function renderKWDetails(campaign) {
                                     return null;
                                 };
 
+                                const wgInitials = getInitials(wg.name);
                                 return '<div class="kw-wg-wrapper ' + (isSelected ? 'selected' : '') + '" data-wg-id="' + wg.id + '">' +
                                     '<div class="kw-wg-chip" onclick="handleWgClick(' + kw + ', \'' + wg.id + '\', ' + isSelected + ')">' +
-                                        '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>' +
-                                        '</svg>' +
-                                        '<span>' + wg.name + '</span>' +
+                                        '<div class="user-badge user-badge--werbegebiet user-badge--small">' +
+                                            '<div class="user-badge__avatar">' + wgInitials + '</div>' +
+                                            '<div class="user-badge__info">' +
+                                                '<span class="user-badge__name">' + wg.name + '</span>' +
+                                                '<span class="user-badge__type">Werbegebiet</span>' +
+                                            '</div>' +
+                                        '</div>' +
                                         '<span class="chip-ew">' + ewFormatted + ' EW</span>' +
                                         (isSelected ? '<span class="chip-ma" data-wg-count="' + wg.id + '">' + assignedCount + '/' + allMembers.length + '</span>' : '') +
                                     '</div>' +
