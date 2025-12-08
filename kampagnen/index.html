@@ -1889,7 +1889,7 @@
             display: flex;
             gap: 4px;
             align-items: center;
-            margin-top: 4px;
+            margin-bottom: 8px;
         }
 
         .kw-add-member-row select {
@@ -7389,6 +7389,20 @@ function renderKWDetails(campaign) {
                             <span style="font-size: 11px; color: var(--text-secondary);">(${werberList.length})</span>
                         </div>
 
+                        <div class="kw-add-member-row">
+                            <select id="add-member-kw-${kw}">
+                                <option value="">+ Mitarbeiter hinzufügen</option>
+                                ${employees.filter(e => !werberIds.includes(e.id) && e.id !== tcId).map(e =>
+                                    `<option value="${e.id}">${e.name} (${e.role || 'SMA'})</option>`
+                                ).join('')}
+                            </select>
+                            <button class="btn btn-primary btn-small" onclick="addKWMember(${kw})">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </button>
+                        </div>
+
                         <div class="kw-team-list">
                             ${(() => {
                                 // TC und QM zuerst anzeigen, dann Trennlinie, dann normale Werber
@@ -7479,20 +7493,6 @@ function renderKWDetails(campaign) {
 
                                 return leadersHtml + werberHtml;
                             })()}
-                        </div>
-
-                        <div class="kw-add-member-row">
-                            <select id="add-member-kw-${kw}">
-                                <option value="">+ Mitarbeiter hinzufügen</option>
-                                ${employees.filter(e => !werberIds.includes(e.id) && e.id !== tcId).map(e =>
-                                    `<option value="${e.id}">${e.name} (${e.role || 'SMA'})</option>`
-                                ).join('')}
-                            </select>
-                            <button class="btn btn-primary btn-small" onclick="addKWMember(${kw})">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                </svg>
-                            </button>
                         </div>
                     </div>
 
