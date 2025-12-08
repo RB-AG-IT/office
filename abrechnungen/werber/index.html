@@ -971,6 +971,27 @@
         async function previousKW() {
             await showAlert('KW-Wechsel', 'Wechsle zu KW 46...', 'info');
         }
+
+        // ========== STUFEN-BADGES DYNAMISCH HINZUFÜGEN ==========
+        // Werber-Stufen Mapping (zentral aus badge-system.js)
+        const werberStufen = {
+            'AS': 'CEMM',  // Anna Schmidt
+            'MM': 'JMM',   // Max Mustermann
+            'TF': 'EMA',   // Thomas Fischer
+            'JW': 'EMM',   // Julia Wagner
+            'LB': 'SMA'    // Lisa Braun
+        };
+
+        // Stufen-Badges zu allen Werber-Avataren hinzufügen
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.user-badge--werber .user-badge__avatar').forEach(avatar => {
+                const initials = avatar.textContent.trim();
+                const stufe = werberStufen[initials];
+                if (stufe && typeof getStufeBadge === 'function') {
+                    avatar.innerHTML = initials + getStufeBadge(stufe);
+                }
+            });
+        });
     </script>
 </body>
 </html>

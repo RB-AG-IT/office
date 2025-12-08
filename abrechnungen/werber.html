@@ -726,7 +726,7 @@
         <!-- Werber Profile -->
         <div class="werber-card">
             <div class="user-badge user-badge--werber user-badge--large">
-                <div class="user-badge__avatar">MS</div>
+                <div class="user-badge__avatar" id="werber-avatar">MS</div>
                 <div class="user-badge__info">
                     <span class="user-badge__name">Max Schmidt</span>
                     <span class="user-badge__type">Werber</span>
@@ -1308,6 +1308,14 @@
 
         // Initial render
         render();
+
+        // Werber-Avatar mit Stufen-Badge aktualisieren
+        document.addEventListener('DOMContentLoaded', function() {
+            const avatar = document.getElementById('werber-avatar');
+            if (avatar && WERBER_DATA.stufe && typeof getStufeBadge === 'function') {
+                avatar.innerHTML = 'MS' + getStufeBadge(WERBER_DATA.stufe);
+            }
+        });
     </script>
 </body>
 </html>

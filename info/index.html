@@ -334,6 +334,30 @@
                 </div>
             </div>
 
+            <!-- Karriere-Stufen -->
+            <div class="info-section">
+                <h2>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                    Karriere-Stufen (Werber)
+                </h2>
+
+                <div class="color-legend" id="stufen-legend">
+                    <!-- Wird dynamisch generiert -->
+                </div>
+
+                <div class="info-box" style="margin-top: 16px;">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p>
+                        Die Karriere-Stufen werden als kleine Badges oben rechts am Avatar angezeigt.
+                        Die Stufen repräsentieren die Entwicklung vom Einsteiger bis zum Führungslevel.
+                    </p>
+                </div>
+            </div>
+
             <!-- Verwendungsbeispiele -->
             <div class="info-section">
                 <h2>
@@ -357,7 +381,7 @@
                             </div>
 
                             <div class="user-badge user-badge--werber">
-                                <div class="user-badge__avatar">LS</div>
+                                <div class="user-badge__avatar">LS<span class="user-badge__stufe user-badge__stufe--emm">EMM</span></div>
                                 <div class="user-badge__info">
                                     <span class="user-badge__name">Lisa Schmidt</span>
                                     <span class="user-badge__type">Werber</span>
@@ -560,6 +584,29 @@
         if (window.self !== window.top) {
             document.body.classList.add('in-iframe');
         }
+
+        // Stufen-Legende dynamisch generieren (aus badge-system.js)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof STUFEN_CONFIG === 'undefined') return;
+
+            const container = document.getElementById('stufen-legend');
+            if (!container) return;
+
+            let html = '';
+            Object.entries(STUFEN_CONFIG).forEach(([key, config]) => {
+                html += `
+                    <div class="legend-item">
+                        <div class="legend-item__color" style="background: ${config.color}; font-size: 10px;">${key}</div>
+                        <div class="legend-item__info">
+                            <div class="legend-item__title">${config.name}</div>
+                            <div class="legend-item__desc">Karriere-Stufe im Außendienst</div>
+                            <span class="legend-item__badge" style="background: ${config.color}20; color: ${config.color};">${key}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
     </script>
 </body>
 </html>

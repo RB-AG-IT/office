@@ -813,11 +813,16 @@
                     const actionType = log.action_type || 'update';
                     const time = new Date(log.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
+                    // Stufen-Badge für Werber
+                    const stufeBadge = typeof getStufeBadge === 'function'
+                        ? getStufeBadge(getUserStufe(initials))
+                        : '';
+
                     html += `
                         <div class="log-entry type-${actionType}">
                             <div class="log-header">
                                 <div class="user-badge user-badge--werber user-badge--small">
-                                    <div class="user-badge__avatar">${initials}</div>
+                                    <div class="user-badge__avatar">${initials}${stufeBadge}</div>
                                     <div class="user-badge__info">
                                         <span class="user-badge__name">${userName}</span>
                                         <span class="user-badge__type">Werber</span>
@@ -1146,6 +1151,28 @@
                     </div>
                 `;
             }
+        }
+
+        // ========== STUFEN-MAPPING ==========
+        // Werber-Stufen Mapping (zentral aus badge-system.js)
+        const werberStufen = {
+            'MS': 'JMM',   // Max Schmidt
+            'AS': 'CEMM',  // Anna Schmidt
+            'TM': 'EMA',   // Tim Müller
+            'PH': 'JMM',   // Peter Hoffmann
+            'SK': 'SMA',   // Stefan Kraus
+            'NW': 'EMM',   // Nina Weber
+            'FG': 'SMA',   // Felix Graf
+            'LB': 'JMM',   // Lisa Bauer
+            'MK': 'EMA',   // Max Klein
+            'JS': 'SPB',   // Julia Schmidt
+            'MM': 'JMM',   // Max Mustermann
+            'TF': 'EMA',   // Thomas Fischer
+            'JW': 'EMM'    // Julia Wagner
+        };
+
+        function getUserStufe(initials) {
+            return werberStufen[initials] || null;
         }
 
         // Initialize

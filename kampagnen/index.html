@@ -5652,19 +5652,7 @@ function closeCampaignModal() {
 let viewingCampaignId = null;
 let isEditMode = false;
 
-// Stufen-Farben für Labels
-const STUFEN_CONFIG = {
-    SMA: { name: 'Starting Marketing Advisor', color: '#78909C', class: 'sma' },
-    EMA: { name: 'Executive Marketing Advisor', color: '#4CAF50', class: 'ema' },
-    JMM: { name: 'Junior Marketing Manager', color: '#2196F3', class: 'jmm' },
-    EMM: { name: 'Executive Marketing Manager', color: '#9C27B0', class: 'emm' },
-    CEMM: { name: 'Chief Executive Marketing Manager', color: '#E040FB', class: 'cemm' },
-    SPB: { name: 'Spitzen Botschafter', color: '#FFA500', class: 'spb' },
-    KAD: { name: 'Kadermanager', color: '#FFD700', class: 'kad' },
-    FUE: { name: 'Führungsebene', color: '#2C3E50', class: 'fue' }
-};
-
-// TC Dienste Konfiguration
+// TC Dienste Konfiguration (kampagnenspezifisch)
 const TC_DIENSTE = [
     { id: 'muell', name: 'Müll' },
     { id: 'motivation', name: 'Motivation' },
@@ -5673,80 +5661,15 @@ const TC_DIENSTE = [
     { id: 'sonstige', name: 'Sonstige' }
 ];
 
-// Stufen-Label generieren
+// Stufen-Label generieren (kampagnenspezifisch, verwendet zentrale STUFEN_CONFIG)
 function getStufeLabel(stufe, showFull = false) {
     const config = STUFEN_CONFIG[stufe?.toUpperCase()] || STUFEN_CONFIG.SMA;
     const text = showFull ? config.name : stufe?.toUpperCase() || 'SMA';
     return `<span class="stufen-label stufen-label-${config.class}">${text}</span>`;
 }
 
-// Initialen aus Namen generieren
-function getInitials(name) {
-    if (!name) return '??';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-// SVG Symbol für Badge-Typen (Neumitglied, Erhöhung, Bestandsmitglied, Storno)
-function getBadgeSymbolSVG(type) {
-    const icons = {
-        neumitglied: '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-        erhoehung: '<svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
-        bestandsmitglied: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>',
-        storno: '<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>'
-    };
-    return icons[type] || '';
-}
-
-// Type-Row mit optionalen TC/Q Badges generieren
-function getBadgeTypeRow(label, isTC = false, isQ = false) {
-    let extras = '';
-    if (isTC) extras += '<span class="user-badge__extra user-badge__extra--tc">TC</span>';
-    if (isQ) extras += '<span class="user-badge__extra user-badge__extra--q">Q</span>';
-
-    if (extras) {
-        return `<div class="user-badge__type-row">
-            <span class="user-badge__type">${label}</span>
-            ${extras}
-        </div>`;
-    }
-    return `<span class="user-badge__type">${label}</span>`;
-}
-
-// Stufen-Badge HTML generieren (für Avatar)
-function getStufeBadge(stufe) {
-    if (!stufe) return '';
-    const s = stufe.toLowerCase();
-    return `<span class="user-badge__stufe user-badge__stufe--${s}">${stufe.toUpperCase()}</span>`;
-}
-
-// Komplettes Werber-Badge generieren (zentrale Helper-Funktion)
-function createWerberBadge(options = {}) {
-    const {
-        name = 'Unbekannt',
-        size = '',           // '', 'small', 'mini', 'large'
-        isTC = false,
-        isQ = false,
-        stufe = '',          // 'SMA', 'EMA', 'JMM', 'EMM', 'CEMM', 'SPB', 'KAD', 'FUE'
-        style = ''           // zusätzliche inline styles
-    } = options;
-
-    const initials = getInitials(name);
-    const sizeClass = size ? `user-badge--${size}` : '';
-    const styleAttr = style ? ` style="${style}"` : '';
-
-    return `<div class="user-badge user-badge--werber ${sizeClass}"${styleAttr}>
-        <div class="user-badge__avatar">
-            ${initials}
-            ${getStufeBadge(stufe)}
-        </div>
-        <div class="user-badge__info">
-            <span class="user-badge__name">${name}</span>
-            ${getBadgeTypeRow('Werber', isTC, isQ)}
-        </div>
-    </div>`;
-}
+// Alle Badge-Funktionen (getInitials, getBadgeSymbolSVG, getBadgeTypeRow, getStufeBadge, createWerberBadge)
+// werden aus ../js/badge-system.js importiert
 
 // Tab-Wechsel Funktion
 function switchMainTab(tabName) {
