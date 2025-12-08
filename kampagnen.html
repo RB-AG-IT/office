@@ -5681,6 +5681,17 @@ function getInitials(name) {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+// SVG Symbol für Badge-Typen (Neumitglied, Erhöhung, Bestandsmitglied, Storno)
+function getBadgeSymbolSVG(type) {
+    const icons = {
+        neumitglied: '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+        erhoehung: '<svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
+        bestandsmitglied: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>',
+        storno: '<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>'
+    };
+    return icons[type] || '';
+}
+
 // Tab-Wechsel Funktion
 function switchMainTab(tabName) {
     // Tabs aktualisieren
@@ -7926,8 +7937,10 @@ function renderLastSchriebe(campaign) {
             : '<span class="schrieb-iban missing" title="IBAN fehlt noch">IBAN</span>';
 
         // User-Badge Klasse basierend auf Typ
-        const badgeClass = schrieb.typ === 'NMG' ? 'user-badge--neumitglied' : 'user-badge--erhoehung';
+        const badgeType = schrieb.typ === 'NMG' ? 'neumitglied' : 'erhoehung';
+        const badgeClass = `user-badge--${badgeType}`;
         const typeLabel = schrieb.typ === 'NMG' ? 'Neumitglied' : 'Erhöhung';
+        const badgeSVG = getBadgeSymbolSVG(badgeType);
 
         // Botschafter Initialen
         const botschafterInitials = getInitials(schrieb.botschafter);
@@ -7937,7 +7950,7 @@ function renderLastSchriebe(campaign) {
                 <div class="schrieb-compact-header">
                     <div class="schrieb-compact-member">
                         <div class="user-badge ${badgeClass} user-badge--small">
-                            <div class="user-badge__avatar"></div>
+                            <div class="user-badge__avatar">${badgeSVG}</div>
                             <div class="user-badge__info">
                                 <span class="user-badge__name">${schrieb.memberName}</span>
                                 <span class="user-badge__type">${typeLabel}</span>
@@ -8030,8 +8043,10 @@ function renderMitgliedCardLarge(mitglied) {
     </svg>`;
 
     // User-Badge Klasse basierend auf Typ
-    const badgeClass = mitglied.typ === 'NMG' ? 'user-badge--neumitglied' : 'user-badge--erhoehung';
+    const badgeType = mitglied.typ === 'NMG' ? 'neumitglied' : 'erhoehung';
+    const badgeClass = `user-badge--${badgeType}`;
     const typeLabel = mitglied.typ === 'NMG' ? 'Neumitglied' : 'Erhöhung';
+    const badgeSVG = getBadgeSymbolSVG(badgeType);
 
     // Botschafter Initialen
     const botschafterInitials = getInitials(mitglied.botschafter);
@@ -8042,7 +8057,7 @@ function renderMitgliedCardLarge(mitglied) {
             <div class="schrieb-compact-header">
                 <div class="schrieb-compact-member">
                     <div class="user-badge ${badgeClass} user-badge--small">
-                        <div class="user-badge__avatar"></div>
+                        <div class="user-badge__avatar">${badgeSVG}</div>
                         <div class="user-badge__info">
                             <span class="user-badge__name">${mitglied.name}</span>
                             <span class="user-badge__type">${typeLabel}</span>
@@ -8257,15 +8272,17 @@ function renderAuditLog() {
         else if (m.emailStatus === 'not_sent') emailIconClass = 'email-not-sent';
 
         // Badge-Klasse
-        const badgeClass = m.typ === 'NMG' ? 'user-badge--neumitglied' : 'user-badge--erhoehung';
+        const badgeType = m.typ === 'NMG' ? 'neumitglied' : 'erhoehung';
+        const badgeClass = `user-badge--${badgeType}`;
         const typeLabel = m.typ === 'NMG' ? 'Neumitglied' : 'Erhöhung';
+        const badgeSVG = getBadgeSymbolSVG(badgeType);
         const wgInitials = getInitials(m.werbegebiet);
 
         html += `
             <div class="audit-mitglied-card" onclick="openSchriebDetails(${m.id})">
                 <div class="audit-mitglied-header">
                     <div class="user-badge ${badgeClass} user-badge--mini">
-                        <div class="user-badge__avatar"></div>
+                        <div class="user-badge__avatar">${badgeSVG}</div>
                         <div class="user-badge__info">
                             <span class="user-badge__name">${m.name}</span>
                             <span class="user-badge__type">${typeLabel}</span>

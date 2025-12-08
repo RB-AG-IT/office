@@ -2902,21 +2902,22 @@
                 case 'boolean':
                     return value ? '✓' : '-';
                 case 'member':
-                    // Badge-Klasse mit Symbol (+ für NMG, ↑ für ERH, ✕ für Storno)
-                    let badgeClass, typeLabel;
+                    // Badge-Klasse mit SVG Symbol
+                    let badgeType, typeLabel;
                     if (row.status === 'storniert') {
-                        badgeClass = 'user-badge--storno';
+                        badgeType = 'storno';
                         typeLabel = 'Storno';
                     } else if (row.type === 'nmg') {
-                        badgeClass = 'user-badge--neumitglied';
+                        badgeType = 'neumitglied';
                         typeLabel = 'Neumitglied';
                     } else {
-                        badgeClass = 'user-badge--erhoehung';
+                        badgeType = 'erhoehung';
                         typeLabel = 'Erhöhung';
                     }
+                    const badgeSVG = getBadgeSymbolSVG(badgeType);
                     return `
-                        <div class="user-badge ${badgeClass} user-badge--small">
-                            <div class="user-badge__avatar"></div>
+                        <div class="user-badge user-badge--${badgeType} user-badge--small">
+                            <div class="user-badge__avatar">${badgeSVG}</div>
                             <div class="user-badge__info">
                                 <span class="user-badge__name">${escapeHtml(value)}</span>
                                 <span class="user-badge__type">${typeLabel}</span>
@@ -2925,6 +2926,17 @@
                 default:
                     return escapeHtml(String(value));
             }
+        }
+
+        // SVG Symbol für Badge-Typen (Neumitglied, Erhöhung, Bestandsmitglied, Storno)
+        function getBadgeSymbolSVG(type) {
+            const icons = {
+                neumitglied: '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+                erhoehung: '<svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
+                bestandsmitglied: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>',
+                storno: '<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>'
+            };
+            return icons[type] || '';
         }
 
         // Escape HTML to prevent XSS
