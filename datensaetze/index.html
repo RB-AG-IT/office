@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datensätze - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
-    <script src="../modal-system.js"></script>
+    <script src="../js/modal-system.js"></script>
+    <script src="../js/badge-system.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -2187,10 +2188,10 @@
         ];
 
         const werberData = [
-            { id: 1, name: 'Max Mustermann', initials: 'MM', color: '#6366f1', records: 45, nettoJE: 5850, storno: 8.9 },
-            { id: 2, name: 'Anna Schmidt', initials: 'AS', color: '#6366f1', records: 38, nettoJE: 4940, storno: 10.5 },
-            { id: 3, name: 'Peter Weber', initials: 'PW', color: '#6366f1', records: 52, nettoJE: 6760, storno: 7.7 },
-            { id: 4, name: 'Lisa Müller', initials: 'LM', color: '#6366f1', records: 28, nettoJE: 3640, storno: 12.1 }
+            { id: 1, name: 'Max Mustermann', initials: 'MM', color: '#6366f1', records: 45, nettoJE: 5850, storno: 8.9, role: 'EMM' },
+            { id: 2, name: 'Anna Schmidt', initials: 'AS', color: '#6366f1', records: 38, nettoJE: 4940, storno: 10.5, role: 'CEMM' },
+            { id: 3, name: 'Peter Weber', initials: 'PW', color: '#6366f1', records: 52, nettoJE: 6760, storno: 7.7, role: 'SMA' },
+            { id: 4, name: 'Lisa Müller', initials: 'LM', color: '#6366f1', records: 28, nettoJE: 3640, storno: 12.1, role: 'JMM' }
         ];
 
         // Generate 100 dummy records with ALL form fields
@@ -2571,7 +2572,7 @@
                 <tr>
                     <td>
                         <div class="user-badge user-badge--werber">
-                            <div class="user-badge__avatar">${werber.initials}</div>
+                            <div class="user-badge__avatar">${werber.initials}${getStufeBadge(werber.role)}</div>
                             <div class="user-badge__info">
                                 <span class="user-badge__name">${werber.name}</span>
                                 <span class="user-badge__type">Werber</span>
@@ -2928,16 +2929,7 @@
             }
         }
 
-        // SVG Symbol für Badge-Typen (Neumitglied, Erhöhung, Bestandsmitglied, Storno)
-        function getBadgeSymbolSVG(type) {
-            const icons = {
-                neumitglied: '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-                erhoehung: '<svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
-                bestandsmitglied: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>',
-                storno: '<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>'
-            };
-            return icons[type] || '';
-        }
+        // Badge-Funktionen kommen aus js/badge-system.js
 
         // Escape HTML to prevent XSS
         function escapeHtml(text) {

@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auffälligkeiten - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
-    <script src="../modal-system.js"></script>
+    <script src="../js/modal-system.js"></script>
+    <script src="../js/badge-system.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -1174,6 +1175,31 @@
                 row.style.display = text.includes(search) ? '' : 'none';
             });
         }
+
+        // ========== STUFEN-BADGES DYNAMISCH HINZUFÜGEN ==========
+        // Werber-Stufen Mapping (zentral aus badge-system.js)
+        const werberStufen = {
+            'TM': 'EMA',   // Tim Müller
+            'PH': 'JMM',   // Peter Hoffmann
+            'SK': 'SMA',   // Stefan Kraus
+            'NW': 'EMM',   // Nina Weber
+            'FG': 'SMA',   // Felix Graf
+            'AS': 'CEMM',  // Anna Schneider
+            'LB': 'JMM',   // Lisa Bauer
+            'MK': 'EMA',   // Max Klein
+            'JS': 'SPB'    // Julia Schmidt
+        };
+
+        // Stufen-Badges zu allen Werber-Avataren hinzufügen
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.user-badge--werber .user-badge__avatar').forEach(avatar => {
+                const initials = avatar.textContent.trim();
+                const stufe = werberStufen[initials];
+                if (stufe && typeof getStufeBadge === 'function') {
+                    avatar.innerHTML = initials + getStufeBadge(stufe);
+                }
+            });
+        });
     </script>
 </body>
 </html>
