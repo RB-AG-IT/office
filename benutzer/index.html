@@ -522,6 +522,44 @@
             height: 14px;
         }
 
+        /* ========== DELETE SELECTED BUTTON ========== */
+        .btn-delete-selected {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            color: #ef4444;
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-delete-selected:hover {
+            background: #fee2e2;
+        }
+
+        .btn-delete-selected.visible {
+            display: flex;
+        }
+
+        .btn-delete-selected svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .selected-count {
+            background: #ef4444;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 2px;
+        }
+
         /* ========== EMPTY STATE ========== */
         .empty-state {
             display: none;
@@ -836,6 +874,14 @@
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                             <span>Alle aufklappen</span>
+                        </button>
+                        <button class="btn-delete-selected" id="deleteSelectedBtn" onclick="deleteSelected()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            <span>Löschen</span>
+                            <span class="selected-count" id="selectedCount">0</span>
                         </button>
                     </div>
                     <button class="btn-columns" onclick="openColumnModal()">
@@ -1249,7 +1295,7 @@
                 <tr class="${rowClass}" ${expandAttr} data-id="${user.id}" data-type="${user.type}"
                     data-name="${user.name}" data-email="${user.email}"
                     data-herkunft="${user.bundesland}" data-lastLogin="${new Date(user.lastLogin).getTime()}">
-                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="event.stopPropagation();"></td>
+                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="event.stopPropagation(); updateDeleteButton();"></td>
                     <td>
                         <div class="name-cell">
                             ${hasChildren ? `
@@ -1310,7 +1356,7 @@
 
                         html += `
                         <tr class="child-row" data-parent-id="${user.id}">
-                            <td class="checkbox-cell"><input type="checkbox" class="row-checkbox"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="updateDeleteButton();"></td>
                             <td>
                                 <div class="name-cell">
                                     <div class="child-indent">└</div>
@@ -1478,6 +1524,55 @@
             checkboxes.forEach(cb => {
                 cb.checked = checkbox.checked;
             });
+            updateDeleteButton();
+        }
+
+        // Delete Selected
+        function updateDeleteButton() {
+            const checkboxes = document.querySelectorAll('#tableBody .row-checkbox:checked');
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            const countSpan = document.getElementById('selectedCount');
+
+            if (checkboxes.length > 0) {
+                deleteBtn.classList.add('visible');
+                countSpan.textContent = checkboxes.length;
+            } else {
+                deleteBtn.classList.remove('visible');
+            }
+        }
+
+        async function deleteSelected() {
+            const checkboxes = document.querySelectorAll('#tableBody .row-checkbox:checked');
+            const count = checkboxes.length;
+
+            if (count === 0) return;
+
+            const confirmed = await showConfirm(
+                'Benutzer löschen',
+                `Möchten Sie ${count} ${count === 1 ? 'Benutzer' : 'Benutzer'} wirklich löschen?`,
+                'warning'
+            );
+
+            if (confirmed) {
+                // Get IDs of selected users
+                const idsToDelete = [];
+                checkboxes.forEach(cb => {
+                    const row = cb.closest('tr');
+                    if (row && row.dataset.id) {
+                        idsToDelete.push(row.dataset.id);
+                    }
+                });
+
+                // Remove from users array
+                users = users.filter(u => !idsToDelete.includes(u.id));
+
+                // Re-render
+                document.getElementById('selectAll').checked = false;
+                renderUsers();
+                updateDeleteButton();
+
+                await showAlert('Erfolg', `${count} Benutzer gelöscht.`, 'success');
+            }
         }
 
         // Dropdown Toggle
