@@ -12,6 +12,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             overflow-y: auto;
             height: 100%;
@@ -32,334 +36,262 @@
             padding: var(--spacing-lg);
         }
 
-        /* Multi-Select Dropdown */
-        .multi-select-container {
-            position: relative;
-        }
-
-        .multi-select-trigger {
-            height: 36px;
-            padding: 0 32px 0 12px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 13px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 140px;
-            position: relative;
-        }
-
-        .multi-select-trigger::after {
-            content: '';
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            border: 5px solid transparent;
-            border-top-color: var(--text-secondary);
-        }
-
-        .multi-select-trigger.open::after {
-            border-top-color: transparent;
-            border-bottom-color: var(--text-secondary);
-            transform: translateY(-80%);
-        }
-
-        .multi-select-count {
-            background: var(--accent-color);
-            color: white;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .multi-select-dropdown {
-            display: none;
-            position: absolute;
-            top: calc(100% + 4px);
-            left: 0;
-            min-width: 220px;
+        /* ========== TABLE WRAPPER ========== */
+        .table-wrap {
             background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            z-index: 100;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .multi-select-dropdown.open {
-            display: block;
-        }
-
-        .multi-select-section {
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .multi-select-section:last-child {
-            border-bottom: none;
-        }
-
-        .multi-select-section-title {
-            padding: 4px 12px;
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .multi-select-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: background 0.15s;
-            font-size: 13px;
-        }
-
-        .multi-select-option:hover {
-            background: var(--bg-hover);
-        }
-
-        .multi-select-option.selected {
-            background: #dcfce7;
-        }
-
-        .multi-select-option.selected .multi-select-check {
-            display: flex;
-        }
-
-        .multi-select-option.disabled {
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        .multi-select-check {
-            display: none;
-            width: 18px;
-            height: 18px;
-            background: #22c55e;
-            border-radius: 4px;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .multi-select-check svg {
-            width: 12px;
-            height: 12px;
-            color: white;
-        }
-
-        .multi-select-box {
-            width: 18px;
-            height: 18px;
-            border: 2px solid var(--border-color);
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-
-        .multi-select-option.selected .multi-select-box {
-            display: none;
-        }
-
-        /* Benutzer-Tabelle */
-        .users-table {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
         }
 
-        .users-table-header {
-            display: grid;
-            grid-template-columns: 2fr 1.2fr 1.5fr 80px 1.2fr 140px 80px;
-            gap: 1px;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
+        .table-container {
+            overflow-x: auto;
+        }
+
+        /* ========== TABLE ========== */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
             font-size: 12px;
+            table-layout: fixed;
+        }
+
+        /* Column widths */
+        .table th:nth-child(1),
+        .table td:nth-child(1) { width: 40px; }
+
+        .table th:nth-child(2),
+        .table td:nth-child(2) { width: 240px; }
+
+        .table th:nth-child(3),
+        .table td:nth-child(3) { width: 200px; }
+
+        .table th:nth-child(4),
+        .table td:nth-child(4) { width: 180px; }
+
+        .table th:nth-child(5),
+        .table td:nth-child(5) { width: 140px; }
+
+        .table th:nth-child(6),
+        .table td:nth-child(6),
+        .table th:nth-child(7),
+        .table td:nth-child(7) {
+            width: 50px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .table td:nth-child(6),
+        .table td:nth-child(7) {
+            padding: 0;
+        }
+
+        /* ========== TOTALS ROW ========== */
+        .totals-row td {
+            background: #e5e5e5 !important;
             font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
+            border-bottom: 3px solid #a3a3a3;
+            padding: 10px 12px;
         }
 
-        .users-table-header > div {
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .totals-row:hover td {
+            background: #d9d9d9 !important;
         }
 
-        .sortable {
-            cursor: pointer;
+        .totals-count {
+            font-weight: 400;
+            font-size: 11px;
+            color: #737373;
+            margin-left: 8px;
+        }
+
+        /* ========== HEADER ========== */
+        .table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 600;
+            color: #525252;
+            background: #e5e5e5;
+            border-bottom: 3px solid #a3a3a3;
+            border-right: 1px solid #d4d4d4;
+            white-space: nowrap;
             user-select: none;
+            position: relative;
+        }
+
+        .table th:last-child,
+        .table th:nth-last-child(2),
+        .table th:first-child {
+            border-right: none;
+        }
+
+        .table th.sortable {
+            cursor: pointer;
+            padding-right: 24px;
+        }
+
+        .table th.sortable:hover {
+            background: #d9d9d9;
+        }
+
+        /* ========== SORT ARROWS ========== */
+        .sort-arrows {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .sort-arrows svg {
+            width: 8px;
+            height: 8px;
+            color: #d4d4d4;
             transition: color 0.15s;
         }
 
-        .sortable:hover {
-            color: var(--text-primary);
+        .table th.sort-asc .arrow-up,
+        .table th.sort-desc .arrow-down {
+            color: #525252;
         }
 
-        .sortable.active {
-            color: var(--accent-color);
+        .table th.sortable:hover .sort-arrows svg {
+            color: #a3a3a3;
         }
 
-        .sort-icon {
-            width: 14px;
-            height: 14px;
-            opacity: 0.5;
-            transition: opacity 0.15s, transform 0.15s;
+        /* ========== CELLS ========== */
+        .table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #d4d4d4;
+            border-right: 1px solid #f0f0f0;
+            white-space: nowrap;
+            vertical-align: middle;
         }
 
-        .sortable:hover .sort-icon,
-        .sortable.active .sort-icon {
-            opacity: 1;
+        .table td:last-child {
+            border-right: none;
         }
 
-        .sortable.desc .sort-icon {
-            transform: rotate(180deg);
+        /* Zebra */
+        .table tbody tr:nth-child(odd) {
+            background: #fafafa;
         }
 
-        .users-table-body {
+        .table tbody tr:nth-child(even) {
             background: var(--bg-primary);
         }
 
-        .user-row {
-            display: grid;
-            grid-template-columns: 2fr 1.2fr 1.5fr 80px 1.2fr 140px 80px;
-            gap: 1px;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.15s;
+        .table tbody tr:hover {
+            background: #f0f0f0;
         }
 
-        .user-row:last-child {
-            border-bottom: none;
+        /* ========== CHECKBOX ========== */
+        .checkbox-cell {
+            width: 40px;
+            text-align: center;
+            vertical-align: middle;
+            padding: 0 8px !important;
+            border-right: none !important;
         }
 
-        .user-row:hover {
-            background: var(--bg-hover);
+        .checkbox-cell input {
+            display: block;
+            margin: 0 auto;
         }
 
-        .user-row > div {
-            padding: 14px 16px;
+        .row-checkbox {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            accent-color: var(--accent-color);
+            margin: 0;
+            vertical-align: middle;
+        }
+
+        /* ========== NAME CELL ========== */
+        .name-cell {
             display: flex;
             align-items: center;
+            gap: 10px;
         }
 
-        /* Benutzer-Info mit farbigem Indikator */
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-type-indicator {
-            width: 4px;
-            height: 40px;
-            border-radius: 2px;
-            flex-shrink: 0;
-        }
-
-        .user-type-indicator.werber {
-            background: #22c55e;
-        }
-
-        .user-type-indicator.kunde {
-            background: #ef4444;
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            min-width: 36px;
-            border-radius: var(--radius-full);
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: #fff;
+            font-size: 10px;
             font-weight: 600;
-            font-size: 13px;
-            color: white;
             flex-shrink: 0;
+            position: relative;
         }
 
-        .user-avatar.werber {
+        .avatar.werber {
             background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         }
 
-        .user-avatar.kunde {
+        .avatar.kunde {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
 
-        .user-name {
+        .name-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .name-main {
             font-weight: 500;
-            font-size: 14px;
             color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        /* Label/Stufe Badge */
-        .label-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: var(--radius-sm);
-            font-size: 12px;
-            font-weight: 500;
+        .name-sub {
+            font-size: 10px;
+            color: #a3a3a3;
         }
 
-        .label-badge.werber {
+        /* Type Badge */
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-badge.werber {
             background: #dcfce7;
             color: #166534;
         }
 
-        .label-badge.kunde {
+        .type-badge.kunde {
             background: #fee2e2;
             color: #991b1b;
         }
 
-        /* Email */
+        /* ========== EMAIL ========== */
         .user-email {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
-        /* Statistik Button */
-        .btn-stats {
-            width: 32px;
-            height: 32px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s;
-        }
-
-        .btn-stats:hover {
-            background: var(--accent-color);
-            border-color: var(--accent-color);
-            color: white;
-        }
-
-        .btn-stats svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* Herkunft */
+        /* ========== HERKUNFT ========== */
         .user-herkunft {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-primary);
         }
 
@@ -367,16 +299,16 @@
             color: var(--text-secondary);
         }
 
-        /* Online Status */
+        /* ========== STATUS ========== */
         .status-online {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 10px;
+            padding: 4px 8px;
             background: #dcfce7;
             color: #166534;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
         }
 
@@ -395,36 +327,267 @@
         }
 
         .status-offline {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
         }
 
-        /* Bearbeiten Button */
-        .btn-edit {
-            width: 32px;
-            height: 32px;
+        /* ========== ACTION BUTTONS ========== */
+        .btn-stats {
+            width: 28px;
+            height: 28px;
             border: none;
             background: transparent;
-            border-radius: var(--radius-sm);
+            border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.15s;
-            color: var(--text-secondary);
+            color: #a3a3a3;
+            transition: all 0.15s;
+            margin: 0 auto;
         }
 
-        .btn-edit:hover {
-            background: var(--bg-secondary);
-            color: var(--accent-color);
+        .btn-stats:hover {
+            background: var(--accent-color);
+            color: white;
         }
 
-        .btn-edit svg {
+        .btn-stats svg {
             width: 16px;
             height: 16px;
         }
 
-        /* Empty State */
+        /* ========== DROPDOWN ========== */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a3a3a3;
+            transition: all 0.15s;
+            margin: 0 auto;
+        }
+
+        .dropdown-btn:hover {
+            background: #e5e5e5;
+            color: #525252;
+        }
+
+        .dropdown-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-width: 160px;
+            z-index: 100;
+            display: none;
+        }
+
+        .dropdown-menu.open {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .dropdown-item:first-child {
+            border-radius: 6px 6px 0 0;
+        }
+
+        .dropdown-item:last-child {
+            border-radius: 0 0 6px 6px;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .dropdown-item svg {
+            width: 14px;
+            height: 14px;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-item.danger {
+            color: #ef4444;
+        }
+
+        .dropdown-item.danger svg {
+            color: #ef4444;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 4px 0;
+        }
+
+        /* ========== EXPANDABLE ROWS ========== */
+        .expandable-row {
+            cursor: pointer;
+        }
+
+        .expand-icon {
+            width: 14px;
+            height: 14px;
+            color: #a3a3a3;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+            transform: rotate(-90deg);
+        }
+
+        .expandable-row.open .expand-icon {
+            transform: rotate(0deg);
+        }
+
+        .no-expand-spacer {
+            width: 14px;
+            flex-shrink: 0;
+        }
+
+        .child-row {
+            display: none;
+        }
+
+        .child-row.visible {
+            display: table-row;
+        }
+
+        .child-row td {
+            background: var(--bg-primary) !important;
+            border-bottom: 1px solid #d4d4d4;
+        }
+
+        .child-row td:nth-child(2) {
+            padding-left: 44px;
+        }
+
+        .child-row:hover td {
+            background: #f5f5f5 !important;
+        }
+
+        .child-row .name-main,
+        .child-row .name-sub {
+            opacity: 0.7;
+        }
+
+        .child-row .avatar {
+            opacity: 0.7;
+            width: 24px;
+            height: 24px;
+            font-size: 9px;
+        }
+
+        .child-indent {
+            width: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #d4d4d4;
+            font-size: 10px;
+        }
+
+        /* ========== TABLE HEADER BAR ========== */
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .table-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .btn-toggle-all {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-toggle-all:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .btn-toggle-all svg {
+            width: 12px;
+            height: 12px;
+            transition: transform 0.2s;
+        }
+
+        .btn-columns {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-columns:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-columns svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ========== EMPTY STATE ========== */
         .empty-state {
             display: none;
             flex-direction: column;
@@ -451,11 +614,250 @@
         .empty-state p {
             font-size: 14px;
         }
+
+        /* ========== COLUMN MODAL ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .column-modal {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            width: 400px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .column-modal-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .column-modal-close {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .column-modal-close:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .column-modal-close svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .column-modal-body {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .column-section-title {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .column-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .column-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: grab;
+        }
+
+        .column-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .column-drag {
+            color: var(--text-tertiary);
+            cursor: grab;
+        }
+
+        .column-drag svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .column-checkbox {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--accent-color);
+        }
+
+        .column-name {
+            flex: 1;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .column-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .btn-modal {
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-modal-secondary {
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-modal-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        .btn-modal-primary {
+            color: #fff;
+            background: var(--accent-color);
+            border: 1px solid var(--accent-color);
+        }
+
+        .btn-modal-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Template Section */
+        .template-section {
+            margin-bottom: 20px;
+        }
+
+        .template-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .template-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .template-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .template-item.active {
+            background: #e5e5e5;
+            border-color: #a3a3a3;
+        }
+
+        .template-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .template-name {
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .template-default {
+            font-size: 9px;
+            color: var(--text-secondary);
+            background: var(--bg-hover);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .btn-save-template {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            border: 1px dashed var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-save-template:hover {
+            background: var(--bg-secondary);
+            border-color: var(--text-tertiary);
+        }
+
+        .btn-save-template svg {
+            width: 12px;
+            height: 12px;
+        }
     </style>
 </head>
 <body>
     <div class="page-container">
-        <!-- Action Toolbar -->
+        <!-- Action Toolbar (nur sichtbar wenn nicht in iframe) -->
         <div class="action-toolbar">
             <div class="toolbar-left">
                 <div class="toolbar-nav-dropdown" id="viewDropdown">
@@ -472,122 +874,12 @@
                     </div>
                 </div>
             </div>
-            <!-- Searchbar - absolut zentriert -->
             <div class="toolbar-search">
                 <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <input type="search" class="toolbar-search-input" id="searchInput" name="site-search" placeholder="Benutzer suchen..." autocomplete="off">
             </div>
-
-            <!-- Filter - flexibel positioniert -->
-            <div class="toolbar-filters">
-                <div class="multi-select-container" id="stufenFilter">
-                    <div class="multi-select-trigger" id="stufenTrigger">
-                        <span>Alle Stufen</span>
-                        <span class="multi-select-count" style="display: none;">0</span>
-                    </div>
-                    <div class="multi-select-dropdown" id="stufenDropdown">
-                        <div class="multi-select-section" id="werberStufen">
-                            <div class="multi-select-section-title">Werber</div>
-                            <div class="multi-select-option" data-value="SMA" data-type="werber">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>SMA - Starting Marketing Advisor</span>
-                            </div>
-                            <div class="multi-select-option" data-value="EMA" data-type="werber">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>EMA - Executive Marketing Advisor</span>
-                            </div>
-                            <div class="multi-select-option" data-value="JMM" data-type="werber">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>JMM - Junior Marketing Manager</span>
-                            </div>
-                            <div class="multi-select-option" data-value="EMM" data-type="werber">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>EMM - Executive Marketing Manager</span>
-                            </div>
-                            <div class="multi-select-option" data-value="CEMM" data-type="werber">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>CEMM - Chief Executive Marketing Manager</span>
-                            </div>
-                            <div class="multi-select-option" data-value="SPB" data-type="werber">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>SPB - Spitzenbotschafter</span>
-                            </div>
-                            <div class="multi-select-option" data-value="KAD" data-type="werber">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>KAD - Kadermanager</span>
-                            </div>
-                            <div class="multi-select-option" data-value="FUE" data-type="werber">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>FUE - Führungsebene</span>
-                            </div>
-                        </div>
-                        <div class="multi-select-section" id="kundenStufen">
-                            <div class="multi-select-section-title">Kunden</div>
-                            <div class="multi-select-option" data-value="kreisverband" data-type="kunde">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>Kreisverband</span>
-                            </div>
-                            <div class="multi-select-option" data-value="ortsverein" data-type="kunde">
-                                <div class="multi-select-box"></div>
-                                <div class="multi-select-check">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                                <span>Ortsverein</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="toolbar-right">
                 <button class="toolbar-btn toolbar-btn-primary" id="addUserBtn">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -600,33 +892,73 @@
 
         <div class="content-area">
             <!-- Benutzer Tabelle -->
-            <div class="users-table">
-                <div class="users-table-header">
-                    <div class="sortable active" data-sort="name">
-                        Benutzer
-                        <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                        </svg>
+            <div class="table-wrap">
+                <div class="table-header">
+                    <div class="table-header-left">
+                        <span class="table-title">Benutzerübersicht</span>
+                        <button class="btn-toggle-all" id="toggleAllBtn" onclick="toggleAllExpand()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            <span>Alle aufklappen</span>
+                        </button>
                     </div>
-                    <div class="sortable" data-sort="label">
-                        Label
-                        <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                    <button class="btn-columns" onclick="openColumnModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
                         </svg>
-                    </div>
-                    <div>Email</div>
-                    <div>Statistik</div>
-                    <div class="sortable" data-sort="herkunft">
-                        Herkunft
-                        <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                        </svg>
-                    </div>
-                    <div>Letzter Login</div>
-                    <div></div>
+                        Spalten
+                    </button>
                 </div>
-                <div class="users-table-body" id="usersTableBody">
-                    <!-- Benutzer werden dynamisch geladen -->
+                <div class="table-container">
+                    <table class="table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell">
+                                    <input type="checkbox" class="row-checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                                </th>
+                                <th class="sortable" data-sort="name">
+                                    Name
+                                    <div class="sort-arrows">
+                                        <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                                        <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                    </div>
+                                </th>
+                                <th class="sortable" data-sort="email">
+                                    Email
+                                    <div class="sort-arrows">
+                                        <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                                        <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                    </div>
+                                </th>
+                                <th class="sortable" data-sort="herkunft">
+                                    Herkunft
+                                    <div class="sort-arrows">
+                                        <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                                        <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                    </div>
+                                </th>
+                                <th class="sortable" data-sort="lastLogin">
+                                    Letzter Login
+                                    <div class="sort-arrows">
+                                        <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                                        <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                    </div>
+                                </th>
+                                <th style="width: 50px;"></th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableTotals">
+                            <!-- Totals row -->
+                        </tbody>
+                        <tbody id="tableBody">
+                            <!-- Users will be dynamically loaded -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -672,6 +1004,78 @@
         </div>
     </div>
 
+    <!-- Modal: Spalten anpassen -->
+    <div class="modal-overlay" id="columnModal">
+        <div class="column-modal">
+            <div class="column-modal-header">
+                <span class="column-modal-title">Spalten anpassen</span>
+                <button class="column-modal-close" onclick="closeColumnModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="column-modal-body">
+                <div class="template-section">
+                    <div class="column-section-title">Vorlagen</div>
+                    <div class="template-list">
+                        <div class="template-item active">
+                            <div class="template-info">
+                                <span class="template-name">Standard</span>
+                                <span class="template-default">Standard</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-save-template" onclick="saveColumnTemplate()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Aktuelle Auswahl als Vorlage speichern
+                    </button>
+                </div>
+                <div class="column-section">
+                    <div class="column-section-title">Spalten</div>
+                    <div class="column-list" id="columnList">
+                        <div class="column-item" draggable="true" data-column="name">
+                            <div class="column-drag">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
+                            </div>
+                            <input type="checkbox" class="column-checkbox" checked disabled>
+                            <span class="column-name">Name</span>
+                        </div>
+                        <div class="column-item" draggable="true" data-column="email">
+                            <div class="column-drag">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
+                            </div>
+                            <input type="checkbox" class="column-checkbox" checked>
+                            <span class="column-name">Email</span>
+                        </div>
+                        <div class="column-item" draggable="true" data-column="herkunft">
+                            <div class="column-drag">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
+                            </div>
+                            <input type="checkbox" class="column-checkbox" checked>
+                            <span class="column-name">Herkunft</span>
+                        </div>
+                        <div class="column-item" draggable="true" data-column="lastLogin">
+                            <div class="column-drag">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
+                            </div>
+                            <input type="checkbox" class="column-checkbox" checked>
+                            <span class="column-name">Letzter Login</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column-modal-footer">
+                <button class="btn-modal btn-modal-secondary" onclick="closeColumnModal()">Abbrechen</button>
+                <button class="btn-modal btn-modal-primary" onclick="applyColumns()">Anwenden</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ================================================================
         // SUPABASE SETUP
@@ -681,32 +1085,17 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ================================================================
-        // CONSTANTS
+        // STATE
         // ================================================================
-        // Stufen-Labels (nutzt STUFEN_CONFIG aus badge-system.js für Mitarbeiter)
-        function getStufeLabel(stufe) {
-            // Für Kunden-Typen
-            const kundenLabels = {
-                'kreisverband': 'Kreisverband',
-                'ortsverein': 'Ortsverein'
-            };
-            if (kundenLabels[stufe]) return kundenLabels[stufe];
-            // Für Mitarbeiter-Stufen aus zentralem System
-            if (typeof STUFEN_CONFIG !== 'undefined' && STUFEN_CONFIG[stufe]) {
-                return STUFEN_CONFIG[stufe].name;
-            }
-            return stufe;
-        }
-
-        // State
         let users = [];
         let currentFilter = 'alle';
         let currentSort = { field: 'name', direction: 'asc' };
-        let selectedStufen = [];
         let searchTerm = '';
+        let allExpanded = false;
+        let selectedStufen = ['all'];
 
         // ================================================================
-        // DUMMY DATA (bis Supabase vollständig verbunden ist)
+        // DUMMY DATA
         // ================================================================
         const dummyUsers = [
             {
@@ -718,7 +1107,8 @@
                 bundesland: 'Bayern',
                 stadt: 'München',
                 lastLogin: new Date(),
-                isOnline: true
+                isOnline: true,
+                einsatzgebiete: []
             },
             {
                 id: '2',
@@ -729,7 +1119,8 @@
                 bundesland: 'Baden-Württemberg',
                 stadt: 'Stuttgart',
                 lastLogin: new Date(Date.now() - 3600000),
-                isOnline: false
+                isOnline: false,
+                einsatzgebiete: []
             },
             {
                 id: '3',
@@ -740,7 +1131,11 @@
                 bundesland: 'Rheinland-Pfalz',
                 stadt: 'Ludwigshafen',
                 lastLogin: new Date(Date.now() - 86400000),
-                isOnline: false
+                isOnline: false,
+                einsatzgebiete: [
+                    { id: 'e1', name: 'Ludwigshafen Stadt', plz: '67059' },
+                    { id: 'e2', name: 'Ludwigshafen Süd', plz: '67065' }
+                ]
             },
             {
                 id: '4',
@@ -751,7 +1146,10 @@
                 bundesland: 'Rheinland-Pfalz',
                 stadt: 'Römerberg',
                 lastLogin: new Date(Date.now() - 172800000),
-                isOnline: false
+                isOnline: false,
+                einsatzgebiete: [
+                    { id: 'e3', name: 'Römerberg', plz: '67354' }
+                ]
             },
             {
                 id: '5',
@@ -762,7 +1160,8 @@
                 bundesland: 'Sachsen',
                 stadt: 'Dresden',
                 lastLogin: new Date(),
-                isOnline: true
+                isOnline: true,
+                einsatzgebiete: []
             },
             {
                 id: '6',
@@ -773,7 +1172,8 @@
                 bundesland: 'Nordrhein-Westfalen',
                 stadt: 'Köln',
                 lastLogin: new Date(Date.now() - 7200000),
-                isOnline: false
+                isOnline: false,
+                einsatzgebiete: []
             },
             {
                 id: '7',
@@ -784,20 +1184,36 @@
                 bundesland: 'Baden-Württemberg',
                 stadt: 'Mannheim',
                 lastLogin: new Date(),
-                isOnline: true
+                isOnline: true,
+                einsatzgebiete: [
+                    { id: 'e4', name: 'Mannheim Innenstadt', plz: '68159' },
+                    { id: 'e5', name: 'Mannheim Neckarstadt', plz: '68167' },
+                    { id: 'e6', name: 'Mannheim Lindenhof', plz: '68163' }
+                ]
             }
         ];
 
         // ================================================================
-        // RENDER FUNCTIONS
+        // HELPER FUNCTIONS
         // ================================================================
-
         function getInitials(name) {
             const parts = name.trim().split(' ');
             if (parts.length >= 2) {
                 return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
             }
             return name.substring(0, 2).toUpperCase();
+        }
+
+        function getStufeLabel(stufe) {
+            const kundenLabels = {
+                'kreisverband': 'Kreisverband',
+                'ortsverein': 'Ortsverein'
+            };
+            if (kundenLabels[stufe]) return kundenLabels[stufe];
+            if (typeof STUFEN_CONFIG !== 'undefined' && STUFEN_CONFIG[stufe]) {
+                return STUFEN_CONFIG[stufe].name;
+            }
+            return stufe;
         }
 
         function formatLastLogin(date, isOnline) {
@@ -813,25 +1229,27 @@
             return `<span class="status-offline">${day}.${month}.${year} ${hours}:${minutes}</span>`;
         }
 
+        // ================================================================
+        // RENDER FUNCTIONS
+        // ================================================================
         function renderUsers() {
-            const tbody = document.getElementById('usersTableBody');
+            const tbody = document.getElementById('tableBody');
+            const totalsBody = document.getElementById('tableTotals');
             const emptyState = document.getElementById('emptyState');
+            const tableWrap = document.querySelector('.table-wrap');
 
             // Filter
             let filtered = users.filter(user => {
-                // Type filter
                 if (currentFilter !== 'alle' && user.type !== currentFilter) return false;
-
-                // Search filter
                 if (searchTerm) {
                     const term = searchTerm.toLowerCase();
                     if (!user.name.toLowerCase().includes(term) &&
                         !user.email.toLowerCase().includes(term)) return false;
                 }
-
-                // Stufen filter
-                if (selectedStufen.length > 0 && !selectedStufen.includes(user.stufe)) return false;
-
+                // Stufen filter (only for Werber)
+                if (!selectedStufen.includes('all') && user.type === 'werber') {
+                    if (!selectedStufen.includes(user.stufe)) return false;
+                }
                 return true;
             });
 
@@ -843,13 +1261,17 @@
                         valA = a.name.toLowerCase();
                         valB = b.name.toLowerCase();
                         break;
-                    case 'label':
-                        valA = getStufeLabel(a.stufe).toLowerCase();
-                        valB = getStufeLabel(b.stufe).toLowerCase();
+                    case 'email':
+                        valA = a.email.toLowerCase();
+                        valB = b.email.toLowerCase();
                         break;
                     case 'herkunft':
                         valA = a.bundesland.toLowerCase();
                         valB = b.bundesland.toLowerCase();
+                        break;
+                    case 'lastLogin':
+                        valA = new Date(a.lastLogin).getTime();
+                        valB = new Date(b.lastLogin).getTime();
                         break;
                     default:
                         valA = a.name.toLowerCase();
@@ -863,200 +1285,337 @@
 
             if (filtered.length === 0) {
                 tbody.innerHTML = '';
+                totalsBody.innerHTML = '';
+                tableWrap.style.display = 'none';
                 emptyState.style.display = 'flex';
                 return;
             }
 
+            tableWrap.style.display = 'block';
             emptyState.style.display = 'none';
-            tbody.innerHTML = filtered.map(user => {
+
+            // Count totals
+            const werberCount = filtered.filter(u => u.type === 'werber').length;
+            const kundenCount = filtered.filter(u => u.type === 'kunde').length;
+
+            // Render totals row
+            totalsBody.innerHTML = `
+                <tr class="totals-row">
+                    <td class="checkbox-cell"></td>
+                    <td><strong>Gesamt</strong> <span class="totals-count">${werberCount} Werber, ${kundenCount} Kunden</span></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            `;
+
+            // Render user rows
+            let html = '';
+            filtered.forEach(user => {
+                const hasChildren = user.type === 'kunde' && user.einsatzgebiete && user.einsatzgebiete.length > 0;
+                const rowClass = hasChildren ? 'expandable-row' : '';
+                const expandAttr = hasChildren ? `data-expand-id="${user.id}"` : '';
+
                 // Stufen-Badge nur für Werber
                 const stufeBadge = user.type === 'werber' && user.stufe && typeof getStufeBadge === 'function'
                     ? getStufeBadge(user.stufe)
                     : '';
 
-                return `
-                <div class="user-row" data-id="${user.id}" data-type="${user.type}">
-                    <div>
-                        <div class="user-badge user-badge--${user.type}">
-                            <div class="user-badge__avatar">${getInitials(user.name)}${stufeBadge}</div>
-                            <div class="user-badge__info">
-                                <span class="user-badge__name">${user.name}</span>
-                                <span class="user-badge__type">${user.type === 'werber' ? 'Werber' : 'Kunde'}</span>
+                const subText = user.type === 'werber'
+                    ? getStufeLabel(user.stufe)
+                    : (hasChildren ? `${user.einsatzgebiete.length} Einsatzgebiete` : getStufeLabel(user.stufe));
+
+                html += `
+                <tr class="${rowClass}" ${expandAttr} data-id="${user.id}" data-type="${user.type}"
+                    data-name="${user.name}" data-email="${user.email}"
+                    data-herkunft="${user.bundesland}" data-lastLogin="${new Date(user.lastLogin).getTime()}">
+                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="event.stopPropagation();"></td>
+                    <td>
+                        <div class="name-cell">
+                            ${hasChildren ? `
+                            <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>` : '<div class="no-expand-spacer"></div>'}
+                            <div class="avatar ${user.type}">${getInitials(user.name)}${stufeBadge}</div>
+                            <div class="name-info">
+                                <span class="name-main">${user.name}</span>
+                                <span class="name-sub">
+                                    <span class="type-badge ${user.type}">${user.type === 'werber' ? 'Werber' : 'Kunde'}</span>
+                                    ${subText}
+                                </span>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <span class="label-badge ${user.type}">${getStufeLabel(user.stufe)}</span>
-                    </div>
-                    <div>
-                        <span class="user-email">${user.email}</span>
-                    </div>
-                    <div>
-                        <button class="btn-stats" onclick="openStatistics('${user.id}', '${user.type}')" title="Statistik anzeigen">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </td>
+                    <td><span class="user-email">${user.email}</span></td>
+                    <td><span class="user-herkunft">${user.bundesland} <span class="stadt">(${user.stadt})</span></span></td>
+                    <td>${formatLastLogin(user.lastLogin, user.isOnline)}</td>
+                    <td class="center">
+                        <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('${user.id}', '${user.type}')" title="Statistik anzeigen">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 20V10"></path>
+                                <path d="M12 20V4"></path>
+                                <path d="M6 20v-6"></path>
                             </svg>
                         </button>
-                    </div>
-                    <div>
-                        <span class="user-herkunft">${user.bundesland} <span class="stadt">(${user.stadt})</span></span>
-                    </div>
-                    <div>
-                        ${formatLastLogin(user.lastLogin, user.isOnline)}
-                    </div>
-                    <div>
-                        <button class="btn-edit" onclick="editUser('${user.id}', '${user.type}')" title="Bearbeiten">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            `;}).join('');
+                    </td>
+                    <td class="center">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="editUser('${user.id}', '${user.type}')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    Bearbeiten
+                                </div>
+                                <div class="dropdown-item" onclick="openStatistics('${user.id}', '${user.type}')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+                                    Statistik
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item danger" onclick="deleteUser('${user.id}')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    Löschen
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+
+                // Render child rows for Kunden with Einsatzgebiete
+                if (hasChildren) {
+                    user.einsatzgebiete.forEach(gebiet => {
+                        html += `
+                        <tr class="child-row" data-parent-id="${user.id}">
+                            <td class="checkbox-cell"><input type="checkbox" class="row-checkbox"></td>
+                            <td>
+                                <div class="name-cell">
+                                    <div class="child-indent">└</div>
+                                    <div class="avatar kunde">${getInitials(gebiet.name)}</div>
+                                    <div class="name-info">
+                                        <span class="name-main">${gebiet.name}</span>
+                                        <span class="name-sub">PLZ: ${gebiet.plz}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="center">
+                                <button class="btn-stats" onclick="openGebietStatistics('${gebiet.id}')" title="Statistik">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 20V10"></path>
+                                        <path d="M12 20V4"></path>
+                                        <path d="M6 20v-6"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td class="center">
+                                <div class="dropdown">
+                                    <button class="dropdown-btn" onclick="toggleDropdown(this);">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="1"></circle>
+                                            <circle cx="12" cy="5" r="1"></circle>
+                                            <circle cx="12" cy="19" r="1"></circle>
+                                        </svg>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item" onclick="editGebiet('${gebiet.id}')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                            Bearbeiten
+                                        </div>
+                                        <div class="dropdown-item" onclick="openGebietStatistics('${gebiet.id}')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+                                            Statistik
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>`;
+                    });
+                }
+            });
+
+            tbody.innerHTML = html;
+
+            // Re-attach expandable row listeners
+            attachExpandableListeners();
+        }
+
+        function attachExpandableListeners() {
+            document.querySelectorAll('.expandable-row').forEach(row => {
+                row.addEventListener('click', function(e) {
+                    if (e.target.closest('.dropdown') || e.target.closest('.btn-stats') || e.target.closest('.row-checkbox')) return;
+
+                    const expandId = this.dataset.expandId;
+                    const isOpen = this.classList.contains('open');
+
+                    this.classList.toggle('open');
+
+                    document.querySelectorAll(`.child-row[data-parent-id="${expandId}"]`).forEach(child => {
+                        child.classList.toggle('visible', !isOpen);
+                    });
+                });
+            });
         }
 
         // ================================================================
         // EVENT HANDLERS
         // ================================================================
 
-        // View Filter Dropdown (Hover)
+        // View Filter
         function selectView(value, label) {
             currentFilter = value;
 
-            // Update trigger text with slide-up animation
             const textEl = document.getElementById('viewDropdownText');
-
-            // Phase 1: Slide out (nach oben)
             textEl.style.transform = 'translateY(-100%)';
             textEl.style.opacity = '0';
 
             setTimeout(() => {
-                // Phase 2: Text ändern und Position zurücksetzen (ohne Animation)
                 textEl.style.transition = 'none';
                 textEl.textContent = label;
                 textEl.style.transform = 'translateY(100%)';
-
-                // Force reflow
                 textEl.offsetHeight;
-
-                // Phase 3: Slide in (nach oben in Position)
                 textEl.style.transition = '';
                 textEl.style.transform = 'translateY(0)';
                 textEl.style.opacity = '1';
             }, 150);
 
-            // Update active state
             document.querySelectorAll('#viewDropdown .toolbar-nav-option').forEach(opt => {
                 opt.classList.toggle('active', opt.dataset.value === value);
             });
 
-            updateStufenFilterVisibility();
             renderUsers();
         }
 
-        function updateStufenFilterVisibility() {
-            const werberOptions = document.querySelectorAll('[data-type="werber"]');
-            const kundenOptions = document.querySelectorAll('[data-type="kunde"]');
+        // Sorting
+        document.querySelectorAll('th.sortable').forEach(th => {
+            th.addEventListener('click', function() {
+                const sortKey = this.dataset.sort;
 
-            werberOptions.forEach(opt => {
-                opt.classList.toggle('disabled', currentFilter === 'kunde');
-            });
-            kundenOptions.forEach(opt => {
-                opt.classList.toggle('disabled', currentFilter === 'werber');
-            });
-        }
-
-        // Sortierung
-        document.querySelectorAll('.sortable').forEach(header => {
-            header.addEventListener('click', function() {
-                const field = this.dataset.sort;
-
-                if (currentSort.field === field) {
-                    // Toggle direction
-                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-                    this.classList.toggle('desc', currentSort.direction === 'desc');
+                if (currentSort.field !== sortKey) {
+                    currentSort.field = sortKey;
+                    currentSort.direction = 'asc';
+                } else if (currentSort.direction === 'asc') {
+                    currentSort.direction = 'desc';
                 } else {
-                    // New field
-                    document.querySelectorAll('.sortable').forEach(h => {
-                        h.classList.remove('active', 'desc');
-                    });
-                    currentSort = { field, direction: 'asc' };
-                    this.classList.add('active');
+                    currentSort.direction = 'asc';
                 }
 
+                document.querySelectorAll('th.sortable').forEach(h => {
+                    h.classList.remove('sort-asc', 'sort-desc');
+                });
+
+                this.classList.add('sort-' + currentSort.direction);
                 renderUsers();
             });
         });
 
-        // Suche
+        // Search
         document.getElementById('searchInput').addEventListener('input', function() {
             searchTerm = this.value;
             renderUsers();
         });
 
-        // Multi-Select Stufen Filter
-        const stufenTrigger = document.getElementById('stufenTrigger');
-        const stufenDropdown = document.getElementById('stufenDropdown');
+        // Toggle All Expand
+        function toggleAllExpand() {
+            const btn = document.getElementById('toggleAllBtn');
+            const expandableRows = document.querySelectorAll('.expandable-row');
+            const childRows = document.querySelectorAll('.child-row');
 
-        stufenTrigger.addEventListener('click', function(e) {
-            e.stopPropagation();
-            this.classList.toggle('open');
-            stufenDropdown.classList.toggle('open');
-        });
+            allExpanded = !allExpanded;
 
-        document.addEventListener('click', function(e) {
-            if (!stufenDropdown.contains(e.target) && !stufenTrigger.contains(e.target)) {
-                stufenTrigger.classList.remove('open');
-                stufenDropdown.classList.remove('open');
-            }
-        });
-
-        document.querySelectorAll('.multi-select-option').forEach(option => {
-            option.addEventListener('click', function() {
-                if (this.classList.contains('disabled')) return;
-
-                const value = this.dataset.value;
-                this.classList.toggle('selected');
-
-                if (this.classList.contains('selected')) {
-                    selectedStufen.push(value);
+            expandableRows.forEach(row => {
+                if (allExpanded) {
+                    row.classList.add('open');
                 } else {
-                    selectedStufen = selectedStufen.filter(s => s !== value);
+                    row.classList.remove('open');
                 }
-
-                updateStufenTriggerText();
-                renderUsers();
             });
-        });
 
-        function updateStufenTriggerText() {
-            const text = stufenTrigger.querySelector('span:first-child');
-            const count = stufenTrigger.querySelector('.multi-select-count');
+            childRows.forEach(child => {
+                if (allExpanded) {
+                    child.classList.add('visible');
+                } else {
+                    child.classList.remove('visible');
+                }
+            });
 
-            if (selectedStufen.length === 0) {
-                text.textContent = 'Alle Stufen';
-                count.style.display = 'none';
-            } else if (selectedStufen.length === 1) {
-                text.textContent = getStufeLabel(selectedStufen[0]);
-                count.style.display = 'none';
+            const icon = btn.querySelector('svg');
+            const text = btn.querySelector('span');
+
+            if (allExpanded) {
+                icon.style.transform = 'rotate(180deg)';
+                text.textContent = 'Alle zuklappen';
             } else {
-                text.textContent = 'Stufen';
-                count.textContent = selectedStufen.length;
-                count.style.display = 'inline';
+                icon.style.transform = 'rotate(0deg)';
+                text.textContent = 'Alle aufklappen';
             }
         }
+
+        // Select All
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('#tableBody .row-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+        }
+
+        // Dropdown Toggle
+        function toggleDropdown(btn) {
+            const menu = btn.nextElementSibling;
+            const wasOpen = menu.classList.contains('open');
+
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+
+            if (!wasOpen) {
+                menu.classList.add('open');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+            }
+        });
 
         // ================================================================
         // NAVIGATION FUNCTIONS
         // ================================================================
 
         function openStatistics(userId, userType) {
-            // Öffnet Statistik-Seite mit Benutzer vorausgewählt
+            // Link to statistics dashboard with user ID
             if (window.parent && window.parent !== window) {
-                window.parent.location.hash = 'statistics';
-                // TODO: Parameter für vorausgewählten Benutzer übergeben
+                window.parent.location.href = window.parent.location.pathname + '#statistics';
+                // Also send message to load specific user
+                setTimeout(() => {
+                    const iframe = window.parent.document.querySelector('#content-container iframe');
+                    if (iframe) {
+                        iframe.src = `../statistik/dashboard.html?id=${userId}&type=${userType}`;
+                    }
+                }, 100);
             } else {
-                window.location.href = '../statistik/?user=' + userId;
+                window.location.href = `../statistik/dashboard.html?id=${userId}&type=${userType}`;
+            }
+        }
+
+        function openGebietStatistics(gebietId) {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.href = window.parent.location.pathname + '#statistics';
+                setTimeout(() => {
+                    const iframe = window.parent.document.querySelector('#content-container iframe');
+                    if (iframe) {
+                        iframe.src = `../statistik/dashboard.html?gebiet=${gebietId}`;
+                    }
+                }, 100);
+            } else {
+                window.location.href = `../statistik/dashboard.html?gebiet=${gebietId}`;
             }
         }
 
@@ -1068,8 +1627,50 @@
             }
         }
 
+        function editGebiet(gebietId) {
+            console.log('Edit Einsatzgebiet:', gebietId);
+        }
+
+        async function deleteUser(userId) {
+            const confirmed = await showConfirm('Benutzer löschen', 'Möchten Sie diesen Benutzer wirklich löschen?', 'warning');
+            if (confirmed) {
+                users = users.filter(u => u.id !== userId);
+                renderUsers();
+                await showAlert('Erfolg', 'Benutzer wurde gelöscht.', 'success');
+            }
+        }
+
         // ================================================================
-        // MODAL FUNCTIONS
+        // COLUMN MODAL
+        // ================================================================
+
+        function openColumnModal() {
+            document.getElementById('columnModal').classList.add('open');
+        }
+
+        function closeColumnModal() {
+            document.getElementById('columnModal').classList.remove('open');
+        }
+
+        function applyColumns() {
+            closeColumnModal();
+        }
+
+        async function saveColumnTemplate() {
+            const name = await showPrompt('Vorlage speichern', 'Name der Vorlage:');
+            if (name) {
+                await showAlert('Erfolg', `Vorlage "${name}" gespeichert!`, 'success');
+            }
+        }
+
+        document.getElementById('columnModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeColumnModal();
+            }
+        });
+
+        // ================================================================
+        // ADD USER MODAL
         // ================================================================
 
         const modal = document.getElementById('addUserModal');
@@ -1162,8 +1763,6 @@
                 return;
             }
 
-            // Hier würde die Supabase-Integration kommen
-            // Für jetzt: Dummy-Daten hinzufügen
             const newUser = {
                 id: String(Date.now()),
                 type: type,
@@ -1173,7 +1772,8 @@
                 bundesland: 'Deutschland',
                 stadt: 'Unbekannt',
                 lastLogin: new Date(),
-                isOnline: false
+                isOnline: false,
+                einsatzgebiete: type === 'kunde' ? [] : []
             };
 
             users.unshift(newUser);
@@ -1188,25 +1788,54 @@
         // ================================================================
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Erkennen ob in iframe -> Toolbar verstecken
             if (window.self !== window.top) {
                 document.body.classList.add('in-iframe');
             }
 
-            // Load dummy data (später durch Supabase ersetzen)
             users = [...dummyUsers];
             renderUsers();
 
             // Listen for filter messages from parent shell
             window.addEventListener('message', function(e) {
                 if (e.data && e.data.type === 'navFilter') {
-                    document.getElementById('viewDropdown')
-                        ?.querySelectorAll('.toolbar-nav-option')
-                        .forEach(opt => {
-                            if (opt.dataset.value === e.data.value) {
-                                opt.click();
-                            }
-                        });
+                    selectView(e.data.value, e.data.value === 'alle' ? 'Alle Benutzer' : (e.data.value === 'werber' ? 'Werber' : 'Kunden'));
+                }
+                if (e.data && e.data.type === 'searchQuery') {
+                    searchTerm = e.data.query;
+                    renderUsers();
+
+                    // Send search results back
+                    const results = users.filter(u => {
+                        const term = e.data.query.toLowerCase();
+                        return u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term);
+                    }).slice(0, 5).map(u => ({ id: u.id, name: u.name }));
+
+                    window.parent.postMessage({
+                        type: 'searchResults',
+                        query: e.data.query,
+                        headerText: 'Benutzer',
+                        results: results
+                    }, '*');
+                }
+                if (e.data && e.data.type === 'searchSelect') {
+                    // Scroll to and highlight selected user
+                    const row = document.querySelector(`tr[data-id="${e.data.id}"]`);
+                    if (row) {
+                        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        row.style.background = '#fef9c3';
+                        setTimeout(() => {
+                            row.style.background = '';
+                        }, 2000);
+                    }
+                }
+                if (e.data && e.data.type === 'toolbarAction') {
+                    if (e.data.action === 'default') {
+                        document.getElementById('addUserBtn').click();
+                    }
+                }
+                if (e.data && e.data.type === 'stufenFilter') {
+                    selectedStufen = e.data.stufen;
+                    renderUsers();
                 }
             });
         });
