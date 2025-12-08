@@ -490,50 +490,77 @@
                     <div class="multi-select-dropdown" id="stufenDropdown">
                         <div class="multi-select-section" id="mitarbeiterStufen">
                             <div class="multi-select-section-title">Mitarbeiter</div>
-                            <div class="multi-select-option" data-value="junior_marketing_manager" data-type="mitarbeiter">
+                            <div class="multi-select-option" data-value="SMA" data-type="mitarbeiter">
                                 <div class="multi-select-box"></div>
                                 <div class="multi-select-check">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                                     </svg>
                                 </div>
-                                <span>Junior Marketing Manager</span>
+                                <span>SMA - Starting Marketing Advisor</span>
                             </div>
-                            <div class="multi-select-option" data-value="senior_marketing_manager" data-type="mitarbeiter">
+                            <div class="multi-select-option" data-value="EMA" data-type="mitarbeiter">
                                 <div class="multi-select-box"></div>
                                 <div class="multi-select-check">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                                     </svg>
                                 </div>
-                                <span>Senior Marketing Manager</span>
+                                <span>EMA - Executive Marketing Advisor</span>
                             </div>
-                            <div class="multi-select-option" data-value="spitzenbotschafter" data-type="mitarbeiter">
+                            <div class="multi-select-option" data-value="JMM" data-type="mitarbeiter">
                                 <div class="multi-select-box"></div>
                                 <div class="multi-select-check">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                                     </svg>
                                 </div>
-                                <span>Spitzenbotschafter</span>
+                                <span>JMM - Junior Marketing Manager</span>
                             </div>
-                            <div class="multi-select-option" data-value="kader_manager" data-type="mitarbeiter">
+                            <div class="multi-select-option" data-value="EMM" data-type="mitarbeiter">
                                 <div class="multi-select-box"></div>
                                 <div class="multi-select-check">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                                     </svg>
                                 </div>
-                                <span>Kader Manager</span>
+                                <span>EMM - Executive Marketing Manager</span>
                             </div>
-                            <div class="multi-select-option" data-value="führungsebene" data-type="mitarbeiter">
+                            <div class="multi-select-option" data-value="CEMM" data-type="mitarbeiter">
                                 <div class="multi-select-box"></div>
                                 <div class="multi-select-check">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                                     </svg>
                                 </div>
-                                <span>Führungsebene</span>
+                                <span>CEMM - Chief Executive Marketing Manager</span>
+                            </div>
+                            <div class="multi-select-option" data-value="SPB" data-type="mitarbeiter">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>SPB - Spitzenbotschafter</span>
+                            </div>
+                            <div class="multi-select-option" data-value="KAD" data-type="mitarbeiter">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>KAD - Kadermanager</span>
+                            </div>
+                            <div class="multi-select-option" data-value="FUE" data-type="mitarbeiter">
+                                <div class="multi-select-box"></div>
+                                <div class="multi-select-check">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <span>FUE - Führungsebene</span>
                             </div>
                         </div>
                         <div class="multi-select-section" id="kundenStufen">
@@ -656,15 +683,20 @@
         // ================================================================
         // CONSTANTS
         // ================================================================
-        const roleLabels = {
-            'junior_marketing_manager': 'Junior Marketing Manager',
-            'senior_marketing_manager': 'Senior Marketing Manager',
-            'spitzenbotschafter': 'Spitzenbotschafter',
-            'kader_manager': 'Kader Manager',
-            'führungsebene': 'Führungsebene',
-            'kreisverband': 'Kreisverband',
-            'ortsverein': 'Ortsverein'
-        };
+        // Stufen-Labels (nutzt STUFEN_CONFIG aus badge-system.js für Mitarbeiter)
+        function getStufeLabel(stufe) {
+            // Für Kunden-Typen
+            const kundenLabels = {
+                'kreisverband': 'Kreisverband',
+                'ortsverein': 'Ortsverein'
+            };
+            if (kundenLabels[stufe]) return kundenLabels[stufe];
+            // Für Mitarbeiter-Stufen aus zentralem System
+            if (typeof STUFEN_CONFIG !== 'undefined' && STUFEN_CONFIG[stufe]) {
+                return STUFEN_CONFIG[stufe].name;
+            }
+            return stufe;
+        }
 
         // State
         let users = [];
@@ -681,7 +713,7 @@
                 id: '1',
                 type: 'mitarbeiter',
                 name: 'Max Müller',
-                stufe: 'junior_marketing_manager',
+                stufe: 'JMM',
                 email: 'max.mueller@rb-inside.de',
                 bundesland: 'Bayern',
                 stadt: 'München',
@@ -692,7 +724,7 @@
                 id: '2',
                 type: 'mitarbeiter',
                 name: 'Lisa Schmidt',
-                stufe: 'spitzenbotschafter',
+                stufe: 'SPB',
                 email: 'lisa.schmidt@rb-inside.de',
                 bundesland: 'Baden-Württemberg',
                 stadt: 'Stuttgart',
@@ -725,7 +757,7 @@
                 id: '5',
                 type: 'mitarbeiter',
                 name: 'Thomas Weber',
-                stufe: 'kader_manager',
+                stufe: 'KAD',
                 email: 'thomas.weber@rb-inside.de',
                 bundesland: 'Sachsen',
                 stadt: 'Dresden',
@@ -736,7 +768,7 @@
                 id: '6',
                 type: 'mitarbeiter',
                 name: 'Anna Hoffmann',
-                stufe: 'führungsebene',
+                stufe: 'FUE',
                 email: 'anna.hoffmann@rb-inside.de',
                 bundesland: 'Nordrhein-Westfalen',
                 stadt: 'Köln',
@@ -812,8 +844,8 @@
                         valB = b.name.toLowerCase();
                         break;
                     case 'label':
-                        valA = roleLabels[a.stufe] || a.stufe;
-                        valB = roleLabels[b.stufe] || b.stufe;
+                        valA = getStufeLabel(a.stufe).toLowerCase();
+                        valB = getStufeLabel(b.stufe).toLowerCase();
                         break;
                     case 'herkunft':
                         valA = a.bundesland.toLowerCase();
@@ -836,11 +868,17 @@
             }
 
             emptyState.style.display = 'none';
-            tbody.innerHTML = filtered.map(user => `
+            tbody.innerHTML = filtered.map(user => {
+                // Stufen-Badge nur für Mitarbeiter (Werber)
+                const stufeBadge = user.type === 'mitarbeiter' && user.stufe && typeof getStufeBadge === 'function'
+                    ? getStufeBadge(user.stufe)
+                    : '';
+
+                return `
                 <div class="user-row" data-id="${user.id}" data-type="${user.type}">
                     <div>
                         <div class="user-badge user-badge--${user.type === 'mitarbeiter' ? 'werber' : 'kunde'}">
-                            <div class="user-badge__avatar">${getInitials(user.name)}</div>
+                            <div class="user-badge__avatar">${getInitials(user.name)}${stufeBadge}</div>
                             <div class="user-badge__info">
                                 <span class="user-badge__name">${user.name}</span>
                                 <span class="user-badge__type">${user.type === 'mitarbeiter' ? 'Werber' : 'Kunde'}</span>
@@ -848,7 +886,7 @@
                         </div>
                     </div>
                     <div>
-                        <span class="label-badge ${user.type}">${roleLabels[user.stufe] || user.stufe}</span>
+                        <span class="label-badge ${user.type}">${getStufeLabel(user.stufe)}</span>
                     </div>
                     <div>
                         <span class="user-email">${user.email}</span>
@@ -874,7 +912,7 @@
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `;}).join('');
         }
 
         // ================================================================
@@ -999,7 +1037,7 @@
                 text.textContent = 'Alle Stufen';
                 count.style.display = 'none';
             } else if (selectedStufen.length === 1) {
-                text.textContent = roleLabels[selectedStufen[0]] || selectedStufen[0];
+                text.textContent = getStufeLabel(selectedStufen[0]);
                 count.style.display = 'none';
             } else {
                 text.textContent = 'Stufen';
@@ -1072,14 +1110,17 @@
                         <input type="email" class="form-input" id="userEmail" placeholder="max@example.com">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Rolle *</label>
+                        <label class="form-label">Karriere-Stufe *</label>
                         <select class="form-input" id="userRole">
                             <option value="">Bitte auswählen</option>
-                            <option value="junior_marketing_manager">Junior Marketing Manager</option>
-                            <option value="senior_marketing_manager">Senior Marketing Manager</option>
-                            <option value="spitzenbotschafter">Spitzenbotschafter</option>
-                            <option value="kader_manager">Kader Manager</option>
-                            <option value="führungsebene">Führungsebene</option>
+                            <option value="SMA">SMA - Starting Marketing Advisor</option>
+                            <option value="EMA">EMA - Executive Marketing Advisor</option>
+                            <option value="JMM">JMM - Junior Marketing Manager</option>
+                            <option value="EMM">EMM - Executive Marketing Manager</option>
+                            <option value="CEMM">CEMM - Chief Executive Marketing Manager</option>
+                            <option value="SPB">SPB - Spitzenbotschafter</option>
+                            <option value="KAD">KAD - Kadermanager</option>
+                            <option value="FUE">FUE - Führungsebene</option>
                         </select>
                     </div>
                 `;
