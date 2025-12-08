@@ -750,10 +750,9 @@
             border: 1px solid var(--border-color);
         }
 
-        .tc-provision-name {
+        .tc-provision-row .user-badge {
             flex: 1;
-            font-weight: 500;
-            color: var(--text-primary);
+            min-width: 0;
         }
 
         .tc-provision-weeks {
@@ -2276,19 +2275,9 @@
 
         .wg-config-title {
             display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .wg-config-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .wg-config-kunde {
-            font-size: 12px;
-            color: var(--text-secondary);
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
         }
 
         .wg-kw-selection {
@@ -4492,9 +4481,8 @@
                             <div class="wg-config-panel" id="wgConfigPanel" style="display: none;">
                                 <!-- Header mit WG-Name und KW-Auswahl -->
                                 <div class="wg-config-header">
-                                    <div class="wg-config-title">
-                                        <span class="wg-config-name" id="wgConfigName">Werbegebiet</span>
-                                        <span class="wg-config-kunde" id="wgConfigKunde">Kunde</span>
+                                    <div class="wg-config-title" id="wgConfigTitle">
+                                        <!-- Badges werden dynamisch generiert -->
                                     </div>
                                     <button class="btn btn-secondary btn-small" id="btnWgEdit" onclick="toggleWgEditMode()" style="margin: 0 var(--spacing-md);">
                                         <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -5596,18 +5584,18 @@ function renderCampaigns() {
             }
         }
 
-        // Kunde-Badge für Kampagne
-        const kundeInitials = getInitials(campaign.name);
+        // Kampagne-Badge für Übersicht
+        const kampagneInitials = getInitials(campaign.name);
 
         return `
             <div class="campaign-card status-${status}" onclick="viewCampaign(${campaign.id})">
                 <div class="campaign-header">
                     <div>
-                        <div class="user-badge user-badge--kunde">
-                            <div class="user-badge__avatar">${kundeInitials}</div>
+                        <div class="user-badge user-badge--kampagne">
+                            <div class="user-badge__avatar">${kampagneInitials}</div>
                             <div class="user-badge__info">
                                 <span class="user-badge__name">${campaign.name}</span>
-                                <span class="user-badge__type">Kunde</span>
+                                <span class="user-badge__type">Kampagne</span>
                             </div>
                         </div>
                         <div class="campaign-meta">${startDate} - ${endDate} (KW ${campaign.kwFrom}-${campaign.kwTo}) · ${weekCount} W.</div>
@@ -6043,16 +6031,25 @@ function renderAvailableWerbegebiete() {
         return;
     }
 
-    container.innerHTML = available.map(wg => `
-        <div class="wg-list-item" onclick="addWgToCampaign('${wg.id}')">
-            <span class="wg-list-item-name">${wg.name}</span>
-            <div class="wg-list-item-action add">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
+    container.innerHTML = available.map(wg => {
+        const wgInitials = getInitials(wg.name);
+        return `
+            <div class="wg-list-item" onclick="addWgToCampaign('${wg.id}')">
+                <div class="user-badge user-badge--werbegebiet user-badge--small">
+                    <div class="user-badge__avatar">${wgInitials}</div>
+                    <div class="user-badge__info">
+                        <span class="user-badge__name">${wg.name}</span>
+                        <span class="user-badge__type">Werbegebiet</span>
+                    </div>
+                </div>
+                <div class="wg-list-item-action add">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // WG zur Kampagne hinzufügen
@@ -6138,11 +6135,20 @@ function updateAddedWgList() {
     section.style.display = 'block';
     countBadge.textContent = kundenWgs.length;
 
-    container.innerHTML = kundenWgs.map(wg => `
-        <div class="wg-list-item ${activeWgConfig === wg.id ? 'active' : ''}" onclick="openWgConfig('${wg.id}')">
-            <span class="wg-list-item-name">${wg.name}</span>
-        </div>
-    `).join('');
+    container.innerHTML = kundenWgs.map(wg => {
+        const wgInitials = getInitials(wg.name);
+        return `
+            <div class="wg-list-item ${activeWgConfig === wg.id ? 'active' : ''}" onclick="openWgConfig('${wg.id}')">
+                <div class="user-badge user-badge--werbegebiet user-badge--small">
+                    <div class="user-badge__avatar">${wgInitials}</div>
+                    <div class="user-badge__info">
+                        <span class="user-badge__name">${wg.name}</span>
+                        <span class="user-badge__type">Werbegebiet</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 // WG Konfiguration öffnen
@@ -6156,9 +6162,25 @@ function openWgConfig(wgId) {
     // Panel anzeigen
     document.getElementById('wgConfigPanel').style.display = 'flex';
 
-    // Header
-    document.getElementById('wgConfigName').textContent = wg.name;
-    document.getElementById('wgConfigKunde').textContent = wg.kundeName;
+    // Header mit Badges
+    const wgInitials = getInitials(wg.name);
+    const kundeInitials = getInitials(wg.kundeName);
+    document.getElementById('wgConfigTitle').innerHTML = `
+        <div class="user-badge user-badge--werbegebiet user-badge--small">
+            <div class="user-badge__avatar">${wgInitials}</div>
+            <div class="user-badge__info">
+                <span class="user-badge__name">${wg.name}</span>
+                <span class="user-badge__type">Werbegebiet</span>
+            </div>
+        </div>
+        <div class="user-badge user-badge--kunde user-badge--small" style="margin-left: 12px;">
+            <div class="user-badge__avatar">${kundeInitials}</div>
+            <div class="user-badge__info">
+                <span class="user-badge__name">${wg.kundeName}</span>
+                <span class="user-badge__type">Kunde</span>
+            </div>
+        </div>
+    `;
 
     // KW Pills generieren
     renderKwPills(wg);
@@ -6802,10 +6824,17 @@ function renderTCProvision(campaign) {
         const tc = employees.find(e => e.id === parseInt(tcId));
         const percent = Math.round((weeks / totalWeeks) * 100);
         const tcName = tc ? tc.name : 'Unbekannt';
+        const tcInitials = getInitials(tcName);
 
         html += `
             <div class="tc-provision-row">
-                <span class="tc-provision-name">${tcName}</span>
+                <div class="user-badge user-badge--werber user-badge--small">
+                    <div class="user-badge__avatar">${tcInitials}</div>
+                    <div class="user-badge__info">
+                        <span class="user-badge__name">${tcName}</span>
+                        ${getBadgeTypeRow('Werber', true, false)}
+                    </div>
+                </div>
                 <span class="tc-provision-weeks">${weeks} KW</span>
                 <div class="tc-provision-bar">
                     <div class="tc-provision-fill" style="width: ${percent}%"></div>
