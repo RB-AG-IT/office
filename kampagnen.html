@@ -6982,17 +6982,30 @@ function renderKWDetails(campaign) {
         if (isCurrentWeek) classes += ' current-week expanded';
         if (hasTc) classes += ' has-tc';
 
-        // Generiere Header Team Pills HTML (volle Namen, von links nach rechts)
+        // Generiere Header Team Pills HTML als mini badges
         const headerTeamPillsHtml = (() => {
             let pills = '';
-            // TC zuerst (gelb)
+            // TC zuerst (gelb) - als Kampagne-Badge (blau/gelb)
             if (tc) {
-                pills += '<span class="kw-header-pill tc">' + tc.name + '</span>';
+                const tcInitials = getInitials(tc.name);
+                pills += '<div class="user-badge user-badge--kampagne user-badge--mini">' +
+                    '<div class="user-badge__avatar">' + tcInitials + '</div>' +
+                    '<div class="user-badge__info">' +
+                        '<span class="user-badge__name">' + tc.name + '</span>' +
+                        '<span class="user-badge__type">Teamchef</span>' +
+                    '</div>' +
+                '</div>';
             }
             // Dann Werber alphabetisch sortiert
             werberSorted.forEach(w => {
-                const pillClass = w.label || 'normal';
-                pills += '<span class="kw-header-pill ' + pillClass + '">' + w.name + '</span>';
+                const wInitials = getInitials(w.name);
+                pills += '<div class="user-badge user-badge--werber user-badge--mini">' +
+                    '<div class="user-badge__avatar">' + wInitials + '</div>' +
+                    '<div class="user-badge__info">' +
+                        '<span class="user-badge__name">' + w.name + '</span>' +
+                        '<span class="user-badge__type">Werber</span>' +
+                    '</div>' +
+                '</div>';
             });
             return pills;
         })();
@@ -7001,10 +7014,18 @@ function renderKWDetails(campaign) {
         const totalEinwohner = activeWerbegebiete.reduce((sum, wg) => sum + (wg.einwohner || 0), 0);
         const einwohnerFormatted = totalEinwohner.toLocaleString('de-DE');
 
-        // Werbegebiete-Namen für zweite Zeile
-        const wgNamesHtml = activeWerbegebiete.map(wg =>
-            '<span class="kw-header-wg">' + wg.name.replace(' e.V.', '') + '</span>'
-        ).join('');
+        // Werbegebiete-Namen für zweite Zeile als mini badges
+        const wgNamesHtml = activeWerbegebiete.map(wg => {
+            const wgName = wg.name.replace(' e.V.', '');
+            const wgInitials = getInitials(wgName);
+            return '<div class="user-badge user-badge--werbegebiet user-badge--mini">' +
+                '<div class="user-badge__avatar">' + wgInitials + '</div>' +
+                '<div class="user-badge__info">' +
+                    '<span class="user-badge__name">' + wgName + '</span>' +
+                    '<span class="user-badge__type">Werbegebiet</span>' +
+                '</div>' +
+            '</div>';
+        }).join('');
 
         html += `
             <div class="${classes}" data-kw="${kw}">
@@ -7998,11 +8019,6 @@ function renderMitgliedCardLarge(mitglied) {
         emailTitle = 'E-Mail nicht gesendet';
     }
 
-    // Typ-Pill (NMG oder ERH)
-    const typPill = mitglied.typ
-        ? `<span class="schrieb-typ-pill ${mitglied.typ.toLowerCase()}">${mitglied.typ}</span>`
-        : '';
-
     // IBAN-Status
     const ibanHtml = mitglied.ibanFilled
         ? '<span class="schrieb-iban filled" title="IBAN nachgetragen">IBAN</span>'
@@ -8013,21 +8029,31 @@ function renderMitgliedCardLarge(mitglied) {
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
     </svg>`;
 
+    // User-Badge Klasse basierend auf Typ
+    const badgeClass = mitglied.typ === 'NMG' ? 'user-badge--neumitglied' : 'user-badge--erhoehung';
+    const typeLabel = mitglied.typ === 'NMG' ? 'Neumitglied' : 'Erhöhung';
+
+    // Botschafter Initialen
+    const botschafterInitials = getInitials(mitglied.botschafter);
+
     // Exakt gleiche Karte wie im Grid (schrieb-compact), nur ohne onclick
     return `
         <div class="schrieb-compact" style="cursor: default; pointer-events: none;">
             <div class="schrieb-compact-header">
-                <div>
-                    <span class="schrieb-compact-name">${mitglied.name}</span>
+                <div class="schrieb-compact-member">
+                    <div class="user-badge ${badgeClass} user-badge--small">
+                        <div class="user-badge__avatar"></div>
+                        <div class="user-badge__info">
+                            <span class="user-badge__name">${mitglied.name}</span>
+                            <span class="user-badge__type">${typeLabel}</span>
+                        </div>
+                    </div>
                     <div class="schrieb-compact-location">
-                        <span class="schrieb-compact-wg-pill">${mitglied.werbegebiet}</span>
+                        <span class="schrieb-wg-badge">${mitglied.werbegebiet}</span>
                         <span class="schrieb-compact-strasse"><span class="location-emoji">📍</span>${mitglied.strasse} ${mitglied.hausnr}</span>
                     </div>
                 </div>
-                <div class="schrieb-compact-badges">
-                    <span class="schrieb-compact-eh">${mitglied.eh} EH</span>
-                    ${typPill}
-                </div>
+                <span class="schrieb-compact-eh">${mitglied.eh} EH</span>
             </div>
             <div class="schrieb-compact-footer">
                 <div class="schrieb-compact-status">
@@ -8035,7 +8061,13 @@ function renderMitgliedCardLarge(mitglied) {
                     ${ibanHtml}
                 </div>
                 <span class="schrieb-compact-time">${mitglied.uhrzeit}</span>
-                <span class="schrieb-compact-botschafter" title="Botschafter: ${mitglied.botschafter}">${mitglied.botschafter}</span>
+                <div class="user-badge user-badge--werber user-badge--mini">
+                    <div class="user-badge__avatar">${botschafterInitials}</div>
+                    <div class="user-badge__info">
+                        <span class="user-badge__name">${mitglied.botschafter}</span>
+                        <span class="user-badge__type">Werber</span>
+                    </div>
+                </div>
             </div>
         </div>
     `;
@@ -8224,15 +8256,31 @@ function renderAuditLog() {
         if (m.emailStatus === 'opened') emailIconClass = 'email-opened';
         else if (m.emailStatus === 'not_sent') emailIconClass = 'email-not-sent';
 
+        // Badge-Klasse
+        const badgeClass = m.typ === 'NMG' ? 'user-badge--neumitglied' : 'user-badge--erhoehung';
+        const typeLabel = m.typ === 'NMG' ? 'Neumitglied' : 'Erhöhung';
+        const wgInitials = getInitials(m.werbegebiet);
+
         html += `
             <div class="audit-mitglied-card" onclick="openSchriebDetails(${m.id})">
                 <div class="audit-mitglied-header">
-                    <span class="audit-mitglied-name">${m.name}</span>
+                    <div class="user-badge ${badgeClass} user-badge--mini">
+                        <div class="user-badge__avatar"></div>
+                        <div class="user-badge__info">
+                            <span class="user-badge__name">${m.name}</span>
+                            <span class="user-badge__type">${typeLabel}</span>
+                        </div>
+                    </div>
                     <span class="audit-mitglied-eh">${m.eh} EH</span>
                 </div>
                 <div class="audit-mitglied-details">
-                    <div class="audit-mitglied-wg">${m.werbegebiet}</div>
-                    <div class="audit-mitglied-adresse">${m.strasse} ${m.hausnr}</div>
+                    <div class="user-badge user-badge--werbegebiet user-badge--mini">
+                        <div class="user-badge__avatar">${wgInitials}</div>
+                        <div class="user-badge__info">
+                            <span class="user-badge__name">${m.werbegebiet}</span>
+                        </div>
+                    </div>
+                    <div class="audit-mitglied-adresse">📍 ${m.strasse} ${m.hausnr}</div>
                 </div>
                 <div class="audit-mitglied-footer">
                     <div class="audit-mitglied-status">
