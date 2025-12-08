@@ -853,9 +853,18 @@
             white-space: nowrap;
         }
 
-        /* Hide row2 when expanded */
-        .kw-detail-card.expanded .kw-header-row2 {
+        /* Hide row2 and divider when expanded */
+        .kw-detail-card.expanded .kw-header-row2,
+        .kw-detail-card.expanded .kw-header-divider {
             display: none;
+        }
+
+        /* Trennlinie zwischen Team und WG (eingeklappt) */
+        .kw-header-divider {
+            width: 100%;
+            height: 1px;
+            background: var(--border-color);
+            margin: 8px 0;
         }
 
         .kw-detail-title {
@@ -7140,7 +7149,7 @@ function renderKWDetails(campaign) {
                 const tcInitials = getInitials(tc.name);
                 const tcIsQM = tc.id === qmId; // Nur eingetragener QM
                 const tcStufe = tc.role || '';
-                pills += '<div class="user-badge user-badge--werber user-badge--mini">' +
+                pills += '<div class="user-badge user-badge--werber user-badge--small">' +
                     '<div class="user-badge__avatar">' + tcInitials + getStufeBadge(tcStufe) + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + tc.name + '</span>' +
@@ -7153,7 +7162,7 @@ function renderKWDetails(campaign) {
                 const wInitials = getInitials(w.name);
                 const wIsQM = w.id === qmId; // Nur eingetragener QM
                 const wStufe = w.role || '';
-                pills += '<div class="user-badge user-badge--werber user-badge--mini">' +
+                pills += '<div class="user-badge user-badge--werber user-badge--small">' +
                     '<div class="user-badge__avatar">' + wInitials + getStufeBadge(wStufe) + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + w.name + '</span>' +
@@ -7172,7 +7181,7 @@ function renderKWDetails(campaign) {
         const wgNamesHtml = activeWerbegebiete.map(wg => {
             const wgName = wg.name.replace(' e.V.', '');
             const wgInitials = getInitials(wgName);
-            return '<div class="user-badge user-badge--werbegebiet user-badge--mini">' +
+            return '<div class="user-badge user-badge--werbegebiet user-badge--small">' +
                 '<div class="user-badge__avatar">' + wgInitials + '</div>' +
                 '<div class="user-badge__info">' +
                     '<span class="user-badge__name">' + wgName + '</span>' +
@@ -7201,6 +7210,8 @@ function renderKWDetails(campaign) {
                             <span class="kw-badge count">${totalCount} Pers.</span>
                         </div>
                     </div>
+                    <!-- Trennlinie zwischen Team und WG (nur eingeklappt sichtbar) -->
+                    <div class="kw-header-divider"></div>
                     <!-- Zeile 2: Werbegebiete (links) | Einwohner (rechts) -->
                     <div class="kw-header-row2">
                         <div class="kw-header-wg-list">
