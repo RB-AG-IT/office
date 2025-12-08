@@ -408,29 +408,6 @@
         .badge.active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
         .badge.storniert { background: var(--color-storno-bg); color: var(--color-storno); }
 
-        /* Member badges mit Initialen (ohne Symbole) */
-        .user-badge--member-neumitglied .user-badge__avatar {
-            background: linear-gradient(135deg, var(--color-neumitglied) 0%, var(--color-neumitglied-dark) 100%);
-        }
-        .user-badge--member-neumitglied .user-badge__type {
-            background: var(--color-neumitglied-bg);
-            color: var(--color-neumitglied);
-        }
-        .user-badge--member-erhoehung .user-badge__avatar {
-            background: linear-gradient(135deg, var(--color-erhoehung) 0%, var(--color-erhoehung-dark) 100%);
-        }
-        .user-badge--member-erhoehung .user-badge__type {
-            background: var(--color-erhoehung-bg);
-            color: var(--color-erhoehung);
-        }
-        .user-badge--member-storno .user-badge__avatar {
-            background: linear-gradient(135deg, var(--color-storno) 0%, var(--color-storno-dark) 100%);
-        }
-        .user-badge--member-storno .user-badge__type {
-            background: var(--color-storno-bg);
-            color: var(--color-storno);
-        }
-
         .je-value {
             font-weight: 600;
             color: var(--text-primary);
@@ -2909,14 +2886,6 @@
             renderRecordsTable(currentRecords, false);
         }
 
-        // Get initials from name
-        function getInitials(name) {
-            if (!name) return '??';
-            const parts = name.trim().split(/\s+/);
-            if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-        }
-
         // Format cell value based on format type
         function formatCellValue(value, format, row) {
             if (value == null || value === '') return '-';
@@ -2933,21 +2902,21 @@
                 case 'boolean':
                     return value ? '✓' : '-';
                 case 'member':
-                    // Determine color and label based on type and status
-                    let colorVar, typeLabel;
+                    // Badge-Klasse mit Symbol (+ für NMG, ↑ für ERH, ✕ für Storno)
+                    let badgeClass, typeLabel;
                     if (row.status === 'storniert') {
-                        colorVar = 'storno';
+                        badgeClass = 'user-badge--storno';
                         typeLabel = 'Storno';
                     } else if (row.type === 'nmg') {
-                        colorVar = 'neumitglied';
+                        badgeClass = 'user-badge--neumitglied';
                         typeLabel = 'Neumitglied';
                     } else {
-                        colorVar = 'erhoehung';
+                        badgeClass = 'user-badge--erhoehung';
                         typeLabel = 'Erhöhung';
                     }
                     return `
-                        <div class="user-badge user-badge--small user-badge--member-${colorVar}">
-                            <div class="user-badge__avatar">${getInitials(value)}</div>
+                        <div class="user-badge ${badgeClass} user-badge--small">
+                            <div class="user-badge__avatar"></div>
                             <div class="user-badge__info">
                                 <span class="user-badge__name">${escapeHtml(value)}</span>
                                 <span class="user-badge__type">${typeLabel}</span>
