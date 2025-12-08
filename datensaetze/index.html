@@ -402,10 +402,11 @@
             text-transform: uppercase;
         }
 
-        .badge.nmg { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
-        .badge.erh { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        /* Datensatz-Typen mit zentralen Farbvariablen */
+        .badge.nmg { background: var(--color-neumitglied-bg); color: var(--color-neumitglied); }
+        .badge.erh { background: var(--color-erhoehung-bg); color: var(--color-erhoehung); }
         .badge.active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-        .badge.storniert { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .badge.storniert { background: var(--color-storno-bg); color: var(--color-storno); }
 
         .je-value {
             font-weight: 600;
@@ -1764,6 +1765,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div><!-- Ende content-area -->
@@ -2374,7 +2376,7 @@
             company: { label: 'Firma', width: '140px' },
             firstName: { label: 'Vorname', width: '100px' },
             lastName: { label: 'Nachname', width: '100px' },
-            name: { label: 'Name', width: '150px' },
+            name: { label: 'Name', width: '200px', format: 'member' },
             birthDate: { label: 'Geburtsdatum', width: '100px', format: 'date' },
             email: { label: 'E-Mail', width: '180px' },
             phoneMobile: { label: 'Tel. Mobil', width: '130px' },
@@ -2899,6 +2901,27 @@
                     return `<span class="je-value">${value} €</span>`;
                 case 'boolean':
                     return value ? '✓' : '-';
+                case 'member':
+                    // Badge-Klasse mit Symbol (+ für NMG, ↑ für ERH, ✕ für Storno)
+                    let badgeClass, typeLabel;
+                    if (row.status === 'storniert') {
+                        badgeClass = 'user-badge--storno';
+                        typeLabel = 'Storno';
+                    } else if (row.type === 'nmg') {
+                        badgeClass = 'user-badge--neumitglied';
+                        typeLabel = 'Neumitglied';
+                    } else {
+                        badgeClass = 'user-badge--erhoehung';
+                        typeLabel = 'Erhöhung';
+                    }
+                    return `
+                        <div class="user-badge ${badgeClass} user-badge--small">
+                            <div class="user-badge__avatar"></div>
+                            <div class="user-badge__info">
+                                <span class="user-badge__name">${escapeHtml(value)}</span>
+                                <span class="user-badge__type">${typeLabel}</span>
+                            </div>
+                        </div>`;
                 default:
                     return escapeHtml(String(value));
             }
