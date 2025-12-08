@@ -1092,42 +1092,89 @@
 
         .kw-section-title.tc { color: #f59e0b; }
 
-        /* TC Section prominent oben */
-        .kw-tc-section {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
+        /* TC/Quality Auswahl - Zwei kleine Felder nebeneinander */
+        .kw-tc-qm-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
             margin-bottom: var(--spacing-md);
         }
 
-        .kw-tc-section.no-tc {
+        .kw-tc-box,
+        .kw-qm-box {
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+        }
+
+        .kw-tc-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+        }
+
+        .kw-tc-box.no-tc {
             background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
             border-color: #ef4444;
         }
 
-        .kw-tc-header {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            flex-wrap: wrap;
+        .kw-qm-box {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 2px solid #22c55e;
         }
 
-        .kw-tc-header svg {
-            width: 24px;
-            height: 24px;
+        .kw-qm-box.no-qm {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-color: #9ca3af;
+        }
+
+        .kw-tc-box-header,
+        .kw-qm-box-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .kw-tc-box-header svg {
+            width: 18px;
+            height: 18px;
             color: #f59e0b;
         }
 
-        /* Quality Manager Row im TC-Bereich */
-        .kw-qm-row {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            margin-top: var(--spacing-sm);
-            padding-top: var(--spacing-sm);
-            border-top: 1px dashed rgba(245, 158, 11, 0.4);
-            flex-wrap: wrap;
+        .kw-qm-box-header svg {
+            width: 18px;
+            height: 18px;
+            color: #22c55e;
+        }
+
+        .kw-tc-box-label {
+            font-weight: 700;
+            font-size: 11px;
+            color: #92400e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kw-qm-box-label {
+            font-weight: 700;
+            font-size: 11px;
+            color: #166534;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kw-tc-box select,
+        .kw-qm-box select {
+            width: 100%;
+            height: 32px;
+            padding: 0 8px;
+            font-size: 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Legacy - für Kompatibilität */
+        .kw-tc-section {
+            display: none;
         }
 
         .kw-qm-stamp {
@@ -1503,22 +1550,82 @@
             overflow-y: visible;
         }
 
+        /* TC/Quality im Team - Hervorhebung */
+        .kw-team-leaders {
+            margin-bottom: var(--spacing-sm);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--border-color);
+        }
+
         .kw-team-member {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 6px;
-            padding: 0 8px;
+            gap: 8px;
+            padding: 6px 10px;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
-            margin-bottom: 4px;
-            font-size: 12px;
-            height: 32px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            min-height: 44px;
         }
 
         .kw-team-member:last-child {
             margin-bottom: 0;
+        }
+
+        /* TC im Team - gelb hervorgehoben */
+        .kw-team-member.is-tc {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #f59e0b;
+        }
+
+        /* Quality im Team - grün hervorgehoben */
+        .kw-team-member.is-qm {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-color: #22c55e;
+        }
+
+        .kw-team-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .kw-team-role-badge.tc {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .kw-team-role-badge.qm {
+            background: #22c55e;
+            color: white;
+        }
+
+        /* Werber-Trennlinie */
+        .kw-team-werber-divider {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: var(--spacing-sm) 0;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .kw-team-werber-divider::before,
+        .kw-team-werber-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
         }
 
         .kw-team-member-left {
@@ -1827,10 +1934,41 @@
             padding: 0 10px;
         }
 
+        /* Trennlinie zwischen Team und Werbegebiete */
+        .kw-section-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: var(--spacing-lg) 0;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .kw-section-divider::before,
+        .kw-section-divider::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, var(--border-color) 0%, transparent 100%);
+        }
+
+        .kw-section-divider::after {
+            background: linear-gradient(90deg, transparent 0%, var(--border-color) 100%);
+        }
+
+        .kw-section-divider svg {
+            width: 16px;
+            height: 16px;
+            color: var(--accent-color);
+        }
+
         /* Werbegebiete Section */
         .kw-wg-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
             border-radius: var(--radius-md);
             padding: var(--spacing-md);
         }
@@ -1838,8 +1976,12 @@
         .kw-wg-section .kw-section-header {
             font-size: 13px;
             font-weight: 600;
-            color: var(--text-primary);
+            color: #0369a1;
             margin-bottom: var(--spacing-sm);
+        }
+
+        .kw-wg-section .kw-section-header svg {
+            color: #0ea5e9;
         }
 
         /* WG Container - Chips mit Akkordeon darunter */
@@ -7097,35 +7239,32 @@ function renderKWDetails(campaign) {
                 </div>
                 <div class="kw-detail-body">
 
-                    <!-- =============== 1. TEAMCHEF (gelb) =============== -->
-                    <div class="kw-tc-section ${tc ? 'has-tc' : 'no-tc'}">
-                        <div class="kw-tc-header">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                            </svg>
-                            <span style="font-weight: 600; color: #92400e; font-size: 12px;">TEAMCHEF:</span>
-                            <select class="form-input" style="flex: 1; max-width: 250px; height: 32px; padding: 0 8px; font-size: 12px;"
-                                    onchange="setKWTeamchef(${kw}, this.value)" id="tc-select-kw-${kw}">
+                    <!-- =============== 1. TC & QUALITY (zwei kleine Felder nebeneinander) =============== -->
+                    <div class="kw-tc-qm-grid">
+                        <!-- TC Box (gelb) -->
+                        <div class="kw-tc-box ${tc ? '' : 'no-tc'}">
+                            <div class="kw-tc-box-header">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                                </svg>
+                                <span class="kw-tc-box-label">Teamchef</span>
+                            </div>
+                            <select class="form-input" onchange="setKWTeamchef(${kw}, this.value)" id="tc-select-kw-${kw}">
                                 <option value="">-- TC auswählen --</option>
                                 ${employees.filter(e => e.role && ['EMM', 'CEMM', 'SPB', 'KAD', 'FUE'].includes(e.role)).map(e =>
-                                    `<option value="${e.id}" ${e.id === tcId ? 'selected' : ''}>${e.name} (${e.role})</option>`
+                                    `<option value="${e.id}" ${e.id === tcId ? 'selected' : ''}>${e.name}</option>`
                                 ).join('')}
                             </select>
-                            ${tc ? `
-                                ${getStufeLabel(tc.role || 'EMM')}
-                                ${tcLabel ? `<span class="kw-member-label ${tcLabel}">${tcLabel === 'neuanreise' ? 'Neuanreise' : tcLabel === 'abreise' ? 'Abreise' : 'An/Ab'}</span>` : ''}
-                            ` : ''}
                         </div>
-                        <!-- Quality Manager Zeile -->
-                        <div class="kw-qm-row">
-                            <span class="kw-qm-stamp">
+                        <!-- Quality Box (grün) -->
+                        <div class="kw-qm-box ${qmId ? '' : 'no-qm'}">
+                            <div class="kw-qm-box-header">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                Quality
-                            </span>
-                            <select class="form-input" style="flex: 1; max-width: 250px; height: 32px; padding: 0 8px; font-size: 12px;"
-                                    onchange="setKWQualityManager(${kw}, this.value)" id="qm-select-kw-${kw}">
+                                <span class="kw-qm-box-label">Quality</span>
+                            </div>
+                            <select class="form-input" onchange="setKWQualityManager(${kw}, this.value)" id="qm-select-kw-${kw}">
                                 <option value="">-- QM auswählen --</option>
                                 ${(() => {
                                     // Nur Teammitglieder dieser KW können als QM gewählt werden
@@ -7279,31 +7418,95 @@ function renderKWDetails(campaign) {
                         </div>
 
                         <div class="kw-team-list">
-                            ${werberWithLabels.length > 0 ? werberWithLabels.map(w => {
-                                const wIsQM = w.id === qmId; // Nur eingetragener QM
-                                const wStufe = w.role || '';
-                                return `
-                                <div class="kw-team-member">
-                                    <div class="kw-team-member-left">
-                                        <div class="user-badge user-badge--werber user-badge--mini">
-                                            <div class="user-badge__avatar">${getInitials(w.name)}${getStufeBadge(wStufe)}</div>
-                                            <div class="user-badge__info">
-                                                <span class="user-badge__name">${w.name}</span>
-                                                ${getBadgeTypeRow('Werber', false, wIsQM)}
+                            ${(() => {
+                                // TC und QM zuerst anzeigen
+                                let leadersHtml = '';
+                                const qm = qmId ? employees.find(e => e.id === qmId) : null;
+
+                                // TC anzeigen (wenn vorhanden)
+                                if (tc) {
+                                    const tcStufe = tc.role || '';
+                                    leadersHtml += `
+                                    <div class="kw-team-member is-tc">
+                                        <div class="kw-team-member-left">
+                                            <div class="user-badge user-badge--werber">
+                                                <div class="user-badge__avatar">${getInitials(tc.name)}${getStufeBadge(tcStufe)}</div>
+                                                <div class="user-badge__info">
+                                                    <span class="user-badge__name">${tc.name}</span>
+                                                    ${getBadgeTypeRow('Werber', false, tc.id === qmId)}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    ${renderAttendanceTracker(campaign.id, kw, w.id, w.name)}
-                                    <div class="kw-team-member-right">
-                                        ${w.label ? `<span class="kw-member-label ${w.label}">${w.label === 'neuanreise' ? 'Neuanreise' : w.label === 'abreise' ? 'Abreise' : 'An/Ab'}</span>` : ''}
-                                        <button class="kw-team-member-remove" onclick="removeKWMember(${kw}, ${w.id})" title="Entfernen">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        <span class="kw-team-role-badge tc">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 12px; height: 12px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                                             </svg>
-                                        </button>
-                                    </div>
-                                </div>`;
-                            }).join('') : '<p style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 8px;">Keine Mitglieder</p>'}
+                                            TC
+                                        </span>
+                                    </div>`;
+                                }
+
+                                // Quality anzeigen (wenn vorhanden und nicht TC)
+                                if (qm && qm.id !== tcId) {
+                                    const qmStufe = qm.role || '';
+                                    leadersHtml += `
+                                    <div class="kw-team-member is-qm">
+                                        <div class="kw-team-member-left">
+                                            <div class="user-badge user-badge--werber">
+                                                <div class="user-badge__avatar">${getInitials(qm.name)}${getStufeBadge(qmStufe)}</div>
+                                                <div class="user-badge__info">
+                                                    <span class="user-badge__name">${qm.name}</span>
+                                                    ${getBadgeTypeRow('Werber', false, true)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="kw-team-role-badge qm">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 12px; height: 12px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            QM
+                                        </span>
+                                    </div>`;
+                                }
+
+                                // Trennlinie wenn TC oder QM vorhanden
+                                if (tc || qm) {
+                                    leadersHtml += '<div class="kw-team-werber-divider">Werber</div>';
+                                }
+
+                                // Normale Werber (ohne TC und QM)
+                                const normalWerber = werberWithLabels.filter(w => w.id !== tcId && w.id !== qmId);
+                                const werberHtml = normalWerber.length > 0 ? normalWerber.map(w => {
+                                    const wStufe = w.role || '';
+                                    return `
+                                    <div class="kw-team-member">
+                                        <div class="kw-team-member-left">
+                                            <div class="user-badge user-badge--werber">
+                                                <div class="user-badge__avatar">${getInitials(w.name)}${getStufeBadge(wStufe)}</div>
+                                                <div class="user-badge__info">
+                                                    <span class="user-badge__name">${w.name}</span>
+                                                    ${getBadgeTypeRow('Werber', false, false)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        ${renderAttendanceTracker(campaign.id, kw, w.id, w.name)}
+                                        <div class="kw-team-member-right">
+                                            ${w.label ? \`<span class="kw-member-label \${w.label}">\${w.label === 'neuanreise' ? 'Neuanreise' : w.label === 'abreise' ? 'Abreise' : 'An/Ab'}</span>\` : ''}
+                                            <button class="kw-team-member-remove" onclick="removeKWMember(${kw}, ${w.id})" title="Entfernen">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>`;
+                                }).join('') : '';
+
+                                if (!leadersHtml && !werberHtml) {
+                                    return '<p style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 8px;">Keine Mitglieder</p>';
+                                }
+
+                                return leadersHtml + werberHtml;
+                            })()}
                         </div>
 
                         <div class="kw-add-member-row">
@@ -7319,6 +7522,14 @@ function renderKWDetails(campaign) {
                                 </svg>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Trennlinie zwischen Team und Werbegebiete -->
+                    <div class="kw-section-divider">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        </svg>
+                        Werbegebiete
                     </div>
 
                     <!-- =============== 4. WERBEGEBIETE =============== -->
