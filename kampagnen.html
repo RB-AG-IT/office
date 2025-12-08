@@ -8088,7 +8088,10 @@ function renderMitgliedCardLarge(mitglied) {
     // Botschafter Initialen
     const botschafterInitials = getInitials(mitglied.botschafter);
 
-    // Exakt gleiche Karte wie im Grid (schrieb-compact), nur ohne onclick
+    // WG Initialen
+    const wgInitials = getInitials(mitglied.werbegebiet);
+
+    // Popup-Karte mit gleicher Struktur wie Grid
     return `
         <div class="schrieb-compact" style="cursor: default; pointer-events: none;">
             <div class="schrieb-compact-header">
@@ -8101,18 +8104,25 @@ function renderMitgliedCardLarge(mitglied) {
                         </div>
                     </div>
                     <div class="schrieb-compact-location">
-                        <span class="schrieb-wg-badge">${mitglied.werbegebiet}</span>
+                        <div class="user-badge user-badge--werbegebiet user-badge--mini">
+                            <div class="user-badge__avatar">${wgInitials}</div>
+                            <div class="user-badge__info">
+                                <span class="user-badge__name">${mitglied.werbegebiet}</span>
+                            </div>
+                        </div>
                         <span class="schrieb-compact-strasse"><span class="location-emoji">📍</span>${mitglied.strasse} ${mitglied.hausnr}</span>
                     </div>
                 </div>
-                <span class="schrieb-compact-eh">${mitglied.eh} EH</span>
+                <div class="schrieb-compact-meta">
+                    <span class="schrieb-compact-time">${mitglied.uhrzeit}</span>
+                    <span class="schrieb-compact-eh">${mitglied.eh} EH</span>
+                </div>
             </div>
             <div class="schrieb-compact-footer">
                 <div class="schrieb-compact-status">
                     ${emailIcon}
                     ${ibanHtml}
                 </div>
-                <span class="schrieb-compact-time">${mitglied.uhrzeit}</span>
                 <div class="user-badge user-badge--werber user-badge--mini">
                     <div class="user-badge__avatar">${botschafterInitials}</div>
                     <div class="user-badge__info">
