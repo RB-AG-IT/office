@@ -5701,6 +5701,21 @@ function getBadgeSymbolSVG(type) {
     return icons[type] || '';
 }
 
+// Type-Row mit optionalen TC/Q Badges generieren
+function getBadgeTypeRow(label, isTC = false, isQ = false) {
+    let extras = '';
+    if (isTC) extras += '<span class="user-badge__extra user-badge__extra--tc">TC</span>';
+    if (isQ) extras += '<span class="user-badge__extra user-badge__extra--q">Q</span>';
+
+    if (extras) {
+        return `<div class="user-badge__type-row">
+            <span class="user-badge__type">${label}</span>
+            ${extras}
+        </div>`;
+    }
+    return `<span class="user-badge__type">${label}</span>`;
+}
+
 // Tab-Wechsel Funktion
 function switchMainTab(tabName) {
     // Tabs aktualisieren
@@ -7003,27 +7018,30 @@ function renderKWDetails(campaign) {
         if (hasTc) classes += ' has-tc';
 
         // Generiere Header Team Pills HTML als mini badges
+        const qmId = assignment.qualityManager;
         const headerTeamPillsHtml = (() => {
             let pills = '';
-            // TC zuerst (gelb) - als Kampagne-Badge (blau/gelb)
+            // TC zuerst - als Werber-Badge mit TC Extra
             if (tc) {
                 const tcInitials = getInitials(tc.name);
-                pills += '<div class="user-badge user-badge--kampagne user-badge--mini">' +
+                const tcIsQM = tc.id === qmId || (tc.additionalRoles && tc.additionalRoles.includes('quality_manager'));
+                pills += '<div class="user-badge user-badge--werber user-badge--mini">' +
                     '<div class="user-badge__avatar">' + tcInitials + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + tc.name + '</span>' +
-                        '<span class="user-badge__type">Teamchef</span>' +
+                        getBadgeTypeRow('Werber', true, tcIsQM) +
                     '</div>' +
                 '</div>';
             }
             // Dann Werber alphabetisch sortiert
             werberSorted.forEach(w => {
                 const wInitials = getInitials(w.name);
+                const wIsQM = w.id === qmId || (w.additionalRoles && w.additionalRoles.includes('quality_manager'));
                 pills += '<div class="user-badge user-badge--werber user-badge--mini">' +
                     '<div class="user-badge__avatar">' + wInitials + '</div>' +
                     '<div class="user-badge__info">' +
                         '<span class="user-badge__name">' + w.name + '</span>' +
-                        '<span class="user-badge__type">Werber</span>' +
+                        getBadgeTypeRow('Werber', false, wIsQM) +
                     '</div>' +
                 '</div>';
             });
@@ -7269,18 +7287,19 @@ function renderKWDetails(campaign) {
                         </div>
 
                         <div class="kw-team-list">
-                            ${werberWithLabels.length > 0 ? werberWithLabels.map(w => `
+                            ${werberWithLabels.length > 0 ? werberWithLabels.map(w => {
+                                const wIsQM = w.id === qmId || w.isQM || (w.additionalRoles && w.additionalRoles.includes('quality_manager'));
+                                return `
                                 <div class="kw-team-member">
                                     <div class="kw-team-member-left">
                                         <div class="user-badge user-badge--werber user-badge--mini">
                                             <div class="user-badge__avatar">${getInitials(w.name)}</div>
                                             <div class="user-badge__info">
                                                 <span class="user-badge__name">${w.name}</span>
-                                                <span class="user-badge__type">Werber</span>
+                                                ${getBadgeTypeRow('Werber', false, wIsQM)}
                                             </div>
                                         </div>
                                         ${getStufeLabel(w.role || 'SMA')}
-                                        ${w.isQM ? '<span class="stufen-label stufen-label-qm">QM</span>' : ''}
                                     </div>
                                     ${renderAttendanceTracker(campaign.id, kw, w.id, w.name)}
                                     <div class="kw-team-member-right">
@@ -7291,8 +7310,8 @@ function renderKWDetails(campaign) {
                                             </svg>
                                         </button>
                                     </div>
-                                </div>
-                            `).join('') : '<p style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 8px;">Keine Mitglieder</p>'}
+                                </div>`;
+                            }).join('') : '<p style="color: var(--text-secondary); font-size: 13px; text-align: center; padding: 8px;">Keine Mitglieder</p>'}
                         </div>
 
                         <div class="kw-add-member-row">
@@ -7358,6 +7377,8 @@ function renderKWDetails(campaign) {
                                                             const isInThisWg = maCurrentWg === wg.id;
                                                             const isInOtherWg = maCurrentWg && maCurrentWg !== wg.id;
                                                             const initials = getInitials(m.name);
+                                                            const mIsTC = m.id === tcId;
+                                                            const mIsQM = m.id === qmId || (m.additionalRoles && m.additionalRoles.includes('quality_manager'));
 
                                                             return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + (isInOtherWg ? ' in-other-wg' : '') + '" data-ma-id="' + m.id + '">' +
                                                                 '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
@@ -7366,10 +7387,9 @@ function renderKWDetails(campaign) {
                                                                     '<div class="user-badge__avatar">' + initials + '</div>' +
                                                                     '<div class="user-badge__info">' +
                                                                         '<span class="user-badge__name">' + m.name + '</span>' +
-                                                                        '<span class="user-badge__type">Werber</span>' +
+                                                                        getBadgeTypeRow('Werber', mIsTC, mIsQM) +
                                                                     '</div>' +
                                                                 '</div>' +
-                                                                (m.id === tcId ? '<span class="stufen-label stufen-label-tc" style="font-size: 9px;">TC</span>' : '') +
                                                             '</label>';
                                                         }).join('')
                                                     ) +
@@ -8068,7 +8088,10 @@ function renderMitgliedCardLarge(mitglied) {
     // Botschafter Initialen
     const botschafterInitials = getInitials(mitglied.botschafter);
 
-    // Exakt gleiche Karte wie im Grid (schrieb-compact), nur ohne onclick
+    // WG Initialen
+    const wgInitials = getInitials(mitglied.werbegebiet);
+
+    // Popup-Karte mit gleicher Struktur wie Grid
     return `
         <div class="schrieb-compact" style="cursor: default; pointer-events: none;">
             <div class="schrieb-compact-header">
@@ -8081,18 +8104,25 @@ function renderMitgliedCardLarge(mitglied) {
                         </div>
                     </div>
                     <div class="schrieb-compact-location">
-                        <span class="schrieb-wg-badge">${mitglied.werbegebiet}</span>
+                        <div class="user-badge user-badge--werbegebiet user-badge--mini">
+                            <div class="user-badge__avatar">${wgInitials}</div>
+                            <div class="user-badge__info">
+                                <span class="user-badge__name">${mitglied.werbegebiet}</span>
+                            </div>
+                        </div>
                         <span class="schrieb-compact-strasse"><span class="location-emoji">📍</span>${mitglied.strasse} ${mitglied.hausnr}</span>
                     </div>
                 </div>
-                <span class="schrieb-compact-eh">${mitglied.eh} EH</span>
+                <div class="schrieb-compact-meta">
+                    <span class="schrieb-compact-time">${mitglied.uhrzeit}</span>
+                    <span class="schrieb-compact-eh">${mitglied.eh} EH</span>
+                </div>
             </div>
             <div class="schrieb-compact-footer">
                 <div class="schrieb-compact-status">
                     ${emailIcon}
                     ${ibanHtml}
                 </div>
-                <span class="schrieb-compact-time">${mitglied.uhrzeit}</span>
                 <div class="user-badge user-badge--werber user-badge--mini">
                     <div class="user-badge__avatar">${botschafterInitials}</div>
                     <div class="user-badge__info">
