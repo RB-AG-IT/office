@@ -1817,11 +1817,11 @@
             return (werber.storno.mg + werber.storno.summe) / 2;
         }
 
-        // Stornoquote Farbe
-        function getStornoColor(value) {
-            if (value < 6) return 'value-positive';
-            if (value < 10) return 'value-warning';
-            return 'value-negative';
+        // Stornoquote Farbe (zentrale Klassen aus table-system.css)
+        function getStornoClass(value) {
+            if (value < 8) return 'storno-low';
+            if (value <= 12) return 'storno-medium';
+            return 'storno-high';
         }
 
         // Dashboard öffnen
@@ -1848,7 +1848,7 @@
             let html = '';
             werberData.forEach(w => {
                 const avgStorno = getAverageStorno(w);
-                const stornoClass = avgStorno < 6 ? 'value-pos' : avgStorno < 10 ? 'value-warn' : 'value-neg';
+                const stornoClass = getStornoClass(avgStorno);
                 // Berechnete Werte
                 const arbeitstage = w.werbewochen * 5;
                 const avgMgProTag = arbeitstage > 0 ? w.mg.total / arbeitstage : 0;
@@ -1919,7 +1919,7 @@
             // Gesamt-Zeile OBEN (im thead-tbody)
             const avgStornoTotal = werberData.length > 0 ?
                 werberData.reduce((sum, w) => sum + getAverageStorno(w), 0) / werberData.length : 0;
-            const totalStornoClass = avgStornoTotal < 6 ? 'value-pos' : avgStornoTotal < 10 ? 'value-warn' : 'value-neg';
+            const totalStornoClass = getStornoClass(avgStornoTotal);
             const totalArbeitstage = totals.werbewochen * 5;
             const totalAvgMgProTag = totalArbeitstage > 0 ? totals.mg.total / totalArbeitstage : 0;
             const totalAvgUmsatzProTag = totalArbeitstage > 0 ? totals.summe.total.je / totalArbeitstage : 0;
@@ -1959,7 +1959,7 @@
             let html = '';
             kundenData.forEach(k => {
                 const stornoQuote = k.brutto.mg > 0 ? (k.storno.mg / k.brutto.mg * 100) : 0;
-                const stornoClass = stornoQuote < 6 ? 'value-pos' : stornoQuote < 10 ? 'value-warn' : 'value-neg';
+                const stornoClass = getStornoClass(stornoQuote);
                 const arbeitstage = k.werbewochen * 5;
                 const avgMgProTag = arbeitstage > 0 ? k.netto.mg / arbeitstage : 0;
                 const avgUmsatzProTag = arbeitstage > 0 ? k.netto.je / arbeitstage : 0;
@@ -2019,7 +2019,7 @@
                 // Gebiete als Kinder
                 k.gebiete.forEach(g => {
                     const gStornoQuote = g.brutto.mg > 0 ? (g.storno.mg / g.brutto.mg * 100) : 0;
-                    const gStornoClass = gStornoQuote < 6 ? 'value-pos' : gStornoQuote < 10 ? 'value-warn' : 'value-neg';
+                    const gStornoClass = getStornoClass(gStornoQuote);
                     const gArbeitstage = g.werbewochen * 5;
                     const gAvgMgProTag = gArbeitstage > 0 ? g.netto.mg / gArbeitstage : 0;
                     const gAvgUmsatzProTag = gArbeitstage > 0 ? g.netto.je / gArbeitstage : 0;
@@ -2088,7 +2088,7 @@
 
             // Gesamt-Zeile OBEN
             const totalStornoQuote = kundenData.reduce((sum, k) => sum + (k.brutto.mg > 0 ? k.storno.mg / k.brutto.mg * 100 : 0), 0) / kundenData.length;
-            const totalStornoClass = totalStornoQuote < 6 ? 'value-pos' : totalStornoQuote < 10 ? 'value-warn' : 'value-neg';
+            const totalStornoClass = getStornoClass(totalStornoQuote);
             const totalArbeitstage = totals.werbewochen * 5;
             const totalAvgMgProTag = totalArbeitstage > 0 ? totals.netto.mg / totalArbeitstage : 0;
             const totalAvgUmsatzProTag = totalArbeitstage > 0 ? totals.netto.je / totalArbeitstage : 0;
@@ -2145,7 +2145,7 @@
             let html = '';
             kampagnenData.forEach(k => {
                 const stornoQuote = k.brutto.mg > 0 ? (k.storno.mg / k.brutto.mg * 100) : 0;
-                const stornoClass = stornoQuote < 6 ? 'value-pos' : stornoQuote < 10 ? 'value-warn' : 'value-neg';
+                const stornoClass = getStornoClass(stornoQuote);
                 const arbeitstage = k.wochen * 5;
                 const avgMgProTag = arbeitstage > 0 ? k.netto.mg / arbeitstage : 0;
                 const avgUmsatzProTag = arbeitstage > 0 ? k.netto.je / arbeitstage : 0;
@@ -2205,7 +2205,7 @@
                 // Gebiete als Kinder
                 k.gebiete.forEach(g => {
                     const gStornoQuote = g.brutto.mg > 0 ? (g.storno.mg / g.brutto.mg * 100) : 0;
-                    const gStornoClass = gStornoQuote < 6 ? 'value-pos' : gStornoQuote < 10 ? 'value-warn' : 'value-neg';
+                    const gStornoClass = getStornoClass(gStornoQuote);
                     const gArbeitstage = g.wochen * 5;
                     const gAvgMgProTag = gArbeitstage > 0 ? g.netto.mg / gArbeitstage : 0;
                     const gAvgUmsatzProTag = gArbeitstage > 0 ? g.netto.je / gArbeitstage : 0;
@@ -2273,7 +2273,7 @@
 
             // Gesamt-Zeile OBEN
             const totalStornoQuote = kampagnenData.reduce((sum, k) => sum + (k.brutto.mg > 0 ? k.storno.mg / k.brutto.mg * 100 : 0), 0) / kampagnenData.length;
-            const totalStornoClass = totalStornoQuote < 6 ? 'value-pos' : totalStornoQuote < 10 ? 'value-warn' : 'value-neg';
+            const totalStornoClass = getStornoClass(totalStornoQuote);
             const totalArbeitstage = totals.wochen * 5;
             const totalAvgMgProTag = totalArbeitstage > 0 ? totals.netto.mg / totalArbeitstage : 0;
             const totalAvgUmsatzProTag = totalArbeitstage > 0 ? totals.netto.je / totalArbeitstage : 0;
@@ -2375,15 +2375,15 @@
             body.innerHTML = `
                 <div class="detail-row-item">
                     <span class="detail-row-label">Stornoquote MG</span>
-                    <span class="detail-row-value ${getStornoColor(werber.storno.mg)}">${formatPercent(werber.storno.mg)}</span>
+                    <span class="detail-row-value ${getStornoClass(werber.storno.mg)}">${formatPercent(werber.storno.mg)}</span>
                 </div>
                 <div class="detail-row-item">
                     <span class="detail-row-label">Stornoquote Summe</span>
-                    <span class="detail-row-value ${getStornoColor(werber.storno.summe)}">${formatPercent(werber.storno.summe)}</span>
+                    <span class="detail-row-value ${getStornoClass(werber.storno.summe)}">${formatPercent(werber.storno.summe)}</span>
                 </div>
                 <div class="detail-row-item detail-row-total">
                     <span class="detail-row-label">Durchschnitt</span>
-                    <span class="detail-row-value ${getStornoColor(avgStorno)}">${formatPercent(avgStorno)}</span>
+                    <span class="detail-row-value ${getStornoClass(avgStorno)}">${formatPercent(avgStorno)}</span>
                 </div>
             `;
 
@@ -2471,15 +2471,15 @@
             body.innerHTML = `
                 <div class="detail-row-item">
                     <span class="detail-row-label">Ø Stornoquote MG</span>
-                    <span class="detail-row-value ${getStornoColor(avgMg)}">${formatPercent(avgMg)}</span>
+                    <span class="detail-row-value ${getStornoClass(avgMg)}">${formatPercent(avgMg)}</span>
                 </div>
                 <div class="detail-row-item">
                     <span class="detail-row-label">Ø Stornoquote Summe</span>
-                    <span class="detail-row-value ${getStornoColor(avgSumme)}">${formatPercent(avgSumme)}</span>
+                    <span class="detail-row-value ${getStornoClass(avgSumme)}">${formatPercent(avgSumme)}</span>
                 </div>
                 <div class="detail-row-item detail-row-total">
                     <span class="detail-row-label">Ø Gesamt</span>
-                    <span class="detail-row-value ${getStornoColor(avgTotal)}">${formatPercent(avgTotal)}</span>
+                    <span class="detail-row-value ${getStornoClass(avgTotal)}">${formatPercent(avgTotal)}</span>
                 </div>
             `;
 
