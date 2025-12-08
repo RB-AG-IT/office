@@ -2839,19 +2839,8 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 2px;
-            margin-left: 32px; /* Avatar-Breite + gap ausrichten */
-        }
-
-        .schrieb-wg-badge {
-            display: inline-block;
-            padding: 1px 6px;
-            background: var(--color-werbegebiet-bg);
-            border-radius: 8px;
-            font-size: 9px;
-            font-weight: 600;
-            color: var(--color-werbegebiet);
-            white-space: nowrap;
+            gap: 3px;
+            margin-top: 2px;
         }
 
         .schrieb-compact-strasse {
@@ -2875,13 +2864,28 @@
             padding-top: 6px;
             border-top: 1px solid var(--border-color);
             font-size: 10px;
-            gap: 4px;
         }
 
         .schrieb-compact-status {
             display: flex;
             align-items: center;
             gap: 4px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .schrieb-compact-time {
+            flex: 0 0 auto;
+            text-align: center;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .schrieb-compact-footer .user-badge--mini {
+            flex: 1;
+            justify-content: flex-end;
+            min-width: 0;
         }
 
         .schrieb-status-icon {
@@ -2908,12 +2912,6 @@
         .schrieb-iban.missing {
             background: rgba(156, 163, 175, 0.15);
             color: #9ca3af;
-        }
-
-        .schrieb-compact-time {
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 11px;
         }
 
         .schrieb-compact-botschafter {
@@ -7942,8 +7940,9 @@ function renderLastSchriebe(campaign) {
         const typeLabel = schrieb.typ === 'NMG' ? 'Neumitglied' : 'Erhöhung';
         const badgeSVG = getBadgeSymbolSVG(badgeType);
 
-        // Botschafter Initialen
+        // Botschafter und WG Initialen
         const botschafterInitials = getInitials(schrieb.botschafter);
+        const wgInitials = getInitials(schrieb.werbegebiet);
 
         html += `
             <div class="schrieb-compact" onclick="openSchriebDetails(${schrieb.id})" title="${schrieb.memberName} - ${schrieb.eh} EH">
@@ -7957,7 +7956,12 @@ function renderLastSchriebe(campaign) {
                             </div>
                         </div>
                         <div class="schrieb-compact-location">
-                            <span class="schrieb-wg-badge">${schrieb.werbegebiet}</span>
+                            <div class="user-badge user-badge--werbegebiet user-badge--mini">
+                                <div class="user-badge__avatar">${wgInitials}</div>
+                                <div class="user-badge__info">
+                                    <span class="user-badge__name">${schrieb.werbegebiet}</span>
+                                </div>
+                            </div>
                             <span class="schrieb-compact-strasse"><span class="location-emoji">📍</span>${schrieb.strasse} ${schrieb.hausnr}</span>
                         </div>
                     </div>
