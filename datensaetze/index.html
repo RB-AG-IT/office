@@ -2568,10 +2568,11 @@
             tbody.innerHTML = werberData.map(werber => `
                 <tr>
                     <td>
-                        <div class="name-cell">
-                            <div class="avatar" style="background: linear-gradient(135deg, ${werber.color} 0%, ${adjustColor(werber.color, -20)} 100%);">${werber.initials}</div>
-                            <div class="name-info">
-                                <div class="name-main">${werber.name}</div>
+                        <div class="user-badge user-badge--werber">
+                            <div class="user-badge__avatar">${werber.initials}</div>
+                            <div class="user-badge__info">
+                                <span class="user-badge__name">${werber.name}</span>
+                                <span class="user-badge__type">Werber</span>
                             </div>
                         </div>
                     </td>
@@ -2602,11 +2603,11 @@
                 html += `
                 <tr class="kunde-row">
                     <td>
-                        <div class="entity-info">
-                            <div class="entity-avatar" style="background: linear-gradient(135deg, ${kunde.color} 0%, ${adjustColor(kunde.color, -20)} 100%);">${kunde.initials}</div>
-                            <div>
-                                <div class="entity-name">${kunde.name}</div>
-                                <div class="entity-subtitle">${kundeGebiete.length} Werbegebiete</div>
+                        <div class="user-badge user-badge--kunde">
+                            <div class="user-badge__avatar">${kunde.initials}</div>
+                            <div class="user-badge__info">
+                                <span class="user-badge__name">${kunde.name}</span>
+                                <span class="user-badge__type">Kunde</span>
                             </div>
                         </div>
                     </td>
@@ -2626,8 +2627,14 @@
                 kundeGebiete.forEach(gebiet => {
                     html += `
                 <tr class="gebiet-row">
-                    <td>
-                        <span class="entity-name" style="font-weight: 400;">${gebiet.name}</span>
+                    <td style="padding-left: 20px;">
+                        <div class="user-badge user-badge--werbegebiet">
+                            <div class="user-badge__avatar">${gebiet.initials || gebiet.name.substring(0,2).toUpperCase()}</div>
+                            <div class="user-badge__info">
+                                <span class="user-badge__name">${gebiet.name}</span>
+                                <span class="user-badge__type">Werbegebiet</span>
+                            </div>
+                        </div>
                     </td>
                     <td class="right">${gebiet.records}</td>
                     <td class="right value-money">${formatCurrency(gebiet.nettoJE)}</td>
@@ -2700,11 +2707,11 @@
                 html += `
                 <tr style="background: var(--bg-hover);">
                     <td>
-                        <div class="name-cell">
-                            <div class="avatar" style="background: linear-gradient(135deg, ${kampagne.color} 0%, ${adjustColor(kampagne.color, -20)} 100%);">${kampagne.initials}</div>
-                            <div class="name-info">
-                                <div class="name-main">${kampagne.name}</div>
-                                <div class="name-sub">${kampagneGebiete.length} Einsatzgebiete</div>
+                        <div class="user-badge user-badge--kampagne">
+                            <div class="user-badge__avatar">${kampagne.initials}</div>
+                            <div class="user-badge__info">
+                                <span class="user-badge__name">${kampagne.name}</span>
+                                <span class="user-badge__type">Kampagne</span>
                             </div>
                         </div>
                     </td>
@@ -2724,9 +2731,13 @@
                 kampagneGebiete.forEach(gebiet => {
                     html += `
                 <tr class="sub-row">
-                    <td style="padding-left: 56px;">
-                        <div class="name-info">
-                            <div class="name-main" style="font-weight: 400;">→ ${gebiet.name}</div>
+                    <td style="padding-left: 20px;">
+                        <div class="user-badge user-badge--werbegebiet">
+                            <div class="user-badge__avatar">${gebiet.initials || gebiet.name.substring(0,2).toUpperCase()}</div>
+                            <div class="user-badge__info">
+                                <span class="user-badge__name">${gebiet.name}</span>
+                                <span class="user-badge__type">Werbegebiet</span>
+                            </div>
                         </div>
                     </td>
                     <td class="right">${gebiet.records}</td>
