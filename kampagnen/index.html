@@ -1575,39 +1575,6 @@
             margin-bottom: 0;
         }
 
-        /* TC im Team - gelb hervorgehoben */
-        .kw-team-member.is-tc {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-color: #f59e0b;
-        }
-
-        /* Quality im Team - grün hervorgehoben */
-        .kw-team-member.is-qm {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            border-color: #22c55e;
-        }
-
-        .kw-team-role-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .kw-team-role-badge.tc {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .kw-team-role-badge.qm {
-            background: #22c55e;
-            color: white;
-        }
-
         /* Werber-Trennlinie */
         .kw-team-werber-divider {
             display: flex;
@@ -1677,9 +1644,14 @@
             border: none;
             color: var(--text-secondary);
             cursor: pointer;
-            padding: 4px;
+            padding: 6px;
             border-radius: var(--radius-sm);
             transition: all 0.15s;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .kw-team-member-remove:hover {
@@ -1691,22 +1663,22 @@
         .kw-attendance-container {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             flex-shrink: 0;
         }
 
         .kw-attendance-days {
             display: flex;
-            gap: 2px;
+            gap: 3px;
         }
 
         .kw-attendance-day {
-            width: 24px;
-            height: 24px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 600;
             border-radius: 4px;
             cursor: pointer;
@@ -1733,8 +1705,8 @@
         }
 
         .kw-attendance-notes-btn {
-            width: 24px;
-            height: 24px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1757,8 +1729,8 @@
         }
 
         .kw-attendance-notes-btn svg {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             color: var(--text-secondary);
         }
 
@@ -7419,38 +7391,41 @@ function renderKWDetails(campaign) {
 
                         <div class="kw-team-list">
                             ${(() => {
-                                // TC und QM zuerst anzeigen
+                                // TC und QM zuerst anzeigen, dann Trennlinie, dann normale Werber
                                 let leadersHtml = '';
                                 const qm = qmId ? employees.find(e => e.id === qmId) : null;
 
                                 // TC anzeigen (wenn vorhanden)
                                 if (tc) {
                                     const tcStufe = tc.role || '';
+                                    const tcIsAlsoQM = tc.id === qmId;
                                     leadersHtml += `
-                                    <div class="kw-team-member is-tc">
+                                    <div class="kw-team-member">
                                         <div class="kw-team-member-left">
                                             <div class="user-badge user-badge--werber">
                                                 <div class="user-badge__avatar">${getInitials(tc.name)}${getStufeBadge(tcStufe)}</div>
                                                 <div class="user-badge__info">
                                                     <span class="user-badge__name">${tc.name}</span>
-                                                    ${getBadgeTypeRow('Werber', false, tc.id === qmId)}
+                                                    ${getBadgeTypeRow('Werber', true, tcIsAlsoQM)}
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="kw-team-role-badge tc">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 12px; height: 12px;">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                                            </svg>
-                                            TC
-                                        </span>
+                                        ${renderAttendanceTracker(campaign.id, kw, tc.id, tc.name)}
+                                        <div class="kw-team-member-right">
+                                            <button class="kw-team-member-remove" onclick="removeKWMember(${kw}, ${tc.id})" title="Entfernen">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>`;
                                 }
 
-                                // Quality anzeigen (wenn vorhanden und nicht TC)
+                                // Quality anzeigen (wenn vorhanden und nicht gleich TC)
                                 if (qm && qm.id !== tcId) {
                                     const qmStufe = qm.role || '';
                                     leadersHtml += `
-                                    <div class="kw-team-member is-qm">
+                                    <div class="kw-team-member">
                                         <div class="kw-team-member-left">
                                             <div class="user-badge user-badge--werber">
                                                 <div class="user-badge__avatar">${getInitials(qm.name)}${getStufeBadge(qmStufe)}</div>
@@ -7460,12 +7435,14 @@ function renderKWDetails(campaign) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <span class="kw-team-role-badge qm">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 12px; height: 12px;">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            QM
-                                        </span>
+                                        ${renderAttendanceTracker(campaign.id, kw, qm.id, qm.name)}
+                                        <div class="kw-team-member-right">
+                                            <button class="kw-team-member-remove" onclick="removeKWMember(${kw}, ${qm.id})" title="Entfernen">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>`;
                                 }
 
@@ -7493,7 +7470,7 @@ function renderKWDetails(campaign) {
                                         <div class="kw-team-member-right">
                                             ${w.label ? '<span class="kw-member-label ' + w.label + '">' + (w.label === 'neuanreise' ? 'Neuanreise' : w.label === 'abreise' ? 'Abreise' : 'An/Ab') + '</span>' : ''}
                                             <button class="kw-team-member-remove" onclick="removeKWMember(${kw}, ${w.id})" title="Entfernen">
-                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                                 </svg>
                                             </button>
@@ -7546,7 +7523,9 @@ function renderKWDetails(campaign) {
                         <div class="kw-wg-container" id="wg-container-kw-${kw}">
                             ${campaignWerbegebiete.map(wg => {
                                 const isSelected = kwWerbegebiete.includes(wg.id);
-                                const allMembers = tc ? [tc, ...werberList] : werberList;
+                                // TC separat oben, dann Werber (ohne TC, um Duplikate zu vermeiden)
+                                const werberOhneTc = werberList.filter(w => w.id !== tcId);
+                                const allMembers = tc ? [tc, ...werberOhneTc] : werberList;
                                 const assignedCount = (wgMaZuordnung[wg.id] || []).length;
                                 const ewFormatted = (wg.einwohner || 0).toLocaleString('de-DE');
 
