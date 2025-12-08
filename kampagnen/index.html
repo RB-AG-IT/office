@@ -691,17 +691,22 @@
         }
 
         .view-modal .modal-header {
-            padding: 8px 16px;
+            padding: 4px 16px;
             min-height: auto;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .view-modal .modal-title {
-            font-size: 14px;
+            font-size: 12px;
             margin: 0;
         }
 
+        .view-modal .modal-close {
+            padding: 2px;
+        }
+
         .view-modal .modal-body {
-            max-height: calc(95vh - 50px);
+            max-height: calc(95vh - 35px);
             overflow-y: auto;
         }
 
@@ -832,6 +837,7 @@
             align-items: center;
             gap: var(--spacing-md);
             width: 100%;
+            overflow: hidden;
         }
 
         /* Zeile 2: Werbegebiete (links) | Einwohner (rechts) */
@@ -905,22 +911,17 @@
             flex: 1;
         }
 
-        /* Team Pills im Header (eingeklappt) - scrollbar versteckt */
+        /* Team Pills im Header (eingeklappt) - scrollbar komplett versteckt */
         .kw-header-team {
             display: flex;
             align-items: center;
             gap: 6px;
             flex: 1;
-            min-width: 0; /* Wichtig für Scroll-Verhalten */
-            overflow-x: auto;
-            overflow-y: hidden;
-            scrollbar-width: none; /* Firefox - keine Scrollbar */
-            -ms-overflow-style: none; /* IE/Edge */
+            min-width: 0;
+            overflow: hidden; /* Kein Scroll, Inhalt wird abgeschnitten */
             padding: 4px 0;
-        }
-
-        .kw-header-team::-webkit-scrollbar {
-            display: none; /* Chrome/Safari - keine Scrollbar */
+            mask-image: linear-gradient(to right, black 95%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, black 95%, transparent 100%);
         }
 
         /* Badges dürfen nicht schrumpfen oder überlappen */
