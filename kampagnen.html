@@ -839,8 +839,8 @@
 
         .kw-header-wg {
             font-size: 10px;
-            color: #8b5cf6;
-            background: rgba(139, 92, 246, 0.1);
+            color: var(--color-werbegebiet);
+            background: var(--color-werbegebiet-bg);
             padding: 2px 8px;
             border-radius: 10px;
             white-space: nowrap;
@@ -1876,14 +1876,14 @@
         }
 
         .kw-wg-chip:hover {
-            border-color: #8b5cf6;
-            color: #8b5cf6;
+            border-color: var(--color-werbegebiet);
+            color: var(--color-werbegebiet);
         }
 
         .kw-wg-wrapper.selected .kw-wg-chip {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.1));
-            border-color: #8b5cf6;
-            color: #8b5cf6;
+            background: var(--color-werbegebiet-bg);
+            border-color: var(--color-werbegebiet);
+            color: var(--color-werbegebiet);
             border-radius: 20px 20px 4px 4px;
         }
 
@@ -1899,8 +1899,8 @@
 
         .kw-wg-chip .chip-ma {
             font-size: 10px;
-            background: rgba(139, 92, 246, 0.2);
-            color: #8b5cf6;
+            background: var(--color-werbegebiet-bg);
+            color: var(--color-werbegebiet);
             padding: 1px 6px;
             border-radius: 10px;
             font-weight: 600;
@@ -1909,7 +1909,7 @@
         /* Akkordeon direkt unter dem Chip */
         .kw-wg-accordion {
             background: var(--bg-primary);
-            border: 2px solid #8b5cf6;
+            border: 2px solid var(--color-werbegebiet);
             border-top: none;
             border-radius: 0 0 12px 12px;
             overflow: hidden;
@@ -1942,7 +1942,7 @@
         }
 
         .kw-wg-ma-item:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: var(--color-werber-bg);
         }
 
         /* MA in anderem WG → verblasst */
@@ -2838,11 +2838,11 @@
         .schrieb-compact-wg-pill {
             display: inline-block;
             padding: 1px 6px;
-            background: rgba(139, 92, 246, 0.15);
+            background: var(--color-werbegebiet-bg);
             border-radius: 8px;
             font-size: 9px;
             font-weight: 600;
-            color: #8b5cf6;
+            color: var(--color-werbegebiet);
             white-space: nowrap;
         }
 
@@ -3433,7 +3433,7 @@
         }
 
         .einsatzgebiet-view-header {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.05));
+            background: var(--color-werbegebiet-bg);
             padding: var(--spacing-md) var(--spacing-lg);
             border-bottom: 1px solid var(--border-color);
             display: flex;
@@ -3450,7 +3450,7 @@
         }
 
         .einsatzgebiet-view-title svg {
-            color: #8b5cf6;
+            color: var(--color-werbegebiet);
         }
 
         .einsatzgebiet-view-body {
@@ -5665,6 +5665,14 @@ function getStufeLabel(stufe, showFull = false) {
     return `<span class="stufen-label stufen-label-${config.class}">${text}</span>`;
 }
 
+// Initialen aus Namen generieren
+function getInitials(name) {
+    if (!name) return '??';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 // Tab-Wechsel Funktion
 function switchMainTab(tabName) {
     // Tabs aktualisieren
@@ -7215,7 +7223,13 @@ function renderKWDetails(campaign) {
                             ${werberWithLabels.length > 0 ? werberWithLabels.map(w => `
                                 <div class="kw-team-member">
                                     <div class="kw-team-member-left">
-                                        <span class="kw-team-member-name">${w.name}</span>
+                                        <div class="user-badge user-badge--werber user-badge--small">
+                                            <div class="user-badge__avatar">${getInitials(w.name)}</div>
+                                            <div class="user-badge__info">
+                                                <span class="user-badge__name">${w.name}</span>
+                                                <span class="user-badge__type">Werber</span>
+                                            </div>
+                                        </div>
                                         ${getStufeLabel(w.role || 'SMA')}
                                         ${w.isQM ? '<span class="stufen-label stufen-label-qm">QM</span>' : ''}
                                     </div>
@@ -7294,11 +7308,18 @@ function renderKWDetails(campaign) {
                                                             const maCurrentWg = getMaWgId(m.id);
                                                             const isInThisWg = maCurrentWg === wg.id;
                                                             const isInOtherWg = maCurrentWg && maCurrentWg !== wg.id;
+                                                            const initials = getInitials(m.name);
 
                                                             return '<label class="kw-wg-ma-item ' + (isInThisWg ? 'checked' : '') + (isInOtherWg ? ' in-other-wg' : '') + '" data-ma-id="' + m.id + '">' +
                                                                 '<input type="checkbox" ' + (isInThisWg ? 'checked' : '') +
                                                                     ' onchange="toggleWgMaZuordnungLive(' + kw + ', \'' + wg.id + '\', ' + m.id + ', this.checked)">' +
-                                                                '<span class="kw-wg-ma-name">' + m.name + '</span>' +
+                                                                '<div class="user-badge user-badge--werber user-badge--small" style="flex: 1;">' +
+                                                                    '<div class="user-badge__avatar">' + initials + '</div>' +
+                                                                    '<div class="user-badge__info">' +
+                                                                        '<span class="user-badge__name">' + m.name + '</span>' +
+                                                                        '<span class="user-badge__type">Werber</span>' +
+                                                                    '</div>' +
+                                                                '</div>' +
                                                                 (m.id === tcId ? '<span class="stufen-label stufen-label-tc" style="font-size: 9px;">TC</span>' : '') +
                                                             '</label>';
                                                         }).join('')
