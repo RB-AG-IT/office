@@ -519,54 +519,6 @@
             display: table-row;
         }
 
-        /* Stats Table */
-        .stats-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        .stats-table th {
-            text-align: left;
-            padding: 10px 14px;
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .stats-table th.right,
-        .stats-table td.right {
-            text-align: right;
-        }
-
-        .stats-table td {
-            padding: 10px 14px;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .stats-table tr:hover {
-            background: var(--bg-hover);
-        }
-
-        .stats-table tfoot td {
-            font-weight: 600;
-            background: var(--bg-secondary);
-        }
-
-        /* Gesamt-Zeile oben */
-        .stats-table .totals-row td {
-            font-weight: 600;
-            background: var(--bg-secondary);
-            border-bottom: 2px solid var(--border-color);
-        }
-
         /* Name Cell */
         .name-cell {
             display: flex;
@@ -943,11 +895,6 @@
             height: 18px;
         }
 
-        .stats-table th.center,
-        .stats-table td.center {
-            text-align: center;
-        }
-
         /* Click-based Dropdown (ohne Hover) */
         .toolbar-nav-click:hover .toolbar-nav-menu {
             opacity: 0;
@@ -974,27 +921,6 @@
         }
 
         /* ========== SEITEN-SPEZIFISCHE STYLES ========== */
-        /* Tabelle ohne Rahmen, margin-bottom für spacing */
-        .table-wrap {
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .table-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            padding: 16px 16px 8px;
-            background: var(--bg-primary);
-        }
-
-        .table-title-text {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
         /* Kleinere Buttons/Icons für Statistik-Seite */
         .table .btn-stats {
             width: 24px;
@@ -1125,8 +1051,24 @@
         <!-- WERBER SECTION -->
         <div id="section-werber" class="category-section">
             <div class="table-wrap">
-                <div class="table-title">
-                    <span class="table-title-text">Werber Statistik</span>
+                <div class="table-header">
+                    <div class="table-header-left">
+                        <span class="table-title">Werber Statistik</span>
+                        <button class="btn-toggle-all" id="toggleAllWerberBtn" onclick="toggleAllWerber()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            <span>Alle aufklappen</span>
+                        </button>
+                        <button class="btn-delete-selected" id="deleteSelectedWerberBtn" onclick="deleteSelectedWerber()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            <span>Löschen</span>
+                            <span class="selected-count" id="selectedWerberCount">0</span>
+                        </button>
+                    </div>
                     <button class="btn-columns" onclick="openColumnModal('werber')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="3" width="7" height="7"></rect>
@@ -1135,22 +1077,6 @@
                             <rect x="3" y="14" width="7" height="7"></rect>
                         </svg>
                         Spalten
-                    </button>
-                </div>
-                <div class="table-header">
-                    <button class="btn-toggle-all" id="toggleAllWerberBtn" onclick="toggleAllWerber()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                        <span>Alle aufklappen</span>
-                    </button>
-                    <button class="btn-delete-selected" id="deleteSelectedWerberBtn" onclick="deleteSelectedWerber()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                        <span>Löschen</span>
-                        <span class="selected-count" id="selectedWerberCount">0</span>
                     </button>
                 </div>
                 <div class="table-container">
@@ -1220,8 +1146,24 @@
         <!-- KUNDEN SECTION -->
         <div id="section-kunden" class="category-section" style="display: none;">
             <div class="table-wrap">
-                <div class="table-title">
-                    <span class="table-title-text">Kunden Statistik</span>
+                <div class="table-header">
+                    <div class="table-header-left">
+                        <span class="table-title">Kunden Statistik</span>
+                        <button class="btn-toggle-all" id="toggleAllKundenBtn" onclick="toggleAllKundenBtn()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            <span>Alle aufklappen</span>
+                        </button>
+                        <button class="btn-delete-selected" id="deleteSelectedKundenBtn" onclick="deleteSelectedKunden()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            <span>Löschen</span>
+                            <span class="selected-count" id="selectedKundenCount">0</span>
+                        </button>
+                    </div>
                     <button class="btn-columns" onclick="openColumnModal('kunden')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="3" width="7" height="7"></rect>
@@ -1230,22 +1172,6 @@
                             <rect x="3" y="14" width="7" height="7"></rect>
                         </svg>
                         Spalten
-                    </button>
-                </div>
-                <div class="table-header">
-                    <button class="btn-toggle-all" id="toggleAllKundenBtn" onclick="toggleAllKundenBtn()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                        <span>Alle aufklappen</span>
-                    </button>
-                    <button class="btn-delete-selected" id="deleteSelectedKundenBtn" onclick="deleteSelectedKunden()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                        <span>Löschen</span>
-                        <span class="selected-count" id="selectedKundenCount">0</span>
                     </button>
                 </div>
                 <div class="table-container">
@@ -1315,8 +1241,24 @@
         <!-- KAMPAGNEN SECTION -->
         <div id="section-kampagnen" class="category-section" style="display: none;">
             <div class="table-wrap">
-                <div class="table-title">
-                    <span class="table-title-text">Kampagnen Statistik</span>
+                <div class="table-header">
+                    <div class="table-header-left">
+                        <span class="table-title">Kampagnen Statistik</span>
+                        <button class="btn-toggle-all" id="toggleAllKampagnenBtn" onclick="toggleAllKampagnenBtn()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            <span>Alle aufklappen</span>
+                        </button>
+                        <button class="btn-delete-selected" id="deleteSelectedKampagnenBtn" onclick="deleteSelectedKampagnen()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            <span>Löschen</span>
+                            <span class="selected-count" id="selectedKampagnenCount">0</span>
+                        </button>
+                    </div>
                     <button class="btn-columns" onclick="openColumnModal('kampagnen')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="3" width="7" height="7"></rect>
@@ -1325,22 +1267,6 @@
                             <rect x="3" y="14" width="7" height="7"></rect>
                         </svg>
                         Spalten
-                    </button>
-                </div>
-                <div class="table-header">
-                    <button class="btn-toggle-all" id="toggleAllKampagnenBtn" onclick="toggleAllKampagnenBtn()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                        <span>Alle aufklappen</span>
-                    </button>
-                    <button class="btn-delete-selected" id="deleteSelectedKampagnenBtn" onclick="deleteSelectedKampagnen()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                        <span>Löschen</span>
-                        <span class="selected-count" id="selectedKampagnenCount">0</span>
                     </button>
                 </div>
                 <div class="table-container">
