@@ -928,28 +928,9 @@
         // EVENT HANDLERS
         // ================================================================
 
-        // View Filter
+        // View Filter (gesteuert durch Shell-Toolbar)
         function selectView(value, label) {
             currentFilter = value;
-
-            const textEl = document.getElementById('viewDropdownText');
-            textEl.style.transform = 'translateY(-100%)';
-            textEl.style.opacity = '0';
-
-            setTimeout(() => {
-                textEl.style.transition = 'none';
-                textEl.textContent = label;
-                textEl.style.transform = 'translateY(100%)';
-                textEl.offsetHeight;
-                textEl.style.transition = '';
-                textEl.style.transform = 'translateY(0)';
-                textEl.style.opacity = '1';
-            }, 150);
-
-            document.querySelectorAll('#viewDropdown .toolbar-nav-option').forEach(opt => {
-                opt.classList.toggle('active', opt.dataset.value === value);
-            });
-
             renderUsers();
         }
 
@@ -976,11 +957,7 @@
             });
         });
 
-        // Search
-        document.getElementById('searchInput').addEventListener('input', function() {
-            searchTerm = this.value;
-            renderUsers();
-        });
+        // Search wird durch Shell-Toolbar gesteuert (via postMessage)
 
         // Toggle All Expand
         function toggleAllExpand() {
@@ -1186,9 +1163,7 @@
         const dynamicFields = document.getElementById('dynamicFields');
         const saveBtn = document.getElementById('saveUserBtn');
 
-        document.getElementById('addUserBtn').addEventListener('click', () => {
-            modal.classList.add('show');
-        });
+        // addUserBtn wird durch Shell-Toolbar gesteuert (via toolbarAction message)
 
         document.getElementById('closeModalBtn').addEventListener('click', closeModal);
         document.getElementById('cancelBtn').addEventListener('click', closeModal);
@@ -1338,7 +1313,8 @@
                 }
                 if (e.data && e.data.type === 'toolbarAction') {
                     if (e.data.action === 'default') {
-                        document.getElementById('addUserBtn').click();
+                        // Modal direkt öffnen (kein addUserBtn mehr)
+                        document.getElementById('addUserModal').classList.add('show');
                     }
                 }
                 if (e.data && e.data.type === 'stufenFilter') {
