@@ -213,12 +213,40 @@
     z-index: 3;  /* Über anderen th, aber unter thead */
     background: #e5e5e5;
     box-shadow: inset 3px 0 0 0 #a3a3a3, inset 0 3px 0 0 #a3a3a3;  /* Links + Oben */
-    border-radius: 3px 0 0 0;  /* Oben-Links abgerundet */
+}
+
+/* Abgerundete Ecke oben-links */
+.table th.checkbox-cell::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    background: #e5e5e5;
+    border-top: 3px solid #a3a3a3;
+    border-left: 3px solid #a3a3a3;
+    border-radius: 3px 0 0 0;
 }
 
 /* Body Checkbox erbt Zeilen-Hintergrund */
 .table td.checkbox-cell {
     background: inherit;
+    position: relative;
+}
+
+/* Abgerundete Ecke unten-links (letzte Zeile) */
+.table tbody tr:last-child td.checkbox-cell::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    background: inherit;
+    border-bottom: 3px solid #a3a3a3;
+    border-left: 3px solid #a3a3a3;
+    border-radius: 0 0 0 3px;
 }
 
 /* Totals-Row Checkbox */
@@ -282,6 +310,23 @@
     background: #f0f0f0;
 }
 
+/* Abgerundete Ecke unten-rechts (letzte Zeile) */
+.table tbody tr:last-child td.action-cell:last-child {
+    position: relative;
+}
+.table tbody tr:last-child td.action-cell:last-child::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 6px;
+    height: 6px;
+    background: inherit;
+    border-bottom: 3px solid #a3a3a3;
+    border-right: 3px solid #a3a3a3;
+    border-radius: 0 0 3px 0;
+}
+
 /* Letzte Action-Spalte ganz rechts (nur tbody) */
 td.action-cell:last-child {
     right: 0;
@@ -290,6 +335,7 @@ td.action-cell:last-child {
 /* Vorletzte Action-Spalte (nur tbody) */
 td.action-cell:nth-last-child(2) {
     right: 40px;
+    box-shadow: inset -1px 0 0 0 #d4d4d4;  /* Trennlinie rechts */
 }
 
 /* Header Action sticky + Farbe */
@@ -302,18 +348,35 @@ td.action-cell:nth-last-child(2) {
 .table th.action-cell:last-child {
     right: 0;
     box-shadow: inset -3px 0 0 0 #a3a3a3, inset 0 3px 0 0 #a3a3a3;  /* Rechts + Oben */
-    border-radius: 0 3px 0 0;  /* Oben-Rechts abgerundet */
+}
+
+/* Abgerundete Ecke oben-rechts */
+.table th.action-cell:last-child::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6px;
+    height: 6px;
+    background: #e5e5e5;
+    border-top: 3px solid #a3a3a3;
+    border-right: 3px solid #a3a3a3;
+    border-radius: 0 3px 0 0;
 }
 
 .table th.action-cell:nth-last-child(2) {
     right: 40px;
-    box-shadow: inset 0 3px 0 0 #a3a3a3;  /* Oben */
+    box-shadow: inset 0 3px 0 0 #a3a3a3, inset -1px 0 0 0 #d4d4d4;  /* Oben + Trennlinie rechts */
 }
 
 /* Totals-Row Action - braucht !important wegen nth-child Regeln */
 .table .totals-row td.action-cell,
 .table .totals-row th.action-cell {
     background: #e5e5e5 !important;
+}
+
+.table .totals-row td.action-cell:nth-last-child(2) {
+    box-shadow: inset -1px 0 0 0 #d4d4d4;  /* Trennlinie rechts */
 }
 
 /* ========== SPALTENBREITEN & AUSRICHTUNG (Semantische Klassen) ========== */
@@ -336,6 +399,7 @@ td.action-cell:nth-last-child(2) {
     position: sticky;
     left: 40px;  /* Breite der checkbox-cell */
     z-index: 2;
+    box-shadow: inset -1px 0 0 0 #d4d4d4;  /* Rechte Trennlinie */
 }
 
 /* Header Name-Spalte sticky + Farbe */
@@ -344,10 +408,12 @@ td.action-cell:nth-last-child(2) {
     left: 40px;  /* Nach Checkbox */
     z-index: 3;  /* Über anderen th, aber unter thead */
     background: #e5e5e5;
+    box-shadow: inset 0 3px 0 0 #a3a3a3, inset -1px 0 0 0 #d4d4d4;  /* Oben + Rechte Trennlinie */
 }
 
 .table .totals-row td.col-name {
     background: #e5e5e5;
+    box-shadow: inset -1px 0 0 0 #d4d4d4;  /* Rechte Trennlinie */
 }
 
 .table tbody tr:nth-child(odd) td.col-name {
