@@ -3,10 +3,10 @@
  */
 
 /**
- * Generiert die HTML-Struktur für eine Gesamt-Zeile Name-Zelle
+ * Generiert den Text für eine Gesamt-Zeile
  * @param {string} count - Der Zähltext (z.B. "4 Werber", "12 Kunden")
  * @returns {string} HTML-String
  */
 function createTotalsNameCell(count) {
-    return `<div class="totals-name-cell"><span class="totals-label">Gesamt</span><span class="totals-count">${count}</span></div>`;
+    return `<strong>Gesamt</strong> <span class="totals-count">${count}</span>`;
 }
