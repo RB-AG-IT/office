@@ -50,6 +50,27 @@
     background: #e5e5e5;
 }
 
+/* Dicke Linien oben und unten am Header - über allem */
+.table thead::before,
+.table thead::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #a3a3a3;
+    z-index: 100;  /* Über allen Zell-Borders */
+    pointer-events: none;
+}
+
+.table thead::before {
+    top: 0;
+}
+
+.table thead::after {
+    bottom: 0;
+}
+
 .table thead tr {
     background: #e5e5e5;
 }
@@ -66,7 +87,7 @@
     user-select: none;
     position: relative;
     box-sizing: border-box;  /* width inkl. padding */
-    box-shadow: inset 0 3px 0 0 #a3a3a3, inset 0 -3px 0 0 #a3a3a3;  /* Oben + Unten */
+    /* Oben/Unten Linien werden von thead::before/::after gezeichnet */
 }
 
 .table th:last-child,
@@ -213,7 +234,7 @@
     left: 0;
     z-index: 3;  /* Über anderen th, aber unter thead */
     background: #e5e5e5;
-    box-shadow: inset 3px 0 0 0 #a3a3a3, inset 0 3px 0 0 #a3a3a3, inset 0 -3px 0 0 #a3a3a3;  /* Links + Oben + Unten */
+    box-shadow: inset 3px 0 0 0 #a3a3a3;  /* Nur Links */
 }
 
 /* Body Checkbox erbt Zeilen-Hintergrund */
@@ -303,12 +324,12 @@ td.action-cell:nth-last-child(2) {
 
 .table th.action-cell:last-child {
     right: 0;
-    box-shadow: inset -3px 0 0 0 #a3a3a3, inset 0 3px 0 0 #a3a3a3, inset 0 -3px 0 0 #a3a3a3;  /* Rechts + Oben + Unten */
+    box-shadow: inset -3px 0 0 0 #a3a3a3;  /* Nur Rechts */
 }
 
 .table th.action-cell:nth-last-child(2) {
     right: 40px;
-    box-shadow: inset 0 3px 0 0 #a3a3a3, inset 0 -3px 0 0 #a3a3a3, inset 1px 0 0 0 #d4d4d4;  /* Oben + Unten + Trennlinie links */
+    box-shadow: inset 1px 0 0 0 #d4d4d4;  /* Nur Trennlinie links */
 }
 
 /* Totals-Row Action - braucht !important wegen nth-child Regeln */
@@ -350,7 +371,7 @@ td.action-cell:nth-last-child(2) {
     left: 40px;  /* Nach Checkbox */
     z-index: 3;  /* Über anderen th, aber unter thead */
     background: #e5e5e5;
-    box-shadow: inset 0 3px 0 0 #a3a3a3, inset 0 -3px 0 0 #a3a3a3, inset -1px 0 0 0 #d4d4d4;  /* Oben + Unten + Rechte Trennlinie */
+    box-shadow: inset -1px 0 0 0 #d4d4d4;  /* Nur rechte Trennlinie */
 }
 
 .table .totals-row td.col-name {
