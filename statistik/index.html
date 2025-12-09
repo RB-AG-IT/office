@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/table-system.css">
     <script src="../js/modal-system.js"></script>
     <script src="../js/badge-system.js"></script>
+    <script src="../js/table-system.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -1040,7 +1041,7 @@
                                         <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
                                     </div>
                                 </th>
-                                <th class="center sortable col-percent" data-sort="storno">
+                                <th class="center sortable col-count" data-sort="storno">
                                     Storno
                                     <div class="sort-arrows">
                                         <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
@@ -1135,7 +1136,7 @@
                                         <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
                                     </div>
                                 </th>
-                                <th class="center sortable col-percent" data-sort="storno">
+                                <th class="center sortable col-count" data-sort="storno">
                                     Storno
                                     <div class="sort-arrows">
                                         <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
@@ -1230,7 +1231,7 @@
                                         <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
                                     </div>
                                 </th>
-                                <th class="center sortable col-percent" data-sort="storno">
+                                <th class="center sortable col-count" data-sort="storno">
                                     Storno
                                     <div class="sort-arrows">
                                         <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
@@ -1886,7 +1887,7 @@
             thead.innerHTML = `
                 <tr class="totals-row">
                     <td class="checkbox-cell"></td>
-                    <td><strong>Gesamt</strong> <span class="totals-count">${werberData.length} Werber</span></td>
+                    <td>${createTotalsNameCell(werberData.length + ' Werber')}</td>
                     <td class="right">${totals.mg.total}</td>
                     <td class="right">${formatMoney(totals.summe.total.je)}</td>
                     <td class="right ${totalStornoClass}">${formatPercent(avgStornoTotal)}</td>
@@ -2060,7 +2061,7 @@
             thead.innerHTML = `
                 <tr class="totals-row">
                     <td class="checkbox-cell"></td>
-                    <td><strong>Gesamt</strong> <span class="totals-count">${kundenData.length} Kunden, ${totals.gebieteCount} Gebiete</span></td>
+                    <td>${createTotalsNameCell(kundenData.length + ' Kunden, ' + totals.gebieteCount + ' Gebiete')}</td>
                     <td class="right">${totals.netto.mg}</td>
                     <td class="right">${formatMoney(totals.netto.je)}</td>
                     <td class="right ${totalStornoClass}">${formatPercent(totalStornoQuote)}</td>
@@ -2250,7 +2251,7 @@
             thead.innerHTML = `
                 <tr class="totals-row">
                     <td class="checkbox-cell"></td>
-                    <td><strong>Gesamt</strong> <span class="totals-count">${kampagnenData.length} Kampagnen, ${totals.gebieteCount} Gebiete</span></td>
+                    <td>${createTotalsNameCell(kampagnenData.length + ' Kampagnen, ' + totals.gebieteCount + ' Gebiete')}</td>
                     <td class="right">${totals.netto.mg}</td>
                     <td class="right">${formatMoney(totals.netto.je)}</td>
                     <td class="right ${totalStornoClass}">${formatPercent(totalStornoQuote)}</td>
