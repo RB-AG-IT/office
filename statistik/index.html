@@ -495,31 +495,6 @@
             border-color: var(--text-secondary);
         }
 
-        /* Aufklappbare Zeilen */
-        .expandable-row {
-            cursor: pointer;
-        }
-
-        .expandable-row:hover {
-            background: var(--bg-hover) !important;
-        }
-
-        .expand-icon {
-            transition: transform 0.2s ease;
-        }
-
-        .expandable-row.collapsed .expand-icon {
-            transform: rotate(-90deg);
-        }
-
-        .child-row {
-            display: none;
-        }
-
-        .child-row.visible {
-            display: table-row;
-        }
-
         .avatar {
             width: 32px;
             height: 32px;
@@ -641,19 +616,6 @@
             font-size: 11px;
             color: var(--text-secondary);
             margin-top: 2px;
-        }
-
-        /* Expandable row */
-        .expandable-row {
-            cursor: pointer;
-        }
-
-        .expand-icon {
-            transition: transform 0.2s;
-        }
-
-        .expandable-row.expanded .expand-icon {
-            transform: rotate(90deg);
         }
 
         .detail-row {
@@ -849,15 +811,7 @@
             color: var(--accent-color);
         }
 
-        /* Werber compact table */
-        .werber-compact td {
-            vertical-align: middle;
-        }
-
-        .werber-compact .name-cell {
-            gap: 8px;
-        }
-
+        /* Werber compact table - kleinere Avatare */
         .werber-compact .avatar {
             width: 28px;
             height: 28px;
@@ -2047,7 +2001,7 @@
                 const row = document.querySelector(`tr[data-kunde-id="${kundeId}"]`);
                 const children = document.querySelectorAll(`tr[data-parent-id="${kundeId}"]`);
 
-                row.classList.toggle('collapsed', !kunde.expanded);
+                row.classList.toggle('open', kunde.expanded);
                 children.forEach(child => child.classList.toggle('visible', kunde.expanded));
             }
         }
@@ -2240,7 +2194,7 @@
                 const row = document.querySelector(`tr[data-kampagne-id="${kampagneId}"]`);
                 const children = document.querySelectorAll(`tr[data-kampagne-parent-id="${kampagneId}"]`);
 
-                row.classList.toggle('collapsed', !kampagne.expanded);
+                row.classList.toggle('open', kampagne.expanded);
                 children.forEach(child => child.classList.toggle('visible', kampagne.expanded));
             }
         }
@@ -3138,7 +3092,7 @@
 
         // Toggle detail row
         function toggleDetail(row) {
-            row.classList.toggle('expanded');
+            row.classList.toggle('open');
             const detailRow = row.nextElementSibling;
             if (detailRow && detailRow.classList.contains('detail-row')) {
                 detailRow.classList.toggle('show');
