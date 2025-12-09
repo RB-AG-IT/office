@@ -31,7 +31,7 @@
 /* ========== HEADER ========== */
 .table th {
     padding: 10px 12px;
-    text-align: left;
+    text-align: center;  /* Standard: zentriert für mittlere Spalten */
     font-size: 10px;
     font-weight: 600;
     color: #525252;
@@ -91,21 +91,11 @@
     border-right: 1px solid #f0f0f0;
     white-space: nowrap;
     vertical-align: middle;
+    text-align: right;  /* Standard: rechtsbündig für mittlere Spalten (Zahlen) */
 }
 
 .table td:last-child {
     border-right: none;
-}
-
-/* Alignment */
-.table th.right,
-.table td.right {
-    text-align: right;
-}
-
-.table th.center,
-.table td.center {
-    text-align: center;
 }
 
 /* Zebra Striping */
@@ -224,20 +214,25 @@ td.action-cell:nth-last-child(2) {
     background: #e5e5e5;
 }
 
-/* ========== SPALTENBREITEN (Semantische Klassen) ========== */
+/* ========== SPALTENBREITEN & AUSRICHTUNG (Semantische Klassen) ========== */
 /*
- * Einheitliche Breiten nach Inhaltstyp:
- * - Text-Spalten für längere Inhalte
- * - Zahlen-Spalten für numerische Werte
+ * Einheitliche Breiten und Ausrichtung nach Inhaltstyp:
+ * - Text-Spalten: linksbündig
+ * - Zahlen-Spalten: rechtsbündig (ist Standard)
+ *
+ * Zentrale Ausrichtungslogik:
+ * - th (Header): zentriert (Standard)
+ * - td (Inhalt): rechtsbündig (Standard)
+ * - Ausnahmen: col-name (links), checkbox-cell (zentriert), action-cell (zentriert)
  */
 
-/* Text-Spalten */
-.col-name     { width: 220px; }  /* Namen, Titel */
-.col-email    { width: 260px; }  /* E-Mail-Adressen (breiter als Name) */
-.col-text     { width: 180px; }  /* Herkunft, Beschreibungen */
-.col-date     { width: 140px; }  /* Datum, Login-Zeit */
+/* Text-Spalten - linksbündig */
+.col-name     { width: 220px; text-align: left; }  /* Namen, Titel */
+.col-email    { width: 260px; text-align: left; }  /* E-Mail-Adressen */
+.col-text     { width: 180px; text-align: left; }  /* Herkunft, Beschreibungen */
+.col-date     { width: 140px; }  /* Datum - rechtsbündig (Standard) */
 
-/* Zahlen-Spalten */
+/* Zahlen-Spalten - rechtsbündig (Standard, explizit für Klarheit) */
 .col-money    { width: 130px; }  /* Geldbeträge: 1.234.234,00 € */
 .col-count    { width: 60px; }   /* Kleine Zahlen: Anzahl, Prozent, Storno */
 
