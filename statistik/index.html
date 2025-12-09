@@ -2462,35 +2462,9 @@
         }
 
         // Category Dropdown (Hover)
+        // Category-Auswahl (gesteuert durch Shell-Toolbar)
         function selectCategory(value, label) {
             currentCategory = value;
-
-            // Update trigger text with slide-up animation
-            const textEl = document.getElementById('categoryDropdownText');
-
-            // Phase 1: Slide out (nach oben)
-            textEl.style.transform = 'translateY(-100%)';
-            textEl.style.opacity = '0';
-
-            setTimeout(() => {
-                // Phase 2: Text ändern und Position zurücksetzen (ohne Animation)
-                textEl.style.transition = 'none';
-                textEl.textContent = label;
-                textEl.style.transform = 'translateY(100%)';
-
-                // Force reflow
-                textEl.offsetHeight;
-
-                // Phase 3: Slide in (nach oben in Position)
-                textEl.style.transition = '';
-                textEl.style.transform = 'translateY(0)';
-                textEl.style.opacity = '1';
-            }, 150);
-
-            // Update active state
-            document.querySelectorAll('#categoryDropdown .toolbar-nav-option').forEach(opt => {
-                opt.classList.toggle('active', opt.dataset.value === value);
-            });
 
             // Show/hide sections
             document.querySelectorAll('.category-section').forEach(s => s.style.display = 'none');
@@ -2515,41 +2489,8 @@
         let customDateTo = null;
         let previousPeriodValue = 'year';
 
-        // Period Dropdown Toggle (Click-based)
-        function togglePeriodDropdown() {
-            const dropdown = document.getElementById('periodDropdown');
-            dropdown.classList.toggle('open');
-        }
-
-        // Period Dropdown - Option auswählen
+        // Period-Auswahl (gesteuert durch Shell-Toolbar)
         function selectPeriod(value, label) {
-            const dropdown = document.getElementById('periodDropdown');
-            const textEl = document.getElementById('periodDropdownText');
-
-            // Slide-Up Animation wie beim Category Dropdown
-            textEl.style.transform = 'translateY(-100%)';
-            textEl.style.opacity = '0';
-
-            setTimeout(() => {
-                textEl.style.transition = 'none';
-                textEl.textContent = label;
-                textEl.style.transform = 'translateY(100%)';
-
-                textEl.offsetHeight; // Force reflow
-
-                textEl.style.transition = '';
-                textEl.style.transform = 'translateY(0)';
-                textEl.style.opacity = '1';
-            }, 150);
-
-            // Update active state
-            document.querySelectorAll('#periodDropdown .toolbar-nav-option').forEach(opt => {
-                opt.classList.toggle('active', opt.dataset.value === value);
-            });
-
-            // Close dropdown
-            dropdown.classList.remove('open');
-
             // Update hidden select for compatibility
             document.getElementById('filterPeriod').value = value;
 
@@ -2561,14 +2502,6 @@
                 applyFilters();
             }
         }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('periodDropdown');
-            if (dropdown && !dropdown.contains(e.target)) {
-                dropdown.classList.remove('open');
-            }
-        });
 
         // ================================================================
         // SPALTEN-MODAL
@@ -3144,14 +3077,7 @@
             // Zurück zum vorherigen Wert wenn abgebrochen
             if (!customDateFrom || !customDateTo) {
                 document.getElementById('filterPeriod').value = previousPeriodValue;
-                // Also update visible dropdown
-                const prevOption = document.querySelector(`#periodDropdown .toolbar-nav-option[data-value="${previousPeriodValue}"]`);
-                if (prevOption) {
-                    document.getElementById('periodDropdownText').textContent = prevOption.textContent;
-                    document.querySelectorAll('#periodDropdown .toolbar-nav-option').forEach(opt => {
-                        opt.classList.toggle('active', opt.dataset.value === previousPeriodValue);
-                    });
-                }
+                // Shell-Dropdown wird von Shell selbst gesteuert
             }
         }
 
@@ -3189,14 +3115,6 @@
             // Update hidden select option text
             const customOption = document.querySelector('#filterPeriod option[value="custom"]');
             customOption.textContent = dateRangeText;
-
-            // Update visible dropdown text
-            document.getElementById('periodDropdownText').textContent = dateRangeText;
-
-            // Update active state for dropdown
-            document.querySelectorAll('#periodDropdown .toolbar-nav-option').forEach(opt => {
-                opt.classList.toggle('active', opt.dataset.value === 'custom');
-            });
 
             // Send message to parent shell to update its dropdown
             if (window.self !== window.top) {
@@ -3243,9 +3161,7 @@
         function resetCustomOptionText() {
             const customOption = document.querySelector('#filterPeriod option[value="custom"]');
             customOption.textContent = 'Individuell';
-            // Also reset dropdown option text
-            const dropdownOption = document.querySelector('#periodDropdown .toolbar-nav-option[data-value="custom"]');
-            if (dropdownOption) dropdownOption.textContent = 'Individuell';
+            // Shell-Dropdown wird von Shell selbst gesteuert
         }
 
         // Suche
@@ -3506,30 +3422,21 @@
         const pageParams = new URLSearchParams(window.location.search);
 
         // Kategorie-Parameter (Werber/Kunden/etc.) - vom Dashboard zurück
+        // URL-Parameter: Category
         if (pageParams.get('category')) {
             const category = pageParams.get('category');
-            const categoryOption = document.querySelector(`#categoryDropdown [data-value="${category}"]`);
-            if (categoryOption) {
-                selectCategory(category, categoryOption.textContent);
-            }
+            selectCategory(category, category);
             // Shell über Kategorieänderung informieren
             window.parent.postMessage({ type: 'navFilterChanged', value: category }, '*');
             history.replaceState(null, '', window.location.pathname);
         }
 
-        // Period-Parameter (falls nötig)
+        // URL-Parameter: Period
         if (pageParams.get('period')) {
             const period = pageParams.get('period');
-            document.getElementById('filterPeriod').value = period;
-            const option = document.querySelector(`#periodDropdown .toolbar-nav-option[data-value="${period}"]`);
-            if (option) {
-                document.getElementById('periodDropdownText').textContent = option.textContent;
-                document.querySelectorAll('#periodDropdown .toolbar-nav-option').forEach(opt => {
-                    opt.classList.toggle('active', opt.dataset.value === period);
-                });
-            }
+            selectPeriod(period, period);
+            // Shell über Periodänderung informieren
             window.parent.postMessage({ type: 'periodChanged', value: period }, '*');
-            applyFilters();
             history.replaceState(null, '', window.location.pathname);
         }
 
@@ -3539,23 +3446,15 @@
         }
 
         // Listen for filter messages from parent shell
+        // Message-Handler für Shell-Toolbar-Steuerung
         window.addEventListener('message', function(e) {
             if (e.data && e.data.type === 'navFilter') {
-                selectCategory(e.data.value, document.querySelector(`#categoryDropdown [data-value="${e.data.value}"]`)?.textContent || e.data.value);
+                // Kategorie wechseln (Werber/Kunden/Kampagnen)
+                selectCategory(e.data.value, e.data.value);
             }
             if (e.data && e.data.type === 'periodFilter') {
-                document.getElementById('filterPeriod').value = e.data.value;
-                // Also update visible dropdown
-                const option = document.querySelector(`#periodDropdown .toolbar-nav-option[data-value="${e.data.value}"]`);
-                if (option) {
-                    document.getElementById('periodDropdownText').textContent = option.textContent;
-                    document.querySelectorAll('#periodDropdown .toolbar-nav-option').forEach(opt => {
-                        opt.classList.toggle('active', opt.dataset.value === e.data.value);
-                    });
-                }
-                if (e.data.value !== 'custom') {
-                    applyFilters();
-                }
+                // Zeitraum wechseln
+                selectPeriod(e.data.value, e.data.value);
             }
             if (e.data && e.data.type === 'openDateRangeModal') {
                 openDateRangeModal();
