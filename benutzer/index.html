@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/table-system.css">
     <script src="../js/modal-system.js"></script>
     <script src="../js/badge-system.js"></script>
+    <script src="../js/table-system.js"></script>
 
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -393,6 +394,7 @@
                                         <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
                                     </div>
                                 </th>
+                                <th class="col-spacer"></th>
                                 <th class="action-cell"></th>
                                 <th class="action-cell"></th>
                             </tr>
@@ -729,12 +731,13 @@
             totalsBody.innerHTML = `
                 <tr class="totals-row">
                     <td class="checkbox-cell"></td>
-                    <td><strong>Gesamt</strong> <span class="totals-count">${werberCount} Werber, ${kundenCount} Kunden</span></td>
+                    <td>${createTotalsNameCell(werberCount + ' Werber, ' + kundenCount + ' Kunden')}</td>
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
+                    <td class="action-cell"></td>
                 </tr>
             `;
 
@@ -772,6 +775,7 @@
                     <td><span class="user-email">${user.email}</span></td>
                     <td><span class="user-herkunft">${user.bundesland} <span class="stadt">(${user.stadt})</span></span></td>
                     <td>${formatLastLogin(user.lastLogin, user.isOnline)}</td>
+                    <td class="col-spacer"></td>
                     <td class="center">
                         <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('${user.id}', '${user.type}')" title="Statistik anzeigen">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -830,6 +834,7 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td class="col-spacer"></td>
                             <td class="center">
                                 <button class="btn-stats" onclick="openGebietStatistics('${gebiet.id}')" title="Statistik">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
