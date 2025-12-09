@@ -22,10 +22,10 @@
 
 /* ========== TABLE ========== */
 .table {
-    width: 100%;
+    width: max-content;
+    min-width: 100%;
     border-collapse: collapse;
     font-size: 11px;
-    table-layout: fixed;
 }
 
 /* ========== HEADER ========== */
@@ -141,13 +141,40 @@
     margin-left: 6px;
 }
 
-/* ========== CHECKBOX ========== */
+/* ========== SPACER COLUMN ========== */
+/* Nimmt den verbleibenden Platz ein */
+.col-spacer {
+    width: auto;
+    min-width: 20px;
+}
+
+/* ========== STICKY COLUMNS (Fixierte Spalten) ========== */
+/* Checkbox links fixiert */
 .checkbox-cell {
     width: 40px;
     text-align: center;
     vertical-align: middle;
     padding: 0 8px !important;
     border-right: none !important;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: inherit;
+}
+
+/* Header Checkbox braucht explizite Farbe */
+.table th.checkbox-cell {
+    background: #e5e5e5;
+}
+
+/* Body Checkbox erbt Zeilen-Hintergrund */
+.table td.checkbox-cell {
+    background: inherit;
+}
+
+/* Totals-Row Checkbox */
+.table .totals-row td.checkbox-cell {
+    background: #e5e5e5;
 }
 
 .checkbox-cell input {
@@ -164,12 +191,37 @@
     vertical-align: middle;
 }
 
-/* ========== ACTION CELL (Button-Spalten) ========== */
+/* ========== ACTION CELL (Button-Spalten) - Rechts fixiert ========== */
 .action-cell {
     width: 40px;
     text-align: center;
     vertical-align: middle;
     padding: 0 !important;
+    position: sticky;
+    z-index: 2;
+    background: inherit;
+}
+
+/* Letzte Action-Spalte ganz rechts */
+th.action-cell:last-child,
+td.action-cell:last-child {
+    right: 0;
+}
+
+/* Vorletzte Action-Spalte */
+th.action-cell:nth-last-child(2),
+td.action-cell:nth-last-child(2) {
+    right: 40px;
+}
+
+/* Header Action braucht explizite Farbe */
+.table th.action-cell {
+    background: #e5e5e5;
+}
+
+/* Totals-Row Action */
+.table .totals-row td.action-cell {
+    background: #e5e5e5;
 }
 
 /* ========== SPALTENBREITEN (Semantische Klassen) ========== */
