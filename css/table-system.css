@@ -23,18 +23,16 @@
     position: relative;
 }
 
-/* Seitenrahmen nur unterhalb der Header-Linie */
+/* Vollständiger Rahmen um die Tabelle */
 .table-wrap::after {
     content: '';
     position: absolute;
-    top: 32px;  /* Exakt an der horizontalen Header-Linie */
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    border-left: 3px solid #a3a3a3;
-    border-right: 3px solid #a3a3a3;
-    border-bottom: 3px solid #a3a3a3;
-    border-radius: 0;  /* Eckig, keine Rundungen */
+    border: 3px solid #a3a3a3;
+    border-radius: 0;
     pointer-events: none;
     z-index: 100;
 }
@@ -84,10 +82,16 @@
     color: #525252;
     background: #e5e5e5;
     border: none;
+    border-right: 1px solid #d4d4d4;  /* Dezente vertikale Trennlinie */
     border-bottom: 3px solid #a3a3a3;  /* Untere Header-Linie */
     white-space: nowrap;
     user-select: none;
     box-sizing: border-box;  /* width inkl. padding */
+}
+
+/* Letzte Header-Zelle ohne rechte Linie */
+.table th:last-child {
+    border-right: none;
 }
 
 .table th.sortable {
@@ -130,12 +134,18 @@
 .table td {
     padding: 6px 12px;
     border-bottom: 1px solid #d4d4d4;
+    border-right: 1px solid #d4d4d4;  /* Dezente vertikale Trennlinie */
     white-space: nowrap;
     vertical-align: middle;
     text-align: right;  /* Standard: rechtsbündig für mittlere Spalten (Zahlen) */
     box-sizing: border-box;  /* width inkl. padding */
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Letzte Datenzelle ohne rechte Linie */
+.table td:last-child {
+    border-right: none;
 }
 
 /* Zebra Striping */
