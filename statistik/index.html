@@ -1314,6 +1314,33 @@
         // Aktueller Tab
         let currentCategory = 'werber';
 
+        // WICHTIG: Message-Handler SOFORT registrieren (vor anderem Code der Fehler verursachen könnte)
+        window.addEventListener('message', function(e) {
+            console.log('Message received:', e.data);
+            if (e.data && e.data.type === 'navFilter') {
+                console.log('navFilter:', e.data.value);
+                // Kategorie wechseln (Werber/Kunden/Kampagnen)
+                currentCategory = e.data.value;
+                document.querySelectorAll('.category-section').forEach(s => s.style.display = 'none');
+                const section = document.getElementById('section-' + e.data.value);
+                if (section) section.style.display = 'block';
+            }
+            if (e.data && e.data.type === 'periodFilter') {
+                document.getElementById('filterPeriod').value = e.data.value;
+            }
+            if (e.data && e.data.type === 'openDateRangeModal') {
+                if (typeof openDateRangeModal === 'function') openDateRangeModal();
+            }
+            if (e.data && e.data.type === 'searchQuery') {
+                if (typeof handleSearch === 'function') handleSearch(e.data.query);
+            }
+        });
+
+        // Erkennen ob in iframe -> Toolbar verstecken
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
+
         // Filter-Optionen je nach Tab
         const filterOptions = {
             werber: [
@@ -3348,11 +3375,6 @@
         renderKundenTable();
         renderKampagnenTable();
 
-        // Erkennen ob in iframe -> Toolbar verstecken
-        if (window.self !== window.top) {
-            document.body.classList.add('in-iframe');
-        }
-
         // URL Parameter verarbeiten (vom Dashboard zurückkommend)
         const pageParams = new URLSearchParams(window.location.search);
 
@@ -3380,26 +3402,7 @@
             history.replaceState(null, '', window.location.pathname);
         }
 
-        // Listen for filter messages from parent shell
-        // Message-Handler für Shell-Toolbar-Steuerung
-        window.addEventListener('message', function(e) {
-            console.log('Message received:', e.data);
-            if (e.data && e.data.type === 'navFilter') {
-                // Kategorie wechseln (Werber/Kunden/Kampagnen)
-                console.log('navFilter:', e.data.value);
-                selectCategory(e.data.value, e.data.value);
-            }
-            if (e.data && e.data.type === 'periodFilter') {
-                // Zeitraum wechseln
-                selectPeriod(e.data.value, e.data.value);
-            }
-            if (e.data && e.data.type === 'openDateRangeModal') {
-                openDateRangeModal();
-            }
-            if (e.data && e.data.type === 'searchQuery') {
-                handleSearch(e.data.query);
-            }
-        });
+        // Message-Handler wurde an den Anfang des Scripts verschoben
 
         // Search/filter function
         function handleSearch(query) {
