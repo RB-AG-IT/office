@@ -1316,9 +1316,7 @@
 
         // WICHTIG: Message-Handler SOFORT registrieren (vor anderem Code der Fehler verursachen könnte)
         window.addEventListener('message', function(e) {
-            console.log('Message received:', e.data);
             if (e.data && e.data.type === 'navFilter') {
-                console.log('navFilter:', e.data.value);
                 // Kategorie wechseln (Werber/Kunden/Kampagnen)
                 currentCategory = e.data.value;
                 document.querySelectorAll('.category-section').forEach(s => s.style.display = 'none');
@@ -1993,7 +1991,8 @@
             `;
 
             // Badge aktualisieren
-            document.getElementById('kundenBadge').textContent = kundenData.length + ' Kunden';
+            const kundenBadgeEl = document.getElementById('kundenBadge');
+            if (kundenBadgeEl) kundenBadgeEl.textContent = kundenData.length + ' Kunden';
         }
 
         // Kunde auf-/zuklappen
@@ -2017,10 +2016,8 @@
 
         // Kampagnen Tabelle rendern
         function renderKampagnenTable() {
-            console.log('renderKampagnenTable called, kampagnenData:', kampagnenData);
             const totalsBody = document.getElementById('kampagnenTableTotals');
             const tbody = document.getElementById('kampagnenTableBody');
-            console.log('totalsBody:', totalsBody, 'tbody:', tbody);
 
             // Totals berechnen
             const totals = {
@@ -2188,7 +2185,8 @@
             `;
 
             // Badge aktualisieren
-            document.getElementById('kampagnenBadge').textContent = kampagnenData.length + ' Kampagnen';
+            const kampagnenBadgeEl = document.getElementById('kampagnenBadge');
+            if (kampagnenBadgeEl) kampagnenBadgeEl.textContent = kampagnenData.length + ' Kampagnen';
         }
 
         // Kampagne auf-/zuklappen
@@ -2390,7 +2388,6 @@
         // Category Dropdown (Hover)
         // Category-Auswahl (gesteuert durch Shell-Toolbar)
         function selectCategory(value, label) {
-            console.log('selectCategory called:', value);
             currentCategory = value;
 
             // Show/hide sections
