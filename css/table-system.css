@@ -279,13 +279,47 @@
     margin: 0 auto;
 }
 
+/* Custom Checkbox Styling */
 .row-checkbox {
-    width: 14px;
-    height: 14px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #d4d4d4;
+    border-radius: 3px;
+    background-color: white;
     cursor: pointer;
-    accent-color: var(--accent-color);
     margin: 0;
     vertical-align: middle;
+    position: relative;
+    transition: all 0.15s ease;
+}
+
+.row-checkbox:hover {
+    border-color: #a3a3a3;
+}
+
+.row-checkbox:checked {
+    background-color: var(--accent-color, #3b82f6);
+    border-color: var(--accent-color, #3b82f6);
+}
+
+.row-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.row-checkbox:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
 /* ========== ACTION CELL (Button-Spalten) - Rechts fixiert ========== */
@@ -903,9 +937,44 @@ td.action-cell:nth-last-child(2) {
 }
 
 .column-checkbox {
-    width: 14px;
-    height: 14px;
-    accent-color: #525252;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #d4d4d4;
+    border-radius: 3px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.column-checkbox:hover {
+    border-color: #a3a3a3;
+}
+
+.column-checkbox:checked {
+    background-color: #525252;
+    border-color: #525252;
+}
+
+.column-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.column-checkbox:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .column-name {
