@@ -1526,6 +1526,12 @@
                             <div class="table-header-left">
                                 <span class="table-title">Werber Übersicht</span>
                                 <span class="table-badge" id="werberBadge">0</span>
+                                <button class="btn-toggle-all" id="toggleAllWerberBtn" onclick="toggleAllWerber()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                    <span>Alle aufklappen</span>
+                                </button>
                             </div>
                             <button class="btn-columns" onclick="openColumnModal('werber')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3889,8 +3895,45 @@
         }
 
         // ========== EXPAND ALL FUNCTIONS ==========
+        let werberAllExpanded = false;
         let kundenAllExpanded = true;  // Start expanded
         let kampagnenAllExpanded = false;
+
+        function toggleAllWerber() {
+            const btn = document.getElementById('toggleAllWerberBtn');
+            const table = document.getElementById('werberTableBody');
+            const expandableRows = table.querySelectorAll('.expandable-row');
+            const childRows = table.querySelectorAll('.child-row');
+
+            werberAllExpanded = !werberAllExpanded;
+
+            expandableRows.forEach(row => {
+                if (werberAllExpanded) {
+                    row.classList.add('open');
+                } else {
+                    row.classList.remove('open');
+                }
+            });
+
+            childRows.forEach(child => {
+                if (werberAllExpanded) {
+                    child.classList.add('visible');
+                } else {
+                    child.classList.remove('visible');
+                }
+            });
+
+            const icon = btn.querySelector('svg');
+            const text = btn.querySelector('span');
+
+            if (werberAllExpanded) {
+                icon.style.transform = 'rotate(180deg)';
+                text.textContent = 'Alle zuklappen';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+                text.textContent = 'Alle aufklappen';
+            }
+        }
 
         function toggleAllKunden() {
             const btn = document.getElementById('toggleAllKundenBtn');
