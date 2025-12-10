@@ -2678,7 +2678,7 @@
                     </td>
                     <td>${werber.records}</td>
                     <td>${formatCurrency(werber.nettoJE)}</td>
-                    <td>${werber.storno.toFixed(1)}%</td>
+                    <td class="${getStornoClass(werber.storno)}">${werber.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('werber', ${werber.id})" title="Statistik anzeigen">
@@ -2759,7 +2759,7 @@
                     </td>
                     <td>${kunde.records}</td>
                     <td>${formatCurrency(kunde.nettoJE)}</td>
-                    <td>${kunde.storno.toFixed(1)}%</td>
+                    <td class="${getStornoClass(kunde.storno)}">${kunde.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('kunde', ${kunde.id})" title="Statistik anzeigen">
@@ -2806,7 +2806,7 @@
                     </td>
                     <td>${gebiet.records}</td>
                     <td>${formatCurrency(gebiet.nettoJE)}</td>
-                    <td>${gebiet.storno.toFixed(1)}%</td>
+                    <td class="${getStornoClass(gebiet.storno)}">${gebiet.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="closeAllDropdowns(); openStatistics('gebiet', ${gebiet.id})" title="Statistik anzeigen">
@@ -2949,7 +2949,7 @@
                     </td>
                     <td>${kampagne.records}</td>
                     <td>${formatCurrency(kampagne.nettoJE)}</td>
-                    <td>${kampagne.storno.toFixed(1)}%</td>
+                    <td class="${getStornoClass(kampagne.storno)}">${kampagne.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('kampagne', ${kampagne.id})" title="Statistik anzeigen">
@@ -2996,7 +2996,7 @@
                     </td>
                     <td>${gebiet.records}</td>
                     <td>${formatCurrency(gebiet.nettoJE)}</td>
-                    <td>${gebiet.storno.toFixed(1)}%</td>
+                    <td class="${getStornoClass(gebiet.storno)}">${gebiet.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('gebiet', ${gebiet.id})" title="Statistik anzeigen">
@@ -3430,6 +3430,13 @@
 
         function formatCurrency(value) {
             return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(value);
+        }
+
+        // Stornoquote Farbklasse (zentrale Klassen aus table-system.css)
+        function getStornoClass(value) {
+            if (value < 8) return 'storno-low';
+            if (value <= 12) return 'storno-medium';
+            return 'storno-high';
         }
 
         function adjustColor(hex, amount) {
