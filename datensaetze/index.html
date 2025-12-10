@@ -1562,6 +1562,12 @@
                             <div class="table-header-left">
                                 <span class="table-title">Kunden / Gebiete</span>
                                 <span class="table-badge" id="kundenBadge">0</span>
+                                <button class="btn-toggle-all" id="toggleAllKundenBtn" onclick="toggleAllKunden()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                    <span>Alle aufklappen</span>
+                                </button>
                             </div>
                         </div>
                         <div class="table-container">
@@ -1598,6 +1604,12 @@
                             <div class="table-header-left">
                                 <span class="table-title">Kampagnen</span>
                                 <span class="table-badge" id="kampagnenBadge">0</span>
+                                <button class="btn-toggle-all" id="toggleAllKampagnenBtn" onclick="toggleAllKampagnen()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                    <span>Alle aufklappen</span>
+                                </button>
                             </div>
                         </div>
                         <div class="table-container">
@@ -3840,6 +3852,82 @@
         function toggleSelectAllLetzte100(checkbox) {
             const checkboxes = document.querySelectorAll('#letzte100TableBody .row-checkbox');
             checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+
+        // ========== EXPAND ALL FUNCTIONS ==========
+        let kundenAllExpanded = true;  // Start expanded
+        let kampagnenAllExpanded = false;
+
+        function toggleAllKunden() {
+            const btn = document.getElementById('toggleAllKundenBtn');
+            const table = document.getElementById('kundenGebieteTableBody');
+            const expandableRows = table.querySelectorAll('.expandable-row');
+            const childRows = table.querySelectorAll('.child-row');
+
+            kundenAllExpanded = !kundenAllExpanded;
+
+            expandableRows.forEach(row => {
+                if (kundenAllExpanded) {
+                    row.classList.add('open');
+                } else {
+                    row.classList.remove('open');
+                }
+            });
+
+            childRows.forEach(child => {
+                if (kundenAllExpanded) {
+                    child.classList.add('visible');
+                } else {
+                    child.classList.remove('visible');
+                }
+            });
+
+            const icon = btn.querySelector('svg');
+            const text = btn.querySelector('span');
+
+            if (kundenAllExpanded) {
+                icon.style.transform = 'rotate(180deg)';
+                text.textContent = 'Alle zuklappen';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+                text.textContent = 'Alle aufklappen';
+            }
+        }
+
+        function toggleAllKampagnen() {
+            const btn = document.getElementById('toggleAllKampagnenBtn');
+            const table = document.getElementById('kampagnenTableBody');
+            const expandableRows = table.querySelectorAll('.expandable-row');
+            const childRows = table.querySelectorAll('.child-row');
+
+            kampagnenAllExpanded = !kampagnenAllExpanded;
+
+            expandableRows.forEach(row => {
+                if (kampagnenAllExpanded) {
+                    row.classList.add('open');
+                } else {
+                    row.classList.remove('open');
+                }
+            });
+
+            childRows.forEach(child => {
+                if (kampagnenAllExpanded) {
+                    child.classList.add('visible');
+                } else {
+                    child.classList.remove('visible');
+                }
+            });
+
+            const icon = btn.querySelector('svg');
+            const text = btn.querySelector('span');
+
+            if (kampagnenAllExpanded) {
+                icon.style.transform = 'rotate(180deg)';
+                text.textContent = 'Alle zuklappen';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+                text.textContent = 'Alle aufklappen';
+            }
         }
 
         // ========== DELETE FUNCTIONS ==========
