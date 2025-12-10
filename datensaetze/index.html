@@ -3338,12 +3338,12 @@
         }
 
         function closeAllDropdowns() {
-            if (activeDropdownMenu && activeDropdownBtn) {
-                const dropdown = activeDropdownBtn.closest('.dropdown');
-                if (dropdown && activeDropdownMenu.parentNode === document.body) {
-                    dropdown.appendChild(activeDropdownMenu);
-                }
+            if (activeDropdownMenu) {
                 activeDropdownMenu.classList.remove('open');
+                // Menü vom Body entfernen falls es dort ist
+                if (activeDropdownMenu.parentNode === document.body) {
+                    activeDropdownMenu.remove();
+                }
             }
             activeDropdownMenu = null;
             activeDropdownBtn = null;
