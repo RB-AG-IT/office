@@ -2361,11 +2361,17 @@
         // Category Dropdown (Hover)
         // Category-Auswahl (gesteuert durch Shell-Toolbar)
         function selectCategory(value, label) {
+            console.log('selectCategory called:', value);
             currentCategory = value;
 
             // Show/hide sections
             document.querySelectorAll('.category-section').forEach(s => s.style.display = 'none');
-            document.getElementById('section-' + value).style.display = 'block';
+            const section = document.getElementById('section-' + value);
+            if (section) {
+                section.style.display = 'block';
+            } else {
+                console.error('Section not found:', 'section-' + value);
+            }
 
             // Update context filter dropdown
             updateContextFilter(value);
@@ -3377,8 +3383,10 @@
         // Listen for filter messages from parent shell
         // Message-Handler für Shell-Toolbar-Steuerung
         window.addEventListener('message', function(e) {
+            console.log('Message received:', e.data);
             if (e.data && e.data.type === 'navFilter') {
                 // Kategorie wechseln (Werber/Kunden/Kampagnen)
+                console.log('navFilter:', e.data.value);
                 selectCategory(e.data.value, e.data.value);
             }
             if (e.data && e.data.type === 'periodFilter') {
