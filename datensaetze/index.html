@@ -2883,11 +2883,34 @@
                     <td>${kampagne.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
-                        <button class="btn-stats" onclick="event.stopPropagation(); openKampagneRecords(${kampagne.id})" title="Alle Datensätze anzeigen">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('kampagne', ${kampagne.id})" title="Statistik anzeigen">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 20V10"></path>
+                                <path d="M12 20V4"></path>
+                                <path d="M6 20v-6"></path>
                             </svg>
                         </button>
+                    </td>
+                    <td class="action-cell">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="openKampagneRecords(${kampagne.id})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    Datensätze
+                                </div>
+                                <div class="dropdown-item" onclick="openStatistics('kampagne', ${kampagne.id})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+                                    Statistik
+                                </div>
+                            </div>
+                        </div>
                     </td>
                 </tr>`;
 
@@ -2907,11 +2930,34 @@
                     <td>${gebiet.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
-                        <button class="btn-stats" onclick="event.stopPropagation(); openKampagneGebietRecords(${kampagne.id}, ${gebiet.id})" title="Datensätze anzeigen">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('gebiet', ${gebiet.id})" title="Statistik anzeigen">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 20V10"></path>
+                                <path d="M12 20V4"></path>
+                                <path d="M6 20v-6"></path>
                             </svg>
                         </button>
+                    </td>
+                    <td class="action-cell">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="openKampagneGebietRecords(${kampagne.id}, ${gebiet.id})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    Datensätze
+                                </div>
+                                <div class="dropdown-item" onclick="openStatistics('gebiet', ${gebiet.id})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+                                    Statistik
+                                </div>
+                            </div>
+                        </div>
                     </td>
                 </tr>`;
                 });
@@ -2930,6 +2976,7 @@
                     <td>${formatCurrency(totalNettoJE)}</td>
                     <td></td>
                     <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
                     <td class="action-cell"></td>
                 </tr>
             `;
@@ -3239,6 +3286,63 @@
                     const text = row.textContent.toLowerCase();
                     row.style.display = text.includes(search) ? '' : 'none';
                 });
+            }
+        }
+
+        // ========== DROPDOWN FUNCTIONS ==========
+        let activeDropdownMenu = null;
+        let activeDropdownBtn = null;
+
+        function toggleDropdown(btn) {
+            event.stopPropagation();
+            const menu = btn.nextElementSibling;
+            const wasOpen = activeDropdownMenu === menu && menu.classList.contains('open');
+
+            closeAllDropdowns();
+
+            if (!wasOpen) {
+                activeDropdownMenu = menu;
+                activeDropdownBtn = btn;
+                document.body.appendChild(menu);
+
+                const rect = btn.getBoundingClientRect();
+                menu.style.top = (rect.bottom + 4) + 'px';
+                menu.style.right = (window.innerWidth - rect.right) + 'px';
+                menu.style.left = 'auto';
+                menu.classList.add('open');
+            }
+        }
+
+        function closeAllDropdowns() {
+            if (activeDropdownMenu && activeDropdownBtn) {
+                const dropdown = activeDropdownBtn.closest('.dropdown');
+                if (dropdown && activeDropdownMenu.parentNode === document.body) {
+                    dropdown.appendChild(activeDropdownMenu);
+                }
+                activeDropdownMenu.classList.remove('open');
+            }
+            activeDropdownMenu = null;
+            activeDropdownBtn = null;
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+                closeAllDropdowns();
+            }
+        });
+
+        // ========== NAVIGATION FUNCTIONS ==========
+        function openStatistics(type, id) {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.href = window.parent.location.pathname + '#statistics';
+                setTimeout(() => {
+                    const iframe = window.parent.document.querySelector('#content-container iframe');
+                    if (iframe) {
+                        iframe.src = `../statistik/dashboard.html?id=${id}&type=${type}`;
+                    }
+                }, 100);
+            } else {
+                window.location.href = `../statistik/dashboard.html?id=${id}&type=${type}`;
             }
         }
 
