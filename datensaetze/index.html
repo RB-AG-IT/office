@@ -1532,6 +1532,9 @@
                             <table class="table">
                                 <thead>
                                     <tr>
+                                        <th class="checkbox-cell">
+                                            <input type="checkbox" class="row-checkbox" id="selectAllWerber" onclick="toggleSelectAllWerber(this)">
+                                        </th>
                                         <th class="col-name">Werber</th>
                                         <th>Datensätze</th>
                                         <th>Netto JE</th>
@@ -1564,6 +1567,9 @@
                             <table class="table">
                                 <thead>
                                     <tr>
+                                        <th class="checkbox-cell">
+                                            <input type="checkbox" class="row-checkbox" id="selectAllKunden" onclick="toggleSelectAllKunden(this)">
+                                        </th>
                                         <th class="col-name">Kunde / Gebiet</th>
                                         <th>Datensätze</th>
                                         <th>Netto JE</th>
@@ -1596,6 +1602,9 @@
                             <table class="table">
                                 <thead>
                                     <tr>
+                                        <th class="checkbox-cell">
+                                            <input type="checkbox" class="row-checkbox" id="selectAllKampagnen" onclick="toggleSelectAllKampagnen(this)">
+                                        </th>
                                         <th class="col-name">Kampagne</th>
                                         <th>Datensätze</th>
                                         <th>Netto JE</th>
@@ -1628,6 +1637,9 @@
                             <table class="table table--compact">
                                 <thead>
                                     <tr>
+                                        <th class="checkbox-cell">
+                                            <input type="checkbox" class="row-checkbox" id="selectAllLetzte100" onclick="toggleSelectAllLetzte100(this)">
+                                        </th>
                                         <th class="col-date">Datum</th>
                                         <th class="col-type">Art</th>
                                         <th class="col-name">Name</th>
@@ -2586,6 +2598,9 @@
 
             tbody.innerHTML = werberData.map(werber => `
                 <tr onclick="openWerberRecords(${werber.id})" style="cursor: pointer;">
+                    <td class="checkbox-cell" onclick="event.stopPropagation();">
+                        <input type="checkbox" class="row-checkbox" data-werber-id="${werber.id}">
+                    </td>
                     <td class="col-name">
                         <div class="name-cell">
                             ${createBadge({ type: 'werber', name: werber.name, stufe: werber.role })}
@@ -2608,6 +2623,7 @@
             // Totals-Zeile
             totalsBody.innerHTML = `
                 <tr class="totals-row">
+                    <td class="checkbox-cell"></td>
                     <td class="col-name">${createTotalsNameCell(werberData.length + ' Werber')}</td>
                     <td>${totalRecords}</td>
                     <td>${formatCurrency(totalNettoJE)}</td>
@@ -2638,6 +2654,9 @@
                 // Kunde Hauptzeile (expandable)
                 html += `
                 <tr class="expandable-row open" data-kunde-id="${kunde.id}" onclick="toggleKundeRow(${kunde.id})">
+                    <td class="checkbox-cell" onclick="event.stopPropagation();">
+                        <input type="checkbox" class="row-checkbox" data-kunde-id="${kunde.id}">
+                    </td>
                     <td class="col-name">
                         <div class="name-cell">
                             <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2663,6 +2682,7 @@
                 kundeGebiete.forEach(gebiet => {
                     html += `
                 <tr class="child-row visible" data-parent-id="${kunde.id}">
+                    <td class="checkbox-cell"></td>
                     <td class="col-name">
                         <div class="name-cell">
                             <div class="child-indent">└</div>
@@ -2689,6 +2709,7 @@
             // Totals-Zeile
             totalsBody.innerHTML = `
                 <tr class="totals-row">
+                    <td class="checkbox-cell"></td>
                     <td class="col-name">${createTotalsNameCell(kundenData.length + ' Kunden, ' + totalGebiete + ' Gebiete')}</td>
                     <td>${totalRecords}</td>
                     <td>${formatCurrency(totalNettoJE)}</td>
@@ -2725,6 +2746,9 @@
 
                 return `
                 <tr onclick="openRecordDetail(${record.id})" style="cursor: pointer;">
+                    <td class="checkbox-cell" onclick="event.stopPropagation();">
+                        <input type="checkbox" class="row-checkbox" data-record-id="${record.id}">
+                    </td>
                     <td class="col-date">${formatDate(record.date)}</td>
                     <td class="col-type"><span class="badge badge-${record.type}">${typeLabel}</span></td>
                     <td class="col-name">${record.name}</td>
@@ -2779,6 +2803,9 @@
 
                 html += `
                 <tr class="expandable-row${hasGebiete ? '' : ''}" data-kampagne-id="${kampagne.id}" onclick="toggleKampagneRow(${kampagne.id})" style="cursor: pointer;">
+                    <td class="checkbox-cell" onclick="event.stopPropagation();">
+                        <input type="checkbox" class="row-checkbox" data-kampagne-id="${kampagne.id}">
+                    </td>
                     <td class="col-name">
                         <div class="name-cell">
                             ${createBadge({ type: 'kampagne', name: kampagne.name })}
@@ -2801,6 +2828,7 @@
                 kampagneGebiete.forEach(gebiet => {
                     html += `
                 <tr class="child-row" data-parent-id="${kampagne.id}">
+                    <td class="checkbox-cell"></td>
                     <td class="col-name" style="padding-left: 24px;">
                         <div class="name-cell">
                             ${createBadge({ type: 'werbegebiet', name: gebiet.name })}
@@ -2826,6 +2854,7 @@
             // Totals row
             totalsBody.innerHTML = `
                 <tr class="totals-row">
+                    <td class="checkbox-cell"></td>
                     <td class="col-name">
                         ${createTotalsNameCell(`Gesamt (${kampagnenData.length} Kampagnen)`)}
                     </td>
@@ -3594,6 +3623,27 @@
                 const cb = tr.querySelector('.row-checkbox');
                 if (cb) cb.checked = selectedRecords.has(id);
             });
+        }
+
+        // ========== OVERVIEW TABLE SELECTION FUNCTIONS ==========
+        function toggleSelectAllWerber(checkbox) {
+            const checkboxes = document.querySelectorAll('#werberTableBody .row-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+
+        function toggleSelectAllKunden(checkbox) {
+            const checkboxes = document.querySelectorAll('#kundenGebieteTableBody .row-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+
+        function toggleSelectAllKampagnen(checkbox) {
+            const checkboxes = document.querySelectorAll('#kampagnenTableBody .row-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+
+        function toggleSelectAllLetzte100(checkbox) {
+            const checkboxes = document.querySelectorAll('#letzte100TableBody .row-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
         }
 
         // ========== DELETE FUNCTIONS ==========
