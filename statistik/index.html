@@ -976,11 +976,11 @@
                                 <th class="action-cell"></th>
                             </tr>
                         </thead>
-                        <tbody id="werberTableHead">
-                            <!-- Gesamt-Zeile oben - wird per JS befüllt -->
-                        </tbody>
                         <tbody id="werberTableBody">
                             <!-- Wird per JS befüllt -->
+                        </tbody>
+                        <tbody id="werberTableTotals">
+                            <!-- Gesamt-Zeile - sticky unten -->
                         </tbody>
                     </table>
                 </div>
@@ -1072,11 +1072,11 @@
                                 <th class="action-cell"></th>
                             </tr>
                         </thead>
-                        <tbody id="kundenTableHead">
-                            <!-- Gesamt-Zeile oben - wird per JS befüllt -->
-                        </tbody>
                         <tbody id="kundenTableBody">
                             <!-- Wird per JS befüllt -->
+                        </tbody>
+                        <tbody id="kundenTableTotals">
+                            <!-- Gesamt-Zeile - sticky unten -->
                         </tbody>
                     </table>
                 </div>
@@ -1168,11 +1168,11 @@
                                 <th class="action-cell"></th>
                             </tr>
                         </thead>
-                        <tbody id="kampagnenTableHead">
-                            <!-- Gesamt-Zeile oben - wird per JS befüllt -->
-                        </tbody>
                         <tbody id="kampagnenTableBody">
                             <!-- Wird per JS befüllt -->
+                        </tbody>
+                        <tbody id="kampagnenTableTotals">
+                            <!-- Gesamt-Zeile - sticky unten -->
                         </tbody>
                     </table>
                 </div>
@@ -1703,7 +1703,7 @@
 
         // Werber Tabelle rendern
         function renderWerberTable() {
-            const thead = document.getElementById('werberTableHead');
+            const totalsBody = document.getElementById('werberTableTotals');
             const tbody = document.getElementById('werberTableBody');
 
             // Totals berechnen
@@ -1797,7 +1797,7 @@
             const totalAvgMgProTag = totalArbeitstage > 0 ? totals.mg.total / totalArbeitstage : 0;
             const totalAvgUmsatzProTag = totalArbeitstage > 0 ? totals.summe.total.je / totalArbeitstage : 0;
 
-            thead.innerHTML = `
+            totalsBody.innerHTML = `
                 <tr class="totals-row">
                     <td class="checkbox-cell"></td>
                     <td class="col-name">${createTotalsNameCell(werberData.length + ' Werber')}</td>
@@ -1819,7 +1819,7 @@
 
         // Kunden Tabelle rendern
         function renderKundenTable() {
-            const thead = document.getElementById('kundenTableHead');
+            const totalsBody = document.getElementById('kundenTableTotals');
             const tbody = document.getElementById('kundenTableBody');
 
             // Totals berechnen
@@ -1974,7 +1974,7 @@
             const totalAvgMgProTag = totalArbeitstage > 0 ? totals.netto.mg / totalArbeitstage : 0;
             const totalAvgUmsatzProTag = totalArbeitstage > 0 ? totals.netto.je / totalArbeitstage : 0;
 
-            thead.innerHTML = `
+            totalsBody.innerHTML = `
                 <tr class="totals-row">
                     <td class="checkbox-cell"></td>
                     <td class="col-name">${createTotalsNameCell(kundenData.length + ' Kunden, ' + totals.gebieteCount + ' Gebiete')}</td>
@@ -2014,7 +2014,7 @@
 
         // Kampagnen Tabelle rendern
         function renderKampagnenTable() {
-            const thead = document.getElementById('kampagnenTableHead');
+            const totalsBody = document.getElementById('kampagnenTableTotals');
             const tbody = document.getElementById('kampagnenTableBody');
 
             // Totals berechnen
@@ -2167,7 +2167,7 @@
             const totalAvgMgProTag = totalArbeitstage > 0 ? totals.netto.mg / totalArbeitstage : 0;
             const totalAvgUmsatzProTag = totalArbeitstage > 0 ? totals.netto.je / totalArbeitstage : 0;
 
-            thead.innerHTML = `
+            totalsBody.innerHTML = `
                 <tr class="totals-row">
                     <td class="checkbox-cell"></td>
                     <td class="col-name">${createTotalsNameCell(kampagnenData.length + ' Kampagnen, ' + totals.gebieteCount + ' Gebiete')}</td>
