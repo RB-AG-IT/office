@@ -424,10 +424,18 @@ td.action-cell:nth-last-child(2) {
 }
 
 /* Erstes Element (Pfeil/Spacer/Indent) immer exakt 14px breit */
-.name-cell > *:first-child {
+.name-cell > *:first-child:not(.user-badge) {
     width: 14px;
     min-width: 14px;
     max-width: 14px;
+    flex-shrink: 0;
+}
+
+/* Automatischer Spacer wenn Badge erstes Kind ist (kein manueller spacer nötig) */
+.name-cell:has(> .user-badge:first-child)::before {
+    content: '';
+    width: 14px;
+    min-width: 14px;
     flex-shrink: 0;
 }
 
