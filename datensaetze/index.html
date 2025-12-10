@@ -3067,9 +3067,8 @@
                 const config = allColumns[col];
                 const isActive = currentSort.field === col;
                 const sortClass = isActive ? `sortable active${currentSort.direction === 'desc' ? ' desc' : ''}` : 'sortable';
-                const align = config.align === 'right' ? 'text-align: right;' : '';
                 return `
-                    <th class="${sortClass} col-${col}" style="width: ${config.width}; ${align}" data-col="${col}" onclick="sortByColumn('${col}')">
+                    <th class="${sortClass} col-${col}" data-col="${col}" onclick="sortByColumn('${col}')">
                         <span class="th-content">
                             ${config.label}
                             <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3086,12 +3085,11 @@
                 const cells = currentColumns.map(col => {
                     const config = allColumns[col];
                     const value = row[col];
-                    const align = config.align === 'right' ? 'text-align: right;' : '';
                     const formatted = formatCellValue(value, config.format, row);
                     const isEditable = editableColumns.includes(col);
                     const editClass = isEditable ? 'editable' : '';
                     const editHandler = isEditable ? `ondblclick="startEditing(this, ${row.id}, '${col}')"` : '';
-                    return `<td class="${editClass}" style="${align}" title="${escapeHtml(String(value || ''))}" data-col="${col}" data-id="${row.id}" ${editHandler}>${formatted}</td>`;
+                    return `<td class="${editClass} col-${col}" title="${escapeHtml(String(value || ''))}" data-col="${col}" data-id="${row.id}" ${editHandler}>${formatted}</td>`;
                 }).join('');
 
                 return `
