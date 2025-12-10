@@ -1551,9 +1551,9 @@
                                             <input type="checkbox" class="row-checkbox" id="selectAllWerber" onclick="toggleSelectAllWerber(this)">
                                         </th>
                                         <th class="col-name">Werber</th>
-                                        <th>Datensätze</th>
-                                        <th>Netto JE</th>
-                                        <th>Stornoquote</th>
+                                        <th class="col-count">Datensätze</th>
+                                        <th class="col-money">Netto JE</th>
+                                        <th class="col-storno">Stornoquote</th>
                                         <th class="col-spacer"></th>
                                         <th class="action-cell"></th>
                                         <th class="action-cell"></th>
@@ -1602,9 +1602,9 @@
                                             <input type="checkbox" class="row-checkbox" id="selectAllKunden" onclick="toggleSelectAllKunden(this)">
                                         </th>
                                         <th class="col-name">Kunde / Gebiet</th>
-                                        <th>Datensätze</th>
-                                        <th>Netto JE</th>
-                                        <th>Stornoquote</th>
+                                        <th class="col-count">Datensätze</th>
+                                        <th class="col-money">Netto JE</th>
+                                        <th class="col-storno">Stornoquote</th>
                                         <th class="col-spacer"></th>
                                         <th class="action-cell"></th>
                                         <th class="action-cell"></th>
@@ -1653,9 +1653,9 @@
                                             <input type="checkbox" class="row-checkbox" id="selectAllKampagnen" onclick="toggleSelectAllKampagnen(this)">
                                         </th>
                                         <th class="col-name">Kampagne</th>
-                                        <th>Datensätze</th>
-                                        <th>Netto JE</th>
-                                        <th>Stornoquote</th>
+                                        <th class="col-count">Datensätze</th>
+                                        <th class="col-money">Netto JE</th>
+                                        <th class="col-storno">Stornoquote</th>
                                         <th class="col-spacer"></th>
                                         <th class="action-cell"></th>
                                         <th class="action-cell"></th>
@@ -2676,9 +2676,9 @@
                             ${createBadge({ type: 'werber', name: werber.name, stufe: werber.role })}
                         </div>
                     </td>
-                    <td>${werber.records}</td>
-                    <td>${formatCurrency(werber.nettoJE)}</td>
-                    <td class="${getStornoClass(werber.storno)}">${werber.storno.toFixed(1)}%</td>
+                    <td class="col-count">${werber.records}</td>
+                    <td class="col-money">${formatCurrency(werber.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(werber.storno)}">${werber.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('werber', ${werber.id})" title="Statistik anzeigen">
@@ -2757,9 +2757,9 @@
                             ${createBadge({ type: 'kunde', name: kunde.name })}
                         </div>
                     </td>
-                    <td>${kunde.records}</td>
-                    <td>${formatCurrency(kunde.nettoJE)}</td>
-                    <td class="${getStornoClass(kunde.storno)}">${kunde.storno.toFixed(1)}%</td>
+                    <td class="col-count">${kunde.records}</td>
+                    <td class="col-money">${formatCurrency(kunde.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(kunde.storno)}">${kunde.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('kunde', ${kunde.id})" title="Statistik anzeigen">
@@ -2804,9 +2804,9 @@
                             ${createBadge({ type: 'werbegebiet', name: gebiet.name, size: 'small' })}
                         </div>
                     </td>
-                    <td>${gebiet.records}</td>
-                    <td>${formatCurrency(gebiet.nettoJE)}</td>
-                    <td class="${getStornoClass(gebiet.storno)}">${gebiet.storno.toFixed(1)}%</td>
+                    <td class="col-count">${gebiet.records}</td>
+                    <td class="col-money">${formatCurrency(gebiet.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(gebiet.storno)}">${gebiet.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="closeAllDropdowns(); openStatistics('gebiet', ${gebiet.id})" title="Statistik anzeigen">
@@ -2947,9 +2947,9 @@
                             ${createBadge({ type: 'kampagne', name: kampagne.name })}
                         </div>
                     </td>
-                    <td>${kampagne.records}</td>
-                    <td>${formatCurrency(kampagne.nettoJE)}</td>
-                    <td class="${getStornoClass(kampagne.storno)}">${kampagne.storno.toFixed(1)}%</td>
+                    <td class="col-count">${kampagne.records}</td>
+                    <td class="col-money">${formatCurrency(kampagne.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(kampagne.storno)}">${kampagne.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('kampagne', ${kampagne.id})" title="Statistik anzeigen">
@@ -2994,9 +2994,9 @@
                             ${createBadge({ type: 'werbegebiet', name: gebiet.name })}
                         </div>
                     </td>
-                    <td>${gebiet.records}</td>
-                    <td>${formatCurrency(gebiet.nettoJE)}</td>
-                    <td class="${getStornoClass(gebiet.storno)}">${gebiet.storno.toFixed(1)}%</td>
+                    <td class="col-count">${gebiet.records}</td>
+                    <td class="col-money">${formatCurrency(gebiet.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(gebiet.storno)}">${gebiet.storno.toFixed(1)}%</td>
                     <td class="col-spacer"></td>
                     <td class="action-cell">
                         <button class="btn-stats" onclick="event.stopPropagation(); openStatistics('gebiet', ${gebiet.id})" title="Statistik anzeigen">
