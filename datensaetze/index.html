@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datensätze - RB Inside Office</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/table-system.css">
     <script src="../js/modal-system.js"></script>
     <script src="../js/badge-system.js"></script>
+    <script src="../js/table-system.js"></script>
     <style>
         body {
             overflow-y: auto;
@@ -1526,119 +1528,97 @@
             <div class="overview-view" id="overviewView">
                 <!-- WERBER SECTION -->
                 <div id="section-werber" class="category-section">
-                    <div class="section">
-                        <div class="section-header">
-                            <div class="section-title">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                Werber Übersicht
-                                <span class="section-badge" id="werberBadge">4 Werber</span>
-                            </div>
-                        </div>
-                        <div>
-                            <table class="stats-table">
-                                <thead>
-                                    <tr>
-                                        <th>Werber</th>
-                                        <th class="right">Datensätze</th>
-                                        <th class="right">Netto JE</th>
-                                        <th class="right">Stornoquote</th>
-                                        <th class="center" style="width: 60px;"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="werberTableBody">
-                                    <!-- Wird per JS befüllt -->
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="col-name">Werber</th>
+                                    <th>Datensätze</th>
+                                    <th>Netto JE</th>
+                                    <th>Stornoquote</th>
+                                    <th class="col-spacer"></th>
+                                    <th class="action-cell"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="werberTableBody">
+                                <!-- Wird per JS befüllt -->
+                            </tbody>
+                            <tbody id="werberTableTotals">
+                                <!-- Gesamt-Zeile -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 <!-- KUNDEN / GEBIETE SECTION (hierarchisch) -->
                 <div id="section-kunden" class="category-section" style="display: none;">
-                    <div class="section">
-                        <div class="section-header">
-                            <div class="section-title">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                Kunden & Einsatzgebiete
-                                <span class="section-badge" id="kundenBadge">2 Kunden</span>
-                            </div>
-                        </div>
-                        <div>
-                            <table class="stats-table">
-                                <thead>
-                                    <tr>
-                                        <th>Kunde / Gebiet</th>
-                                        <th class="right">Datensätze</th>
-                                        <th class="right">Netto JE</th>
-                                        <th class="right">Stornoquote</th>
-                                        <th class="center" style="width: 60px;"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="kundenGebieteTableBody">
-                                    <!-- Wird per JS befüllt -->
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="col-name">Kunde / Gebiet</th>
+                                    <th>Datensätze</th>
+                                    <th>Netto JE</th>
+                                    <th>Stornoquote</th>
+                                    <th class="col-spacer"></th>
+                                    <th class="action-cell"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="kundenGebieteTableBody">
+                                <!-- Wird per JS befüllt -->
+                            </tbody>
+                            <tbody id="kundenTableTotals">
+                                <!-- Gesamt-Zeile -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 <!-- KAMPAGNEN SECTION -->
                 <div id="section-kampagnen" class="category-section" style="display: none;">
-                    <div class="section">
-                        <div class="section-header">
-                            <div class="section-title">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
-                                Kampagnen Übersicht
-                                <span class="section-badge" id="kampagnenBadge">3 Kampagnen</span>
-                            </div>
-                        </div>
-                        <div>
-                            <table class="stats-table">
-                                <thead>
-                                    <tr>
-                                        <th>Kampagne</th>
-                                        <th class="right">Datensätze</th>
-                                        <th class="right">Netto JE</th>
-                                        <th class="right">Stornoquote</th>
-                                        <th class="center" style="width: 60px;"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="kampagnenTableBody">
-                                    <!-- Wird per JS befüllt -->
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="col-name">Kampagne</th>
+                                    <th>Datensätze</th>
+                                    <th>Netto JE</th>
+                                    <th>Stornoquote</th>
+                                    <th class="col-spacer"></th>
+                                    <th class="action-cell"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="kampagnenTableBody">
+                                <!-- Wird per JS befüllt -->
+                            </tbody>
+                            <tbody id="kampagnenTableTotals">
+                                <!-- Gesamt-Zeile -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <!-- LETZTE 100 DATENSÄTZE SECTION -->
+                <!-- LETZTE 100 DATENSÄTZE SECTION (KOMPAKT - für Mitglieder) -->
                 <div id="section-letzte100" class="category-section" style="display: none;">
-                    <div class="section">
-                        <div class="section-header">
-                            <div class="section-title">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                Letzte 100 Datensätze
-                                <span class="section-badge" id="letzte100Badge">100</span>
-                            </div>
-                        </div>
-                        <div>
-                            <table class="stats-table letzte100-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 90px;">Datum</th>
-                                        <th style="width: 60px;">Art</th>
-                                        <th>Name</th>
-                                        <th>Kunde</th>
-                                        <th>Gebiet</th>
-                                        <th class="right" style="width: 90px;">Beitrag</th>
-                                        <th class="center" style="width: 80px;">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="letzte100TableBody">
-                                    <!-- Wird per JS befüllt -->
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-wrap">
+                        <table class="table table--compact">
+                            <thead>
+                                <tr>
+                                    <th class="col-date">Datum</th>
+                                    <th class="col-type">Art</th>
+                                    <th class="col-name">Name</th>
+                                    <th class="col-kunde">Kunde</th>
+                                    <th class="col-area">Gebiet</th>
+                                    <th class="col-je">Beitrag</th>
+                                    <th class="col-status">Status</th>
+                                    <th class="col-spacer"></th>
+                                    <th class="action-cell"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="letzte100TableBody">
+                                <!-- Wird per JS befüllt -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1718,8 +1698,8 @@
                             <button class="btn-cancel" onclick="clearSelection()">Auswahl aufheben</button>
                         </div>
 
-                        <div class="data-section">
-                            <table class="data-table" id="recordsTable">
+                        <div class="table-wrap">
+                            <table class="table table--compact" id="recordsTable">
                                 <thead>
                                     <tr id="recordsTableHeader">
                                         <!-- Wird per JS befüllt -->
@@ -1729,41 +1709,42 @@
                                     <!-- Wird per JS befüllt -->
                                 </tbody>
                             </table>
-                            <div class="pagination" id="recordsPagination">
-                                <div class="pagination-info">Zeige 1-100 von 142 Einträgen</div>
-                                <div class="pagination-buttons">
-                                    <button class="pagination-btn" disabled>&lt;</button>
-                                    <button class="pagination-btn active">1</button>
-                                    <button class="pagination-btn">2</button>
-                                    <button class="pagination-btn">&gt;</button>
-                                </div>
+                        </div>
+                        <div class="pagination" id="recordsPagination">
+                            <div class="pagination-info">Zeige 1-100 von 142 Einträgen</div>
+                            <div class="pagination-buttons">
+                                <button class="pagination-btn" disabled>&lt;</button>
+                                <button class="pagination-btn active">1</button>
+                                <button class="pagination-btn">2</button>
+                                <button class="pagination-btn">&gt;</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Bestandsmitglieder View -->
                     <div class="bestand-view" id="bestandView">
-                        <div class="data-section">
-                            <table class="data-table">
+                        <div class="table-wrap">
+                            <table class="table table--compact" id="bestandTable">
                                 <thead>
                                     <tr>
-                                        <th style="width: 140px;">Name</th>
-                                        <th style="width: 180px;">Adresse</th>
-                                        <th style="width: 160px;">Email</th>
-                                        <th style="width: 100px;">Mitglied seit</th>
-                                        <th style="width: 80px; text-align: right;">Aktuell JE</th>
-                                        <th style="width: 100px;">Status</th>
-                                        <th style="width: 100px;"></th>
+                                        <th class="col-name">Name</th>
+                                        <th class="col-address">Adresse</th>
+                                        <th class="col-email">Email</th>
+                                        <th class="col-date">Mitglied seit</th>
+                                        <th class="col-je">Aktuell JE</th>
+                                        <th class="col-status">Status</th>
+                                        <th class="col-spacer"></th>
+                                        <th class="action-cell"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="bestandTableBody">
                                     <!-- Wird per JS befüllt -->
                                 </tbody>
                             </table>
-                            <div class="pagination" id="bestandPagination">
-                                <div class="pagination-info" id="bestandPaginationInfo">Keine Bestandsmitglieder</div>
-                                <div class="pagination-buttons" id="bestandPaginationButtons"></div>
-                            </div>
+                        </div>
+                        <div class="pagination" id="bestandPagination">
+                            <div class="pagination-info" id="bestandPaginationInfo">Keine Bestandsmitglieder</div>
+                            <div class="pagination-buttons" id="bestandPaginationButtons"></div>
                         </div>
                     </div>
 
@@ -2568,22 +2549,25 @@
         // ========== TABLE RENDERING ==========
         function renderWerberTable() {
             const tbody = document.getElementById('werberTableBody');
+            const totalsBody = document.getElementById('werberTableTotals');
+
+            // Totals berechnen
+            const totalRecords = werberData.reduce((sum, w) => sum + w.records, 0);
+            const totalNettoJE = werberData.reduce((sum, w) => sum + w.nettoJE, 0);
+
             tbody.innerHTML = werberData.map(werber => `
-                <tr>
-                    <td>
-                        <div class="user-badge user-badge--werber">
-                            <div class="user-badge__avatar">${werber.initials}${getStufeBadge(werber.role)}</div>
-                            <div class="user-badge__info">
-                                <span class="user-badge__name">${werber.name}</span>
-                                <span class="user-badge__type">Werber</span>
-                            </div>
+                <tr onclick="openWerberRecords(${werber.id})" style="cursor: pointer;">
+                    <td class="col-name">
+                        <div class="name-cell">
+                            ${createBadge({ type: 'werber', name: werber.name, stufe: werber.role })}
                         </div>
                     </td>
-                    <td class="right value-highlight">${werber.records}</td>
-                    <td class="right value-money">${formatCurrency(werber.nettoJE)}</td>
-                    <td class="right">${werber.storno.toFixed(1)}%</td>
-                    <td class="center">
-                        <button class="dashboard-btn" onclick="openWerberRecords(${werber.id})" title="Datensätze anzeigen">
+                    <td>${werber.records}</td>
+                    <td>${formatCurrency(werber.nettoJE)}</td>
+                    <td>${werber.storno.toFixed(1)}%</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <button class="btn-stats" onclick="event.stopPropagation(); openWerberRecords(${werber.id})" title="Datensätze anzeigen">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
@@ -2591,34 +2575,51 @@
                     </td>
                 </tr>
             `).join('');
-            document.getElementById('werberBadge').textContent = `${werberData.length} Werber`;
+
+            // Totals-Zeile
+            totalsBody.innerHTML = `
+                <tr class="totals-row">
+                    <td class="col-name">${createTotalsNameCell(werberData.length + ' Werber')}</td>
+                    <td>${totalRecords}</td>
+                    <td>${formatCurrency(totalNettoJE)}</td>
+                    <td></td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
+                </tr>
+            `;
         }
 
         function renderKundenGebieteTable() {
             const tbody = document.getElementById('kundenGebieteTableBody');
+            const totalsBody = document.getElementById('kundenTableTotals');
             let html = '';
 
-            kundenData.forEach(kunde => {
-                // Get gebiete for this kunde
-                const kundeGebiete = gebieteData.filter(g => g.kundeId === kunde.id);
+            // Totals berechnen
+            const totalRecords = kundenData.reduce((sum, k) => sum + k.records, 0);
+            const totalNettoJE = kundenData.reduce((sum, k) => sum + k.nettoJE, 0);
+            const totalGebiete = gebieteData.length;
 
-                // Kunde Hauptzeile
+            kundenData.forEach(kunde => {
+                const kundeGebiete = gebieteData.filter(g => g.kundeId === kunde.id);
+                const hasGebiete = kundeGebiete.length > 0;
+
+                // Kunde Hauptzeile (expandable)
                 html += `
-                <tr class="kunde-row">
-                    <td>
-                        <div class="user-badge user-badge--kunde">
-                            <div class="user-badge__avatar">${kunde.initials}</div>
-                            <div class="user-badge__info">
-                                <span class="user-badge__name">${kunde.name}</span>
-                                <span class="user-badge__type">Kunde</span>
-                            </div>
+                <tr class="expandable-row open" data-kunde-id="${kunde.id}" onclick="toggleKundeRow(${kunde.id})">
+                    <td class="col-name">
+                        <div class="name-cell">
+                            <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            ${createBadge({ type: 'kunde', name: kunde.name })}
                         </div>
                     </td>
-                    <td class="right value-highlight">${kunde.records}</td>
-                    <td class="right value-money">${formatCurrency(kunde.nettoJE)}</td>
-                    <td class="right">${kunde.storno.toFixed(1)}%</td>
-                    <td class="center">
-                        <button class="dashboard-btn" onclick="openKundeRecords(${kunde.id})" title="Alle Datensätze anzeigen">
+                    <td>${kunde.records}</td>
+                    <td>${formatCurrency(kunde.nettoJE)}</td>
+                    <td>${kunde.storno.toFixed(1)}%</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <button class="btn-stats" onclick="event.stopPropagation(); openKundeRecords(${kunde.id})" title="Alle Datensätze">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
@@ -2626,24 +2627,22 @@
                     </td>
                 </tr>`;
 
-                // Gebiete unter diesem Kunden
+                // Gebiete als child-rows
                 kundeGebiete.forEach(gebiet => {
                     html += `
-                <tr class="gebiet-row">
-                    <td style="padding-left: 20px;">
-                        <div class="user-badge user-badge--werbegebiet">
-                            <div class="user-badge__avatar">${gebiet.initials || gebiet.name.substring(0,2).toUpperCase()}</div>
-                            <div class="user-badge__info">
-                                <span class="user-badge__name">${gebiet.name}</span>
-                                <span class="user-badge__type">Werbegebiet</span>
-                            </div>
+                <tr class="child-row visible" data-parent-id="${kunde.id}">
+                    <td class="col-name">
+                        <div class="name-cell">
+                            <div class="child-indent">└</div>
+                            ${createBadge({ type: 'werbegebiet', name: gebiet.name, size: 'small' })}
                         </div>
                     </td>
-                    <td class="right">${gebiet.records}</td>
-                    <td class="right value-money">${formatCurrency(gebiet.nettoJE)}</td>
-                    <td class="right">${gebiet.storno.toFixed(1)}%</td>
-                    <td class="center">
-                        <button class="dashboard-btn" onclick="openGebietRecords(${gebiet.id})" title="Datensätze für ${gebiet.name} anzeigen">
+                    <td>${gebiet.records}</td>
+                    <td>${formatCurrency(gebiet.nettoJE)}</td>
+                    <td>${gebiet.storno.toFixed(1)}%</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <button class="btn-stats" onclick="openGebietRecords(${gebiet.id})" title="Datensätze anzeigen">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
@@ -2654,7 +2653,27 @@
             });
 
             tbody.innerHTML = html;
-            document.getElementById('kundenBadge').textContent = `${kundenData.length} Kunden`;
+
+            // Totals-Zeile
+            totalsBody.innerHTML = `
+                <tr class="totals-row">
+                    <td class="col-name">${createTotalsNameCell(kundenData.length + ' Kunden, ' + totalGebiete + ' Gebiete')}</td>
+                    <td>${totalRecords}</td>
+                    <td>${formatCurrency(totalNettoJE)}</td>
+                    <td></td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
+                </tr>
+            `;
+        }
+
+        function toggleKundeRow(kundeId) {
+            const row = document.querySelector(`tr[data-kunde-id="${kundeId}"]`);
+            const children = document.querySelectorAll(`tr[data-parent-id="${kundeId}"]`);
+            const isOpen = row.classList.contains('open');
+
+            row.classList.toggle('open', !isOpen);
+            children.forEach(child => child.classList.toggle('visible', !isOpen));
         }
 
         function renderLetzte100Table() {
@@ -2670,14 +2689,22 @@
                 const typeLabel = record.type.toUpperCase();
 
                 return `
-                <tr onclick="openRecordDetail(${record.id})">
-                    <td>${formatDate(record.date)}</td>
-                    <td><span class="badge badge-${record.type}">${typeLabel}</span></td>
-                    <td>${record.name}</td>
-                    <td>${kunde.name}</td>
-                    <td>${gebiet.name}</td>
-                    <td class="right">${formatCurrency(record.beitrag)}</td>
-                    <td class="center"><span class="${statusClass}">${statusLabel}</span></td>
+                <tr onclick="openRecordDetail(${record.id})" style="cursor: pointer;">
+                    <td class="col-date">${formatDate(record.date)}</td>
+                    <td class="col-type"><span class="badge badge-${record.type}">${typeLabel}</span></td>
+                    <td class="col-name">${record.name}</td>
+                    <td class="col-kunde">${kunde.name}</td>
+                    <td class="col-area">${gebiet.name}</td>
+                    <td class="col-je">${formatCurrency(record.beitrag)}</td>
+                    <td class="col-status"><span class="${statusClass}">${statusLabel}</span></td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <button class="btn-stats" onclick="event.stopPropagation(); openRecordDetail(${record.id})" title="Details">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </button>
+                    </td>
                 </tr>
             `}).join('');
 
@@ -2702,27 +2729,32 @@
 
         function renderKampagnenTable() {
             const tbody = document.getElementById('kampagnenTableBody');
+            const totalsBody = document.getElementById('kampagnenTableTotals');
+
+            // Berechne Gesamt
+            const totalRecords = kampagnenData.reduce((sum, k) => sum + k.records, 0);
+            const totalNettoJE = kampagnenData.reduce((sum, k) => sum + k.nettoJE, 0);
+
             let html = '';
 
             kampagnenData.forEach(kampagne => {
-                // Kampagne Hauptzeile
+                // Kampagne Hauptzeile (expandable)
                 const kampagneGebiete = gebieteData.filter(g => kampagne.gebieteIds.includes(g.id));
+                const hasGebiete = kampagneGebiete.length > 0;
+
                 html += `
-                <tr style="background: var(--bg-hover);">
-                    <td>
-                        <div class="user-badge user-badge--kampagne">
-                            <div class="user-badge__avatar">${kampagne.initials}</div>
-                            <div class="user-badge__info">
-                                <span class="user-badge__name">${kampagne.name}</span>
-                                <span class="user-badge__type">Kampagne</span>
-                            </div>
+                <tr class="expandable-row${hasGebiete ? '' : ''}" data-kampagne-id="${kampagne.id}" onclick="toggleKampagneRow(${kampagne.id})" style="cursor: pointer;">
+                    <td class="col-name">
+                        <div class="name-cell">
+                            ${createBadge({ type: 'kampagne', name: kampagne.name })}
                         </div>
                     </td>
-                    <td class="right value-highlight">${kampagne.records}</td>
-                    <td class="right value-money">${formatCurrency(kampagne.nettoJE)}</td>
-                    <td class="right">${kampagne.storno.toFixed(1)}%</td>
-                    <td class="center">
-                        <button class="dashboard-btn" onclick="openKampagneRecords(${kampagne.id})" title="Alle Datensätze anzeigen">
+                    <td>${kampagne.records}</td>
+                    <td>${formatCurrency(kampagne.nettoJE)}</td>
+                    <td>${kampagne.storno.toFixed(1)}%</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <button class="btn-stats" onclick="event.stopPropagation(); openKampagneRecords(${kampagne.id})" title="Alle Datensätze anzeigen">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
@@ -2730,24 +2762,21 @@
                     </td>
                 </tr>`;
 
-                // Gebiete unter dieser Kampagne
+                // Gebiete unter dieser Kampagne (child rows)
                 kampagneGebiete.forEach(gebiet => {
                     html += `
-                <tr class="sub-row">
-                    <td style="padding-left: 20px;">
-                        <div class="user-badge user-badge--werbegebiet">
-                            <div class="user-badge__avatar">${gebiet.initials || gebiet.name.substring(0,2).toUpperCase()}</div>
-                            <div class="user-badge__info">
-                                <span class="user-badge__name">${gebiet.name}</span>
-                                <span class="user-badge__type">Werbegebiet</span>
-                            </div>
+                <tr class="child-row" data-parent-id="${kampagne.id}">
+                    <td class="col-name" style="padding-left: 24px;">
+                        <div class="name-cell">
+                            ${createBadge({ type: 'werbegebiet', name: gebiet.name })}
                         </div>
                     </td>
-                    <td class="right">${gebiet.records}</td>
-                    <td class="right value-money">${formatCurrency(gebiet.nettoJE)}</td>
-                    <td class="right">${gebiet.storno.toFixed(1)}%</td>
-                    <td class="center">
-                        <button class="dashboard-btn" onclick="openKampagneGebietRecords(${kampagne.id}, ${gebiet.id})" title="Datensätze für ${gebiet.name} anzeigen">
+                    <td>${gebiet.records}</td>
+                    <td>${formatCurrency(gebiet.nettoJE)}</td>
+                    <td>${gebiet.storno.toFixed(1)}%</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <button class="btn-stats" onclick="event.stopPropagation(); openKampagneGebietRecords(${kampagne.id}, ${gebiet.id})" title="Datensätze anzeigen">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
@@ -2758,7 +2787,31 @@
             });
 
             tbody.innerHTML = html;
+
+            // Totals row
+            totalsBody.innerHTML = `
+                <tr class="totals-row">
+                    <td class="col-name">
+                        ${createTotalsNameCell(`Gesamt (${kampagnenData.length} Kampagnen)`)}
+                    </td>
+                    <td>${totalRecords}</td>
+                    <td>${formatCurrency(totalNettoJE)}</td>
+                    <td></td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
+                </tr>
+            `;
+
             document.getElementById('kampagnenBadge').textContent = `${kampagnenData.length} Kampagnen`;
+        }
+
+        function toggleKampagneRow(kampagneId) {
+            const row = document.querySelector(`tr[data-kampagne-id="${kampagneId}"]`);
+            const children = document.querySelectorAll(`tr[data-parent-id="${kampagneId}"]`);
+            const isOpen = row.classList.contains('open');
+
+            row.classList.toggle('open', !isOpen);
+            children.forEach(child => child.classList.toggle('visible', !isOpen));
         }
 
         function renderRecordsTable(records, resetPage = true) {
@@ -2779,7 +2832,7 @@
             const thead = document.getElementById('recordsTableHeader');
             const allChecked = pageRecords.length > 0 && pageRecords.every(r => selectedRecords.has(r.id));
             thead.innerHTML = `
-                <th class="col-checkbox">
+                <th class="checkbox-cell">
                     <input type="checkbox" class="row-checkbox" id="selectAllCheckbox"
                            onchange="toggleSelectAll(this.checked)" ${allChecked ? 'checked' : ''}>
                 </th>` + currentColumns.map(col => {
@@ -2788,7 +2841,7 @@
                 const sortClass = isActive ? `sortable active${currentSort.direction === 'desc' ? ' desc' : ''}` : 'sortable';
                 const align = config.align === 'right' ? 'text-align: right;' : '';
                 return `
-                    <th class="${sortClass}" style="width: ${config.width}; ${align}" data-col="${col}" onclick="sortByColumn('${col}')">
+                    <th class="${sortClass} col-${col}" style="width: ${config.width}; ${align}" data-col="${col}" onclick="sortByColumn('${col}')">
                         <span class="th-content">
                             ${config.label}
                             <svg class="sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2796,7 +2849,7 @@
                             </svg>
                         </span>
                     </th>`;
-            }).join('') + '<th style="width: 70px;"></th>';
+            }).join('') + '<th class="col-spacer"></th><th class="action-cell"></th>';
 
             // Render table body dynamically
             const tbody = document.getElementById('recordsTableBody');
@@ -2815,7 +2868,7 @@
 
                 return `
                     <tr class="${isSelected ? 'selected' : ''}" data-id="${row.id}">
-                        <td class="col-checkbox">
+                        <td class="checkbox-cell">
                             <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''}
                                    onchange="toggleRecordSelection(${row.id}, this.checked)">
                             <button class="info-btn" onclick="openRecordDetail(${row.id})" title="Details anzeigen">
@@ -2825,9 +2878,10 @@
                             </button>
                         </td>
                         ${cells}
-                        <td>
+                        <td class="col-spacer"></td>
+                        <td class="action-cell">
                             ${row.status === 'active' ? `
-                            <button class="action-btn danger" onclick="openStornoModal(${row.id}, '${escapeHtml(row.name)}', ${row.je})" title="Stornieren">
+                            <button class="btn-stats" onclick="openStornoModal(${row.id}, '${escapeHtml(row.name)}', ${row.je})" title="Stornieren">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                             ` : ''}
