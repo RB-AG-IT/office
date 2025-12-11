@@ -4,32 +4,97 @@
  * Wird in benutzer/index.html und statistik/index.html verwendet
  */
 
+/* ========== TEST-SPALTEN (zum Testen von horizontalem Scroll) ========== */
+/* Auf "table-cell" setzen um Test-Spalten anzuzeigen, "none" zum Ausblenden */
+.test-col {
+    display: none;
+    width: 120px;
+}
+
 /* ========== LAYOUT - Tabelle füllt iframe ========== */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.page-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;  /* Verhindert horizontales Scrollen der gesamten Seite */
+}
+
 .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     padding: 0;
+    overflow: hidden;  /* Nur .table-container darf scrollen */
+    max-width: none;   /* Überschreibt styles.css max-width */
+    margin: 0;         /* Überschreibt styles.css margin: 0 auto */
+}
+
+.overview-view,
+.category-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 /* ========== TABLE WRAPPER ========== */
-/* Kein Rahmen/Schatten - Tabelle füllt iframe */
 .table-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     background: var(--bg-primary);
     overflow: hidden;
+    position: relative;
+}
+
+
+/* Alle Tabellen-Elemente eckig */
+.table-wrap,
+.table-container,
+.table {
+    border-radius: 0;
 }
 
 .table-container {
-    overflow-x: auto;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;  /* Horizontal UND vertikal scrollbar für sticky */
+    -webkit-overflow-scrolling: touch;  /* Smooth scrolling iOS/Safari */
+    will-change: scroll-position;  /* Hint für Browser-Optimierung */
 }
 
 /* ========== TABLE ========== */
 .table {
-    width: max-content;
     min-width: 100%;
-    border-collapse: collapse;
+    width: max-content;  /* Tabelle so breit wie nötig für alle Spalten */
+    border-collapse: separate;  /* Wichtig für sticky + borders */
+    border-spacing: 0;          /* Keine Lücken zwischen Zellen */
     font-size: 11px;
     table-layout: fixed;  /* Spaltenbreiten exakt wie definiert */
+    background: #e5e5e5;  /* Füllt alle Lücken durch sticky-Elemente */
+    /* Rahmen kommt von .table-frame */
 }
 
 /* ========== HEADER ========== */
+/* Header sticky beim vertikalen Scrollen */
+.table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #e5e5e5;
+}
+
+.table thead tr {
+    background: #e5e5e5;
+}
+
 .table th {
     padding: 10px 12px;
     text-align: center;  /* Standard: zentriert für mittlere Spalten */
@@ -37,22 +102,24 @@
     font-weight: 600;
     color: #525252;
     background: #e5e5e5;
-    border-bottom: 3px solid #a3a3a3;
-    border-right: 1px solid #d4d4d4;
+    border: none;
+    border-right: 1px solid #d4d4d4;  /* Dezente vertikale Trennlinie */
+    border-bottom: 3px solid #a3a3a3;  /* Untere Header-Linie */
     white-space: nowrap;
     user-select: none;
-    position: relative;
     box-sizing: border-box;  /* width inkl. padding */
 }
 
-.table th:last-child,
-.table th:nth-last-child(2) {
+/* Letzte Header-Zelle ohne rechte Linie */
+.table th:last-child {
     border-right: none;
 }
 
 .table th.sortable {
     cursor: pointer;
-    padding-right: 24px;
+    padding-left: 14px;
+    padding-right: 14px;
+    position: relative;
 }
 
 .table th.sortable:hover {
@@ -62,7 +129,7 @@
 /* ========== SORT ARROWS ========== */
 .sort-arrows {
     position: absolute;
-    right: 8px;
+    right: 2px;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
@@ -71,8 +138,8 @@
 }
 
 .sort-arrows svg {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     color: #d4d4d4;
     transition: color 0.15s;
 }
@@ -86,11 +153,17 @@
     color: #a3a3a3;
 }
 
+/* ========== BODY ROWS ========== */
+/* Datenzeilen haben weißen Hintergrund */
+.table tbody tr {
+    background: #ffffff;
+}
+
 /* ========== CELLS ========== */
 .table td {
-    padding: 6px 12px;
+    padding: 4px 12px;
     border-bottom: 1px solid #d4d4d4;
-    border-right: 1px solid #f0f0f0;
+    border-right: 1px solid #d4d4d4;  /* Dezente vertikale Trennlinie */
     white-space: nowrap;
     vertical-align: middle;
     text-align: right;  /* Standard: rechtsbündig für mittlere Spalten (Zahlen) */
@@ -99,33 +172,29 @@
     text-overflow: ellipsis;
 }
 
+/* Letzte Datenzelle ohne rechte Linie */
 .table td:last-child {
     border-right: none;
 }
 
-/* Zebra Striping */
-.table tbody tr:nth-child(odd) {
-    background: #fafafa;
-}
+/* col-spacer hat keine rechte Linie - siehe .col-spacer Regel */
 
-.table tbody tr:nth-child(even) {
-    background: var(--bg-primary);
-}
-
-.table tbody tr:hover {
-    background: #f0f0f0;
-}
 
 /* ========== TOTALS ROW ========== */
+/* Sticky am unteren Rand, schmal */
+.table .totals-row {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+}
+
 .table .totals-row td {
     background: #e5e5e5 !important;
     font-weight: 600;
-    border-bottom: 3px solid #a3a3a3;
-    padding: 10px 12px;
-}
-
-.table .totals-row:hover td {
-    background: #d9d9d9 !important;
+    font-size: 10px;
+    border-bottom: none;
+    border-top: 2px solid #a3a3a3;  /* Obere Trennlinie */
+    padding: 4px 12px;  /* Schmaler */
 }
 
 /* Gesamt-Zeile: Count-Text Styling */
@@ -137,62 +206,81 @@
 }
 
 /* ========== SPACER COLUMN ========== */
-/* Nimmt den verbleibenden Platz ein */
+/* Leere Spalte am Ende - breit genug für sticky-Puffer */
+/* Muss GRÖSSER sein als sticky-Bereich, sonst bricht sticky am Scroll-Ende */
 .col-spacer {
-    width: auto;
-    min-width: 20px;
+    width: 400px;  /* Puffer: Checkbox (40) + Action (40) + Name (280) + Extra (40) */
+    min-width: 400px;
+    padding: 0 !important;
+    border-right: none !important;  /* Keine rechte Linie, da am Ende */
+    /* border-bottom wird vererbt für durchgehende Linien */
 }
 
-/* Spacer im Header */
+/* Spacer im Header - behält Header-Linie */
 .table th.col-spacer {
     background: #e5e5e5;
+    border-bottom: 3px solid #a3a3a3 !important;  /* Header-Linie durchgehend */
+    border-right: none !important;
 }
 
-/* Spacer in Totals-Row */
+/* Spacer in Datenzeilen - behält Zeilen-Linie */
+.table td.col-spacer {
+    border-bottom: 1px solid #d4d4d4;
+    border-right: none !important;
+}
+
+/* Spacer in Totals-Row - behält obere Linie */
 .table .totals-row td.col-spacer {
     background: #e5e5e5;
+    border-top: 2px solid #a3a3a3;
+    border-bottom: none;
+    border-right: none !important;
 }
 
-/* Spacer in Datenzeilen */
-.table tbody tr:nth-child(odd) td.col-spacer {
-    background: #fafafa;
-}
-
-.table tbody tr:nth-child(even) td.col-spacer {
-    background: var(--bg-primary);
-}
-
-.table tbody tr:hover td.col-spacer {
-    background: #f0f0f0;
-}
 
 /* ========== STICKY COLUMNS (Fixierte Spalten) ========== */
+/* GPU-Layer für stabiles sticky-Verhalten beim horizontalen Scroll */
+/* Links: checkbox-cell, col-name | Rechts: action-cell */
+.checkbox-cell,
+.action-cell,
+.col-name {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+
 /* Checkbox links fixiert */
 .checkbox-cell {
     width: 40px;
     text-align: center;
     vertical-align: middle;
     padding: 0 8px !important;
-    border-right: none !important;
     position: sticky;
     left: 0;
-    z-index: 2;
-    background: inherit;
+    z-index: 4;
+    /* Rahmen kommt von .table-frame */
 }
 
-/* Header Checkbox braucht explizite Farbe */
+/* Header Checkbox sticky + Farbe */
 .table th.checkbox-cell {
+    position: sticky;
+    left: 0;
+    z-index: 12;
     background: #e5e5e5;
+    border-bottom: 3px solid #a3a3a3 !important;  /* Header-Linie durchgehend */
 }
 
-/* Body Checkbox erbt Zeilen-Hintergrund */
+/* Body Checkbox - expliziter Hintergrund für sticky */
 .table td.checkbox-cell {
-    background: inherit;
+    background: #ffffff;
+    /* position: sticky kommt von .checkbox-cell */
 }
 
 /* Totals-Row Checkbox */
 .table .totals-row td.checkbox-cell {
     background: #e5e5e5;
+    position: sticky;
+    left: 0;
+    z-index: 6;  /* Höher als normale sticky + totals-row z-index */
 }
 
 .checkbox-cell input {
@@ -209,13 +297,21 @@
     vertical-align: middle;
 }
 
-/* ========== ACTION CELL (Button-Spalten) - Rechts fixiert ========== */
+/* ========== ACTION CELL (Button-Spalten) - Links fixiert (nach Checkbox) ========== */
 .action-cell {
     width: 40px;
+    min-width: 40px;
     vertical-align: middle;
     padding: 0 !important;
+}
+
+/* Sticky für tbody - links nach Checkbox */
+.table tbody .action-cell {
     position: sticky;
-    z-index: 2;
+    left: 40px;  /* Nach Checkbox (40px) */
+    z-index: 3;
+    background: #ffffff;
+    border-right: 1px solid #d4d4d4;
 }
 
 /* Zentrierung mit höherer Spezifität */
@@ -223,45 +319,28 @@
     text-align: center;
 }
 
-/* Wenn Dropdown offen: alle action-cells z-index deaktivieren */
+/* Wenn Dropdown offen: action-cell z-index höher setzen statt deaktivieren */
 .dropdown-open .action-cell {
-    z-index: auto !important;
+    z-index: 100 !important;
 }
 
-/* Action-Cell Hintergrund je nach Zeile */
-.table tbody tr:nth-child(odd) td.action-cell {
-    background: #fafafa;
-}
-
-.table tbody tr:nth-child(even) td.action-cell {
-    background: var(--bg-primary);
-}
-
-.table tbody tr:hover td.action-cell {
-    background: #f0f0f0;
-}
-
-/* Letzte Action-Spalte ganz rechts */
-th.action-cell:last-child,
-td.action-cell:last-child {
-    right: 0;
-}
-
-/* Vorletzte Action-Spalte */
-th.action-cell:nth-last-child(2),
-td.action-cell:nth-last-child(2) {
-    right: 40px;
-}
-
-/* Header Action braucht explizite Farbe */
+/* Header Action sticky + Farbe */
 .table th.action-cell {
+    position: sticky;
+    left: 40px;  /* Nach Checkbox */
+    z-index: 11;
     background: #e5e5e5;
+    border-bottom: 3px solid #a3a3a3 !important;
+    border-right: 1px solid #d4d4d4;
 }
 
-/* Totals-Row Action - braucht !important wegen nth-child Regeln */
-.table .totals-row td.action-cell,
-.table .totals-row th.action-cell {
+/* Totals-Row Action */
+.table .totals-row td.action-cell {
     background: #e5e5e5 !important;
+    position: sticky;
+    left: 40px;
+    z-index: 6;
+    border-right: 1px solid #d4d4d4;
 }
 
 /* ========== SPALTENBREITEN & AUSRICHTUNG (Semantische Klassen) ========== */
@@ -276,15 +355,207 @@ td.action-cell:nth-last-child(2) {
  * - Ausnahmen: col-name (links), checkbox-cell (zentriert), action-cell (zentriert)
  */
 
-/* Text-Spalten - linksbündig (mit höherer Spezifität) */
-.table .col-name     { width: 220px; text-align: left; }  /* Namen, Titel */
-.table .col-email    { width: 260px; text-align: left; }  /* E-Mail-Adressen */
-.table .col-text     { width: 180px; text-align: left; }  /* Herkunft, Beschreibungen */
-.table .col-date     { width: 140px; text-align: left; }  /* Datum, Login-Zeit */
+/* ========== SPALTEN-AUSRICHTUNG ========== */
+/*
+ * Zahlen-Spalten: Header mittig, Inhalt rechtsbündig
+ * Text-Spalten:   Header links, Inhalt links
+ * Namen-Spalten:  Header links, Inhalt links
+ */
 
-/* Zahlen-Spalten - rechtsbündig (Standard, explizit für Klarheit) */
-.table .col-money    { width: 130px; }  /* Geldbeträge: 1.234.234,00 € */
-.table .col-count    { width: 60px; }   /* Kleine Zahlen: Anzahl, Prozent, Storno */
+/* Zahlen-Spalten - Header mittig, Inhalt rechtsbündig */
+.table th.col-money,
+.table th.col-count,
+.table th.col-storno,
+.table th.col-je,
+.table th.col-eh,
+.table th.col-amount,
+.table th.col-oldAmount,
+.table th.col-mgTag,
+.table th.col-umsatzTag { text-align: center; }
+
+.table td.col-money,
+.table td.col-count,
+.table td.col-storno,
+.table td.col-je,
+.table td.col-eh,
+.table td.col-amount,
+.table td.col-oldAmount,
+.table td.col-mgTag,
+.table td.col-umsatzTag { text-align: right; }
+
+/* Text/Info-Spalten - Header links, Inhalt links */
+.table th.col-name,
+.table th.col-email,
+.table th.col-text,
+.table th.col-date,
+.table th.col-firstName,
+.table th.col-lastName,
+.table th.col-company,
+.table th.col-street,
+.table th.col-houseNumber,
+.table th.col-city,
+.table th.col-address,
+.table th.col-accountHolder,
+.table th.col-bankName,
+.table th.col-iban,
+.table th.col-area,
+.table th.col-kunde,
+.table th.col-werber,
+.table th.col-teamchef,
+.table th.col-notes,
+.table th.col-memberNumber,
+.table th.col-memberSince,
+.table th.col-phoneMobile,
+.table th.col-phoneFixed,
+.table th.col-zipCode { text-align: left; }
+
+.table td.col-name,
+.table td.col-email,
+.table td.col-text,
+.table td.col-date,
+.table td.col-firstName,
+.table td.col-lastName,
+.table td.col-company,
+.table td.col-street,
+.table td.col-houseNumber,
+.table td.col-city,
+.table td.col-address,
+.table td.col-accountHolder,
+.table td.col-bankName,
+.table td.col-iban,
+.table td.col-area,
+.table td.col-kunde,
+.table td.col-werber,
+.table td.col-teamchef,
+.table td.col-notes,
+.table td.col-memberNumber,
+.table td.col-memberSince,
+.table td.col-phoneMobile,
+.table td.col-phoneFixed,
+.table td.col-zipCode { text-align: left; }
+
+/* Zentrierte Spalten - Header mittig, Inhalt mittig */
+.table th.col-status,
+.table th.col-type,
+.table th.col-spendenquittung,
+.table th.col-contactEmail,
+.table th.col-contactPhone { text-align: center; }
+
+.table td.col-status,
+.table td.col-type,
+.table td.col-spendenquittung,
+.table td.col-contactEmail,
+.table td.col-contactPhone { text-align: center; }
+
+/* ========== SPALTENBREITEN ========== */
+/*
+ * 3 einheitliche Größen:
+ * - Klein (S):   80px  - Zahlen, Status, kurze Werte
+ * - Mittel (M):  120px - Namen, Datum, mittlere Texte
+ * - Groß (L):    200px - E-Mail, Adressen, lange Texte
+ */
+
+/* KLEIN (S) - 100px: Zahlen, Status, kurze Werte */
+.table .col-count,
+.table .col-money,
+.table .col-storno,
+.table .col-je,
+.table .col-eh,
+.table .col-amount,
+.table .col-oldAmount,
+.table .col-type,
+.table .col-status,
+.table .col-spendenquittung,
+.table .col-contactEmail,
+.table .col-contactPhone,
+.table .col-houseNumber,
+.table .col-zipCode,
+.table .col-mgTag,
+.table .col-umsatzTag {
+    width: 100px;
+}
+
+/* MITTEL (M) - 160px: Datum, mittlere Texte */
+.table .col-date,
+.table .col-firstName,
+.table .col-lastName,
+.table .col-company,
+.table .col-salutation,
+.table .col-title,
+.table .col-birthDate,
+.table .col-phoneMobile,
+.table .col-phoneFixed,
+.table .col-street,
+.table .col-city,
+.table .col-country,
+.table .col-area,
+.table .col-kunde,
+.table .col-werber,
+.table .col-teamchef,
+.table .col-intervalLabel,
+.table .col-laterStartDate,
+.table .col-memberNumber,
+.table .col-memberSince,
+.table .col-bic,
+.table .col-accountHolder,
+.table .col-bankName {
+    width: 160px;
+}
+
+/* GROSS (L) - 280px: E-Mail, Adressen, lange Texte */
+.table .col-email,
+.table .col-text,
+.table .col-address,
+.table .col-iban,
+.table .col-notes {
+    width: 280px;
+}
+
+/* Name-Spalte - Mittel (M) - 160px */
+.table .col-name {
+    width: 160px;
+}
+
+/* Name-Spalte sticky (direkt nach Checkbox) */
+.table tbody .col-name {
+    position: sticky;
+    left: 40px;  /* Nach Checkbox (40px) */
+    z-index: 2;
+    background: #ffffff;
+}
+
+/* Header Name-Spalte sticky + Farbe */
+.table th.col-name {
+    position: sticky;
+    left: 40px;  /* Nach Checkbox (40px) */
+    z-index: 10;
+    background: #e5e5e5;
+}
+
+.table .totals-row td.col-name {
+    background: #e5e5e5;
+    position: sticky;
+    left: 40px;
+    z-index: 5;
+}
+
+/* Datensätze-Seite: Action-Cell vor Name, daher left: 80px */
+.datensaetze-page .table tbody .col-name,
+.datensaetze-page .table th.col-name,
+.datensaetze-page .table .totals-row td.col-name {
+    left: 80px;  /* Nach Checkbox (40px) + Action-Cell (40px) */
+}
+
+
+/* ========== STORNO FARBKLASSEN ========== */
+/* Zentrale Farbcodierung für Stornoquoten:
+ * - storno-low: < 8% (grün)
+ * - storno-medium: 8-12% (gelb/orange)
+ * - storno-high: > 12% (rot)
+ */
+.storno-low    { color: #10b981; }  /* Grün - gut */
+.storno-medium { color: #f59e0b; }  /* Orange - mittel */
+.storno-high   { color: #ef4444; }  /* Rot - kritisch */
 
 /* ========== NAME CELL ========== */
 .name-cell {
@@ -294,10 +565,18 @@ td.action-cell:nth-last-child(2) {
 }
 
 /* Erstes Element (Pfeil/Spacer/Indent) immer exakt 14px breit */
-.name-cell > *:first-child {
+.name-cell > *:first-child:not(.user-badge) {
     width: 14px;
     min-width: 14px;
     max-width: 14px;
+    flex-shrink: 0;
+}
+
+/* Automatischer Spacer wenn Badge erstes Kind ist (kein manueller spacer nötig) */
+.name-cell:has(> .user-badge:first-child)::before {
+    content: '';
+    width: 14px;
+    min-width: 14px;
     flex-shrink: 0;
 }
 
@@ -376,13 +655,14 @@ td.action-cell:nth-last-child(2) {
 
 .dropdown-menu {
     position: fixed;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--bg-primary, #ffffff);
+    border: 1px solid var(--border-color, #e5e7eb);
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     min-width: 160px;
     z-index: 10000;
     display: none;
+    padding: 4px 0;
 }
 
 .dropdown-menu.open {
@@ -426,6 +706,14 @@ td.action-cell:nth-last-child(2) {
     color: #ef4444;
 }
 
+.dropdown-item.warning {
+    color: #d97706;
+}
+
+.dropdown-item.warning svg {
+    color: #d97706;
+}
+
 .dropdown-divider {
     height: 1px;
     background: var(--border-color);
@@ -436,6 +724,7 @@ td.action-cell:nth-last-child(2) {
 .expandable-row {
     cursor: pointer;
 }
+
 
 .expand-icon,
 .no-expand-spacer {
@@ -468,17 +757,22 @@ td.action-cell:nth-last-child(2) {
     display: table-row;
 }
 
+/* Child-Rows: Schmalere Zeilen und kleinere Badges */
 .child-row td {
-    background: var(--bg-primary) !important;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    font-size: 10px;
     border-bottom: 1px solid #d4d4d4;
 }
 
-.child-row:hover td {
-    background: #f5f5f5 !important;
+.child-row td:first-child {
+    border-left: 3px solid #a3a3a3;
 }
 
+
 .child-row .user-badge {
-    opacity: 0.7;
+    transform: scale(0.85);
+    transform-origin: left center;
 }
 
 .child-indent {
@@ -493,6 +787,7 @@ td.action-cell:nth-last-child(2) {
 
 /* ========== TABLE HEADER BAR ========== */
 .table-header {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -563,14 +858,14 @@ td.action-cell:nth-last-child(2) {
     height: 14px;
 }
 
-/* ========== DELETE SELECTED BUTTON ========== */
+/* ========== SELECTION BUTTON ========== */
 .btn-delete-selected {
     display: none;
     align-items: center;
     gap: 4px;
     padding: 4px 8px;
     font-size: 10px;
-    color: #ef4444;
+    color: #3b82f6;
     background: transparent;
     border: none;
     border-radius: 3px;
@@ -579,7 +874,7 @@ td.action-cell:nth-last-child(2) {
 }
 
 .btn-delete-selected:hover {
-    background: #fee2e2;
+    background: #dbeafe;
 }
 
 .btn-delete-selected.visible {
@@ -592,7 +887,7 @@ td.action-cell:nth-last-child(2) {
 }
 
 .selected-count {
-    background: #ef4444;
+    background: #3b82f6;
     color: #fff;
     font-size: 9px;
     padding: 1px 5px;
@@ -663,11 +958,15 @@ td.action-cell:nth-last-child(2) {
 
 /* Scoped to modal-overlay to not conflict with styles.css .modal */
 .modal-overlay .modal {
+    position: relative;  /* Überschreibt styles.css position: fixed */
+    top: auto;
+    left: auto;
+    width: 400px;
+    height: auto;  /* Überschreibt styles.css height: 100% */
+    max-height: 80vh;
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    width: 400px;
-    max-height: 80vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -913,3 +1212,70 @@ td.action-cell:nth-last-child(2) {
 .btn-modal-primary:hover {
     background: #404040;
 }
+
+/* ========================================================================
+   COMPACT TABLE VARIANT
+   Für Mitglieder-Listen (NMG, ERH, Bestandsmitglieder)
+   Schmaler als normale Tabellen
+   ======================================================================== */
+
+.table--compact {
+    font-size: 11px;
+}
+
+.table--compact th {
+    padding: 6px 8px;
+    font-size: 10px;
+}
+
+.table--compact td {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.table--compact .totals-row td {
+    padding: 3px 8px;
+    font-size: 10px;
+}
+
+/* Kompakte Badges */
+.table--compact .user-badge {
+    gap: 6px;
+}
+
+.table--compact .user-badge__avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 9px;
+}
+
+.table--compact .user-badge__name {
+    font-size: 11px;
+}
+
+.table--compact .user-badge__type {
+    font-size: 9px;
+}
+
+/* Kompakte Checkbox-Zelle */
+.table--compact .checkbox-cell {
+    width: 36px;
+    min-width: 36px;
+}
+
+/* Kompakte Action-Zelle */
+.table--compact .action-cell {
+    width: 32px;
+    min-width: 32px;
+}
+
+.table--compact .action-cell button {
+    width: 24px;
+    height: 24px;
+}
+
+.table--compact .action-cell button svg {
+    width: 14px;
+    height: 14px;
+}
+

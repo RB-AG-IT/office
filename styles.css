@@ -338,7 +338,7 @@ body {
 .mt-xl { margin-top: var(--spacing-xl); }
 
 /* ========================================
-   SCROLLBAR - AUTO-HIDING
+   SCROLLBAR - OVERLAY MIT LÄNGEREM FADE-OUT
    ======================================== */
 
 /* Webkit (Chrome, Safari, Edge) */
@@ -352,25 +352,17 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 4px;
 }
 
-*:hover::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.15);
-}
-
 *::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.35);
 }
 
 /* Firefox */
 * {
     scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-}
-
-*:hover {
     scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
 }
 
@@ -1257,7 +1249,7 @@ body {
     visibility: hidden;
     transform: translateY(-8px);
     transition: all 0.2s ease;
-    z-index: 100;
+    z-index: 1000;  /* Höher als Content-Area */
 }
 
 /* Unsichtbare Brücke um Hover-Lücke zu schließen */
@@ -1823,7 +1815,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 10100;  /* Höher als modal-overlay (10001) */
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

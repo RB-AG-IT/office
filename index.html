@@ -37,7 +37,7 @@
             background: var(--bg-primary);
             border-bottom: 1px solid var(--border-color);
             min-height: 56px;
-            z-index: 100;
+            z-index: 500;  /* Höher, damit Dropdown über Content-Area erscheint */
         }
 
         .app-container.expanded {
@@ -452,16 +452,7 @@
                             <span>Statistik</span>
                         </a>
                     </li>
-                    <!-- 6. Datensätze -->
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="records">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            <span>Datensätze</span>
-                        </a>
-                    </li>
-                    <!-- 7. Abrechnungen -->
+                    <!-- 6. Abrechnungen -->
                     <li class="nav-item">
                         <a class="nav-link" data-page="payouts">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -496,6 +487,15 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                             <span>Vorlagen</span>
+                        </a>
+                    </li>
+                    <!-- 10. Datensätze Test (Dev) -->
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="datensaetze-test">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span>Datensätze Test</span>
                         </a>
                     </li>
                 </ul>
@@ -1084,6 +1084,15 @@
                     { value: 'kampagnen', label: 'Kampagnen' },
                     { value: 'letzte100', label: 'Letzte 100 Datensätze' }
                 ],
+                periodFilter: [
+                    { value: 'custom', label: 'Individuell' },
+                    { value: 'today', label: 'Heute' },
+                    { value: 'week', label: 'Diese Woche' },
+                    { value: 'month', label: 'Dieser Monat' },
+                    { value: 'quarter', label: 'Dieses Quartal' },
+                    { value: 'year', label: 'Dieses Jahr', selected: true },
+                    { value: 'all', label: 'Gesamt' }
+                ],
                 searchPlaceholder: 'Datensätze suchen...',
                 actionButtons: [
                     { id: 'import', text: 'Import', icon: 'download', action: 'openImportModal' },
@@ -1136,6 +1145,9 @@
                 actionBtn: { text: 'Neue Vorlage', icon: 'plus' }
             },
             info: {
+                showToolbar: false
+            },
+            'datensaetze-test': {
                 showToolbar: false
             }
         };
@@ -1463,6 +1475,11 @@
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({ type: 'periodFilter', value: value }, '*');
             }
+
+            // Handle "Individuell" - Kalender-Modal öffnen
+            if (value === 'custom') {
+                openShellCalendarModal();
+            }
         }
 
         // Shell Stufen Dropdown Toggle
@@ -1586,7 +1603,6 @@
                 users: 'benutzer/',
                 campaigns: 'kampagnen/',
                 alerts: 'auffaelligkeiten/',
-                records: 'datensaetze/',
                 statistics: 'statistik/',
                 payouts: 'abrechnungen/',
                 investments: 'investments/',
@@ -1595,7 +1611,8 @@
                 stufen: 'stufen/',
                 'deletion-requests': 'loeschanfragen/',
                 settings: 'settings.html',
-                info: 'info/'
+                info: 'info/',
+                'datensaetze-test': 'datensaetze-test/'
             };
 
             // Page titles mapping
@@ -1604,7 +1621,6 @@
                 users: 'Benutzer',
                 campaigns: 'Kampagnen',
                 alerts: 'Auffälligkeiten',
-                records: 'Datensätze',
                 statistics: 'Statistik',
                 payouts: 'Abrechnungen',
                 investments: 'Investments',
@@ -1613,7 +1629,8 @@
                 stufen: 'Stufen & Achievements',
                 'deletion-requests': 'Lösch-Anfragen',
                 settings: 'Einstellungen',
-                info: 'Info & Legende'
+                info: 'Info & Legende',
+                'datensaetze-test': 'Datensätze Test'
             };
 
             // Update topbar title
@@ -1745,7 +1762,21 @@
             }, 150);
         });
 
-        // Clear search when focus lost
+        // Bei Enter: Suche ausführen und Fokus entfernen
+        shellSearchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = e.target.value.trim();
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'searchQuery', query: query }, '*');
+                }
+                // Fokus entfernen
+                shellSearchInput.blur();
+            }
+        });
+
+        // Bei Blur: Suchtext NICHT löschen, nur Dropdown schließen
         shellSearchInput.addEventListener('blur', function() {
             setTimeout(() => {
                 closeShellSearchDropdown();
@@ -1786,10 +1817,26 @@
             }
         }
 
-        // Listen for search results from iframe
+        // Listen for messages from iframe
         window.addEventListener('message', function(e) {
             if (e.data && e.data.type === 'searchResults') {
                 showShellSearchResults(e.data);
+            }
+            // Navigation request from iframe
+            if (e.data && e.data.type === 'navigate') {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe) {
+                    iframe.src = e.data.url;
+                }
+                // Update active nav item if section specified
+                if (e.data.section) {
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove('active');
+                        if (item.dataset.section === e.data.section) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
             }
         });
 
@@ -1940,12 +1987,34 @@
             closeShellCalendarModal();
         }
 
-        // Input masks for date fields
+        // Parse date from DD.MM.YYYY format
+        function parseDateInput(value) {
+            const match = value.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+            if (match) {
+                const [, day, month, year] = match;
+                const d = parseInt(day), m = parseInt(month), y = parseInt(year);
+                if (d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 1900 && y <= 2100) {
+                    return new Date(y, m - 1, d);
+                }
+            }
+            return null;
+        }
+
+        // Input masks for date fields with live calendar update
         document.getElementById('shellDateFrom')?.addEventListener('input', function(e) {
             let v = e.target.value.replace(/\D/g, '').slice(0, 8);
             if (v.length > 4) v = v.slice(0,2) + '.' + v.slice(2,4) + '.' + v.slice(4);
             else if (v.length > 2) v = v.slice(0,2) + '.' + v.slice(2);
             e.target.value = v;
+
+            // Live update calendar when full date entered
+            const date = parseDateInput(v);
+            if (date) {
+                shellCalStartDate = date;
+                shellCalYear = date.getFullYear();
+                shellCalMonth = date.getMonth();
+                renderShellCalendars();
+            }
         });
 
         document.getElementById('shellDateTo')?.addEventListener('input', function(e) {
@@ -1953,6 +2022,15 @@
             if (v.length > 4) v = v.slice(0,2) + '.' + v.slice(2,4) + '.' + v.slice(4);
             else if (v.length > 2) v = v.slice(0,2) + '.' + v.slice(2);
             e.target.value = v;
+
+            // Live update calendar when full date entered
+            const date = parseDateInput(v);
+            if (date) {
+                shellCalEndDate = date;
+                shellCalYear = date.getFullYear();
+                shellCalMonth = date.getMonth();
+                renderShellCalendars();
+            }
         });
 
         // Close modal on backdrop click
