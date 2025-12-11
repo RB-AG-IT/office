@@ -12,30 +12,48 @@
 }
 
 /* ========== LAYOUT - Tabelle füllt iframe ========== */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.page-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;  /* Verhindert horizontales Scrollen der gesamten Seite */
+}
+
 .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     padding: 0;
+    overflow: hidden;  /* Nur .table-container darf scrollen */
+    max-width: none;   /* Überschreibt styles.css max-width */
+    margin: 0;         /* Überschreibt styles.css margin: 0 auto */
+}
+
+.overview-view,
+.category-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 /* ========== TABLE WRAPPER ========== */
 .table-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     background: var(--bg-primary);
     overflow: hidden;
     position: relative;
 }
 
-/* Vollständiger Rahmen um die Tabelle */
-.table-wrap::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border: 3px solid #a3a3a3;
-    border-radius: 0;
-    pointer-events: none;
-    z-index: 100;
-}
 
 /* Alle Tabellen-Elemente eckig */
 .table-wrap,
@@ -45,14 +63,17 @@
 }
 
 .table-container {
+    flex: 1;
+    min-height: 0;
     overflow: auto;  /* Horizontal UND vertikal scrollbar für sticky */
-    max-height: calc(100vh - 120px);  /* Höhe begrenzen für vertikalen Scroll */
+    -webkit-overflow-scrolling: touch;  /* Smooth scrolling iOS/Safari */
+    will-change: scroll-position;  /* Hint für Browser-Optimierung */
 }
 
 /* ========== TABLE ========== */
 .table {
-    width: max-content;
     min-width: 100%;
+    width: max-content;  /* Tabelle so breit wie nötig für alle Spalten */
     border-collapse: separate;  /* Wichtig für sticky + borders */
     border-spacing: 0;          /* Keine Lücken zwischen Zellen */
     font-size: 11px;
@@ -96,7 +117,9 @@
 
 .table th.sortable {
     cursor: pointer;
-    padding-right: 24px;
+    padding-left: 14px;
+    padding-right: 14px;
+    position: relative;
 }
 
 .table th.sortable:hover {
@@ -106,7 +129,7 @@
 /* ========== SORT ARROWS ========== */
 .sort-arrows {
     position: absolute;
-    right: 8px;
+    right: 2px;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
@@ -115,8 +138,8 @@
 }
 
 .sort-arrows svg {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     color: #d4d4d4;
     transition: color 0.15s;
 }
@@ -130,9 +153,15 @@
     color: #a3a3a3;
 }
 
+/* ========== BODY ROWS ========== */
+/* Datenzeilen haben weißen Hintergrund */
+.table tbody tr {
+    background: #ffffff;
+}
+
 /* ========== CELLS ========== */
 .table td {
-    padding: 6px 12px;
+    padding: 4px 12px;
     border-bottom: 1px solid #d4d4d4;
     border-right: 1px solid #d4d4d4;  /* Dezente vertikale Trennlinie */
     white-space: nowrap;
@@ -148,24 +177,8 @@
     border-right: none;
 }
 
-/* Zelle vor Action-Buttons ohne rechte Linie (verhindert Dopplung) */
-.table td:nth-last-child(3),
-.table th:nth-last-child(3) {
-    border-right: none;
-}
+/* col-spacer hat keine rechte Linie - siehe .col-spacer Regel */
 
-/* Zebra Striping */
-.table tbody tr:nth-child(odd) {
-    background: #fafafa;
-}
-
-.table tbody tr:nth-child(even) {
-    background: var(--bg-primary);
-}
-
-.table tbody tr:hover {
-    background: #f0f0f0;
-}
 
 /* ========== TOTALS ROW ========== */
 /* Sticky am unteren Rand, schmal */
@@ -184,10 +197,6 @@
     padding: 4px 12px;  /* Schmaler */
 }
 
-.table .totals-row:hover td {
-    background: #d9d9d9 !important;
-}
-
 /* Gesamt-Zeile: Count-Text Styling */
 .totals-count {
     font-weight: 400;
@@ -197,10 +206,11 @@
 }
 
 /* ========== SPACER COLUMN ========== */
-/* Leere Spalte die restlichen Platz ausfüllt - behält alle horizontalen Linien */
+/* Leere Spalte am Ende - breit genug für sticky-Puffer */
+/* Muss GRÖSSER sein als sticky-Bereich, sonst bricht sticky am Scroll-Ende */
 .col-spacer {
-    width: auto;
-    min-width: 0;
+    width: 400px;  /* Puffer: Checkbox (40) + Action (40) + Name (280) + Extra (40) */
+    min-width: 400px;
     padding: 0 !important;
     border-right: none !important;  /* Keine rechte Linie, da am Ende */
     /* border-bottom wird vererbt für durchgehende Linien */
@@ -227,20 +237,17 @@
     border-right: none !important;
 }
 
-/* Spacer in Datenzeilen */
-.table tbody tr:nth-child(odd) td.col-spacer {
-    background: #fafafa;
-}
-
-.table tbody tr:nth-child(even) td.col-spacer {
-    background: var(--bg-primary);
-}
-
-.table tbody tr:hover td.col-spacer {
-    background: #f0f0f0;
-}
 
 /* ========== STICKY COLUMNS (Fixierte Spalten) ========== */
+/* GPU-Layer für stabiles sticky-Verhalten beim horizontalen Scroll */
+/* Links: checkbox-cell, col-name | Rechts: action-cell */
+.checkbox-cell,
+.action-cell,
+.col-name {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+
 /* Checkbox links fixiert */
 .checkbox-cell {
     width: 40px;
@@ -249,8 +256,7 @@
     padding: 0 8px !important;
     position: sticky;
     left: 0;
-    z-index: 2;
-    background: inherit;
+    z-index: 4;
     /* Rahmen kommt von .table-frame */
 }
 
@@ -258,20 +264,23 @@
 .table th.checkbox-cell {
     position: sticky;
     left: 0;
-    z-index: 3;
+    z-index: 12;
     background: #e5e5e5;
     border-bottom: 3px solid #a3a3a3 !important;  /* Header-Linie durchgehend */
 }
 
-/* Body Checkbox erbt Zeilen-Hintergrund */
+/* Body Checkbox - expliziter Hintergrund für sticky */
 .table td.checkbox-cell {
-    background: inherit;
+    background: #ffffff;
     /* position: sticky kommt von .checkbox-cell */
 }
 
 /* Totals-Row Checkbox */
 .table .totals-row td.checkbox-cell {
     background: #e5e5e5;
+    position: sticky;
+    left: 0;
+    z-index: 6;  /* Höher als normale sticky + totals-row z-index */
 }
 
 .checkbox-cell input {
@@ -288,17 +297,21 @@
     vertical-align: middle;
 }
 
-/* ========== ACTION CELL (Button-Spalten) - Rechts fixiert ========== */
+/* ========== ACTION CELL (Button-Spalten) - Links fixiert (nach Checkbox) ========== */
 .action-cell {
     width: 40px;
+    min-width: 40px;
     vertical-align: middle;
     padding: 0 !important;
 }
 
-/* Sticky nur für tbody, nicht für thead */
+/* Sticky für tbody - links nach Checkbox */
 .table tbody .action-cell {
     position: sticky;
-    z-index: 2;
+    left: 40px;  /* Nach Checkbox (40px) */
+    z-index: 3;
+    background: #ffffff;
+    border-right: 1px solid #d4d4d4;
 }
 
 /* Zentrierung mit höherer Spezifität */
@@ -306,61 +319,28 @@
     text-align: center;
 }
 
-/* Letzte Action-Spalte */
-.action-cell:last-child {
-    /* Rahmen kommt von .table-frame */
-}
-
-/* Wenn Dropdown offen: alle action-cells z-index deaktivieren */
+/* Wenn Dropdown offen: action-cell z-index höher setzen statt deaktivieren */
 .dropdown-open .action-cell {
-    z-index: auto !important;
-}
-
-/* Action-Cell Hintergrund je nach Zeile */
-.table tbody tr:nth-child(odd) td.action-cell {
-    background: #fafafa;
-}
-
-.table tbody tr:nth-child(even) td.action-cell {
-    background: var(--bg-primary);
-}
-
-.table tbody tr:hover td.action-cell {
-    background: #f0f0f0;
-}
-
-/* Letzte Action-Spalte ganz rechts (nur tbody) */
-td.action-cell:last-child {
-    right: 0;
-}
-
-/* Vorletzte Action-Spalte (nur tbody) - mit permanenter Trennlinie links */
-td.action-cell:nth-last-child(2) {
-    right: 40px;
-    border-left: 1px solid #d4d4d4;
+    z-index: 100 !important;
 }
 
 /* Header Action sticky + Farbe */
 .table th.action-cell {
     position: sticky;
-    z-index: 3;
+    left: 40px;  /* Nach Checkbox */
+    z-index: 11;
     background: #e5e5e5;
-    border-bottom: 3px solid #a3a3a3 !important;  /* Header-Linie durchgehend */
+    border-bottom: 3px solid #a3a3a3 !important;
+    border-right: 1px solid #d4d4d4;
 }
 
-.table th.action-cell:last-child {
-    right: 0;
-}
-
-.table th.action-cell:nth-last-child(2) {
-    right: 40px;
-    border-left: 1px solid #d4d4d4;
-}
-
-/* Totals-Row Action - braucht !important wegen nth-child Regeln */
-.table .totals-row td.action-cell,
-.table .totals-row th.action-cell {
+/* Totals-Row Action */
+.table .totals-row td.action-cell {
     background: #e5e5e5 !important;
+    position: sticky;
+    left: 40px;
+    z-index: 6;
+    border-right: 1px solid #d4d4d4;
 }
 
 /* ========== SPALTENBREITEN & AUSRICHTUNG (Semantische Klassen) ========== */
@@ -389,7 +369,9 @@ td.action-cell:nth-last-child(2) {
 .table th.col-je,
 .table th.col-eh,
 .table th.col-amount,
-.table th.col-oldAmount { text-align: center; }
+.table th.col-oldAmount,
+.table th.col-mgTag,
+.table th.col-umsatzTag { text-align: center; }
 
 .table td.col-money,
 .table td.col-count,
@@ -397,7 +379,9 @@ td.action-cell:nth-last-child(2) {
 .table td.col-je,
 .table td.col-eh,
 .table td.col-amount,
-.table td.col-oldAmount { text-align: right; }
+.table td.col-oldAmount,
+.table td.col-mgTag,
+.table td.col-umsatzTag { text-align: right; }
 
 /* Text/Info-Spalten - Header links, Inhalt links */
 .table th.col-name,
@@ -408,6 +392,7 @@ td.action-cell:nth-last-child(2) {
 .table th.col-lastName,
 .table th.col-company,
 .table th.col-street,
+.table th.col-houseNumber,
 .table th.col-city,
 .table th.col-address,
 .table th.col-accountHolder,
@@ -419,7 +404,10 @@ td.action-cell:nth-last-child(2) {
 .table th.col-teamchef,
 .table th.col-notes,
 .table th.col-memberNumber,
-.table th.col-memberSince { text-align: left; }
+.table th.col-memberSince,
+.table th.col-phoneMobile,
+.table th.col-phoneFixed,
+.table th.col-zipCode { text-align: left; }
 
 .table td.col-name,
 .table td.col-email,
@@ -429,6 +417,7 @@ td.action-cell:nth-last-child(2) {
 .table td.col-lastName,
 .table td.col-company,
 .table td.col-street,
+.table td.col-houseNumber,
 .table td.col-city,
 .table td.col-address,
 .table td.col-accountHolder,
@@ -440,7 +429,10 @@ td.action-cell:nth-last-child(2) {
 .table td.col-teamchef,
 .table td.col-notes,
 .table td.col-memberNumber,
-.table td.col-memberSince { text-align: left; }
+.table td.col-memberSince,
+.table td.col-phoneMobile,
+.table td.col-phoneFixed,
+.table td.col-zipCode { text-align: left; }
 
 /* Zentrierte Spalten - Header mittig, Inhalt mittig */
 .table th.col-status,
@@ -455,95 +447,105 @@ td.action-cell:nth-last-child(2) {
 .table td.col-contactEmail,
 .table td.col-contactPhone { text-align: center; }
 
-/* Spaltenbreiten */
-.table .col-name     { width: 220px; }  /* Namen, Titel */
+/* ========== SPALTENBREITEN ========== */
+/*
+ * 3 einheitliche Größen:
+ * - Klein (S):   80px  - Zahlen, Status, kurze Werte
+ * - Mittel (M):  120px - Namen, Datum, mittlere Texte
+ * - Groß (L):    200px - E-Mail, Adressen, lange Texte
+ */
 
-/* Name-Spalte sticky (links neben Checkbox) - nur tbody, nicht thead */
+/* KLEIN (S) - 100px: Zahlen, Status, kurze Werte */
+.table .col-count,
+.table .col-money,
+.table .col-storno,
+.table .col-je,
+.table .col-eh,
+.table .col-amount,
+.table .col-oldAmount,
+.table .col-type,
+.table .col-status,
+.table .col-spendenquittung,
+.table .col-contactEmail,
+.table .col-contactPhone,
+.table .col-houseNumber,
+.table .col-zipCode,
+.table .col-mgTag,
+.table .col-umsatzTag {
+    width: 100px;
+}
+
+/* MITTEL (M) - 160px: Datum, mittlere Texte */
+.table .col-date,
+.table .col-firstName,
+.table .col-lastName,
+.table .col-company,
+.table .col-salutation,
+.table .col-title,
+.table .col-birthDate,
+.table .col-phoneMobile,
+.table .col-phoneFixed,
+.table .col-street,
+.table .col-city,
+.table .col-country,
+.table .col-area,
+.table .col-kunde,
+.table .col-werber,
+.table .col-teamchef,
+.table .col-intervalLabel,
+.table .col-laterStartDate,
+.table .col-memberNumber,
+.table .col-memberSince,
+.table .col-bic,
+.table .col-accountHolder,
+.table .col-bankName {
+    width: 160px;
+}
+
+/* GROSS (L) - 280px: E-Mail, Adressen, lange Texte */
+.table .col-email,
+.table .col-text,
+.table .col-address,
+.table .col-iban,
+.table .col-notes {
+    width: 280px;
+}
+
+/* Name-Spalte - Mittel (M) - 160px */
+.table .col-name {
+    width: 160px;
+}
+
+/* Name-Spalte sticky (direkt nach Checkbox) */
 .table tbody .col-name {
     position: sticky;
-    left: 40px;  /* Breite der checkbox-cell */
+    left: 40px;  /* Nach Checkbox (40px) */
     z-index: 2;
+    background: #ffffff;
 }
 
 /* Header Name-Spalte sticky + Farbe */
 .table th.col-name {
     position: sticky;
-    left: 40px;  /* Nach Checkbox */
-    z-index: 3;
+    left: 40px;  /* Nach Checkbox (40px) */
+    z-index: 10;
     background: #e5e5e5;
 }
 
 .table .totals-row td.col-name {
     background: #e5e5e5;
+    position: sticky;
+    left: 40px;
+    z-index: 5;
 }
 
-.table tbody tr:nth-child(odd) td.col-name {
-    background: #fafafa;
+/* Datensätze-Seite: Action-Cell vor Name, daher left: 80px */
+.datensaetze-page .table tbody .col-name,
+.datensaetze-page .table th.col-name,
+.datensaetze-page .table .totals-row td.col-name {
+    left: 80px;  /* Nach Checkbox (40px) + Action-Cell (40px) */
 }
 
-.table tbody tr:nth-child(even) td.col-name {
-    background: var(--bg-primary);
-}
-
-.table tbody tr:hover td.col-name {
-    background: #f0f0f0;
-}
-.table .col-email    { width: 260px; }  /* E-Mail-Adressen */
-.table .col-text     { width: 180px; }  /* Herkunft, Beschreibungen */
-.table .col-date     { width: 140px; }  /* Datum, Login-Zeit */
-
-/* Zahlen-Spalten */
-.table .col-money    { width: 130px; }  /* Geldbeträge: 1.234.234,00 € */
-.table .col-count    { width: 60px; }   /* Kleine Zahlen: Anzahl, Prozent */
-.table .col-storno   { width: 70px; }   /* Stornoquote mit Farbcodierung */
-.table .col-je       { width: 60px; }   /* Jahresentgelt */
-.table .col-eh       { width: 45px; }   /* Einmaliger Beitrag */
-.table .col-amount   { width: 70px; }   /* Beträge */
-
-/* Personen-Spalten */
-.table .col-type         { width: 50px; }   /* Art (MG/NMG/ERH) */
-.table .col-salutation   { width: 60px; }   /* Anrede */
-.table .col-title        { width: 60px; }   /* Titel */
-.table .col-company      { width: 120px; }  /* Firma */
-.table .col-firstName    { width: 90px; }   /* Vorname */
-.table .col-lastName     { width: 90px; }   /* Nachname */
-.table .col-birthDate    { width: 85px; }   /* Geburtsdatum */
-.table .col-phoneMobile  { width: 110px; }  /* Mobil */
-.table .col-phoneFixed   { width: 110px; }  /* Festnetz */
-
-/* Adress-Spalten */
-.table .col-street       { width: 100px; }  /* Straße */
-.table .col-houseNumber  { width: 40px; }   /* Hausnummer */
-.table .col-zipCode      { width: 50px; }   /* PLZ */
-.table .col-city         { width: 100px; }  /* Stadt */
-.table .col-country      { width: 80px; }   /* Land */
-.table .col-address      { width: 180px; }  /* Vollständige Adresse */
-
-/* Bank-Spalten */
-.table .col-accountHolder { width: 120px; } /* Kontoinhaber */
-.table .col-bankName      { width: 130px; } /* Bankname */
-.table .col-iban          { width: 190px; } /* IBAN */
-.table .col-bic           { width: 90px; }  /* BIC */
-
-/* Zuordnungs-Spalten */
-.table .col-area          { width: 120px; } /* Werbegebiet */
-.table .col-kunde         { width: 140px; } /* Kunde */
-.table .col-werber        { width: 100px; } /* Werber */
-.table .col-teamchef      { width: 100px; } /* Teamchef */
-
-/* Status-Spalten */
-.table .col-status        { width: 70px; }  /* Status */
-.table .col-intervalLabel { width: 80px; }  /* Intervall */
-.table .col-laterStartDate { width: 80px; } /* Startdatum */
-.table .col-spendenquittung { width: 60px; } /* Spendenquittung */
-.table .col-notes         { width: 180px; } /* Notizen */
-
-/* ERH-spezifische Spalten */
-.table .col-contactEmail  { width: 80px; }  /* Kontakt Email */
-.table .col-contactPhone  { width: 80px; }  /* Kontakt Telefon */
-.table .col-memberNumber  { width: 80px; }  /* Mitgliedsnummer */
-.table .col-memberSince   { width: 90px; }  /* Mitglied seit */
-.table .col-oldAmount     { width: 80px; }  /* Alter Beitrag */
 
 /* ========== STORNO FARBKLASSEN ========== */
 /* Zentrale Farbcodierung für Stornoquoten:
@@ -653,13 +655,14 @@ td.action-cell:nth-last-child(2) {
 
 .dropdown-menu {
     position: fixed;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--bg-primary, #ffffff);
+    border: 1px solid var(--border-color, #e5e7eb);
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     min-width: 160px;
     z-index: 10000;
     display: none;
+    padding: 4px 0;
 }
 
 .dropdown-menu.open {
@@ -703,6 +706,14 @@ td.action-cell:nth-last-child(2) {
     color: #ef4444;
 }
 
+.dropdown-item.warning {
+    color: #d97706;
+}
+
+.dropdown-item.warning svg {
+    color: #d97706;
+}
+
 .dropdown-divider {
     height: 1px;
     background: var(--border-color);
@@ -713,6 +724,7 @@ td.action-cell:nth-last-child(2) {
 .expandable-row {
     cursor: pointer;
 }
+
 
 .expand-icon,
 .no-expand-spacer {
@@ -745,17 +757,22 @@ td.action-cell:nth-last-child(2) {
     display: table-row;
 }
 
+/* Child-Rows: Schmalere Zeilen und kleinere Badges */
 .child-row td {
-    background: var(--bg-primary) !important;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    font-size: 10px;
     border-bottom: 1px solid #d4d4d4;
 }
 
-.child-row:hover td {
-    background: #f5f5f5 !important;
+.child-row td:first-child {
+    border-left: 3px solid #a3a3a3;
 }
 
+
 .child-row .user-badge {
-    opacity: 0.7;
+    transform: scale(0.85);
+    transform-origin: left center;
 }
 
 .child-indent {
@@ -770,6 +787,7 @@ td.action-cell:nth-last-child(2) {
 
 /* ========== TABLE HEADER BAR ========== */
 .table-header {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -840,14 +858,14 @@ td.action-cell:nth-last-child(2) {
     height: 14px;
 }
 
-/* ========== DELETE SELECTED BUTTON ========== */
+/* ========== SELECTION BUTTON ========== */
 .btn-delete-selected {
     display: none;
     align-items: center;
     gap: 4px;
     padding: 4px 8px;
     font-size: 10px;
-    color: #ef4444;
+    color: #3b82f6;
     background: transparent;
     border: none;
     border-radius: 3px;
@@ -856,7 +874,7 @@ td.action-cell:nth-last-child(2) {
 }
 
 .btn-delete-selected:hover {
-    background: #fee2e2;
+    background: #dbeafe;
 }
 
 .btn-delete-selected.visible {
@@ -869,7 +887,7 @@ td.action-cell:nth-last-child(2) {
 }
 
 .selected-count {
-    background: #ef4444;
+    background: #3b82f6;
     color: #fff;
     font-size: 9px;
     padding: 1px 5px;
