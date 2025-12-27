@@ -4,405 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Backoffice - RB Inside</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/main.js"></script>
 
-    <!-- Modal-System (ersetzt Chrome alert/confirm/prompt) -->
-    <script src="modal-system.js"></script>
+    <!-- Zentrale Scripts -->
 
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <style>
-        body {
-            overflow: hidden;
-        }
-
-        /* Layout Grid */
-        .app-container {
-            display: grid;
-            grid-template-columns: 56px 1fr;
-            grid-template-rows: 65px 56px 1fr;
-            height: 100vh;
-            transition: grid-template-columns 0.3s ease;
-        }
-
-        /* Persistente Action Toolbar */
-        .shell-action-toolbar {
-            grid-column: 2;
-            grid-row: 2;
-            position: relative;
-            display: flex;
-            align-items: center;
-            padding: 10px var(--spacing-md);
-            background: var(--bg-primary);
-            border-bottom: 1px solid var(--border-color);
-            min-height: 56px;
-            z-index: 500;  /* Höher, damit Dropdown über Content-Area erscheint */
-        }
-
-        .app-container.expanded {
-            grid-template-columns: 240px 1fr;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            grid-column: 1;
-            grid-row: 1 / -1;
-            background: var(--bg-primary);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-        }
-
-        .logo {
-            height: 65px;
-            min-width: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .menu-btn {
-            width: 56px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s;
-            background: transparent;
-            color: var(--text-secondary);
-            flex-shrink: 0;
-        }
-
-        .menu-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .menu-btn svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .nav-menu {
-            flex: 1;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .nav-item {
-            margin: 0;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            width: 56px;
-            height: 48px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s, color 0.2s, width 0.3s;
-            cursor: pointer;
-            white-space: nowrap;
-            position: relative;
-        }
-
-        .nav-link span {
-            display: none;
-            margin-left: 56px;
-            padding-right: 12px;
-        }
-
-        .app-container.expanded .nav-link {
-            width: calc(100% - 16px);
-            margin: 0 8px;
-        }
-
-        .app-container.expanded .nav-link span {
-            display: inline;
-        }
-
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-            stroke-width: 2px;
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .app-container.expanded .nav-icon {
-            left: 10px; /* 18px - 8px margin = gleiche visuelle Position */
-        }
-
-        .nav-link:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .nav-link.active {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .nav-badge {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 10px;
-            min-width: 18px;
-            text-align: center;
-        }
-
-        .app-container:not(.expanded) .nav-badge {
-            display: none;
-        }
-
-        /* Bottom Section - Admin/System Links */
-        .sidebar-footer {
-            border-top: 1px solid var(--border-color);
-            padding: 8px 0;
-            margin-top: auto;
-            list-style: none;
-        }
-
-        .sidebar-footer .nav-item {
-            margin: 0;
-        }
-
-        /* Top Bar */
-        .topbar {
-            grid-column: 2;
-            grid-row: 1;
-            background: var(--bg-primary);
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 24px;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-        }
-
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            justify-self: start;
-        }
-
-        .topbar-center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            justify-self: end;
-        }
-
-        .topbar .page-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .topbar .date-info {
-            font-size: 13px;
-            color: var(--text-secondary);
-            white-space: nowrap;
-        }
-
-        .account-menu {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .account-menu:hover {
-            background: var(--bg-hover);
-        }
-
-        .account-avatar {
-            width: 32px;
-            height: 32px;
-            min-width: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-
-        .account-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .account-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .account-role {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        /* Main Content Area - VOLLBILD OHNE SCROLLEN */
-        .content-area {
-            grid-column: 2;
-            grid-row: 3;
-            overflow: hidden;
-            padding: 0;
-            background: var(--bg-secondary);
-            min-width: 0;
-            width: 100%;
-        }
-
-        .content-frame {
-            background: var(--bg-primary);
-            width: 100%;
-            height: 100%;
-            border: none;
-            min-width: 0;
-        }
-
-        .content-frame iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-            min-width: 0;
-            /* Transition für smoothere Größenänderung */
-            transition: none;
-        }
-
-        /* Während Sidebar-Transition sofort die volle Breite nutzen */
-        .content-area, .content-frame, .content-frame iframe {
-            flex: 1;
-            max-width: 100%;
-        }
-        
-        .content-frame.no-iframe {
-            padding: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        /* Responsive */
-        /* Shell Search Dropdown */
-        .shell-search-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-            z-index: 10000;
-            display: none;
-            max-height: 320px;
-            overflow-y: auto;
-            margin-top: 4px;
-        }
-
-        .shell-search-dropdown.active {
-            display: block;
-        }
-
-        .shell-search-dropdown-header {
-            padding: 10px 14px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .shell-search-result-item {
-            padding: 10px 14px;
-            font-size: 13px;
-            color: var(--text-primary);
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .shell-search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .shell-search-result-item:hover {
-            background: var(--bg-secondary);
-        }
-
-        .shell-search-no-results {
-            padding: 20px 14px;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
-
-        @media (max-width: 1024px) {
-            .app-container {
-                grid-template-columns: 60px 1fr;
-            }
-
-            .sidebar {
-                padding: 16px 4px;
-            }
-
-            .logo {
-                font-size: 16px;
-                text-align: center;
-                padding: 0;
-            }
-
-            .nav-link span {
-                display: none;
-            }
-
-            .nav-icon {
-                margin-right: 0;
-            }
-
-            .account-info {
-                display: none;
-            }
-        }
-    </style>
 </head>
-<body>
+<body class="shell-body">
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -452,34 +63,6 @@
                             <span>Statistik</span>
                         </a>
                     </li>
-                    <!-- 6. Abrechnungen -->
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="payouts">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            <span>Abrechnungen</span>
-                        </a>
-                    </li>
-                    <!-- 8. Investments (Idee) -->
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="investments" style="opacity: 0.6;">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <span>Investments</span>
-                            <span style="font-size: 9px; background: #f59e0b; color: white; padding: 1px 6px; border-radius: 8px; margin-left: 4px;">IDEE</span>
-                        </a>
-                    </li>
-                    <!-- 9. Stufen & Achievements -->
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="stufen">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                            </svg>
-                            <span>Stufen & Achievements</span>
-                        </a>
-                    </li>
                     <!-- 9. Vorlagen -->
                     <li class="nav-item">
                         <a class="nav-link" data-page="templates">
@@ -489,49 +72,75 @@
                             <span>Vorlagen</span>
                         </a>
                     </li>
-                    <!-- 10. Datensätze Test (Dev) -->
-                    <li class="nav-item">
-                        <a class="nav-link" data-page="datensaetze-test">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    <!-- 15. Styles (Design System) - ROT MARKIERT -->
+                    <li class="nav-item styles-link">
+                        <a class="nav-link" href="styles/index.html" target="_blank" style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px;">
+                            <svg class="nav-icon" fill="none" stroke="#dc2626" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
                             </svg>
-                            <span>Datensätze Test</span>
+                            <span>Styles</span>
                         </a>
                     </li>
                 </ul>
             </nav>
 
-            <!-- Bottom Section - immer am unteren Rand -->
-            <div class="sidebar-footer">
-                <!-- 10. Audit-Log -->
+            <!-- Angeheftete Items (über Footer) -->
+            <div class="sidebar-pinned">
                 <li class="nav-item">
                     <a class="nav-link" data-page="audit-log">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <span>Audit-Log</span>
                     </a>
                 </li>
-                <!-- 11. Auffälligkeiten -->
+                <li class="nav-item">
+                    <a class="nav-link" data-page="payouts">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span>Abrechnungen</span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" data-page="alerts">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                         <span>Auffälligkeiten</span>
                     </a>
                 </li>
-                <!-- 12. Lösch-Anfragen -->
                 <li class="nav-item">
                     <a class="nav-link" data-page="deletion-requests">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                         <span>Lösch-Anfragen</span>
                         <span class="nav-badge" id="deletionBadge" style="display: none;">0</span>
                     </a>
                 </li>
-                <!-- 13. Einstellungen -->
+                <li class="nav-item">
+                    <a class="nav-link" data-page="investments" style="opacity: 0.6;">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Investments</span>
+                        <span style="font-size: 9px; background: #f59e0b; color: white; padding: 1px 6px; border-radius: 8px; margin-left: 4px;">IDEE</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="stufen">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                        <span>Stufen & Achievements</span>
+                    </a>
+                </li>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="sidebar-footer">
+                <!-- Einstellungen -->
                 <li class="nav-item">
                     <a class="nav-link" data-page="settings">
                         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -539,15 +148,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                         <span>Einstellungen</span>
-                    </a>
-                </li>
-                <!-- 14. Info & Legende -->
-                <li class="nav-item">
-                    <a class="nav-link" data-page="info">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>Info & Legende</span>
                     </a>
                 </li>
             </div>
@@ -632,11 +232,11 @@
     </div>
 
     <!-- Login Modal -->
-    <div class="modal" id="loginModal">
+    <div class="modal modal-s" id="loginModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Anmelden</h2>
-                <button class="modal-close" onclick="closeLoginModal()">
+                <button class="btn-icon" onclick="closeLoginModal()">
                     <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -666,63 +266,7 @@
         </div>
     </div>
 
-    <!-- Calendar Modal für individuelle Zeitraumauswahl -->
-    <div class="calendar-modal" id="shellCalendarModal">
-        <div class="calendar-modal-content">
-            <div class="calendar-modal-header">
-                <h3>Individueller Zeitraum</h3>
-                <button class="calendar-modal-close" onclick="closeShellCalendarModal()">&times;</button>
-            </div>
-            <div class="calendar-modal-body">
-                <!-- Datum-Eingabefelder -->
-                <div class="calendar-inputs">
-                    <div class="calendar-field">
-                        <label>Von</label>
-                        <input type="text" id="shellDateFrom" placeholder="TT.MM.JJJJ" maxlength="10" autocomplete="off">
-                    </div>
-                    <div class="calendar-field">
-                        <label>Bis</label>
-                        <input type="text" id="shellDateTo" placeholder="TT.MM.JJJJ" maxlength="10" autocomplete="off">
-                    </div>
-                </div>
-
-                <!-- Kalender Navigation -->
-                <div class="calendar-nav">
-                    <button type="button" class="calendar-nav-btn" onclick="shellCalendarNavigate(-1)" title="1 Monat zurück">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <div class="calendar-year-selector">
-                        <button type="button" class="calendar-year-btn" onclick="shellCalendarChangeYear(-1)">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                        </button>
-                        <span class="calendar-year-display" id="shellCalendarYear">2025</span>
-                        <button type="button" class="calendar-year-btn" onclick="shellCalendarChangeYear(1)">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                        </button>
-                    </div>
-                    <button type="button" class="calendar-nav-btn" onclick="shellCalendarNavigate(1)" title="1 Monat vor">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                </div>
-
-                <!-- Heute Button -->
-                <div class="calendar-today-row">
-                    <button type="button" class="calendar-today-btn" onclick="shellCalendarGoToday()">Heute</button>
-                </div>
-
-                <!-- 3-Monats-Kalender -->
-                <div class="calendar-months-grid">
-                    <div class="calendar-month" id="shellCalMonth1"></div>
-                    <div class="calendar-month" id="shellCalMonth2"></div>
-                    <div class="calendar-month" id="shellCalMonth3"></div>
-                </div>
-            </div>
-            <div class="calendar-modal-footer">
-                <button class="btn-cancel" onclick="closeShellCalendarModal()">Abbrechen</button>
-                <button class="btn-apply" onclick="applyShellDateRange()">Anwenden</button>
-            </div>
-        </div>
-    </div>
+    <!-- CalendarModal wird zentral aus main.js geladen -->
 
     <script>
         // ================================================================
@@ -731,7 +275,8 @@
         const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Supabase Client (überschreibt das globale 'supabase' mit unserem Client)
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Current user state
         let currentUser = null;
@@ -742,12 +287,12 @@
         // ================================================================
 
         function openLoginModal() {
-            document.getElementById('loginModal').classList.add('show');
+            document.getElementById('loginModal').classList.add('active');
             document.getElementById('loginEmail').focus();
         }
 
         function closeLoginModal() {
-            document.getElementById('loginModal').classList.remove('show');
+            document.getElementById('loginModal').classList.remove('active');
             document.getElementById('loginEmail').value = '';
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginError').style.display = 'none';
@@ -943,13 +488,7 @@
             }
         }
 
-        function getInitials(name) {
-            const parts = name.trim().split(' ');
-            if (parts.length >= 2) {
-                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-            }
-            return name.substring(0, 2).toUpperCase();
-        }
+        // getInitials kommt aus main.js
 
         // Check auth state on page load
         async function checkAuthState() {
@@ -1005,6 +544,11 @@
         // Navigation Handler
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
+                // Externe Links (mit href) normal behandeln
+                if (this.hasAttribute('href')) {
+                    return;
+                }
+
                 e.preventDefault();
 
                 // Remove active class from all links
@@ -1055,7 +599,7 @@
                     { value: 'inactive', label: 'Inaktive' }
                 ],
                 searchPlaceholder: 'Kampagne suchen...',
-                actionBtn: { text: 'Neue Kampagne', icon: 'plus' }
+                actionBtn: { text: 'Neue Kampagne', icon: 'plus', action: 'add' }
             },
             statistics: {
                 showToolbar: true,
@@ -1081,8 +625,7 @@
                 navOptions: [
                     { value: 'werber', label: 'Werber', active: true },
                     { value: 'kunden', label: 'Kunden / Gebiete' },
-                    { value: 'kampagnen', label: 'Kampagnen' },
-                    { value: 'letzte100', label: 'Letzte 100 Datensätze' }
+                    { value: 'kampagnen', label: 'Kampagnen' }
                 ],
                 periodFilter: [
                     { value: 'custom', label: 'Individuell' },
@@ -1111,6 +654,10 @@
             },
             'audit-log': {
                 showToolbar: true,
+                navOptions: [
+                    { value: 'dashboard', label: 'Dashboard', active: true },
+                    { value: 'mitglieder', label: 'Mitglieder' }
+                ],
                 searchPlaceholder: 'Log durchsuchen...'
             },
             alerts: {
@@ -1137,9 +684,8 @@
             templates: {
                 showToolbar: true,
                 navOptions: [
-                    { value: 'email', label: 'E-Mail Vorlagen', active: true },
-                    { value: 'dokumente', label: 'Dokumente' },
-                    { value: 'individuell', label: 'Individuell' }
+                    { value: 'preisvorlagen', label: 'Preisvorlagen', active: true },
+                    { value: 'email', label: 'E-Mail Vorlagen' }
                 ],
                 searchPlaceholder: 'Vorlagen suchen...',
                 actionBtn: { text: 'Neue Vorlage', icon: 'plus' }
@@ -1147,7 +693,7 @@
             info: {
                 showToolbar: false
             },
-            'datensaetze-test': {
+            test: {
                 showToolbar: false
             }
         };
@@ -1592,7 +1138,95 @@
                     opt.classList.toggle('active', opt.dataset.value === e.data.value);
                 });
             }
+            // Dynamic toolbar registration from iframe (for Import/Export buttons etc.)
+            if (e.data && e.data.type === 'registerToolbar') {
+                updateToolbarFromIframe(e.data.config);
+            }
+            // Toolbar update request from iframe (for sub-pages like dashboard)
+            if (e.data && e.data.type === 'updateToolbar') {
+                const config = e.data.config;
+                if (config) {
+                    const toolbar = document.getElementById('shellToolbar');
+                    const searchPlaceholder = document.getElementById('shellSearchPlaceholder');
+
+                    if (config.showToolbar) {
+                        toolbar.style.display = 'flex';
+                        if (config.searchPlaceholder && searchPlaceholder) {
+                            searchPlaceholder.textContent = config.searchPlaceholder;
+                        }
+                    } else {
+                        toolbar.style.display = 'none';
+                    }
+                }
+            }
         });
+
+        // Update toolbar dynamically based on iframe registration
+        function updateToolbarFromIframe(config) {
+            const toolbarRight = document.getElementById('shellToolbarRight');
+            if (!toolbarRight) return;
+
+            // Update action buttons if provided
+            if (config.actionButtons && config.actionButtons.length > 0) {
+                const existingButtons = toolbarRight.querySelectorAll('.toolbar-btn');
+
+                // Animate out existing buttons
+                existingButtons.forEach(btn => btn.classList.add('slide-out'));
+
+                setTimeout(() => {
+                    const newButtonsHtml = config.actionButtons.map(btn => {
+                        const iconPath = getIconPath(btn.icon);
+                        const primaryClass = btn.primary ? ' toolbar-btn-primary' : '';
+                        return `<button class="toolbar-btn${primaryClass} slide-in" onclick="shellToolbarAction('${btn.action || 'default'}')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
+                            </svg>
+                            <span>${btn.text}</span>
+                        </button>`;
+                    }).join('');
+
+                    toolbarRight.innerHTML = newButtonsHtml;
+                    toolbarRight.offsetHeight; // Force reflow
+
+                    setTimeout(() => {
+                        toolbarRight.querySelectorAll('.toolbar-btn').forEach(btn => {
+                            btn.classList.remove('slide-in');
+                        });
+                    }, 20);
+                }, 150);
+            }
+
+            // Update search placeholder if provided
+            if (config.searchPlaceholder) {
+                const searchPlaceholder = document.getElementById('shellSearchPlaceholder');
+                if (searchPlaceholder && searchPlaceholder.textContent !== config.searchPlaceholder) {
+                    searchPlaceholder.classList.add('slide-out');
+                    setTimeout(() => {
+                        searchPlaceholder.textContent = config.searchPlaceholder;
+                        searchPlaceholder.classList.remove('slide-out');
+                        searchPlaceholder.classList.add('slide-in');
+                        searchPlaceholder.offsetHeight;
+                        setTimeout(() => searchPlaceholder.classList.remove('slide-in'), 20);
+                    }, 150);
+                }
+            }
+
+            // Update nav dropdown if provided
+            if (config.navDropdown) {
+                const navText = document.getElementById('shellNavText');
+                const navMenu = document.getElementById('shellNavMenu');
+                const activeOption = config.navDropdown.find(o => o.selected) || config.navDropdown[0];
+
+                if (navText) navText.textContent = activeOption.label;
+                if (navMenu) {
+                    navMenu.innerHTML = config.navDropdown.map(opt =>
+                        `<div class="toolbar-nav-option${opt.selected ? ' active' : ''}"
+                              data-value="${opt.value}"
+                              onclick="selectShellNavOption('${opt.value}', '${opt.label}')">${opt.label}</div>`
+                    ).join('');
+                }
+            }
+        }
 
         function loadPage(page) {
             const container = document.getElementById('content-container');
@@ -1612,7 +1246,7 @@
                 'deletion-requests': 'loeschanfragen/',
                 settings: 'settings.html',
                 info: 'info/',
-                'datensaetze-test': 'datensaetze-test/'
+                test: 'test/'
             };
 
             // Page titles mapping
@@ -1628,9 +1262,7 @@
                 'audit-log': 'Audit-Log',
                 stufen: 'Stufen & Achievements',
                 'deletion-requests': 'Lösch-Anfragen',
-                settings: 'Einstellungen',
-                info: 'Info & Legende',
-                'datensaetze-test': 'Datensätze Test'
+                settings: 'Einstellungen'
             };
 
             // Update topbar title
@@ -1826,7 +1458,15 @@
             if (e.data && e.data.type === 'navigate') {
                 const iframe = document.querySelector('#content-container iframe');
                 if (iframe) {
-                    iframe.src = e.data.url;
+                    // Store the return page before navigating
+                    const currentHash = window.location.hash.substring(1);
+                    if (currentHash && !e.data.url.includes('returnTo=')) {
+                        // Add returnTo parameter so we know where to go back
+                        const separator = e.data.url.includes('?') ? '&' : '?';
+                        iframe.src = e.data.url + separator + 'returnTo=' + currentHash;
+                    } else {
+                        iframe.src = e.data.url;
+                    }
                 }
                 // Update active nav item if section specified
                 if (e.data.section) {
@@ -1838,205 +1478,53 @@
                     });
                 }
             }
+            // Back navigation request from iframe
+            if (e.data && e.data.type === 'navigateBack') {
+                const returnTo = e.data.returnTo;
+                if (returnTo && document.querySelector(`[data-page="${returnTo}"]`)) {
+                    window.location.hash = returnTo;
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    document.querySelector(`[data-page="${returnTo}"]`).classList.add('active');
+                    loadPage(returnTo);
+                } else {
+                    // Fallback: go to previous history entry
+                    history.back();
+                }
+            }
         });
 
         // ================================================================
         // SHELL CALENDAR MODAL
         // ================================================================
 
-        let shellCalStartDate = null;
-        let shellCalEndDate = null;
-        let shellCalYear = new Date().getFullYear();
-        let shellCalMonth = new Date().getMonth();
-        const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
-
+        // Shell Kalender nutzt zentrales CalendarModal aus main.js
         function openShellCalendarModal() {
-            const modal = document.getElementById('shellCalendarModal');
-            shellCalStartDate = null;
-            shellCalEndDate = null;
-            document.getElementById('shellDateFrom').value = '';
-            document.getElementById('shellDateTo').value = '';
-            modal.classList.add('active');
-            renderShellCalendars();
-        }
+            CalendarModal.open((fromInput, toInput, dateRangeText) => {
+                // Update dropdown text
+                document.getElementById('shellPeriodDropdownText').textContent = dateRangeText;
 
-        function closeShellCalendarModal() {
-            document.getElementById('shellCalendarModal').classList.remove('active');
-        }
+                // Update active state
+                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === 'custom');
+                });
 
-        function shellCalendarNavigate(months) {
-            shellCalMonth += months;
-            while (shellCalMonth > 11) { shellCalMonth -= 12; shellCalYear++; }
-            while (shellCalMonth < 0) { shellCalMonth += 12; shellCalYear--; }
-            renderShellCalendars();
-        }
+                // Update option text
+                const customOption = document.querySelector('#shellPeriodDropdown .toolbar-nav-option[data-value="custom"]');
+                if (customOption) customOption.textContent = dateRangeText;
 
-        function shellCalendarChangeYear(delta) {
-            shellCalYear += delta;
-            renderShellCalendars();
-        }
-
-        function shellCalendarGoToday() {
-            const today = new Date();
-            shellCalYear = today.getFullYear();
-            shellCalMonth = today.getMonth();
-            renderShellCalendars();
-        }
-
-        function renderShellCalendars() {
-            document.getElementById('shellCalendarYear').textContent = shellCalYear;
-            for (let i = 0; i < 3; i++) {
-                const monthDate = new Date(shellCalYear, shellCalMonth - (2 - i), 1);
-                renderShellMonth(document.getElementById(`shellCalMonth${i + 1}`), monthDate);
-            }
-        }
-
-        function renderShellMonth(container, monthDate) {
-            const year = monthDate.getFullYear();
-            const month = monthDate.getMonth();
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const startOffset = (firstDay === 0 ? 6 : firstDay - 1);
-
-            let html = `<div class="calendar-month-header">${monthNames[month]} ${year}</div>`;
-            html += '<div class="calendar-weekdays"><span class="calendar-weekday">Mo</span><span class="calendar-weekday">Di</span><span class="calendar-weekday">Mi</span><span class="calendar-weekday">Do</span><span class="calendar-weekday">Fr</span><span class="calendar-weekday">Sa</span><span class="calendar-weekday">So</span></div>';
-            html += '<div class="calendar-days">';
-
-            for (let i = 0; i < startOffset; i++) {
-                html += '<span class="calendar-day other-month"></span>';
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(year, month, day);
-                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                let classes = 'calendar-day';
-
-                if (shellCalStartDate && date.getTime() === shellCalStartDate.getTime()) classes += ' selected start';
-                if (shellCalEndDate && date.getTime() === shellCalEndDate.getTime()) classes += ' selected end';
-                if (shellCalStartDate && shellCalEndDate && date > shellCalStartDate && date < shellCalEndDate) classes += ' in-range';
-
-                const today = new Date();
-                if (date.toDateString() === today.toDateString()) classes += ' today';
-
-                html += `<span class="${classes}" data-date="${dateStr}" onclick="selectShellCalendarDate('${dateStr}')">${day}</span>`;
-            }
-
-            html += '</div>';
-            container.innerHTML = html;
-        }
-
-        function selectShellCalendarDate(dateStr) {
-            const [y, m, d] = dateStr.split('-').map(Number);
-            const date = new Date(y, m - 1, d);
-
-            if (!shellCalStartDate || shellCalEndDate) {
-                shellCalStartDate = date;
-                shellCalEndDate = null;
-            } else if (date < shellCalStartDate) {
-                shellCalStartDate = date;
-            } else {
-                shellCalEndDate = date;
-            }
-
-            const formatDate = (d) => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
-            document.getElementById('shellDateFrom').value = shellCalStartDate ? formatDate(shellCalStartDate) : '';
-            document.getElementById('shellDateTo').value = shellCalEndDate ? formatDate(shellCalEndDate) : '';
-
-            renderShellCalendars();
-        }
-
-        function applyShellDateRange() {
-            const fromInput = document.getElementById('shellDateFrom').value;
-            const toInput = document.getElementById('shellDateTo').value;
-
-            if (!fromInput || !toInput) {
-                showAlert('Fehler', 'Bitte beide Daten auswählen', 'warning');
-                return;
-            }
-
-            // Format für Anzeige (DD.MM.YY)
-            const formatShort = (str) => {
-                const parts = str.split('.');
-                return `${parts[0]}.${parts[1]}.${parts[2].slice(-2)}`;
-            };
-            const dateRangeText = `${formatShort(fromInput)} - ${formatShort(toInput)}`;
-
-            // Update dropdown text
-            document.getElementById('shellPeriodDropdownText').textContent = dateRangeText;
-
-            // Update active state
-            document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
-                opt.classList.toggle('active', opt.dataset.value === 'custom');
-            });
-
-            // Update option text
-            const customOption = document.querySelector('#shellPeriodDropdown .toolbar-nav-option[data-value="custom"]');
-            if (customOption) customOption.textContent = dateRangeText;
-
-            // Send to iframe
-            const iframe = document.querySelector('#content-container iframe');
-            if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({
-                    type: 'customDateRangeApplied',
-                    dateRangeText: dateRangeText,
-                    dateFrom: fromInput,
-                    dateTo: toInput
-                }, '*');
-            }
-
-            closeShellCalendarModal();
-        }
-
-        // Parse date from DD.MM.YYYY format
-        function parseDateInput(value) {
-            const match = value.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-            if (match) {
-                const [, day, month, year] = match;
-                const d = parseInt(day), m = parseInt(month), y = parseInt(year);
-                if (d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 1900 && y <= 2100) {
-                    return new Date(y, m - 1, d);
+                // Send to iframe
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        type: 'customDateRangeApplied',
+                        dateRangeText: dateRangeText,
+                        dateFrom: fromInput,
+                        dateTo: toInput
+                    }, '*');
                 }
-            }
-            return null;
+            });
         }
 
-        // Input masks for date fields with live calendar update
-        document.getElementById('shellDateFrom')?.addEventListener('input', function(e) {
-            let v = e.target.value.replace(/\D/g, '').slice(0, 8);
-            if (v.length > 4) v = v.slice(0,2) + '.' + v.slice(2,4) + '.' + v.slice(4);
-            else if (v.length > 2) v = v.slice(0,2) + '.' + v.slice(2);
-            e.target.value = v;
-
-            // Live update calendar when full date entered
-            const date = parseDateInput(v);
-            if (date) {
-                shellCalStartDate = date;
-                shellCalYear = date.getFullYear();
-                shellCalMonth = date.getMonth();
-                renderShellCalendars();
-            }
-        });
-
-        document.getElementById('shellDateTo')?.addEventListener('input', function(e) {
-            let v = e.target.value.replace(/\D/g, '').slice(0, 8);
-            if (v.length > 4) v = v.slice(0,2) + '.' + v.slice(2,4) + '.' + v.slice(4);
-            else if (v.length > 2) v = v.slice(0,2) + '.' + v.slice(2);
-            e.target.value = v;
-
-            // Live update calendar when full date entered
-            const date = parseDateInput(v);
-            if (date) {
-                shellCalEndDate = date;
-                shellCalYear = date.getFullYear();
-                shellCalMonth = date.getMonth();
-                renderShellCalendars();
-            }
-        });
-
-        // Close modal on backdrop click
-        document.getElementById('shellCalendarModal')?.addEventListener('click', function(e) {
-            if (e.target === this) closeShellCalendarModal();
-        });
     </script>
 </body>
 </html>

@@ -3,1616 +3,661 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mitarbeiter Dashboard - RB Inside Office</title>
+    <title>Statistik Dashboard - RB Inside Office</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-hover: #f1f3f4;
-            --text-primary: #1a1a1a;
-            --text-secondary: #5f6368;
-            --text-tertiary: #9aa0a6;
-            --border-color: #e8eaed;
-            --accent-color: #6366f1;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            overflow-y: auto;
-            height: 100%;
-            margin: 0;
-            background: var(--bg-secondary);
-        }
-
-        .dashboard-container {
-            padding: 24px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* Header */
-        .dashboard-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .back-btn {
-            width: 36px;
-            height: 36px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.15s;
-        }
-
-        .back-btn:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
-        .back-btn svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .header-info h1 {
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
-        }
-
-        .header-info .period {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            background: var(--bg-primary);
-            padding: 4px;
-            border-radius: 10px;
-            margin-bottom: 24px;
-            border: 1px solid var(--border-color);
-        }
-
-        .tab {
-            flex: 1;
-            padding: 10px 16px;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.15s;
-        }
-
-        .tab:hover {
-            color: var(--text-primary);
-        }
-
-        .tab.active {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Section */
-        .section {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-
-        .section-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        .stat-item {
-            padding: 12px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat-item .value {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 2px;
-        }
-
-        .stat-item .label {
-            font-size: 10px;
-            color: var(--text-tertiary);
-            line-height: 1.3;
-        }
-
-        /* Charts */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 16px;
-        }
-
-        .chart-container {
-            height: 200px;
-        }
-
-        /* Rekorde */
-        .rekorde-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .rekorde-filter {
-            display: flex;
-            gap: 4px;
-        }
-
-        .rekorde-filter-btn {
-            padding: 6px 12px;
-            border: 1px solid var(--border-color);
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 11px;
-            font-weight: 500;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .rekorde-filter-btn.active {
-            background: var(--text-primary);
-            border-color: var(--text-primary);
-            color: var(--bg-primary);
-        }
-
-        .rekorde-group {
-            margin-bottom: 20px;
-        }
-
-        .rekorde-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .rekorde-group-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .rekorde-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .rekorde-row:last-child {
-            border-bottom: none;
-        }
-
-        .rekorde-row .label {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .rekorde-row .data {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .rekorde-row .value {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            min-width: 80px;
-            text-align: right;
-        }
-
-        .rekorde-row .date {
-            font-size: 12px;
-            color: var(--text-tertiary);
-            min-width: 90px;
-            text-align: right;
-        }
-
-        /* Storno Popup */
-        .storno-trigger {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .storno-popup {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 8px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            z-index: 100;
-            min-width: 160px;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 48px 20px;
-            color: var(--text-secondary);
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .stats-grid { grid-template-columns: repeat(3, 1fr); }
-            .charts-grid { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 768px) {
-            .tabs { flex-wrap: wrap; }
-            .tab { flex: none; width: calc(33.33% - 4px); }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-    </style>
 </head>
-<body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <div class="dashboard-header">
-            <button class="back-btn">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-            </button>
-            <div class="header-info">
-                <h1>Max Mustermann</h1>
-                <div class="period">Dieses Jahr</div>
-            </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" data-tab="allgemein">Allgemein</button>
-            <button class="tab" data-tab="werben">Werben</button>
-            <button class="tab" data-tab="teamleitung">Teamleitung</button>
-            <button class="tab" data-tab="empfehlung">Empfehlung</button>
-            <button class="tab" data-tab="recruiting">Recruiting</button>
-            <button class="tab" data-tab="quality">Quality</button>
-        </div>
-
-        <!-- Tab: Allgemein -->
-        <div class="tab-content active" id="tab-allgemein">
-            <div class="empty-state">Allgemein - Inhalt folgt</div>
-        </div>
-
-        <!-- Tab: Werben -->
-        <div class="tab-content" id="tab-werben">
-
-            <!-- Statistik Header -->
-            <div class="section" style="padding: 24px;">
-                <!-- Gesamt - Hauptzeile -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
-                    <!-- Linke Seite: Zahlen -->
-                    <div>
-                        <div class="info-trigger" style="display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px; cursor: pointer; position: relative;">
-                            <span style="font-size: 10px; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px;">Netto Zahlen</span>
-                            <span style="width: 14px; height: 14px; border-radius: 50%; background: var(--accent-color); color: white; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center;">i</span>
-                            <div class="info-popup" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 100; min-width: 220px; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
-                                Bei diesen Zahlen wurden bereits Stornos abgezogen. Es handelt sich um die tatsächlichen Netto-Werte.
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 40px;">
-                            <div>
-                                <div style="font-size: 52px; font-weight: 800; color: var(--text-primary); line-height: 1;">47</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">MITGLIEDSCHAFTEN</div>
-                            </div>
-                            <div style="width: 1px; height: 50px; background: var(--border-color);"></div>
-                            <div>
-                                <div style="font-size: 32px; font-weight: 700; color: var(--text-primary); line-height: 1;">5.640 <span style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                <div style="font-size: 20px; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">470 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">EH</span></div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Rechte Seite: Durchschnittsbeiträge + Stornoquote -->
-                    <div style="display: flex; gap: 8px;">
-                        <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">120 <span style="font-size: 10px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                            <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Ø pro Neumitglied</div>
-                        </div>
-                        <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">95 <span style="font-size: 10px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                            <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Ø pro Erhöhung</div>
-                        </div>
-                        <div class="storno-trigger">
-                            <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 18px; font-weight: 700; color: #ef4444;">6,4%</div>
-                                <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Stornoquote</div>
-                            </div>
-                            <div class="storno-popup">
-                                <div style="font-size: 12px; margin-bottom: 8px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600; color: #ef4444;">6,4%</span> <span style="color: var(--text-tertiary); font-size: 10px;">(3)</span></div>
-                                <div style="font-size: 12px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600; color: #10b981;">4,3%</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Aufgeteilt: Neumitglieder / Beitragsanpassungen -->
-                <div style="display: flex; gap: 32px; padding-top: 20px; align-items: flex-start;">
-                    <div style="flex: 1;">
-                        <div style="font-size: 10px; font-weight: 600; color: #10b981; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Neumitglieder</div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span style="font-size: 28px; font-weight: 700; color: var(--text-primary);">32</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">3.840 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                <div style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">320 <span style="font-size: 10px;">EH</span></div>
-                            </div>
-                            <span class="storno-trigger" style="margin-left: auto;">
-                                <span style="font-size: 13px; font-weight: 600; color: #ef4444; background: rgba(239,68,68,0.1); padding: 4px 10px; border-radius: 6px;">6,3%</span>
-                                <div class="storno-popup">
-                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">6,3%</span> (2)</div>
-                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">5,2%</span></div>
-                                </div>
-                            </span>
-                        </div>
-                    </div>
-                    <div style="width: 1px; background: var(--border-color); align-self: stretch;"></div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 10px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Positive Beitragsanpassungen</div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span style="font-size: 28px; font-weight: 700; color: var(--text-primary);">15</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">1.800 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                <div style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">150 <span style="font-size: 10px;">EH</span></div>
-                            </div>
-                            <span class="storno-trigger" style="margin-left: auto;">
-                                <span style="font-size: 13px; font-weight: 600; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 10px; border-radius: 6px;">0,0%</span>
-                                <div class="storno-popup">
-                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">0,0%</span> (0)</div>
-                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">0,0%</span></div>
-                                </div>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Trennlinie -->
-                <div style="margin-top: 32px; border-top: 2px solid var(--border-color);"></div>
-
-                <!-- Stornos Abschnitt (Accordion) -->
-                <div style="margin-top: 24px; padding: 20px; background: rgba(239,68,68,0.03); border: 1px solid rgba(239,68,68,0.12); border-radius: 10px;">
-                    <div class="storno-accordion-trigger" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
-                        <svg class="storno-accordion-arrow" style="width: 16px; height: 16px; color: #ef4444; transition: transform 0.2s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                        <span style="font-size: 11px; font-weight: 600; color: #ef4444; text-transform: uppercase; letter-spacing: 0.5px;">Stornos</span>
-                    </div>
-
-                    <div class="storno-accordion-content" style="display: none; margin-top: 16px;">
-
-                    <!-- Stornos Hauptzeile -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 40px;">
-                            <div>
-                                <div style="font-size: 42px; font-weight: 800; color: #ef4444; line-height: 1;">3</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">MITGLIEDSCHAFTEN</div>
-                            </div>
-                            <div style="width: 1px; height: 40px; background: var(--border-color);"></div>
-                            <div>
-                                <div style="font-size: 26px; font-weight: 700; color: #ef4444; line-height: 1;">360 <span style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                <div style="font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">30 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">EH</span></div>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 12px;">
-                            <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); padding: 12px 20px; border-radius: 8px; text-align: center;">
-                                <div style="font-size: 20px; font-weight: 700; color: #ef4444;">120 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); text-transform: uppercase;">Ø Beitrag pro Storno</div>
-                            </div>
-                            <div style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); padding: 12px 20px; border-radius: 8px; text-align: center;">
-                                <div style="font-size: 20px; font-weight: 700; color: #ef4444;">6,4%</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); text-transform: uppercase;">Stornoquote</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Stornos aufgeteilt -->
-                    <div style="display: flex; gap: 32px; padding-top: 16px; align-items: flex-start;">
-                        <div style="flex: 1;">
-                            <div style="font-size: 10px; font-weight: 600; color: #10b981; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Neumitglieder</div>
-                            <div style="display: flex; align-items: center; gap: 16px;">
-                                <span style="font-size: 24px; font-weight: 700; color: #ef4444;">2</span>
-                                <div>
-                                    <div style="font-size: 16px; font-weight: 600; color: var(--text-secondary);">240 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                    <div style="font-size: 13px; font-weight: 500; color: var(--text-tertiary);">20 <span style="font-size: 10px;">EH</span></div>
-                                </div>
-                                <span style="font-size: 13px; font-weight: 600; color: #ef4444; background: rgba(239,68,68,0.1); padding: 4px 10px; border-radius: 6px; margin-left: auto;">6,3%</span>
-                            </div>
-                        </div>
-                        <div style="width: 1px; background: var(--border-color); align-self: stretch;"></div>
-                        <div style="flex: 1;">
-                            <div style="font-size: 10px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Positive Beitragsanpassungen</div>
-                            <div style="display: flex; align-items: center; gap: 16px;">
-                                <span style="font-size: 24px; font-weight: 700; color: #ef4444;">1</span>
-                                <div>
-                                    <div style="font-size: 16px; font-weight: 600; color: var(--text-secondary);">120 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                    <div style="font-size: 13px; font-weight: 500; color: var(--text-tertiary);">10 <span style="font-size: 10px;">EH</span></div>
-                                </div>
-                                <span style="font-size: 13px; font-weight: 600; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 10px; border-radius: 6px; margin-left: auto;">6,7%</span>
-                            </div>
-                        </div>
-                    </div>
-                    </div><!-- Ende storno-accordion-content -->
-                </div>
-            </div>
-
-            <!-- Weitere Kennzahlen -->
-            <div class="section">
-                <div class="section-title">Weitere Kennzahlen</div>
-
-                <!-- Quoten Abschnitt -->
-                <div style="margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                        <div class="info-trigger" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; position: relative;">
-                            <span style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Quoten</span>
-                            <span style="width: 14px; height: 14px; border-radius: 50%; background: var(--accent-color); color: white; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center;">i</span>
-                            <div class="info-popup" style="display: none; position: absolute; top: 100%; left: 0; margin-top: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 100; min-width: 250px; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
-                                Die Quoten gelten unabhängig von der Zeitraumauswahl oben. Du kannst wählen ob sie pro Jahr oder gesamt berechnet werden.
-                            </div>
-                        </div>
-                        <div class="quoten-filter" style="display: flex; gap: 4px;">
-                            <button class="rekorde-filter-btn active" data-quoten="jahr">Pro Jahr</button>
-                            <button class="rekorde-filter-btn" data-quoten="gesamt">Gesamt</button>
-                        </div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="value">87%</div>
-                            <div class="label">Schriebe mit Telefonnummer</div>
-                            <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 4px;">Tel Opt In: 72%</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="value">64%</div>
-                            <div class="label">Schriebe mit E-Mail</div>
-                            <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 4px;">E-Mail Opt In: 58%</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="value">34</div>
-                            <div class="label">Ø Alter deiner Schriebe</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="value">2,4</div>
-                            <div class="label">Ø Schriebe pro Tag</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="value">12</div>
-                            <div class="label">Ø Schriebe pro Woche</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts -->
-            <div class="section">
-                <div class="section-title">Visualisierung</div>
-                <div class="chart-container" style="height: 280px;">
-                    <canvas id="mainChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Zahlungsrhythmus -->
-            <div class="section">
-                <div class="section-title">Zahlungsrhythmus</div>
-                <div style="display: flex; align-items: center; gap: 40px;">
-                    <div style="width: 200px; height: 200px;">
-                        <canvas id="rhythmusChart"></canvas>
-                    </div>
-                    <div style="flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px;">
-                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #6366f1;"></div>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">59%</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">Monatlich</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px;">
-                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #10b981;"></div>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">23%</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">Vierteljährlich</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px;">
-                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #f59e0b;"></div>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">11%</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">Halbjährlich</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px;">
-                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #8b5cf6;"></div>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">7%</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">Jährlich</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rekorde -->
-            <div class="section">
-                <div class="rekorde-header">
-                    <div class="section-title" style="margin-bottom: 0;">Rekorde</div>
-                    <div class="rekorde-filter">
-                        <button class="rekorde-filter-btn">2024</button>
-                        <button class="rekorde-filter-btn active">2025</button>
-                        <button class="rekorde-filter-btn">Gesamt</button>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;">
-                    <!-- Pro Tag -->
-                    <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px;">
-                        <div style="font-size: 10px; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Pro Tag</div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Gesamt</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
-                            </div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">14</div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Neumitglieder</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
-                            </div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">11</div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Erhöhungen</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">22.02.25 (KW 8)</div>
-                            </div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">6</div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0;">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste JE</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">1.680 JE</div>
-                                <div style="font-size: 9px; color: var(--text-tertiary);">140 EH</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pro Woche -->
-                    <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px;">
-                        <div style="font-size: 10px; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Pro Woche</div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Gesamt</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">KW 11/25</div>
-                            </div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">52</div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Neumitglieder</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">KW 11/25</div>
-                            </div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">38</div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste Erhöhungen</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">KW 8/25</div>
-                            </div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">18</div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0;">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Meiste JE</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">KW 11/25</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">6.240 JE</div>
-                                <div style="font-size: 9px; color: var(--text-tertiary);">520 EH</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Bestleistungen -->
-                    <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px;">
-                        <div style="font-size: 10px; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Bestleistungen</div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Höchster Einzelbeitrag</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">08.01.25 (KW 2)</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">480 JE</div>
-                                <div style="font-size: 9px; color: var(--text-tertiary);">40 EH</div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Höchste Erhöhung</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">22.02.25 (KW 8)</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">360 JE</div>
-                                <div style="font-size: 9px; color: var(--text-tertiary);">30 EH</div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Längste Stunden-Serie</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
-                            </div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">9 Std.</div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0;">
-                            <div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">Längste 15-Min-Serie</div>
-                                <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">15.03.25 (KW 11)</div>
-                            </div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">14 Zyklen</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab: Teamleitung -->
-        <div class="tab-content" id="tab-teamleitung">
-
-            <!-- Teamleistung -->
-            <div class="section" style="padding: 24px;">
-                <div class="section-title">Teamleistung</div>
-
-                <!-- Gesamt -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
-                    <div style="display: flex; align-items: center; gap: 40px;">
+<body class="statistik-page">
+    <div class="page-container page-container--no-padding page-container--scroll">
+        <div class="content-area">
+            <!-- HEADER -->
+            <div class="mitglied-form-section mitglied-form-section--no-border mitglied-form-section--compact">
+                <div class="profile-header">
+                    <div class="profile-header-left">
+                        <button class="back-btn" title="Zurück"></button>
                         <div>
-                            <div style="font-size: 42px; font-weight: 800; color: var(--text-primary); line-height: 1;">47</div>
-                            <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">MITGLIEDSCHAFTEN</div>
-                        </div>
-                        <div style="width: 1px; height: 40px; background: var(--border-color);"></div>
-                        <div>
-                            <div style="font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1;">5.640 <span style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                            <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">470 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">EH</span></div>
-                        </div>
-                    </div>
-                    <!-- Rechte Seite: Effizienz, Teammitglieder, Stornoquote, Durchschnittsleistung -->
-                    <div style="display: flex; gap: 8px;">
-                        <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 18px; font-weight: 700; color: #10b981;">87%</div>
-                            <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Effizienz</div>
-                        </div>
-                        <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">5</div>
-                            <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Teammitglieder</div>
-                        </div>
-                        <div class="storno-trigger">
-                            <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 18px; font-weight: 700; color: #ef4444;">6,4%</div>
-                                <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Stornoquote</div>
-                            </div>
-                            <div class="storno-popup">
-                                <div style="font-size: 12px; margin-bottom: 8px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600; color: #ef4444;">6,4%</span> <span style="color: var(--text-tertiary); font-size: 10px;">(3)</span></div>
-                                <div style="font-size: 12px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600; color: #10b981;">4,3%</span></div>
-                            </div>
-                        </div>
-                        <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">9,4</div>
-                            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">1.128 <span style="font-size: 9px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                            <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Ø pro Mitglied</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Aufgeteilt: Neumitglieder / Beitragsanpassungen -->
-                <div style="display: flex; gap: 32px; padding-top: 20px; align-items: flex-start;">
-                    <div style="flex: 1;">
-                        <div style="font-size: 10px; font-weight: 600; color: #10b981; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Neumitglieder</div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span style="font-size: 28px; font-weight: 700; color: var(--text-primary);">32</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">3.840 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                <div style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">320 <span style="font-size: 10px;">EH</span></div>
-                            </div>
-                            <span class="storno-trigger" style="margin-left: auto;">
-                                <span style="font-size: 13px; font-weight: 600; color: #ef4444; background: rgba(239,68,68,0.1); padding: 4px 10px; border-radius: 6px;">6,3%</span>
-                                <div class="storno-popup">
-                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">6,3%</span> (2)</div>
-                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">5,2%</span></div>
-                                </div>
-                            </span>
-                        </div>
-                    </div>
-                    <div style="width: 1px; background: var(--border-color); align-self: stretch;"></div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 10px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Positive Beitragsanpassungen</div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span style="font-size: 28px; font-weight: 700; color: var(--text-primary);">15</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">1.800 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                <div style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">150 <span style="font-size: 10px;">EH</span></div>
-                            </div>
-                            <span class="storno-trigger" style="margin-left: auto;">
-                                <span style="font-size: 13px; font-weight: 600; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 10px; border-radius: 6px;">0,0%</span>
-                                <div class="storno-popup">
-                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">0,0%</span> (0)</div>
-                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">0,0%</span></div>
-                                </div>
-                            </span>
+                            <h1 class="page-title" id="profileName">Max Mustermann</h1>
+                            <p class="text-sm">Mitarbeiternummer: <span id="employeeId">MA-001</span> • Erstellt am: <span id="createdDate">01.01.2024</span></p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Achievements -->
-            <div class="section" style="padding: 24px;">
-                <div class="section-title">Achievements</div>
-
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
-                    <!-- Achievement 1 -->
-                    <div style="background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(99,102,241,0.05) 100%); border: 1px solid rgba(99,102,241,0.2); border-radius: 12px; padding: 20px; text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">🏆</div>
-                        <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Team Champion</div>
-                        <div style="font-size: 10px; color: var(--text-tertiary);">Bestes Team im Monat</div>
-                    </div>
-
-                    <!-- Achievement 2 -->
-                    <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.05) 100%); border: 1px solid rgba(16,185,129,0.2); border-radius: 12px; padding: 20px; text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">⭐</div>
-                        <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">100% Effizienz</div>
-                        <div style="font-size: 10px; color: var(--text-tertiary);">3x erreicht</div>
-                    </div>
-
-                    <!-- Achievement 3 -->
-                    <div style="background: linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(245,158,11,0.05) 100%); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: 20px; text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">🎯</div>
-                        <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Ziel übertroffen</div>
-                        <div style="font-size: 10px; color: var(--text-tertiary);">120% des Monatsziels</div>
-                    </div>
-
-                    <!-- Achievement 4 (locked) -->
-                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; opacity: 0.5;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
-                        <div style="font-size: 13px; font-weight: 600; color: var(--text-tertiary); margin-bottom: 4px;">Noch gesperrt</div>
-                        <div style="font-size: 10px; color: var(--text-tertiary);">50 Teammitglieder erreichen</div>
-                    </div>
-                </div>
-
-                <!-- Mehr Achievements -->
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px;">
-                    <!-- Achievement 5 -->
-                    <div style="background: linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(139,92,246,0.05) 100%); border: 1px solid rgba(139,92,246,0.2); border-radius: 12px; padding: 20px; text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">🚀</div>
-                        <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Schnellstart</div>
-                        <div style="font-size: 10px; color: var(--text-tertiary);">10 MG in erster Woche</div>
-                    </div>
-
-                    <!-- Achievement 6 (locked) -->
-                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; opacity: 0.5;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
-                        <div style="font-size: 13px; font-weight: 600; color: var(--text-tertiary); margin-bottom: 4px;">Noch gesperrt</div>
-                        <div style="font-size: 10px; color: var(--text-tertiary);">0% Stornoquote im Monat</div>
-                    </div>
-
-                    <!-- Achievement 7 (locked) -->
-                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; opacity: 0.5;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
-                        <div style="font-size: 13px; font-weight: 600; color: var(--text-tertiary); margin-bottom: 4px;">Noch gesperrt</div>
-                        <div style="font-size: 10px; color: var(--text-tertiary);">100 MG im Monat</div>
-                    </div>
-
-                    <!-- Achievement 8 (locked) -->
-                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; opacity: 0.5;">
-                        <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
-                        <div style="font-size: 13px; font-weight: 600; color: var(--text-tertiary); margin-bottom: 4px;">Noch gesperrt</div>
-                        <div style="font-size: 10px; color: var(--text-tertiary);">1 Jahr als Teamleiter</div>
-                    </div>
-                </div>
+            <!-- TABS (nur für Werber) -->
+            <div class="kw-tabs" id="werberTabs">
+                <div class="kw-tab active" data-tab="uebersicht">Übersicht</div>
+                <div class="kw-tab" data-tab="werben">Werben</div>
+                <div class="kw-tab" data-tab="teamleitung">Teamleitung</div>
+                <div class="kw-tab" data-tab="quality">Quality</div>
+                <div class="kw-tab" data-tab="recruiting">Recruiting</div>
+                <div class="kw-tab" data-tab="empfehlung">Empfehlung</div>
             </div>
-        </div>
-        <!-- Tab: Empfehlung -->
-        <div class="tab-content" id="tab-empfehlung">
 
-            <!-- Empfehlung Header -->
-            <div class="section" style="padding: 24px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 40px;">
-                        <div>
-                            <div style="font-size: 52px; font-weight: 800; color: var(--text-primary); line-height: 1;">8</div>
-                            <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">EMPFEHLUNGEN</div>
-                        </div>
-                        <div style="width: 1px; height: 50px; background: var(--border-color);"></div>
-                        <div>
-                            <div style="font-size: 32px; font-weight: 700; color: var(--text-primary); line-height: 1;">312</div>
-                            <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">MITGLIEDSCHAFTEN</div>
-                        </div>
-                        <div style="width: 1px; height: 50px; background: var(--border-color);"></div>
-                        <div>
-                            <div style="font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1;">37.440 <span style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                            <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">3.120 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">EH</span></div>
+            <!-- TAB: Übersicht -->
+            <div class="kw-tab-content active" id="tab-uebersicht">
+                <!-- Werber: Übersicht mit zusammengefasster Tabelle -->
+                <div class="mitglied-form-section mitglied-form-section--card" id="uebersichtPlaceholder">
+                    <div class="text-ueberschrift-abschnitt mb-md">Übersicht</div>
+                    <div id="uebersichtStatsTableContainer"></div>
+                </div>
+
+                <!-- Kunde/Kampagne/Gebiet: voller Inhalt -->
+                <div id="kundeKampagneContent" style="display: none;">
+                    <div class="mitglied-form-section mitglied-form-section--card">
+                        <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
+                        <div id="kkStatsTableContainer"></div>
+                    </div>
+
+                    <div class="mitglied-form-section mitglied-form-section--card">
+                        <div class="text-ueberschrift-abschnitt mb-md">Wochenverlauf</div>
+                        <div style="height: 280px;">
+                            <canvas id="kkChart"></canvas>
                         </div>
                     </div>
-                    <div style="background: var(--bg-secondary); padding: 12px 20px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);">39</div>
-                        <div style="font-size: 16px; font-weight: 600; color: var(--text-secondary);">4.680 <span style="font-size: 11px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                        <div style="font-size: 12px; color: var(--text-tertiary);">390 <span style="font-size: 10px;">EH</span></div>
-                        <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase; margin-top: 4px;">Ø pro Empfehlung</div>
+
+                    <div class="mitglied-form-section mitglied-form-section--card">
+                        <div class="text-ueberschrift-abschnitt mb-md">Einsätze</div>
+                        <div id="kkEinsatzTimeline"></div>
+                    </div>
+
+                    <div class="mitglied-form-section mitglied-form-section--card">
+                        <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
+                        <div class="achievement-grid" id="kkAchievementGrid"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Empfehlungsbaum -->
-            <div class="section" style="padding: 24px;">
-                <div class="section-title">Empfehlungsbaum</div>
+            <!-- TAB: Werben -->
+            <div class="kw-tab-content" id="tab-werben">
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
+                    <div id="statsTableContainer"></div>
+                </div>
 
-                <!-- Baum Container -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
-
-                    <!-- ICH (Wurzel) -->
-                    <div style="background: linear-gradient(135deg, var(--accent-color) 0%, #4f46e5 100%); color: white; padding: 16px 32px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
-                        <div style="font-size: 16px; font-weight: 700;">Max Mustermann</div>
-                        <div style="font-size: 12px; opacity: 0.9; margin-top: 4px;">47 MG · 5.640 JE</div>
-                    </div>
-
-                    <!-- Verbindungslinie -->
-                    <div style="width: 2px; height: 24px; background: var(--border-color);"></div>
-
-                    <!-- Horizontale Linie -->
-                    <div style="width: 80%; height: 2px; background: var(--border-color); position: relative;">
-                        <!-- Vertikale Linien zu den Kindern -->
-                        <div style="position: absolute; left: 0; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; left: 14.28%; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; left: 28.57%; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; left: 42.85%; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; left: 57.14%; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; left: 71.42%; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; left: 85.71%; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; right: 0; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                    </div>
-
-                    <!-- Empfehlungen (Kinder) -->
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; margin-top: 8px;">
-
-                        <!-- Empfehlung 1 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #10b981; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Anna Schmidt</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 01.03.2023</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">52</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">6.240 JE · 520 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Empfehlung 2 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #10b981; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Peter Müller</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 15.05.2023</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">48</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">5.760 JE · 480 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Empfehlung 3 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #10b981; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Julia Weber</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 22.07.2023</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">41</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">4.920 JE · 410 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Empfehlung 4 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #10b981; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Thomas Fischer</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 10.09.2023</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">45</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">5.400 JE · 450 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Empfehlung 5 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #10b981; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Sarah Becker</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 03.11.2023</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">38</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">4.560 JE · 380 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Empfehlung 6 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #10b981; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Michael Wagner</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 18.01.2024</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">35</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">4.200 JE · 350 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Empfehlung 7 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #f59e0b; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Laura Hoffmann</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 05.06.2024</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">28</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">3.360 JE · 280 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Empfehlung 8 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #f59e0b; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">David Schneider</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 20.09.2024</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">25</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">3.000 JE · 250 EH</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Legende -->
-                    <div style="display: flex; gap: 24px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 16px; height: 16px; border: 2px solid #10b981; border-radius: 4px;"></div>
-                            <span style="font-size: 12px; color: var(--text-secondary);">Aktiv (> 6 Monate)</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 16px; height: 16px; border: 2px solid #f59e0b; border-radius: 4px;"></div>
-                            <span style="font-size: 12px; color: var(--text-secondary);">Neu (< 6 Monate)</span>
-                        </div>
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Wochenverlauf</div>
+                    <div style="height: 280px;">
+                        <canvas id="werbenChart"></canvas>
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- Tab: Recruiting -->
-        <div class="tab-content" id="tab-recruiting">
 
-            <!-- Recruiting Header -->
-            <div class="section" style="padding: 24px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 40px;">
-                        <div>
-                            <div style="font-size: 52px; font-weight: 800; color: var(--text-primary); line-height: 1;">5</div>
-                            <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">REKRUTIERUNGEN</div>
-                        </div>
-                        <div style="width: 1px; height: 50px; background: var(--border-color);"></div>
-                        <div>
-                            <div style="font-size: 32px; font-weight: 700; color: var(--text-primary); line-height: 1;">187</div>
-                            <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">MITGLIEDSCHAFTEN</div>
-                        </div>
-                        <div style="width: 1px; height: 50px; background: var(--border-color);"></div>
-                        <div>
-                            <div style="font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1;">22.440 <span style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                            <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">1.870 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">EH</span></div>
-                        </div>
-                    </div>
-                    <div style="background: var(--bg-secondary); padding: 12px 20px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);">37,4</div>
-                        <div style="font-size: 16px; font-weight: 600; color: var(--text-secondary);">4.488 <span style="font-size: 11px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                        <div style="font-size: 12px; color: var(--text-tertiary);">374 <span style="font-size: 10px;">EH</span></div>
-                        <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase; margin-top: 4px;">Ø pro Rekrutierung</div>
-                    </div>
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Einsätze</div>
+                    <div id="einsatzTimeline"></div>
+                </div>
+
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
+                    <div class="achievement-grid" id="achievementGrid"></div>
                 </div>
             </div>
 
-            <!-- Recruiting-Baum -->
-            <div class="section" style="padding: 24px;">
-                <div class="section-title">Rekrutierungsbaum</div>
-
-                <!-- Baum Container -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
-
-                    <!-- ICH (Wurzel) -->
-                    <div style="background: linear-gradient(135deg, var(--accent-color) 0%, #4f46e5 100%); color: white; padding: 16px 32px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
-                        <div style="font-size: 16px; font-weight: 700;">Max Mustermann</div>
-                        <div style="font-size: 12px; opacity: 0.9; margin-top: 4px;">47 MG · 5.640 JE</div>
-                    </div>
-
-                    <!-- Verbindungslinie -->
-                    <div style="width: 2px; height: 24px; background: var(--border-color);"></div>
-
-                    <!-- Horizontale Linie -->
-                    <div style="width: 60%; height: 2px; background: var(--border-color); position: relative;">
-                        <div style="position: absolute; left: 0; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; left: 25%; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; left: 50%; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; left: 75%; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                        <div style="position: absolute; right: 0; top: 0; width: 2px; height: 24px; background: var(--border-color);"></div>
-                    </div>
-
-                    <!-- Rekrutierungen (Kinder) -->
-                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%; margin-top: 8px;">
-
-                        <!-- Rekrutierung 1 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #10b981; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Lisa Meyer</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 12.02.2022</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">58</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">6.960 JE · 580 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Rekrutierung 2 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #10b981; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Kevin Braun</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 08.06.2022</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">45</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">5.400 JE · 450 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Rekrutierung 3 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #10b981; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Nina Schulz</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 20.11.2022</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">42</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">5.040 JE · 420 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Rekrutierung 4 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #f59e0b; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Tim Richter</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 15.08.2024</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">24</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">2.880 JE · 240 EH</div>
-                            </div>
-                        </div>
-
-                        <!-- Rekrutierung 5 -->
-                        <div style="background: var(--bg-primary); border: 2px solid #f59e0b; border-radius: 10px; padding: 14px; text-align: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Jana Klein</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">seit 01.10.2024</div>
-                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color);">
-                                <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">18</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">2.160 JE · 180 EH</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Legende -->
-                    <div style="display: flex; gap: 24px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 16px; height: 16px; border: 2px solid #10b981; border-radius: 4px;"></div>
-                            <span style="font-size: 12px; color: var(--text-secondary);">Aktiv (> 6 Monate)</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 16px; height: 16px; border: 2px solid #f59e0b; border-radius: 4px;"></div>
-                            <span style="font-size: 12px; color: var(--text-secondary);">Neu (< 6 Monate)</span>
-                        </div>
-                    </div>
+            <!-- TAB: Teamleitung -->
+            <div class="kw-tab-content" id="tab-teamleitung">
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
+                    <div id="tlStatsTableContainer"></div>
                 </div>
-            </div>
-        </div>
-        <div class="tab-content" id="tab-quality">
 
-            <!-- Teamleistung -->
-            <div class="section" style="padding: 24px;">
-                <div class="section-title">Teamleistung</div>
-
-                <!-- Gesamt -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
-                    <div style="display: flex; align-items: center; gap: 40px;">
-                        <div>
-                            <div style="font-size: 42px; font-weight: 800; color: var(--text-primary); line-height: 1;">23</div>
-                            <div style="font-size: 11px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">MITGLIEDSCHAFTEN</div>
-                        </div>
-                        <div style="width: 1px; height: 40px; background: var(--border-color);"></div>
-                        <div>
-                            <div style="font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1;">2.760 <span style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                            <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">230 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">EH</span></div>
-                        </div>
-                    </div>
-                    <!-- Rechte Seite: Aktive Werber, Stornoquote, Ø pro Werber pro Tag -->
-                    <div style="display: flex; gap: 8px;">
-                        <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">4</div>
-                            <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Aktive Werber</div>
-                        </div>
-                        <div class="storno-trigger">
-                            <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 18px; font-weight: 700; color: #ef4444;">4,3%</div>
-                                <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Stornoquote</div>
-                            </div>
-                            <div class="storno-popup">
-                                <div style="font-size: 12px; margin-bottom: 8px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600; color: #ef4444;">4,3%</span> <span style="color: var(--text-tertiary); font-size: 10px;">(1)</span></div>
-                                <div style="font-size: 12px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600; color: #10b981;">3,6%</span></div>
-                            </div>
-                        </div>
-                        <div style="background: var(--bg-secondary); padding: 8px 14px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">1,2</div>
-                            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">144 <span style="font-size: 9px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                            <div style="font-size: 9px; color: var(--text-tertiary); text-transform: uppercase;">Ø pro Werber/Tag</div>
-                        </div>
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Wochenverlauf</div>
+                    <div style="height: 280px;">
+                        <canvas id="teamleitungChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Aufgeteilt: Neumitglieder / Beitragsanpassungen -->
-                <div style="display: flex; gap: 32px; padding-top: 20px; align-items: flex-start;">
-                    <div style="flex: 1;">
-                        <div style="font-size: 10px; font-weight: 600; color: #10b981; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Neumitglieder</div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span style="font-size: 28px; font-weight: 700; color: var(--text-primary);">18</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">2.160 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                <div style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">180 <span style="font-size: 10px;">EH</span></div>
-                            </div>
-                            <span class="storno-trigger" style="margin-left: auto;">
-                                <span style="font-size: 13px; font-weight: 600; color: #ef4444; background: rgba(239,68,68,0.1); padding: 4px 10px; border-radius: 6px;">5,6%</span>
-                                <div class="storno-popup">
-                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">5,6%</span> (1)</div>
-                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">4,6%</span></div>
-                                </div>
-                            </span>
-                        </div>
-                    </div>
-                    <div style="width: 1px; background: var(--border-color); align-self: stretch;"></div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 10px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Positive Beitragsanpassungen</div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span style="font-size: 28px; font-weight: 700; color: var(--text-primary);">5</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 600; color: var(--text-secondary);">600 <span style="font-size: 12px; font-weight: 500; color: var(--text-tertiary);">JE</span></div>
-                                <div style="font-size: 14px; font-weight: 500; color: var(--text-tertiary);">50 <span style="font-size: 10px;">EH</span></div>
-                            </div>
-                            <span class="storno-trigger" style="margin-left: auto;">
-                                <span style="font-size: 13px; font-weight: 600; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 10px; border-radius: 6px;">0,0%</span>
-                                <div class="storno-popup">
-                                    <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">0,0%</span> (0)</div>
-                                    <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">0,0%</span></div>
-                                </div>
-                            </span>
-                        </div>
-                    </div>
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Einsätze</div>
+                    <div id="tlEinsatzTimeline"></div>
+                </div>
+
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
+                    <div class="achievement-grid" id="tlAchievementGrid"></div>
                 </div>
             </div>
 
-            <!-- Werber Übersicht -->
-            <div class="section" style="padding: 24px;">
-                <div class="section-title">Aktive Werber im Zeitraum</div>
+            <!-- TAB: Quality -->
+            <div class="kw-tab-content" id="tab-quality">
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
+                    <div id="qStatsTableContainer"></div>
+                </div>
 
-                <!-- Kompakte Werber-Liste -->
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                    <!-- Werber 1 -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-secondary); padding: 12px 16px; border-radius: 8px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-color) 0%, #4f46e5 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 600;">TM</div>
-                            <div>
-                                <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Thomas Müller</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">8 MG · 960 JE</div>
-                            </div>
-                        </div>
-                        <div class="storno-trigger">
-                            <div style="font-size: 14px; font-weight: 700; color: #10b981; background: rgba(16,185,129,0.1); padding: 6px 12px; border-radius: 6px;">0,0%</div>
-                            <div class="storno-popup">
-                                <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">0,0%</span> (0)</div>
-                                <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">0,0%</span></div>
-                            </div>
-                        </div>
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Wochenverlauf</div>
+                    <div style="height: 280px;">
+                        <canvas id="qualityChart"></canvas>
                     </div>
+                </div>
 
-                    <!-- Werber 2 -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-secondary); padding: 12px 16px; border-radius: 8px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 600;">LS</div>
-                            <div>
-                                <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Lisa Schmidt</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">6 MG · 720 JE</div>
-                            </div>
-                        </div>
-                        <div class="storno-trigger">
-                            <div style="font-size: 14px; font-weight: 700; color: #ef4444; background: rgba(239,68,68,0.1); padding: 6px 12px; border-radius: 6px;">16,7%</div>
-                            <div class="storno-popup">
-                                <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">16,7%</span> (1)</div>
-                                <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">13,9%</span></div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Einsätze</div>
+                    <div id="qEinsatzTimeline"></div>
+                </div>
 
-                    <!-- Werber 3 -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-secondary); padding: 12px 16px; border-radius: 8px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 600;">MB</div>
-                            <div>
-                                <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Max Bauer</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">5 MG · 600 JE</div>
-                            </div>
-                        </div>
-                        <div class="storno-trigger">
-                            <div style="font-size: 14px; font-weight: 700; color: #10b981; background: rgba(16,185,129,0.1); padding: 6px 12px; border-radius: 6px;">0,0%</div>
-                            <div class="storno-popup">
-                                <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">0,0%</span> (0)</div>
-                                <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">0,0%</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Werber 4 -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-secondary); padding: 12px 16px; border-radius: 8px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 600;">AW</div>
-                            <div>
-                                <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Anna Weber</div>
-                                <div style="font-size: 11px; color: var(--text-tertiary);">4 MG · 480 JE</div>
-                            </div>
-                        </div>
-                        <div class="storno-trigger">
-                            <div style="font-size: 14px; font-weight: 700; color: #10b981; background: rgba(16,185,129,0.1); padding: 6px 12px; border-radius: 6px;">0,0%</div>
-                            <div class="storno-popup">
-                                <div style="font-size: 11px; margin-bottom: 6px;"><span style="color: var(--text-tertiary);">Stornoquote Mitglieder:</span> <span style="font-weight: 600;">0,0%</span> (0)</div>
-                                <div style="font-size: 11px;"><span style="color: var(--text-tertiary);">Stornoquote Jahreseuros:</span> <span style="font-weight: 600;">0,0%</span></div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
+                    <div class="achievement-grid" id="qAchievementGrid"></div>
                 </div>
             </div>
 
+            <!-- TAB: Recruiting -->
+            <div class="kw-tab-content" id="tab-recruiting">
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
+                    <div id="rStatsTableContainer"></div>
+                </div>
+
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Recruiting-Baum</div>
+                    <div id="rContentContainer"></div>
+                </div>
+
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
+                    <div class="achievement-grid" id="rAchievementGrid"></div>
+                </div>
+            </div>
+
+            <!-- TAB: Empfehlung -->
+            <div class="kw-tab-content" id="tab-empfehlung">
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
+                    <div id="eStatsTableContainer"></div>
+                </div>
+
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Empfehlungs-Baum</div>
+                    <div id="eContentContainer"></div>
+                </div>
+
+                <div class="mitglied-form-section mitglied-form-section--card">
+                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
+                    <div class="achievement-grid" id="eAchievementGrid"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // URL Parameter lesen (für Kategorie beim Zurücknavigieren)
-        const backParams = new URLSearchParams(window.location.search);
-        const backCategory = backParams.get('category') || 'werber';
+        // =============================================
+        // URL-PARAMETER & INITIALISIERUNG
+        // =============================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const personId = urlParams.get('id');
+        const personType = urlParams.get('type');
+        const personName = urlParams.get('name');
 
-        // Back Button - zurück zur Statistik-Übersicht mit gleicher Kategorie
-        document.querySelector('.back-btn').addEventListener('click', function() {
-            window.location.href = `index.html?category=${backCategory}`;
-        });
+        if (personName) {
+            document.getElementById('profileName').textContent = decodeURIComponent(personName);
+        }
 
-        // Tabs
-        document.querySelectorAll('.tab').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-            });
-        });
+        document.querySelector('.back-btn').addEventListener('click', () => history.back());
 
-        // Rekorde Filter
-        document.querySelectorAll('.rekorde-filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                btn.parentElement.querySelectorAll('.rekorde-filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
-        });
-
-        // Quoten Filter
-        document.querySelectorAll('.quoten-filter .rekorde-filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                btn.parentElement.querySelectorAll('.rekorde-filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
-        });
-
-        // Storno Accordion Toggle
-        document.querySelectorAll('.storno-accordion-trigger').forEach(trigger => {
-            trigger.addEventListener('click', function() {
-                const content = this.nextElementSibling;
-                const arrow = this.querySelector('.storno-accordion-arrow');
-                if (content.style.display === 'none') {
-                    content.style.display = 'block';
-                    arrow.style.transform = 'rotate(90deg)';
-                } else {
-                    content.style.display = 'none';
-                    arrow.style.transform = 'rotate(0deg)';
+        // =============================================
+        // SHELL-TOOLBAR AKTIVIEREN
+        // =============================================
+        if (window.parent !== window) {
+            window.parent.postMessage({
+                type: 'updateToolbar',
+                config: {
+                    showToolbar: true,
+                    searchPlaceholder: 'Benutzer, Kampagne, Kunde suchen...'
                 }
-            });
-        });
+            }, '*');
+        }
 
-        // Info Popup Toggle
-        document.querySelectorAll('.info-trigger').forEach(trigger => {
-            trigger.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const popup = this.querySelector('.info-popup');
-                if (popup) {
-                    document.querySelectorAll('.info-popup').forEach(p => {
-                        if (p !== popup) p.style.display = 'none';
-                    });
-                    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-                }
-            });
-        });
-
-        // Storno Popup Toggle
-        document.querySelectorAll('.storno-trigger').forEach(trigger => {
-            trigger.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const popup = this.querySelector('.storno-popup');
-                if (popup) {
-                    document.querySelectorAll('.storno-popup').forEach(p => {
-                        if (p !== popup) p.style.display = 'none';
-                    });
-                    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-                }
-            });
-        });
-
-        document.addEventListener('click', function() {
-            document.querySelectorAll('.storno-popup').forEach(p => p.style.display = 'none');
-            document.querySelectorAll('.info-popup').forEach(p => p.style.display = 'none');
-        });
-
-        // Charts
-        Chart.defaults.font.family = "'Inter', -apple-system, sans-serif";
-        Chart.defaults.color = '#6b7280';
-
-        // Beispieldaten für eine Woche
-        const chartData = {
-            labels: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
-            nmgJE: [960, 1440, 1080, 1800, 1200, 600, 360],   // Neumitglieder JE
-            erhJE: [480, 360, 600, 720, 480, 240, 120],        // Erhöhungen JE
-            nmgAnzahl: [4, 6, 5, 8, 5, 3, 2],                  // Anzahl Neumitglieder
-            erhAnzahl: [2, 3, 2, 3, 3, 1, 0],                  // Anzahl Erhöhungen
-            gesamtAnzahl: [6, 9, 7, 11, 8, 4, 2]               // Gesamt Anzahl
+        // =============================================
+        // DEMO-DATEN FÜR SUCHE
+        // =============================================
+        const searchData = {
+            werber: [
+                { id: 1, name: 'Max Mustermann', type: 'werber' },
+                { id: 2, name: 'Anna Schmidt', type: 'werber' },
+                { id: 3, name: 'Thomas Klein', type: 'werber' },
+                { id: 4, name: 'Julia Fischer', type: 'werber' },
+                { id: 5, name: 'Michael Bauer', type: 'werber' }
+            ],
+            kunden: [
+                { id: 101, name: 'DRK Odenwald', type: 'kunde' },
+                { id: 102, name: 'DRK Bergstraße', type: 'kunde' },
+                { id: 103, name: 'DRK Darmstadt', type: 'kunde' }
+            ],
+            kampagnen: [
+                { id: 201, name: 'Frühjahr 2025 - DRK Odenwald', type: 'kampagne' },
+                { id: 202, name: 'Sommer 2025 - DRK Bergstraße', type: 'kampagne' }
+            ],
+            gebiete: [
+                { id: 301, name: 'Erbach', type: 'gebiet' },
+                { id: 302, name: 'Heppenheim', type: 'gebiet' },
+                { id: 303, name: 'Darmstadt', type: 'gebiet' },
+                { id: 304, name: 'Michelstadt', type: 'gebiet' }
+            ]
         };
 
-        new Chart(document.getElementById('mainChart'), {
-            type: 'bar',
-            data: {
-                labels: chartData.labels,
-                datasets: [
-                    {
-                        label: 'Neumitglieder',
-                        data: chartData.nmgJE,
-                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
-                        borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 4, bottomRight: 4 },
-                        stack: 'je',
-                        order: 2
-                    },
-                    {
-                        label: 'Erhöhungen',
-                        data: chartData.erhJE,
-                        backgroundColor: 'rgba(245, 158, 11, 0.85)',
-                        borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
-                        stack: 'je',
-                        order: 2
-                    },
-                    {
-                        label: 'Anzahl Mitglieder',
-                        data: chartData.gesamtAnzahl,
-                        type: 'line',
-                        borderColor: '#6366f1',
-                        backgroundColor: '#6366f1',
-                        borderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        pointBackgroundColor: '#6366f1',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        tension: 0.3,
-                        yAxisID: 'y1',
-                        order: 1
-                    }
+        const allSearchItems = [...searchData.werber, ...searchData.kunden, ...searchData.kampagnen, ...searchData.gebiete];
+
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'searchQuery') {
+                const query = e.data.query.toLowerCase().trim();
+                if (!query) return;
+
+                const results = allSearchItems
+                    .filter(item => item.name.toLowerCase().includes(query))
+                    .slice(0, 10)
+                    .map(item => ({ id: item.id, name: item.name, type: item.type }));
+
+                window.parent.postMessage({
+                    type: 'searchResults',
+                    query: query,
+                    headerText: 'Ergebnisse',
+                    results: results
+                }, '*');
+            }
+
+            if (e.data && e.data.type === 'searchSelect') {
+                const selectedItem = allSearchItems.find(item => item.id === e.data.id);
+                if (selectedItem) {
+                    window.location.href = `dashboard.html?id=${selectedItem.id}&type=${selectedItem.type}&name=${encodeURIComponent(selectedItem.name)}`;
+                }
+            }
+        });
+
+        // =============================================
+        // DEMO-DATEN
+        // =============================================
+        const demoEinsaetze = [
+            { von: '06.01.2025', bis: '24.01.2025', kampagne: 'DRK Odenwald', gebiet: 'Erbach', mg: 42, je: 78, eh: 8 },
+            { von: '27.01.2025', bis: '07.02.2025', kampagne: 'DRK Bergstraße', gebiet: 'Heppenheim', mg: 31, je: 82, eh: 5 },
+            { von: '17.02.2025', bis: '28.02.2025', kampagne: 'DRK Darmstadt', gebiet: 'Darmstadt', mg: 28, je: 71, eh: 4 },
+            { von: '10.03.2025', bis: '28.03.2025', kampagne: 'DRK Odenwald', gebiet: 'Michelstadt', mg: 55, je: 85, eh: 12 }
+        ];
+
+        const demoTLEinsaetze = [
+            { von: '06.01.2025', bis: '24.01.2025', kampagne: 'DRK Odenwald', gebiet: 'Erbach', effizienz: 82 },
+            { von: '27.01.2025', bis: '07.02.2025', kampagne: 'DRK Bergstraße', gebiet: 'Heppenheim', effizienz: 76 },
+            { von: '17.02.2025', bis: '28.02.2025', kampagne: 'DRK Darmstadt', gebiet: 'Darmstadt', effizienz: 88 },
+            { von: '10.03.2025', bis: '28.03.2025', kampagne: 'DRK Odenwald', gebiet: 'Michelstadt', effizienz: 91 }
+        ];
+
+        const demoQEinsaetze = [
+            { von: '06.01.2025', bis: '24.01.2025', kampagne: 'DRK Odenwald', gebiet: 'Erbach', stornoquote: 4.2 },
+            { von: '27.01.2025', bis: '07.02.2025', kampagne: 'DRK Bergstraße', gebiet: 'Heppenheim', stornoquote: 5.8 },
+            { von: '17.02.2025', bis: '28.02.2025', kampagne: 'DRK Darmstadt', gebiet: 'Darmstadt', stornoquote: 3.1 },
+            { von: '10.03.2025', bis: '28.03.2025', kampagne: 'DRK Odenwald', gebiet: 'Michelstadt', stornoquote: 2.9 }
+        ];
+
+        // Achievement-Typen
+        const werbenAchievementTypes = [
+            { id: 'mg_tag', name: 'Meiste Mitglieder an einem Tag' },
+            { id: 'eh_tag', name: 'Meiste EH an einem Tag' },
+            { id: 'mg_woche', name: 'Meiste Mitglieder in einer Woche' },
+            { id: 'eh_woche', name: 'Meiste EH in einer Woche' },
+            { id: 'schrieb_nmg', name: 'Höchster Schrieb Neumitglied' },
+            { id: 'beitragsanpassung', name: 'Höchste positive Beitragsanpassung' },
+            { id: 'mg_stunde', name: 'Meiste Mitglieder in 1 Stunde' },
+            { id: 'eh_durchschnitt_tag', name: 'Höchster Ø EH pro MG an einem Tag' },
+            { id: 'serie_stunde', name: 'Längste Stundenserie' },
+            { id: 'serie_15min', name: 'Längste 15-Minuten-Serie' },
+            { id: 'tage_am_stueck', name: 'Meiste Tage am Stück im Einsatz' },
+            { id: 'stornoquote_woche', name: 'Beste Stornoquote in einer Woche' },
+            { id: 'eh_stunde', name: 'Meiste EH in 1 Stunde' }
+        ];
+
+        const tlAchievementTypes = [
+            { id: 'mg_tag', name: 'Meiste Mitglieder an einem Tag' },
+            { id: 'eh_tag', name: 'Meiste EH an einem Tag' },
+            { id: 'mg_woche', name: 'Meiste Mitglieder in einer Woche' },
+            { id: 'eh_woche', name: 'Meiste EH in einer Woche' },
+            { id: 'schrieb_nmg', name: 'Höchster Schrieb Neumitglied' },
+            { id: 'beitragsanpassung', name: 'Höchste positive Beitragsanpassung' },
+            { id: 'mg_stunde', name: 'Meiste Mitglieder in 1 Stunde' },
+            { id: 'eh_durchschnitt_tag', name: 'Höchster Ø EH pro MG an einem Tag' },
+            { id: 'serie_stunde', name: 'Längste Stundenserie' },
+            { id: 'serie_15min', name: 'Längste 15-Minuten-Serie' },
+            { id: 'effizienz', name: 'Höchste Effizienz' },
+            { id: 'stornoquote_woche', name: 'Beste Stornoquote in einer Woche' },
+            { id: 'eh_stunde', name: 'Meiste EH in 1 Stunde' }
+        ];
+
+        const qAchievementTypes = [
+            { id: 'stornoquote_woche', name: 'Niedrigste Stornoquote pro Woche' },
+            { id: 'eh_durchschnitt_woche', name: 'Höchster Tagesdurchschnitt an EH p.P. für eine Woche' },
+            { id: 'einschulungen_woche', name: 'Meiste erfolgreiche Einschulungen in einer Woche' },
+            { id: 'einschulungen_monat', name: 'Meiste erfolgreiche Einschulungen in einem Monat' },
+            { id: 'zahlungsintervall_woche', name: 'Höchster %Satz an jährlichem Zahlungsintervall pro Woche' },
+            { id: 'mail_optin_woche', name: 'Höchster %Satz an Mail + Opt In pro Woche' },
+            { id: 'tel_optin_woche', name: 'Höchster %Satz an Tel + Opt In pro Woche' }
+        ];
+
+        const rAchievementTypes = [
+            ...werbenAchievementTypes,
+            { id: 'recruitings_monat', name: 'Meiste Recruitings pro Monat' },
+            { id: 'recruitings_quartal', name: 'Meiste Recruitings pro Quartal' },
+            { id: 'recruitings_serie', name: 'Meiste erfolgreiche Recruitings am Stück' },
+            { id: 'recruiting_stufe', name: 'Tiefste Recruiting Stufe' }
+        ];
+
+        const eAchievementTypes = [
+            ...werbenAchievementTypes,
+            { id: 'empfehlungen_monat', name: 'Meiste Empfehlungen pro Monat' },
+            { id: 'empfehlungen_quartal', name: 'Meiste Empfehlungen pro Quartal' },
+            { id: 'empfehlungen_serie', name: 'Meiste erfolgreiche Empfehlungen am Stück' },
+            { id: 'empfehlung_stufe', name: 'Tiefste Empfehlung Stufe' }
+        ];
+
+        // Demo-Achievement-Daten
+        const demoAchievements = {
+            'mg_tag': { score: '12 MG', datum: '15.02.2025', kampagne: 'DRK Odenwald', active: true },
+            'eh_tag': { score: '5 EH', datum: '18.02.2025', kampagne: 'DRK Odenwald', active: false },
+            'mg_woche': { score: '42 MG', datumVon: '06.01.2025', datumBis: '10.01.2025', kampagne: 'DRK Odenwald', active: true },
+            'eh_woche': null,
+            'schrieb_nmg': { score: '45,00 €', datum: '22.01.2025', kampagne: 'DRK Bergstraße', active: false },
+            'beitragsanpassung': null,
+            'mg_stunde': { score: '4 MG', datum: '15.02.2025', kampagne: 'DRK Odenwald', active: true },
+            'eh_durchschnitt_tag': null,
+            'serie_stunde': null,
+            'serie_15min': null,
+            'tage_am_stueck': null,
+            'stornoquote_woche': null,
+            'eh_stunde': null
+        };
+
+        const demoTLAchievements = {
+            'mg_tag': { score: '48 MG', datum: '15.02.2025', kampagne: 'DRK Odenwald', active: true },
+            'eh_tag': { score: '18 EH', datum: '18.02.2025', kampagne: 'DRK Odenwald', active: false },
+            'mg_woche': { score: '156 MG', datumVon: '06.01.2025', datumBis: '10.01.2025', kampagne: 'DRK Odenwald', active: true },
+            'eh_woche': null,
+            'schrieb_nmg': { score: '52,00 €', datum: '22.01.2025', kampagne: 'DRK Bergstraße', active: false },
+            'beitragsanpassung': null,
+            'mg_stunde': { score: '12 MG', datum: '15.02.2025', kampagne: 'DRK Odenwald', active: true },
+            'eh_durchschnitt_tag': null,
+            'serie_stunde': null,
+            'serie_15min': null,
+            'effizienz': { score: '94%', datum: '20.03.2025', kampagne: 'DRK Odenwald', active: true },
+            'stornoquote_woche': null,
+            'eh_stunde': null
+        };
+
+        const demoQAchievements = {
+            'stornoquote_woche': { score: '2,1%', datumVon: '10.03.2025', datumBis: '14.03.2025', kampagne: 'DRK Odenwald', active: true },
+            'eh_durchschnitt_woche': { score: '1,8 EH', datumVon: '06.01.2025', datumBis: '10.01.2025', kampagne: 'DRK Odenwald', active: false },
+            'einschulungen_woche': { score: '4', datumVon: '27.01.2025', datumBis: '31.01.2025', kampagne: 'DRK Bergstraße', active: true },
+            'einschulungen_monat': { score: '12', datumVon: '01.02.2025', datumBis: '28.02.2025', kampagne: 'DRK Darmstadt', active: false },
+            'zahlungsintervall_woche': { score: '28%', datumVon: '17.02.2025', datumBis: '21.02.2025', kampagne: 'DRK Darmstadt', active: true },
+            'mail_optin_woche': { score: '92%', datumVon: '10.03.2025', datumBis: '14.03.2025', kampagne: 'DRK Odenwald', active: false },
+            'tel_optin_woche': null
+        };
+
+        const demoRAchievements = {
+            ...demoAchievements,
+            'recruitings_monat': { score: '3', datumVon: '01.02.2025', datumBis: '28.02.2025', kampagne: 'DRK Darmstadt', active: true },
+            'recruitings_quartal': { score: '7', datumVon: '01.01.2025', datumBis: '31.03.2025', kampagne: 'DRK Odenwald', active: false },
+            'recruitings_serie': { score: '4', datum: '15.03.2025', kampagne: 'DRK Odenwald', active: true },
+            'recruiting_stufe': { score: 'Stufe 3', datum: '20.03.2025', kampagne: 'DRK Odenwald', active: false }
+        };
+
+        const demoEAchievements = {
+            ...demoAchievements,
+            'empfehlungen_monat': { score: '5', datumVon: '01.02.2025', datumBis: '28.02.2025', kampagne: 'DRK Darmstadt', active: true },
+            'empfehlungen_quartal': { score: '12', datumVon: '01.01.2025', datumBis: '31.03.2025', kampagne: 'DRK Odenwald', active: false },
+            'empfehlungen_serie': { score: '6', datum: '18.03.2025', kampagne: 'DRK Odenwald', active: true },
+            'empfehlung_stufe': { score: 'Stufe 4', datum: '22.03.2025', kampagne: 'DRK Bergstraße', active: false }
+        };
+
+        // Referral-Trees
+        const demoRecruitingTree = {
+            name: 'Max Mustermann',
+            date: null,
+            children: [
+                {
+                    name: 'Anna Schmidt',
+                    date: '15.03.2024',
+                    mg: 38,
+                    eh: 6,
+                    children: [
+                        { name: 'Peter Müller', date: '01.08.2024' },
+                        { name: 'Lisa Weber', date: '15.09.2024' }
+                    ]
+                },
+                {
+                    name: 'Thomas Klein',
+                    date: '22.05.2024',
+                    mg: 52,
+                    eh: 9,
+                    children: [
+                        { name: 'Sarah Braun', date: '10.11.2024' }
+                    ]
+                },
+                {
+                    name: 'Julia Fischer',
+                    date: '08.07.2024',
+                    mg: 28,
+                    eh: 4,
+                    children: []
+                }
+            ]
+        };
+
+        const demoEmpfehlungTree = {
+            name: 'Max Mustermann',
+            date: null,
+            children: [
+                {
+                    name: 'Michael Bauer',
+                    date: '10.02.2024',
+                    mg: 45,
+                    eh: 7,
+                    children: [
+                        { name: 'Nina Hoffmann', date: '20.06.2024' },
+                        { name: 'Tim Schneider', date: '05.08.2024' },
+                        { name: 'Laura Meyer', date: '18.10.2024' }
+                    ]
+                },
+                {
+                    name: 'Sandra Wolf',
+                    date: '28.04.2024',
+                    mg: 31,
+                    eh: 5,
+                    children: []
+                }
+            ]
+        };
+
+        // Übersichts-Rows für Werber
+        const uebersichtRows = [
+            {
+                kategorie: 'Netto Mitglieder Werben',
+                type: 'netto',
+                anzahl: 38,
+                jahreseuros: '4.560 €',
+                einheiten: 9.5,
+                ruecklaufquote: '5,0%',
+                ruecklaufquoteMg: '4,2%',
+                ruecklaufquoteEur: '7,1%',
+                beitrag: '10,00 €',
+                alter: 52,
+                mailOptin: '85% / 72%',
+                telOptin: '78% / 65%',
+                zahlungsrhythmus: { m: 45, qt: 25, hj: 15, j: 15 },
+                provision: '1.824 €',
+                faktor: 6.2,
+                children: [
+                    { kategorie: 'Neumitglieder', anzahl: 28, jahreseuros: '3.360 €', einheiten: 7.0, ruecklaufquote: '4,2%', ruecklaufquoteMg: '4,2%', ruecklaufquoteEur: '—', beitrag: '10,00 €', alter: 48, mailOptin: '88% / 75%', telOptin: '80% / 68%', zahlungsrhythmus: { m: 40, qt: 30, hj: 15, j: 15 }, provision: '1.344 €', faktor: 6.5 },
+                    { kategorie: 'Erhöhungen', anzahl: 10, jahreseuros: '1.200 €', einheiten: 2.5, ruecklaufquote: '7,1%', ruecklaufquoteMg: '—', ruecklaufquoteEur: '7,1%', beitrag: '10,00 €', alter: 62, mailOptin: '78% / 65%', telOptin: '72% / 58%', zahlungsrhythmus: { m: 55, qt: 15, hj: 15, j: 15 }, provision: '480 €', faktor: 5.5 }
                 ]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            padding: 16,
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: { size: 11 }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1a1a1a',
-                        bodyColor: '#5f6368',
-                        borderColor: '#e8eaed',
-                        borderWidth: 1,
-                        padding: 12,
-                        boxPadding: 6,
-                        usePointStyle: true,
-                        callbacks: {
-                            title: function(context) {
-                                return context[0].label;
-                            },
-                            label: function(context) {
-                                const index = context.dataIndex;
-                                const datasetIndex = context.datasetIndex;
-                                const value = context.parsed.y;
-
-                                if (datasetIndex === 0) {
-                                    // Neumitglieder
-                                    const anzahl = chartData.nmgAnzahl[index];
-                                    return 'Neumitglieder (' + anzahl + '): ' + value.toLocaleString('de-DE') + ' JE';
-                                } else if (datasetIndex === 1) {
-                                    // Erhöhungen
-                                    const anzahl = chartData.erhAnzahl[index];
-                                    return 'Erhöhungen (' + anzahl + '): ' + value.toLocaleString('de-DE') + ' JE';
-                                } else {
-                                    // Anzahl Linie
-                                    return 'Anzahl Mitglieder: ' + value;
-                                }
-                            },
-                            afterBody: function(context) {
-                                const index = context[0].dataIndex;
-                                const totalJE = chartData.nmgJE[index] + chartData.erhJE[index];
-                                const totalEH = Math.round(totalJE / 12);
-                                return '\nGesamt: ' + totalJE.toLocaleString('de-DE') + ' JE\n' + totalEH.toLocaleString('de-DE') + ' EH';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { display: false }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Jahreseuros (JE)',
-                            font: { size: 11, weight: 500 }
-                        },
-                        grid: { color: 'rgba(0,0,0,0.05)' },
-                        stacked: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString('de-DE');
-                            }
-                        }
-                    },
-                    y1: {
-                        beginAtZero: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Anzahl',
-                            font: { size: 11, weight: 500 }
-                        },
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
-
-        // Zahlungsrhythmus Donut Chart
-        new Chart(document.getElementById('rhythmusChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Monatlich', 'Vierteljährlich', 'Halbjährlich', 'Jährlich'],
-                datasets: [{
-                    data: [59, 23, 11, 7],
-                    backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6'],
-                    borderWidth: 0
-                }]
+            {
+                kategorie: 'Netto Mitglieder Teamleitung',
+                type: 'netto',
+                anzahl: 156,
+                jahreseuros: '18.720 €',
+                einheiten: 39.0,
+                ruecklaufquote: '4,8%',
+                ruecklaufquoteMg: '4,0%',
+                ruecklaufquoteEur: '6,5%',
+                beitrag: '10,00 €',
+                alter: 50,
+                mailOptin: '86% / 74%',
+                telOptin: '79% / 67%',
+                zahlungsrhythmus: { m: 42, qt: 28, hj: 16, j: 14 },
+                provision: '7.488 €',
+                faktor: 6.4,
+                children: [
+                    { kategorie: 'Neumitglieder', anzahl: 118, jahreseuros: '14.160 €', einheiten: 29.5, ruecklaufquote: '4,0%', ruecklaufquoteMg: '4,0%', ruecklaufquoteEur: '—', beitrag: '10,00 €', alter: 46, mailOptin: '89% / 77%', telOptin: '81% / 69%', zahlungsrhythmus: { m: 38, qt: 32, hj: 16, j: 14 }, provision: '5.664 €', faktor: 6.7 },
+                    { kategorie: 'Erhöhungen', anzahl: 38, jahreseuros: '4.560 €', einheiten: 9.5, ruecklaufquote: '6,5%', ruecklaufquoteMg: '—', ruecklaufquoteEur: '6,5%', beitrag: '10,00 €', alter: 60, mailOptin: '77% / 64%', telOptin: '73% / 59%', zahlungsrhythmus: { m: 52, qt: 18, hj: 16, j: 14 }, provision: '1.824 €', faktor: 5.6 }
+                ]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                cutout: '65%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1a1a1a',
-                        bodyColor: '#5f6368',
-                        borderColor: '#e8eaed',
-                        borderWidth: 1,
-                        padding: 10,
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.parsed + '%';
-                            }
-                        }
-                    }
-                }
+            {
+                kategorie: 'Netto Mitglieder Quality',
+                type: 'netto',
+                anzahl: 42,
+                jahreseuros: '5.040 €',
+                einheiten: 10.5,
+                ruecklaufquote: '2,1%',
+                ruecklaufquoteMg: '1,8%',
+                ruecklaufquoteEur: '2,9%',
+                beitrag: '10,00 €',
+                alter: 49,
+                mailOptin: '92% / 85%',
+                telOptin: '88% / 78%',
+                zahlungsrhythmus: { m: 35, qt: 28, hj: 20, j: 17 },
+                provision: '2.016 €',
+                faktor: 6.8,
+                children: [
+                    { kategorie: 'Neumitglieder', anzahl: 32, jahreseuros: '3.840 €', einheiten: 8.0, ruecklaufquote: '1,8%', ruecklaufquoteMg: '1,8%', ruecklaufquoteEur: '—', beitrag: '10,00 €', alter: 45, mailOptin: '94% / 88%', telOptin: '90% / 80%', zahlungsrhythmus: { m: 32, qt: 30, hj: 20, j: 18 }, provision: '1.536 €', faktor: 7.0 },
+                    { kategorie: 'Erhöhungen', anzahl: 10, jahreseuros: '1.200 €', einheiten: 2.5, ruecklaufquote: '2,9%', ruecklaufquoteMg: '—', ruecklaufquoteEur: '2,9%', beitrag: '10,00 €', alter: 58, mailOptin: '87% / 76%', telOptin: '82% / 70%', zahlungsrhythmus: { m: 42, qt: 22, hj: 20, j: 16 }, provision: '480 €', faktor: 6.2 }
+                ]
+            },
+            {
+                kategorie: 'Netto Mitglieder Recruiting',
+                type: 'netto',
+                anzahl: 85,
+                jahreseuros: '10.200 €',
+                einheiten: 21.3,
+                ruecklaufquote: '4,5%',
+                ruecklaufquoteMg: '3,8%',
+                ruecklaufquoteEur: '6,2%',
+                beitrag: '10,00 €',
+                alter: 51,
+                mailOptin: '84% / 71%',
+                telOptin: '77% / 64%',
+                zahlungsrhythmus: { m: 44, qt: 26, hj: 16, j: 14 },
+                provision: '4.080 €',
+                faktor: 6.3,
+                children: [
+                    { kategorie: 'Neumitglieder', anzahl: 64, jahreseuros: '7.680 €', einheiten: 16.0, ruecklaufquote: '3,8%', ruecklaufquoteMg: '3,8%', ruecklaufquoteEur: '—', beitrag: '10,00 €', alter: 47, mailOptin: '87% / 74%', telOptin: '80% / 67%', zahlungsrhythmus: { m: 40, qt: 29, hj: 16, j: 15 }, provision: '3.072 €', faktor: 6.6 },
+                    { kategorie: 'Erhöhungen', anzahl: 21, jahreseuros: '2.520 €', einheiten: 5.3, ruecklaufquote: '6,2%', ruecklaufquoteMg: '—', ruecklaufquoteEur: '6,2%', beitrag: '10,00 €', alter: 61, mailOptin: '76% / 62%', telOptin: '70% / 56%', zahlungsrhythmus: { m: 54, qt: 18, hj: 16, j: 12 }, provision: '1.008 €', faktor: 5.5 }
+                ]
+            },
+            {
+                kategorie: 'Netto Mitglieder Empfehlung',
+                type: 'netto',
+                anzahl: 62,
+                jahreseuros: '7.440 €',
+                einheiten: 15.5,
+                ruecklaufquote: '3,9%',
+                ruecklaufquoteMg: '3,2%',
+                ruecklaufquoteEur: '5,4%',
+                beitrag: '10,00 €',
+                alter: 48,
+                mailOptin: '88% / 76%',
+                telOptin: '82% / 70%',
+                zahlungsrhythmus: { m: 38, qt: 30, hj: 18, j: 14 },
+                provision: '2.976 €',
+                faktor: 6.6,
+                children: [
+                    { kategorie: 'Neumitglieder', anzahl: 48, jahreseuros: '5.760 €', einheiten: 12.0, ruecklaufquote: '3,2%', ruecklaufquoteMg: '3,2%', ruecklaufquoteEur: '—', beitrag: '10,00 €', alter: 44, mailOptin: '91% / 79%', telOptin: '85% / 73%', zahlungsrhythmus: { m: 35, qt: 33, hj: 18, j: 14 }, provision: '2.304 €', faktor: 6.9 },
+                    { kategorie: 'Erhöhungen', anzahl: 14, jahreseuros: '1.680 €', einheiten: 3.5, ruecklaufquote: '5,4%', ruecklaufquoteMg: '—', ruecklaufquoteEur: '5,4%', beitrag: '10,00 €', alter: 58, mailOptin: '80% / 68%', telOptin: '74% / 62%', zahlungsrhythmus: { m: 48, qt: 22, hj: 18, j: 12 }, provision: '672 €', faktor: 5.8 }
+                ]
             }
-        });
+        ];
 
-        // ================================================================
-        // MESSAGE LISTENER - Kommunikation mit Shell
-        // ================================================================
+        // Kombinierte Achievements für Kunde/Kampagne/Gebiet
+        const kkAchievementTypes = [
+            ...werbenAchievementTypes,
+            { id: 'effizienz', name: 'Höchste Effizienz' },
+            { id: 'eh_durchschnitt_woche', name: 'Höchster Tagesdurchschnitt an EH p.P. für eine Woche' },
+            { id: 'einschulungen_woche', name: 'Meiste erfolgreiche Einschulungen in einer Woche' },
+            { id: 'einschulungen_monat', name: 'Meiste erfolgreiche Einschulungen in einem Monat' },
+            { id: 'zahlungsintervall_woche', name: 'Höchster %Satz an jährlichem Zahlungsintervall pro Woche' },
+            { id: 'mail_optin_woche', name: 'Höchster %Satz an Mail + Opt In pro Woche' },
+            { id: 'tel_optin_woche', name: 'Höchster %Satz an Tel + Opt In pro Woche' }
+        ];
 
-        // Nachrichten von der Shell empfangen
-        window.addEventListener('message', function(e) {
-            // Kategorie-Wechsel (Werber/Kunden/Kampagnen) -> zurück zur Übersicht
-            if (e.data && e.data.type === 'navFilter') {
-                window.location.href = `index.html?category=${e.data.value}`;
-            }
+        const kkAchievements = {
+            ...demoAchievements,
+            'stornoquote_woche': { score: '2,1%', datumVon: '10.03.2025', datumBis: '14.03.2025', kampagne: 'DRK Odenwald', active: true },
+            'effizienz': { score: '94%', datum: '20.03.2025', kampagne: 'DRK Odenwald', active: true },
+            'eh_durchschnitt_woche': { score: '1,8 EH', datumVon: '06.01.2025', datumBis: '10.01.2025', kampagne: 'DRK Odenwald', active: false },
+            'einschulungen_woche': { score: '4', datumVon: '27.01.2025', datumBis: '31.01.2025', kampagne: 'DRK Bergstraße', active: true },
+            'einschulungen_monat': { score: '12', datumVon: '01.02.2025', datumBis: '28.02.2025', kampagne: 'DRK Darmstadt', active: false },
+            'zahlungsintervall_woche': { score: '28%', datumVon: '17.02.2025', datumBis: '21.02.2025', kampagne: 'DRK Darmstadt', active: true },
+            'mail_optin_woche': { score: '92%', datumVon: '10.03.2025', datumBis: '14.03.2025', kampagne: 'DRK Odenwald', active: false },
+            'tel_optin_woche': null
+        };
 
-            // Zeitraum-Änderung -> Shell handled das Modal jetzt selbst
-            // Hier nur reagieren wenn die Shell Daten sendet
-            if (e.data && e.data.type === 'periodFilter') {
-                // TODO: Daten neu laden wenn Backend angebunden
-                console.log('Period changed to:', e.data.value);
-            }
+        // =============================================
+        // ANSICHT BASIEREND AUF TYP
+        // =============================================
+        const isKundeOrKampagne = personType === 'kunde' || personType === 'kampagne' || personType === 'gebiet';
 
-            // Custom Date Range wurde in der Shell ausgewählt
-            if (e.data && e.data.type === 'customDateRangeApplied') {
-                console.log('Custom date range:', e.data.dateFrom, '-', e.data.dateTo);
-                // TODO: Daten mit neuem Zeitraum laden
-            }
-        });
+        if (isKundeOrKampagne) {
+            // Kunde/Kampagne/Gebiet: Tabs ausblenden, nur Übersicht
+            document.getElementById('werberTabs').style.display = 'none';
+            document.getElementById('uebersichtPlaceholder').style.display = 'none';
+            document.getElementById('kundeKampagneContent').style.display = 'block';
+
+            document.querySelectorAll('.kw-tab-content:not(#tab-uebersicht)').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            initStatsTable('kkStatsTableContainer');
+            initWochenverlaufChart('kkChart');
+            renderEinsatzTimeline('kkEinsatzTimeline', '01.01.2025', '31.03.2025', demoEinsaetze);
+            renderAchievementGrid('kkAchievementGrid', kkAchievementTypes, kkAchievements);
+
+        } else {
+            // Werber: Alle Tabs anzeigen
+            initTabs('.kw-tab', '.kw-tab-content');
+
+            // Übersicht
+            initStatsTable('uebersichtStatsTableContainer', { rows: uebersichtRows });
+
+            // Werben
+            initStatsTable('statsTableContainer');
+            initWochenverlaufChart('werbenChart');
+            renderEinsatzTimeline('einsatzTimeline', '01.01.2025', '31.03.2025', demoEinsaetze);
+            renderAchievementGrid('achievementGrid', werbenAchievementTypes, demoAchievements);
+
+            // Teamleitung
+            initStatsTable('tlStatsTableContainer');
+            initWochenverlaufChart('teamleitungChart');
+            renderEinsatzTimeline('tlEinsatzTimeline', '01.01.2025', '31.03.2025', demoTLEinsaetze, {
+                stats: [{ key: 'effizienz', label: 'Effizienz', suffix: '%' }]
+            });
+            renderAchievementGrid('tlAchievementGrid', tlAchievementTypes, demoTLAchievements);
+
+            // Quality
+            initStatsTable('qStatsTableContainer');
+            initWochenverlaufChart('qualityChart');
+            renderEinsatzTimeline('qEinsatzTimeline', '01.01.2025', '31.03.2025', demoQEinsaetze, {
+                stats: [{ key: 'stornoquote', label: 'Stornoquote', suffix: '%' }]
+            });
+            renderAchievementGrid('qAchievementGrid', qAchievementTypes, demoQAchievements);
+
+            // Recruiting
+            initStatsTable('rStatsTableContainer');
+            renderReferralTree('rContentContainer', demoRecruitingTree);
+            renderAchievementGrid('rAchievementGrid', rAchievementTypes, demoRAchievements);
+
+            // Empfehlung
+            initStatsTable('eStatsTableContainer');
+            renderReferralTree('eContentContainer', demoEmpfehlungTree);
+            renderAchievementGrid('eAchievementGrid', eAchievementTypes, demoEAchievements);
+        }
     </script>
 </body>
 </html>
