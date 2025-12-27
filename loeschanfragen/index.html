@@ -4,1038 +4,159 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lösch-Anfragen - RB Inside Office</title>
-    <link rel="stylesheet" href="../styles.css">
-    <script src="../js/modal-system.js"></script>
-    <script src="../js/badge-system.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
     <style>
         body {
             overflow-y: auto;
-            height: 100%;
+            height: 100vh;
             margin: 0;
             background: var(--bg-secondary);
-        }
-
-        /* Toolbar verstecken wenn in iframe (Shell hat eigene) */
-        body.in-iframe .action-toolbar {
-            display: none !important;
-        }
-
-        .page-container {
-            padding: var(--spacing-lg);
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .page-title {
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .page-subtitle {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
-
-        /* Stats Bar */
-        .stats-bar {
-            display: flex;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-lg);
-            flex-wrap: wrap;
-        }
-
-        .stat-chip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg-primary);
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .stat-chip-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .stat-chip-dot.orange { background: #f59e0b; }
-        .stat-chip-dot.green { background: #10b981; }
-        .stat-chip-dot.blue { background: #3b82f6; }
-        .stat-chip-dot.red { background: #ef4444; }
-
-        .stat-chip-value {
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .stat-chip-label {
-            color: var(--text-secondary);
-        }
-
-        /* Filter Tabs */
-        .filter-tabs {
-            display: flex;
-            gap: 4px;
-            background: var(--bg-primary);
-            padding: 3px;
-            border-radius: 8px;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .filter-tab {
-            padding: 6px 12px;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 500;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .filter-tab:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .filter-tab.active {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        .filter-badge {
-            font-size: 10px;
-            padding: 1px 5px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.2);
-            font-weight: 600;
-        }
-
-        .filter-tab:not(.active) .filter-badge {
-            background: var(--bg-hover);
-        }
-
-        /* Requests List */
-        .requests-list {
-            background: var(--bg-primary);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        /* Header Row */
-        .header-row {
-            display: grid;
-            grid-template-columns: 40px 90px 1fr 150px 130px 100px 180px;
-            gap: 12px;
-            padding: 8px 14px;
-            background: var(--bg-secondary);
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .header-row > div {
-            display: flex;
-            align-items: center;
-        }
-
-        .header-row .center {
-            justify-content: center;
-        }
-
-        .header-row .right {
-            justify-content: flex-end;
-        }
-
-        /* Request Row */
-        .request-row {
-            display: grid;
-            grid-template-columns: 40px 90px 1fr 150px 130px 100px 180px;
-            gap: 12px;
-            align-items: center;
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border-color);
-            transition: background 0.15s;
-        }
-
-        .request-row:last-child {
-            border-bottom: none;
-        }
-
-        .request-row:hover {
-            background: var(--bg-hover);
-        }
-
-        /* Avatar */
-        .avatar-sm {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 12px;
-            font-weight: 600;
-            flex-shrink: 0;
         }
 
-        /* Type Badge */
-        .type-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            text-align: center;
+        .info-container {
+            max-width: 600px;
+            padding: var(--spacing-xl);
         }
 
-        .type-badge.contract { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-        .type-badge.document { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-        .type-badge.photo { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-
-        /* Info */
-        .request-info {
-            min-width: 0;
-        }
-
-        .request-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .request-detail {
-            font-size: 11px;
-            color: var(--text-secondary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Affected User */
-        .affected-user {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .affected-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        .affected-name {
-            font-size: 12px;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Requested By */
-        .requested-by {
-            font-size: 11px;
-            color: var(--text-secondary);
-            text-align: center;
-        }
-
-        /* Status Badge */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 500;
-        }
-
-        .status-badge.pending {
-            background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
-        }
-
-        .status-badge.approved {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .status-badge.archived {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-        }
-
-        .status-badge.rejected {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
-
-        .status-dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 6px;
-            justify-content: flex-end;
-        }
-
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .action-btn svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .action-btn.delete {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
-
-        .action-btn.delete:hover {
-            background: #ef4444;
-            color: white;
-        }
-
-        .action-btn.archive {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-        }
-
-        .action-btn.archive:hover {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .action-btn.view {
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-        }
-
-        .action-btn.view:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        /* Timestamp */
-        .timestamp {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        /* Empty State */
-        .empty-state {
-            padding: 60px 20px;
-            text-align: center;
-            color: var(--text-secondary);
-        }
-
-        .empty-state-icon {
+        .info-icon {
             width: 64px;
             height: 64px;
-            margin: 0 auto 16px;
-            opacity: 0.3;
-        }
-
-        .empty-state-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .empty-state-text {
-            font-size: 13px;
-        }
-
-        /* Responsive */
-        @media (max-width: 1100px) {
-            .header-row, .request-row {
-                grid-template-columns: 40px 80px 1fr 130px 100px 160px;
-            }
-            .requested-by-col {
-                display: none;
-            }
-        }
-
-        @media (max-width: 800px) {
-            .header-row, .request-row {
-                grid-template-columns: 40px 1fr 100px 140px;
-            }
-            .type-badge-col, .affected-col {
-                display: none;
-            }
-        }
-
-        /* Confirm Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 16px;
+            display: flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: var(--spacing-lg);
         }
 
-        .modal-overlay.active {
-            display: flex;
+        .info-icon svg {
+            width: 32px;
+            height: 32px;
+            color: #ef4444;
         }
 
-        .modal {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 420px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-title {
-            font-size: 18px;
+        .info-title {
+            font-size: 24px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin-bottom: var(--spacing-sm);
         }
 
-        .modal-text {
+        .info-subtitle {
             font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .info-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+        }
+
+        .info-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card h3 svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent-color);
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
             line-height: 1.5;
         }
 
-        .modal-item {
-            background: var(--bg-secondary);
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
+        .info-list li:last-child {
+            margin-bottom: 0;
         }
 
-        .modal-item-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
+        .info-list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 7px;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-color);
+            border-radius: 50%;
         }
 
-        .modal-item-value {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .modal-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .modal-btn.cancel {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .modal-btn.cancel:hover {
-            background: var(--bg-hover);
-        }
-
-        .modal-btn.danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .modal-btn.danger:hover {
-            background: #dc2626;
-        }
-
-        .modal-btn.primary {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .modal-btn.primary:hover {
-            background: #2563eb;
-        }
-
-        .modal-warning {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
+        .info-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
             background: rgba(245, 158, 11, 0.1);
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-
-        .modal-warning svg {
-            width: 20px;
-            height: 20px;
             color: #f59e0b;
-            flex-shrink: 0;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 4px;
+            margin-top: var(--spacing-lg);
         }
 
-        .modal-warning-text {
-            font-size: 12px;
-            color: var(--text-secondary);
+        .info-status svg {
+            width: 14px;
+            height: 14px;
         }
     </style>
 </head>
 <body>
-    <!-- Action Toolbar -->
-    <div class="action-toolbar">
-        <div class="toolbar-left">
-            <div class="toolbar-stats">
-                <div class="toolbar-stat-chip">
-                    <span class="toolbar-stat-dot orange"></span>
-                    <span class="toolbar-stat-value" id="stat-pending">3</span>
-                    <span class="toolbar-stat-label">Ausstehend</span>
-                </div>
-                <div class="toolbar-stat-chip">
-                    <span class="toolbar-stat-dot green"></span>
-                    <span class="toolbar-stat-value" id="stat-approved">2</span>
-                    <span class="toolbar-stat-label">Gelöscht</span>
-                </div>
-                <div class="toolbar-stat-chip">
-                    <span class="toolbar-stat-dot blue"></span>
-                    <span class="toolbar-stat-value" id="stat-archived">1</span>
-                    <span class="toolbar-stat-label">Archiviert</span>
-                </div>
-            </div>
+    <div class="info-container">
+        <div class="info-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
         </div>
-        <div class="toolbar-center">
-            <div class="toolbar-tabs">
-                <button class="toolbar-tab active" data-filter="pending">
-                    Ausstehend <span class="tab-badge" id="badge-pending">3</span>
-                </button>
-                <button class="toolbar-tab" data-filter="processed">
-                    Bearbeitet <span class="tab-badge" id="badge-processed">3</span>
-                </button>
-                <button class="toolbar-tab" data-filter="all">
-                    Alle <span class="tab-badge" id="badge-all">6</span>
-                </button>
-            </div>
-        </div>
-        <div class="toolbar-right"></div>
-    </div>
 
-    <div class="content-area">
-        <!-- Requests List -->
-        <div class="requests-list">
-            <!-- Header -->
-            <div class="header-row">
-                <div></div>
-                <div class="type-badge-col">Typ</div>
-                <div>Dokument / Details</div>
-                <div class="affected-col">Betroffener MA</div>
-                <div class="requested-by-col center">Angefordert von</div>
-                <div class="center">Status</div>
-                <div class="right">Aktionen</div>
-            </div>
+        <h1 class="info-title">Lösch-Anfragen</h1>
+        <p class="info-subtitle">Diese Seite wird neu implementiert</p>
 
-            <!-- Pending Request 1 -->
-            <div class="request-row" data-id="1" data-status="pending">
-                <div class="avatar-sm">HV</div>
-                <span class="type-badge contract type-badge-col">Vertrag</span>
-                <div class="request-info">
-                    <div class="request-name">HV Vertrag - November 2025</div>
-                    <div class="request-detail">Hochgeladen am 15.11.2025</div>
-                </div>
-                <div class="affected-col">
-                    <div class="user-badge user-badge--kunde user-badge--small">
-                        <div class="user-badge__avatar">TM</div>
-                        <div class="user-badge__info">
-                            <span class="user-badge__name">Tim Müller</span>
-                            <span class="user-badge__type">Kunde</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="requested-by requested-by-col">Tim Müller</div>
-                <span class="status-badge pending"><span class="status-dot"></span>Ausstehend</span>
-                <div class="action-buttons">
-                    <button class="action-btn delete" onclick="confirmDelete(1, 'HV Vertrag - November 2025', 'Tim Müller')" title="Endgültig löschen">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Löschen
-                    </button>
-                    <button class="action-btn archive" onclick="confirmArchive(1, 'HV Vertrag - November 2025', 'Tim Müller')" title="Archivieren (für Nutzer unsichtbar)">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                        Archiv
-                    </button>
-                </div>
-            </div>
+        <div class="info-card">
+            <h3>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Funktion dieser Seite
+            </h3>
+            <ul class="info-list">
+                <li>Verwaltung von Löschanfragen für Dokumente (Verträge, Vereinbarungen, etc.)</li>
+                <li>Mitarbeiter oder Kunden können die Löschung ihrer Dokumente beantragen</li>
+                <li>Admins sehen alle ausstehenden Anfragen mit Status (Ausstehend, Bearbeitet, Abgelehnt)</li>
+                <li>Zwei Aktionen pro Anfrage: <strong>Endgültig löschen</strong> oder <strong>Archivieren</strong> (für Nutzer unsichtbar, aber im System erhalten)</li>
+                <li>Statistik-Übersicht: Anzahl ausstehender, bearbeiteter und abgelehnter Anfragen</li>
+                <li>Filter nach Status und Dokumenttyp</li>
+            </ul>
 
-            <!-- Pending Request 2 -->
-            <div class="request-row" data-id="2" data-status="pending">
-                <div class="avatar-sm">ZV</div>
-                <span class="type-badge document type-badge-col">Dokument</span>
-                <div class="request-info">
-                    <div class="request-name">Zusatzvereinbarung_Oktober_2025.pdf</div>
-                    <div class="request-detail">Sonstige Vereinbarung - Hochgeladen am 03.10.2025</div>
-                </div>
-                <div class="affected-col">
-                    <div class="user-badge user-badge--kunde user-badge--small">
-                        <div class="user-badge__avatar">AS</div>
-                        <div class="user-badge__info">
-                            <span class="user-badge__name">Anna Schneider</span>
-                            <span class="user-badge__type">Kunde</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="requested-by requested-by-col">Anna Schneider</div>
-                <span class="status-badge pending"><span class="status-dot"></span>Ausstehend</span>
-                <div class="action-buttons">
-                    <button class="action-btn delete" onclick="confirmDelete(2, 'Zusatzvereinbarung_Oktober_2025.pdf', 'Anna Schneider')" title="Endgültig löschen">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Löschen
-                    </button>
-                    <button class="action-btn archive" onclick="confirmArchive(2, 'Zusatzvereinbarung_Oktober_2025.pdf', 'Anna Schneider')" title="Archivieren (für Nutzer unsichtbar)">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                        Archiv
-                    </button>
-                </div>
-            </div>
-
-            <!-- Pending Request 3 -->
-            <div class="request-row" data-id="3" data-status="pending">
-                <div class="avatar-sm">BV</div>
-                <span class="type-badge document type-badge-col">Dokument</span>
-                <div class="request-info">
-                    <div class="request-name">Bonusvereinbarung_September_2025.pdf</div>
-                    <div class="request-detail">Sonstige Vereinbarung - Hochgeladen am 01.09.2025</div>
-                </div>
-                <div class="affected-col">
-                    <div class="user-badge user-badge--kunde user-badge--small">
-                        <div class="user-badge__avatar">PH</div>
-                        <div class="user-badge__info">
-                            <span class="user-badge__name">Peter Hoffmann</span>
-                            <span class="user-badge__type">Kunde</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="requested-by requested-by-col">Office Admin</div>
-                <span class="status-badge pending"><span class="status-dot"></span>Ausstehend</span>
-                <div class="action-buttons">
-                    <button class="action-btn delete" onclick="confirmDelete(3, 'Bonusvereinbarung_September_2025.pdf', 'Peter Hoffmann')" title="Endgültig löschen">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Löschen
-                    </button>
-                    <button class="action-btn archive" onclick="confirmArchive(3, 'Bonusvereinbarung_September_2025.pdf', 'Peter Hoffmann')" title="Archivieren (für Nutzer unsichtbar)">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                        Archiv
-                    </button>
-                </div>
-            </div>
-
-            <!-- Processed Request 1 - Deleted -->
-            <div class="request-row" data-id="4" data-status="approved" style="display: none;">
-                <div class="avatar-sm">HV</div>
-                <span class="type-badge contract type-badge-col">Vertrag</span>
-                <div class="request-info">
-                    <div class="request-name">HV Vertrag - August 2025</div>
-                    <div class="request-detail">Gelöscht am 20.11.2025 von M. Schmidt</div>
-                </div>
-                <div class="affected-col">
-                    <div class="user-badge user-badge--kunde user-badge--small">
-                        <div class="user-badge__avatar">LB</div>
-                        <div class="user-badge__info">
-                            <span class="user-badge__name">Lisa Bauer</span>
-                            <span class="user-badge__type">Kunde</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="requested-by requested-by-col">Lisa Bauer</div>
-                <span class="status-badge approved"><span class="status-dot"></span>Gelöscht</span>
-                <div class="action-buttons">
-                    <button class="action-btn view" onclick="viewDetails(4)" title="Details anzeigen">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        Details
-                    </button>
-                </div>
-            </div>
-
-            <!-- Processed Request 2 - Archived -->
-            <div class="request-row" data-id="5" data-status="archived" style="display: none;">
-                <div class="avatar-sm">NV</div>
-                <span class="type-badge document type-badge-col">Dokument</span>
-                <div class="request-info">
-                    <div class="request-name">Nebentätigkeitsvereinbarung_Juli_2025.pdf</div>
-                    <div class="request-detail">Archiviert am 18.11.2025 von M. Schmidt</div>
-                </div>
-                <div class="affected-col">
-                    <div class="user-badge user-badge--kunde user-badge--small">
-                        <div class="user-badge__avatar">MK</div>
-                        <div class="user-badge__info">
-                            <span class="user-badge__name">Max Klein</span>
-                            <span class="user-badge__type">Kunde</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="requested-by requested-by-col">Max Klein</div>
-                <span class="status-badge archived"><span class="status-dot"></span>Archiviert</span>
-                <div class="action-buttons">
-                    <button class="action-btn view" onclick="viewDetails(5)" title="Details anzeigen">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        Details
-                    </button>
-                </div>
-            </div>
-
-            <!-- Processed Request 3 - Deleted -->
-            <div class="request-row" data-id="6" data-status="approved" style="display: none;">
-                <div class="avatar-sm">FV</div>
-                <span class="type-badge document type-badge-col">Dokument</span>
-                <div class="request-info">
-                    <div class="request-name">Fahrtkosten_Juni_2025.pdf</div>
-                    <div class="request-detail">Gelöscht am 15.11.2025 von T. Wagner</div>
-                </div>
-                <div class="affected-col">
-                    <div class="user-badge user-badge--kunde user-badge--small">
-                        <div class="user-badge__avatar">JS</div>
-                        <div class="user-badge__info">
-                            <span class="user-badge__name">Julia Schmidt</span>
-                            <span class="user-badge__type">Kunde</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="requested-by requested-by-col">Julia Schmidt</div>
-                <span class="status-badge approved"><span class="status-dot"></span>Gelöscht</span>
-                <div class="action-buttons">
-                    <button class="action-btn view" onclick="viewDetails(6)" title="Details anzeigen">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        Details
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>  <!-- Ende content-area -->
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal">
-            <h3 class="modal-title">Dokument endgültig löschen?</h3>
-            <p class="modal-text">Diese Aktion kann nicht rückgängig gemacht werden. Das Dokument wird dauerhaft aus dem System entfernt.</p>
-
-            <div class="modal-item">
-                <div class="modal-item-label">Dokument</div>
-                <div class="modal-item-value" id="deleteDocName">-</div>
-            </div>
-
-            <div class="modal-item">
-                <div class="modal-item-label">Betroffener Mitarbeiter</div>
-                <div class="modal-item-value" id="deleteUserName">-</div>
-            </div>
-
-            <div class="modal-warning">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                <span class="modal-warning-text">Tipp: Wenn du das Dokument behalten aber für den Nutzer unsichtbar machen möchtest, nutze stattdessen "Archivieren".</span>
-            </div>
-
-            <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Abbrechen</button>
-                <button class="modal-btn danger" onclick="executeDelete()">Endgültig löschen</button>
+            <div class="info-status">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Wird mit zentralen Styles neu aufgebaut
             </div>
         </div>
     </div>
-
-    <!-- Archive Confirmation Modal -->
-    <div class="modal-overlay" id="archiveModal">
-        <div class="modal">
-            <h3 class="modal-title">Dokument archivieren?</h3>
-            <p class="modal-text">Das Dokument wird für den Mitarbeiter als "gelöscht" angezeigt, bleibt aber im System erhalten und ist für Admins weiterhin zugänglich.</p>
-
-            <div class="modal-item">
-                <div class="modal-item-label">Dokument</div>
-                <div class="modal-item-value" id="archiveDocName">-</div>
-            </div>
-
-            <div class="modal-item">
-                <div class="modal-item-label">Betroffener Mitarbeiter</div>
-                <div class="modal-item-value" id="archiveUserName">-</div>
-            </div>
-
-            <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeModal('archiveModal')">Abbrechen</button>
-                <button class="modal-btn primary" onclick="executeArchive()">Archivieren</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let currentRequestId = null;
-
-        // Filter functionality
-        document.querySelectorAll('.toolbar-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.toolbar-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-
-                const filter = this.dataset.filter;
-                const rows = document.querySelectorAll('.request-row');
-
-                rows.forEach(row => {
-                    const status = row.dataset.status;
-
-                    if (filter === 'all') {
-                        row.style.display = 'grid';
-                    } else if (filter === 'pending') {
-                        row.style.display = status === 'pending' ? 'grid' : 'none';
-                    } else if (filter === 'processed') {
-                        row.style.display = (status === 'approved' || status === 'archived') ? 'grid' : 'none';
-                    }
-                });
-            });
-        });
-
-        // Confirm Delete
-        function confirmDelete(id, docName, userName) {
-            currentRequestId = id;
-            document.getElementById('deleteDocName').textContent = docName;
-            document.getElementById('deleteUserName').textContent = userName;
-            document.getElementById('deleteModal').classList.add('active');
-        }
-
-        // Confirm Archive
-        function confirmArchive(id, docName, userName) {
-            currentRequestId = id;
-            document.getElementById('archiveDocName').textContent = docName;
-            document.getElementById('archiveUserName').textContent = userName;
-            document.getElementById('archiveModal').classList.add('active');
-        }
-
-        // Close Modal
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-            currentRequestId = null;
-        }
-
-        // Execute Delete
-        function executeDelete() {
-            if (currentRequestId) {
-                const row = document.querySelector(`.request-row[data-id="${currentRequestId}"]`);
-
-                // Update status
-                row.dataset.status = 'approved';
-
-                // Update badge
-                const statusBadge = row.querySelector('.status-badge');
-                statusBadge.className = 'status-badge approved';
-                statusBadge.innerHTML = '<span class="status-dot"></span>Gelöscht';
-
-                // Update detail text
-                const detail = row.querySelector('.request-detail');
-                const now = new Date();
-                detail.textContent = `Gelöscht am ${now.toLocaleDateString('de-DE')} von Office Admin`;
-
-                // Replace action buttons
-                const actionButtons = row.querySelector('.action-buttons');
-                actionButtons.innerHTML = `
-                    <button class="action-btn view" onclick="viewDetails(${currentRequestId})" title="Details anzeigen">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        Details
-                    </button>
-                `;
-
-                // Update stats
-                updateStats();
-
-                // Hide if on pending filter
-                const activeFilter = document.querySelector('.filter-tab.active').dataset.filter;
-                if (activeFilter === 'pending') {
-                    row.style.display = 'none';
-                }
-
-                closeModal('deleteModal');
-
-                // Show toast (if available in parent)
-                if (window.parent && window.parent.showToast) {
-                    window.parent.showToast('Dokument wurde endgültig gelöscht', 'success');
-                }
-            }
-        }
-
-        // Execute Archive
-        function executeArchive() {
-            if (currentRequestId) {
-                const row = document.querySelector(`.request-row[data-id="${currentRequestId}"]`);
-
-                // Update status
-                row.dataset.status = 'archived';
-
-                // Update badge
-                const statusBadge = row.querySelector('.status-badge');
-                statusBadge.className = 'status-badge archived';
-                statusBadge.innerHTML = '<span class="status-dot"></span>Archiviert';
-
-                // Update detail text
-                const detail = row.querySelector('.request-detail');
-                const now = new Date();
-                detail.textContent = `Archiviert am ${now.toLocaleDateString('de-DE')} von Office Admin`;
-
-                // Replace action buttons
-                const actionButtons = row.querySelector('.action-buttons');
-                actionButtons.innerHTML = `
-                    <button class="action-btn view" onclick="viewDetails(${currentRequestId})" title="Details anzeigen">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        Details
-                    </button>
-                `;
-
-                // Update stats
-                updateStats();
-
-                // Hide if on pending filter
-                const activeFilter = document.querySelector('.filter-tab.active').dataset.filter;
-                if (activeFilter === 'pending') {
-                    row.style.display = 'none';
-                }
-
-                closeModal('archiveModal');
-
-                // Show toast (if available in parent)
-                if (window.parent && window.parent.showToast) {
-                    window.parent.showToast('Dokument wurde archiviert (für Nutzer nicht mehr sichtbar)', 'success');
-                }
-            }
-        }
-
-        // Update stats
-        function updateStats() {
-            const rows = document.querySelectorAll('.request-row');
-            let pending = 0, approved = 0, archived = 0;
-
-            rows.forEach(row => {
-                const status = row.dataset.status;
-                if (status === 'pending') pending++;
-                else if (status === 'approved') approved++;
-                else if (status === 'archived') archived++;
-            });
-
-            document.getElementById('stat-pending').textContent = pending;
-            document.getElementById('stat-approved').textContent = approved;
-            document.getElementById('stat-archived').textContent = archived;
-
-            document.getElementById('badge-pending').textContent = pending;
-            document.getElementById('badge-processed').textContent = approved + archived;
-            document.getElementById('badge-all').textContent = pending + approved + archived;
-
-            // Update sidebar badge (if available)
-            if (window.parent && window.parent.updateDeletionBadge) {
-                window.parent.updateDeletionBadge(pending);
-            }
-        }
-
-        // View details
-        async function viewDetails(id) {
-            await showAlert('Details', 'Details für Anfrage #' + id + '\n\nHier könnte ein Modal mit allen Details angezeigt werden.', 'info');
-        }
-
-        // Close modal on outside click
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('active');
-                    currentRequestId = null;
-                }
-            });
-        });
-
-        // Close modal on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
-                    modal.classList.remove('active');
-                });
-                currentRequestId = null;
-            }
-        });
-
-        // ========== IFRAME / SHELL INTEGRATION ==========
-        // Detect if in iframe
-        if (window.self !== window.top) {
-            document.body.classList.add('in-iframe');
-        }
-
-        // Listen for messages from shell
-        window.addEventListener('message', function(e) {
-            if (e.data && e.data.type === 'searchQuery') {
-                handleSearch(e.data.query);
-            }
-        });
-
-        // Search/filter function
-        function handleSearch(query) {
-            const search = query.toLowerCase().trim();
-            // Filter request rows
-            document.querySelectorAll('.request-row').forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(search) ? '' : 'none';
-            });
-        }
-    </script>
 </body>
 </html>

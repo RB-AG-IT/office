@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audit-Log - RB Inside Office</title>
-    <link rel="stylesheet" href="../styles.css">
-    <script src="../js/modal-system.js"></script>
-    <script src="../js/badge-system.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
@@ -21,71 +20,13 @@
             display: none !important;
         }
 
-        .page-container {
-            padding: var(--spacing-lg);
-            max-width: 1400px;
-            margin: 0 auto;
+        /* Tab Content Areas */
+        .tab-content {
+            display: none;
         }
 
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .page-title {
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .header-actions {
-            display: flex;
-            gap: var(--spacing-sm);
-        }
-
-        /* Filter Bar */
-        .filter-bar {
-            background: var(--bg-primary);
-            border-radius: 10px;
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-sm);
-            align-items: center;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .filter-group label {
-            font-size: 10px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            text-transform: uppercase;
-        }
-
-        .filter-group select,
-        .filter-group input {
-            padding: 6px 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 13px;
-            min-width: 140px;
-        }
-
-        .filter-divider {
-            width: 1px;
-            height: 40px;
-            background: var(--border-color);
-            margin: 0 8px;
+        .tab-content.active {
+            display: block;
         }
 
         /* Log Timeline */
@@ -363,163 +304,6 @@
             font-size: 13px;
             color: var(--text-secondary);
         }
-
-        /* Mitglieder Grid */
-        .mitglieder-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 12px;
-        }
-
-        @media (min-width: 1200px) {
-            .mitglieder-grid {
-                grid-template-columns: repeat(5, 1fr);
-            }
-        }
-
-        @media (min-width: 1600px) {
-            .mitglieder-grid {
-                grid-template-columns: repeat(6, 1fr);
-            }
-        }
-
-        /* Mitglied Card */
-        .mitglied-card {
-            background: var(--bg-primary);
-            border-radius: 10px;
-            padding: 14px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            border: 1px solid var(--border-color);
-        }
-
-        .mitglied-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-color: var(--accent-color);
-        }
-
-        .mitglied-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-
-        .mitglied-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-primary);
-            line-height: 1.2;
-        }
-
-        .mitglied-eh {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--accent-color);
-            background: rgba(99, 102, 241, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
-        }
-
-        /* ERH/NMG Badges - unter EH */
-        .mitglied-badges {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 2px;
-        }
-
-        .mitglied-typ-pill {
-            font-size: 9px;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        .mitglied-typ-pill.nmg {
-            background: rgba(59, 130, 246, 0.15);
-            color: #3b82f6;
-        }
-
-        .mitglied-typ-pill.erh {
-            background: rgba(139, 92, 246, 0.15);
-            color: #8b5cf6;
-        }
-
-        .mitglied-details {
-            margin-bottom: 10px;
-        }
-
-        .mitglied-wg {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-primary);
-            margin-bottom: 2px;
-        }
-
-        .mitglied-adresse {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .mitglied-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 8px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .mitglied-status {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .mitglied-status svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .mitglied-status svg.has-email {
-            color: #22c55e;
-        }
-
-        .mitglied-status svg.no-email {
-            color: #9ca3af;
-        }
-
-        .mitglied-status svg.has-iban {
-            color: #22c55e;
-        }
-
-        .mitglied-status svg.no-iban {
-            color: #9ca3af;
-        }
-
-        .mitglied-time {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .mitglied-botschafter {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        /* Loading state for mitglieder */
-        .mitglieder-loading {
-            background: var(--bg-primary);
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            color: var(--text-secondary);
-        }
     </style>
 </head>
 <body>
@@ -575,35 +359,119 @@
     </div>
 
     <div class="content-area">
-        <!-- Log Container -->
-        <div class="log-container" id="logContainer">
-            <div class="loading">
-                <div class="loading-spinner"></div>
-                Lade Audit-Log...
-            </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination" id="pagination" style="display: none;">
-            <button class="pagination-btn" id="prevBtn" onclick="prevPage()" disabled>Zurück</button>
-            <span class="pagination-info" id="pageInfo">Seite 1 von 1</span>
-            <button class="pagination-btn" id="nextBtn" onclick="nextPage()">Weiter</button>
-        </div>
-
-        <!-- Letzte 25 Mitglieder -->
-        <div class="mitglieder-section">
-            <div class="mitglieder-section-header">
-                <h2 class="mitglieder-section-title">Letzte 25 Mitglieder</h2>
-                <span class="mitglieder-section-subtitle">Neueste Schriebe aus allen Kampagnen</span>
-            </div>
-            <div id="mitgliederGrid" class="mitglieder-grid">
-                <div class="mitglieder-loading">
+        <!-- TAB: Dashboard (Audit-Log Timeline) -->
+        <div class="tab-content active" id="tabDashboard">
+            <!-- Log Container -->
+            <div class="log-container" id="logContainer">
+                <div class="loading">
                     <div class="loading-spinner"></div>
-                    Lade Mitglieder...
+                    Lade Audit-Log...
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button class="pagination-btn" id="prevBtn" onclick="prevPage()" disabled>Zurück</button>
+                <span class="pagination-info" id="pageInfo">Seite 1 von 1</span>
+                <button class="pagination-btn" id="nextBtn" onclick="nextPage()">Weiter</button>
+            </div>
+
+            <!-- Letzte 25 Mitglieder -->
+            <div class="mitglieder-section">
+                <div class="mitglieder-section-header">
+                    <h2 class="mitglieder-section-title">Letzte 25 Mitglieder</h2>
+                    <span class="mitglieder-section-subtitle">Neueste Schriebe aus allen Kampagnen</span>
+                </div>
+                <div id="mitgliederGrid" class="schriebe-grid">
+                    <div class="mitglieder-loading">
+                        <div class="loading-spinner"></div>
+                        Lade Mitglieder...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Mitglieder (Letzte 100 Mitglieder Tabelle) -->
+        <div class="tab-content" id="tabMitglieder">
+            <div class="table-wrap">
+                <div class="table-header">
+                    <div class="table-header-left">
+                        <span class="table-title">Letzte 100 Mitglieder</span>
+                        <!-- Filter Buttons -->
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Alle</button>
+                            <button class="filter-btn" data-filter="nmg" onclick="setFilter('nmg')">Neumitglieder</button>
+                            <button class="filter-btn" data-filter="erh" onclick="setFilter('erh')">Erhöhungen</button>
+                            <button class="filter-btn" data-filter="storno" onclick="setFilter('storno')">Rückläufer (Stornos)</button>
+                        </div>
+                        <button class="btn-delete-selected" id="recordsSelectionBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                            </svg>
+                            Ausgewählt<span class="selected-count" id="recordsSelectedCount">0</span>
+                        </button>
+                        <div class="header-actions" id="recordsHeaderActions">
+                            <button class="header-action-btn btn-mail" onclick="sendMail('records')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                E-Mail
+                            </button>
+                            <button class="header-action-btn btn-pdf" onclick="downloadPDF('records')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                PDF
+                            </button>
+                            <button class="header-action-btn btn-storno" onclick="stornoSelected('records')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                </svg>
+                                Stornieren
+                            </button>
+                            <button class="header-action-btn btn-delete-action" onclick="deleteSelected('records')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Löschen
+                            </button>
+                        </div>
+                        <span class="header-divider"></span>
+                        <button class="header-action-btn btn-columns" onclick="openColumnsModal('records')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                            </svg>
+                            Spalten
+                        </button>
+                        <button class="header-action-btn btn-audit" onclick="openAuditModal('nmg-erh', 'default')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Audit
+                        </button>
+                    </div>
+                    <div class="table-header-right">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="recordsTable">
+                        <thead id="recordsTableHead">
+                            <!-- Wird dynamisch gerendert -->
+                        </thead>
+                        <tbody id="recordsTableBody">
+                            <!-- Wird dynamisch gerendert -->
+                        </tbody>
+                        <tfoot id="recordsTableFoot">
+                            <!-- Wird dynamisch gerendert -->
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
     </div>  <!-- Ende content-area -->
+
+    <!-- Modals (aus zentralem Template) -->
+    <!-- Werden durch ModalTemplates.init(['storno', 'columns']) erstellt -->
 
     <script>
         // ================================================================
@@ -619,15 +487,84 @@
         const pageSize = 50;
         let totalEntries = 0;
         let adminUsers = [];
+        let currentTab = 'dashboard';
+
+        // ================================================================
+        // TAB NAVIGATION
+        // ================================================================
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+
+            // Update tab content visibility
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            if (tabName === 'dashboard') {
+                document.getElementById('tabDashboard').classList.add('active');
+            } else if (tabName === 'mitglieder') {
+                document.getElementById('tabMitglieder').classList.add('active');
+            }
+
+            // Notify shell about tab change and update toolbar buttons
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'updateNavDropdown',
+                    value: tabName
+                }, '*');
+
+                // Register toolbar config based on current tab
+                registerToolbarConfig(tabName);
+            }
+        }
 
         // ================================================================
         // INITIALIZATION
         // ================================================================
 
         async function init() {
+            // Zentrale Modals initialisieren
+            ModalTemplates.init(['storno', 'columns']);
+
             await loadAdminUsers();
             await loadAuditLog();
-            await loadLastMitglieder();
+            loadLastMitglieder();
+            initMitgliederTable();
+
+            // Register toolbar config with shell
+            registerToolbarConfig();
+        }
+
+        function registerToolbarConfig(activeTab = 'dashboard') {
+            // Send toolbar config to shell
+            if (window.parent && window.parent !== window) {
+                const config = {
+                    navDropdown: [
+                        { value: 'dashboard', label: 'Dashboard', selected: activeTab === 'dashboard' },
+                        { value: 'mitglieder', label: 'Mitglieder', selected: activeTab === 'mitglieder' }
+                    ],
+                    searchPlaceholder: 'Audit-Log durchsuchen...'
+                };
+
+                // Tab "Mitglieder" zeigt Datensätze -> Import/Export Buttons
+                if (activeTab === 'mitglieder') {
+                    config.actionButtons = [
+                        { id: 'import', text: 'Import', icon: 'upload', action: 'openImportModal' },
+                        { id: 'export', text: 'Export', icon: 'download', action: 'openExportModal', primary: true }
+                    ];
+                } else {
+                    // Dashboard: nur Export
+                    config.actionButtons = [
+                        { id: 'export', text: 'Export', icon: 'download', action: 'openExportModal', primary: true }
+                    ];
+                }
+
+                window.parent.postMessage({
+                    type: 'registerToolbar',
+                    config: config
+                }, '*');
+            }
         }
 
         async function loadAdminUsers() {
@@ -844,13 +781,7 @@
             container.innerHTML = html;
         }
 
-        function getInitials(name) {
-            const parts = name.trim().split(' ');
-            if (parts.length >= 2) {
-                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-            }
-            return name.substring(0, 2).toUpperCase();
-        }
+        // getInitials kommt aus main.js
 
         function getActionLabel(type) {
             const labels = {
@@ -1062,124 +993,127 @@
             }
         }
 
-        // ================================================================
-        // LETZTE 25 MITGLIEDER
-        // ================================================================
-
-        async function loadLastMitglieder() {
-            const container = document.getElementById('mitgliederGrid');
-
-            try {
-                // Load last 25 records ordered by created_at
-                // typ: 'NMG' (Neumitglied) oder 'ERH' (Erhöhung)
-                const { data: records, error } = await supabase
-                    .from('records')
-                    .select(`
-                        id,
-                        name,
-                        eh,
-                        typ,
-                        strasse,
-                        hausnr,
-                        email,
-                        iban,
-                        created_at,
-                        werbegebiet:werbegebiete(name),
-                        botschafter:users!records_botschafter_id_fkey(name)
-                    `)
-                    .order('created_at', { ascending: false })
-                    .limit(25);
-
-                if (error) throw error;
-
-                if (!records || records.length === 0) {
-                    container.innerHTML = `
-                        <div class="mitglieder-loading">
-                            Keine Mitglieder gefunden
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Render the cards
-                container.innerHTML = records.map(m => {
-                    const hasEmail = m.email && m.email.trim() !== '';
-                    const hasIban = m.iban && m.iban.trim() !== '';
-                    const uhrzeit = new Date(m.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                    const werbegebiet = m.werbegebiet?.name || 'Kein WG';
-                    const botschafter = m.botschafter?.name || '-';
-
-                    // Typ-Pill (NMG oder ERH)
-                    const typPill = m.typ
-                        ? `<span class="mitglied-typ-pill ${m.typ.toLowerCase()}">${m.typ}</span>`
-                        : '';
-
-                    return `
-                        <div class="mitglied-card">
-                            <div class="mitglied-header">
-                                <span class="mitglied-name">${m.name || 'Unbekannt'}</span>
-                                <div class="mitglied-badges">
-                                    <span class="mitglied-eh">${m.eh || 0} EH</span>
-                                    ${typPill}
-                                </div>
-                            </div>
-                            <div class="mitglied-details">
-                                <div class="mitglied-wg">${werbegebiet}</div>
-                                <div class="mitglied-adresse">${m.strasse || ''} ${m.hausnr || ''}</div>
-                            </div>
-                            <div class="mitglied-footer">
-                                <div class="mitglied-status">
-                                    <svg class="${hasEmail ? 'has-email' : 'no-email'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                    </svg>
-                                    <svg class="${hasIban ? 'has-iban' : 'no-iban'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                                    </svg>
-                                    <span class="mitglied-time">${uhrzeit}</span>
-                                </div>
-                                <span class="mitglied-botschafter">${botschafter}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-            } catch (error) {
-                console.error('Error loading mitglieder:', error);
-                container.innerHTML = `
-                    <div class="mitglieder-loading">
-                        Fehler beim Laden der Mitglieder: ${error.message}
-                    </div>
-                `;
-            }
-        }
-
         // ========== STUFEN-MAPPING ==========
-        // Werber-Stufen Mapping (zentral aus badge-system.js)
         const werberStufen = {
-            'MS': 'JMM',   // Max Schmidt
-            'AS': 'CEMM',  // Anna Schmidt
-            'TM': 'EMA',   // Tim Müller
-            'PH': 'JMM',   // Peter Hoffmann
-            'SK': 'SMA',   // Stefan Kraus
-            'NW': 'EMM',   // Nina Weber
-            'FG': 'SMA',   // Felix Graf
-            'LB': 'JMM',   // Lisa Bauer
-            'MK': 'EMA',   // Max Klein
-            'JS': 'SPB',   // Julia Schmidt
-            'MM': 'JMM',   // Max Mustermann
-            'TF': 'EMA',   // Thomas Fischer
-            'JW': 'EMM'    // Julia Wagner
+            'MS': 'JMM',
+            'AS': 'CEMM',
+            'TM': 'EMA',
+            'PH': 'JMM',
+            'SK': 'SMA',
+            'NW': 'EMM',
+            'FG': 'SMA',
+            'LB': 'JMM',
+            'MK': 'EMA',
+            'JS': 'SPB',
+            'MM': 'JMM',
+            'TF': 'EMA',
+            'JW': 'EMM'
         };
 
         function getUserStufe(initials) {
             return werberStufen[initials] || null;
         }
 
-        // Initialize
-        init();
+        // ========== LETZTE 25 MITGLIEDER ==========
+        function loadLastMitglieder() {
+            const container = document.getElementById('mitgliederGrid');
+
+            // Dummy-Daten
+            const mitglieder = [
+                { id: 1, name: 'Maria Schneider', eh: 36, typ: 'NMG', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Hauptstr.', hausnr: '12', uhrzeit: '14:30', emailStatus: 'opened', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 2, name: 'Hans Weber', eh: 24, typ: 'ERH', werbegebiet: 'Mannheim-Nord', strasse: 'Bergstr.', hausnr: '45', uhrzeit: '11:15', emailStatus: 'sent', ibanFilled: false, botschafter: 'L. Bauer' },
+                { id: 3, name: 'Lisa Müller', eh: 48, typ: 'NMG', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Schillerstr.', hausnr: '8', uhrzeit: '09:45', emailStatus: 'not_sent', ibanFilled: true, botschafter: 'M. Klein' },
+                { id: 4, name: 'Thomas Fischer', eh: 18, typ: 'NMG', werbegebiet: 'Ludwigshafen-Süd', strasse: 'Goethestr.', hausnr: '23', uhrzeit: '16:20', emailStatus: 'opened', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 5, name: 'Anna Becker', eh: 30, typ: 'ERH', werbegebiet: 'Mannheim-Neckarau', strasse: 'Mozartstr.', hausnr: '17', uhrzeit: '13:00', emailStatus: 'sent', ibanFilled: false, botschafter: 'P. Hoffmann' },
+                { id: 6, name: 'Michael Hoffmann', eh: 42, typ: 'NMG', werbegebiet: 'Heidelberg-Neuenheim', strasse: 'Bachstr.', hausnr: '31', uhrzeit: '10:30', emailStatus: 'opened', ibanFilled: true, botschafter: 'M. Klein' },
+                { id: 7, name: 'Julia Wagner', eh: 15, typ: 'NMG', werbegebiet: 'Mannheim-Käfertal', strasse: 'Lindenstr.', hausnr: '5', uhrzeit: '15:45', emailStatus: 'not_sent', ibanFilled: false, botschafter: 'L. Bauer' },
+                { id: 8, name: 'Stefan Schulz', eh: 27, typ: 'ERH', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Rosenweg', hausnr: '9', uhrzeit: '08:15', emailStatus: 'sent', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 9, name: 'Sabine Koch', eh: 33, typ: 'NMG', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Tulpenstr.', hausnr: '14', uhrzeit: '12:00', emailStatus: 'opened', ibanFilled: true, botschafter: 'P. Hoffmann' },
+                { id: 10, name: 'Andreas Braun', eh: 21, typ: 'NMG', werbegebiet: 'Mannheim-Nord', strasse: 'Nelkenweg', hausnr: '27', uhrzeit: '17:30', emailStatus: 'sent', ibanFilled: false, botschafter: 'M. Klein' },
+                { id: 11, name: 'Sandra Hoffmann', eh: 22, typ: 'NMG', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Königstr.', hausnr: '15', uhrzeit: '07:15', emailStatus: 'opened', ibanFilled: true, botschafter: 'L. Bauer' },
+                { id: 12, name: 'Peter Krause', eh: 18, typ: 'ERH', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Neuenheimer Landstr.', hausnr: '88', uhrzeit: '19:30', emailStatus: 'sent', ibanFilled: false, botschafter: 'A. Schneider' },
+                { id: 13, name: 'Monika Schulz', eh: 33, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', strasse: 'Rheingoldstr.', hausnr: '42', uhrzeit: '16:45', emailStatus: 'opened', ibanFilled: true, botschafter: 'P. Hoffmann' },
+                { id: 14, name: 'Jürgen Wolf', eh: 28, typ: 'NMG', werbegebiet: 'Ludwigshafen-Süd', strasse: 'Südring', hausnr: '7', uhrzeit: '11:20', emailStatus: 'not_sent', ibanFilled: false, botschafter: 'M. Klein' },
+                { id: 15, name: 'Claudia Meyer', eh: 45, typ: 'ERH', werbegebiet: 'Heidelberg-Neuenheim', strasse: 'Handschuhsheimer Landstr.', hausnr: '56', uhrzeit: '14:00', emailStatus: 'opened', ibanFilled: true, botschafter: 'L. Bauer' },
+                { id: 16, name: 'Ralf Zimmermann', eh: 12, typ: 'NMG', werbegebiet: 'Mannheim-Käfertal', strasse: 'Waldstr.', hausnr: '33', uhrzeit: '08:55', emailStatus: 'sent', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 17, name: 'Ingrid Braun', eh: 38, typ: 'NMG', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Bismarckstr.', hausnr: '21', uhrzeit: '10:10', emailStatus: 'opened', ibanFilled: false, botschafter: 'P. Hoffmann' },
+                { id: 18, name: 'Wolfgang Huber', eh: 27, typ: 'ERH', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Karlsruher Str.', hausnr: '9', uhrzeit: '15:25', emailStatus: 'sent', ibanFilled: true, botschafter: 'M. Klein' },
+                { id: 19, name: 'Stefanie Lang', eh: 19, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', strasse: 'Neckarauer Str.', hausnr: '112', uhrzeit: '12:40', emailStatus: 'not_sent', ibanFilled: false, botschafter: 'L. Bauer' },
+                { id: 20, name: 'Dieter Schwarz', eh: 31, typ: 'NMG', werbegebiet: 'Ludwigshafen-Süd', strasse: 'Mundenheimer Str.', hausnr: '67', uhrzeit: '17:05', emailStatus: 'opened', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 21, name: 'Heike Neumann', eh: 24, typ: 'ERH', werbegebiet: 'Heidelberg-Neuenheim', strasse: 'Berliner Str.', hausnr: '3', uhrzeit: '09:15', emailStatus: 'sent', ibanFilled: false, botschafter: 'P. Hoffmann' },
+                { id: 22, name: 'Uwe Becker', eh: 42, typ: 'NMG', werbegebiet: 'Mannheim-Käfertal', strasse: 'Lampertheimer Str.', hausnr: '28', uhrzeit: '13:50', emailStatus: 'opened', ibanFilled: true, botschafter: 'M. Klein' },
+                { id: 23, name: 'Martina Klein', eh: 16, typ: 'NMG', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Oggersheimer Str.', hausnr: '45', uhrzeit: '18:20', emailStatus: 'sent', ibanFilled: true, botschafter: 'L. Bauer' },
+                { id: 24, name: 'Helmut Richter', eh: 55, typ: 'ERH', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Philosophenweg', hausnr: '1', uhrzeit: '07:45', emailStatus: 'opened', ibanFilled: false, botschafter: 'A. Schneider' },
+                { id: 25, name: 'Renate Vogel', eh: 29, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', strasse: 'Casterfeldstr.', hausnr: '89', uhrzeit: '14:55', emailStatus: 'not_sent', ibanFilled: false, botschafter: 'P. Hoffmann' }
+            ];
+
+            // Zentrale Render-Funktion aus member-cards.js verwenden
+            if (typeof renderMemberCards === 'function') {
+                container.innerHTML = renderMemberCards(mitglieder);
+            }
+        }
+
+        // ========== MITGLIEDER TABELLE ==========
+        function initMitgliederTable() {
+            const testRecordsData = generateDummyRecords(100);
+
+            if (typeof initDatensaetze === 'function') {
+                initDatensaetze({
+                    recordsData: testRecordsData,
+                    bestandData: [],
+                    historyData: {},
+                    contextData: { type: 'audit', name: 'Audit-Log' }
+                });
+            }
+        }
+
+        function generateDummyRecords(count) {
+            const vornamen = ['Max', 'Anna', 'Peter', 'Lisa', 'Julia', 'Daniel', 'Sandra', 'Markus', 'Katrin', 'Christian', 'Klaus', 'Maria', 'Stefan', 'Heike', 'Jürgen', 'Thomas', 'Sarah', 'Michael', 'Nina', 'Felix', 'Laura', 'Tobias', 'Emma', 'Paul', 'Sophie'];
+            const nachnamen = ['Müller', 'Schmidt', 'Weber', 'Hoffmann', 'Wagner', 'Klein', 'Bauer', 'Schulz', 'Wolf', 'Becker', 'Schneider', 'Koch', 'Lorenz', 'Schuster', 'Fischer', 'Braun', 'Meier', 'Neumann', 'Lang', 'Richter'];
+            const gebiete = ['Ludwigshafen-Mitte', 'Mannheim-Nord', 'Heidelberg-Altstadt', 'Ludwigshafen-Süd', 'Mannheim-Neckarau', 'Heidelberg-Neuenheim', 'Mannheim-Käfertal', 'Wiesbaden', 'Darmstadt', 'Offenbach'];
+            const werber = ['A. Schneider', 'L. Bauer', 'M. Klein', 'P. Hoffmann', 'T. Müller', 'S. Weber'];
+            const teamchefs = ['Hans Meier', 'Klaus Fischer', 'Petra Schulz', 'Markus Lang'];
+            const strassen = ['Hauptstraße', 'Berliner Str.', 'Rheinstraße', 'Goethestraße', 'Kaiserstraße', 'Wilhelmstraße', 'Schillerstraße', 'Bahnhofstraße', 'Marktplatz', 'Gartenweg'];
+            const kunden = ['DRK KV Ludwigshafen', 'DRK KV Mannheim', 'DRK KV Heidelberg', 'DRK KV Frankfurt', 'DRK KV Darmstadt'];
+
+            const records = [];
+            const today = new Date();
+
+            for (let i = 1; i <= count; i++) {
+                const vorname = vornamen[Math.floor(Math.random() * vornamen.length)];
+                const nachname = nachnamen[Math.floor(Math.random() * nachnamen.length)];
+                const typ = Math.random() > 0.3 ? 'nmg' : 'erh';
+                const dayOffset = Math.floor(Math.random() * 30);
+                const date = new Date(today);
+                date.setDate(date.getDate() - dayOffset);
+                const dateStr = date.toLocaleDateString('de-DE');
+                const je = [60, 120, 180, 240][Math.floor(Math.random() * 4)];
+                const status = Math.random() > 0.9 ? 'storniert' : 'aktiv';
+
+                records.push({
+                    id: i,
+                    name: `${vorname} ${nachname}`,
+                    typ: typ,
+                    date: dateStr,
+                    je: `${je},00 €`,
+                    kunde: kunden[Math.floor(Math.random() * kunden.length)],
+                    gebiet: gebiete[Math.floor(Math.random() * gebiete.length)],
+                    werber: werber[Math.floor(Math.random() * werber.length)],
+                    teamchef: teamchefs[Math.floor(Math.random() * teamchefs.length)],
+                    street: strassen[Math.floor(Math.random() * strassen.length)],
+                    houseNumber: String(Math.floor(Math.random() * 150) + 1),
+                    zipCode: String(60000 + Math.floor(Math.random() * 10000)),
+                    city: gebiete[Math.floor(Math.random() * gebiete.length)].split('-')[0],
+                    email: `${vorname.toLowerCase()}.${nachname.toLowerCase()}@email.de`,
+                    phoneFixed: `0${Math.floor(Math.random() * 900) + 100} ${Math.floor(Math.random() * 9000000) + 1000000}`,
+                    phoneMobile: `01${Math.floor(Math.random() * 90) + 70} ${Math.floor(Math.random() * 9000000) + 1000000}`,
+                    status: status
+                });
+            }
+            return records;
+        }
 
         // ========== IFRAME / SHELL INTEGRATION ==========
-        // Detect if in iframe
         if (window.self !== window.top) {
             document.body.classList.add('in-iframe');
         }
@@ -1188,6 +1122,9 @@
         window.addEventListener('message', function(e) {
             if (e.data && e.data.type === 'searchQuery') {
                 handleSearch(e.data.query);
+            }
+            if (e.data && e.data.type === 'navFilter') {
+                switchTab(e.data.value);
             }
         });
 
@@ -1200,6 +1137,9 @@
                 entry.style.display = text.includes(search) ? '' : 'none';
             });
         }
+
+        // Initialize
+        init();
     </script>
 </body>
 </html>

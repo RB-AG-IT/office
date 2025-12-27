@@ -5,14 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datensätze - RB Inside Office</title>
     <!-- Zentrale Styles -->
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../css/table-system.css">
-    <link rel="stylesheet" href="../css/datensaetze.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
     <!-- Zentrale Scripts -->
-    <script src="../js/modal-system.js"></script>
-    <script src="../js/badge-system.js"></script>
-    <script src="../js/table-common.js"></script>
-    <script src="../js/datensaetze.js"></script>
+    <!-- SheetJS für Excel/CSV Import -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         /* Seiten-spezifische Styles (nur wenn nötig) */
         body {
@@ -21,15 +18,11 @@
     </style>
 </head>
 <body class="datensaetze-page">
-    <div class="page-container">
+    <div class="page-container page-container--no-padding">
         <div class="content-area">
             <!-- TAB NAVIGATION -->
             <div class="tabs-container">
-                <button class="back-btn" onclick="goBack()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                </button>
+                <button class="back-btn" onclick="goBack()"></button>
                 <span id="contextBadge" class="context-badge"></span>
                 <button class="tab-btn active" data-tab="records" onclick="switchTab('records')">
                     Neumitglieder / Erhöhungen
@@ -93,12 +86,18 @@
                                 </svg>
                                 Spalten
                             </button>
+                            <button class="header-action-btn btn-audit" onclick="openAuditModal('nmg-erh', 'default')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Audit
+                            </button>
                         </div>
                         <div class="table-header-right">
                         </div>
                     </div>
                     <div class="table-container">
-                        <table class="table" id="recordsTable">
+                        <table class="table table--compact" id="recordsTable">
                             <thead id="recordsTableHead">
                                 <!-- Wird dynamisch gerendert -->
                             </thead>
@@ -158,12 +157,18 @@
                                 </svg>
                                 Spalten
                             </button>
+                            <button class="header-action-btn btn-audit" onclick="openAuditModal('bestand', 'default')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Audit
+                            </button>
                         </div>
                         <div class="table-header-right">
                         </div>
                     </div>
                     <div class="table-container">
-                        <table class="table" id="bestandTable">
+                        <table class="table table--compact" id="bestandTable">
                             <thead id="bestandTableHead">
                                 <!-- Wird dynamisch gerendert -->
                             </thead>
@@ -180,273 +185,11 @@
         </div>
     </div>
 
-    <!-- Storno Modal -->
-    <div class="storno-modal-overlay" id="stornoModal">
-        <div class="storno-modal">
-            <div class="storno-modal-header">
-                <h3 class="storno-modal-title">Datensatz stornieren</h3>
-                <div class="storno-modal-subtitle" id="stornoModalSubtitle">Max Mustermann</div>
-            </div>
-            <div class="storno-modal-body">
-                <div class="storno-form-group">
-                    <label class="storno-form-label">Storno-Grund</label>
-                    <select class="storno-form-select" id="stornoGrund" onchange="toggleStornoGrundFreitext()">
-                        <option value="">Bitte auswählen...</option>
-                        <option value="widerruf">Widerruf</option>
-                        <option value="kuendigung">Kündigung</option>
-                        <option value="nichtzahlung">Nichtzahlung</option>
-                        <option value="doppelt">Doppelerfassung</option>
-                        <option value="fehler">Eingabefehler</option>
-                        <option value="sonstiges">Sonstiges</option>
-                        <option value="freitext">Freie Eingabe</option>
-                    </select>
-                    <div class="freitext-fields" id="stornoGrundFreitextFields">
-                        <input type="text" class="storno-form-input" id="stornoGrundFreitext" placeholder="Storno-Grund eingeben...">
-                    </div>
-                </div>
-                <div class="storno-form-group">
-                    <label class="storno-form-label">Storno-Datum</label>
-                    <input type="date" class="storno-form-input" id="stornoDatum">
-                </div>
-                <div class="storno-form-group">
-                    <label class="storno-form-checkbox">
-                        <input type="checkbox" id="stornoBeschwerde" onchange="toggleBeschwerdeFields()">
-                        <span>Beschwerde</span>
-                    </label>
-                </div>
-                <div class="beschwerde-fields" id="beschwerdeFields">
-                    <div class="storno-form-group">
-                        <label class="storno-form-label">Beschwerdegrund</label>
-                        <textarea class="storno-form-textarea" id="beschwerdeGrund" placeholder="Beschreiben Sie den Beschwerdegrund..."></textarea>
-                    </div>
-                </div>
-                <div class="storno-form-group">
-                    <label class="storno-form-checkbox">
-                        <input type="checkbox" id="stornoMailBestaetigung">
-                        <span>Storno per Mail bestätigen</span>
-                    </label>
-                </div>
-            </div>
-            <div class="storno-modal-footer">
-                <button class="storno-btn storno-btn-cancel" onclick="closeStornoModal()">Abbrechen</button>
-                <button class="storno-btn storno-btn-confirm" onclick="confirmStorno()">Stornieren</button>
-            </div>
-        </div>
-    </div>
+    <!-- Storno Modal (aus zentralem Template) -->
+    <!-- Wird durch ModalTemplates.init(['storno']) erstellt -->
 
-    <!-- Edit Modal -->
-    <div class="edit-modal-overlay" id="editModal">
-        <div class="edit-modal">
-            <div class="edit-modal-header">
-                <div class="edit-modal-header-left">
-                    <div class="edit-modal-avatar" id="editModalAvatar">MM</div>
-                    <div class="edit-modal-title-group">
-                        <h3 id="editModalName">Max Mustermann</h3>
-                        <div class="edit-modal-subtitle">
-                            <span class="badge nmg" id="editModalTypeBadge">NMG</span>
-                            <span id="editModalDate">Erstellt am 10.12.2025</span>
-                        </div>
-                    </div>
-                </div>
-                <button class="edit-modal-close" onclick="closeEditModal()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="edit-modal-body">
-                <!-- Linke Seite: Formular -->
-                <div class="edit-form-section">
-                    <div class="edit-form-group">
-                        <div class="edit-form-group-title">Persönliche Daten</div>
-                        <div class="edit-form-row">
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Anrede</label>
-                                <select class="edit-form-input" id="editAnrede">
-                                    <option value="Herr">Herr</option>
-                                    <option value="Frau">Frau</option>
-                                    <option value="Divers">Divers</option>
-                                </select>
-                            </div>
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Titel</label>
-                                <input type="text" class="edit-form-input" id="editTitel" placeholder="z.B. Dr.">
-                            </div>
-                        </div>
-                        <div class="edit-form-row">
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Vorname</label>
-                                <input type="text" class="edit-form-input" id="editVorname">
-                            </div>
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Nachname</label>
-                                <input type="text" class="edit-form-input" id="editNachname">
-                            </div>
-                        </div>
-                        <div class="edit-form-row">
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Geburtsdatum</label>
-                                <input type="date" class="edit-form-input" id="editGeburtsdatum">
-                            </div>
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">E-Mail</label>
-                                <input type="email" class="edit-form-input" id="editEmail">
-                            </div>
-                        </div>
-                        <div class="edit-form-row">
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Telefon Mobil</label>
-                                <input type="tel" class="edit-form-input" id="editTelefonMobil">
-                            </div>
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Telefon Festnetz</label>
-                                <input type="tel" class="edit-form-input" id="editTelefonFestnetz">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="edit-form-group">
-                        <div class="edit-form-group-title">Adresse</div>
-                        <div class="edit-form-row">
-                            <div class="edit-form-field" style="flex: 3;">
-                                <label class="edit-form-label">Straße</label>
-                                <input type="text" class="edit-form-input" id="editStrasse">
-                            </div>
-                            <div class="edit-form-field" style="flex: 1;">
-                                <label class="edit-form-label">Hausnr.</label>
-                                <input type="text" class="edit-form-input" id="editHausnummer">
-                            </div>
-                        </div>
-                        <div class="edit-form-row three-cols">
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">PLZ</label>
-                                <input type="text" class="edit-form-input" id="editPLZ">
-                            </div>
-                            <div class="edit-form-field" style="grid-column: span 2;">
-                                <label class="edit-form-label">Ort</label>
-                                <input type="text" class="edit-form-input" id="editOrt">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="edit-form-group">
-                        <div class="edit-form-group-title">Beitrag & Zahlung</div>
-                        <div class="edit-form-row three-cols">
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Beitrag (€)</label>
-                                <input type="number" class="edit-form-input" id="editBeitrag" step="0.01">
-                            </div>
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Intervall</label>
-                                <select class="edit-form-input" id="editIntervall">
-                                    <option value="monatlich">Monatlich</option>
-                                    <option value="vierteljaehrlich">Vierteljährlich</option>
-                                    <option value="halbjaehrlich">Halbjährlich</option>
-                                    <option value="jaehrlich">Jährlich</option>
-                                </select>
-                            </div>
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Jahreseuros</label>
-                                <input type="text" class="edit-form-input" id="editJE" disabled>
-                            </div>
-                        </div>
-                        <div class="edit-form-row">
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">IBAN</label>
-                                <input type="text" class="edit-form-input" id="editIBAN">
-                            </div>
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">BIC</label>
-                                <input type="text" class="edit-form-input" id="editBIC">
-                            </div>
-                        </div>
-                        <div class="edit-form-row">
-                            <div class="edit-form-field full-width">
-                                <label class="edit-form-label">Kontoinhaber</label>
-                                <input type="text" class="edit-form-input" id="editKontoinhaber">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="edit-form-group">
-                        <div class="edit-form-group-title">Zuordnung</div>
-                        <div class="edit-form-row">
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Werbegebiet</label>
-                                <input type="text" class="edit-form-input" id="editGebiet" disabled>
-                            </div>
-                            <div class="edit-form-field">
-                                <label class="edit-form-label">Werber</label>
-                                <input type="text" class="edit-form-input" id="editWerber" disabled>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Rechte Seite: Historie -->
-                <div class="edit-history-section">
-                    <div class="edit-history-title">Verlauf</div>
-                    <div class="history-timeline" id="editHistoryTimeline">
-                        <!-- Wird dynamisch gefüllt -->
-                    </div>
-                </div>
-            </div>
-            <div class="edit-modal-footer">
-                <button class="edit-btn edit-btn-cancel" onclick="closeEditModal()">Abbrechen</button>
-                <button class="edit-btn edit-btn-save" onclick="saveEditModal()">Speichern</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Columns Modal -->
-    <div class="columns-modal-overlay" id="columnsModal">
-        <div class="columns-modal">
-            <div class="columns-modal-header">
-                <h3 class="columns-modal-title" id="columnsModalTitle">Spalten konfigurieren</h3>
-                <button class="columns-modal-close" onclick="closeColumnsModal()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="columns-modal-body">
-                <!-- Linke Seite: Spalten-Liste -->
-                <div class="columns-main">
-                    <div class="columns-hint">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Ziehen zum Sortieren, Checkbox zum Ein-/Ausblenden
-                    </div>
-                    <div class="columns-list" id="columnsList">
-                        <!-- Wird dynamisch gefüllt -->
-                    </div>
-                </div>
-
-                <!-- Rechte Seite: Vorlagen -->
-                <div class="columns-templates">
-                    <div class="templates-title">Vorlagen</div>
-                    <div class="templates-list" id="templatesList">
-                        <!-- Wird dynamisch gefüllt -->
-                    </div>
-                    <button class="template-add-btn" id="templateAddBtn" onclick="startAddTemplate()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 5v14m-7-7h14"/>
-                        </svg>
-                        Als Vorlage speichern
-                    </button>
-                    <input type="text" class="template-name-input" id="templateNameInput"
-                           placeholder="Vorlagenname..."
-                           style="display: none;"
-                           onkeydown="handleTemplateNameKeydown(event)">
-                </div>
-            </div>
-            <div class="columns-modal-footer">
-                <button class="columns-reset-btn" onclick="resetColumns()">Zurücksetzen</button>
-                <button class="columns-save-btn" onclick="saveColumns()">Übernehmen</button>
-            </div>
-        </div>
-    </div>
+    <!-- Alle Modals werden durch ModalTemplates.init() erstellt -->
+    <!-- Verfügbar: storno, columns, edit, import, export -->
 
     <!-- Seiten-spezifische Daten und Initialisierung -->
     <script>
@@ -504,6 +247,9 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
+            // Zentrale Modals initialisieren
+            ModalTemplates.init(['storno', 'columns', 'edit', 'import', 'export']);
+
             // Datensätze-System initialisieren mit Test-Daten
             initDatensaetze({
                 recordsData: testRecordsData,
@@ -515,6 +261,35 @@
             // Tab-Badges aktualisieren
             document.getElementById('recordsBadge').textContent = testRecordsData.length;
             document.getElementById('bestandBadge').textContent = testBestandData.length;
+
+            // Register toolbar config with shell (Import/Export for data tables)
+            registerToolbarConfig();
+        });
+
+        // Register toolbar buttons for data tables
+        function registerToolbarConfig() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'registerToolbar',
+                    config: {
+                        actionButtons: [
+                            { id: 'import', text: 'Import', icon: 'upload', action: 'openImportModal' },
+                            { id: 'export', text: 'Export', icon: 'download', action: 'openExportModal', primary: true }
+                        ]
+                    }
+                }, '*');
+            }
+        }
+
+        // Listen for toolbar actions from shell
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'toolbarAction') {
+                if (e.data.action === 'openImportModal' && typeof openImportModal === 'function') {
+                    openImportModal();
+                } else if (e.data.action === 'openExportModal' && typeof openExportModal === 'function') {
+                    openExportModal();
+                }
+            }
         });
     </script>
 </body>
