@@ -7,8 +7,26 @@
     <link rel="stylesheet" href="../css/styles.css">
     <script src="../js/main.js"></script>
 </head>
-<body>
-    <div class="page-container page-container--no-padding">
+<body class="iframe-body">
+    <div class="page-container page-container--no-border">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Statistik</span>
+                </div>
+                <div class="page-header-mitte">
+                    <span class="text-ueberschrift" id="sectionTitle">Werber Übersicht</span>
+                </div>
+                <div class="page-header-rechts"></div>
+            </div>
+            <!-- Zeile 2: Tabs -->
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="werber">Werber</div>
+                <div class="kw-tab" data-tab="kunden">Kunden / Gebiete</div>
+                <div class="kw-tab" data-tab="kampagnen">Kampagnen</div>
+            </div>
+        </div>
         <div class="content-area">
             <!-- OVERVIEW VIEW: Lists of Werber/Kunden/Kampagnen -->
             <div class="overview-view" id="overviewView">
@@ -17,7 +35,6 @@
                     <div class="table-wrap">
                         <div class="table-header">
                             <div class="table-header-left">
-                                <span class="table-title">Werber Übersicht</span>
                                 <button class="btn-toggle-all" id="toggleAllWerberBtn" onclick="toggleAllWerber()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="6 9 12 15 18 9"></polyline>
@@ -101,7 +118,6 @@
                     <div class="table-wrap">
                         <div class="table-header">
                             <div class="table-header-left">
-                                <span class="table-title">Kunden / Gebiete</span>
                                 <button class="btn-toggle-all" id="toggleAllKundenBtn" onclick="toggleAllKunden()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="6 9 12 15 18 9"></polyline>
@@ -185,7 +201,6 @@
                     <div class="table-wrap">
                         <div class="table-header">
                             <div class="table-header-left">
-                                <span class="table-title">Kampagnen</span>
                                 <button class="btn-toggle-all" id="toggleAllKampagnenBtn" onclick="toggleAllKampagnen()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="6 9 12 15 18 9"></polyline>
@@ -270,37 +285,55 @@
     </div>
 
     <!-- Import Modal -->
-    <div class="modal modal-xl" id="importModal">
+    <div class="modal modal-s" id="importModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Datensätze importieren</h2>
-                <button class="btn-icon" onclick="closeImportModal()">
-                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift">Datensätze importieren</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn-icon" onclick="closeImportModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
             </div>
-            <div class="modal-body">
-                <div class="import-zone" onclick="document.getElementById('fileInput').click()">
-                    <svg style="width: 40px; height: 40px; margin-bottom: 8px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                    </svg>
-                    <p style="font-size: 14px; font-weight: 500; margin-bottom: 4px;">Datei hierher ziehen oder klicken</p>
-                    <p style="font-size: 12px; color: var(--text-secondary);">Excel, CSV, ODS</p>
+            <!-- Modal Body -->
+            <div class="page-content">
+                <div class="zeile">
+                    <div class="import-zone" onclick="document.getElementById('fileInput').click()">
+                        <svg width="40" height="40" style="margin-bottom: 8px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <span class="text-normal">Datei hierher ziehen oder klicken</span>
+                        <span class="text-klein">Excel, CSV, ODS</span>
+                    </div>
                 </div>
                 <input type="file" id="fileInput" style="display: none;" accept=".xlsx,.xls,.csv,.ods">
-                <div class="form-group">
-                    <label class="form-label">Werbegebiet</label>
-                    <select class="form-input" id="importArea">
-                        <option value="">Auswählen...</option>
-                        <option value="1">Ludwigshafen-Mitte e.V.</option>
-                        <option value="2">Ludwigshafen-Süd e.V.</option>
-                    </select>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Werbegebiet</label>
+                        <select class="eingabefeld" id="importArea">
+                            <option value="">Auswählen...</option>
+                            <option value="1">Ludwigshafen-Mitte e.V.</option>
+                            <option value="2">Ludwigshafen-Süd e.V.</option>
+                        </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeImportModal()">Abbrechen</button>
-                <button type="button" class="btn btn-primary" onclick="executeImport()">Importieren</button>
+            <!-- Modal Footer -->
+            <div class="page-footer">
+                <button type="button" class="btn btn--secondary" onclick="closeImportModal()">Abbrechen</button>
+                <button type="button" class="btn btn--primary" onclick="executeImport()">Importieren</button>
             </div>
         </div>
     </div>
@@ -308,33 +341,53 @@
     <!-- Export Modal -->
     <div class="modal modal-s" id="exportModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Exportieren</h2>
-                <button class="btn-icon" onclick="closeExportModal()">
-                    <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Format</label>
-                    <select class="form-input" id="exportFormat">
-                        <option value="xlsx">Excel (.xlsx)</option>
-                        <option value="csv">CSV</option>
-                        <option value="pdf">PDF</option>
-                    </select>
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift">Exportieren</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn-icon" onclick="closeExportModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="exportIncludeStorno" checked style="width: 16px; height: 16px;">
-                        Stornierte einschließen
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
+            </div>
+            <!-- Modal Body -->
+            <div class="page-content">
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Format</label>
+                        <select class="eingabefeld" id="exportFormat">
+                            <option value="xlsx">Excel (.xlsx)</option>
+                            <option value="csv">CSV</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile zeile--center">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="exportIncludeStorno" checked>
+                        <span class="toggle-slider"></span>
                     </label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Stornierte einschließen</label>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeExportModal()">Abbrechen</button>
-                <button type="button" class="btn btn-primary" onclick="executeExport()">Exportieren</button>
+            <!-- Modal Footer -->
+            <div class="page-footer">
+                <button type="button" class="btn btn--secondary" onclick="closeExportModal()">Abbrechen</button>
+                <button type="button" class="btn btn--primary" onclick="executeExport()">Exportieren</button>
             </div>
         </div>
     </div>
@@ -673,6 +726,19 @@
             setupColumnCheckboxes();
             setupStornoReasons();
 
+            // Tab-Wechsel mit Titel-Update
+            document.querySelectorAll('.page-header-tabs .kw-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const value = this.dataset.tab;
+                    const labelMap = { werber: 'Werber', kunden: 'Kunden / Gebiete', kampagnen: 'Kampagnen' };
+                    // Tab active state
+                    document.querySelectorAll('.page-header-tabs .kw-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    // Switch category
+                    selectCategory(value, labelMap[value]);
+                });
+            });
+
             // Register toolbar config with shell (Import/Export for statistics)
             registerToolbarConfig();
         });
@@ -737,6 +803,12 @@
         // ========== CATEGORY SELECTION ==========
         function selectCategory(value, label) {
             currentCategory = value;
+
+            // Update page header title
+            const sectionTitle = document.getElementById('sectionTitle');
+            if (sectionTitle) {
+                sectionTitle.textContent = label;
+            }
 
             // Show correct section or detail view
             showOverviewView();

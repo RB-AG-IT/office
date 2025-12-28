@@ -3,29 +3,29 @@
    ======================================== */
 
 :root {
-    /* Farben - Hauptpalette */
+    /* Farben - Hauptpalette (kontrastreicher) */
     --bg-primary: #ffffff;
-    --bg-secondary: #f8f9fa;
-    --bg-hover: #f0f1f3;
-    --text-primary: #1a1a1a;
-    --text-secondary: #6b7280;
-    --border-color: #e5e7eb;
+    --bg-secondary: #f3f4f6;
+    --bg-hover: #e5e7eb;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --border-color: #d1d5db;
     --accent-color: var(--info-text);
     --accent-hover: #2563eb;
-    
+
     /* ===== NEUTRALE FARBEN (Grautöne) ===== */
     /* Diese Variablen für alle Grautöne nutzen - KEINE Hex-Codes! */
     --neutral-white: #ffffff;
-    --neutral-50: #fafafa;
-    --neutral-100: #f5f5f5;
-    --neutral-200: #e5e5e5;
-    --neutral-300: #d4d4d4;
-    --neutral-400: #a3a3a3;
-    --neutral-500: #737373;
-    --neutral-600: #525252;
-    --neutral-700: #404040;
-    --neutral-800: #262626;
-    --neutral-900: #171717;
+    --neutral-50: #f9fafb;
+    --neutral-100: #f3f4f6;
+    --neutral-200: #e5e7eb;
+    --neutral-300: #d1d5db;
+    --neutral-400: #9ca3af;
+    --neutral-500: #6b7280;
+    --neutral-600: #4b5563;
+    --neutral-700: #374151;
+    --neutral-800: #1f2937;
+    --neutral-900: #111827;
 
     /* ===== STATUS-FARBEN ===== */
     /* Success - Grün (Erfolg, Aktiv, Online, Bestätigt) */
@@ -156,7 +156,6 @@
     --text-ueberschrift-unterabschnitt: 14px;
     --text-ueberschrift-abschnitt: 18px;
     --text-ueberschrift: 20px;
-    --text-seiten-titel: 28px;
 
     /* Schriftstärke */
     --fett: 700;
@@ -170,6 +169,11 @@
     
     /* Schatten */
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+    /* Eingabefeld-Höhen */
+    --eingabefeld-beschriftung-oben-hoehe: 18px;
+    --eingabefeld-hoehe: 36px;
+    --eingabefeld-beschriftung-unten-hoehe: 15px;
 
 }
 
@@ -267,9 +271,15 @@ body {
     line-height: 1.5;
 }
 
-/* Shell-Body: Kein Scrolling (Inhalt per iframe) */
+/* Shell-Body: Kein Scrolling, kein Padding (Inhalt per iframe) */
 body.shell-body {
     overflow: hidden;
+    padding: 0;
+}
+
+/* Iframe-Body: Kein Padding */
+body.iframe-body {
+    padding: 0;
 }
 
 /* ========================================
@@ -282,7 +292,6 @@ body.shell-body {
    - .text-ueberschrift-unterabschnitt → 14px bold
    - .text-ueberschrift-abschnitt      → 18px bold
    - .text-ueberschrift                → 20px bold
-   - .text-seiten-titel                → 28px bold
    ======================================== */
 
 .text-normal {
@@ -313,10 +322,375 @@ body.shell-body {
     color: var(--text-primary);
 }
 
-.text-seiten-titel {
-    font-size: var(--text-seiten-titel);
-    font-weight: var(--fett);
+/* ===== EINGABEFELDER ===== */
+
+.eingabefeld {
+    width: 100%;
+    height: var(--eingabefeld-hoehe);
+    padding: 0 8px;
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: var(--text-normal);
+    background: var(--bg-primary);
     color: var(--text-primary);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.eingabefeld:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+textarea.eingabefeld {
+    height: auto;
+    padding: 8px;
+    resize: vertical;
+}
+
+.eingabefeld:disabled {
+    background: var(--neutral-100);
+    color: var(--neutral-400);
+    cursor: not-allowed;
+}
+
+.eingabefeld::placeholder {
+    color: var(--neutral-400);
+    font-family: inherit;
+}
+
+.eingabefeld-beschriftung-oben {
+    display: block;
+    font-size: var(--text-klein);
+    font-weight: var(--fett);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+    margin-left: 4px;
+    min-height: var(--eingabefeld-beschriftung-oben-hoehe);
+}
+
+.eingabefeld-beschriftung-unten {
+    display: block;
+    font-size: var(--text-klein);
+    color: var(--text-secondary);
+    margin-top: 3px;
+    margin-left: 8px;
+    line-height: 1;
+    min-height: var(--eingabefeld-beschriftung-unten-hoehe);
+}
+
+.eingabefeld-beschriftung-unten--einzeilig {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Eingabefeld-Gruppe (Container) - Flex-System */
+.eingabefeld-gruppe {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Flex-Modifier (wachsen mit) */
+.eingabefeld-gruppe--flex-0-5 {
+    flex: 0.5;
+}
+
+.eingabefeld-gruppe--flex-2 {
+    flex: 2;
+}
+
+.eingabefeld-gruppe--flex-3 {
+    flex: 3;
+}
+
+/* Fixed-Modifier (wachsen nicht, Gap-berücksichtigt) */
+.eingabefeld-gruppe--fixed-0-5 {
+    flex: none;
+    width: calc(12.5% - var(--spacing-lg) / 2);
+}
+
+.eingabefeld-gruppe--fixed-1 {
+    flex: none;
+    width: calc(25% - var(--spacing-lg) / 2);
+}
+
+.eingabefeld-gruppe--fixed-2 {
+    flex: none;
+    width: calc(50% - var(--spacing-lg) / 2);
+}
+
+.eingabefeld-gruppe--fixed-3 {
+    flex: none;
+    width: calc(75% - var(--spacing-lg) / 2);
+}
+
+.eingabefeld-gruppe--fixed-3-5 {
+    flex: none;
+    width: calc(87.5% - var(--spacing-lg) / 2);
+}
+
+.eingabefeld-gruppe--fixed-4 {
+    flex: none;
+    width: 100%;
+}
+
+/* Auto-Breite (passt sich Inhalt an) */
+.eingabefeld-gruppe--auto {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+/* ===== EINGABEFELD-CARD (Card-Style statt Input-Border) ===== */
+
+.eingabefeld-card {
+    width: 100%;
+    height: var(--eingabefeld-hoehe);
+    padding: 0 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: var(--text-normal);
+    background: var(--neutral-50);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+}
+
+/* Eingabefeld-Card-Gruppe (Beschriftung oben + Card + Beschriftung unten) */
+.eingabefeld-card-gruppe {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+/* ===== FORM-SYSTEM (Abschnitte & Unterabschnitte) ===== */
+
+/*
+ * Hierarchie:
+ * - .abschnitt--card (äußere Card, kein Padding)
+ *   - .unterabschnitt--card (innere Card, kein Padding)
+ *     - .zeile (horizontale Reihe MIT Padding)
+ *       - .eingabefeld-gruppe / Überschriften
+ *
+ * WICHTIG: Padding kommt NUR von .zeile!
+ */
+
+/* Abschnitt - Hauptcontainer */
+.abschnitt {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Trennlinie zwischen Abschnitten */
+.abschnitt + .abschnitt {
+    border-top: 1px solid var(--border-color);
+    margin-top: var(--spacing-lg);
+}
+
+/* Abschnitt als Card (kein Padding - kommt von .zeile) */
+.abschnitt--card {
+    background: var(--bg-primary);
+    border: none;
+    border-radius: var(--radius-md);
+}
+
+/* Variante: Mit sichtbarem Rand (für Dashboard etc.) */
+.abschnitt--card--umrandet {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+/* Variante: Volle Breite ohne Padding (für Tabellen) */
+.abschnitt--card--tabelle-volle-breite {
+    background: var(--bg-primary);
+    border: none;
+    border-radius: 0;
+    margin-left: calc(-1 * var(--spacing-lg));
+    margin-right: calc(-1 * var(--spacing-lg));
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Abstand zwischen Cards */
+.abschnitt--card + .abschnitt--card,
+.abschnitt--card + .abschnitt--card--tabelle-volle-breite,
+.abschnitt--card--umrandet + .abschnitt--card--umrandet {
+    margin-top: var(--spacing-lg);
+}
+
+/* Unterabschnitt als Card (kleinere innere Card) */
+.unterabschnitt--card {
+    position: relative;
+    background: var(--neutral-50);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    margin: var(--spacing-md) 0;
+}
+
+/* Abstand zwischen Unterabschnitt-Cards */
+.unterabschnitt--card + .unterabschnitt--card {
+    margin-top: var(--spacing-md);
+}
+
+/* Expandierbare Unterabschnitt-Card */
+.unterabschnitt--card--expandable .unterabschnitt--card-details {
+    display: none;
+}
+
+.unterabschnitt--card--expandable.open .unterabschnitt--card-details {
+    display: block;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0 var(--spacing-sm) var(--spacing-sm);
+}
+
+.unterabschnitt--card--expandable.open .eingabefeld-beschriftung-unten--einzeilig {
+    display: none;
+}
+
+.unterabschnitt--card--expandable .expand-icon {
+    color: var(--neutral-400);
+    transition: transform 0.2s;
+}
+
+.unterabschnitt--card--expandable.open .expand-icon {
+    transform: rotate(180deg);
+}
+
+/* Zeile - horizontaler Container MIT Padding */
+.zeile {
+    display: flex;
+    gap: var(--spacing-sm);
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.zeile--center {
+    align-items: center;
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+}
+
+.zeile--no-padding {
+    padding: 0;
+}
+
+.zeile--header {
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-sm);
+}
+
+/* ===== GENERISCHE LIST-KOMPONENTEN ===== */
+
+/* Liste Container */
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+/* Einzelnes Listen-Element */
+.list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+}
+
+.list-item:hover {
+    border-color: var(--accent-color);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.list-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.list-item-name {
+    font-size: var(--text-normal);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.list-item-meta {
+    font-size: var(--text-klein);
+    color: var(--text-secondary);
+}
+
+.list-item-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+}
+
+/* Gruppe (einklappbar) */
+.list-group {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-top: var(--spacing-sm);
+}
+
+.list-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--bg-secondary);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.list-group-header:hover {
+    background: var(--bg-hover);
+}
+
+.list-group-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.list-group-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.list-group-meta {
+    font-size: var(--text-klein);
+    color: var(--text-secondary);
+}
+
+.list-group-toggle {
+    transition: transform 0.2s;
+}
+
+.list-group-toggle.open {
+    transform: rotate(180deg);
+}
+
+.list-group-content {
+    display: none;
+    padding: var(--spacing-lg);
+    background: var(--bg-primary);
+}
+
+.list-group-content.open {
+    display: block;
 }
 
 /* ===== SPACING UTILITIES ===== */
@@ -334,6 +708,13 @@ body.shell-body {
 .mt-md { margin-top: var(--spacing-md); }
 .mt-lg { margin-top: var(--spacing-lg); }
 .mt-xl { margin-top: var(--spacing-xl); }
+
+/* Trennlinie */
+.trennlinie {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 30px 0;
+}
 
 /* ===== AUTOCOMPLETE ===== */
 .autocomplete-container {
@@ -629,22 +1010,6 @@ body.shell-body {
     margin-bottom: var(--spacing-sm);
 }
 
-.form-input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-normal);
-    transition: all 0.2s;
-    box-sizing: border-box;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
 /* ========================================
    MODAL
    ======================================== */
@@ -676,8 +1041,10 @@ body.shell-body {
     width: 90%;
     max-width: 500px;
     max-height: 90vh;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     box-shadow: var(--shadow);
+    overflow: hidden;
     transform: scale(0.95);
     transition: transform 0.2s ease;
 }
@@ -686,31 +1053,12 @@ body.shell-body {
     transform: scale(1);
 }
 
-.modal-header {
-    padding: var(--spacing-lg);
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-title {
-    font-size: var(--text-ueberschrift);
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
 .modal-body {
-    padding: var(--spacing-lg);
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-sm);
 }
 
-.modal-footer {
-    padding: var(--spacing-lg);
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-md);
-}
 
 /* ========================================
    MODAL SIZES (XS, S, M, L)
@@ -729,7 +1077,7 @@ body.shell-body {
     padding: var(--spacing-xl);
 }
 
-.modal-xs .modal-footer {
+.modal-xs .page-footer {
     justify-content: center;
     gap: var(--spacing-sm);
 }
@@ -905,35 +1253,6 @@ body.shell-body {
     margin-bottom: 0;
 }
 
-.mitglied-form-field {
-    flex: 1;
-}
-
-.mitglied-form-field label {
-    display: block;
-    font-size: 11px;
-    color: var(--text-secondary);
-    margin-bottom: 3px;
-}
-
-.mitglied-form-field input,
-.mitglied-form-field select {
-    width: 100%;
-    height: 34px;
-    padding: 0 10px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    background: var(--bg-primary);
-}
-
-.mitglied-form-field input:focus,
-.mitglied-form-field select:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
 /* Email Buttons (kompakt) */
 .mitglied-email-buttons {
     display: flex;
@@ -986,7 +1305,7 @@ body.shell-body {
 .modal-m .modal-content {
     width: 640px;
     max-width: 90vw;
-    max-height: 85vh;
+    max-height: 92vh;
     border-radius: var(--radius-lg);
 }
 
@@ -1021,6 +1340,23 @@ body.shell-body {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
+}
+
+/* Modal Split-View (Hauptbereich + Sidebar) */
+.modal-body--split {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.modal-body-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
 }
 
 /* ========================================
@@ -1616,6 +1952,99 @@ grid-template-columns: repeat(3, 1fr);
 .kw-tab-content.active {
     display: block;
 }
+
+/* Für Tabellen-Seiten: Tab-Content füllt den Platz */
+.page-container--no-border .kw-tab-content.active {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+/* ========================================
+   PAGE HEADER SYSTEM
+   Zentraler Header für alle iframe-Seiten
+   ======================================== */
+
+/* Container */
+.page-header {
+    flex-shrink: 0;
+    padding: 20px 20px 0 20px;
+}
+
+/* Zeile 1: Zurück | Links | Mitte | Rechts */
+.page-header-row {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    gap: var(--spacing-md);
+    position: relative;
+}
+
+/* Links-Bereich (Titel) */
+.page-header-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+/* Mitte-Bereich (Info, absolut zentriert) */
+.page-header-mitte {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+}
+
+/* Rechts-Bereich (Actions) */
+.page-header-rechts {
+    position: absolute;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* Zeile 2: Tabs */
+.page-header-tabs {
+    display: flex;
+    gap: 0;
+    height: 30px;
+    margin-top: 10px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.page-header-tabs .kw-tab {
+    padding: 0 var(--spacing-sm);
+    font-size: var(--text-normal);
+    font-weight: var(--fett);
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    position: relative;
+    top: 2px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+}
+
+.page-header-tabs .kw-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+}
+
+.page-header-tabs .kw-tab.active {
+    color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+}
+
 
 /* ========================================
    TC DIENSTE DROPDOWN
@@ -2392,16 +2821,6 @@ display: inline;
 
 
 /* ========================================
-   CONTENT AREA (unter der Toolbar)
-   ======================================== */
-
-.content-area {
-    padding: var(--spacing-lg);
-    max-width: 1600px;
-    margin: 0 auto;
-}
-
-/* ========================================
    EINHEITLICHES MODAL-DIALOG-SYSTEM
    ========================================
 
@@ -2534,28 +2953,6 @@ display: inline;
     line-height: 1.6;
     margin-bottom: var(--spacing-lg, 24px);
     white-space: pre-line;
-}
-
-.custom-modal-input {
-    width: 100%;
-    padding: 12px 16px;
-    background: var(--bg-secondary, #f8f9fa);
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: var(--radius-sm);
-    color: var(--text-primary, #1a1a1a);
-    font-size: 14px;
-    margin-bottom: var(--spacing-lg, 24px);
-    transition: all 0.2s ease;
-}
-
-.custom-modal-input:focus {
-    outline: none;
-    border-color: var(--accent-color, #3b82f6);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-.custom-modal-input::placeholder {
-    color: var(--text-secondary, #6b7280);
 }
 
 .custom-modal-buttons {
@@ -2928,7 +3325,7 @@ display: inline;
 }
 
 /* Modal Footer */
-.calendar-modal-footer {
+.calendar-page-footer {
     padding: 16px 20px;
     border-top: 1px solid var(--border-color);
     display: flex;
@@ -2936,7 +3333,7 @@ display: inline;
     gap: 8px;
 }
 
-.calendar-modal-footer .btn-cancel {
+.calendar-page-footer .btn-cancel {
     padding: 10px 20px;
     border: none;
     background: var(--bg-secondary);
@@ -2947,11 +3344,11 @@ display: inline;
     cursor: pointer;
 }
 
-.calendar-modal-footer .btn-cancel:hover {
+.calendar-page-footer .btn-cancel:hover {
     background: var(--bg-hover);
 }
 
-.calendar-modal-footer .btn-apply {
+.calendar-page-footer .btn-apply {
     padding: 10px 20px;
     border: none;
     background: var(--accent-color);
@@ -2962,7 +3359,7 @@ display: inline;
     cursor: pointer;
 }
 
-.calendar-modal-footer .btn-apply:hover {
+.calendar-page-footer .btn-apply:hover {
     background: var(--accent-hover);
 }
 
@@ -3472,27 +3869,6 @@ flex-direction: column;
     color: var(--text-secondary);
 }
 
-.edit-form-input {
-    padding: 8px 10px;
-    font-size: 13px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background: var(--neutral-white);
-    color: var(--text-primary);
-    transition: all 0.15s;
-}
-
-.edit-form-input:focus {
-    outline: none;
-    border-color: var(--color-werber);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-.edit-form-input:disabled {
-    background: var(--neutral-50);
-    color: var(--neutral-400);
-}
-
 /* Rechte Seite: Historie */
 .edit-history-section {
     width: 320px;
@@ -3759,7 +4135,7 @@ flex-direction: column;
     top: calc(100% + 8px);
 }
 
-.edit-modal-footer {
+.edit-page-footer {
     padding: 16px 24px;
     border-top: 1px solid var(--border-color);
     display: flex;
@@ -3809,31 +4185,72 @@ html, body {
     margin: 0;
 }
 
-/* Standard: 20px Padding für normale Seiten (kampagnen, mitarbeiter, kunden, etc.) */
+/* Standard Container für alle Seiten */
 .page-container {
     height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding: 20px;
-    background: var(--bg-secondary);
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
     box-sizing: border-box;
 }
 
-/* Modifier: Kein Padding für Tabellen-Seiten (benutzer, datensaetze, statistik, audit-log) */
-.page-container--no-padding {
-    padding: 0;
+/* Page Content - scrollbarer Bereich für Inhalt */
+.page-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--spacing-lg) 20px 0 20px;
+}
+
+/* Modifier: Kein Border */
+.page-container--no-border {
     border: none;
 }
 
-/* Modifier: Scrollbar für Formular-Seiten (profil, kunde, etc.) */
-.page-container--scroll {
-    overflow-y: auto;
+
+/* Modifier: Tabellen-Seiten mit sticky tfoot */
+/* page-content wird zum Scroll-Container, sticky funktioniert darin */
+.page-container--table .page-content {
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
 }
 
-.page-container--scroll .content-area {
+/* Modifier: Scrollbar für Formular-Seiten (profil, kunde, etc.) */
+/* Body scrollt, Container wächst mit */
+.iframe-body:has(.page-container--scroll) {
+    height: 100%;
+    overflow: auto;
+}
+
+.page-container--scroll {
+    height: auto;
+    min-height: 100%;
     overflow: visible;
+}
+
+.page-container--scroll .page-content {
+    overflow: visible;
+}
+
+.page-footer {
+    flex-shrink: 0;
+    margin-top: 10px;
+    padding: var(--spacing-sm) 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+}
+
+.page-container--scroll .page-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-primary);
 }
 
 .content-area {
@@ -3842,7 +4259,6 @@ html, body {
     flex-direction: column;
     min-height: 0;
     padding: 0;
-    overflow: hidden;
     max-width: none;
     margin: 0;
 }
@@ -3862,7 +4278,6 @@ html, body {
     flex-direction: column;
     min-height: 0;
     background: var(--bg-primary);
-    overflow: hidden;
     position: relative;
 }
 
@@ -3991,13 +4406,10 @@ html, body {
 }
 
 /* ========== TOTALS ROW ========== */
-.table .totals-row {
+.table .totals-row td {
     position: sticky;
     bottom: 0;
     z-index: 5;
-}
-
-.table .totals-row td {
     background: var(--neutral-200) !important;
     font-weight: 600;
     font-size: 10px;
@@ -4139,7 +4551,10 @@ html, body {
 
 .table td.action-cell:last-child,
 .table th.action-cell:last-child {
-    position: static;
+    position: sticky;
+    right: 0;
+    z-index: 3;
+    background: var(--neutral-white);
     border-left: 1px solid var(--neutral-300);
     border-right: none;
     width: 40px;
@@ -4147,8 +4562,16 @@ html, body {
     max-width: 40px;
 }
 
+.table th.action-cell:last-child {
+    z-index: 11;
+    background: var(--neutral-200);
+}
+
 .table .totals-row td.action-cell:last-child {
-    position: static;
+    position: sticky;
+    right: 0;
+    z-index: 6;
+    background: var(--neutral-200);
     border-left: 1px solid var(--neutral-300);
     border-right: none;
     width: 40px;
@@ -4217,7 +4640,7 @@ html, body {
     background: var(--neutral-200);
     position: sticky;
     left: 40px;
-    z-index: 5;
+    z-index: 7;
 }
 
 /* Seiten mit Action-Cell vor Name */
@@ -4890,17 +5313,36 @@ html, body {
     color: var(--neutral-800);
 }
 
-.audit-change-old {
+/* Audit-Farben: grau, rot, grün, orange */
+
+/* Grau - für alte Werte und Pfeile */
+.audit-color-grau {
+    color: var(--neutral-400);
+}
+
+.audit-color-grau-durchgestrichen {
+    color: var(--neutral-400);
     text-decoration: line-through;
-    color: var(--neutral-400);
 }
 
-.audit-change-arrow {
-    color: var(--neutral-400);
+/* Grün - für hinzugefügt */
+.audit-color-gruen {
+    color: var(--success-text);
 }
 
-.audit-change-new {
-    color: var(--success-text-dark);
+/* Rot - für gelöscht */
+.audit-color-rot {
+    color: var(--error-text);
+}
+
+.audit-color-rot-durchgestrichen {
+    color: var(--error-text);
+    text-decoration: line-through;
+}
+
+/* Orange - für bearbeitet */
+.audit-color-orange {
+    color: var(--warning-text);
 }
 
 .audit-empty {
@@ -4976,12 +5418,12 @@ html, body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(254, 226, 226, 0.95);
+    background: var(--error-bg);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 16px;
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     z-index: 10;
 }
 
@@ -6209,7 +6651,7 @@ body.in-iframe .action-toolbar {
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    margin-bottom: var(--spacing-sm);
+    min-height: 36px;
 }
 
 .toggle-switch {
@@ -6217,6 +6659,7 @@ body.in-iframe .action-toolbar {
     width: 44px;
     height: 24px;
     flex-shrink: 0;
+    align-self: center;
 }
 
 .toggle-switch input {
@@ -8147,6 +8590,23 @@ body.in-iframe .action-toolbar {
     margin: 0;
 }
 
+.info-box.with-action {
+    position: relative;
+}
+
+.info-box-action {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+}
+
+/* Section Header mit Button rechts */
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 /* Campaign Settings Grid */
 .campaign-settings-grid {
     display: flex;
@@ -8430,6 +8890,12 @@ body.in-iframe .action-toolbar {
     margin-top: var(--spacing-sm);
 }
 
+.badge-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
 .info-badge {
     display: inline-flex;
     align-items: center;
@@ -8666,13 +9132,18 @@ body.in-iframe .action-toolbar {
     padding: var(--spacing-xl);
 }
 
-.confirm-modal .modal-footer {
+.confirm-modal .page-footer {
     justify-content: center;
     gap: var(--spacing-sm);
 }
 
 /* Mitglied Modal - nur z-index lokal */
 .mitglied-modal {
+    z-index: 1500;
+}
+
+/* Attendance Notes Modal - über campaignViewModal */
+#attendanceNotesModal {
     z-index: 1500;
 }
 
@@ -8993,13 +9464,6 @@ body {
 /* ========================================
    VORLAGEN SEITE
    ======================================== */
-
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-xl);
-}
 
 .page-title {
     font-size: 24px;
@@ -10212,6 +10676,7 @@ body {
     border-radius: var(--radius-md);
     border: 2px dashed var(--border-color);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
@@ -10232,8 +10697,8 @@ body {
 }
 
 .photo-upload-icon {
-    width: 32px;
-    height: 32px;
+    width: 22px;
+    height: 22px;
     color: var(--text-secondary);
 }
 
@@ -10253,13 +10718,15 @@ body {
 }
 
 .photo-upload-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-xs);
+    position: relative;
 }
 
 .photo-upload-label {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
     font-size: var(--text-klein);
     color: var(--text-secondary);
     font-weight: 500;
@@ -10504,6 +10971,21 @@ body {
 .level-badge--spb.level-badge--glow { box-shadow: 0 0 25px var(--level-spb); }
 .level-badge--kad.level-badge--glow { box-shadow: 0 0 30px var(--level-kad); }
 .level-badge--fue.level-badge--glow { box-shadow: 0 0 40px var(--level-fue), 0 0 60px var(--level-fue); }
+
+/* Platzhalter-Badge (keine Stufe ausgewählt) */
+.level-badge--placeholder {
+    background: #d0d0d0;
+}
+
+.level-badge--placeholder .level-badge-code,
+.level-badge--placeholder .level-badge-stufe {
+    color: rgba(255,255,255,0.7);
+}
+
+.level-badge--placeholder .level-star {
+    fill: rgba(255,255,255,0.5);
+    filter: none;
+}
 
 /* Level-Name unter Badge */
 .level-name {

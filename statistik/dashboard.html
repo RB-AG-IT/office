@@ -8,24 +8,29 @@
     <script src="../js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="statistik-page">
-    <div class="page-container page-container--no-padding page-container--scroll">
-        <div class="content-area">
-            <!-- HEADER -->
-            <div class="mitglied-form-section mitglied-form-section--no-border mitglied-form-section--compact">
-                <div class="profile-header">
-                    <div class="profile-header-left">
-                        <button class="back-btn" title="Zurück"></button>
-                        <div>
-                            <h1 class="page-title" id="profileName">Max Mustermann</h1>
-                            <p class="text-sm">Mitarbeiternummer: <span id="employeeId">MA-001</span> • Erstellt am: <span id="createdDate">01.01.2024</span></p>
-                        </div>
-                    </div>
+<body class="iframe-body">
+    <div class="page-container page-container--scroll">
+        <!-- Page Header -->
+        <div class="page-header">
+            <!-- Zeile 1: Zurück | Links | Mitte | Rechts -->
+            <div class="page-header-row">
+                <button class="btn-icon btn-icon--lg" onclick="history.back()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="profileName">Max Mustermann</span>
+                    <span class="text-klein">Mitarbeiternummer: <span id="employeeId">MA-001</span> • Erstellt am: <span id="createdDate">01.01.2024</span></span>
+                </div>
+                <div class="page-header-mitte">
+                    <span class="text-ueberschrift">Statistik Dashboard</span>
+                </div>
+                <div class="page-header-rechts">
                 </div>
             </div>
-
-            <!-- TABS (nur für Werber) -->
-            <div class="kw-tabs" id="werberTabs">
+            <!-- Zeile 2: Tabs (nur für Werber) -->
+            <div class="page-header-tabs" id="werberTabs">
                 <div class="kw-tab active" data-tab="uebersicht">Übersicht</div>
                 <div class="kw-tab" data-tab="werben">Werben</div>
                 <div class="kw-tab" data-tab="teamleitung">Teamleitung</div>
@@ -33,152 +38,247 @@
                 <div class="kw-tab" data-tab="recruiting">Recruiting</div>
                 <div class="kw-tab" data-tab="empfehlung">Empfehlung</div>
             </div>
+        </div>
 
+        <!-- Page Content -->
+        <div class="page-content">
             <!-- TAB: Übersicht -->
             <div class="kw-tab-content active" id="tab-uebersicht">
                 <!-- Werber: Übersicht mit zusammengefasster Tabelle -->
-                <div class="mitglied-form-section mitglied-form-section--card" id="uebersichtPlaceholder">
-                    <div class="text-ueberschrift-abschnitt mb-md">Übersicht</div>
-                    <div id="uebersichtStatsTableContainer"></div>
+                <div class="abschnitt--card--umrandet" id="uebersichtPlaceholder">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Übersicht</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="uebersichtStatsTableContainer" style="width: 100%;"></div>
+                    </div>
                 </div>
 
                 <!-- Kunde/Kampagne/Gebiet: voller Inhalt -->
                 <div id="kundeKampagneContent" style="display: none;">
-                    <div class="mitglied-form-section mitglied-form-section--card">
-                        <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
-                        <div id="kkStatsTableContainer"></div>
-                    </div>
-
-                    <div class="mitglied-form-section mitglied-form-section--card">
-                        <div class="text-ueberschrift-abschnitt mb-md">Wochenverlauf</div>
-                        <div style="height: 280px;">
-                            <canvas id="kkChart"></canvas>
+                    <div class="abschnitt--card--umrandet">
+                        <div class="zeile zeile--header">
+                            <div class="text-ueberschrift-abschnitt">Stats</div>
+                        </div>
+                        <div class="zeile">
+                            <div id="kkStatsTableContainer" style="width: 100%;"></div>
                         </div>
                     </div>
 
-                    <div class="mitglied-form-section mitglied-form-section--card">
-                        <div class="text-ueberschrift-abschnitt mb-md">Einsätze</div>
-                        <div id="kkEinsatzTimeline"></div>
+                    <div class="abschnitt--card--umrandet">
+                        <div class="zeile zeile--header">
+                            <div class="text-ueberschrift-abschnitt">Wochenverlauf</div>
+                        </div>
+                        <div class="zeile">
+                            <div style="height: 280px; width: 100%;">
+                                <canvas id="kkChart"></canvas>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mitglied-form-section mitglied-form-section--card">
-                        <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
-                        <div class="achievement-grid" id="kkAchievementGrid"></div>
+                    <div class="abschnitt--card--umrandet">
+                        <div class="zeile zeile--header">
+                            <div class="text-ueberschrift-abschnitt">Einsätze</div>
+                        </div>
+                        <div class="zeile">
+                            <div id="kkEinsatzTimeline" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="abschnitt--card--umrandet">
+                        <div class="zeile zeile--header">
+                            <div class="text-ueberschrift-abschnitt">Achievements</div>
+                        </div>
+                        <div class="zeile">
+                            <div class="achievement-grid" id="kkAchievementGrid"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- TAB: Werben -->
             <div class="kw-tab-content" id="tab-werben">
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
-                    <div id="statsTableContainer"></div>
-                </div>
-
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Wochenverlauf</div>
-                    <div style="height: 280px;">
-                        <canvas id="werbenChart"></canvas>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="statsTableContainer" style="width: 100%;"></div>
                     </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Einsätze</div>
-                    <div id="einsatzTimeline"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Wochenverlauf</div>
+                    </div>
+                    <div class="zeile">
+                        <div style="height: 280px; width: 100%;">
+                            <canvas id="werbenChart"></canvas>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
-                    <div class="achievement-grid" id="achievementGrid"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Einsätze</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="einsatzTimeline" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="achievementGrid"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- TAB: Teamleitung -->
             <div class="kw-tab-content" id="tab-teamleitung">
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
-                    <div id="tlStatsTableContainer"></div>
-                </div>
-
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Wochenverlauf</div>
-                    <div style="height: 280px;">
-                        <canvas id="teamleitungChart"></canvas>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="tlStatsTableContainer" style="width: 100%;"></div>
                     </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Einsätze</div>
-                    <div id="tlEinsatzTimeline"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Wochenverlauf</div>
+                    </div>
+                    <div class="zeile">
+                        <div style="height: 280px; width: 100%;">
+                            <canvas id="teamleitungChart"></canvas>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
-                    <div class="achievement-grid" id="tlAchievementGrid"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Einsätze</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="tlEinsatzTimeline" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="tlAchievementGrid"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- TAB: Quality -->
             <div class="kw-tab-content" id="tab-quality">
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
-                    <div id="qStatsTableContainer"></div>
-                </div>
-
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Wochenverlauf</div>
-                    <div style="height: 280px;">
-                        <canvas id="qualityChart"></canvas>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="qStatsTableContainer" style="width: 100%;"></div>
                     </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Einsätze</div>
-                    <div id="qEinsatzTimeline"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Wochenverlauf</div>
+                    </div>
+                    <div class="zeile">
+                        <div style="height: 280px; width: 100%;">
+                            <canvas id="qualityChart"></canvas>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
-                    <div class="achievement-grid" id="qAchievementGrid"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Einsätze</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="qEinsatzTimeline" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="qAchievementGrid"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- TAB: Recruiting -->
             <div class="kw-tab-content" id="tab-recruiting">
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
-                    <div id="rStatsTableContainer"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="rStatsTableContainer" style="width: 100%;"></div>
+                    </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Recruiting-Baum</div>
-                    <div id="rContentContainer"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Recruiting-Baum</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="rContentContainer" style="width: 100%;"></div>
+                    </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
-                    <div class="achievement-grid" id="rAchievementGrid"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="rAchievementGrid"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- TAB: Empfehlung -->
             <div class="kw-tab-content" id="tab-empfehlung">
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Stats</div>
-                    <div id="eStatsTableContainer"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="eStatsTableContainer" style="width: 100%;"></div>
+                    </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Empfehlungs-Baum</div>
-                    <div id="eContentContainer"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Empfehlungs-Baum</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="eContentContainer" style="width: 100%;"></div>
+                    </div>
                 </div>
 
-                <div class="mitglied-form-section mitglied-form-section--card">
-                    <div class="text-ueberschrift-abschnitt mb-md">Achievements</div>
-                    <div class="achievement-grid" id="eAchievementGrid"></div>
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="eAchievementGrid"></div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </div><!-- /page-content -->
     </div>
 
     <script>
@@ -193,8 +293,6 @@
         if (personName) {
             document.getElementById('profileName').textContent = decodeURIComponent(personName);
         }
-
-        document.querySelector('.back-btn').addEventListener('click', () => history.back());
 
         // =============================================
         // SHELL-TOOLBAR AKTIVIEREN

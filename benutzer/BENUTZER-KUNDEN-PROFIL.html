@@ -7,86 +7,95 @@
     <link rel="stylesheet" href="../css/styles.css">
     <script src="../js/main.js"></script>
 </head>
-<body>
+<body class="iframe-body">
     <div class="page-container page-container--scroll">
-
-        <!-- HEADER -->
-        <div class="mitglied-form-section">
-            <div class="profile-header">
-                <!-- Links: Name -->
-                <div class="profile-header-left">
-                    <button class="back-btn" title="Zurück"></button>
-                    <div>
-                        <h1 class="page-title" id="customerName">Neuer Kunde</h1>
-                        <p class="text-klein">Kunden-ID: <span id="customerId">-</span> • Erstellt am: <span id="createdDate">-</span></p>
-                    </div>
+        <!-- Page Header -->
+        <div class="page-header">
+            <!-- Zeile 1: Zurück | Links | Mitte | Rechts -->
+            <div class="page-header-row">
+                <button class="btn-icon btn-icon--lg" onclick="history.back()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="customerName">Neuer Kunde</span>
+                    <span class="text-klein">Kunden-ID: <span id="customerId">-</span> • Erstellt am: <span id="createdDate">-</span></span>
                 </div>
-
-                <!-- Rechts: Header Actions -->
-                <div class="profile-header-right">
-                    <!-- Platzhalter für evtl. Logo-Upload oder Badge -->
+                <div class="page-header-mitte">
+                    <!-- Platzhalter für evtl. Badge oder Status -->
                 </div>
+                <div class="page-header-rechts">
+                    <!-- Platzhalter für evtl. Logo-Upload -->
+                </div>
+            </div>
+            <!-- Zeile 2: Tabs -->
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="informationen">Informationen</div>
+                <div class="kw-tab" data-tab="einstellungen">Einstellungen</div>
             </div>
         </div>
 
-        <!-- TABS -->
-        <div class="kw-tabs">
-            <div class="kw-tab active" data-tab="informationen">Informationen</div>
-            <div class="kw-tab" data-tab="einstellungen">Einstellungen</div>
-        </div>
-
-        <!-- ============================================================ -->
+        <!-- Page Content -->
+        <div class="page-content">
         <!-- TAB: Informationen -->
-        <!-- ============================================================ -->
-        <div class="kw-tab-content active" id="tab-informationen">
+        <div id="tab-informationen" class="kw-tab-content active">
 
             <!-- Allgemeine Informationen -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Allgemeine Informationen</div>
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Allgemeine Informationen</div>
+                </div>
 
                 <!-- Kundenname Builder -->
-                <div class="mitglied-form-row mitglied-form-row--wrap">
-                    <div class="mitglied-form-field mitglied-form-field--half">
-                        <label class="eingabefeld-oberbeschriftung">Org.</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                        <label class="eingabefeld-beschriftung-oben">Org.</label>
                         <select class="eingabefeld" id="organisation" onchange="updateCustomerNameDisplay()">
                             <option value="DRK" selected>DRK</option>
                         </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field mitglied-form-field--half">
-                        <label class="eingabefeld-oberbeschriftung">Typ</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Typ</label>
                         <select class="eingabefeld" id="namePrefix" onchange="updateCustomerNameDisplay(); updateFormForCustomerType();">
                             <option value="Landesverband">Landesverband</option>
                             <option value="Kreisverband" selected>Kreisverband</option>
                             <option value="Ortsverein">Ortsverein</option>
                         </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field mitglied-form-field--2 mitglied-form-field--min-120">
-                        <label class="eingabefeld-oberbeschriftung">Name *</label>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                        <label class="eingabefeld-beschriftung-oben">Name *</label>
                         <input type="text" class="eingabefeld" id="name" placeholder="z.B. Ludwigshafen" oninput="updateCustomerNameDisplay()">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field mitglied-form-field--half">
-                        <label class="eingabefeld-oberbeschriftung">Rechtsform</label>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                        <label class="eingabefeld-beschriftung-oben">Rechtsform</label>
                         <select class="eingabefeld" id="nameSuffix" onchange="updateCustomerNameDisplay()">
                             <option value="e.V.">e.V.</option>
                             <option value="gGmbH">gGmbH</option>
                             <option value="GmbH">GmbH</option>
                             <option value="">- keine -</option>
                         </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field mitglied-form-field--half">
-                        <label class="eingabefeld-oberbeschriftung">Kunden-ID</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Kunden-ID</label>
                         <input type="text" class="eingabefeld" id="kdId" placeholder="z.B. A025-033">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field mitglied-form-field--half">
-                        <label class="eingabefeld-oberbeschriftung">Einwohner</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Einwohner</label>
                         <input type="number" class="eingabefeld" id="customerEinwohner" placeholder="z.B. 45000" min="0">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
 
                 <!-- Vorschau -->
-                <p class="text-klein mb-md">
-                    Vorschau: <strong id="customerNamePreview">DRK Kreisverband Ludwigshafen e.V.</strong>
-                </p>
+                <div class="zeile">
+                    <span class="text-klein">Vorschau: <strong id="customerNamePreview">DRK Kreisverband Ludwigshafen e.V.</strong></span>
+                </div>
 
                 <!-- Typ (hidden, wird automatisch gesetzt) -->
                 <select class="eingabefeld" id="type" style="display: none;">
@@ -95,77 +104,94 @@
                     <option value="ortsverein">Ortsverein</option>
                 </select>
 
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">E-Mail (für Login) *</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">E-Mail (für Login) *</label>
                         <input type="email" class="eingabefeld" id="contactEmail" placeholder="kontakt@drk-example.de">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Telefon</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Telefon</label>
                         <input type="tel" class="eingabefeld" id="contactPhone" placeholder="+49 621 12345">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Website</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Website</label>
                         <input type="url" class="eingabefeld" id="customerWebsite" placeholder="https://www.drk-example.de">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Datenschutzerklärung (Link)</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Datenschutzerklärung (Link)</label>
                         <input type="url" class="eingabefeld" id="customerPrivacyPolicy" placeholder="https://www.drk-example.de/datenschutz">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Adresse -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Adresse</div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field mitglied-form-field--3">
-                        <label class="eingabefeld-oberbeschriftung">Straße</label>
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Adresse</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                        <label class="eingabefeld-beschriftung-oben">Straße</label>
                         <div class="autocomplete-container">
                             <input type="text" class="eingabefeld" id="customerStreet" placeholder="Beginnen Sie zu tippen für Vorschläge...">
                             <div class="autocomplete-results" id="customerStreetAutocomplete"></div>
                         </div>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field mitglied-form-field--half">
-                        <label class="eingabefeld-oberbeschriftung">Nr.</label>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                        <label class="eingabefeld-beschriftung-oben">Nr.</label>
                         <input type="text" class="eingabefeld" id="customerHouseNumber" placeholder="Nr.">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">PLZ</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">PLZ</label>
                         <input type="text" class="eingabefeld" id="customerPostalCode" placeholder="12345" maxlength="5">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Stadt</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Stadt</label>
                         <input type="text" class="eingabefeld" id="customerCity" placeholder="Musterstadt">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Land</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Land</label>
                         <input type="text" class="eingabefeld" id="customerCountry" placeholder="Wird automatisch ausgefüllt" readonly>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Bundesland</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Bundesland</label>
                         <input type="text" class="eingabefeld" id="customerBundesland" placeholder="Wird automatisch ausgefüllt" readonly>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Zusatzinformation</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Zusatzinformation</label>
                         <input type="text" class="eingabefeld" id="customerAddressExtra" placeholder="z.B. 2. Stock, Hinterhaus">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Ansprechpartner -->
-            <div class="mitglied-form-section">
-                <div class="section-header-flex mb-lg">
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header" style="justify-content: space-between;">
                     <div class="text-ueberschrift-abschnitt">Ansprechpartner</div>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="addContactPerson()">
+                    <button type="button" class="btn btn--secondary btn--sm" onclick="addContactPerson()">
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
@@ -184,17 +210,19 @@
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Einsatzgebiete und Vereine -->
-            <div class="mitglied-form-section" id="sectionEinsatzgebiete">
-                <div class="section-header-flex mb-lg">
+            <div class="abschnitt--card" id="sectionEinsatzgebiete">
+                <div class="zeile zeile--header" style="justify-content: space-between;">
                     <div class="text-ueberschrift-abschnitt">Einsatzgebiete und Vereine</div>
                     <div class="dropdown" id="addEinsatzgebietDropdown">
-                        <button class="btn btn-secondary btn-sm" onclick="toggleDropdown(this)">
+                        <button class="btn btn--secondary btn--sm" onclick="toggleDropdown(this)">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
                             <span>Hinzufügen</span>
-                            <svg class="ml-sm" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg style="margin-left: 4px;" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
@@ -216,8 +244,10 @@
                     </div>
                 </div>
 
-                <div id="einsatzgebieteContainer">
-                    <!-- Wird dynamisch gerendert -->
+                <div class="zeile zeile--center">
+                    <div id="einsatzgebieteContainer" style="width: 100%;">
+                        <!-- Wird dynamisch gerendert -->
+                    </div>
                 </div>
                 <div class="empty-state" id="noEinsatzgebieteMessage">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,10 +259,15 @@
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Verträge -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Verträge</div>
-                <div class="document-upload-grid">
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Verträge</div>
+                </div>
+                <div class="zeile zeile--center">
+                    <div class="document-upload-grid" style="width: 100%;">
                     <!-- Rahmenverträge -->
                     <div class="document-upload-item">
                         <h4>Rahmenverträge</h4>
@@ -277,54 +312,62 @@
                         </div>
                         <input type="file" id="sondervertragInput" accept=".pdf" hidden>
                     </div>
+                    </div>
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Rechnungen -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Rechnungen</div>
-                <div class="history-timeline" id="customerInvoicesList">
-                    <!-- Rechnungen werden hier gerendert -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Rechnungen</div>
                 </div>
-                <div class="empty-state" id="noInvoicesMessage">
+                <div class="zeile zeile--center">
+                    <div class="history-timeline" id="customerInvoicesList" style="width: 100%;">
+                        <!-- Rechnungen werden hier gerendert -->
+                    </div>
+                </div>
+                <div class="zeile zeile--center">
+                    <div class="empty-state" id="noInvoicesMessage" style="width: 100%;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    <h3>Keine Rechnungen</h3>
-                    <p>Noch keine Rechnungen vorhanden</p>
+                        <h3>Keine Rechnungen</h3>
+                        <p>Noch keine Rechnungen vorhanden</p>
+                    </div>
                 </div>
             </div>
 
         </div><!-- Ende TAB: Informationen -->
 
-        <!-- ============================================================ -->
         <!-- TAB: Einstellungen -->
-        <!-- ============================================================ -->
         <div class="kw-tab-content" id="tab-einstellungen">
 
             <!-- Rechnungsstellung -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Rechnungsstellung</div>
-                <div class="info-box bordered">
-                    <div class="mitglied-form-row">
-                        <label class="checkbox-pill">
-                            <input type="radio" name="invoiceType" value="combined" checked>
-                            Alle Werbegebiete zusammen abrechnen
-                        </label>
-                        <label class="checkbox-pill">
-                            <input type="radio" name="invoiceType" value="separate">
-                            Pro Werbegebiet separate Rechnung
-                        </label>
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Rechnungsstellung</div>
+                </div>
+                <div class="zeile zeile--center">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="invoiceTypeSeparate">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Rechnungsart</label>
+                        <span class="eingabefeld-beschriftung-unten" id="invoiceTypeLabel">Zusammen - Alle Werbegebiete zusammen abrechnen</span>
                     </div>
                 </div>
             </div>
 
         </div><!-- Ende TAB: Einstellungen -->
+        </div><!-- /page-content -->
 
         <!-- Footer Actions -->
-        <div class="modal-footer">
-            <button class="btn btn-secondary back-btn-secondary">Abbrechen</button>
-            <button class="btn btn-primary" onclick="saveCustomer()">Speichern</button>
+        <div class="page-footer">
+            <button class="btn btn--secondary" onclick="history.back()">Abbrechen</button>
+            <button class="btn btn--primary" onclick="saveCustomer()">Speichern</button>
         </div>
 
     </div>
@@ -584,54 +627,61 @@
                 const showCustomRole = contact.role === 'sonstige';
 
                 return `
-                    <div class="info-box bordered with-action" data-contact-id="${contact.id}">
-                        <button type="button" class="btn-icon btn-icon--danger info-box-action" onclick="removeContactPerson(${contact.id})" title="Entfernen">
+                    <div class="unterabschnitt--card" data-contact-id="${contact.id}">
+                        <button type="button" class="btn-icon btn-icon--danger" onclick="removeContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
-                        <p class="text-ueberschrift-unterabschnitt mb-sm">${roleLabel}</p>
-                        <div class="mitglied-form-row">
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Vorname</label>
+                        <div class="zeile">
+                            <div class="text-ueberschrift-unterabschnitt">${roleLabel}</div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Vorname</label>
                                 <input type="text" class="eingabefeld" value="${contact.firstName}"
                                     onchange="updateContactPerson(${contact.id}, 'firstName', this.value)"
                                     placeholder="Vorname">
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Nachname</label>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Nachname</label>
                                 <input type="text" class="eingabefeld" value="${contact.lastName}"
                                     onchange="updateContactPerson(${contact.id}, 'lastName', this.value)"
                                     placeholder="Nachname">
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                         </div>
-                        <div class="mitglied-form-row">
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Rolle</label>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Rolle</label>
                                 <select class="eingabefeld" onchange="updateContactPerson(${contact.id}, 'role', this.value)">
                                     ${Object.entries(CONTACT_ROLES).map(([key, label]) =>
                                         `<option value="${key}" ${contact.role === key ? 'selected' : ''}>${label}</option>`
                                     ).join('')}
                                 </select>
-                                <div class="sonstige-rolle-input mt-sm" style="display: ${showCustomRole ? 'block' : 'none'};">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                                <div class="sonstige-rolle-input" style="display: ${showCustomRole ? 'block' : 'none'}; margin-top: 8px;">
                                     <input type="text" class="eingabefeld" value="${contact.customRole || ''}"
                                         onchange="updateContactPerson(${contact.id}, 'customRole', this.value)"
                                         placeholder="Rolle beschreiben...">
                                 </div>
                             </div>
                         </div>
-                        <div class="mitglied-form-row">
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">E-Mail</label>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">E-Mail</label>
                                 <input type="email" class="eingabefeld" value="${contact.email}"
                                     onchange="updateContactPerson(${contact.id}, 'email', this.value)"
                                     placeholder="email@example.de">
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Telefon</label>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Telefon</label>
                                 <input type="tel" class="eingabefeld" value="${contact.phone}"
                                     onchange="updateContactPerson(${contact.id}, 'phone', this.value)"
                                     placeholder="+49 123 456789">
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                         </div>
                     </div>
@@ -848,13 +898,13 @@
             if (kundenTyp === 'Ortsverein') {
                 const area = { ...areas[0], originalIndex: 0 };
                 html = `
-                    <div class="area-list">
-                        <div class="area-item">
-                            <div class="area-item-info">
-                                <span class="area-item-name">${area.name || '(Name fehlt)'}</span>
-                                <span class="area-item-address">${formatAddress(area)}</span>
+                    <div class="list">
+                        <div class="list-item">
+                            <div class="list-item-info">
+                                <span class="list-item-name">${area.name || '(Name fehlt)'}</span>
+                                <span class="list-item-meta">${formatAddress(area)}</span>
                             </div>
-                            <div class="area-item-actions">
+                            <div class="list-item-actions">
                                 <button class="btn btn-secondary btn-sm" onclick="editArea(0)" title="Bearbeiten">
                                     <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -880,18 +930,18 @@
                     ortsvereine.forEach(ov => { einträgeHTML += renderAreaItem(ov, false); });
 
                     html = `
-                        <div class="area-group">
-                            <div class="area-group-header" onclick="toggleAreaGroup('kvgebiet')">
-                                <div class="area-group-info">
-                                    <span class="area-group-name">${kundenName || 'Kreisverband'}</span>
-                                    <span class="area-group-meta">${gesamtCount} Einsatzgebiet${gesamtCount !== 1 ? 'e' : ''}</span>
+                        <div class="list-group">
+                            <div class="list-group-header" onclick="toggleAreaGroup('kvgebiet')">
+                                <div class="list-group-info">
+                                    <span class="list-group-name">${kundenName || 'Kreisverband'}</span>
+                                    <span class="list-group-meta">${gesamtCount} Einsatzgebiet${gesamtCount !== 1 ? 'e' : ''}</span>
                                 </div>
-                                <svg class="area-group-toggle" id="area-toggle-kvgebiet" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="list-group-toggle" id="area-toggle-kvgebiet" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </div>
-                            <div class="area-group-content" id="area-content-kvgebiet">
-                                <div class="area-list">${einträgeHTML}</div>
+                            <div class="list-group-content" id="area-content-kvgebiet">
+                                <div class="list">${einträgeHTML}</div>
                                 <button class="btn btn-secondary btn-sm mt-md" onclick="openAddAreaModal('ortsverein')">
                                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -902,7 +952,7 @@
                         </div>
                     `;
                 } else if (ortsvereine.length > 0) {
-                    html = '<div class="area-list">';
+                    html = '<div class="list">';
                     ortsvereine.forEach(ov => { html += renderAreaItem(ov, false); });
                     html += '</div>';
                 }
@@ -928,30 +978,32 @@
                 const leerText = hasKreisverbandsgebiet ? '' : '<p class="text-klein">Noch keine Ortsvereine zugeordnet</p>';
 
                 html += `
-                    <div class="area-group mb-md">
-                        <div class="area-group-header" onclick="toggleAreaGroup(${kv.originalIndex})">
-                            <div class="area-group-info">
-                                <span class="area-group-name">${kv.name}</span>
-                                <span class="area-group-meta">${countLabel}</span>
-                            </div>
-                            <div class="area-item-actions">
-                                <button class="kw-attendance-notes-btn" onclick="event.stopPropagation(); editArea(${kv.originalIndex})" title="Bearbeiten">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    <div class="list-group mb-md">
+                        <div class="zeile zeile--center zeile--no-padding">
+                            <div class="list-group-header" onclick="toggleAreaGroup(${kv.originalIndex})" style="flex: 1;">
+                                <div class="list-group-info">
+                                    <span class="list-group-name">${kv.name}</span>
+                                    <span class="list-group-meta">${countLabel}</span>
+                                </div>
+                                <div class="list-item-actions">
+                                    <button class="kw-attendance-notes-btn" onclick="event.stopPropagation(); editArea(${kv.originalIndex})" title="Bearbeiten">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon btn-icon--sm btn-icon--danger" onclick="event.stopPropagation(); removeKreisverband(${kv.originalIndex})" title="Löschen">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                    <svg class="list-group-toggle" id="area-toggle-${kv.originalIndex}" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                     </svg>
-                                </button>
-                                <button class="btn-icon btn-icon--sm btn-icon--danger" onclick="event.stopPropagation(); removeKreisverband(${kv.originalIndex})" title="Löschen">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                                <svg class="area-group-toggle" id="area-toggle-${kv.originalIndex}" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
+                                </div>
                             </div>
                         </div>
-                        <div class="area-group-content" id="area-content-${kv.originalIndex}">
-                            <div class="area-list">${kombinierterInhalt || leerText}</div>
+                        <div class="list-group-content" id="area-content-${kv.originalIndex}">
+                            <div class="list">${kombinierterInhalt || leerText}</div>
                             <button class="btn btn-secondary btn-sm mt-md" onclick="openAddAreaModal('ortsverein'); prefillKvZuordnung(${kv.originalIndex});">
                                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -965,7 +1017,7 @@
 
             // Nicht zugeordnete OVs
             if (ortsvereineOhneZuordnung.length > 0) {
-                html += `<div class="mt-lg"><p class="modal-subsection-title mb-sm">Nicht zugeordnete Ortsvereine</p><div class="area-list">`;
+                html += `<div class="mt-lg"><div class="zeile zeile--center"><p class="text-ueberschrift-unterabschnitt">Nicht zugeordnete Ortsvereine</p></div><div class="list">`;
                 ortsvereineOhneZuordnung.forEach(ov => { html += renderAreaItem(ov, false); });
                 html += '</div></div>';
             }
@@ -976,22 +1028,24 @@
         function renderAreaItem(area, isKV) {
             const prefix = isKV ? '<strong>KV</strong> ' : '';
             return `
-                <div class="area-item">
-                    <div class="area-item-info">
-                        <span class="area-item-name">${prefix}${area.name || '(Name fehlt)'}</span>
-                        <span class="area-item-address">${formatAddress(area)}</span>
-                    </div>
-                    <div class="area-item-actions">
-                        <button class="kw-attendance-notes-btn" onclick="editArea(${area.originalIndex})" title="Bearbeiten">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                            </svg>
-                        </button>
-                        <button class="btn-icon btn-icon--sm btn-icon--danger" onclick="removeArea(${area.originalIndex})" title="Entfernen">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                <div class="zeile zeile--center zeile--no-padding">
+                    <div class="list-item" style="flex: 1;">
+                        <div class="list-item-info">
+                            <span class="list-item-name">${prefix}${area.name || '(Name fehlt)'}</span>
+                            <span class="list-item-meta">${formatAddress(area)}</span>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="kw-attendance-notes-btn" onclick="editArea(${area.originalIndex})" title="Bearbeiten">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon btn-icon--sm btn-icon--danger" onclick="removeArea(${area.originalIndex})" title="Entfernen">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1073,6 +1127,8 @@
                     kgContainer.style.display = 'none';
                     kgCheckbox.checked = false;
                 }
+                // Label aktualisieren
+                updateKreisverbandsgebietLabel();
             }
 
             // Ansprechpartner zurücksetzen
@@ -1147,6 +1203,8 @@
                     kgContainer.style.display = 'none';
                     kgCheckbox.checked = false;
                 }
+                // Label aktualisieren
+                updateKreisverbandsgebietLabel();
             }
 
             // Ansprechpartner laden
@@ -1341,59 +1399,62 @@
 
         function renderAreaContactPersons() {
             const container = document.getElementById('areaContactPersonsContainer');
-            const emptyHint = document.getElementById('noAreaContactsHint');
 
             if (areaContactPersons.length === 0) {
                 container.innerHTML = '';
-                emptyHint.style.display = 'block';
                 return;
             }
-
-            emptyHint.style.display = 'none';
 
             container.innerHTML = areaContactPersons.map(contact => {
                 const roleLabel = contact.role === 'sonstige' && contact.customRole ? contact.customRole : CONTACT_ROLES[contact.role] || 'Unbekannt';
                 const showCustomRole = contact.role === 'sonstige';
 
                 return `
-                    <div class="info-box bordered with-action mb-sm" data-area-contact-id="${contact.id}">
-                        <button type="button" class="btn-icon btn-icon--danger info-box-action" onclick="removeAreaContactPerson(${contact.id})" title="Entfernen">
+                    <div class="unterabschnitt--card" data-area-contact-id="${contact.id}">
+                        <button type="button" class="btn-icon btn-icon--danger" onclick="removeAreaContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
-                        <p class="text-ueberschrift-unterabschnitt mb-sm">${roleLabel}</p>
-                        <div class="mitglied-form-row">
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Vorname</label>
+                        <div class="zeile">
+                            <div class="text-ueberschrift-unterabschnitt">${roleLabel}</div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Vorname</label>
                                 <input type="text" class="eingabefeld" value="${contact.firstName}" onchange="updateAreaContactPerson(${contact.id}, 'firstName', this.value)" placeholder="Vorname">
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Nachname</label>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Nachname</label>
                                 <input type="text" class="eingabefeld" value="${contact.lastName}" onchange="updateAreaContactPerson(${contact.id}, 'lastName', this.value)" placeholder="Nachname">
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                         </div>
-                        <div class="mitglied-form-row">
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Rolle</label>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Rolle</label>
                                 <select class="eingabefeld" onchange="updateAreaContactPerson(${contact.id}, 'role', this.value)">
                                     ${Object.entries(CONTACT_ROLES).map(([key, label]) =>
                                         `<option value="${key}" ${contact.role === key ? 'selected' : ''}>${label}</option>`
                                     ).join('')}
                                 </select>
-                                <div class="sonstige-rolle-input mt-sm" style="display: ${showCustomRole ? 'block' : 'none'};">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                                <div class="sonstige-rolle-input" style="display: ${showCustomRole ? 'block' : 'none'}; margin-top: 8px;">
                                     <input type="text" class="eingabefeld" value="${contact.customRole || ''}" onchange="updateAreaContactPerson(${contact.id}, 'customRole', this.value)" placeholder="Rolle beschreiben...">
                                 </div>
                             </div>
                         </div>
-                        <div class="mitglied-form-row">
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">E-Mail</label>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">E-Mail</label>
                                 <input type="email" class="eingabefeld" value="${contact.email}" onchange="updateAreaContactPerson(${contact.id}, 'email', this.value)" placeholder="email@example.de">
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Telefon</label>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Telefon</label>
                                 <input type="tel" class="eingabefeld" value="${contact.phone}" onchange="updateAreaContactPerson(${contact.id}, 'phone', this.value)" placeholder="+49 123 456789">
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                         </div>
                     </div>
@@ -1407,6 +1468,20 @@
 
         function saveCustomer() {
             showAlert('Info', 'Speichern-Funktion noch nicht implementiert', 'info');
+        }
+
+        // ================================================================
+        // KREISVERBANDSGEBIET TOGGLE
+        // ================================================================
+
+        function updateKreisverbandsgebietLabel() {
+            const checkbox = document.getElementById('areaIsKreisverbandsgebiet');
+            const label = document.getElementById('kreisverbandsgebietLabel');
+            if (checkbox && label) {
+                label.textContent = checkbox.checked
+                    ? 'An - Kreisverbandsgebiet vorhanden'
+                    : 'Aus - Kein Kreisverbandsgebiet';
+            }
         }
 
         // ================================================================
@@ -1437,153 +1512,180 @@
             renderEinsatzgebiete();
             updateEinsatzgebietDropdownOptions();
 
-            // Radio-Buttons für Rechnungsart stylen
-            document.querySelectorAll('input[name="invoiceType"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    document.querySelectorAll('input[name="invoiceType"]').forEach(r => {
-                        r.closest('.checkbox-pill').classList.toggle('active', r.checked);
-                    });
-                });
-                // Initial state
-                radio.closest('.checkbox-pill').classList.toggle('active', radio.checked);
+            // Kreisverbandsgebiet Toggle
+            const kgCheckbox = document.getElementById('areaIsKreisverbandsgebiet');
+            if (kgCheckbox) {
+                kgCheckbox.addEventListener('change', updateKreisverbandsgebietLabel);
+            }
+
+            // Rechnungsart Toggle
+            initToggleLabel('invoiceTypeSeparate', 'invoiceTypeLabel', {
+                on: 'Separat - Pro Werbegebiet separate Rechnung',
+                off: 'Zusammen - Alle Werbegebiete zusammen abrechnen'
             });
         });
     </script>
 
     <!-- Modal: Einsatzgebiet hinzufügen/bearbeiten -->
-    <div class="modal modal-xl" id="addAreaModal">
+    <div class="modal modal-m" id="addAreaModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="text-ueberschrift" id="areaNamePreview">DRK KV ... e.V.</h2>
-                <button class="btn-icon" onclick="closeAddAreaModal()">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift" id="areaNamePreview">DRK KV ... e.V.</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn-icon" onclick="closeAddAreaModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
             </div>
-            <div class="modal-body">
-                <!-- Allgemeine Informationen -->
-                <div class="mitglied-form-section">
-                    <div class="text-ueberschrift-abschnitt mb-lg">Allgemeine Informationen</div>
-
-                    <!-- Vereinsname + Einwohner -->
-                    <div class="mitglied-form-row">
-                        <div class="mitglied-form-field mitglied-form-field--2">
-                            <label class="eingabefeld-oberbeschriftung">Vereinsname *</label>
+            <!-- Modal Body -->
+            <div class="page-content">
+                <!-- Unterabschnitt: Allgemeine Informationen -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Allgemeine Informationen</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                            <label class="eingabefeld-beschriftung-oben">Vereinsname *</label>
                             <input type="text" class="eingabefeld" id="areaVereinsname" placeholder="z.B. Ludwigshafen" oninput="updateAreaNamePreview()">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
-                        <div class="mitglied-form-field mitglied-form-field--half">
-                            <label class="eingabefeld-oberbeschriftung">Einwohner</label>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                            <label class="eingabefeld-beschriftung-oben">Einwohner</label>
                             <input type="number" class="eingabefeld" id="areaEinwohner" placeholder="z.B. 45000" min="0">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
-
-                    <!-- E-Mail + Telefon -->
-                    <div class="mitglied-form-row">
-                        <div class="mitglied-form-field">
-                            <label class="eingabefeld-oberbeschriftung">E-Mail (für Login) *</label>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">E-Mail (für Login) *</label>
                             <input type="email" class="eingabefeld" id="areaEmail" placeholder="kontakt@drk-example.de">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
-                        <div class="mitglied-form-field">
-                            <label class="eingabefeld-oberbeschriftung">Telefon</label>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Telefon</label>
                             <input type="tel" class="eingabefeld" id="areaPhone" placeholder="+49 621 12345">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
-
-                    <!-- Website + Datenschutzerklärung -->
-                    <div class="mitglied-form-row">
-                        <div class="mitglied-form-field">
-                            <label class="eingabefeld-oberbeschriftung">Website</label>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Website</label>
                             <input type="url" class="eingabefeld" id="areaWebsite" placeholder="https://www.drk-example.de">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
-                        <div class="mitglied-form-field">
-                            <label class="eingabefeld-oberbeschriftung">Datenschutzerklärung (Link)</label>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Datenschutzerklärung (Link)</label>
                             <input type="url" class="eingabefeld" id="areaPrivacyPolicy" placeholder="https://www.drk-example.de/datenschutz">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
-
-                    <!-- KV-Zuordnung (nur für OV bei LV-Kunde) -->
-                    <div class="mitglied-form-field" id="kvZuordnungContainer" style="display: none;">
-                        <label class="eingabefeld-oberbeschriftung">Kreisverband-Zuordnung</label>
-                        <select class="eingabefeld" id="areaKvZuordnung">
-                            <option value="">Keine Zuordnung</option>
-                        </select>
-                        <span class="text-klein">Optional: Ordnet diesen Ortsverein einem Kreisverband zu</span>
+                    <div class="zeile" id="kvZuordnungContainer" style="display: none;">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Kreisverband-Zuordnung</label>
+                            <select class="eingabefeld" id="areaKvZuordnung">
+                                <option value="">Keine Zuordnung</option>
+                            </select>
+                            <span class="eingabefeld-beschriftung-unten">Optional: Ordnet diesen Ortsverein einem Kreisverband zu</span>
+                        </div>
                     </div>
-
-                    <!-- Kreisverbandsgebiet Checkbox -->
-                    <div class="mitglied-form-field mt-md" id="kreisverbandsgebietContainer" style="display: none;">
-                        <label class="checkbox-label">
+                    <div class="zeile zeile--center" id="kreisverbandsgebietContainer" style="display: none;">
+                        <label class="toggle-switch small">
                             <input type="checkbox" id="areaIsKreisverbandsgebiet">
-                            <span class="text-ueberschrift-unterabschnitt">Kreisverbandsgebiet vorhanden</span>
+                            <span class="toggle-slider"></span>
                         </label>
-                        <p class="text-klein mb-none">Mitglieder werden direkt für den Kreisverband geworben</p>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Kreisverbandsgebiet</label>
+                            <span class="eingabefeld-beschriftung-unten" id="kreisverbandsgebietLabel">Aus - Kein Kreisverbandsgebiet</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Adresse -->
-                <div class="mitglied-form-section">
-                    <div class="text-ueberschrift-abschnitt mb-lg">Adresse</div>
-                    <div class="mitglied-form-row">
-                        <div class="mitglied-form-field mitglied-form-field--3">
-                            <label class="eingabefeld-oberbeschriftung">Straße</label>
+                <!-- Unterabschnitt: Adresse -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Adresse</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                            <label class="eingabefeld-beschriftung-oben">Straße</label>
                             <div class="autocomplete-container">
                                 <input type="text" class="eingabefeld" id="areaStreet" placeholder="Beginnen Sie zu tippen für Vorschläge...">
                                 <div class="autocomplete-results" id="areaStreetAutocomplete"></div>
                             </div>
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
-                        <div class="mitglied-form-field mitglied-form-field--half">
-                            <label class="eingabefeld-oberbeschriftung">Nr.</label>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                            <label class="eingabefeld-beschriftung-oben">Nr.</label>
                             <input type="text" class="eingabefeld" id="areaHouseNumber" placeholder="Nr.">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
-                    <div class="mitglied-form-row">
-                        <div class="mitglied-form-field">
-                            <label class="eingabefeld-oberbeschriftung">PLZ</label>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">PLZ</label>
                             <input type="text" class="eingabefeld" id="areaZip" placeholder="12345" maxlength="5">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
-                        <div class="mitglied-form-field">
-                            <label class="eingabefeld-oberbeschriftung">Stadt</label>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Stadt</label>
                             <input type="text" class="eingabefeld" id="areaCity" placeholder="Musterstadt">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
-                    <div class="mitglied-form-row">
-                        <div class="mitglied-form-field">
-                            <label class="eingabefeld-oberbeschriftung">Land</label>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Land</label>
                             <input type="text" class="eingabefeld" id="areaCountry" placeholder="Wird automatisch ausgefüllt" readonly>
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
-                        <div class="mitglied-form-field">
-                            <label class="eingabefeld-oberbeschriftung">Bundesland</label>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Bundesland</label>
                             <input type="text" class="eingabefeld" id="areaBundesland" placeholder="Wird automatisch ausgefüllt" readonly>
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
-                    <div class="mitglied-form-row">
-                        <div class="mitglied-form-field">
-                            <label class="eingabefeld-oberbeschriftung">Zusatzinformation</label>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Zusatzinformation</label>
                             <input type="text" class="eingabefeld" id="areaAddressExtra" placeholder="z.B. 2. Stock, Hinterhaus">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Ansprechpartner -->
-                <div class="mitglied-form-section">
-                    <div class="section-header-flex mb-lg">
-                        <div class="text-ueberschrift-abschnitt">Ansprechpartner</div>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="addAreaContactPerson()">
+                <!-- Unterabschnitt: Ansprechpartner -->
+                <div>
+                    <div class="zeile" style="justify-content: space-between; align-items: center;">
+                        <div class="text-ueberschrift-unterabschnitt">Ansprechpartner</div>
+                        <button type="button" class="btn btn--secondary btn--sm" onclick="addAreaContactPerson()">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
                             Hinzufügen
                         </button>
                     </div>
-                    <p class="text-klein mb-md">Wird vom Kunden übernommen, falls leer</p>
+                    <div class="zeile">
+                        <span class="text-klein">Wird vom Kunden übernommen, falls leer</span>
+                    </div>
                     <div id="areaContactPersonsContainer" class="grid-2-col"></div>
-                    <p class="text-klein text-center" id="noAreaContactsHint">Noch keine Ansprechpartner hinzugefügt</p>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeAddAreaModal()">Abbrechen</button>
-                <button type="button" class="btn btn-primary" onclick="saveArea()">Speichern</button>
+            <!-- Modal Footer -->
+            <div class="page-footer">
+                <button type="button" class="btn btn--secondary" onclick="closeAddAreaModal()">Abbrechen</button>
+                <button type="button" class="btn btn--primary" onclick="saveArea()">Speichern</button>
             </div>
         </div>
     </div>

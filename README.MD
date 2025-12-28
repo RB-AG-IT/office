@@ -118,3 +118,4 @@ Die `/styles/`-Seite ist die visuelle Dokumentation aller Komponenten.
 2. Bei jeder Gelegenheit: Auf Zentralisierung hinweisen
 3. Doppelten Code identifizieren und Zusammenführung vorschlagen
 4. Keine eigenmächtigen Änderungen - immer erst fragen
+5. Wir arbeiten nur LOKAL, kein git hub verwenden für irgendwas!

@@ -7,24 +7,23 @@
     <link rel="stylesheet" href="../css/styles.css">
     <script src="../js/main.js"></script>
 </head>
-<body>
+<body class="iframe-body">
     <div class="page-container page-container--scroll">
-
-        <!-- HEADER -->
-        <div class="mitglied-form-section">
-            <div class="profile-header">
-                <!-- Links: Name -->
-                <div class="profile-header-left">
-                    <button class="back-btn" title="Zurück"></button>
-                    <div>
-                        <h1 class="page-title" id="profileName">Max Mustermann</h1>
-                        <p class="text-klein">Mitarbeiternummer: <span id="employeeId">-</span> • Erstellt am: <span id="createdDate">-</span></p>
-                    </div>
+        <!-- Page Header -->
+        <div class="page-header">
+            <!-- Zeile 1: Zurück | Links | Mitte | Rechts -->
+            <div class="page-header-row">
+                <button class="btn-icon btn-icon--lg" onclick="history.back()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="profileName">Max Mustermann</span>
+                    <span class="text-klein">Mitarbeiternummer: <span id="employeeId">-</span> • Erstellt am: <span id="createdDate">-</span></span>
                 </div>
-
-                <!-- Mitte: Level Badge -->
-                <div class="profile-header-center">
-                    <div class="level-badge level-badge--xl level-badge--jmm">
+                <div class="page-header-mitte">
+                    <div class="level-badge level-badge--lg level-badge--jmm">
                         <span class="level-badge-code">JMM</span>
                         <span class="level-badge-stufe">Stufe III</span>
                         <div class="level-stars">
@@ -34,9 +33,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Rechts: Fotos -->
-                <div class="profile-header-right">
+                <div class="page-header-rechts">
                     <div class="photo-upload-box">
                         <div class="photo-upload" onclick="document.getElementById('photoInternal').click()">
                             <svg class="photo-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,43 +56,50 @@
                     </div>
                 </div>
             </div>
+            <!-- Zeile 2: Tabs -->
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="informationen">Informationen</div>
+                <div class="kw-tab" data-tab="einstellungen">Einstellungen</div>
+            </div>
         </div>
 
-        <!-- TABS -->
-        <div class="kw-tabs">
-            <div class="kw-tab active" data-tab="informationen">Informationen</div>
-            <div class="kw-tab" data-tab="einstellungen">Einstellungen</div>
-        </div>
-
+        <!-- Page Content -->
+        <div class="page-content">
         <!-- TAB: Informationen -->
-        <div class="kw-tab-content active" id="tab-informationen">
+        <div id="tab-informationen" class="kw-tab-content active">
 
             <!-- Persönliche Daten -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Persönliche Daten</div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Vorname *</label>
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Persönliche Daten</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Vorname *</label>
                         <input type="text" class="eingabefeld" id="firstName" placeholder="Max">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Nachname *</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Nachname *</label>
                         <input type="text" class="eingabefeld" id="lastName" placeholder="Mustermann">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">E-Mail *</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">E-Mail *</label>
                         <input type="email" class="eingabefeld" id="email" placeholder="max.mustermann@rb-inside.de">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Telefon *</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Telefon *</label>
                         <input type="tel" class="eingabefeld" id="phone" placeholder="+49 123 456789">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Kleidergröße</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Kleidergröße</label>
                         <div class="btn-toggle-group">
                             <button type="button" class="btn-toggle neutral" data-size="XXS">XXS</button>
                             <button type="button" class="btn-toggle neutral" data-size="XS">XS</button>
@@ -106,140 +110,183 @@
                             <button type="button" class="btn-toggle neutral" data-size="XXL">XXL</button>
                         </div>
                         <input type="hidden" id="clothingSize">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Adresse -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Adresse</div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field mitglied-form-field--3">
-                        <label class="eingabefeld-oberbeschriftung">Straße</label>
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Adresse</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                        <label class="eingabefeld-beschriftung-oben">Straße</label>
                         <div class="autocomplete-container">
                             <input type="text" class="eingabefeld" id="street" placeholder="Beginnen Sie zu tippen...">
                             <div class="autocomplete-results" id="streetAutocomplete"></div>
                         </div>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field mitglied-form-field--half">
-                        <label class="eingabefeld-oberbeschriftung">Nr.</label>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                        <label class="eingabefeld-beschriftung-oben">Nr.</label>
                         <input type="text" class="eingabefeld" id="houseNumber" placeholder="123">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">PLZ</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">PLZ</label>
                         <input type="text" class="eingabefeld" id="zip" placeholder="12345" maxlength="5">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Stadt</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Stadt</label>
                         <input type="text" class="eingabefeld" id="city" placeholder="Musterstadt">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Bundesland</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Bundesland</label>
                         <input type="text" class="eingabefeld" id="bundesland" placeholder="Wird automatisch ausgefüllt" readonly>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Land</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Land</label>
                         <input type="text" class="eingabefeld" id="country" placeholder="Deutschland" readonly>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Adresszusatz</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Adresszusatz</label>
                         <input type="text" class="eingabefeld" id="addressExtra" placeholder="z.B. 2. Stock, Hinterhaus">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
             </div>
+
+            <hr class="trennlinie">
 
             <!-- Bankdaten -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Bankdaten</div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Kontoinhaber</label>
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Bankdaten</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Kontoinhaber</label>
                         <input type="text" class="eingabefeld" id="accountHolder" placeholder="Max Mustermann">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">IBAN</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">IBAN</label>
                         <input type="text" class="eingabefeld" id="iban" placeholder="DE89 3704 0044 0532 0130 00" maxlength="34">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">BIC</label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">BIC</label>
                         <input type="text" class="eingabefeld" id="bic" placeholder="COBADEFFXXX" maxlength="11">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Bank</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Bank</label>
                         <input type="text" class="eingabefeld" id="bankName" placeholder="z.B. Commerzbank">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Steuerdaten -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Steuerdaten</div>
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Steuerdaten</div>
+                </div>
 
                 <!-- Persönliche Steuerdaten -->
-                <p class="text-ueberschrift-unterabschnitt mb-sm">Persönliche Angaben</p>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Steuer-ID</label>
-                        <input type="text" class="eingabefeld" id="taxIdPersonal" placeholder="12 345 678 901" maxlength="14">
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Persönliche Angaben</div>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">KVNR</label>
-                        <input type="text" class="eingabefeld" id="kvnr" placeholder="A123456789" maxlength="10">
-                    </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Sozialversicherungsnummer</label>
-                        <input type="text" class="eingabefeld" id="socialSecurityNumber" placeholder="12 150270 M 123" maxlength="15">
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Steuer-ID</label>
+                            <input type="text" class="eingabefeld" id="taxIdPersonal" placeholder="12 345 678 901" maxlength="14">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">KVNR</label>
+                            <input type="text" class="eingabefeld" id="kvnr" placeholder="A123456789" maxlength="10">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Sozialversicherungsnummer</label>
+                            <input type="text" class="eingabefeld" id="socialSecurityNumber" placeholder="12 150270 M 123" maxlength="15">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Gewerbliche Steuerdaten -->
-                <p class="text-ueberschrift-unterabschnitt mt-md mb-sm">Gewerbliche Angaben (optional)</p>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Firmenname</label>
-                        <input type="text" class="eingabefeld" id="companyName" placeholder="z.B. Max Mustermann Marketing">
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Gewerbliche Angaben (optional)</div>
                     </div>
-                </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Umsatzsteuerpflichtig</label>
-                        <div class="toggle-row">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="vatLiable">
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span id="vatLiableLabel" class="text-klein">Nein - Kleinunternehmer (§19 UStG)</span>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Firmenname</label>
+                            <input type="text" class="eingabefeld" id="companyName" placeholder="z.B. Max Mustermann Marketing">
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
-                </div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Steuernummer</label>
-                        <input type="text" class="eingabefeld" id="taxNumber" placeholder="12/345/67890">
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Umsatzsteuerpflichtig</label>
+                            <div class="toggle-row">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="vatLiable">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="vatLiableLabel" class="text-klein">Nein - Kleinunternehmer (§19 UStG)</span>
+                            </div>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung" id="vatNumberLabel">USt-IdNr.</label>
-                        <input type="text" class="eingabefeld" id="vatNumber" placeholder="DE123456789" maxlength="14">
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Steuernummer</label>
+                            <input type="text" class="eingabefeld" id="taxNumber" placeholder="12/345/67890">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" id="vatNumberLabel">USt-IdNr.</label>
+                            <input type="text" class="eingabefeld" id="vatNumber" placeholder="DE123456789" maxlength="14">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Gutschriftrechnungen -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Gutschriftrechnungen</div>
-                <p class="text-klein">
-                    Alle Auszahlungen an diesen Mitarbeiter
-                </p>
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Gutschriftrechnungen</div>
+                </div>
+                <div class="zeile">
+                    <span class="text-klein">Alle Auszahlungen an diesen Mitarbeiter</span>
+                </div>
                 <div class="history-timeline" id="employeeInvoicesList"></div>
                 <div class="empty-state" id="noEmployeeInvoicesMessage">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,9 +297,13 @@
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Dokumente -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Dokumente</div>
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Dokumente</div>
+                </div>
                 <div class="document-upload-grid">
                     <div class="document-upload-item">
                         <h4>Personalausweis Vorderseite</h4>
@@ -307,196 +358,198 @@
         <div class="kw-tab-content" id="tab-einstellungen">
 
             <!-- Sichtbarkeit & Ranking -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Sichtbarkeit & Ranking</div>
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Sichtbarkeit & Ranking</div>
+                </div>
 
                 <!-- GameTag -->
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">GameTag</label>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">GameTag</label>
                         <input type="text" class="eingabefeld" id="gameTag" placeholder="z.B. MaxPro#1234">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
 
-                <!-- Ghost-Modus -->
-                <div class="info-box bordered">
-                    <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                <!-- Sichtbarkeit -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Sichtbarkeit</div>
+                    </div>
+                    <!-- Ghost-Modus -->
+                    <div class="zeile zeile--center">
                         <label class="toggle-switch">
                             <input type="checkbox" id="isGhost">
                             <span class="toggle-slider"></span>
                         </label>
-                        <div>
-                            <span class="eingabefeld-oberbeschriftung" style="display: block;">Ghost-Modus</span>
-                            <span id="ghostLabel" class="text-klein">Aus - Mitarbeiter ist sichtbar</span>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Ghost-Modus</label>
+                            <span class="eingabefeld-beschriftung-unten" id="ghostLabel">Aus - Mitarbeiter ist sichtbar</span>
                         </div>
                     </div>
-                    <p class="text-klein mt-sm">
-                        Wenn aktiviert, ist dieser Mitarbeiter für andere unsichtbar. Nur das Office (Admins) kann diesen Mitarbeiter sehen.
-                    </p>
-                </div>
-
-                <!-- Darf andere sehen (nur bei Ghost) -->
-                <div class="info-box bordered" id="canSeeOthersOption" style="display: none; margin-left: var(--spacing-xl);">
-                    <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                    <!-- Darf andere sehen (nur bei Ghost) -->
+                    <div class="zeile zeile--center" id="canSeeOthersOption" style="display: none;">
                         <label class="toggle-switch small">
                             <input type="checkbox" id="canSeeOthers" checked>
                             <span class="toggle-slider"></span>
                         </label>
-                        <div>
-                            <span class="eingabefeld-oberbeschriftung" style="display: block;">Darf andere sehen</span>
-                            <span id="canSeeOthersLabel" class="text-klein">Ja - Kann andere sehen</span>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Darf andere sehen</label>
+                            <span class="eingabefeld-beschriftung-unten" id="canSeeOthersLabel">Ja - Kann andere sehen</span>
                         </div>
                     </div>
-                    <p class="text-klein mt-sm">
-                        Legt fest, ob dieser Ghost-Mitarbeiter andere Mitarbeiter in der Liste sehen darf.
-                    </p>
                 </div>
 
-                <!-- Ranking-Teilnahme -->
-                <div class="info-box bordered">
-                    <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                <!-- Ranking -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Ranking</div>
+                    </div>
+                    <!-- Ranking-Teilnahme -->
+                    <div class="zeile zeile--center">
                         <label class="toggle-switch">
                             <input type="checkbox" id="participateRanking" checked>
                             <span class="toggle-slider"></span>
                         </label>
-                        <div>
-                            <span class="eingabefeld-oberbeschriftung" style="display: block;">Ranking-Teilnahme</span>
-                            <span id="rankingLabel" class="text-klein">An - Nimmt am Ranking teil</span>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Ranking-Teilnahme</label>
+                            <span class="eingabefeld-beschriftung-unten" id="rankingLabel">An - Nimmt am Ranking teil</span>
                         </div>
                     </div>
-                    <p class="text-klein mt-sm">
-                        Wenn deaktiviert, erscheint dieser Mitarbeiter nicht im Base-Ranking (Leaderboard).
-                    </p>
                 </div>
             </div>
+
+            <hr class="trennlinie">
 
             <!-- Vorschuss & Stornorücklage -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Vorschuss & Stornorücklage</div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Vorschuss-Anteil (%)</label>
-                        <div class="provision-input-wrap">
-                            <input type="number" class="provision-input" id="advancePercent" value="70" min="0" max="100" step="5">
-                            <span>%</span>
-                        </div>
-                        <p class="text-klein mt-sm">
-                            Standard: 70% - Wird wöchentlich (Montag) ausgezahlt
-                        </p>
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Vorschuss & Stornorücklage</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                        <label class="eingabefeld-beschriftung-oben">Vorschuss-Anteil (%)</label>
+                        <input type="number" class="eingabefeld" id="advancePercent" value="70" min="0" max="100" step="5">
+                        <span class="eingabefeld-beschriftung-unten">Standard: 70% - Wird wöchentlich (Montag) ausgezahlt</span>
                     </div>
-                    <div class="mitglied-form-field">
-                        <label class="eingabefeld-oberbeschriftung">Stornorücklage-Anteil (%)</label>
-                        <div class="provision-input-wrap">
-                            <input type="number" class="provision-input" id="stornoPercent" value="30" min="0" max="100" step="5" readonly>
-                            <span>%</span>
-                        </div>
-                        <p class="text-klein mt-sm">
-                            Wird automatisch berechnet (100% - Vorschuss)
-                        </p>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                        <label class="eingabefeld-beschriftung-oben">Stornorücklage-Anteil (%)</label>
+                        <input type="number" class="eingabefeld" id="stornoPercent" value="30" min="0" max="100" step="5" readonly>
+                        <span class="eingabefeld-beschriftung-unten">Wird automatisch berechnet (100% - Vorschuss)</span>
                     </div>
                 </div>
             </div>
+
+            <hr class="trennlinie">
 
             <!-- Zusatz-Rollen -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Zusatz-Rollen</div>
-                <div class="checkbox-pills" id="additionalRoles">
-                    <label class="checkbox-pill">
-                        <input type="checkbox" value="quality_manager">
-                        Quality Manager
-                    </label>
-                    <label class="checkbox-pill">
-                        <input type="checkbox" value="recruiting_manager">
-                        Recruiting Manager
-                    </label>
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Zusatz-Rollen</div>
+                </div>
+                <div class="zeile">
+                    <div class="checkbox-pills" id="additionalRoles">
+                        <label class="checkbox-pill">
+                            <input type="checkbox" value="quality_manager">
+                            Quality Manager
+                        </label>
+                        <label class="checkbox-pill">
+                            <input type="checkbox" value="recruiting_manager">
+                            Recruiting Manager
+                        </label>
+                    </div>
                 </div>
             </div>
+
+            <hr class="trennlinie">
 
             <!-- Karrierestufe -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Karrierestufe</div>
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Karrierestufe</div>
+                </div>
 
-                <div class="mitglied-form-row">
-                    <!-- LINKS: Auswahl & Optionen -->
-                    <div class="mitglied-form-field" style="flex: 1;">
+                <!-- Unterabschnitt: Ausgewählte Stufe -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Ausgewählte Stufe</div>
+                    </div>
+                    <div class="zeile zeile--center">
                         <!-- Karrierestufe Dropdown -->
-                        <label class="eingabefeld-oberbeschriftung">Karrierestufe auswählen *</label>
-                        <select class="eingabefeld" id="mainRole">
-                            <option value="">-- Stufe wählen --</option>
-                            <option value="sma">SMA - Starting Marketing Advisor</option>
-                            <option value="ema">EMA - Executive Marketing Advisor</option>
-                            <option value="jmm">JMM - Junior Marketing Manager</option>
-                            <option value="emm">EMM - Executive Marketing Manager</option>
-                            <option value="cemm">CEMM - Chief Executive Marketing Manager</option>
-                            <option value="spb">SPB - Spitzen Botschafter</option>
-                            <option value="kad">KAD - Kadermanager</option>
-                            <option value="fue">FUE - Führungsebene</option>
-                        </select>
-
-                        <!-- Zeitraum + Individueller Faktor (nebeneinander) -->
-                        <div class="mitglied-form-row mt-md">
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Gültigkeitszeitraum</label>
-                                <button type="button" class="btn btn-secondary" id="roleValidityBtn" onclick="openRoleValidityCalendar()">
-                                    <span id="roleValidityDisplay">Zeitraum wählen...</span>
-                                </button>
-                                <input type="hidden" id="roleEffectiveDate" value="">
-                                <input type="hidden" id="roleEffectiveDateTo" value="">
-                                <p class="text-klein mt-sm" id="roleKwDisplay"></p>
-                            </div>
-                            <div class="mitglied-form-field">
-                                <label class="eingabefeld-oberbeschriftung">Individueller Faktor</label>
-                                <div class="toggle-row" id="individualFactorToggle">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="individualFactorCheckbox">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                    <div id="individualFactorInput" style="visibility: hidden; opacity: 0; margin-left: var(--spacing-md);">
-                                        <input type="number" class="kosten-input" id="customFactor" placeholder="6.5" min="0" max="15" step="0.1">
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
+                            <label class="eingabefeld-beschriftung-oben">Karrierestufe auswählen *</label>
+                            <select class="eingabefeld" id="mainRole">
+                                <option value="">-- Stufe wählen --</option>
+                                <option value="sma">SMA - Starting Marketing Advisor</option>
+                                <option value="ema">EMA - Executive Marketing Advisor</option>
+                                <option value="jmm">JMM - Junior Marketing Manager</option>
+                                <option value="emm">EMM - Executive Marketing Manager</option>
+                                <option value="cemm">CEMM - Chief Executive Marketing Manager</option>
+                                <option value="spb">SPB - Spitzen Botschafter</option>
+                                <option value="kad">KAD - Kadermanager</option>
+                                <option value="fue">FUE - Führungsebene</option>
+                            </select>
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
-
-                        <!-- KW Hint -->
-                        <p class="text-klein mt-sm" id="kwHint" style="display: none; color: var(--warning-text);">
-                            <span id="kwHintText"></span>
-                        </p>
-
-                        <!-- Speichern Button -->
-                        <div class="mt-lg">
-                            <button type="button" class="btn btn-primary" id="saveRoleBtn" disabled>
-                                Karrierestufe speichern
-                            </button>
-                            <span class="text-klein ml-md" id="roleSaveHint"></span>
+                        <!-- Badge -->
+                        <div id="careerBadgeDisplay"></div>
+                        <!-- Faktor -->
+                        <div class="text-ueberschrift" id="displayFaktor">-</div>
+                        <span id="factorIndividualHint" style="display: none; color: var(--warning-text);">individuell</span>
+                        <!-- Benefits -->
+                        <div id="roleBenefits"></div>
+                    </div>
+                    <div class="zeile zeile--center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="individualFactorCheckbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
+                            <label class="eingabefeld-beschriftung-oben">Individueller Faktor</label>
+                            <div id="individualFactorInput" style="visibility: hidden; opacity: 0;">
+                                <input type="number" class="eingabefeld" id="customFactor" placeholder="6.5" min="0" max="15" step="0.1">
+                            </div>
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
 
-                    <!-- RECHTS: Badge, Faktor, Benefits -->
-                    <div class="mitglied-form-field" style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-                        <!-- Badge -->
-                        <div id="careerBadgeDisplay" class="mb-md">
-                            <span class="text-klein">Keine Stufe ausgewählt</span>
-                        </div>
+                    <!-- KW Hint -->
+                    <div class="zeile" id="kwHint" style="display: none;">
+                        <span class="text-klein" style="color: var(--warning-text);" id="kwHintText"></span>
+                    </div>
 
-                        <!-- Faktor -->
-                        <div class="mb-md" id="roleFaktorDisplay" style="text-align: center;">
-                            <span class="text-klein">Faktor</span>
-                            <div class="text-ueberschrift" id="displayFaktor">-</div>
-                            <span class="text-klein" id="factorIndividualHint" style="display: none; color: var(--warning-text);">individuell</span>
+                    <!-- Gültigkeitszeitraum + Speichern Button -->
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
+                            <label class="eingabefeld-beschriftung-oben">Gültigkeitszeitraum</label>
+                            <button type="button" class="btn btn--secondary" id="roleValidityBtn" onclick="openRoleValidityCalendar()">
+                                <span id="roleValidityDisplay">Zeitraum wählen...</span>
+                            </button>
+                            <input type="hidden" id="roleEffectiveDate" value="">
+                            <input type="hidden" id="roleEffectiveDateTo" value="">
+                            <span class="eingabefeld-beschriftung-unten" id="roleKwDisplay"></span>
                         </div>
-
-                        <!-- Benefits -->
-                        <div id="roleBenefits">
-                            <span class="text-klein">Wähle eine Karrierestufe um die Benefits zu sehen</span>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
+                            <label class="eingabefeld-beschriftung-oben"></label>
+                            <button type="button" class="btn btn--primary" id="saveRoleBtn">
+                                Karrierestufe speichern
+                            </button>
+                            <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Karriere-Historie -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Karriere-Historie</div>
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Karriere-Historie</div>
+                </div>
                 <div class="history-timeline" id="careerHistoryTimeline"></div>
                 <div class="empty-state" id="noCareerHistoryMessage">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -507,15 +560,19 @@
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Preisvorlagen (ab EMM freigeschaltet) -->
-            <div class="mitglied-form-section" id="preisvorlagenSection">
-                <div class="text-ueberschrift-abschnitt mb-lg">
-                    Preisvorlagen
-                    <span class="section-badge">ab EMM</span>
+            <div class="abschnitt--card" id="preisvorlagenSection">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">
+                        Preisvorlagen
+                        <span class="section-badge">ab EMM</span>
+                    </div>
                 </div>
-                <p class="text-klein">
-                    Individuelle Preisvorlagen für Formulare. Diese werden bei der Mitglieder-Erfassung verwendet.
-                </p>
+                <div class="zeile">
+                    <span class="text-klein">Individuelle Preisvorlagen für Formulare. Diese werden bei der Mitglieder-Erfassung verwendet.</span>
+                </div>
                 <div class="locked-section" id="preisvorlagenLocked">
                     <div class="locked-icon">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -537,9 +594,13 @@
                 </div>
             </div>
 
+            <hr class="trennlinie">
+
             <!-- Verträge & Vereinbarungen -->
-            <div class="mitglied-form-section">
-                <div class="text-ueberschrift-abschnitt mb-lg">Verträge & Vereinbarungen</div>
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Verträge & Vereinbarungen</div>
+                </div>
                 <div class="document-upload-grid">
                     <!-- HV Vertrag -->
                     <div class="document-upload-item">
@@ -569,11 +630,12 @@
             </div>
 
         </div>
+        </div><!-- /page-content -->
 
         <!-- Footer Actions -->
-        <div class="modal-footer">
-            <button class="btn btn-secondary back-btn-secondary">Abbrechen</button>
-            <button class="btn btn-primary" onclick="saveProfile()">Speichern</button>
+        <div class="page-footer">
+            <button class="btn btn--secondary">Abbrechen</button>
+            <button class="btn btn--primary" onclick="saveProfile()">Speichern</button>
         </div>
 
     </div>
@@ -683,7 +745,7 @@
             on: 'An - Mitarbeiter ist unsichtbar (Ghost)',
             off: 'Aus - Mitarbeiter ist sichtbar'
         }, (isGhost) => {
-            document.getElementById('canSeeOthersOption').style.display = isGhost ? 'flex' : 'none';
+            document.getElementById('canSeeOthersOption').style.display = isGhost ? '' : 'none';
         });
 
         initToggleLabel('canSeeOthers', 'canSeeOthersLabel', {

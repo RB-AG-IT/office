@@ -7,15 +7,29 @@
     <link rel="stylesheet" href="../css/styles.css">
     <script src="../js/main.js"></script>
 </head>
-<body>
-    <div class="page-container page-container--no-padding">
+<body class="iframe-body">
+    <div class="page-container page-container--no-border">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Benutzer</span>
+                </div>
+                <div class="page-header-mitte">
+                    <span class="text-ueberschrift">Benutzerübersicht</span>
+                </div>
+                <div class="page-header-rechts"></div>
+            </div>
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="uebersicht">Übersicht</div>
+            </div>
+        </div>
         <div class="content-area">
             <div class="overview-view">
                 <div class="category-section">
                     <div class="table-wrap">
                         <div class="table-header">
                             <div class="table-header-left">
-                                <span class="table-title">Benutzerübersicht</span>
                                 <button class="btn-toggle-all" id="toggleAllBtn" onclick="toggleAllExpand()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="6 9 12 15 18 9"></polyline>
@@ -479,6 +493,12 @@
                 }
                 if (e.data && e.data.type === 'navFilter') {
                     typeFilter = e.data.value; // 'alle', 'werber', 'kunde'
+                    // Update page header title
+                    const labelMap = { alle: 'Benutzerübersicht', werber: 'Werber', kunde: 'Kunden' };
+                    const sectionTitle = document.querySelector('.page-header-mitte .text-ueberschrift');
+                    if (sectionTitle) {
+                        sectionTitle.textContent = labelMap[e.data.value] || 'Benutzerübersicht';
+                    }
                     renderTable();
                 }
             });

@@ -331,7 +331,7 @@ function createModal(options) {
                 <div class="custom-modal-title">${options.title || 'Hinweis'}</div>
                 <div class="custom-modal-message">${options.message || ''}</div>
                 ${options.showInput ? `
-                    <input type="text" class="custom-modal-input"
+                    <input type="text" class="eingabefeld"
                            placeholder="${options.placeholder || ''}"
                            value="${options.defaultValue || ''}">
                 ` : ''}
@@ -351,7 +351,7 @@ function createModal(options) {
         container.appendChild(overlay);
 
         // Input-Feld fokussieren wenn vorhanden
-        const input = overlay.querySelector('.custom-modal-input');
+        const input = overlay.querySelector('.eingabefeld');
 
         // Modal anzeigen (mit kleiner Verzögerung für Animation)
         requestAnimationFrame(() => {
@@ -681,60 +681,88 @@ const ModalTemplates = {
         storno: () => `
             <div class="modal modal-s" id="stornoModal">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <div>
-                            <h3 class="text-ueberschrift">Datensatz stornieren</h3>
-                            <div class="modal-subtitle" id="stornoModalSubtitle">-</div>
-                        </div>
-                        <button class="btn-icon" onclick="closeStornoModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="modal-form-group">
-                            <label class="modal-form-label">Storno-Grund</label>
-                            <select class="modal-form-select" id="stornoGrund" onchange="toggleStornoGrundFreitext && toggleStornoGrundFreitext()">
-                                <option value="">Bitte auswählen...</option>
-                                <option value="widerruf">Widerruf</option>
-                                <option value="kuendigung">Kündigung</option>
-                                <option value="nichtzahlung">Nichtzahlung</option>
-                                <option value="doppelt">Doppelerfassung</option>
-                                <option value="fehler">Eingabefehler</option>
-                                <option value="sonstiges">Sonstiges</option>
-                                <option value="freitext">Freie Eingabe</option>
-                            </select>
-                            <div class="freitext-fields" id="stornoGrundFreitextFields">
-                                <input type="text" class="modal-form-input" id="stornoGrundFreitext" placeholder="Storno-Grund eingeben..." style="margin-top: 10px;">
+                    <!-- Modal Header -->
+                    <div class="page-header">
+                        <div class="page-header-row">
+                            <div class="page-header-links">
+                                <span class="text-ueberschrift">Datensatz stornieren</span>
+                                <span class="text-klein" id="stornoModalSubtitle">-</span>
+                            </div>
+                            <div class="page-header-mitte"></div>
+                            <div class="page-header-rechts">
+                                <button class="btn-icon" onclick="closeStornoModal()">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-                        <div class="modal-form-group">
-                            <label class="modal-form-label">Storno-Datum</label>
-                            <input type="date" class="modal-form-input" id="stornoDatum">
+                        <div class="page-header-tabs">
+                            <div class="kw-tab active" data-tab="daten">Daten</div>
                         </div>
-                        <div class="modal-form-group">
-                            <label class="modal-form-checkbox">
+                    </div>
+                    <!-- Modal Body -->
+                    <div class="page-content">
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Storno-Grund</label>
+                                <select class="eingabefeld" id="stornoGrund" onchange="toggleStornoGrundFreitext && toggleStornoGrundFreitext()">
+                                    <option value="">Bitte auswählen...</option>
+                                    <option value="widerruf">Widerruf</option>
+                                    <option value="kuendigung">Kündigung</option>
+                                    <option value="nichtzahlung">Nichtzahlung</option>
+                                    <option value="doppelt">Doppelerfassung</option>
+                                    <option value="fehler">Eingabefehler</option>
+                                    <option value="sonstiges">Sonstiges</option>
+                                    <option value="freitext">Freie Eingabe</option>
+                                </select>
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                                <div class="freitext-fields" id="stornoGrundFreitextFields">
+                                    <input type="text" class="eingabefeld" id="stornoGrundFreitext" placeholder="Storno-Grund eingeben..." style="margin-top: var(--spacing-sm);">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Storno-Datum</label>
+                                <input type="date" class="eingabefeld" id="stornoDatum">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
+                        </div>
+                        <div class="zeile zeile--center">
+                            <label class="toggle-switch">
                                 <input type="checkbox" id="stornoBeschwerde" onchange="toggleBeschwerdeFields && toggleBeschwerdeFields()">
-                                <span>Beschwerde</span>
+                                <span class="toggle-slider"></span>
                             </label>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Beschwerde</label>
+                                <span class="eingabefeld-beschriftung-unten" id="beschwerdeLabel">Nein</span>
+                            </div>
                         </div>
                         <div class="beschwerde-fields" id="beschwerdeFields">
-                            <div class="modal-form-group">
-                                <label class="modal-form-label">Beschwerdegrund</label>
-                                <textarea class="modal-form-textarea" id="beschwerdeGrund" placeholder="Beschreiben Sie den Beschwerdegrund..."></textarea>
+                            <div class="zeile">
+                                <div class="eingabefeld-gruppe">
+                                    <label class="eingabefeld-beschriftung-oben">Beschwerdegrund</label>
+                                    <textarea class="eingabefeld" id="beschwerdeGrund" rows="3" placeholder="Beschreiben Sie den Beschwerdegrund..."></textarea>
+                                    <span class="eingabefeld-beschriftung-unten"></span>
+                                </div>
                             </div>
                         </div>
-                        <div class="modal-form-group">
-                            <label class="modal-form-checkbox">
+                        <div class="zeile zeile--center">
+                            <label class="toggle-switch">
                                 <input type="checkbox" id="stornoMailBestaetigung">
-                                <span>Storno per Mail bestätigen</span>
+                                <span class="toggle-slider"></span>
                             </label>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Storno per Mail bestätigen</label>
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="closeStornoModal()">Abbrechen</button>
-                        <button class="btn btn-warning" onclick="confirmStorno()">Stornieren</button>
+                    <!-- Modal Footer -->
+                    <div class="page-footer">
+                        <button class="btn btn--secondary" onclick="closeStornoModal()">Abbrechen</button>
+                        <button class="btn btn--warning" onclick="confirmStorno()">Stornieren</button>
                     </div>
                 </div>
             </div>
@@ -746,16 +774,30 @@ const ModalTemplates = {
         columns: () => `
             <div class="modal modal-xl" id="columnsModal">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="text-ueberschrift" id="columnsModalTitle">Spalten konfigurieren</h3>
-                        <button class="btn-icon" onclick="closeColumnsModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                    <!-- Modal Header -->
+                    <div class="page-header">
+                        <div class="page-header-row">
+                            <div class="page-header-links">
+                                <span class="text-ueberschrift" id="columnsModalTitle">Spalten konfigurieren</span>
+                            </div>
+                            <div class="page-header-mitte">
+                                <span class="text-ueberschrift">Konfiguration</span>
+                            </div>
+                            <div class="page-header-rechts">
+                                <button class="btn-icon" onclick="closeColumnsModal()">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="page-header-tabs">
+                            <div class="kw-tab active" data-tab="daten">Daten</div>
+                        </div>
                     </div>
-                    <div class="modal-body-split">
-                        <div class="modal-body-main">
+                    <!-- Modal Body Split -->
+                    <div class="modal-body--split">
+                        <div class="page-content">
                             <div class="modal-hint">
                                 ${ModalTemplates.icons.info}
                                 Ziehen zum Sortieren, Checkbox zum Ein-/Ausblenden
@@ -764,8 +806,8 @@ const ModalTemplates = {
                                 <!-- Wird dynamisch gefüllt -->
                             </div>
                         </div>
-                        <div class="modal-body-sidebar">
-                            <div class="text-ueberschrift-abschnitt">Vorlagen</div>
+                        <div class="modal-sidebar">
+                            <div class="text-ueberschrift-unterabschnitt">Vorlagen</div>
                             <div class="templates-list" id="templatesList">
                                 <!-- Wird dynamisch gefüllt -->
                             </div>
@@ -773,183 +815,226 @@ const ModalTemplates = {
                                 ${ModalTemplates.icons.plus}
                                 Als Vorlage speichern
                             </button>
-                            <input type="text" class="template-name-input" id="templateNameInput"
+                            <input type="text" class="eingabefeld" id="templateNameInput"
                                    placeholder="Vorlagenname..."
                                    style="display: none;"
                                    onkeydown="handleTemplateNameKeydown && handleTemplateNameKeydown(event)">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="resetColumns && resetColumns()">Zurücksetzen</button>
-                        <button class="btn btn-primary" onclick="saveColumns && saveColumns()">Übernehmen</button>
+                    <!-- Modal Footer -->
+                    <div class="page-footer">
+                        <button class="btn btn--secondary" onclick="resetColumns && resetColumns()">Zurücksetzen</button>
+                        <button class="btn btn--primary" onclick="saveColumns && saveColumns()">Übernehmen</button>
                     </div>
                 </div>
             </div>
         `,
 
         /**
-         * EDIT MODAL (Größe L - Vollbild)
+         * EDIT MODAL (Größe L - Split-View mit Sidebar)
          */
         edit: () => `
-            <div class="edit-modal-overlay" id="editModal">
-                <div class="edit-modal">
-                    <div class="edit-modal-header">
-                        <div class="edit-modal-header-left">
-                            <div class="edit-modal-avatar" id="editModalAvatar">MM</div>
-                            <div class="edit-modal-title-group">
-                                <h3 id="editModalName">Max Mustermann</h3>
-                                <div class="edit-modal-subtitle">
-                                    <span class="badge nmg" id="editModalTypeBadge">NMG</span>
-                                    <span id="editModalDate">Erstellt am 10.12.2025</span>
-                                </div>
+            <div class="modal modal-l" id="editModal">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="page-header">
+                        <div class="page-header-row">
+                            <div class="avatar avatar--md" id="editModalAvatar">MM</div>
+                            <div class="page-header-links">
+                                <span class="text-ueberschrift" id="editModalName">Max Mustermann</span>
+                                <span class="text-klein"><span class="badge nmg" id="editModalTypeBadge">NMG</span> <span id="editModalDate">Erstellt am 10.12.2025</span></span>
+                            </div>
+                            <div class="page-header-mitte">
+                                <span class="text-ueberschrift">Bearbeiten</span>
+                            </div>
+                            <div class="page-header-rechts">
+                                <button class="btn-icon" onclick="closeEditModal()">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-                        <button class="btn-icon" onclick="closeEditModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                        <div class="page-header-tabs">
+                            <div class="kw-tab active" data-tab="daten">Daten</div>
+                        </div>
                     </div>
-                    <div class="edit-modal-body">
+
+                    <!-- Modal Body Split -->
+                    <div class="modal-body--split">
                         <!-- Linke Seite: Formular -->
-                        <div class="edit-form-section">
-                            <div class="edit-form-group">
-                                <div class="edit-form-group-title">Persönliche Daten</div>
-                                <div class="edit-form-row">
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Anrede</label>
-                                        <select class="edit-form-input" id="editAnrede">
+                        <div class="page-content">
+                            <!-- Persönliche Daten -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile">
+                                    <div class="text-ueberschrift-unterabschnitt">Persönliche Daten</div>
+                                </div>
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Anrede</label>
+                                        <select class="eingabefeld" id="editAnrede">
                                             <option value="Herr">Herr</option>
                                             <option value="Frau">Frau</option>
                                             <option value="Divers">Divers</option>
                                         </select>
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Titel</label>
-                                        <input type="text" class="edit-form-input" id="editTitel" placeholder="z.B. Dr.">
-                                    </div>
-                                </div>
-                                <div class="edit-form-row">
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Vorname</label>
-                                        <input type="text" class="edit-form-input" id="editVorname">
-                                    </div>
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Nachname</label>
-                                        <input type="text" class="edit-form-input" id="editNachname">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Titel</label>
+                                        <input type="text" class="eingabefeld" id="editTitel" placeholder="z.B. Dr.">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
                                 </div>
-                                <div class="edit-form-row">
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Geburtsdatum</label>
-                                        <input type="date" class="edit-form-input" id="editGeburtsdatum">
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Vorname</label>
+                                        <input type="text" class="eingabefeld" id="editVorname">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">E-Mail</label>
-                                        <input type="email" class="edit-form-input" id="editEmail">
-                                    </div>
-                                </div>
-                                <div class="edit-form-row">
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Telefon Mobil</label>
-                                        <input type="tel" class="edit-form-input" id="editTelefonMobil">
-                                    </div>
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Telefon Festnetz</label>
-                                        <input type="tel" class="edit-form-input" id="editTelefonFestnetz">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Nachname</label>
+                                        <input type="text" class="eingabefeld" id="editNachname">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="edit-form-group">
-                                <div class="edit-form-group-title">Adresse</div>
-                                <div class="edit-form-row">
-                                    <div class="edit-form-field" style="flex: 3;">
-                                        <label class="edit-form-label">Straße</label>
-                                        <input type="text" class="edit-form-input" id="editStrasse">
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Geburtsdatum</label>
+                                        <input type="date" class="eingabefeld" id="editGeburtsdatum">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
-                                    <div class="edit-form-field" style="flex: 1;">
-                                        <label class="edit-form-label">Hausnr.</label>
-                                        <input type="text" class="edit-form-input" id="editHausnummer">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">E-Mail</label>
+                                        <input type="email" class="eingabefeld" id="editEmail">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
                                 </div>
-                                <div class="edit-form-row three-cols">
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">PLZ</label>
-                                        <input type="text" class="edit-form-input" id="editPLZ">
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Telefon Mobil</label>
+                                        <input type="tel" class="eingabefeld" id="editTelefonMobil">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
-                                    <div class="edit-form-field" style="grid-column: span 2;">
-                                        <label class="edit-form-label">Ort</label>
-                                        <input type="text" class="edit-form-input" id="editOrt">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Telefon Festnetz</label>
+                                        <input type="tel" class="eingabefeld" id="editTelefonFestnetz">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="edit-form-group">
-                                <div class="edit-form-group-title">Beitrag & Zahlung</div>
-                                <div class="edit-form-row three-cols">
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Beitrag (€)</label>
-                                        <input type="number" class="edit-form-input" id="editBeitrag" step="0.01">
+                            <!-- Adresse -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile">
+                                    <div class="text-ueberschrift-unterabschnitt">Adresse</div>
+                                </div>
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-3">
+                                        <label class="eingabefeld-beschriftung-oben">Straße</label>
+                                        <input type="text" class="eingabefeld" id="editStrasse">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Intervall</label>
-                                        <select class="edit-form-input" id="editIntervall">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Hausnr.</label>
+                                        <input type="text" class="eingabefeld" id="editHausnummer">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
+                                    </div>
+                                </div>
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">PLZ</label>
+                                        <input type="text" class="eingabefeld" id="editPLZ">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
+                                    </div>
+                                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                                        <label class="eingabefeld-beschriftung-oben">Ort</label>
+                                        <input type="text" class="eingabefeld" id="editOrt">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Beitrag & Zahlung -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile">
+                                    <div class="text-ueberschrift-unterabschnitt">Beitrag & Zahlung</div>
+                                </div>
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Beitrag (€)</label>
+                                        <input type="number" class="eingabefeld" id="editBeitrag" step="0.01">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
+                                    </div>
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Intervall</label>
+                                        <select class="eingabefeld" id="editIntervall">
                                             <option value="monatlich">Monatlich</option>
                                             <option value="vierteljaehrlich">Vierteljährlich</option>
                                             <option value="halbjaehrlich">Halbjährlich</option>
                                             <option value="jaehrlich">Jährlich</option>
                                         </select>
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Jahreseuros</label>
-                                        <input type="text" class="edit-form-input" id="editJE" disabled>
-                                    </div>
-                                </div>
-                                <div class="edit-form-row">
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">IBAN</label>
-                                        <input type="text" class="edit-form-input" id="editIBAN">
-                                    </div>
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">BIC</label>
-                                        <input type="text" class="edit-form-input" id="editBIC">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Jahreseuros</label>
+                                        <input type="text" class="eingabefeld" id="editJE" disabled>
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
                                 </div>
-                                <div class="edit-form-row">
-                                    <div class="edit-form-field full-width">
-                                        <label class="edit-form-label">Kontoinhaber</label>
-                                        <input type="text" class="edit-form-input" id="editKontoinhaber">
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">IBAN</label>
+                                        <input type="text" class="eingabefeld" id="editIBAN">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
+                                    </div>
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">BIC</label>
+                                        <input type="text" class="eingabefeld" id="editBIC">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
+                                    </div>
+                                </div>
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Kontoinhaber</label>
+                                        <input type="text" class="eingabefeld" id="editKontoinhaber">
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="edit-form-group">
-                                <div class="edit-form-group-title">Zuordnung</div>
-                                <div class="edit-form-row">
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Werbegebiet</label>
-                                        <input type="text" class="edit-form-input" id="editGebiet" disabled>
+                            <!-- Zuordnung -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile">
+                                    <div class="text-ueberschrift-unterabschnitt">Zuordnung</div>
+                                </div>
+                                <div class="zeile">
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Werbegebiet</label>
+                                        <input type="text" class="eingabefeld" id="editGebiet" disabled>
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
-                                    <div class="edit-form-field">
-                                        <label class="edit-form-label">Werber</label>
-                                        <input type="text" class="edit-form-input" id="editWerber" disabled>
+                                    <div class="eingabefeld-gruppe">
+                                        <label class="eingabefeld-beschriftung-oben">Werber</label>
+                                        <input type="text" class="eingabefeld" id="editWerber" disabled>
+                                        <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Rechte Seite: Historie -->
-                        <div class="edit-history-section">
-                            <div class="edit-history-title">Verlauf</div>
+                        <div class="modal-body-sidebar">
+                            <div class="text-ueberschrift-unterabschnitt">Verlauf</div>
                             <div class="history-timeline" id="editHistoryTimeline">
                                 <!-- Wird dynamisch gefüllt -->
                             </div>
                         </div>
                     </div>
-                    <div class="edit-modal-footer">
-                        <button class="edit-btn edit-btn-cancel" onclick="closeEditModal()">Abbrechen</button>
-                        <button class="edit-btn edit-btn-save" onclick="saveEditModal()">Speichern</button>
+
+                    <!-- Modal Footer -->
+                    <div class="page-footer">
+                        <button class="btn btn--secondary" onclick="closeEditModal()">Abbrechen</button>
+                        <button class="btn btn--primary" onclick="saveEditModal()">Speichern</button>
                     </div>
                 </div>
             </div>
@@ -961,33 +1046,45 @@ const ModalTemplates = {
         import: () => `
             <div class="modal modal-m" id="importModal">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="text-ueberschrift">Datensätze importieren</h3>
-                        <div class="import-steps">
-                            <div class="import-step active" data-step="1">
-                                <span class="import-step-number">1</span>
-                                <span class="import-step-label">Datei</span>
+                    <!-- Modal Header -->
+                    <div class="page-header">
+                        <div class="page-header-row">
+                            <div class="page-header-links">
+                                <span class="text-ueberschrift">Datensätze importieren</span>
                             </div>
-                            <div class="import-step-line"></div>
-                            <div class="import-step" data-step="2">
-                                <span class="import-step-number">2</span>
-                                <span class="import-step-label">Spalten</span>
+                            <div class="page-header-mitte">
+                                <div class="import-steps">
+                                    <div class="import-step active" data-step="1">
+                                        <span class="import-step-number">1</span>
+                                        <span class="import-step-label">Datei</span>
+                                    </div>
+                                    <div class="import-step-line"></div>
+                                    <div class="import-step" data-step="2">
+                                        <span class="import-step-number">2</span>
+                                        <span class="import-step-label">Spalten</span>
+                                    </div>
+                                    <div class="import-step-line"></div>
+                                    <div class="import-step" data-step="3">
+                                        <span class="import-step-number">3</span>
+                                        <span class="import-step-label">Vorschau</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="import-step-line"></div>
-                            <div class="import-step" data-step="3">
-                                <span class="import-step-number">3</span>
-                                <span class="import-step-label">Vorschau</span>
+                            <div class="page-header-rechts">
+                                <button class="btn-icon" onclick="closeModalById('importModal')">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-                        <button class="btn-icon" onclick="closeModalById('importModal')">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                        <div class="page-header-tabs">
+                            <div class="kw-tab active" data-tab="daten">Daten</div>
+                        </div>
                     </div>
 
                     <!-- Step 1: Datei hochladen -->
-                    <div class="modal-body import-step-content" id="importStep1">
+                    <div class="page-content import-step-content" id="importStep1">
                         <div class="import-drop-zone" id="importDropZone">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
@@ -1014,16 +1111,16 @@ const ModalTemplates = {
                             </button>
                         </div>
                         <div class="import-formats">
-                            <span class="import-formats-label">Unterstützte Formate:</span>
-                            <span class="import-format-badge">XLS</span>
-                            <span class="import-format-badge">XLSX</span>
-                            <span class="import-format-badge">CSV</span>
-                            <span class="import-format-badge">ODT</span>
+                            <span class="text-klein">Unterstützte Formate:</span>
+                            <span class="badge">XLS</span>
+                            <span class="badge">XLSX</span>
+                            <span class="badge">CSV</span>
+                            <span class="badge">ODT</span>
                         </div>
                     </div>
 
                     <!-- Step 2: Spalten zuordnen -->
-                    <div class="modal-body import-step-content" id="importStep2" style="display: none;">
+                    <div class="page-content import-step-content" id="importStep2" style="display: none;">
                         <div class="import-mapping-container">
                             <div class="import-mapping-section">
                                 <div class="import-mapping-section-header">
@@ -1051,13 +1148,17 @@ const ModalTemplates = {
                                 </div>
                             </div>
 
-                            <div class="import-skip-option">
-                                <span class="import-skip-label">Übersprungene Spalten werden:</span>
-                                <label class="import-skip-radio">
+                            <div class="zeile">
+                                <span class="text-klein">Übersprungene Spalten werden:</span>
+                            </div>
+                            <div class="zeile">
+                                <label class="radio-label">
                                     <input type="radio" name="skipOption" value="hidden" checked>
                                     <span>Unsichtbar gespeichert (später anzeigbar)</span>
                                 </label>
-                                <label class="import-skip-radio">
+                            </div>
+                            <div class="zeile">
+                                <label class="radio-label">
                                     <input type="radio" name="skipOption" value="delete">
                                     <span>Nicht importiert</span>
                                 </label>
@@ -1066,12 +1167,12 @@ const ModalTemplates = {
                     </div>
 
                     <!-- Step 3: Vorschau -->
-                    <div class="modal-body import-step-content" id="importStep3" style="display: none;">
-                        <div class="import-preview-info">
-                            <span id="importPreviewCount">10 von 50 Datensätzen</span>
+                    <div class="page-content import-step-content" id="importStep3" style="display: none;">
+                        <div class="zeile">
+                            <span class="text-klein" id="importPreviewCount">10 von 50 Datensätzen</span>
                         </div>
                         <div class="import-preview-table-container">
-                            <table class="import-preview-table">
+                            <table class="table table--compact">
                                 <thead id="importPreviewHead">
                                     <!-- Wird per JS gefüllt -->
                                 </thead>
@@ -1082,10 +1183,10 @@ const ModalTemplates = {
                         </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="closeModalById('importModal')">Abbrechen</button>
-                        <button class="btn btn-secondary" id="importBackBtn" onclick="importStepBack()" style="display: none;">Zurück</button>
-                        <button class="btn btn-primary" id="importNextBtn" onclick="importStepNext()" disabled>Weiter</button>
+                    <div class="page-footer">
+                        <button class="btn btn--secondary" onclick="closeModalById('importModal')">Abbrechen</button>
+                        <button class="btn btn--secondary" id="importBackBtn" onclick="importStepBack()" style="display: none;">Zurück</button>
+                        <button class="btn btn--primary" id="importNextBtn" onclick="importStepNext()" disabled>Weiter</button>
                     </div>
                 </div>
             </div>
@@ -1097,106 +1198,125 @@ const ModalTemplates = {
         export: () => `
             <div class="modal modal-m" id="exportModal">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="text-ueberschrift">Datensätze exportieren</h3>
-                        <button class="btn-icon" onclick="closeModalById('exportModal')">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                    <!-- Modal Header -->
+                    <div class="page-header">
+                        <div class="page-header-row">
+                            <div class="page-header-links">
+                                <span class="text-ueberschrift">Datensätze exportieren</span>
+                            </div>
+                            <div class="page-header-mitte"></div>
+                            <div class="page-header-rechts">
+                                <button class="btn-icon" onclick="closeModalById('exportModal')">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="page-header-tabs">
+                            <div class="kw-tab active" data-tab="daten">Daten</div>
+                        </div>
                     </div>
-                    <div class="modal-body">
+                    <!-- Modal Body -->
+                    <div class="page-content">
                         <!-- Export Info -->
-                        <div class="export-info-section">
-                            <div class="export-info-row">
-                                <span class="export-info-label">Zu exportieren:</span>
-                                <span class="export-info-value" id="exportCountInfo">Alle 15 Datensätze</span>
+                        <div class="unterabschnitt--card">
+                            <div class="zeile">
+                                <span class="text-normal">Zu exportieren:</span>
+                                <span class="text-normal" id="exportCountInfo" style="margin-left: auto;">Alle 15 Datensätze</span>
                             </div>
-                            <div class="export-info-row" id="exportFilterInfo" style="display: none;">
-                                <span class="export-info-label">Filter:</span>
-                                <span class="export-info-value" id="exportFilterValue">Alle</span>
+                            <div class="zeile" id="exportFilterInfo" style="display: none;">
+                                <span class="text-normal">Filter:</span>
+                                <span class="text-normal" id="exportFilterValue" style="margin-left: auto;">Alle</span>
                             </div>
-                            <div class="export-info-row" id="exportPeriodInfo" style="display: none;">
-                                <span class="export-info-label">Zeitraum:</span>
-                                <span class="export-info-value" id="exportPeriodValue">01.12.2025 - 10.12.2025</span>
+                            <div class="zeile" id="exportPeriodInfo" style="display: none;">
+                                <span class="text-normal">Zeitraum:</span>
+                                <span class="text-normal" id="exportPeriodValue" style="margin-left: auto;">01.12.2025 - 10.12.2025</span>
                             </div>
-                            <div class="export-info-row">
-                                <span class="export-info-label">Gesamt JE:</span>
-                                <span class="export-info-value export-info-highlight" id="exportTotalJE">1.800,00 €</span>
+                            <div class="zeile">
+                                <span class="text-normal">Gesamt JE:</span>
+                                <span class="text-normal text--highlight" id="exportTotalJE" style="margin-left: auto;">1.800,00 €</span>
                             </div>
                         </div>
 
                         <!-- Format Selection -->
-                        <div class="export-form-group">
-                            <label class="export-form-label">Dateiformat</label>
-                            <div class="export-format-options">
-                                <label class="export-format-option">
-                                    <input type="radio" name="exportFormat" value="xlsx" checked>
-                                    <span class="export-format-box">
-                                        <span class="export-format-icon">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                                                <path d="M14 2v6h6M8 13h2M8 17h2M14 13h2M14 17h2"/>
-                                            </svg>
+                        <div class="zeile zeile--center">
+                            <div class="eingabefeld-gruppe" style="width: 100%;">
+                                <label class="eingabefeld-beschriftung-oben">Dateiformat</label>
+                                <div class="export-format-options">
+                                    <label class="export-format-option">
+                                        <input type="radio" name="exportFormat" value="xlsx" checked>
+                                        <span class="export-format-box">
+                                            <span class="export-format-icon">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                                    <path d="M14 2v6h6M8 13h2M8 17h2M14 13h2M14 17h2"/>
+                                                </svg>
+                                            </span>
+                                            <span class="export-format-name">XLSX</span>
+                                            <span class="export-format-desc">Excel</span>
                                         </span>
-                                        <span class="export-format-name">XLSX</span>
-                                        <span class="export-format-desc">Excel</span>
-                                    </span>
-                                </label>
-                                <label class="export-format-option">
-                                    <input type="radio" name="exportFormat" value="xls">
-                                    <span class="export-format-box">
-                                        <span class="export-format-icon">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                                                <path d="M14 2v6h6M8 13h2M8 17h2M14 13h2M14 17h2"/>
-                                            </svg>
+                                    </label>
+                                    <label class="export-format-option">
+                                        <input type="radio" name="exportFormat" value="xls">
+                                        <span class="export-format-box">
+                                            <span class="export-format-icon">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                                    <path d="M14 2v6h6M8 13h2M8 17h2M14 13h2M14 17h2"/>
+                                                </svg>
+                                            </span>
+                                            <span class="export-format-name">XLS</span>
+                                            <span class="export-format-desc">Excel 97-2003</span>
                                         </span>
-                                        <span class="export-format-name">XLS</span>
-                                        <span class="export-format-desc">Excel 97-2003</span>
-                                    </span>
-                                </label>
-                                <label class="export-format-option">
-                                    <input type="radio" name="exportFormat" value="csv">
-                                    <span class="export-format-box">
-                                        <span class="export-format-icon">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                                                <path d="M14 2v6h6M12 11v6M9 14h6"/>
-                                            </svg>
+                                    </label>
+                                    <label class="export-format-option">
+                                        <input type="radio" name="exportFormat" value="csv">
+                                        <span class="export-format-box">
+                                            <span class="export-format-icon">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                                    <path d="M14 2v6h6M12 11v6M9 14h6"/>
+                                                </svg>
+                                            </span>
+                                            <span class="export-format-name">CSV</span>
+                                            <span class="export-format-desc">Komma-getrennt</span>
                                         </span>
-                                        <span class="export-format-name">CSV</span>
-                                        <span class="export-format-desc">Komma-getrennt</span>
-                                    </span>
-                                </label>
-                                <label class="export-format-option">
-                                    <input type="radio" name="exportFormat" value="odt">
-                                    <span class="export-format-box">
-                                        <span class="export-format-icon">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
-                                            </svg>
+                                    </label>
+                                    <label class="export-format-option">
+                                        <input type="radio" name="exportFormat" value="odt">
+                                        <span class="export-format-box">
+                                            <span class="export-format-icon">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                                    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+                                                </svg>
+                                            </span>
+                                            <span class="export-format-name">ODT</span>
+                                            <span class="export-format-desc">OpenDocument</span>
                                         </span>
-                                        <span class="export-format-name">ODT</span>
-                                        <span class="export-format-desc">OpenDocument</span>
-                                    </span>
-                                </label>
+                                    </label>
+                                </div>
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                         </div>
 
                         <!-- Filename -->
-                        <div class="export-form-group">
-                            <label class="export-form-label">Dateiname</label>
-                            <div class="export-filename-input">
-                                <input type="text" id="exportFilename" value="datensaetze_export" placeholder="Dateiname eingeben...">
-                                <span class="export-filename-ext" id="exportFilenameExt">.xlsx</span>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe" style="width: 100%;">
+                                <label class="eingabefeld-beschriftung-oben">Dateiname</label>
+                                <div class="export-filename-input">
+                                    <input type="text" class="eingabefeld" id="exportFilename" value="datensaetze_export" placeholder="Dateiname eingeben...">
+                                    <span class="export-filename-ext" id="exportFilenameExt">.xlsx</span>
+                                </div>
+                                <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="closeModalById('exportModal')">Abbrechen</button>
-                        <button class="btn btn-primary" onclick="confirmExport()">Exportieren</button>
+                    <!-- Modal Footer -->
+                    <div class="page-footer">
+                        <button class="btn btn--secondary" onclick="closeModalById('exportModal')">Abbrechen</button>
+                        <button class="btn btn--primary" onclick="confirmExport()">Exportieren</button>
                     </div>
                 </div>
             </div>
@@ -1208,16 +1328,16 @@ const ModalTemplates = {
         confirm: () => `
             <div class="modal modal-xs" id="confirmModal">
                 <div class="modal-content">
-                    <div class="modal-body" style="text-align: center; padding: 24px;">
-                        <div class="confirm-icon" id="confirmIcon" style="margin-bottom: 16px;">
+                    <div class="modal-body" style="text-align: center; padding: var(--spacing-lg);">
+                        <div class="confirm-icon" id="confirmIcon" style="margin-bottom: var(--spacing-md);">
                             ${ModalTemplates.icons.warning}
                         </div>
-                        <h3 class="text-ueberschrift" id="confirmTitle" style="margin-bottom: 8px;">Bestätigung</h3>
-                        <p class="modal-subtitle" id="confirmMessage" style="margin-bottom: 0;">Möchten Sie fortfahren?</p>
+                        <div class="text-ueberschrift-abschnitt" id="confirmTitle" style="margin-bottom: var(--spacing-xs);">Bestätigung</div>
+                        <span class="text-klein" id="confirmMessage">Möchten Sie fortfahren?</span>
                     </div>
-                    <div class="modal-footer" style="justify-content: center;">
-                        <button class="btn btn-secondary" onclick="closeConfirmModal()">Abbrechen</button>
-                        <button class="btn btn-danger" id="confirmBtn" onclick="executeConfirm()">Bestätigen</button>
+                    <div class="page-footer" style="justify-content: center;">
+                        <button class="btn btn--secondary" onclick="closeConfirmModal()">Abbrechen</button>
+                        <button class="btn btn--danger" id="confirmBtn" onclick="executeConfirm()">Bestätigen</button>
                     </div>
                 </div>
             </div>
@@ -1229,23 +1349,25 @@ const ModalTemplates = {
         deleteConfirmSimple: () => `
             <div class="modal modal-xs" id="deleteConfirmSimpleModal">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="text-ueberschrift" id="deleteConfirmSimpleTitle">Löschen bestätigen</h2>
-                        <button class="btn-icon" onclick="closeDeleteConfirmSimpleModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
                     <div class="modal-body">
-                        <p id="deleteConfirmSimpleMessage" style="margin-bottom: var(--spacing-md);"></p>
-                        <p id="deleteConfirmSimpleWarning" style="color: var(--warning-text); font-size: var(--font-size-sm); display: none;">
-                            Diese Aktion kann nicht rückgängig gemacht werden.
-                        </p>
+                        <div class="zeile zeile--header">
+                            <div class="text-ueberschrift-abschnitt" id="deleteConfirmSimpleTitle">Löschen bestätigen</div>
+                            <button class="btn-icon" onclick="closeDeleteConfirmSimpleModal()" style="margin-left: auto;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="zeile">
+                            <span class="text-normal" id="deleteConfirmSimpleMessage"></span>
+                        </div>
+                        <div class="zeile" id="deleteConfirmSimpleWarning" style="display: none;">
+                            <span class="text-klein" style="color: var(--warning-text);">Diese Aktion kann nicht rückgängig gemacht werden.</span>
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirmSimpleModal()">Abbrechen</button>
-                        <button type="button" class="btn btn-danger" id="deleteConfirmSimpleBtn" onclick="executeDeleteConfirmSimple()">Löschen</button>
+                    <div class="page-footer">
+                        <button type="button" class="btn btn--secondary" onclick="closeDeleteConfirmSimpleModal()">Abbrechen</button>
+                        <button type="button" class="btn btn--danger" id="deleteConfirmSimpleBtn" onclick="executeDeleteConfirmSimple()">Löschen</button>
                     </div>
                 </div>
             </div>
@@ -1257,16 +1379,16 @@ const ModalTemplates = {
         deleteConfirm: () => `
             <div class="modal modal-xs" id="deleteConfirmModal">
                 <div class="modal-content">
-                    <div class="modal-body" style="text-align: center; padding: 24px;">
-                        <div style="width: 48px; height: 48px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #ef4444;">
+                    <div class="modal-body" style="text-align: center; padding: var(--spacing-lg);">
+                        <div class="confirm-icon error" style="margin-bottom: var(--spacing-md);">
                             ${ModalTemplates.icons.trash}
                         </div>
-                        <h3 class="text-ueberschrift" id="deleteConfirmTitle" style="margin-bottom: 8px;">Löschen bestätigen</h3>
-                        <p class="modal-subtitle" id="deleteConfirmMessage" style="margin-bottom: 0;">Dieser Eintrag wird unwiderruflich gelöscht.</p>
+                        <div class="text-ueberschrift-abschnitt" id="deleteConfirmTitle" style="margin-bottom: var(--spacing-xs);">Löschen bestätigen</div>
+                        <span class="text-klein" id="deleteConfirmMessage">Dieser Eintrag wird unwiderruflich gelöscht.</span>
                     </div>
-                    <div class="modal-footer" style="justify-content: center;">
-                        <button class="btn btn-secondary" onclick="closeDeleteConfirmModal()">Abbrechen</button>
-                        <button class="btn btn-danger" onclick="executeDeleteConfirm()">Löschen</button>
+                    <div class="page-footer" style="justify-content: center;">
+                        <button class="btn btn--secondary" onclick="closeDeleteConfirmModal()">Abbrechen</button>
+                        <button class="btn btn--danger" onclick="executeDeleteConfirm()">Löschen</button>
                     </div>
                 </div>
             </div>
@@ -1783,7 +1905,7 @@ const CalendarModal = (function() {
                                 </div>
                             </div>
                         </div>
-                        <div class="calendar-modal-footer">
+                        <div class="calendar-page-footer">
                             <button class="btn-cancel" onclick="CalendarModal.close()">Abbrechen</button>
                             <button class="btn-apply" onclick="CalendarModal.apply()">Anwenden</button>
                         </div>
@@ -2871,9 +2993,9 @@ function openAuditModal(auditType, contextId = 'default') {
     }
 
     // Titel aktualisieren
-    const titleSpan = modal.querySelector('.audit-modal-title span');
-    if (titleSpan) {
-        titleSpan.textContent = auditType === 'nmg-erh' ? 'Audit NMG/ERH' : 'Audit Bestand';
+    const titleEl = modal.querySelector('#auditModalTitle');
+    if (titleEl) {
+        titleEl.textContent = auditType === 'nmg-erh' ? 'Audit NMG/ERH' : 'Audit Bestand';
     }
 
     // Daten laden und rendern
@@ -2882,7 +3004,7 @@ function openAuditModal(auditType, contextId = 'default') {
     renderAuditList(data);
 
     // Modal öffnen
-    modal.classList.add('open');
+    modal.classList.add('active');
 
     // ESC zum Schließen
     document.addEventListener('keydown', handleAuditEscape);
@@ -2891,7 +3013,7 @@ function openAuditModal(auditType, contextId = 'default') {
 function closeAuditModal() {
     const modal = document.getElementById('auditModal');
     if (modal) {
-        modal.classList.remove('open');
+        modal.classList.remove('active');
     }
     document.removeEventListener('keydown', handleAuditEscape);
 }
@@ -2903,37 +3025,44 @@ function handleAuditEscape(e) {
 }
 
 function createAuditModal() {
-    const overlay = document.createElement('div');
-    overlay.id = 'auditModal';
-    overlay.className = 'audit-modal-overlay';
-    overlay.onclick = (e) => {
-        if (e.target === overlay) closeAuditModal();
+    const modalDiv = document.createElement('div');
+    modalDiv.id = 'auditModal';
+    modalDiv.className = 'modal modal-m';
+    modalDiv.onclick = (e) => {
+        if (e.target === modalDiv) closeAuditModal();
     };
 
-    overlay.innerHTML = `
-        <div class="audit-modal">
-            <div class="audit-modal-header">
-                <div class="audit-modal-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>Audit-Log</span>
+    modalDiv.innerHTML = `
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift" id="auditModalTitle">Audit-Log</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn-icon" onclick="closeAuditModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <button class="btn-icon" onclick="closeAuditModal()">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
             </div>
-            <div class="audit-modal-body">
-                <ul class="audit-list" id="auditList">
+            <!-- Modal Body -->
+            <div class="page-content">
+                <div class="audit-list" id="auditList">
                     <!-- Wird per JS gefüllt -->
-                </ul>
+                </div>
             </div>
         </div>
     `;
 
-    return overlay;
+    return modalDiv;
 }
 
 function renderAuditList(data) {
@@ -2942,11 +3071,8 @@ function renderAuditList(data) {
 
     if (!data || data.length === 0) {
         list.innerHTML = `
-            <div class="audit-empty">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-                <p>Keine Änderungen vorhanden</p>
+            <div class="zeile zeile--center">
+                <span class="text-normal text--disabled">Keine Änderungen vorhanden</span>
             </div>
         `;
         return;
@@ -2966,144 +3092,113 @@ function renderAuditItem(entry) {
     const timeStr = formatAuditTime(entry.timestamp);
     const dateStr = formatAuditDate(entry.timestamp);
     const entryId = entry.id;
+    const memberId = entry.member ? entry.member.replace(/\s+/g, '-').toLowerCase() : 'unknown';
 
-    // Rückgängig-Button HTML
-    const undoButton = `
-        <div class="audit-actions">
-            <button class="audit-action-btn btn-undo" onclick="event.stopPropagation(); showUndoConfirm(${entryId}, this)" title="Rückgängig machen">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 10h10a5 5 0 0 1 5 5v2M3 10l4-4M3 10l4 4"/>
-                </svg>
-            </button>
-        </div>
-    `;
+    // Icon und Farbe je nach Typ
+    let typeIcon = '';
+    let typeClass = '';
+    let titleText = '';
+    let previewText = '';
+    let previewClass = '';
+    let detailsHtml = '';
 
     if (entry.type === 'add') {
-        return `
-            <li class="audit-item audit-item--grouped" data-entry-id="${entryId}">
-                <div class="audit-icon audit-icon--add">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 4v16m8-8H4"/>
-                    </svg>
-                </div>
-                <div class="audit-content">
-                    <div class="audit-title">
-                        <strong>${entry.count} ${entry.count === 1 ? 'Datensatz' : 'Datensätze'}</strong> hinzugefügt
-                        ${entry.area ? `<span style="color: #737373; font-weight: 400;"> · ${entry.area}</span>` : ''}
-                    </div>
-                    <div class="audit-meta">
-                        <span class="audit-user">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
-                            </svg>
-                            ${entry.user}
-                        </span>
-                        <span class="audit-time">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M12 6v6l4 2"/>
-                            </svg>
-                            ${dateStr}, ${timeStr}
-                        </span>
-                    </div>
-                    <div class="audit-details">
-                        <ul class="audit-details-list">
-                            ${entry.details.map(d => `<li>${d}</li>`).join('')}
-                        </ul>
+        // Hinzugefügt: grün
+        typeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 4v16m8-8H4"/></svg>`;
+        typeClass = 'audit-color-gruen';
+        titleText = `${entry.count} ${entry.count === 1 ? 'Datensatz' : 'Datensätze'} hinzugefügt${entry.area ? ` · ${entry.area}` : ''}`;
+        if (entry.details) {
+            previewText = entry.details.join(', ');
+            previewClass = 'audit-color-gruen';
+            detailsHtml = entry.details.map(d => `
+                <div class="zeile">
+                    <div class="eingabefeld-card-gruppe">
+                        <span class="eingabefeld-beschriftung-oben">Person</span>
+                        <div class="eingabefeld-card audit-color-gruen">${d}</div>
+                        <span class="eingabefeld-beschriftung-unten audit-color-gruen">Hinzugefügt</span>
                     </div>
                 </div>
-                ${undoButton}
-                <svg class="audit-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 5l7 7-7 7"/>
-                </svg>
-            </li>
-        `;
+            `).join('');
+        }
+    } else if (entry.type === 'delete') {
+        // Gelöscht: rot, Namen rot durchgestrichen
+        typeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`;
+        typeClass = 'audit-color-rot';
+        titleText = `${entry.count} ${entry.count === 1 ? 'Datensatz' : 'Datensätze'} gelöscht`;
+        if (entry.details) {
+            previewText = entry.details.join(', ');
+            previewClass = 'audit-color-rot-durchgestrichen';
+            detailsHtml = entry.details.map(d => `
+                <div class="zeile">
+                    <div class="eingabefeld-card-gruppe">
+                        <span class="eingabefeld-beschriftung-oben">Person</span>
+                        <div class="eingabefeld-card audit-color-rot-durchgestrichen">${d}</div>
+                        <span class="eingabefeld-beschriftung-unten audit-color-rot">Gelöscht</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } else {
+        // Bearbeitet: orange, altes grau durchgestrichen, neues orange
+        typeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+        typeClass = 'audit-color-orange';
+        titleText = `${entry.member} bearbeitet`;
+        if (entry.changes) {
+            previewText = entry.changes.map(c =>
+                `${c.field}:&nbsp; <span class="audit-color-grau-durchgestrichen">${c.oldValue}</span> <span class="audit-color-grau">&nbsp;→&nbsp;</span> <span class="audit-color-orange">${c.newValue}</span>`
+            ).join(', ');
+            detailsHtml = entry.changes.map(c => `
+                <div class="zeile">
+                    <div class="eingabefeld-card-gruppe">
+                        <span class="eingabefeld-beschriftung-oben">Person</span>
+                        <div class="eingabefeld-card">${entry.member}:&nbsp; <span class="audit-color-grau-durchgestrichen">${c.oldValue}</span> <span class="audit-color-grau">&nbsp;→&nbsp;</span> <span class="audit-color-orange">${c.newValue}</span></div>
+                        <span class="eingabefeld-beschriftung-unten audit-color-orange">${c.field} bearbeitet</span>
+                    </div>
+                </div>
+            `).join('');
+        }
     }
 
-    if (entry.type === 'delete') {
-        return `
-            <li class="audit-item audit-item--grouped" data-entry-id="${entryId}">
-                <div class="audit-icon audit-icon--delete">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                </div>
-                <div class="audit-content">
-                    <div class="audit-title">
-                        <strong>${entry.count} ${entry.count === 1 ? 'Datensatz' : 'Datensätze'}</strong> gelöscht
-                    </div>
-                    <div class="audit-meta">
-                        <span class="audit-user">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
-                            </svg>
-                            ${entry.user}
-                        </span>
-                        <span class="audit-time">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M12 6v6l4 2"/>
-                            </svg>
-                            ${dateStr}, ${timeStr}
-                        </span>
-                    </div>
-                    <div class="audit-details">
-                        <ul class="audit-details-list">
-                            ${entry.details.map(d => `<li>${d}</li>`).join('')}
-                        </ul>
-                    </div>
-                </div>
-                ${undoButton}
-                <svg class="audit-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 5l7 7-7 7"/>
-                </svg>
-            </li>
-        `;
-    }
-
-    // Edit - mit Member-ID für Sprung zum Datensatz
-    const memberId = entry.member ? entry.member.replace(/\s+/g, '-').toLowerCase() : 'unknown';
     return `
-        <li class="audit-item" data-entry-id="${entryId}" data-member-id="${memberId}">
-            <div class="audit-icon audit-icon--edit">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-            </div>
-            <div class="audit-content">
-                <div class="audit-title">
-                    <strong>${entry.member}</strong> bearbeitet
+        <div class="unterabschnitt--card unterabschnitt--card--expandable" data-entry-id="${entryId}" data-member-id="${memberId}">
+            <div class="zeile">
+                <span class="${typeClass}" style="align-self: flex-start; margin-top: calc(var(--eingabefeld-beschriftung-oben-hoehe) + var(--spacing-xs) + (var(--eingabefeld-hoehe) - 18px) / 2);">${typeIcon}</span>
+                <div class="eingabefeld-card-gruppe">
+                    <span class="eingabefeld-beschriftung-oben">${entry.user} · ${dateStr}, ${timeStr}</span>
+                    <div class="eingabefeld-card">${titleText}</div>
+                    <span class="eingabefeld-beschriftung-unten eingabefeld-beschriftung-unten--einzeilig ${previewClass}">${previewText}</span>
                 </div>
-                <div class="audit-meta">
-                    <span class="audit-user">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
+                <div style="display: flex; flex-direction: column; align-self: center; gap: 4px;">
+                    <button class="btn-icon" onclick="event.stopPropagation(); showUndoConfirm(${entryId}, this)" title="Rückgängig machen">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <path d="M3 10h10a5 5 0 0 1 5 5v2M3 10l4-4M3 10l4 4"/>
                         </svg>
-                        ${entry.user}
-                    </span>
-                    <span class="audit-time">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
+                    </button>
+                    <button class="btn-icon" onclick="event.stopPropagation(); toggleAuditExpand(this)" title="Details anzeigen">
+                        <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <path d="M19 9l-7 7-7-7"/>
                         </svg>
-                        ${dateStr}, ${timeStr}
-                    </span>
-                </div>
-                <div class="audit-changes">
-                    ${entry.changes.map(c => `
-                        <div class="audit-change-item">
-                            <span class="audit-change-field">${c.field}:</span>
-                            <span class="audit-change-old">${c.oldValue}</span>
-                            <span class="audit-change-arrow">→</span>
-                            <span class="audit-change-new">${c.newValue}</span>
-                        </div>
-                    `).join('')}
+                    </button>
                 </div>
             </div>
-            ${undoButton}
-        </li>
+            <div class="unterabschnitt--card-details">
+                ${detailsHtml}
+            </div>
+        </div>
     `;
+}
+
+// ============================================================================
+// EXPAND-FUNKTIONEN
+// ============================================================================
+
+/**
+ * Toggled den expandierten Zustand eines Audit-Eintrags
+ */
+function toggleAuditExpand(buttonElement) {
+    const card = buttonElement.closest('.unterabschnitt--card--expandable');
+    if (!card) return;
+    card.classList.toggle('open');
 }
 
 // ============================================================================
@@ -3114,7 +3209,7 @@ function renderAuditItem(entry) {
  * Zeigt die Bestätigungs-Overlay für Rückgängig
  */
 function showUndoConfirm(entryId, buttonElement) {
-    const auditItem = buttonElement.closest('.audit-item');
+    const auditItem = buttonElement.closest('.unterabschnitt--card');
     if (!auditItem) return;
 
     // Entferne vorherige Overlays
@@ -3124,10 +3219,10 @@ function showUndoConfirm(entryId, buttonElement) {
     const overlay = document.createElement('div');
     overlay.className = 'audit-confirm-overlay';
     overlay.innerHTML = `
-        <span class="audit-confirm-text">Änderung rückgängig machen?</span>
-        <div class="audit-confirm-actions">
-            <button class="audit-confirm-btn btn-cancel" onclick="cancelUndo(this)">Abbrechen</button>
-            <button class="audit-confirm-btn btn-confirm" onclick="confirmUndo(${entryId}, this)">Rückgängig</button>
+        <div class="zeile zeile--center">
+            <span class="text-normal">Änderung rückgängig machen?</span>
+            <button class="btn btn--secondary btn--sm" onclick="cancelUndo(this)">Abbrechen</button>
+            <button class="btn btn--primary btn--sm" onclick="confirmUndo(${entryId}, this)">Rückgängig</button>
         </div>
     `;
 
@@ -3149,7 +3244,7 @@ function cancelUndo(buttonElement) {
  */
 function confirmUndo(entryId, buttonElement) {
     const overlay = buttonElement.closest('.audit-confirm-overlay');
-    const auditItem = overlay ? overlay.closest('.audit-item') : null;
+    const auditItem = overlay ? overlay.closest('.unterabschnitt--card') : null;
 
     // TODO: Hier echte API-Aktion zum Rückgängig machen
     console.log('Rückgängig für Entry:', entryId);
@@ -3516,6 +3611,7 @@ window.getAuditButtonsHTML = getAuditButtonsHTML;
 window.showUndoConfirm = showUndoConfirm;
 window.cancelUndo = cancelUndo;
 window.confirmUndo = confirmUndo;
+window.toggleAuditExpand = toggleAuditExpand;
 
 console.log('%c Karten.js geladen ', 'background: #6366f1; color: white; padding: 4px 8px; border-radius: 4px;');
 console.log('Verfügbare Funktionen: createBadge(), renderMemberCards(), openAuditModal()');
@@ -4165,9 +4261,8 @@ function handleDropdownAction(action, dropdownMenu) {
     const type = dropdownMenu.dataset.type;
     const id = parseInt(dropdownMenu.dataset.id);
 
-    // Dropdown schließen
-    dropdownMenu.classList.remove('active');
-    currentDropdown = null;
+    // Dropdown schließen (zentrale Funktion nutzen)
+    closeAllDropdowns();
 
     // Daten laden
     const data = type === 'records' ? recordsData : bestandData;
@@ -5288,14 +5383,18 @@ console.log('%c Tabellen.js geladen ', 'background: #6366f1; color: white; paddi
 function initTabs(tabSelector, contentSelector, contentIdPrefix = 'tab-') {
     document.querySelectorAll(tabSelector).forEach(tab => {
         tab.addEventListener('click', function() {
-            // Alle Tabs deaktivieren
-            document.querySelectorAll(tabSelector).forEach(t => t.classList.remove('active'));
-            document.querySelectorAll(contentSelector).forEach(c => c.classList.remove('active'));
+            // Nur Tabs im gleichen Container deaktivieren
+            const tabContainer = this.closest('.page-header-tabs, .modal-tabs, .tabs-container') || this.parentElement;
+            tabContainer.querySelectorAll(tabSelector.split(' ').pop()).forEach(t => t.classList.remove('active'));
+
+            // Zugehörige Contents finden (im gleichen Modal oder Page)
+            const scope = this.closest('.modal-content, .page-container') || document;
+            scope.querySelectorAll(contentSelector).forEach(c => c.classList.remove('active'));
 
             // Aktuellen Tab aktivieren
             this.classList.add('active');
             const contentId = contentIdPrefix + this.dataset.tab;
-            const content = document.getElementById(contentId);
+            const content = scope.querySelector('#' + contentId) || document.getElementById(contentId);
             if (content) content.classList.add('active');
         });
     });
@@ -6375,7 +6474,20 @@ window.updateCurrentRoleMiniWappen = updateCurrentRoleMiniWappen;
  */
 function generateLevelBadge(roleKey, size = 'lg') {
     const level = CAREER_LEVELS[roleKey];
-    if (!level) return '<span class="text-klein">Keine Stufe ausgewählt</span>';
+
+    // Platzhalter-Badge wenn keine Stufe ausgewählt (SMA-Struktur, hellgrau)
+    if (!level) {
+        return `
+            <div class="level-badge level-badge--${size} level-badge--placeholder">
+                <span class="level-badge-code">SMA</span>
+                <span class="level-badge-stufe">Stufe I</span>
+                <div class="level-stars">
+                    <svg class="level-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </div>
+            </div>
+            <span class="level-name">Keine Stufe ausgewählt</span>
+        `;
+    }
 
     const config = ROLE_CONFIG[roleKey] || {};
     const glowClass = config.glow ? `level-badge--glow-${config.glow}` : '';
@@ -6604,12 +6716,12 @@ function initCareerLevelSelector(config = {}) {
         const config = ROLE_CONFIG[mainRole.value];
         if (config) {
             roleBenefits.innerHTML = `
-                <div class="badge-row">
+                <div class="badge-column">
                     ${config.benefits.map(benefit => `<span class="section-badge">${benefit}</span>`).join('')}
                 </div>
             `;
         } else {
-            roleBenefits.innerHTML = '<span class="text-klein">Wähle eine Karrierestufe um die Benefits zu sehen</span>';
+            roleBenefits.innerHTML = '';
         }
     }
 
@@ -6617,21 +6729,15 @@ function initCareerLevelSelector(config = {}) {
     function updateCareerBadgeDisplay() {
         const badgeContainer = document.getElementById('careerBadgeDisplay');
         if (!badgeContainer || !mainRole) return;
-        badgeContainer.innerHTML = generateLevelBadge(mainRole.value, 'xl');
+        badgeContainer.innerHTML = generateLevelBadge(mainRole.value, 'lg');
+        // Name ausblenden (wie im Header)
+        const levelName = badgeContainer.querySelector('.level-name');
+        if (levelName) levelName.style.display = 'none';
     }
 
-    // Prüfen ob Speichern möglich
+    // Prüfen ob Speichern möglich (für andere Validierungen)
     function checkRoleCanBeSaved() {
-        if (!saveRoleBtn) return;
-        const customFactorValue = customFactor ? customFactor.value : '';
-
-        if ((mainRole && mainRole.value) || (customFactorValue && parseFloat(customFactorValue) > 0)) {
-            saveRoleBtn.disabled = false;
-            if (roleSaveHint) roleSaveHint.textContent = '';
-        } else {
-            saveRoleBtn.disabled = true;
-            if (roleSaveHint) roleSaveHint.textContent = 'Bitte eine Karrierestufe oder individuellen Faktor eingeben';
-        }
+        // Button ist immer aktiv, Validierung erfolgt beim Klick via Toast
     }
 
     // KW-Überlappung prüfen
@@ -6712,7 +6818,10 @@ function initCareerLevelSelector(config = {}) {
     async function saveRoleEntry() {
         const customFactorValue = customFactor ? parseFloat(customFactor.value) : null;
 
-        if ((!mainRole || !mainRole.value) && !customFactorValue) return;
+        if ((!mainRole || !mainRole.value) && !customFactorValue) {
+            showToast('Bitte eine Karrierestufe oder individuellen Faktor eingeben', 'warning');
+            return;
+        }
 
         // Überlappungen prüfen und ggf. Bestätigung einholen
         const overlaps = roleHistory.filter(entry => {
@@ -6811,9 +6920,7 @@ function initCareerLevelSelector(config = {}) {
                 const config = ROLE_CONFIG[mainRole.value];
                 displayName = config ? (config.short || config.name) : mainRole.value;
             }
-            if (roleSaveHint) {
-                roleSaveHint.innerHTML = `<span style="color: var(--success-color);">✓ ${displayName} für KW ${newEntry.fromKw}/${newEntry.fromYear} - ${toText} gespeichert</span>`;
-            }
+            showToast(`${displayName} für KW ${newEntry.fromKw}/${newEntry.fromYear} - ${toText} gespeichert`, 'success');
 
             renderRoleHistory();
             checkKwOverlap();
@@ -6994,6 +7101,8 @@ function initCareerLevelSelector(config = {}) {
     // Initialisierung
     updateKwDisplay();
     updateRoleKwToDisplay();
+    updateCareerBadgeDisplay();
+    updateFactorDisplay();
     checkRoleCanBeSaved();
     renderRoleHistory();
 

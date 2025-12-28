@@ -34,32 +34,47 @@
 </div>
 
 <!-- Anwesenheit Notizen Modal -->
-<div class="attendance-notes-modal" id="attendanceNotesModal" onclick="if(event.target === this) closeNotesModal()">
-    <div class="attendance-notes-modal-content">
-        <div class="attendance-notes-modal-header">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <h3 id="notesModalMemberName">Mitarbeiter</h3>
-                <span class="badge-zaehler" id="notesModalKw">KW 10</span>
+<div class="modal modal-s" id="attendanceNotesModal">
+    <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="notesModalMemberName">Mitarbeiter</span>
+                    <span class="badge-zaehler" id="notesModalKw">KW 10</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn-icon" onclick="closeNotesModal()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <button class="btn-icon" onclick="closeNotesModal()">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-        <div class="attendance-notes-list" id="notesModalList">
-            <div class="attendance-notes-empty">Keine Notizen vorhanden</div>
-        </div>
-        <div class="attendance-notes-input-area">
-            <textarea id="notesModalTextarea" placeholder="Neue Notiz hinzufügen..."></textarea>
-            <div class="btn-row">
-                <button class="btn btn-primary" onclick="saveNote()">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px; margin-right: 4px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Speichern
-                </button>
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="notizen">Notizen</div>
             </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="page-content">
+            <div class="attendance-notes-list" id="notesModalList">
+                <div class="attendance-notes-empty">Keine Notizen vorhanden</div>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Neue Notiz</label>
+                    <textarea id="notesModalTextarea" class="eingabefeld" rows="3" placeholder="Neue Notiz hinzufügen..."></textarea>
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="page-footer">
+            <button class="btn btn--secondary" onclick="closeNotesModal()">Abbrechen</button>
+            <button class="btn btn--primary" onclick="saveNote()">Speichern</button>
         </div>
     </div>
 </div>
@@ -67,75 +82,113 @@
 <!-- Mitglied Modal (wiederverwendbar) -->
 <div class="modal modal-s mitglied-modal" id="mitgliedModal">
     <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="modal-title">Mitglied Details</h3>
-            <button class="btn-icon" onclick="closeMitgliedModal()">
-                <svg style="width: 18px; height: 18px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
+        <!-- Modal Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Mitglied Details</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn-icon" onclick="closeMitgliedModal()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="details">Details</div>
+            </div>
         </div>
-        <div class="modal-body">
+
+        <!-- Modal Body -->
+        <div class="page-content">
             <!-- Mitglied Card (groß) -->
             <div class="mitglied-card-large" id="mitgliedCardLarge">
                 <!-- Wird dynamisch gefüllt -->
             </div>
 
             <!-- Email bearbeiten -->
-            <div class="mitglied-form-section">
-                <div class="section-title">E-Mail Adresse</div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field" style="flex: 2;">
-                        <input type="email" id="mitgliedEmail" placeholder="email@beispiel.de">
+            <div class="unterabschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-unterabschnitt">E-Mail Adresse</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                        <label class="eingabefeld-beschriftung-oben"></label>
+                        <input type="email" class="eingabefeld" id="mitgliedEmail" placeholder="email@beispiel.de">
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                    <button class="btn btn-primary btn-small" onclick="saveMitgliedEmail()" style="height: 36px;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Speichern
-                    </button>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
+                        <label class="eingabefeld-beschriftung-oben"></label>
+                        <button class="btn btn--primary" onclick="saveMitgliedEmail()">Speichern</button>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
                 </div>
             </div>
 
             <!-- Werbegebiet ändern -->
-            <div class="mitglied-form-section">
-                <div class="section-title">Werbegebiet</div>
-                <div class="mitglied-form-row">
-                    <div class="mitglied-form-field">
-                        <select id="mitgliedWerbegebiet" onchange="changeMitgliedWerbegebiet()">
+            <div class="unterabschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-unterabschnitt">Werbegebiet</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben"></label>
+                        <select class="eingabefeld" id="mitgliedWerbegebiet" onchange="changeMitgliedWerbegebiet()">
                             <!-- Wird dynamisch gefüllt -->
                         </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
             </div>
 
             <!-- E-Mail Aktionen -->
-            <div class="mitglied-form-section">
-                <div class="section-title">E-Mail senden</div>
-                <div class="mitglied-email-buttons">
-                    <button id="btnWelcomeMail" class="mitglied-email-btn welcome" onclick="sendMitgliedEmail('welcome')" title="Willkommensmail senden">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        Willkommensmail
-                    </button>
-                    <button id="btnIbanMail" class="mitglied-email-btn iban" onclick="sendMitgliedEmail('iban')" title="IBAN nachtragen Mail senden">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                        </svg>
-                        IBAN nachtragen Mail
-                    </button>
-                    <button id="btnErhoehungMail" class="mitglied-email-btn erhoehung" onclick="sendMitgliedEmail('erhoehung')" title="Erhöhungsmail senden">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                        </svg>
-                        Erhöhungsmail
-                    </button>
+            <div class="unterabschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-unterabschnitt">E-Mail senden</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben"></label>
+                        <button id="btnWelcomeMail" class="mitglied-email-btn welcome" onclick="sendMitgliedEmail('welcome')" title="Willkommensmail senden">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Willkommensmail
+                        </button>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben"></label>
+                        <button id="btnErhoehungMail" class="mitglied-email-btn erhoehung" onclick="sendMitgliedEmail('erhoehung')" title="Erhöhungsmail senden">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            Erhöhungsmail
+                        </button>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben"></label>
+                        <button id="btnIbanMail" class="mitglied-email-btn iban" onclick="sendMitgliedEmail('iban')" title="IBAN nachtragen Mail senden">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                            </svg>
+                            IBAN nachtragen
+                        </button>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeMitgliedModal()">Schließen</button>
+
+        <!-- Modal Footer -->
+        <div class="page-footer">
+            <button class="btn btn--secondary" onclick="closeMitgliedModal()">Schließen</button>
         </div>
     </div>
 </div>
@@ -143,46 +196,41 @@
 <!-- Modal für Kampagnen-Übersicht (View) -->
 <div class="modal modal-xl" id="campaignViewModal">
     <div class="modal-content">
-        <div class="modal-header">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <h2 class="modal-title">Kampagnen-Übersicht</h2>
-                <button class="header-settings-btn" onclick="openCampaignSettingsModal()" title="Kampagnen-Einstellungen">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                </button>
+        <!-- Modal Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Kampagnen-Übersicht</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn-icon" onclick="openCampaignSettingsModal()" title="Kampagnen-Einstellungen">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                    <button class="btn-icon" onclick="closeViewModal()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <button class="btn-icon" onclick="closeViewModal()">
-                <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
+            <div class="page-header-tabs" id="campaignViewTabs">
+                <div class="kw-tab active" data-tab="kw">KW-Übersicht</div>
+                <div class="kw-tab" data-tab="provision">Werbegebiete & Provision</div>
+            </div>
         </div>
-        <div class="modal-body">
-            <!-- Main Tabs -->
-            <div class="kw-tabs" id="mainViewTabs">
-                <div class="kw-tab active" onclick="switchMainTab('kw')">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    KW-Übersicht
-                </div>
-                <div class="kw-tab" onclick="switchMainTab('provision')">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    Werbegebiete & Provision
-                </div>
-            </div>
 
+        <!-- Modal Body -->
+        <div class="page-content">
             <!-- Two-Column Layout -->
             <div class="view-layout">
                 <!-- Main Content -->
                 <div class="view-main">
                     <!-- ===================== TAB 1: KW-Übersicht ===================== -->
-                    <div class="kw-tab-content active" id="tabKW">
+                    <div class="kw-tab-content active" id="tab-kw">
                         <!-- Letzte Schriebe (5+5 Grid) -->
                         <div class="info-box">
                             <div class="info-box-header" style="display: flex; align-items: center; gap: 8px;">
@@ -273,7 +321,7 @@
                     </div>
 
                     <!-- ===================== TAB 2: Werbegebiete & Provisionen ===================== -->
-                    <div class="kw-tab-content" id="tabProvision">
+                    <div class="kw-tab-content" id="tab-provision">
                         <!-- Zwei-Spalten Layout: Links Kunde/WG Auswahl, Rechts Konfiguration -->
                         <div class="wg-provision-layout">
                             <!-- Linke Spalte: Kunde & Werbegebiet Auswahl -->
@@ -793,66 +841,62 @@
 <!-- Modal für Kampagnen-Einstellungen -->
 <div class="modal modal-s" id="campaignSettingsModal">
     <div class="modal-content">
-        <div class="modal-header">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <svg style="width: 20px; height: 20px; color: var(--accent-color);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <h2 class="modal-title">Kampagnen-Einstellungen</h2>
+        <!-- Modal Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Kampagnen-Einstellungen</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn-icon" onclick="closeCampaignSettingsModal()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <button class="btn-icon" onclick="closeCampaignSettingsModal()">
-                <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="einstellungen">Einstellungen</div>
+            </div>
         </div>
-        <div class="modal-body">
-            <div class="campaign-settings-grid" id="campaignSettingsGrid">
-                <!-- Kampagnenname + Jahr -->
-                <div class="setting-row-inline" style="grid-template-columns: 2fr 1fr;">
-                    <div class="setting-col">
-                        <label class="setting-label">Kampagnenname</label>
-                        <input type="text" class="setting-input" id="editCampaignName" disabled>
-                    </div>
-                    <div class="setting-col">
-                        <label class="setting-label">Jahr</label>
-                        <input type="number" class="setting-input" id="editCampaignYear" min="2020" max="2099" disabled>
-                    </div>
-                </div>
 
-                <!-- KW-Bereich -->
-                <div class="setting-row-inline" style="grid-template-columns: 1fr 1fr;">
-                    <div class="setting-col">
-                        <label class="setting-label">Von KW</label>
-                        <input type="number" class="setting-input" id="editKwFrom" min="1" max="53" disabled>
-                    </div>
-                    <div class="setting-col">
-                        <label class="setting-label">Bis KW</label>
-                        <input type="number" class="setting-input" id="editKwTo" min="1" max="53" disabled>
-                    </div>
+        <!-- Modal Body -->
+        <div class="page-content">
+            <!-- Kampagnenname + Jahr -->
+            <div class="zeile">
+                <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                    <label class="eingabefeld-beschriftung-oben">Kampagnenname</label>
+                    <input type="text" class="eingabefeld" id="editCampaignName" disabled>
+                    <span class="eingabefeld-beschriftung-unten"></span>
                 </div>
-
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Jahr</label>
+                    <input type="number" class="eingabefeld" id="editCampaignYear" min="2020" max="2099" disabled>
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
             </div>
 
-            <!-- Aktions-Buttons -->
-            <div id="campaignSettingsActions" style="display: flex; gap: 10px; margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
-                <button id="btnEditCampaignSettings" class="btn btn-secondary" onclick="toggleCampaignEditMode()">
-                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    Bearbeiten
-                </button>
-                <button id="btnSaveCampaignSettings" class="btn btn-primary" onclick="saveCampaignSettings()" style="display: none;">
-                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Speichern
-                </button>
-                <button id="btnCancelCampaignSettings" class="btn btn-secondary" onclick="cancelCampaignEdit()" style="display: none;">
-                    Abbrechen
-                </button>
+            <!-- KW-Bereich -->
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Von KW</label>
+                    <input type="number" class="eingabefeld" id="editKwFrom" min="1" max="53" disabled>
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Bis KW</label>
+                    <input type="number" class="eingabefeld" id="editKwTo" min="1" max="53" disabled>
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
             </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="page-footer" id="campaignSettingsActions">
+            <button id="btnEditCampaignSettings" class="btn btn--secondary" onclick="toggleCampaignEditMode()">Bearbeiten</button>
+            <button id="btnCancelCampaignSettings" class="btn btn--secondary" onclick="cancelCampaignEdit()" style="display: none;">Abbrechen</button>
+            <button id="btnSaveCampaignSettings" class="btn btn--primary" onclick="saveCampaignSettings()" style="display: none;">Speichern</button>
         </div>
     </div>
 </div>
@@ -860,103 +904,101 @@
 <!-- Modal für neue Kampagne -->
 <div class="modal modal-m" id="newCampaignModal">
     <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title" id="modalTitle">Neue Kampagne</h2>
-            <button class="btn-icon" onclick="closeCampaignModal()">
-                <svg style="width: 20px; height: 20px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">Kampagnenname *</label>
-                <input type="text" class="form-input" id="campaignName" placeholder="z.B. Frühjahrs-Kampagne">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Jahr *</label>
-                <input type="number" class="form-input" id="campaignYear" placeholder="z.B. 2025" min="2020" max="2100" value="2025">
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Von KW *</label>
-                    <input type="number" class="form-input" id="kwFrom" placeholder="z.B. 10" min="1" max="53">
+        <!-- Modal Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="modalTitle">Neue Kampagne</span>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Bis KW *</label>
-                    <input type="number" class="form-input" id="kwTo" placeholder="z.B. 15" min="1" max="53">
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn-icon" onclick="closeCampaignModal()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
-
-            <p class="text-sm" style="margin-top: var(--spacing-sm);">
-                Weitere Einstellungen (Einsatzgebiete, Verträge, Mitarbeiter) können nach dem Erstellen in der Kampagnen-Detailansicht konfiguriert werden.
-            </p>
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="neu">Basis</div>
+            </div>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeCampaignModal()">Abbrechen</button>
-            <button type="button" class="btn btn-primary" id="saveCampaignBtn" onclick="saveCampaign()">Kampagne erstellen</button>
+
+        <!-- Modal Body -->
+        <div class="page-content">
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Kampagnenname *</label>
+                    <input type="text" class="eingabefeld" id="campaignName" placeholder="z.B. Frühjahrs-Kampagne">
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+            </div>
+
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Jahr *</label>
+                    <input type="number" class="eingabefeld" id="campaignYear" placeholder="z.B. 2025" min="2020" max="2100" value="2025">
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+            </div>
+
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Von KW *</label>
+                    <input type="number" class="eingabefeld" id="kwFrom" placeholder="z.B. 10" min="1" max="53">
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Bis KW *</label>
+                    <input type="number" class="eingabefeld" id="kwTo" placeholder="z.B. 15" min="1" max="53">
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+            </div>
+
+            <div class="zeile">
+                <span class="text-klein">Weitere Einstellungen (Einsatzgebiete, Verträge, Mitarbeiter) können nach dem Erstellen in der Kampagnen-Detailansicht konfiguriert werden.</span>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="page-footer">
+            <button type="button" class="btn btn--secondary" onclick="closeCampaignModal()">Abbrechen</button>
+            <button type="button" class="btn btn--primary" id="saveCampaignBtn" onclick="saveCampaign()">Kampagne erstellen</button>
         </div>
     </div>
 </div>
 
-<div class="page-container">
-    <!-- Action Toolbar -->
-    <div class="action-toolbar">
-        <div class="toolbar-left">
-            <div class="toolbar-nav-dropdown" id="statusDropdown">
-                <div class="toolbar-nav-trigger">
-                    <span id="statusDropdownText">Alle Kampagnen</span>
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-                <div class="toolbar-nav-menu">
-                    <div class="toolbar-nav-option active" data-value="" onclick="selectStatus('', 'Alle Kampagnen')">Alle Kampagnen</div>
-                    <div class="toolbar-nav-option" data-value="active" onclick="selectStatus('active', 'Aktive')">Aktive</div>
-                    <div class="toolbar-nav-option" data-value="planned" onclick="selectStatus('planned', 'Geplante')">Geplante</div>
-                    <div class="toolbar-nav-option" data-value="inactive" onclick="selectStatus('inactive', 'Inaktive')">Inaktive</div>
-                </div>
+<div class="page-container page-container--scroll">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-row">
+            <div class="page-header-links">
+                <span class="text-ueberschrift">Kampagnen</span>
             </div>
+            <div class="page-header-mitte"></div>
+            <div class="page-header-rechts"></div>
         </div>
-        <!-- Searchbar - absolut zentriert -->
-        <div class="toolbar-search">
-            <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        <div class="page-header-tabs">
+            <div class="kw-tab active" data-tab="uebersicht">Übersicht</div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Campaign Grid -->
+        <div class="campaign-grid" id="campaignGrid">
+            <!-- Campaigns will be rendered here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
             </svg>
-            <input type="search" class="toolbar-search-input" id="searchInput" name="site-search" placeholder="Kampagne suchen..." autocomplete="off">
+            <h3>Keine Kampagnen gefunden</h3>
+            <p class="text-secondary text-sm">Erstellen Sie Ihre erste Kampagne</p>
         </div>
-
-        <!-- Filter - flexibel positioniert -->
-        <div class="toolbar-filters">
-            <select class="toolbar-filter" id="statusFilter" onchange="renderCampaigns()">
-                <option value="">Alle Kampagnen</option>
-                <option value="active">Aktive</option>
-                <option value="planned">Geplante</option>
-                <option value="inactive">Inaktive</option>
-            </select>
-        </div>
-
     </div>
-
-    <div class="content-area">
-
-<!-- Campaign Grid -->
-<div class="campaign-grid" id="campaignGrid">
-    <!-- Campaigns will be rendered here -->
-</div>
-
-<!-- Empty State -->
-<div id="emptyState" class="empty-state" style="display: none;">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-    </svg>
-    <h3>Keine Kampagnen gefunden</h3>
-    <p class="text-secondary text-sm">Erstellen Sie Ihre erste Kampagne</p>
-</div>
-
-    </div><!-- Ende content-area -->
 </div><!-- Ende page-container -->
 
 <script>
@@ -1211,26 +1253,8 @@ function renderAttendanceTracker(campaignId, kw, memberId, memberName) {
 function renderCampaigns() {
     const grid = document.getElementById('campaignGrid');
     const emptyState = document.getElementById('emptyState');
-    const statusFilter = document.getElementById('statusFilter').value;
-    const searchInput = document.getElementById('searchInput');
-    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
     let filteredCampaigns = campaigns;
-
-    // Status-Filter
-    if (statusFilter) {
-        filteredCampaigns = filteredCampaigns.filter(c => {
-            const status = getCampaignStatus(c.kwFrom, c.kwTo);
-            return status === statusFilter;
-        });
-    }
-
-    // Such-Filter
-    if (searchTerm) {
-        filteredCampaigns = filteredCampaigns.filter(c => {
-            return c.name.toLowerCase().includes(searchTerm);
-        });
-    }
 
     if (filteredCampaigns.length === 0) {
         grid.style.display = 'none';
@@ -1399,26 +1423,8 @@ function getStufeLabel(stufe, showFull = false) {
 // Alle Badge-Funktionen (getInitials, getBadgeSymbolSVG, getBadgeTypeRow, getStufeBadge, createWerberBadge)
 // werden aus ../js/badge-system.js importiert
 
-// Tab-Wechsel Funktion
-function switchMainTab(tabName) {
-    // Tabs aktualisieren
-    document.querySelectorAll('#mainViewTabs .kw-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.view-main .kw-tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-
-    // Aktiven Tab setzen
-    const tabs = document.querySelectorAll('#mainViewTabs .kw-tab');
-    if (tabName === 'kw') {
-        tabs[0]?.classList.add('active');
-        document.getElementById('tabKW').classList.add('active');
-    } else if (tabName === 'provision') {
-        tabs[1]?.classList.add('active');
-        document.getElementById('tabProvision').classList.add('active');
-    }
-}
+// Tab-Initialisierung für campaignViewModal (nutzt zentrale initTabs aus main.js)
+initTabs('#campaignViewTabs .kw-tab', '.kw-tab-content');
 
 // Aktuelle KW ermitteln
 function getCurrentKW() {
@@ -1542,7 +1548,7 @@ let campaignEditMode = false;
 function toggleCampaignEditMode() {
     campaignEditMode = !campaignEditMode;
 
-    const inputs = document.querySelectorAll('#campaignSettingsGrid .setting-input');
+    const inputs = document.querySelectorAll('#campaignSettingsModal .eingabefeld');
     const btnEdit = document.getElementById('btnEditCampaignSettings');
     const btnSave = document.getElementById('btnSaveCampaignSettings');
     const btnCancel = document.getElementById('btnCancelCampaignSettings');
@@ -1566,7 +1572,7 @@ function toggleCampaignEditMode() {
 function cancelCampaignEdit() {
     campaignEditMode = false;
 
-    const inputs = document.querySelectorAll('#campaignSettingsGrid .setting-input');
+    const inputs = document.querySelectorAll('#campaignSettingsModal .eingabefeld');
     const btnEdit = document.getElementById('btnEditCampaignSettings');
     const btnSave = document.getElementById('btnSaveCampaignSettings');
     const btnCancel = document.getElementById('btnCancelCampaignSettings');
@@ -4476,9 +4482,9 @@ function editCampaign(id) {
 
 // Modal close on background click
 initModalBackdropClose('newCampaignModal', closeCampaignModal);
-
-// Status filter
-document.getElementById('statusFilter').addEventListener('change', renderCampaigns);
+initModalBackdropClose('attendanceNotesModal', closeNotesModal);
+initModalBackdropClose('mitgliedModal', closeMitgliedModal);
+initModalBackdropClose('campaignSettingsModal', closeCampaignSettingsModal);
 
 // ============================================
 // EINSATZGEBIETE & KONDITIONEN
@@ -4516,51 +4522,6 @@ const customerContracts = {
         { id: 'rv-unicef-2024', name: 'Rahmenvertrag UNICEF 2024' }
     ]
 };
-
-// ============================================
-// TOOLBAR EVENT HANDLERS
-// ============================================
-
-// Status Dropdown (Hover)
-function selectStatus(value, label) {
-    // Update trigger text with slide-up animation
-    const textEl = document.getElementById('statusDropdownText');
-
-    // Phase 1: Slide out (nach oben)
-    textEl.style.transform = 'translateY(-100%)';
-    textEl.style.opacity = '0';
-
-    setTimeout(() => {
-        // Phase 2: Text ändern und Position zurücksetzen (ohne Animation)
-        textEl.style.transition = 'none';
-        textEl.textContent = label;
-        textEl.style.transform = 'translateY(100%)';
-
-        // Force reflow
-        textEl.offsetHeight;
-
-        // Phase 3: Slide in (nach oben in Position)
-        textEl.style.transition = '';
-        textEl.style.transform = 'translateY(0)';
-        textEl.style.opacity = '1';
-    }, 150);
-
-    // Update active state
-    document.querySelectorAll('#statusDropdown .toolbar-nav-option').forEach(opt => {
-        opt.classList.toggle('active', opt.dataset.value === value);
-    });
-
-    // Status-Filter-Dropdown synchronisieren
-    document.getElementById('statusFilter').value = value;
-
-    // Kampagnen neu rendern
-    renderCampaigns();
-}
-
-// Such-Input Event
-document.getElementById('searchInput').addEventListener('input', function() {
-    renderCampaigns();
-});
 
 // Initial render
 renderCampaigns();
