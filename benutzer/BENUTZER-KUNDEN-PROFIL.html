@@ -690,12 +690,32 @@
         }
 
         // ================================================================
+        // URL PARAMETER & MODE
+        // ================================================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const isNewCustomer = urlParams.get('new') === 'true';
+        const customerId = urlParams.get('id');
+
+        // ================================================================
         // EINSATZGEBIETE
         // ================================================================
 
-        // Kundendaten (Dummy für jetzt)
-        // Demo: Landesverband mit Kreisverbänden und Ortsvereinen
-        let currentCustomer = {
+        // Kundendaten - leer wenn neuer Kunde, sonst Demo-Daten
+        let currentCustomer = isNewCustomer ? {
+            id: null,
+            organisation: 'DRK',
+            name: '',
+            type: 'kreisverband',
+            contactPerson: '',
+            contactEmail: '',
+            contactPhone: '',
+            website: '',
+            privacyPolicy: '',
+            invoiceType: 'combined',
+            areas: [],
+            contacts: [],
+            contracts: { avv: [], rahmenvertrag: [] }
+        } : {
             id: 1,
             organisation: 'DRK',
             name: 'DRK Landesverband Rheinland-Pfalz',
@@ -1489,18 +1509,41 @@
         // ================================================================
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Formularfelder mit Dummy-Daten befüllen
-            document.getElementById('organisation').value = currentCustomer.organisation || 'DRK';
-            document.getElementById('namePrefix').value = 'Landesverband';
-            document.getElementById('name').value = 'Rheinland-Pfalz';
-            document.getElementById('nameSuffix').value = 'e.V.';
-            document.getElementById('contactEmail').value = currentCustomer.contactEmail || '';
-            document.getElementById('contactPhone').value = currentCustomer.contactPhone || '';
-            document.getElementById('customerWebsite').value = currentCustomer.website || '';
-            document.getElementById('customerPrivacyPolicy').value = currentCustomer.privacyPolicy || '';
-            document.getElementById('customerName').textContent = currentCustomer.name;
-            document.getElementById('customerId').textContent = 'KD-' + String(currentCustomer.id).padStart(4, '0');
-            document.getElementById('createdDate').textContent = '15.01.2024';
+            if (isNewCustomer) {
+                // Neuer Kunde - leeres Formular
+                document.getElementById('organisation').value = 'DRK';
+                document.getElementById('namePrefix').value = 'Kreisverband';
+                document.getElementById('name').value = '';
+                document.getElementById('nameSuffix').value = 'e.V.';
+                document.getElementById('contactEmail').value = '';
+                document.getElementById('contactPhone').value = '';
+                document.getElementById('customerWebsite').value = '';
+                document.getElementById('customerPrivacyPolicy').value = '';
+                document.getElementById('customerName').textContent = 'Neuer Kunde';
+                document.getElementById('customerId').textContent = 'wird automatisch vergeben';
+                document.getElementById('createdDate').textContent = new Date().toLocaleDateString('de-DE');
+
+                // Name-Feld fokussieren
+                setTimeout(() => {
+                    document.getElementById('name')?.focus();
+                }, 100);
+            } else {
+                // Bestehender Kunde - Daten laden
+                document.getElementById('organisation').value = currentCustomer.organisation || 'DRK';
+                document.getElementById('namePrefix').value = 'Landesverband';
+                document.getElementById('name').value = 'Rheinland-Pfalz';
+                document.getElementById('nameSuffix').value = 'e.V.';
+                document.getElementById('contactEmail').value = currentCustomer.contactEmail || '';
+                document.getElementById('contactPhone').value = currentCustomer.contactPhone || '';
+                document.getElementById('customerWebsite').value = currentCustomer.website || '';
+                document.getElementById('customerPrivacyPolicy').value = currentCustomer.privacyPolicy || '';
+                document.getElementById('customerName').textContent = currentCustomer.name;
+                document.getElementById('customerId').textContent = 'KD-' + String(currentCustomer.id).padStart(4, '0');
+                document.getElementById('createdDate').textContent = '15.01.2024';
+            }
+
+            // Kundenname-Vorschau aktualisieren
+            updateCustomerNameDisplay();
 
             // Einsatzgebiete-Section nur bei KV/LV anzeigen
             const sectionEinsatzgebiete = document.getElementById('sectionEinsatzgebiete');
