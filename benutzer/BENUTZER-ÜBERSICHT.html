@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benutzer - RB Inside Office</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+</head>
+<body class="iframe-body">
+    <div class="page-container page-container--no-border">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Benutzer</span>
+                </div>
+                <div class="page-header-mitte">
+                    <span class="text-ueberschrift">Benutzerübersicht</span>
+                </div>
+                <div class="page-header-rechts"></div>
+            </div>
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="uebersicht">Übersicht</div>
+            </div>
+        </div>
+        <div class="content-area">
+            <div class="overview-view">
+                <div class="category-section">
+                    <div class="table-wrap">
+                        <div class="table-header">
+                            <div class="table-header-left">
+                                <button class="btn-toggle-all" id="toggleAllBtn" onclick="toggleAllExpand()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                    <span>Alle aufklappen</span>
+                                </button>
+                                <button class="btn-delete-selected" id="selectionBtn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                    </svg>
+                                    Ausgewählt<span class="selected-count" id="selectionCount">0</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-cell">
+                                            <input type="checkbox" class="row-checkbox" id="selectAll" onclick="TableCheckbox.toggleSelectAll(this, 'tableBody')">
+                                        </th>
+                                        <th class="sortable col-name" data-sort="name">
+                                            Benutzer
+                                            <div class="sort-arrows">
+                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-xl text-left" data-sort="email">
+                                            E-Mail
+                                            <div class="sort-arrows">
+                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-xl text-left" data-sort="herkunft">
+                                            Herkunft
+                                            <div class="sort-arrows">
+                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-s text-center" data-sort="status">
+                                            Status
+                                            <div class="sort-arrows">
+                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                            </div>
+                                        </th>
+                                        <th class="col-spacer"></th>
+                                        <th class="action-cell"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                    <!-- Wird per JS befüllt -->
+                                </tbody>
+                                <tbody id="tableTotals">
+                                    <!-- Gesamt-Zeile -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // STATE
+        // ================================================================
+        let users = [];
+        let userSort = { field: 'name', direction: 'asc' };
+        let searchTerm = '';
+        let typeFilter = 'alle'; // 'alle', 'werber', 'kunde'
+
+        // ================================================================
+        // DUMMY DATA
+        // ================================================================
+        const dummyUsers = [
+            {
+                id: '1',
+                type: 'werber',
+                name: 'Max Müller',
+                stufe: 'JMM',
+                email: 'max.mueller@rb-inside.de',
+                bundesland: 'Bayern',
+                stadt: 'München',
+                lastLogin: new Date(),
+                isOnline: true,
+                einsatzgebiete: []
+            },
+            {
+                id: '2',
+                type: 'werber',
+                name: 'Lisa Schmidt',
+                stufe: 'SPB',
+                email: 'lisa.schmidt@rb-inside.de',
+                bundesland: 'Baden-Württemberg',
+                stadt: 'Stuttgart',
+                lastLogin: new Date(Date.now() - 3600000),
+                isOnline: false,
+                einsatzgebiete: []
+            },
+            {
+                id: '3',
+                type: 'kunde',
+                name: 'DRK Kreisverband Ludwigshafen',
+                email: 'kontakt@drk-ludwigshafen.de',
+                bundesland: 'Rheinland-Pfalz',
+                stadt: 'Ludwigshafen',
+                lastLogin: new Date(Date.now() - 86400000),
+                isOnline: false,
+                einsatzgebiete: [
+                    { id: 'e1', name: 'Ludwigshafen Stadt' },
+                    { id: 'e2', name: 'Ludwigshafen Süd' }
+                ]
+            },
+            {
+                id: '4',
+                type: 'werber',
+                name: 'Thomas Weber',
+                stufe: 'KAD',
+                email: 'thomas.weber@rb-inside.de',
+                bundesland: 'Sachsen',
+                stadt: 'Dresden',
+                lastLogin: new Date(),
+                isOnline: true,
+                einsatzgebiete: []
+            },
+            {
+                id: '5',
+                type: 'kunde',
+                name: 'DRK Kreisverband Mannheim',
+                email: 'info@drk-mannheim.de',
+                bundesland: 'Baden-Württemberg',
+                stadt: 'Mannheim',
+                lastLogin: new Date(),
+                isOnline: true,
+                einsatzgebiete: [
+                    { id: 'e3', name: 'Mannheim Innenstadt' },
+                    { id: 'e4', name: 'Mannheim Neckarstadt' },
+                    { id: 'e5', name: 'Mannheim Lindenhof' }
+                ]
+            },
+            {
+                id: '6',
+                type: 'werber',
+                name: 'Anna Hoffmann',
+                stufe: 'FUE',
+                email: 'anna.hoffmann@rb-inside.de',
+                bundesland: 'Nordrhein-Westfalen',
+                stadt: 'Köln',
+                lastLogin: new Date(Date.now() - 7200000),
+                isOnline: false,
+                einsatzgebiete: []
+            }
+        ];
+
+        // ================================================================
+        // RENDER TABLE
+        // formatLastLogin() kommt aus badges-karten.js
+        // ================================================================
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const totalsBody = document.getElementById('tableTotals');
+
+            // Filter
+            let filtered = users.filter(user => {
+                // Type filter (Werber/Kunde/Alle)
+                if (typeFilter !== 'alle') {
+                    if (user.type !== typeFilter) return false;
+                }
+                // Search filter
+                if (searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    if (!user.name.toLowerCase().includes(term) &&
+                        !user.email.toLowerCase().includes(term)) return false;
+                }
+                return true;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                let valA, valB;
+                switch (userSort.field) {
+                    case 'name':
+                        valA = a.name.toLowerCase();
+                        valB = b.name.toLowerCase();
+                        break;
+                    case 'email':
+                        valA = a.email.toLowerCase();
+                        valB = b.email.toLowerCase();
+                        break;
+                    case 'herkunft':
+                        valA = a.bundesland.toLowerCase();
+                        valB = b.bundesland.toLowerCase();
+                        break;
+                    case 'status':
+                        valA = a.isOnline ? 0 : 1;
+                        valB = b.isOnline ? 0 : 1;
+                        break;
+                    default:
+                        valA = a.name.toLowerCase();
+                        valB = b.name.toLowerCase();
+                }
+
+                if (valA < valB) return userSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return userSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Count totals
+            const werberCount = filtered.filter(u => u.type === 'werber').length;
+            const kundenCount = filtered.filter(u => u.type === 'kunde').length;
+
+            // Build totals text based on filter
+            let totalsText;
+            if (typeFilter === 'werber') {
+                totalsText = werberCount + ' Werber';
+            } else if (typeFilter === 'kunde') {
+                totalsText = kundenCount + ' Kunden';
+            } else {
+                totalsText = werberCount + ' Werber, ' + kundenCount + ' Kunden';
+            }
+
+            // Render totals row
+            totalsBody.innerHTML = `
+                <tr class="totals-row">
+                    <td class="checkbox-cell"></td>
+                    <td class="col-name">${createTotalsNameCell(totalsText)}</td>
+                    <td class="col-xl text-left"></td>
+                    <td class="col-xl text-left"></td>
+                    <td class="col-s text-center"></td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
+                </tr>
+            `;
+
+            // Render user rows
+            let html = '';
+            filtered.forEach(user => {
+                const hasChildren = user.type === 'kunde' && user.einsatzgebiete && user.einsatzgebiete.length > 0;
+
+                // Badge aus zentralem System
+                const badge = createBadge({
+                    type: user.type,
+                    name: user.name,
+                    stufe: user.type === 'werber' ? user.stufe : ''
+                });
+
+                if (hasChildren) {
+                    // Kunde mit Gebieten (expandable)
+                    html += `
+                    <tr class="expandable-row" data-user-id="${user.id}" onclick="toggleExpandableRow('${user.id}')">
+                        <td class="checkbox-cell"><input type="checkbox" class="row-checkbox parent-checkbox" data-parent-id="${user.id}" onclick="event.stopPropagation(); TableCheckbox.toggleParent(this);"></td>
+                        <td class="col-name">
+                            <div class="name-cell">
+                                <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                                ${badge}
+                            </div>
+                        </td>
+                        <td class="col-xl text-left">${user.email}</td>
+                        <td class="col-xl text-left">${user.bundesland}, ${user.stadt}</td>
+                        <td class="col-s text-center">${formatLastLogin(user.lastLogin, user.isOnline)}</td>
+                        <td class="col-spacer"></td>
+                        <td class="action-cell">
+                            <div class="dropdown">
+                                <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="12" cy="5" r="1"></circle>
+                                        <circle cx="12" cy="19" r="1"></circle>
+                                    </svg>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-item" onclick="closeAllDropdowns(); editUser('${user.id}', '${user.type}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                        Bearbeiten
+                                    </div>
+                                    <div class="dropdown-item" onclick="closeAllDropdowns(); openDashboard('${user.id}', '${user.type}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                        Persönliches Dashboard
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="dropdown-item danger" onclick="closeAllDropdowns(); deleteUser('${user.id}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        Löschen
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+
+                    // Child-Rows für Gebiete
+                    user.einsatzgebiete.forEach(gebiet => {
+                        const gebietBadge = createBadge({
+                            type: 'werbegebiet',
+                            name: gebiet.name,
+                            size: 'small'
+                        });
+
+                        html += `
+                        <tr class="child-row" data-parent-id="${user.id}">
+                            <td class="checkbox-cell"><input type="checkbox" class="row-checkbox child-checkbox" data-parent-id="${user.id}" onclick="TableCheckbox.toggleChild(this);"></td>
+                            <td class="col-name">
+                                <div class="name-cell">
+                                    ${gebietBadge}
+                                </div>
+                            </td>
+                            <td class="col-xl text-left"></td>
+                            <td class="col-xl text-left"></td>
+                            <td class="col-s text-center"></td>
+                            <td class="col-spacer"></td>
+                            <td class="action-cell">
+                                <div class="dropdown">
+                                    <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="1"></circle>
+                                            <circle cx="12" cy="5" r="1"></circle>
+                                            <circle cx="12" cy="19" r="1"></circle>
+                                        </svg>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item" onclick="closeAllDropdowns(); openGebietDashboard('${gebiet.id}')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                            Persönliches Dashboard
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>`;
+                    });
+                } else {
+                    // Werber oder Kunde ohne Gebiete
+                    html += `
+                    <tr data-user-id="${user.id}">
+                        <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="event.stopPropagation();"></td>
+                        <td class="col-name">
+                            <div class="name-cell">
+                                ${badge}
+                            </div>
+                        </td>
+                        <td class="col-xl text-left">${user.email}</td>
+                        <td class="col-xl text-left">${user.bundesland}, ${user.stadt}</td>
+                        <td class="col-s text-center">${formatLastLogin(user.lastLogin, user.isOnline)}</td>
+                        <td class="col-spacer"></td>
+                        <td class="action-cell">
+                            <div class="dropdown">
+                                <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="12" cy="5" r="1"></circle>
+                                        <circle cx="12" cy="19" r="1"></circle>
+                                    </svg>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-item" onclick="closeAllDropdowns(); editUser('${user.id}', '${user.type}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                        Bearbeiten
+                                    </div>
+                                    <div class="dropdown-item" onclick="closeAllDropdowns(); openDashboard('${user.id}', '${user.type}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                        Persönliches Dashboard
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="dropdown-item danger" onclick="closeAllDropdowns(); deleteUser('${user.id}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        Löschen
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+                }
+            });
+
+            tbody.innerHTML = html;
+
+            // Toggle-Button nur anzeigen wenn es expandable rows gibt
+            const toggleBtn = document.getElementById('toggleAllBtn');
+            const hasExpandableRows = document.querySelectorAll('.expandable-row').length > 0;
+            if (toggleBtn) {
+                toggleBtn.style.display = hasExpandableRows ? 'flex' : 'none';
+            }
+        }
+
+        // ================================================================
+        // EVENT HANDLERS
+        // toggleExpandableRow(), toggleAllExpand(), updateSortState() kommen aus tabellen.js
+        // ================================================================
+
+        // ================================================================
+        // NAVIGATION FUNCTIONS
+        // toggleDropdown() und closeAllDropdowns() kommen aus tabellen.js
+        // ================================================================
+        function editUser(userId, userType) {
+            if (userType === 'werber') {
+                window.location.href = 'BENUTZER-BOTSCHAFTER-PROFIL.html?id=' + userId;
+            } else {
+                window.location.href = 'BENUTZER-KUNDEN-PROFIL.html?id=' + userId;
+            }
+        }
+
+        function openDashboard(userId, userType) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigate',
+                    url: `statistik/dashboard.html?id=${userId}&type=${userType}`,
+                    section: 'statistics'
+                }, '*');
+            } else {
+                window.location.href = `../statistik/dashboard.html?id=${userId}&type=${userType}`;
+            }
+        }
+
+        function openGebietDashboard(gebietId) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigate',
+                    url: `statistik/dashboard.html?gebiet=${gebietId}`,
+                    section: 'statistics'
+                }, '*');
+            } else {
+                window.location.href = `../statistik/dashboard.html?gebiet=${gebietId}`;
+            }
+        }
+
+        async function deleteUser(userId) {
+            const confirmed = await showConfirm('Benutzer löschen', 'Möchten Sie diesen Benutzer wirklich löschen?', 'warning');
+            if (confirmed) {
+                users = users.filter(u => u.id !== userId);
+                renderTable();
+                await showAlert('Erfolg', 'Benutzer wurde gelöscht.', 'success');
+            }
+        }
+
+        // ================================================================
+        // INITIALIZATION
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            users = [...dummyUsers];
+            renderTable();
+
+            // Selection UI registrieren
+            TableCheckbox.registerSelectionUI('tableBody', 'selectionBtn', 'selectionCount');
+            TableCheckbox.initSelectionUI();
+
+            // Attach sorting handlers
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', () => updateSortState(th.dataset.sort, userSort, renderTable));
+            });
+
+            // Listen for messages from parent shell
+            window.addEventListener('message', function(e) {
+                if (e.data && e.data.type === 'searchQuery') {
+                    searchTerm = e.data.query;
+                    renderTable();
+                }
+                if (e.data && e.data.type === 'navFilter') {
+                    typeFilter = e.data.value; // 'alle', 'werber', 'kunde'
+                    // Update page header title
+                    const labelMap = { alle: 'Benutzerübersicht', werber: 'Werber', kunde: 'Kunden' };
+                    const sectionTitle = document.querySelector('.page-header-mitte .text-ueberschrift');
+                    if (sectionTitle) {
+                        sectionTitle.textContent = labelMap[e.data.value] || 'Benutzerübersicht';
+                    }
+                    renderTable();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

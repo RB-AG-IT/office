@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backoffice - RB Inside</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/main.js"></script>
+
+    <!-- Zentrale Scripts -->
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+<body class="shell-body">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="menu-btn" id="sidebarToggle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <!-- 1. Dashboard -->
+                    <li class="nav-item">
+                        <a class="nav-link active" data-page="dashboard">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <!-- 2. Benutzer (ersetzt Kunden + Mitarbeiter) -->
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="users">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            <span>Benutzer</span>
+                        </a>
+                    </li>
+                    <!-- 4. Kampagnen -->
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="campaigns">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                            <span>Kampagnen</span>
+                        </a>
+                    </li>
+                    <!-- 5. Statistik -->
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="statistics">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span>Statistik</span>
+                        </a>
+                    </li>
+                    <!-- 9. Vorlagen -->
+                    <li class="nav-item">
+                        <a class="nav-link" data-page="templates">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Vorlagen</span>
+                        </a>
+                    </li>
+                    <!-- 15. Styles (Design System) - ROT MARKIERT -->
+                    <li class="nav-item styles-link">
+                        <a class="nav-link" href="styles/index.html" target="_blank" style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px;">
+                            <svg class="nav-icon" fill="none" stroke="#dc2626" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                            </svg>
+                            <span>Styles</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Angeheftete Items (über Footer) -->
+            <div class="sidebar-pinned">
+                <li class="nav-item">
+                    <a class="nav-link" data-page="audit-log">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Audit-Log</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="payouts">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span>Abrechnungen</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="alerts">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <span>Auffälligkeiten</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="deletion-requests">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <span>Lösch-Anfragen</span>
+                        <span class="nav-badge" id="deletionBadge" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="investments" style="opacity: 0.6;">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Investments</span>
+                        <span style="font-size: 9px; background: #f59e0b; color: white; padding: 1px 6px; border-radius: 8px; margin-left: 4px;">IDEE</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="stufen">
+                        <svg class="nav-icon" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                        <span>Stufen & Achievements</span>
+                    </a>
+                </li>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="sidebar-footer">
+                <!-- Einstellungen -->
+                <li class="nav-item">
+                    <a class="nav-link" data-page="settings">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span>Einstellungen</span>
+                    </a>
+                </li>
+            </div>
+        </aside>
+
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="page-title">Dashboard</div>
+            </div>
+            <div class="topbar-center">
+                <div class="date-info" id="topbarDateInfo"></div>
+            </div>
+            <div class="topbar-right">
+                <div class="account-menu">
+                    <div class="account-avatar">AD</div>
+                    <div class="account-info">
+                        <div class="account-name">Admin User</div>
+                        <div class="account-role">Administrator</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Persistente Action Toolbar (flackert nicht bei Navigation) -->
+        <div class="shell-action-toolbar" id="shellToolbar">
+            <!-- Left: Navigation Dropdown -->
+            <div class="toolbar-left">
+                <div class="toolbar-nav-dropdown" id="shellNavDropdown">
+                    <div class="toolbar-nav-trigger">
+                        <span id="shellNavText">Dashboard</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                    <div class="toolbar-nav-menu" id="shellNavMenu">
+                        <!-- Wird dynamisch befüllt -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zeitraum Filter - links von Searchbar -->
+            <div class="toolbar-filters-left" id="shellFiltersLeft" style="display: none;">
+                <!-- Wird dynamisch befüllt -->
+            </div>
+
+            <!-- Center: Searchbar (absolut zentriert) -->
+            <div class="toolbar-search toolbar-search-wrapper">
+                <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="search" class="toolbar-search-input" id="shellSearchInput" name="site-search" placeholder=" " autocomplete="off" data-lpignore="true" data-form-type="other" role="searchbox">
+                <span class="toolbar-search-placeholder" id="shellSearchPlaceholder">Suchen...</span>
+            </div>
+
+            <!-- Kontext Filter - rechts von Searchbar -->
+            <div class="toolbar-filters" id="shellFilters">
+                <!-- Wird dynamisch befüllt -->
+            </div>
+
+            <!-- Right: Action Buttons -->
+            <div class="toolbar-right" id="shellToolbarRight">
+                <!-- Wird dynamisch befüllt -->
+            </div>
+
+            <!-- Search Dropdown (positioned relative to toolbar) -->
+            <div class="shell-search-dropdown" id="shellSearchDropdown">
+                <div class="shell-search-dropdown-header" id="shellSearchDropdownHeader">Ergebnisse</div>
+                <div id="shellSearchResults"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="content-area">
+            <div class="content-frame no-iframe" id="content-container">
+                <!-- Content will be loaded here dynamically -->
+                <h1 style="font-size: 28px; margin-bottom: 8px; font-weight: 600;">Willkommen zurück</h1>
+                <p style="color: var(--text-secondary); font-size: 14px;">Bereit für den Start?</p>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal modal-s" id="loginModal">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift">Anmelden</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn-icon" onclick="closeLoginModal()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(); return false;" autocomplete="on">
+                <!-- Modal Body -->
+                <div class="page-content">
+                    <div class="zeile" style="justify-content: center;">
+                        <span class="text-klein">Melden Sie sich mit Ihrem Office-Konto an</span>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" for="loginEmail">E-Mail</label>
+                            <input type="email" class="eingabefeld" id="loginEmail" name="username" autocomplete="username" placeholder="ihre.email@example.com">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" for="loginPassword">Passwort</label>
+                            <input type="password" class="eingabefeld" id="loginPassword" name="password" autocomplete="current-password" placeholder="••••••••">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div id="loginError" style="display: none; padding: 12px; background: #fee2e2; color: #dc2626; border-radius: 8px; font-size: 14px;">
+                    </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="page-footer">
+                    <button type="button" class="btn btn--secondary" onclick="closeLoginModal()">Abbrechen</button>
+                    <button type="submit" class="btn btn--primary" id="loginBtn">Anmelden</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CalendarModal wird zentral aus main.js geladen -->
+
+    <script>
+        // ================================================================
+        // SUPABASE SETUP
+        // ================================================================
+        const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
+
+        // Supabase Client (überschreibt das globale 'supabase' mit unserem Client)
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Current user state
+        let currentUser = null;
+        let cachedUserProfile = null; // Cache für Profildaten (verhindert Flackern)
+
+        // ================================================================
+        // AUTH FUNCTIONS
+        // ================================================================
+
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('loginEmail').focus();
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLoginModal();
+        });
+
+        // Enter key now handled by form submit
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+
+            // Validation
+            if (!email || !password) {
+                loginError.textContent = 'Bitte E-Mail und Passwort eingeben';
+                loginError.style.display = 'block';
+                return;
+            }
+
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Anmelden...';
+            loginError.style.display = 'none';
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                // Success!
+                currentUser = data.user;
+                await updateAccountMenu();
+                closeLoginModal();
+
+                // Nach Login: Dashboard öffnen
+                window.location.hash = 'dashboard';
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelector('[data-page="dashboard"]').classList.add('active');
+                loadPage('dashboard');
+
+            } catch (error) {
+                console.error('Login error:', error);
+                loginError.textContent = error.message === 'Invalid login credentials'
+                    ? 'Ungültige E-Mail oder Passwort'
+                    : `Fehler: ${error.message}`;
+                loginError.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Anmelden';
+            }
+        }
+
+        async function handleLogout() {
+            const confirmed = await showConfirm('Abmelden', 'Möchten Sie sich wirklich abmelden?', 'question');
+            if (!confirmed) return;
+
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+
+                currentUser = null;
+                await updateAccountMenu();
+
+                // Redirect to dashboard
+                window.location.hash = 'dashboard';
+                loadPage('dashboard');
+
+            } catch (error) {
+                console.error('Logout error:', error);
+                await showAlert('Fehler', 'Fehler beim Abmelden: ' + error.message, 'error');
+            }
+        }
+
+        async function updateAccountMenu(forceRefresh = false) {
+            const accountMenu = document.querySelector('.account-menu');
+
+            if (!currentUser) {
+                // Clear cache on logout
+                cachedUserProfile = null;
+
+                // Show login button
+                accountMenu.style.cursor = 'pointer';
+                accountMenu.onclick = openLoginModal;
+                accountMenu.innerHTML = `
+                    <div class="account-avatar">
+                        <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    <div class="account-info">
+                        <div class="account-name">Anmelden</div>
+                        <div class="account-role">Nicht angemeldet</div>
+                    </div>
+                `;
+            } else {
+                // Use cached data if available and same user (prevents flicker)
+                if (cachedUserProfile && cachedUserProfile.userId === currentUser.id && !forceRefresh) {
+                    // Already showing correct profile, skip update
+                    return;
+                }
+
+                // Load user profile from database
+                const { data: userData } = await supabase
+                    .from('users')
+                    .select('name, email')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                const { data: rolesData } = await supabase
+                    .from('user_with_roles')
+                    .select('main_role')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                // Load profile photo (try multiple fields)
+                const { data: profileData, error: profileError } = await supabase
+                    .from('user_profiles')
+                    .select('photo_intern_url, photo_url, avatar_url')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                // Debug: Log profile data
+                if (profileError) {
+                    console.log('Profile photo error:', profileError.message);
+                }
+                console.log('Profile data:', profileData);
+
+                const userName = userData?.name || currentUser.email.split('@')[0];
+                const userRole = rolesData?.main_role || 'user';
+                const initials = getInitials(userName);
+                // Try multiple possible photo URL fields
+                const photoUrl = profileData?.photo_intern_url || profileData?.photo_url || profileData?.avatar_url;
+
+                // Cache the profile data
+                cachedUserProfile = {
+                    userId: currentUser.id,
+                    userName,
+                    userRole,
+                    initials,
+                    photoUrl
+                };
+
+                // Role labels (aus Base)
+                const roleLabels = {
+                    'sma': 'Starting Marketing Advisor',
+                    'ema': 'Executive Marketing Advisor',
+                    'jmm': 'Junior Marketing Manager',
+                    'junior_marketing_manager': 'Junior Marketing Manager',
+                    'emm': 'Executive Marketing Manager',
+                    'senior_marketing_manager': 'Executive Marketing Manager',
+                    'cemm': 'Chief Executive Marketing Manager',
+                    'spb': 'Spitzen Botschafter',
+                    'spitzenbotschafter': 'Spitzen Botschafter',
+                    'kad': 'Kadermanager',
+                    'kader_manager': 'Kadermanager',
+                    'fue': 'Führungsebene',
+                    'führungsebene': 'Führungsebene',
+                    'admin': 'Administrator'
+                };
+
+                const roleLabel = roleLabels[userRole] || userRole;
+
+                // Avatar HTML - use photo if available, otherwise show initials
+                const avatarHtml = photoUrl
+                    ? `<div class="account-avatar" style="background: none; overflow: hidden;"><img src="${photoUrl}" alt="${userName}" style="width: 100%; height: 100%; object-fit: cover;"></div>`
+                    : `<div class="account-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">${initials}</div>`;
+
+                // Show user info with dropdown
+                accountMenu.style.cursor = 'pointer';
+                accountMenu.onclick = null;
+                accountMenu.innerHTML = `
+                    ${avatarHtml}
+                    <div class="account-info">
+                        <div class="account-name">${userName}</div>
+                        <div class="account-role">${roleLabel}</div>
+                    </div>
+                    <button onclick="event.stopPropagation(); handleLogout();"
+                            style="margin-left: 8px; padding: 6px 12px; background: transparent; border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-secondary); cursor: pointer; font-size: 13px; transition: all 0.2s;"
+                            onmouseover="this.style.background='var(--bg-hover)'; this.style.color='var(--text-primary)';"
+                            onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)';">
+                        Abmelden
+                    </button>
+                `;
+            }
+        }
+
+        // getInitials kommt aus main.js
+
+        // Check auth state on page load
+        async function checkAuthState() {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (session) {
+                currentUser = session.user;
+            } else {
+                currentUser = null;
+            }
+
+            await updateAccountMenu();
+        }
+
+        // Listen for auth state changes (ignoriere Token-Refresh um Flackern zu verhindern)
+        supabase.auth.onAuthStateChange((event, session) => {
+            // Ignoriere Token-Refresh Events - diese ändern den User nicht
+            if (event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+                return;
+            }
+
+            if (event === 'SIGNED_IN') {
+                // Nur updaten wenn sich der User wirklich geändert hat
+                const newUserId = session?.user?.id;
+                if (currentUser?.id !== newUserId) {
+                    currentUser = session.user;
+                    updateAccountMenu(true); // Force refresh bei neuem User
+                }
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                updateAccountMenu();
+            }
+        });
+
+        // ================================================================
+        // NAVIGATION
+        // ================================================================
+
+        // Sidebar Toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const container = document.querySelector('.app-container');
+            container.classList.toggle('expanded');
+
+            // Nach der Transition den iframe-Inhalt neu berechnen lassen
+            setTimeout(() => {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.dispatchEvent(new Event('resize'));
+                }
+            }, 350); // Etwas länger als die 0.3s Transition
+        });
+
+        // Navigation Handler
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Externe Links (mit href) normal behandeln
+                if (this.hasAttribute('href')) {
+                    return;
+                }
+
+                e.preventDefault();
+
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+                // Add active class to clicked link
+                this.classList.add('active');
+
+                // Get page name
+                const page = this.getAttribute('data-page');
+
+                // Set URL hash
+                window.location.hash = page;
+
+                // Sidebar automatisch schließen
+                document.querySelector('.app-container').classList.remove('expanded');
+
+                // Load content
+                loadPage(page);
+            });
+        });
+
+        // ================================================================
+        // SHELL TOOLBAR CONFIGURATION
+        // ================================================================
+
+        const toolbarConfig = {
+            dashboard: {
+                showToolbar: false
+            },
+            users: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'alle', label: 'Alle Benutzer', active: true },
+                    { value: 'werber', label: 'Werber' },
+                    { value: 'kunde', label: 'Kunden' }
+                ],
+                stufenFilter: true,
+                searchPlaceholder: 'Benutzer suchen...',
+                actionBtn: { text: 'Benutzer anlegen', icon: 'plus' }
+            },
+            campaigns: {
+                showToolbar: true,
+                navOptions: [
+                    { value: '', label: 'Alle Kampagnen', active: true },
+                    { value: 'active', label: 'Aktive' },
+                    { value: 'planned', label: 'Geplante' },
+                    { value: 'inactive', label: 'Inaktive' }
+                ],
+                searchPlaceholder: 'Kampagne suchen...',
+                actionBtn: { text: 'Neue Kampagne', icon: 'plus', action: 'add' }
+            },
+            statistics: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'werber', label: 'Werber', active: true },
+                    { value: 'kunden', label: 'Kunden / Gebiete' },
+                    { value: 'kampagnen', label: 'Kampagnen' }
+                ],
+                periodFilter: [
+                    { value: 'custom', label: 'Individuell' },
+                    { value: 'today', label: 'Heute' },
+                    { value: 'week', label: 'Diese Woche' },
+                    { value: 'month', label: 'Dieser Monat' },
+                    { value: 'quarter', label: 'Dieses Quartal' },
+                    { value: 'year', label: 'Dieses Jahr', selected: true },
+                    { value: 'all', label: 'Gesamt' }
+                ],
+                searchPlaceholder: 'Statistik suchen...',
+                actionBtn: { text: 'Export', icon: 'download' }
+            },
+            records: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'werber', label: 'Werber', active: true },
+                    { value: 'kunden', label: 'Kunden / Gebiete' },
+                    { value: 'kampagnen', label: 'Kampagnen' }
+                ],
+                periodFilter: [
+                    { value: 'custom', label: 'Individuell' },
+                    { value: 'today', label: 'Heute' },
+                    { value: 'week', label: 'Diese Woche' },
+                    { value: 'month', label: 'Dieser Monat' },
+                    { value: 'quarter', label: 'Dieses Quartal' },
+                    { value: 'year', label: 'Dieses Jahr', selected: true },
+                    { value: 'all', label: 'Gesamt' }
+                ],
+                searchPlaceholder: 'Datensätze suchen...',
+                actionButtons: [
+                    { id: 'import', text: 'Import', icon: 'download', action: 'openImportModal' },
+                    { id: 'export', text: 'Export', icon: 'upload', action: 'openExportModal', primary: true }
+                ]
+            },
+            payouts: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'gesamt', label: 'Gesamtübersicht', active: true },
+                    { value: 'drk', label: 'DRK Abrechnungen' },
+                    { value: 'werber', label: 'Werber Abrechnungen' }
+                ],
+                searchPlaceholder: 'Abrechnungen suchen...',
+                actionBtn: { text: 'Export', icon: 'download' }
+            },
+            'audit-log': {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'dashboard', label: 'Dashboard', active: true },
+                    { value: 'mitglieder', label: 'Mitglieder' }
+                ],
+                searchPlaceholder: 'Log durchsuchen...'
+            },
+            alerts: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'alle', label: 'Alle', active: true },
+                    { value: 'kritisch', label: 'Kritisch' },
+                    { value: 'warnung', label: 'Warnung' },
+                    { value: 'geloest', label: 'Gelöst' }
+                ],
+                searchPlaceholder: 'Auffälligkeiten suchen...',
+                actionBtn: { text: 'Export', icon: 'download' }
+            },
+            'deletion-requests': {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'alle', label: 'Alle', active: true },
+                    { value: 'offen', label: 'Offen' },
+                    { value: 'bearbeitet', label: 'Bearbeitet' },
+                    { value: 'abgelehnt', label: 'Abgelehnt' }
+                ],
+                searchPlaceholder: 'Löschanfragen suchen...'
+            },
+            templates: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'preisvorlagen', label: 'Preisvorlagen', active: true },
+                    { value: 'email', label: 'E-Mail Vorlagen' }
+                ],
+                searchPlaceholder: 'Vorlagen suchen...',
+                actionBtn: { text: 'Neue Vorlage', icon: 'plus' }
+            },
+            info: {
+                showToolbar: false
+            },
+            test: {
+                showToolbar: false
+            }
+        };
+
+        let currentShellNav = null;
+
+        function updateShellToolbar(page) {
+            const config = toolbarConfig[page];
+            const toolbar = document.getElementById('shellToolbar');
+            const toolbarRight = document.getElementById('shellToolbarRight');
+
+            if (!config || !config.showToolbar) {
+                toolbar.style.display = 'none';
+                return;
+            }
+
+            toolbar.style.display = 'flex';
+
+            // Update Nav Dropdown with animation
+            if (config.navOptions) {
+                const navText = document.getElementById('shellNavText');
+                const navMenu = document.getElementById('shellNavMenu');
+                const activeOption = config.navOptions.find(o => o.active && o.value !== 'divider') || config.navOptions[0];
+
+                // Slide-up animation for nav text
+                if (currentShellNav !== page) {
+                    navText.style.transition = 'none';
+                    navText.style.transform = 'translateY(100%)';
+                    navText.style.opacity = '0';
+                    navText.offsetHeight; // Force reflow
+                    navText.style.transition = '';
+
+                    setTimeout(() => {
+                        navText.textContent = activeOption.label;
+                        navText.style.transform = 'translateY(0)';
+                        navText.style.opacity = '1';
+                    }, 50);
+                }
+
+                // Build menu options (with divider support)
+                navMenu.innerHTML = config.navOptions.map(opt => {
+                    if (opt.value === 'divider') {
+                        return '<div class="toolbar-nav-divider"></div>';
+                    }
+                    return `<div class="toolbar-nav-option${opt.active ? ' active' : ''}"
+                          data-value="${opt.value}"
+                          onclick="selectShellNavOption('${opt.value}', '${opt.label}')">${opt.label}</div>`;
+                }).join('');
+
+                currentShellNav = page;
+            }
+
+            // Update Search placeholder with animation
+            const searchPlaceholder = document.getElementById('shellSearchPlaceholder');
+            if (config.searchPlaceholder && searchPlaceholder.textContent !== config.searchPlaceholder) {
+                // Slide out
+                searchPlaceholder.classList.add('slide-out');
+
+                setTimeout(() => {
+                    // Change text and prepare slide in
+                    searchPlaceholder.textContent = config.searchPlaceholder;
+                    searchPlaceholder.classList.remove('slide-out');
+                    searchPlaceholder.classList.add('slide-in');
+
+                    // Force reflow
+                    searchPlaceholder.offsetHeight;
+
+                    // Slide in
+                    setTimeout(() => {
+                        searchPlaceholder.classList.remove('slide-in');
+                    }, 20);
+                }, 150);
+            }
+
+            // Update Action Buttons with text-only animation
+            const existingButtons = toolbarRight.querySelectorAll('.toolbar-btn');
+            let newButtonsConfig = [];
+
+            if (config.actionButtons && config.actionButtons.length > 0) {
+                newButtonsConfig = config.actionButtons;
+            } else if (config.actionBtn) {
+                newButtonsConfig = [{ ...config.actionBtn, primary: true }];
+            }
+
+            // Same number of buttons = animate text only, update icon instantly
+            if (existingButtons.length === newButtonsConfig.length && existingButtons.length > 0) {
+                existingButtons.forEach((btn, i) => {
+                    const span = btn.querySelector('span');
+                    const svgPath = btn.querySelector('svg path');
+                    const newText = newButtonsConfig[i].text;
+                    const newIcon = getIconPath(newButtonsConfig[i].icon);
+
+                    // Animate text if changed
+                    if (span && span.textContent !== newText) {
+                        btn.classList.add('slide-out');
+
+                        setTimeout(() => {
+                            span.textContent = newText;
+                            // Update icon silently
+                            if (svgPath) svgPath.setAttribute('d', newIcon);
+                            btn.classList.remove('slide-out');
+                            btn.classList.add('slide-in');
+
+                            btn.offsetHeight;
+                            setTimeout(() => {
+                                btn.classList.remove('slide-in');
+                            }, 20);
+                        }, 150);
+                    } else if (svgPath) {
+                        // Just update icon if text is same
+                        svgPath.setAttribute('d', newIcon);
+                    }
+
+                    // Update action
+                    btn.onclick = () => shellToolbarAction(newButtonsConfig[i].action || 'default');
+                });
+            } else {
+                // Different number of buttons - animate content only, not container position
+                const existingBtns = toolbarRight.querySelectorAll('.toolbar-btn');
+
+                // Phase 1: Slide out existing button content
+                existingBtns.forEach(btn => btn.classList.add('slide-out'));
+
+                setTimeout(() => {
+                    // Phase 2: Replace with new buttons (already with slide-in class)
+                    const newButtonsHtml = newButtonsConfig.map(btn => {
+                        const iconPath = getIconPath(btn.icon);
+                        const primaryClass = btn.primary ? ' toolbar-btn-primary' : '';
+                        return `<button class="toolbar-btn${primaryClass} slide-in" onclick="shellToolbarAction('${btn.action || 'default'}')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
+                            </svg>
+                            <span>${btn.text}</span>
+                        </button>`;
+                    }).join('');
+
+                    toolbarRight.innerHTML = newButtonsHtml;
+
+                    // Force reflow
+                    toolbarRight.offsetHeight;
+
+                    // Phase 3: Slide in new content
+                    setTimeout(() => {
+                        toolbarRight.querySelectorAll('.toolbar-btn').forEach(btn => {
+                            btn.classList.remove('slide-in');
+                        });
+                    }, 20);
+                }, 150);
+            }
+
+            // Update Period Filter (links von Searchbar)
+            const filtersLeft = document.getElementById('shellFiltersLeft');
+            if (config.periodFilter) {
+                filtersLeft.style.display = 'flex';
+                const selectedOpt = config.periodFilter.find(opt => opt.selected) || config.periodFilter[0];
+                filtersLeft.innerHTML = `
+                    <div class="toolbar-nav-dropdown toolbar-nav-click" id="shellPeriodDropdown">
+                        <div class="toolbar-nav-trigger" onclick="toggleShellPeriodDropdown()">
+                            <span id="shellPeriodDropdownText">${selectedOpt.label}</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="toolbar-nav-menu">
+                            ${config.periodFilter.map(opt =>
+                                `<div class="toolbar-nav-option${opt.selected ? ' active' : ''}" data-value="${opt.value}" onclick="selectShellPeriod('${opt.value}', '${opt.label}')">${opt.label}</div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                filtersLeft.style.display = 'none';
+                filtersLeft.innerHTML = '';
+            }
+
+            // Update Stufen Filter (rechts von Searchbar)
+            const filtersRight = document.getElementById('shellFilters');
+            if (config.stufenFilter) {
+                filtersRight.style.display = 'flex';
+                filtersRight.innerHTML = `
+                    <div class="toolbar-nav-dropdown toolbar-nav-click multi-select" id="shellStufenDropdown">
+                        <div class="toolbar-nav-trigger" onclick="toggleShellStufenDropdown()">
+                            <span id="shellStufenDropdownText">Alle Stufen</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        <div class="toolbar-nav-menu stufen-menu">
+                            <div class="toolbar-nav-option stufen-option active" data-value="all" onclick="toggleStufenOption(this, 'all')">
+                                <span class="stufen-check">✓</span> Alle Stufen
+                            </div>
+                            <div class="stufen-divider"></div>
+                            <div class="toolbar-nav-option stufen-option" data-value="SMA" onclick="toggleStufenOption(this, 'SMA')">
+                                <span class="stufen-check">✓</span>
+                                <span class="stufen-label stufen-label-sma">SMA</span>
+                                <span class="stufen-label-name">Starting Marketing Advisor</span>
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="EMA" onclick="toggleStufenOption(this, 'EMA')">
+                                <span class="stufen-check">✓</span>
+                                <span class="stufen-label stufen-label-ema">EMA</span>
+                                <span class="stufen-label-name">Executive Marketing Advisor</span>
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="JMM" onclick="toggleStufenOption(this, 'JMM')">
+                                <span class="stufen-check">✓</span>
+                                <span class="stufen-label stufen-label-jmm">JMM</span>
+                                <span class="stufen-label-name">Junior Marketing Manager</span>
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="EMM" onclick="toggleStufenOption(this, 'EMM')">
+                                <span class="stufen-check">✓</span>
+                                <span class="stufen-label stufen-label-emm">EMM</span>
+                                <span class="stufen-label-name">Executive Marketing Manager</span>
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="CEMM" onclick="toggleStufenOption(this, 'CEMM')">
+                                <span class="stufen-check">✓</span>
+                                <span class="stufen-label stufen-label-cemm">CEMM</span>
+                                <span class="stufen-label-name">Chief Executive Marketing Manager</span>
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="SPB" onclick="toggleStufenOption(this, 'SPB')">
+                                <span class="stufen-check">✓</span>
+                                <span class="stufen-label stufen-label-spb">SPB</span>
+                                <span class="stufen-label-name">Spitzenbotschafter</span>
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="KAD" onclick="toggleStufenOption(this, 'KAD')">
+                                <span class="stufen-check">✓</span>
+                                <span class="stufen-label stufen-label-kad">KAD</span>
+                                <span class="stufen-label-name">Kadermanager</span>
+                            </div>
+                            <div class="toolbar-nav-option stufen-option" data-value="FUE" onclick="toggleStufenOption(this, 'FUE')">
+                                <span class="stufen-check">✓</span>
+                                <span class="stufen-label stufen-label-fue">FUE</span>
+                                <span class="stufen-label-name">Führungsebene</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                filtersRight.style.display = 'none';
+                filtersRight.innerHTML = '';
+            }
+        }
+
+        // Icon path helper
+        function getIconPath(icon) {
+            const icons = {
+                'plus': 'M12 4v16m8-8H4',
+                'download': 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4',
+                'upload': 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12',
+                'export': 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+            };
+            return icons[icon] || icons['plus'];
+        }
+
+        // Toolbar action handler - forwards to iframe
+        function shellToolbarAction(action) {
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'toolbarAction', action: action }, '*');
+            }
+        }
+
+        function selectShellNavOption(value, label) {
+            const navText = document.getElementById('shellNavText');
+
+            // Slide-up animation
+            navText.style.transform = 'translateY(-100%)';
+            navText.style.opacity = '0';
+
+            setTimeout(() => {
+                navText.style.transition = 'none';
+                navText.textContent = label;
+                navText.style.transform = 'translateY(100%)';
+                navText.offsetHeight;
+                navText.style.transition = '';
+                navText.style.transform = 'translateY(0)';
+                navText.style.opacity = '1';
+            }, 150);
+
+            // Update active state
+            document.querySelectorAll('#shellNavMenu .toolbar-nav-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.value === value);
+            });
+
+            // Send message to iframe to filter
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'navFilter', value: value }, '*');
+            }
+        }
+
+        // Shell Period Dropdown Toggle (Click-based)
+        function toggleShellPeriodDropdown() {
+            const dropdown = document.getElementById('shellPeriodDropdown');
+            if (dropdown) dropdown.classList.toggle('open');
+        }
+
+        // Shell Period Dropdown - Option auswählen
+        function selectShellPeriod(value, label) {
+            const dropdown = document.getElementById('shellPeriodDropdown');
+            const textEl = document.getElementById('shellPeriodDropdownText');
+
+            // Slide-Up Animation
+            textEl.style.transform = 'translateY(-100%)';
+            textEl.style.opacity = '0';
+
+            setTimeout(() => {
+                textEl.style.transition = 'none';
+                textEl.textContent = label;
+                textEl.style.transform = 'translateY(100%)';
+                textEl.offsetHeight;
+                textEl.style.transition = '';
+                textEl.style.transform = 'translateY(0)';
+                textEl.style.opacity = '1';
+            }, 150);
+
+            // Update active state
+            document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.value === value);
+            });
+
+            // Close dropdown
+            dropdown.classList.remove('open');
+
+            // Send message to iframe
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'periodFilter', value: value }, '*');
+            }
+
+            // Handle "Individuell" - Kalender-Modal öffnen
+            if (value === 'custom') {
+                openShellCalendarModal();
+            }
+        }
+
+        // Shell Stufen Dropdown Toggle
+        function toggleShellStufenDropdown() {
+            const dropdown = document.getElementById('shellStufenDropdown');
+            if (dropdown) dropdown.classList.toggle('open');
+        }
+
+        // Track selected stufen
+        let selectedStufen = ['all'];
+
+        // Toggle Stufen Option
+        function toggleStufenOption(el, value) {
+            event.stopPropagation();
+
+            if (value === 'all') {
+                // Select "Alle" and deselect others
+                selectedStufen = ['all'];
+                document.querySelectorAll('#shellStufenDropdown .stufen-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === 'all');
+                });
+            } else {
+                // Deselect "Alle" and toggle this option
+                const allOption = document.querySelector('#shellStufenDropdown .stufen-option[data-value="all"]');
+                allOption.classList.remove('active');
+                selectedStufen = selectedStufen.filter(s => s !== 'all');
+
+                if (el.classList.contains('active')) {
+                    el.classList.remove('active');
+                    selectedStufen = selectedStufen.filter(s => s !== value);
+                } else {
+                    el.classList.add('active');
+                    selectedStufen.push(value);
+                }
+
+                // If nothing selected, select "Alle"
+                if (selectedStufen.length === 0) {
+                    selectedStufen = ['all'];
+                    allOption.classList.add('active');
+                }
+            }
+
+            // Update text
+            const textEl = document.getElementById('shellStufenDropdownText');
+            if (selectedStufen.includes('all')) {
+                textEl.textContent = 'Alle Stufen';
+            } else if (selectedStufen.length === 1) {
+                textEl.textContent = selectedStufen[0];
+            } else {
+                textEl.textContent = `${selectedStufen.length} Stufen`;
+            }
+
+            // Send to iframe
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'stufenFilter', stufen: selectedStufen }, '*');
+            }
+
+            // Handle "Individuell" - Kalender-Modal öffnen
+            if (value === 'custom') {
+                openShellCalendarModal();
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('shellPeriodDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        // Listen for messages from iframe
+        window.addEventListener('message', function(e) {
+            // Update shell period filter text when custom date range is applied
+            if (e.data && e.data.type === 'customDateRangeApplied') {
+                const textEl = document.getElementById('shellPeriodDropdownText');
+                if (textEl) {
+                    textEl.textContent = e.data.dateRangeText;
+                }
+                // Also update the dropdown option text
+                const customOption = document.querySelector('#shellPeriodDropdown .toolbar-nav-option[data-value="custom"]');
+                if (customOption) {
+                    customOption.textContent = e.data.dateRangeText;
+                }
+                // Update active state
+                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === 'custom');
+                });
+            }
+            // Update shell when period changed from iframe (e.g. returning from dashboard)
+            if (e.data && e.data.type === 'periodChanged') {
+                const textEl = document.getElementById('shellPeriodDropdownText');
+                const option = document.querySelector(`#shellPeriodDropdown .toolbar-nav-option[data-value="${e.data.value}"]`);
+                if (textEl && option) {
+                    textEl.textContent = option.textContent;
+                }
+                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === e.data.value);
+                });
+            }
+            // Update shell when category changed from iframe (e.g. returning from dashboard)
+            if (e.data && e.data.type === 'navFilterChanged') {
+                const textEl = document.getElementById('shellNavDropdownText');
+                const option = document.querySelector(`#shellNavDropdown .toolbar-nav-option[data-value="${e.data.value}"]`);
+                if (textEl && option) {
+                    textEl.textContent = option.textContent;
+                }
+                document.querySelectorAll('#shellNavDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === e.data.value);
+                });
+            }
+            // Dynamic toolbar registration from iframe (for Import/Export buttons etc.)
+            if (e.data && e.data.type === 'registerToolbar') {
+                updateToolbarFromIframe(e.data.config);
+            }
+            // Toolbar update request from iframe (for sub-pages like dashboard)
+            if (e.data && e.data.type === 'updateToolbar') {
+                const config = e.data.config;
+                if (config) {
+                    const toolbar = document.getElementById('shellToolbar');
+                    const searchPlaceholder = document.getElementById('shellSearchPlaceholder');
+
+                    if (config.showToolbar) {
+                        toolbar.style.display = 'flex';
+                        if (config.searchPlaceholder && searchPlaceholder) {
+                            searchPlaceholder.textContent = config.searchPlaceholder;
+                        }
+                    } else {
+                        toolbar.style.display = 'none';
+                    }
+                }
+            }
+        });
+
+        // Update toolbar dynamically based on iframe registration
+        function updateToolbarFromIframe(config) {
+            const toolbarRight = document.getElementById('shellToolbarRight');
+            if (!toolbarRight) return;
+
+            // Update action buttons if provided
+            if (config.actionButtons && config.actionButtons.length > 0) {
+                const existingButtons = toolbarRight.querySelectorAll('.toolbar-btn');
+
+                // Animate out existing buttons
+                existingButtons.forEach(btn => btn.classList.add('slide-out'));
+
+                setTimeout(() => {
+                    const newButtonsHtml = config.actionButtons.map(btn => {
+                        const iconPath = getIconPath(btn.icon);
+                        const primaryClass = btn.primary ? ' toolbar-btn-primary' : '';
+                        return `<button class="toolbar-btn${primaryClass} slide-in" onclick="shellToolbarAction('${btn.action || 'default'}')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
+                            </svg>
+                            <span>${btn.text}</span>
+                        </button>`;
+                    }).join('');
+
+                    toolbarRight.innerHTML = newButtonsHtml;
+                    toolbarRight.offsetHeight; // Force reflow
+
+                    setTimeout(() => {
+                        toolbarRight.querySelectorAll('.toolbar-btn').forEach(btn => {
+                            btn.classList.remove('slide-in');
+                        });
+                    }, 20);
+                }, 150);
+            }
+
+            // Update search placeholder if provided
+            if (config.searchPlaceholder) {
+                const searchPlaceholder = document.getElementById('shellSearchPlaceholder');
+                if (searchPlaceholder && searchPlaceholder.textContent !== config.searchPlaceholder) {
+                    searchPlaceholder.classList.add('slide-out');
+                    setTimeout(() => {
+                        searchPlaceholder.textContent = config.searchPlaceholder;
+                        searchPlaceholder.classList.remove('slide-out');
+                        searchPlaceholder.classList.add('slide-in');
+                        searchPlaceholder.offsetHeight;
+                        setTimeout(() => searchPlaceholder.classList.remove('slide-in'), 20);
+                    }, 150);
+                }
+            }
+
+            // Update nav dropdown if provided
+            if (config.navDropdown) {
+                const navText = document.getElementById('shellNavText');
+                const navMenu = document.getElementById('shellNavMenu');
+                const activeOption = config.navDropdown.find(o => o.selected) || config.navDropdown[0];
+
+                if (navText) navText.textContent = activeOption.label;
+                if (navMenu) {
+                    navMenu.innerHTML = config.navDropdown.map(opt =>
+                        `<div class="toolbar-nav-option${opt.selected ? ' active' : ''}"
+                              data-value="${opt.value}"
+                              onclick="selectShellNavOption('${opt.value}', '${opt.label}')">${opt.label}</div>`
+                    ).join('');
+                }
+            }
+        }
+
+        function loadPage(page) {
+            const container = document.getElementById('content-container');
+
+            // Page URLs mapping
+            const pages = {
+                dashboard: 'dashboard/',
+                users: 'benutzer/',
+                campaigns: 'kampagnen/',
+                alerts: 'auffaelligkeiten/',
+                statistics: 'statistik/',
+                payouts: 'abrechnungen/',
+                investments: 'investments/',
+                templates: 'vorlagen/',
+                'audit-log': 'audit-log/',
+                stufen: 'stufen/',
+                'deletion-requests': 'loeschanfragen/',
+                settings: 'settings.html',
+                info: 'info/',
+                test: 'test/'
+            };
+
+            // Page titles mapping
+            const pageTitles = {
+                dashboard: 'Dashboard',
+                users: 'Benutzer',
+                campaigns: 'Kampagnen',
+                alerts: 'Auffälligkeiten',
+                statistics: 'Statistik',
+                payouts: 'Abrechnungen',
+                investments: 'Investments',
+                templates: 'Vorlagen',
+                'audit-log': 'Audit-Log',
+                stufen: 'Stufen & Achievements',
+                'deletion-requests': 'Lösch-Anfragen',
+                settings: 'Einstellungen'
+            };
+
+            // Update topbar title
+            const titleElement = document.querySelector('.topbar .page-title');
+            if (titleElement && pageTitles[page]) {
+                titleElement.textContent = pageTitles[page];
+            }
+
+            // Update shell toolbar
+            updateShellToolbar(page);
+
+            // Check if user is logged in
+            if (!currentUser) {
+                document.getElementById('shellToolbar').style.display = 'none';
+                container.classList.add('no-iframe');
+                container.innerHTML = `
+                    <div style="text-align: center; max-width: 400px; margin: 0 auto;">
+                        <svg style="width: 64px; height: 64px; margin: 0 auto 24px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <h1 style="font-size: 24px; margin-bottom: 12px; font-weight: 600;">Anmeldung erforderlich</h1>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">Bitte melden Sie sich an, um auf diese Seite zuzugreifen.</p>
+                        <button onclick="openLoginModal()" class="btn btn-primary">Jetzt anmelden</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Load page in iframe
+            if (pages[page]) {
+                container.classList.remove('no-iframe');
+                container.innerHTML = `<iframe src="${pages[page]}"></iframe>`;
+            } else {
+                container.classList.add('no-iframe');
+                container.innerHTML = '<h1 style="font-size: 28px; margin-bottom: 8px; font-weight: 600;">Seite nicht gefunden</h1><p style="color: var(--text-secondary); font-size: 14px;">Die angeforderte Seite konnte nicht geladen werden.</p>';
+            }
+        }
+
+        // ================================================================
+        // DATE INFO
+        // ================================================================
+
+        function updateTopbarDate() {
+            const dateElement = document.getElementById('topbarDateInfo');
+            if (!dateElement) return;
+
+            const now = new Date();
+            const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+            const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+            const dayName = days[now.getDay()];
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+
+            // Calculate KW (ISO week number)
+            const tempDate = new Date(now.getTime());
+            tempDate.setHours(0, 0, 0, 0);
+            tempDate.setDate(tempDate.getDate() + 3 - (tempDate.getDay() + 6) % 7);
+            const week1 = new Date(tempDate.getFullYear(), 0, 4);
+            const kw = 1 + Math.round(((tempDate.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+
+            dateElement.textContent = `${dayName} | ${day}. ${month} | ${year} | KW ${kw}`;
+        }
+
+        // ================================================================
+        // INITIALIZATION
+        // ================================================================
+
+        // Load page based on URL hash on page load
+        window.addEventListener('DOMContentLoaded', async function() {
+            // Update date in topbar
+            updateTopbarDate();
+
+            // Check auth state first
+            await checkAuthState();
+
+            const hash = window.location.hash.substring(1); // Remove #
+
+            if (hash && document.querySelector(`[data-page="${hash}"]`)) {
+                // Remove active from all
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+                // Set active on hash page
+                const navLink = document.querySelector(`[data-page="${hash}"]`);
+                if (navLink) {
+                    navLink.classList.add('active');
+                    loadPage(hash);
+                }
+            }
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.substring(1);
+
+            if (hash && document.querySelector(`[data-page="${hash}"]`)) {
+                // Remove active from all
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+                // Set active on hash page
+                const navLink = document.querySelector(`[data-page="${hash}"]`);
+                if (navLink) {
+                    navLink.classList.add('active');
+                    loadPage(hash);
+                }
+            }
+        });
+
+        // ================================================================
+        // SEARCH FUNCTIONALITY
+        // ================================================================
+        const shellSearchInput = document.getElementById('shellSearchInput');
+        const shellSearchDropdown = document.getElementById('shellSearchDropdown');
+        const shellSearchResults = document.getElementById('shellSearchResults');
+        const shellSearchDropdownHeader = document.getElementById('shellSearchDropdownHeader');
+        let searchTimeout;
+
+        shellSearchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'searchQuery', query: query }, '*');
+                }
+            }, 150);
+        });
+
+        // Bei Enter: Suche ausführen und Fokus entfernen
+        shellSearchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = e.target.value.trim();
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'searchQuery', query: query }, '*');
+                }
+                // Fokus entfernen
+                shellSearchInput.blur();
+            }
+        });
+
+        // Bei Blur: Suchtext NICHT löschen, nur Dropdown schließen
+        shellSearchInput.addEventListener('blur', function() {
+            setTimeout(() => {
+                closeShellSearchDropdown();
+            }, 200);
+        });
+
+        function closeShellSearchDropdown() {
+            shellSearchDropdown.classList.remove('active');
+        }
+
+        function showShellSearchResults(data) {
+            if (!data || !data.results || data.results.length === 0) {
+                if (data && data.query && data.query.length > 0) {
+                    shellSearchDropdownHeader.textContent = data.headerText || 'Ergebnisse';
+                    shellSearchResults.innerHTML = '<div class="shell-search-no-results">Keine Ergebnisse gefunden</div>';
+                    shellSearchDropdown.classList.add('active');
+                } else {
+                    closeShellSearchDropdown();
+                }
+                return;
+            }
+
+            shellSearchDropdownHeader.textContent = data.headerText || 'Ergebnisse';
+            shellSearchResults.innerHTML = data.results.map(item =>
+                `<div class="shell-search-result-item" onclick="handleShellSearchSelect(${item.id}, '${item.name.replace(/'/g, "\\'")}')">${item.name}</div>`
+            ).join('');
+            shellSearchDropdown.classList.add('active');
+        }
+
+        function handleShellSearchSelect(id, name) {
+            closeShellSearchDropdown();
+            shellSearchInput.value = '';
+
+            // Tell iframe to navigate to selected item
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'searchSelect', id: id, name: name }, '*');
+            }
+        }
+
+        // Listen for messages from iframe
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'searchResults') {
+                showShellSearchResults(e.data);
+            }
+            // Navigation request from iframe
+            if (e.data && e.data.type === 'navigate') {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe) {
+                    // Store the return page before navigating
+                    const currentHash = window.location.hash.substring(1);
+                    if (currentHash && !e.data.url.includes('returnTo=')) {
+                        // Add returnTo parameter so we know where to go back
+                        const separator = e.data.url.includes('?') ? '&' : '?';
+                        iframe.src = e.data.url + separator + 'returnTo=' + currentHash;
+                    } else {
+                        iframe.src = e.data.url;
+                    }
+                }
+                // Update active nav item if section specified
+                if (e.data.section) {
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove('active');
+                        if (item.dataset.section === e.data.section) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            }
+            // Back navigation request from iframe
+            if (e.data && e.data.type === 'navigateBack') {
+                const returnTo = e.data.returnTo;
+                if (returnTo && document.querySelector(`[data-page="${returnTo}"]`)) {
+                    window.location.hash = returnTo;
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    document.querySelector(`[data-page="${returnTo}"]`).classList.add('active');
+                    loadPage(returnTo);
+                } else {
+                    // Fallback: go to previous history entry
+                    history.back();
+                }
+            }
+        });
+
+        // ================================================================
+        // SHELL CALENDAR MODAL
+        // ================================================================
+
+        // Shell Kalender nutzt zentrales CalendarModal aus main.js
+        function openShellCalendarModal() {
+            CalendarModal.open((fromInput, toInput, dateRangeText) => {
+                // Update dropdown text
+                document.getElementById('shellPeriodDropdownText').textContent = dateRangeText;
+
+                // Update active state
+                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === 'custom');
+                });
+
+                // Update option text
+                const customOption = document.querySelector('#shellPeriodDropdown .toolbar-nav-option[data-value="custom"]');
+                if (customOption) customOption.textContent = dateRangeText;
+
+                // Send to iframe
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        type: 'customDateRangeApplied',
+                        dateRangeText: dateRangeText,
+                        dateFrom: fromInput,
+                        dateTo: toInput
+                    }, '*');
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

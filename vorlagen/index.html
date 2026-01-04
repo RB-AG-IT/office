@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vorlagen - RB Inside Office</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+</head>
+<body class="iframe-body">
+    <div class="page-container page-container--scroll">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="sectionTitle">Preisvorlagen</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts"></div>
+            </div>
+            <!-- Tabs für Preisvorlagen -->
+            <div class="page-header-tabs" id="preisvorlagenTabs">
+                <div class="kw-tab active" data-tab="formular-preisvorlagen">Formular-Preisvorlagen</div>
+            </div>
+            <!-- Tabs für E-Mails (initial versteckt) -->
+            <div class="page-header-tabs" id="emailTabs" style="display: none;">
+                <div class="kw-tab active" data-tab="email-automatisch">Automatisch</div>
+                <div class="kw-tab" data-tab="email-manuell">Manuell</div>
+                <div class="kw-tab" data-tab="email-newsletter">Newsletter</div>
+                <div class="kw-tab" data-tab="email-individuell" id="individualTab">Individuell</div>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- ============================================== -->
+            <!-- PREISVORLAGEN CONTENT -->
+            <!-- ============================================== -->
+            <div class="kw-tab-content active" id="tab-formular-preisvorlagen">
+                <div class="vorlage-grid">
+                    <!-- Standard Preisvorlage -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <span class="vorlage-badge default">Standard</span>
+                        </div>
+                        <h3 class="vorlage-card-title">DRK Standard</h3>
+                        <p class="vorlage-card-desc">Standard-Preisvorlage für alle Formulare</p>
+                        <div class="vorlage-card-prices">
+                            <div class="price-item"><span class="price-label">Klein</span><span class="price-value">5€</span><span class="price-sub">pro Monat</span></div>
+                            <div class="price-item"><span class="price-label">Mittel</span><span class="price-value">10€</span><span class="price-sub">pro Monat</span></div>
+                            <div class="price-item"><span class="price-label">Groß</span><span class="price-value">20€</span><span class="price-sub">pro Monat</span></div>
+                        </div>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn--secondary btn--sm" onclick="editPreisvorlage('standard')">Bearbeiten</button>
+                            <button class="btn btn--secondary btn--sm" disabled>Löschen</button>
+                        </div>
+                    </div>
+
+                    <!-- Premium Preisvorlage -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon premium">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                                </svg>
+                            </div>
+                            <span class="vorlage-badge premium">Premium</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Premium Beiträge</h3>
+                        <p class="vorlage-card-desc">Höhere Beiträge für engagierte Förderer</p>
+                        <div class="vorlage-card-prices">
+                            <div class="price-item"><span class="price-label">Basis</span><span class="price-value">15€</span><span class="price-sub">pro Monat</span></div>
+                            <div class="price-item"><span class="price-label">Plus</span><span class="price-value">25€</span><span class="price-sub">pro Monat</span></div>
+                            <div class="price-item"><span class="price-label">Premium</span><span class="price-value">50€</span><span class="price-sub">pro Monat</span></div>
+                        </div>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn--secondary btn--sm" onclick="editPreisvorlage('premium')">Bearbeiten</button>
+                            <button class="btn btn--secondary btn--sm" onclick="deletePreisvorlage('premium')">Löschen</button>
+                        </div>
+                    </div>
+
+                    <!-- Create New Preisvorlage Card -->
+                    <div class="vorlage-card vorlage-card--new" onclick="openNewPreisvorlageModal()">
+                        <div class="vorlage-card-new-content">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <span>Neue Preisvorlage erstellen</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- EMAIL CONTENT -->
+            <!-- ============================================== -->
+            <!-- Automatische Vorlagen -->
+            <div class="kw-tab-content" id="tab-email-automatisch">
+                <div class="vorlage-grid">
+                    <!-- Willkommensmail -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <span class="vorlage-badge default">Automatisch</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Willkommensmail</h3>
+                        <p class="vorlage-card-desc">Begrüßung neuer Fördermitglieder nach NMG-Formular</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('willkommen')">Bearbeiten</button>
+                            <button class="btn btn--secondary btn--sm" onclick="previewTemplate('willkommen')">Vorschau</button>
+                        </div>
+                    </div>
+
+                    <!-- Erhöhungsmail -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                </svg>
+                            </div>
+                            <span class="vorlage-badge default">Automatisch</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Erhöhungsmail</h3>
+                        <p class="vorlage-card-desc">Bestätigung bei Beitragsanpassung nach ERH-Formular</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('erhoehung')">Bearbeiten</button>
+                            <button class="btn btn--secondary btn--sm" onclick="previewTemplate('erhoehung')">Vorschau</button>
+                        </div>
+                    </div>
+
+                    <!-- IBAN-Nachtragen -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                </svg>
+                            </div>
+                            <span class="vorlage-badge default">Automatisch</span>
+                        </div>
+                        <h3 class="vorlage-card-title">IBAN-Nachtragen</h3>
+                        <p class="vorlage-card-desc">Link zum Nachtragen der Bankverbindung</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('iban')">Bearbeiten</button>
+                            <button class="btn btn--secondary btn--sm" onclick="previewTemplate('iban')">Vorschau</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manuelle Vorlagen -->
+            <div class="kw-tab-content" id="tab-email-manuell">
+                <div class="vorlage-grid">
+                    <!-- Storno-Bestätigung -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon premium">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                </svg>
+                            </div>
+                            <span class="vorlage-badge premium">Manuell</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Storno-Bestätigung</h3>
+                        <p class="vorlage-card-desc">Bestätigung der Kündigung mit Einmalspende-Anfrage</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('storno')">Bearbeiten</button>
+                            <button class="btn btn--primary btn--sm" onclick="sendManual('storno')">Versenden</button>
+                        </div>
+                    </div>
+
+                    <!-- Erneut senden -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon premium">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                            </div>
+                            <span class="vorlage-badge premium">Manuell</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Erneut versenden</h3>
+                        <p class="vorlage-card-desc">Automatische E-Mail erneut an ein Mitglied senden</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn--primary btn--sm" onclick="openResendModal()">Mitglied auswählen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="kw-tab-content" id="tab-email-newsletter">
+                <div class="vorlage-grid">
+                    <!-- Newsletter Standard -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                                </svg>
+                            </div>
+                            <span class="vorlage-badge default">Aktiv</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Newsletter - Standard</h3>
+                        <p class="vorlage-card-desc">Allgemeiner Newsletter für alle Fördermitglieder</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('newsletter1')">Bearbeiten</button>
+                            <button class="btn btn--primary btn--sm" onclick="sendNewsletter('newsletter1')">Newsletter senden</button>
+                        </div>
+                    </div>
+
+                    <!-- Newsletter Saisonal -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon premium">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                                </svg>
+                            </div>
+                            <span class="vorlage-badge premium">Entwurf</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Newsletter - Saisonal</h3>
+                        <p class="vorlage-card-desc">Saisonale Grüße (Weihnachten, Ostern, etc.)</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('newsletter2')">Bearbeiten</button>
+                            <button class="btn btn--secondary btn--sm" onclick="previewTemplate('newsletter2')">Vorschau</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Individuelle Vorlagen -->
+            <div class="kw-tab-content" id="tab-email-individuell">
+                <!-- Lock Message for lower levels -->
+                <div class="locked-section" id="lockedMessage">
+                    <div class="locked-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <h3>Individuelle Vorlagen</h3>
+                    <p>Ab Stufe III (JMM) freigeschaltet</p>
+                </div>
+
+                <!-- Unlocked Content -->
+                <div class="unlocked-section" id="unlockedContent" style="display: none;">
+                    <div class="vorlage-grid">
+                        <!-- Persönlicher Dank -->
+                        <div class="vorlage-card">
+                            <div class="vorlage-card-header">
+                                <div class="vorlage-card-icon individual">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                    </svg>
+                                </div>
+                                <span class="vorlage-badge individual">Individuell</span>
+                            </div>
+                            <h3 class="vorlage-card-title">Persönlicher Dank</h3>
+                            <p class="vorlage-card-desc">Persönliche Danksagung an besondere Mitglieder</p>
+                            <div class="vorlage-card-actions">
+                                <button class="btn btn--secondary btn--sm" onclick="editIndividualTemplate('personal-thanks')">Bearbeiten</button>
+                                <button class="btn btn--primary btn--sm" onclick="useIndividualTemplate('personal-thanks')">Verwenden</button>
+                            </div>
+                        </div>
+
+                        <!-- Create New -->
+                        <div class="vorlage-card vorlage-card--new" onclick="openCreateIndividualModal()">
+                            <div class="vorlage-card-new-content">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                <span>Neue Vorlage erstellen</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preisvorlage Modal -->
+    <div class="modal modal-m" id="preisvorlageModal">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift" id="preisvorlageModalTitle">Preisvorlage bearbeiten</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn-icon" onclick="closeModalById('preisvorlageModal')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="modal-daten">Daten</div>
+                </div>
+            </div>
+            <!-- Modal Body -->
+            <div class="page-content">
+                <!-- Allgemein -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Allgemein</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Name der Vorlage</label>
+                            <input type="text" class="eingabefeld" id="preisvorlageName" maxlength="20" placeholder="z.B. DRK Standard">
+                            <span class="eingabefeld-beschriftung-unten">Max. 20 Zeichen</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                            <label class="eingabefeld-beschriftung-oben">Symbol</label>
+                            <div class="symbol-picker" id="symbolPicker">
+                                <button type="button" class="symbol-option active" data-symbol="checkmark" title="Häkchen">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </button>
+                                <button type="button" class="symbol-option" data-symbol="star" title="Stern">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                                    </svg>
+                                </button>
+                                <button type="button" class="symbol-option" data-symbol="euro" title="Euro">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 15.536c-1.171 1.952-3.07 1.952-4.242 0-1.172-1.953-1.172-5.119 0-7.072 1.171-1.952 3.07-1.952 4.242 0M8 10.5h4m-4 3h4"/>
+                                    </svg>
+                                </button>
+                                <button type="button" class="symbol-option" data-symbol="heart" title="Herz">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                    </svg>
+                                </button>
+                                <button type="button" class="symbol-option" data-symbol="gift" title="Geschenk">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Beschreibung</label>
+                            <input type="text" class="eingabefeld" id="preisvorlageDesc" maxlength="42" placeholder="z.B. Standard-Preisvorlage für alle Formulare">
+                            <span class="eingabefeld-beschriftung-unten">Max. 42 Zeichen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Beiträge -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Beiträge konfigurieren</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Beschriftung 1</label>
+                            <input type="text" class="eingabefeld" id="beitrag1Label" maxlength="20" placeholder="z.B. Klein">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Beschriftung 2</label>
+                            <input type="text" class="eingabefeld" id="beitrag2Label" maxlength="20" placeholder="z.B. Mittel">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Beschriftung 3</label>
+                            <input type="text" class="eingabefeld" id="beitrag3Label" maxlength="20" placeholder="z.B. Groß">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Betrag 1 (€)</label>
+                            <input type="number" class="eingabefeld" id="beitrag1Value" min="1" placeholder="5">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Betrag 2 (€)</label>
+                            <input type="number" class="eingabefeld" id="beitrag2Value" min="1" placeholder="10">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Betrag 3 (€)</label>
+                            <input type="number" class="eingabefeld" id="beitrag3Value" min="1" placeholder="20">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Untertitel 1</label>
+                            <input type="text" class="eingabefeld" id="beitrag1Sub" maxlength="30" placeholder="z.B. pro Monat">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Untertitel 2</label>
+                            <input type="text" class="eingabefeld" id="beitrag2Sub" maxlength="30" placeholder="z.B. pro Monat">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Untertitel 3</label>
+                            <input type="text" class="eingabefeld" id="beitrag3Sub" maxlength="30" placeholder="z.B. pro Monat">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="page-footer">
+                <button type="button" class="btn btn--secondary" onclick="closeModalById('preisvorlageModal')">Abbrechen</button>
+                <button type="button" class="btn btn--primary" onclick="savePreisvorlage()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // INITIALISIERUNG
+        // ============================================
+        let currentSection = 'preisvorlagen';
+
+        // Tabs für Preisvorlagen
+        initTabs('#preisvorlagenTabs .kw-tab', '.kw-tab-content');
+        // Tabs für E-Mails
+        initTabs('#emailTabs .kw-tab', '.kw-tab-content');
+
+        initSymbolPicker();
+
+        // ============================================
+        // SECTION SWITCH (Shell-Navigation)
+        // ============================================
+        function switchSection(section) {
+            currentSection = section;
+
+            // Alle Tab-Contents ausblenden
+            document.querySelectorAll('.page-content > .kw-tab-content').forEach(c => c.classList.remove('active'));
+
+            if (section === 'preisvorlagen') {
+                document.getElementById('sectionTitle').textContent = 'Preisvorlagen';
+                document.getElementById('preisvorlagenTabs').style.display = 'flex';
+                document.getElementById('emailTabs').style.display = 'none';
+
+                // Ersten Preisvorlagen-Tab aktivieren
+                document.querySelectorAll('#preisvorlagenTabs .kw-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector('#preisvorlagenTabs .kw-tab').classList.add('active');
+                document.getElementById('tab-formular-preisvorlagen').classList.add('active');
+
+            } else if (section === 'email') {
+                document.getElementById('sectionTitle').textContent = 'E-Mail Vorlagen';
+                document.getElementById('preisvorlagenTabs').style.display = 'none';
+                document.getElementById('emailTabs').style.display = 'flex';
+
+                // Ersten E-Mail-Tab aktivieren
+                document.querySelectorAll('#emailTabs .kw-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector('#emailTabs .kw-tab').classList.add('active');
+                document.getElementById('tab-email-automatisch').classList.add('active');
+            }
+        }
+
+        // ============================================
+        // PREISVORLAGEN FUNKTIONEN
+        // ============================================
+        function openNewPreisvorlageModal() {
+            document.getElementById('preisvorlageModalTitle').textContent = 'Neue Preisvorlage erstellen';
+            document.getElementById('preisvorlageName').value = '';
+            document.getElementById('preisvorlageDesc').value = '';
+            document.getElementById('beitrag1Label').value = '';
+            document.getElementById('beitrag2Label').value = '';
+            document.getElementById('beitrag3Label').value = '';
+            document.getElementById('beitrag1Value').value = '';
+            document.getElementById('beitrag2Value').value = '';
+            document.getElementById('beitrag3Value').value = '';
+            document.getElementById('beitrag1Sub').value = '';
+            document.getElementById('beitrag2Sub').value = '';
+            document.getElementById('beitrag3Sub').value = '';
+            openModalById('preisvorlageModal');
+        }
+
+        function editPreisvorlage(id) {
+            document.getElementById('preisvorlageModalTitle').textContent = 'Preisvorlage bearbeiten';
+            if (id === 'standard') {
+                document.getElementById('preisvorlageName').value = 'DRK Standard';
+                document.getElementById('preisvorlageDesc').value = 'Standard-Preisvorlage für alle Formulare';
+                document.getElementById('beitrag1Label').value = 'Klein';
+                document.getElementById('beitrag2Label').value = 'Mittel';
+                document.getElementById('beitrag3Label').value = 'Groß';
+                document.getElementById('beitrag1Value').value = '5';
+                document.getElementById('beitrag2Value').value = '10';
+                document.getElementById('beitrag3Value').value = '20';
+                document.getElementById('beitrag1Sub').value = 'pro Monat';
+                document.getElementById('beitrag2Sub').value = 'pro Monat';
+                document.getElementById('beitrag3Sub').value = 'pro Monat';
+            } else if (id === 'premium') {
+                document.getElementById('preisvorlageName').value = 'Premium Beiträge';
+                document.getElementById('preisvorlageDesc').value = 'Höhere Beiträge für engagierte Förderer';
+                document.getElementById('beitrag1Label').value = 'Basis';
+                document.getElementById('beitrag2Label').value = 'Plus';
+                document.getElementById('beitrag3Label').value = 'Premium';
+                document.getElementById('beitrag1Value').value = '15';
+                document.getElementById('beitrag2Value').value = '25';
+                document.getElementById('beitrag3Value').value = '50';
+                document.getElementById('beitrag1Sub').value = 'pro Monat';
+                document.getElementById('beitrag2Sub').value = 'pro Monat';
+                document.getElementById('beitrag3Sub').value = 'pro Monat';
+            }
+            openModalById('preisvorlageModal');
+        }
+
+        async function deletePreisvorlage(id) {
+            const confirmed = await showConfirm('Löschen', 'Möchten Sie diese Preisvorlage wirklich löschen?', 'warning');
+            if (confirmed) {
+                await showAlert('Gelöscht', 'Preisvorlage wurde gelöscht.', 'success');
+            }
+        }
+
+        async function savePreisvorlage() {
+            await showAlert('Gespeichert', 'Preisvorlage wurde gespeichert.', 'success');
+            closeModalById('preisvorlageModal');
+        }
+
+        // ============================================
+        // EMAIL FUNKTIONEN
+        // ============================================
+        async function editTemplate(templateId) {
+            await showAlert('Bearbeiten', 'Vorlage bearbeiten: ' + templateId, 'info');
+        }
+
+        async function previewTemplate(templateId) {
+            await showAlert('Vorschau', 'Vorschau für: ' + templateId, 'info');
+        }
+
+        async function sendManual(templateId) {
+            await showAlert('Versenden', 'Manuelle E-Mail senden: ' + templateId, 'info');
+        }
+
+        async function sendNewsletter(templateId) {
+            const confirmed = await showConfirm('Newsletter versenden', 'Newsletter an alle Fördermitglieder senden?', 'question');
+            if (confirmed) {
+                await showAlert('Versendet', 'Newsletter wird versendet...', 'success');
+            }
+        }
+
+        async function openResendModal() {
+            await showAlert('Erneut senden', 'Mitglied auswählen - Coming soon', 'info');
+        }
+
+        async function openCreateIndividualModal() {
+            await showAlert('Neue Vorlage', 'Neue individuelle Vorlage erstellen - Coming soon', 'info');
+        }
+
+        async function editIndividualTemplate(templateId) {
+            await showAlert('Bearbeiten', 'Individuelle Vorlage bearbeiten: ' + templateId, 'info');
+        }
+
+        async function useIndividualTemplate(templateId) {
+            await showAlert('Verwenden', 'Vorlage wird zum Versenden geöffnet...', 'info');
+        }
+
+        // ============================================
+        // STUFEN-CHECK FÜR INDIVIDUELLE VORLAGEN
+        // ============================================
+        function checkIndividualAccess() {
+            const userStage = 3; // Demo: Stage III
+            const hasAccess = userStage >= 3;
+
+            const lockedMessage = document.getElementById('lockedMessage');
+            const unlockedContent = document.getElementById('unlockedContent');
+            const individualTab = document.getElementById('individualTab');
+
+            if (hasAccess) {
+                lockedMessage.style.display = 'none';
+                unlockedContent.style.display = 'block';
+                if (individualTab) individualTab.classList.remove('locked');
+            } else {
+                lockedMessage.style.display = 'block';
+                unlockedContent.style.display = 'none';
+                if (individualTab) individualTab.classList.add('locked');
+            }
+        }
+
+        checkIndividualAccess();
+
+        // ============================================
+        // IFRAME / SHELL INTEGRATION
+        // ============================================
+        if (window.self !== window.top) {
+            document.body.classList.add('in-iframe');
+        }
+
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'navFilter') {
+                switchSection(e.data.value);
+            }
+        });
+    </script>
+</body>
+</html>
