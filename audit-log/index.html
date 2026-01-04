@@ -15,11 +15,6 @@
             background: var(--bg-secondary);
         }
 
-        /* Toolbar verstecken wenn in iframe (Shell hat eigene) */
-        body.in-iframe .action-toolbar {
-            display: none !important;
-        }
-
         /* Tab Content Areas */
         .tab-content {
             display: none;
@@ -42,7 +37,7 @@
             color: var(--text-secondary);
         }
 
-        .log-empty svg {
+        .log-empty .icon {
             width: 48px;
             height: 48px;
             margin-bottom: 16px;
@@ -118,7 +113,7 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--color-werber);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -306,7 +301,7 @@
         }
     </style>
 </head>
-<body class="iframe-body">
+<body >
     <!-- Action Toolbar -->
     <div class="action-toolbar">
         <div class="toolbar-left"></div>
@@ -349,10 +344,8 @@
             </div>
         </div>
         <div class="toolbar-right">
-            <button class="toolbar-btn" onclick="exportLog()">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                </svg>
+            <button class="btn" onclick="exportLog()">
+                <span class="icon icon--download"></span>
                 <span>Export</span>
             </button>
         </div>
@@ -399,54 +392,40 @@
                         <span class="table-title">Letzte 100 Mitglieder</span>
                         <!-- Filter Buttons -->
                         <div class="filter-buttons">
-                            <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Alle</button>
-                            <button class="filter-btn" data-filter="nmg" onclick="setFilter('nmg')">Neumitglieder</button>
-                            <button class="filter-btn" data-filter="erh" onclick="setFilter('erh')">Erhöhungen</button>
-                            <button class="filter-btn" data-filter="storno" onclick="setFilter('storno')">Rückläufer (Stornos)</button>
+                            <button class="btn btn-sm active" data-filter="all" onclick="setFilter('all')">Alle</button>
+                            <button class="btn btn-sm" data-filter="nmg" onclick="setFilter('nmg')">Neumitglieder</button>
+                            <button class="btn btn-sm" data-filter="erh" onclick="setFilter('erh')">Erhöhungen</button>
+                            <button class="btn btn-sm" data-filter="storno" onclick="setFilter('storno')">Rückläufer (Stornos)</button>
                         </div>
-                        <button class="btn-delete-selected" id="recordsSelectionBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                            </svg>
-                            Ausgewählt<span class="selected-count" id="recordsSelectedCount">0</span>
+                        <button class="btn btn-sm btn-sm--hidden" id="recordsSelectionBtn">
+                            <span class="icon icon--clipboard"></span>
+                            Ausgewählt: <span id="recordsSelectedCount">0</span>
                         </button>
                         <div class="header-actions" id="recordsHeaderActions">
-                            <button class="header-action-btn btn-mail" onclick="sendMail('records')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
+                            <button class="btn btn-sm" onclick="sendMail('records')">
+                                <span class="icon icon--email"></span>
                                 E-Mail
                             </button>
-                            <button class="header-action-btn btn-pdf" onclick="downloadPDF('records')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
+                            <button class="btn btn-sm" onclick="downloadPDF('records')">
+                                <span class="icon icon--dokument"></span>
                                 PDF
                             </button>
-                            <button class="header-action-btn btn-storno" onclick="stornoSelected('records')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                                </svg>
+                            <button class="btn btn-sm" onclick="stornoSelected('records')">
+                                <span class="icon icon--storno"></span>
                                 Stornieren
                             </button>
-                            <button class="header-action-btn btn-delete-action" onclick="deleteSelected('records')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
+                            <button class="btn btn-sm" onclick="deleteSelected('records')">
+                                <span class="icon icon--loeschen"></span>
                                 Löschen
                             </button>
                         </div>
                         <span class="header-divider"></span>
-                        <button class="header-action-btn btn-columns" onclick="openColumnsModal('records')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
-                            </svg>
+                        <button class="btn btn-sm" onclick="openColumnsModal('records')">
+                            <span class="icon icon--spalten"></span>
                             Spalten
                         </button>
-                        <button class="header-action-btn btn-audit" onclick="openAuditModal('nmg-erh', 'default')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                        <button class="btn btn-sm" onclick="openAuditModal('nmg-erh', 'default')">
+                            <span class="icon icon--uhr"></span>
                             Audit
                         </button>
                     </div>
@@ -694,9 +673,7 @@
                 console.error('Error loading audit log:', error);
                 container.innerHTML = `
                     <div class="log-empty">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
+                        <span class="icon icon--warnung"></span>
                         <p>Fehler beim Laden des Audit-Logs</p>
                         <p style="font-size: 12px; margin-top: 8px;">${error.message}</p>
                     </div>
@@ -708,9 +685,7 @@
             const container = document.getElementById('logContainer');
             container.innerHTML = `
                 <div class="log-empty">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
+                    <span class="icon icon--clipboard-leer"></span>
                     <p>${message}</p>
                 </div>
             `;
@@ -1113,11 +1088,7 @@
             return records;
         }
 
-        // ========== IFRAME / SHELL INTEGRATION ==========
-        if (window.self !== window.top) {
-            document.body.classList.add('in-iframe');
-        }
-
+        // ========== SHELL INTEGRATION ==========
         // Listen for messages from shell
         window.addEventListener('message', function(e) {
             if (e.data && e.data.type === 'searchQuery') {

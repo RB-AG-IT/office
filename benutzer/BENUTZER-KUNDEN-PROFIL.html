@@ -7,16 +7,14 @@
     <link rel="stylesheet" href="../css/styles.css">
     <script src="../js/main.js"></script>
 </head>
-<body class="iframe-body">
-    <div class="page-container page-container--scroll">
+<body >
+    <div class="page-container">
         <!-- Page Header -->
         <div class="page-header">
             <!-- Zeile 1: Zurück | Links | Mitte | Rechts -->
             <div class="page-header-row">
-                <button class="btn-icon btn-icon--lg" onclick="history.back()">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
+                <button class="btn btn-icon" onclick="history.back()">
+                    <span class="icon icon--pfeil-links"></span>
                 </button>
                 <div class="page-header-links">
                     <span class="text-ueberschrift" id="customerName">Neuer Kunde</span>
@@ -29,8 +27,8 @@
                     <!-- Platzhalter für evtl. Logo-Upload -->
                 </div>
             </div>
-            <!-- Zeile 2: Tabs -->
-            <div class="page-header-tabs">
+            <!-- Lokale Tabs (per Klick navigierbar) -->
+            <div class="page-header-tabs" id="profilSubTabs">
                 <div class="kw-tab active" data-tab="informationen">Informationen</div>
                 <div class="kw-tab" data-tab="einstellungen">Einstellungen</div>
             </div>
@@ -68,7 +66,7 @@
                     <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
                         <label class="eingabefeld-beschriftung-oben">Name *</label>
                         <input type="text" class="eingabefeld" id="name" placeholder="z.B. Ludwigshafen" oninput="updateCustomerNameDisplay()">
-                        <span class="eingabefeld-beschriftung-unten"></span>
+                        <span class="eingabefeld-beschriftung-unten" id="customerNamePreview">DRK Kreisverband Ludwigshafen e.V.</span>
                     </div>
                     <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
                         <label class="eingabefeld-beschriftung-oben">Rechtsform</label>
@@ -90,11 +88,6 @@
                         <input type="number" class="eingabefeld" id="customerEinwohner" placeholder="z.B. 45000" min="0">
                         <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
-                </div>
-
-                <!-- Vorschau -->
-                <div class="zeile">
-                    <span class="text-klein">Vorschau: <strong id="customerNamePreview">DRK Kreisverband Ludwigshafen e.V.</strong></span>
                 </div>
 
                 <!-- Typ (hidden, wird automatisch gesetzt) -->
@@ -191,10 +184,8 @@
             <div class="abschnitt--card">
                 <div class="zeile zeile--header" style="justify-content: space-between;">
                     <div class="text-ueberschrift-abschnitt">Ansprechpartner</div>
-                    <button type="button" class="btn btn--secondary btn--sm" onclick="addContactPerson()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addContactPerson()">
+                        <span class="icon icon--plus"></span>
                         Hinzufügen
                     </button>
                 </div>
@@ -202,11 +193,9 @@
                     <!-- Ansprechpartner werden hier dynamisch eingefügt -->
                 </div>
                 <div class="empty-state" id="noContactsHint">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <h3>Keine Ansprechpartner</h3>
-                    <p>Noch keine Ansprechpartner hinzugefügt</p>
+                    <span class="icon icon--personen"></span>
+                    <div class="text-ueberschrift-abschnitt">Keine Ansprechpartner</div>
+                    <div class="text-normal">Noch keine Ansprechpartner hinzugefügt</div>
                 </div>
             </div>
 
@@ -217,27 +206,18 @@
                 <div class="zeile zeile--header" style="justify-content: space-between;">
                     <div class="text-ueberschrift-abschnitt">Einsatzgebiete und Vereine</div>
                     <div class="dropdown" id="addEinsatzgebietDropdown">
-                        <button class="btn btn--secondary btn--sm" onclick="toggleDropdown(this)">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
+                        <button class="btn btn-secondary btn-sm" onclick="toggleDropdown(this)">
+                            <span class="icon icon--plus"></span>
                             <span>Hinzufügen</span>
-                            <svg style="margin-left: 4px;" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
+                            <span class="icon icon--pfeil-unten" style="margin-left: 4px;"></span>
                         </button>
                         <div class="dropdown-menu" id="addEinsatzgebietMenu">
                             <div class="dropdown-item" id="addKreisverbandBtn" onclick="openAddAreaModal('kreisverband')">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                </svg>
+                                <span class="icon icon--gebaeude"></span>
                                 Kreisverband
                             </div>
                             <div class="dropdown-item" id="addOrtsvereinBtn" onclick="openAddAreaModal('ortsverein')">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                </svg>
+                                <span class="icon icon--standort"></span>
                                 Ortsverein
                             </div>
                         </div>
@@ -250,12 +230,9 @@
                     </div>
                 </div>
                 <div class="empty-state" id="noEinsatzgebieteMessage">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <h3>Keine Einsatzgebiete</h3>
-                    <p>Noch keine Einsatzgebiete hinzugefügt</p>
+                    <span class="icon icon--standort"></span>
+                    <div class="text-ueberschrift-abschnitt">Keine Einsatzgebiete</div>
+                    <div class="text-normal">Noch keine Einsatzgebiete hinzugefügt</div>
                 </div>
             </div>
 
@@ -269,48 +246,42 @@
                 <div class="zeile zeile--center">
                     <div class="document-upload-grid" style="width: 100%;">
                     <!-- Rahmenverträge -->
-                    <div class="document-upload-item">
-                        <h4>Rahmenverträge</h4>
-                        <div class="document-file-list" id="rahmenvertragList">
-                            <!-- Items will be rendered here -->
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Rahmenverträge</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="rahmenvertragBox">
+                                <span class="icon icon--plus document-upload-icon"></span>
+                                <span class="document-upload-text">Rahmenvertrag hochladen</span>
+                            </div>
+                            <input type="file" id="rahmenvertragInput" accept=".pdf" hidden multiple>
+                            <div class="document-file-list" id="rahmenvertragList"></div>
                         </div>
-                        <div class="document-upload-box" id="rahmenvertragBox">
-                            <svg class="document-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            <span class="document-upload-text">Rahmenvertrag hochladen</span>
-                        </div>
-                        <input type="file" id="rahmenvertragInput" accept=".pdf" hidden>
                     </div>
 
                     <!-- AVV -->
-                    <div class="document-upload-item">
-                        <h4>Auftragsverarbeitungsverträge</h4>
-                        <div class="document-file-list" id="avvList">
-                            <!-- Items will be rendered here -->
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Auftragsverarbeitungsverträge</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="avvBox">
+                                <span class="icon icon--plus document-upload-icon"></span>
+                                <span class="document-upload-text">AVV hochladen</span>
+                            </div>
+                            <input type="file" id="avvInput" accept=".pdf" hidden multiple>
+                            <div class="document-file-list" id="avvList"></div>
                         </div>
-                        <div class="document-upload-box" id="avvBox">
-                            <svg class="document-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            <span class="document-upload-text">AVV hochladen</span>
-                        </div>
-                        <input type="file" id="avvInput" accept=".pdf" hidden>
                     </div>
 
                     <!-- Sonderverträge -->
-                    <div class="document-upload-item">
-                        <h4>Sonderverträge</h4>
-                        <div class="document-file-list" id="sondervertragList">
-                            <!-- Items will be rendered here -->
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Sonderverträge</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="sondervertragBox">
+                                <span class="icon icon--plus document-upload-icon"></span>
+                                <span class="document-upload-text">Sondervertrag hochladen</span>
+                            </div>
+                            <input type="file" id="sondervertragInput" accept=".pdf" hidden multiple>
+                            <div class="document-file-list" id="sondervertragList"></div>
                         </div>
-                        <div class="document-upload-box" id="sondervertragBox">
-                            <svg class="document-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            <span class="document-upload-text">Sondervertrag hochladen</span>
-                        </div>
-                        <input type="file" id="sondervertragInput" accept=".pdf" hidden>
                     </div>
                     </div>
                 </div>
@@ -330,11 +301,9 @@
                 </div>
                 <div class="zeile zeile--center">
                     <div class="empty-state" id="noInvoicesMessage" style="width: 100%;">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                        <h3>Keine Rechnungen</h3>
-                        <p>Noch keine Rechnungen vorhanden</p>
+                    <span class="icon icon--dokument-liste"></span>
+                        <div class="text-ueberschrift-abschnitt">Keine Rechnungen</div>
+                        <div class="text-normal">Noch keine Rechnungen vorhanden</div>
                     </div>
                 </div>
             </div>
@@ -366,13 +335,32 @@
 
         <!-- Footer Actions -->
         <div class="page-footer">
-            <button class="btn btn--secondary" onclick="history.back()">Abbrechen</button>
-            <button class="btn btn--primary" onclick="saveCustomer()">Speichern</button>
+            <button class="btn btn-secondary" onclick="history.back()">Abbrechen</button>
+            <button class="btn btn-primary" onclick="saveCustomer()">Speichern</button>
         </div>
 
     </div>
 
     <script>
+        // ================================================================
+        // SUPABASE SETUP
+        // ================================================================
+        const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
+
+        // Supabase Client (von parent Shell oder eigener)
+        let supabase;
+        if (window.parent && window.parent.supabase) {
+            supabase = window.parent.supabase;
+        } else {
+            supabase = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        // URL-Parameter für Kunden-ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const customerId = urlParams.get('id');
+        const isNewCustomer = !customerId;
+
         // ================================================================
         // NAVIGATION & STATE
         // ================================================================
@@ -397,15 +385,7 @@
         initDocumentUpload('rahmenvertragInput', 'rahmenvertragBox', 'rahmenvertragList');
         initDocumentUpload('sondervertragInput', 'sondervertragBox', 'sondervertragList');
 
-        // Demo-Daten für Kundenrechnungen
-        const customerInvoices = [
-            { id: 1, name: 'RE-2025-001', date: '31.01.2025', amount: 4250.00, status: 'paid' },
-            { id: 2, name: 'RE-2025-002', date: '28.02.2025', amount: 3890.50, status: 'paid' },
-            { id: 3, name: 'RE-2025-003', date: '31.03.2025', amount: 5120.00, status: 'pending' }
-        ];
-
-        // Rechnungen rendern
-        renderInvoiceHistory('customerInvoicesList', 'noInvoicesMessage', customerInvoices);
+        // Rechnungen werden in loadCustomer() geladen
 
         
         // ================================================================
@@ -536,27 +516,8 @@
         // ANSPRECHPARTNER
         // ================================================================
 
-        let contactPersons = [
-            // Demo-Daten
-            {
-                id: 1,
-                firstName: 'Maria',
-                lastName: 'Schmidt',
-                role: 'geschaeftsfuehrer',
-                customRole: '',
-                email: 'schmidt@drk-ludwigshafen.de',
-                phone: '+49 621 57001'
-            },
-            {
-                id: 2,
-                firstName: 'Thomas',
-                lastName: 'Müller',
-                role: 'mitgliederbeauftragte',
-                customRole: '',
-                email: 'mueller@drk-ludwigshafen.de',
-                phone: '+49 621 57002'
-            }
-        ];
+        // Ansprechpartner werden aus Supabase geladen
+        let contactPersons = [];
 
         // CONTACT_ROLES ist zentral in main.js definiert
 
@@ -628,10 +589,8 @@
 
                 return `
                     <div class="unterabschnitt--card" data-contact-id="${contact.id}">
-                        <button type="button" class="btn-icon btn-icon--danger" onclick="removeContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
+                        <button type="button" class="btn btn-icon btn-danger" onclick="removeContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
+                            <span class="icon icon--schliessen"></span>
                         </button>
                         <div class="zeile">
                             <div class="text-ueberschrift-unterabschnitt">${roleLabel}</div>
@@ -693,184 +652,204 @@
         // EINSATZGEBIETE
         // ================================================================
 
-        // Kundendaten (Dummy für jetzt)
-        // Demo: Landesverband mit Kreisverbänden und Ortsvereinen
+        // Kundendaten (wird aus Supabase geladen)
         let currentCustomer = {
-            id: 1,
+            id: null,
             organisation: 'DRK',
-            name: 'DRK Landesverband Rheinland-Pfalz',
-            type: 'landesverband',
-            contactPerson: 'Dr. Maria Schmidt',
-            contactEmail: 'schmidt@drk-rlp.de',
-            contactPhone: '+49 6131 57000',
-            website: 'https://www.drk-rlp.de',
-            privacyPolicy: 'https://www.drk-rlp.de/datenschutz',
-            invoiceType: 'combined',
-            areas: [
-                // KV Ludwigshafen (Index 0)
-                {
-                    name: 'KV Ludwigshafen',
-                    vereinstyp: 'KV',
-                    vereinsname: 'Ludwigshafen',
-                    rechtsform: 'e.V.',
-                    street: 'Bahnhofstr.',
-                    houseNumber: '45',
-                    zip: '67059',
-                    city: 'Ludwigshafen',
-                    website: 'https://www.drk-ludwigshafen.de',
-                    privacyPolicy: '',
-                    contact: 'Hans Müller',
-                    email: 'mueller@drk-ludwigshafen.de',
-                    phone: '+49 621 11111',
-                    kvZuordnung: null,
-                    contactPersons: []
-                },
-                // KV Mainz (Index 1)
-                {
-                    name: 'KV Mainz',
-                    vereinstyp: 'KV',
-                    vereinsname: 'Mainz',
-                    rechtsform: 'e.V.',
-                    street: 'Rheinstr.',
-                    houseNumber: '100',
-                    zip: '55116',
-                    city: 'Mainz',
-                    website: 'https://www.drk-mainz.de',
-                    privacyPolicy: '',
-                    contact: 'Thomas Braun',
-                    email: 'braun@drk-mainz.de',
-                    phone: '+49 6131 22222',
-                    kvZuordnung: null,
-                    contactPersons: []
-                },
-                // KV Kaiserslautern (Index 2)
-                {
-                    name: 'KV Kaiserslautern',
-                    vereinstyp: 'KV',
-                    vereinsname: 'Kaiserslautern',
-                    rechtsform: 'e.V.',
-                    street: 'Barbarossastr.',
-                    houseNumber: '8',
-                    zip: '67655',
-                    city: 'Kaiserslautern',
-                    website: '',
-                    privacyPolicy: '',
-                    contact: 'Sandra Klein',
-                    email: 'klein@drk-kl.de',
-                    phone: '+49 631 33333',
-                    kvZuordnung: null,
-                    contactPersons: []
-                },
-                // OV Ludwigshafen-Mitte (zugeordnet zu KV Ludwigshafen, Index 0)
-                {
-                    name: 'OV Ludwigshafen-Mitte',
-                    vereinstyp: 'OV',
-                    vereinsname: 'Ludwigshafen-Mitte',
-                    rechtsform: 'e.V.',
-                    street: 'Hauptstr.',
-                    houseNumber: '10',
-                    zip: '67059',
-                    city: 'Ludwigshafen',
-                    contact: 'Peter Schmidt',
-                    email: 'schmidt@ov-mitte.de',
-                    phone: '+49 621 11112',
-                    kvZuordnung: 0,
-                    contactPersons: []
-                },
-                // OV Ludwigshafen-Süd (zugeordnet zu KV Ludwigshafen, Index 0)
-                {
-                    name: 'OV Ludwigshafen-Süd',
-                    vereinstyp: 'OV',
-                    vereinsname: 'Ludwigshafen-Süd',
-                    rechtsform: 'e.V.',
-                    street: 'Südring',
-                    houseNumber: '5',
-                    zip: '67065',
-                    city: 'Ludwigshafen',
-                    contact: 'Anna Weber',
-                    email: 'weber@ov-sued.de',
-                    phone: '+49 621 11113',
-                    kvZuordnung: 0,
-                    contactPersons: []
-                },
-                // OV Oggersheim (zugeordnet zu KV Ludwigshafen, Index 0)
-                {
-                    name: 'OV Oggersheim',
-                    vereinstyp: 'OV',
-                    vereinsname: 'Oggersheim',
-                    rechtsform: 'e.V.',
-                    street: 'Mannheimer Str.',
-                    houseNumber: '22',
-                    zip: '67071',
-                    city: 'Ludwigshafen',
-                    contact: 'Klaus Bauer',
-                    email: 'bauer@ov-oggersheim.de',
-                    phone: '+49 621 11114',
-                    kvZuordnung: 0,
-                    contactPersons: []
-                },
-                // OV Mainz-Altstadt (zugeordnet zu KV Mainz, Index 1)
-                {
-                    name: 'OV Mainz-Altstadt',
-                    vereinstyp: 'OV',
-                    vereinsname: 'Mainz-Altstadt',
-                    rechtsform: 'e.V.',
-                    street: 'Domstr.',
-                    houseNumber: '1',
-                    zip: '55116',
-                    city: 'Mainz',
-                    contact: 'Lisa Hoffmann',
-                    email: 'hoffmann@ov-altstadt.de',
-                    phone: '+49 6131 22223',
-                    kvZuordnung: 1,
-                    contactPersons: []
-                },
-                // OV Mainz-Neustadt (zugeordnet zu KV Mainz, Index 1)
-                {
-                    name: 'OV Mainz-Neustadt',
-                    vereinstyp: 'OV',
-                    vereinsname: 'Mainz-Neustadt',
-                    rechtsform: 'e.V.',
-                    street: 'Neustadtstr.',
-                    houseNumber: '50',
-                    zip: '55118',
-                    city: 'Mainz',
-                    contact: 'Michael Kern',
-                    email: 'kern@ov-neustadt.de',
-                    phone: '+49 6131 22224',
-                    kvZuordnung: 1,
-                    contactPersons: []
-                },
-                // OV Speyer (nicht zugeordnet - alleinstehend)
-                {
-                    name: 'OV Speyer',
-                    vereinstyp: 'OV',
-                    vereinsname: 'Speyer',
-                    rechtsform: 'e.V.',
-                    street: 'Domplatz',
-                    houseNumber: '3',
-                    zip: '67346',
-                    city: 'Speyer',
-                    contact: 'Eva Schneider',
-                    email: 'schneider@ov-speyer.de',
-                    phone: '+49 6232 55555',
-                    kvZuordnung: null,
-                    contactPersons: []
-                }
-            ],
-            contracts: {
-                avv: [
-                    { id: 1, name: 'AVV_2024_DRK_LU.pdf', date: '2024-01-15', url: '#' },
-                    { id: 2, name: 'AVV_2023_DRK_LU.pdf', date: '2023-02-20', url: '#' }
-                ],
-                rahmenvertrag: [
-                    { id: 1, name: 'Rahmenvertrag_2024.pdf', date: '2024-01-10', url: '#' }
-                ]
-            }
+            name: '',
+            type: 'kreisverband',
+            areas: [],
+            contracts: { avv: [], rahmenvertrag: [], sondervertrag: [] }
         };
 
         let editingAreaIndex = null;
         let areaContactPersons = [];
+
+        // ================================================================
+        // SUPABASE LADEN
+        // ================================================================
+
+        // Kunde aus Supabase laden
+        async function loadCustomer(id) {
+            try {
+                // Kunde laden
+                const { data: customer, error } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+                if (!customer) {
+                    showToast('Kunde nicht gefunden', 'error');
+                    return;
+                }
+
+                currentCustomer = { ...customer, areas: [] };
+
+                // Ansprechpartner laden
+                const { data: contacts } = await supabase
+                    .from('customer_contacts')
+                    .select('*')
+                    .eq('customer_id', id);
+
+                if (contacts) {
+                    contactPersons = contacts.map(c => ({
+                        id: c.id,
+                        firstName: c.first_name || '',
+                        lastName: c.last_name || '',
+                        role: c.role || 'geschaeftsfuehrer',
+                        customRole: c.custom_role || '',
+                        email: c.email || '',
+                        phone: c.phone || ''
+                    }));
+                }
+
+                // Einsatzgebiete laden
+                const { data: areas } = await supabase
+                    .from('customer_areas')
+                    .select('*')
+                    .eq('customer_id', id);
+
+                if (areas) {
+                    // Area-Contacts für jede Area laden
+                    for (const area of areas) {
+                        const { data: areaContacts } = await supabase
+                            .from('customer_area_contacts')
+                            .select('*')
+                            .eq('area_id', area.id);
+
+                        area.contactPersons = (areaContacts || []).map(c => ({
+                            id: c.id,
+                            firstName: c.first_name || '',
+                            lastName: c.last_name || '',
+                            role: c.role || 'geschaeftsfuehrer',
+                            customRole: c.custom_role || '',
+                            email: c.email || '',
+                            phone: c.phone || ''
+                        }));
+                    }
+
+                    // Areas zu lokalem Format konvertieren
+                    currentCustomer.areas = convertAreasFromDB(areas);
+                }
+
+                // Verträge laden
+                const { data: contracts } = await supabase
+                    .from('customer_contracts')
+                    .select('*')
+                    .eq('customer_id', id);
+
+                if (contracts) {
+                    currentCustomer.contracts = {
+                        avv: contracts.filter(c => c.contract_type === 'avv'),
+                        rahmenvertrag: contracts.filter(c => c.contract_type === 'rahmenvertrag'),
+                        sondervertrag: contracts.filter(c => c.contract_type === 'sondervertrag')
+                    };
+                }
+
+                // Rechnungen laden
+                const { data: invoices } = await supabase
+                    .from('customer_invoices')
+                    .select('*')
+                    .eq('customer_id', id)
+                    .order('invoice_date', { ascending: false });
+
+                if (invoices) {
+                    const formattedInvoices = invoices.map(inv => ({
+                        id: inv.id,
+                        name: inv.invoice_number,
+                        date: inv.invoice_date ? new Date(inv.invoice_date).toLocaleDateString('de-DE') : '-',
+                        amount: inv.amount || 0,
+                        status: inv.status || 'pending'
+                    }));
+                    renderInvoiceHistory('customerInvoicesList', 'noInvoicesMessage', formattedInvoices);
+                }
+
+                // Formular befüllen
+                populateForm(customer);
+
+            } catch (err) {
+                console.error('Fehler beim Laden:', err);
+                showToast('Fehler beim Laden des Kunden', 'error');
+            }
+        }
+
+        // Areas von DB-Format zu lokalem Format konvertieren
+        function convertAreasFromDB(dbAreas) {
+            // Mapping von DB-ID zu Index erstellen
+            const idToIndex = {};
+            dbAreas.forEach((area, idx) => {
+                idToIndex[area.id] = idx;
+            });
+
+            return dbAreas.map(area => ({
+                id: area.id,
+                name: area.name || '',
+                vereinstyp: area.vereinstyp || 'OV',
+                vereinsname: area.vereinsname || '',
+                rechtsform: area.rechtsform || '',
+                einwohner: area.einwohner || 0,
+                email: area.email || '',
+                phone: area.phone || '',
+                street: area.street || '',
+                houseNumber: area.house_number || '',
+                zip: area.postal_code || '',
+                city: area.city || '',
+                country: area.country || '',
+                bundesland: area.bundesland || '',
+                addressExtra: area.address_extra || '',
+                website: area.website || '',
+                privacyPolicy: area.privacy_policy || '',
+                kvZuordnung: area.parent_area_id ? idToIndex[area.parent_area_id] : null,
+                parentAreaId: area.parent_area_id,
+                isKreisverbandsgebiet: area.is_kreisverbandsgebiet || false,
+                contactPersons: area.contactPersons || []
+            }));
+        }
+
+        // Formular mit Kundendaten befüllen
+        function populateForm(customer) {
+            document.getElementById('organisation').value = customer.organisation || 'DRK';
+            document.getElementById('namePrefix').value = customer.name_prefix || 'Kreisverband';
+            document.getElementById('name').value = customer.name || '';
+            document.getElementById('nameSuffix').value = customer.name_suffix || 'e.V.';
+            document.getElementById('type').value = customer.type || 'kreisverband';
+            document.getElementById('kdId').value = customer.kd_id || '';
+            document.getElementById('customerEinwohner').value = customer.einwohner || '';
+            document.getElementById('contactEmail').value = customer.email || '';
+            document.getElementById('contactPhone').value = customer.phone || '';
+            document.getElementById('customerWebsite').value = customer.website || '';
+            document.getElementById('customerPrivacyPolicy').value = customer.privacy_policy || '';
+            document.getElementById('customerStreet').value = customer.street || '';
+            document.getElementById('customerHouseNumber').value = customer.house_number || '';
+            document.getElementById('customerPostalCode').value = customer.postal_code || '';
+            document.getElementById('customerCity').value = customer.city || '';
+            document.getElementById('customerCountry').value = customer.country || '';
+            document.getElementById('customerBundesland').value = customer.bundesland || '';
+            document.getElementById('customerAddressExtra').value = customer.address_extra || '';
+            document.getElementById('invoiceTypeSeparate').checked = customer.invoice_type_separate || false;
+
+            // Header aktualisieren
+            updateCustomerNameDisplay();
+            document.getElementById('customerId').textContent = customer.kd_id || '-';
+            document.getElementById('createdDate').textContent = customer.created_at
+                ? new Date(customer.created_at).toLocaleDateString('de-DE')
+                : '-';
+
+            // Toggle-Label aktualisieren
+            const invoiceLabel = document.getElementById('invoiceTypeLabel');
+            if (invoiceLabel) {
+                invoiceLabel.textContent = customer.invoice_type_separate
+                    ? 'Separat - Pro Werbegebiet separate Rechnung'
+                    : 'Zusammen - Alle Werbegebiete zusammen abrechnen';
+            }
+
+            // Rendern
+            renderContactPersons();
+            renderEinsatzgebiete();
+            updateEinsatzgebietDropdownOptions();
+        }
         let areaAutocompleteInitialized = false;
 
         // Rendert die Einsatzgebiete-Liste
@@ -906,9 +885,7 @@
                             </div>
                             <div class="list-item-actions">
                                 <button class="btn btn-secondary btn-sm" onclick="editArea(0)" title="Bearbeiten">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                    </svg>
+                                    <span class="icon icon--bearbeiten"></span>
                                 </button>
                             </div>
                         </div>
@@ -931,21 +908,19 @@
 
                     html = `
                         <div class="list-group">
-                            <div class="list-group-header" onclick="toggleAreaGroup('kvgebiet')">
+                            <div class="list-group-header">
                                 <div class="list-group-info">
                                     <span class="list-group-name">${kundenName || 'Kreisverband'}</span>
                                     <span class="list-group-meta">${gesamtCount} Einsatzgebiet${gesamtCount !== 1 ? 'e' : ''}</span>
                                 </div>
-                                <svg class="list-group-toggle" id="area-toggle-kvgebiet" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
+                                <button type="button" class="btn btn-icon open" onclick="toggleCollapse(this, 'area-content-kvgebiet')">
+                                    <span class="icon icon--pfeil-unten"></span>
+                                </button>
                             </div>
-                            <div class="list-group-content" id="area-content-kvgebiet">
+                            <div class="list-group-content" id="area-content-kvgebiet" style="display: block;">
                                 <div class="list">${einträgeHTML}</div>
                                 <button class="btn btn-secondary btn-sm mt-md" onclick="openAddAreaModal('ortsverein')">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                    </svg>
+                                    <span class="icon icon--plus"></span>
                                     Ortsverein hinzufügen
                                 </button>
                             </div>
@@ -980,34 +955,28 @@
                 html += `
                     <div class="list-group mb-md">
                         <div class="zeile zeile--center zeile--no-padding">
-                            <div class="list-group-header" onclick="toggleAreaGroup(${kv.originalIndex})" style="flex: 1;">
+                            <div class="list-group-header" style="flex: 1;">
                                 <div class="list-group-info">
                                     <span class="list-group-name">${kv.name}</span>
                                     <span class="list-group-meta">${countLabel}</span>
                                 </div>
                                 <div class="list-item-actions">
-                                    <button class="kw-attendance-notes-btn" onclick="event.stopPropagation(); editArea(${kv.originalIndex})" title="Bearbeiten">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                        </svg>
+                                    <button class="btn btn-sm btn-notes" onclick="event.stopPropagation(); editArea(${kv.originalIndex})" title="Bearbeiten">
+                                        <span class="icon icon--bearbeiten"></span>
                                     </button>
-                                    <button class="btn-icon btn-icon--sm btn-icon--danger" onclick="event.stopPropagation(); removeKreisverband(${kv.originalIndex})" title="Löschen">
-                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
+                                    <button class="btn btn-sm btn-icon btn-danger" onclick="event.stopPropagation(); removeKreisverband(${kv.originalIndex})" title="Löschen">
+                                        <span class="icon icon--schliessen"></span>
                                     </button>
-                                    <svg class="list-group-toggle" id="area-toggle-${kv.originalIndex}" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                    </svg>
+                                    <button type="button" class="btn btn-icon open" onclick="event.stopPropagation(); toggleCollapse(this, 'area-content-${kv.originalIndex}')">
+                                        <span class="icon icon--pfeil-unten"></span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="list-group-content" id="area-content-${kv.originalIndex}">
+                        <div class="list-group-content" id="area-content-${kv.originalIndex}" style="display: block;">
                             <div class="list">${kombinierterInhalt || leerText}</div>
                             <button class="btn btn-secondary btn-sm mt-md" onclick="openAddAreaModal('ortsverein'); prefillKvZuordnung(${kv.originalIndex});">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                </svg>
+                                <span class="icon icon--plus"></span>
                                 Ortsverein hinzufügen
                             </button>
                         </div>
@@ -1035,15 +1004,11 @@
                             <span class="list-item-meta">${formatAddress(area)}</span>
                         </div>
                         <div class="list-item-actions">
-                            <button class="kw-attendance-notes-btn" onclick="editArea(${area.originalIndex})" title="Bearbeiten">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                </svg>
+                            <button class="btn btn-sm btn-notes" onclick="editArea(${area.originalIndex})" title="Bearbeiten">
+                                <span class="icon icon--bearbeiten"></span>
                             </button>
-                            <button class="btn-icon btn-icon--sm btn-icon--danger" onclick="removeArea(${area.originalIndex})" title="Entfernen">
-                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
+                            <button class="btn btn-sm btn-icon btn-danger" onclick="removeArea(${area.originalIndex})" title="Entfernen">
+                                <span class="icon icon--schliessen"></span>
                             </button>
                         </div>
                     </div>
@@ -1052,15 +1017,6 @@
         }
 
         // formatAddress() ist zentral in main.js definiert
-
-        function toggleAreaGroup(id) {
-            const content = document.getElementById(`area-content-${id}`);
-            const toggle = document.getElementById(`area-toggle-${id}`);
-            if (content && toggle) {
-                content.classList.toggle('open');
-                toggle.classList.toggle('open');
-            }
-        }
 
         let currentAreaType = 'kreisverband'; // Speichert ob KV oder OV hinzugefügt wird
 
@@ -1149,11 +1105,9 @@
                 areaAutocompleteInitialized = true;
             }
 
-            // Modal öffnen
-            document.getElementById('addAreaModal').classList.add('active');
-            lockBodyScroll();
+            // Modal öffnen (zentrale Funktion mit scrollToTop)
             updateAreaNamePreview();
-            document.getElementById('areaVereinsname').focus();
+            openModalById('addAreaModal', { focusId: 'areaVereinsname' });
         }
 
         function editArea(index) {
@@ -1211,14 +1165,13 @@
             areaContactPersons = (area.contactPersons || []).map(c => ({ ...c }));
             renderAreaContactPersons();
 
-            document.getElementById('addAreaModal').classList.add('active');
-            lockBodyScroll();
+            // Modal öffnen (zentrale Funktion mit scrollToTop)
             updateAreaNamePreview();
+            openModalById('addAreaModal');
         }
 
         function closeAddAreaModal() {
-            document.getElementById('addAreaModal').classList.remove('active');
-            unlockBodyScroll();
+            closeModalById('addAreaModal');
             editingAreaIndex = null;
         }
 
@@ -1226,7 +1179,7 @@
             const vereinsname = document.getElementById('areaVereinsname').value.trim();
 
             if (!vereinsname) {
-                showAlert('Fehler', 'Bitte einen Vereinsnamen eingeben', 'warning');
+                showToast('Bitte Vereinsnamen eingeben', 'warning');
                 return;
             }
 
@@ -1271,6 +1224,7 @@
 
             renderEinsatzgebiete();
             closeAddAreaModal();
+            showToast(editingAreaIndex !== null ? 'Einsatzgebiet aktualisiert' : 'Einsatzgebiet hinzugefügt', 'success');
         }
 
         async function removeArea(index) {
@@ -1293,6 +1247,7 @@
             });
 
             renderEinsatzgebiete();
+            showToast('Einsatzgebiet entfernt', 'success');
         }
 
         async function removeKreisverband(index) {
@@ -1411,10 +1366,8 @@
 
                 return `
                     <div class="unterabschnitt--card" data-area-contact-id="${contact.id}">
-                        <button type="button" class="btn-icon btn-icon--danger" onclick="removeAreaContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
+                        <button type="button" class="btn btn-icon btn-danger" onclick="removeAreaContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
+                            <span class="icon icon--schliessen"></span>
                         </button>
                         <div class="zeile">
                             <div class="text-ueberschrift-unterabschnitt">${roleLabel}</div>
@@ -1466,8 +1419,247 @@
         // SPEICHERN
         // ================================================================
 
-        function saveCustomer() {
-            showAlert('Info', 'Speichern-Funktion noch nicht implementiert', 'info');
+        async function saveCustomer() {
+            const saveBtn = document.querySelector('.page-footer .btn-primary');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Speichern...';
+            }
+
+            try {
+                // Kundendaten sammeln
+                const customerData = {
+                    organisation: document.getElementById('organisation').value,
+                    name_prefix: document.getElementById('namePrefix').value,
+                    name: document.getElementById('name').value.trim(),
+                    name_suffix: document.getElementById('nameSuffix').value,
+                    type: document.getElementById('type').value,
+                    kd_id: document.getElementById('kdId').value.trim(),
+                    einwohner: parseInt(document.getElementById('customerEinwohner').value) || null,
+                    email: document.getElementById('contactEmail').value.trim(),
+                    phone: document.getElementById('contactPhone').value.trim(),
+                    website: document.getElementById('customerWebsite').value.trim(),
+                    privacy_policy: document.getElementById('customerPrivacyPolicy').value.trim(),
+                    street: document.getElementById('customerStreet').value.trim(),
+                    house_number: document.getElementById('customerHouseNumber').value.trim(),
+                    postal_code: document.getElementById('customerPostalCode').value.trim(),
+                    city: document.getElementById('customerCity').value.trim(),
+                    country: document.getElementById('customerCountry').value.trim(),
+                    bundesland: document.getElementById('customerBundesland').value.trim(),
+                    address_extra: document.getElementById('customerAddressExtra').value.trim(),
+                    invoice_type_separate: document.getElementById('invoiceTypeSeparate').checked,
+                    updated_at: new Date().toISOString()
+                };
+
+                // Validierung
+                if (!customerData.name) {
+                    showToast('Bitte Namen eingeben', 'warning');
+                    return;
+                }
+
+                let savedCustomerId = customerId;
+
+                if (isNewCustomer) {
+                    // Neuen Kunden anlegen
+                    const { data, error } = await supabase
+                        .from('customers')
+                        .insert(customerData)
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                    savedCustomerId = data.id;
+                    currentCustomer.id = savedCustomerId;
+                } else {
+                    // Bestehenden Kunden aktualisieren
+                    const { error } = await supabase
+                        .from('customers')
+                        .update(customerData)
+                        .eq('id', customerId);
+
+                    if (error) throw error;
+                }
+
+                // Ansprechpartner speichern
+                await saveContactPersons(savedCustomerId);
+
+                // Einsatzgebiete speichern
+                await saveAreas(savedCustomerId);
+
+                showToast('Kunde erfolgreich gespeichert', 'success');
+
+                // Bei neuem Kunden: URL aktualisieren
+                if (isNewCustomer) {
+                    const newUrl = `${window.location.pathname}?id=${savedCustomerId}`;
+                    window.history.replaceState({}, '', newUrl);
+                }
+
+            } catch (err) {
+                console.error('Fehler beim Speichern:', err);
+                showToast('Fehler beim Speichern: ' + err.message, 'error');
+            } finally {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Speichern';
+                }
+            }
+        }
+
+        // Ansprechpartner speichern
+        async function saveContactPersons(custId) {
+            // Alle bestehenden löschen
+            await supabase
+                .from('customer_contacts')
+                .delete()
+                .eq('customer_id', custId);
+
+            // Neue einfügen
+            if (contactPersons.length > 0) {
+                const contactsToInsert = contactPersons.map(c => ({
+                    customer_id: custId,
+                    first_name: c.firstName,
+                    last_name: c.lastName,
+                    role: c.role,
+                    custom_role: c.customRole,
+                    email: c.email,
+                    phone: c.phone
+                }));
+
+                const { error } = await supabase
+                    .from('customer_contacts')
+                    .insert(contactsToInsert);
+
+                if (error) throw error;
+            }
+        }
+
+        // Einsatzgebiete speichern
+        async function saveAreas(custId) {
+            // Alle bestehenden Area-Contacts löschen
+            const { data: existingAreas } = await supabase
+                .from('customer_areas')
+                .select('id')
+                .eq('customer_id', custId);
+
+            if (existingAreas) {
+                for (const area of existingAreas) {
+                    await supabase
+                        .from('customer_area_contacts')
+                        .delete()
+                        .eq('area_id', area.id);
+                }
+            }
+
+            // Alle bestehenden Areas löschen
+            await supabase
+                .from('customer_areas')
+                .delete()
+                .eq('customer_id', custId);
+
+            // Neue Areas einfügen
+            if (currentCustomer.areas.length > 0) {
+                // Erst KVs einfügen (für parent_area_id Referenz)
+                const kvAreas = currentCustomer.areas.filter(a => a.vereinstyp === 'KV');
+                const ovAreas = currentCustomer.areas.filter(a => a.vereinstyp === 'OV');
+
+                const kvIdMap = {}; // localIndex -> DB-ID
+
+                for (let i = 0; i < kvAreas.length; i++) {
+                    const kv = kvAreas[i];
+                    const localIndex = currentCustomer.areas.indexOf(kv);
+
+                    const { data, error } = await supabase
+                        .from('customer_areas')
+                        .insert({
+                            customer_id: custId,
+                            name: kv.name,
+                            vereinstyp: 'KV',
+                            vereinsname: kv.vereinsname,
+                            rechtsform: kv.rechtsform,
+                            einwohner: kv.einwohner || null,
+                            email: kv.email,
+                            phone: kv.phone,
+                            street: kv.street,
+                            house_number: kv.houseNumber,
+                            postal_code: kv.zip,
+                            city: kv.city,
+                            country: kv.country,
+                            bundesland: kv.bundesland,
+                            address_extra: kv.addressExtra,
+                            website: kv.website,
+                            privacy_policy: kv.privacyPolicy,
+                            is_kreisverbandsgebiet: kv.isKreisverbandsgebiet || false,
+                            parent_area_id: null
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                    kvIdMap[localIndex] = data.id;
+
+                    // Area-Contacts speichern
+                    if (kv.contactPersons && kv.contactPersons.length > 0) {
+                        await saveAreaContacts(data.id, kv.contactPersons);
+                    }
+                }
+
+                // Dann OVs einfügen
+                for (const ov of ovAreas) {
+                    const parentId = ov.kvZuordnung !== null ? kvIdMap[ov.kvZuordnung] : null;
+
+                    const { data, error } = await supabase
+                        .from('customer_areas')
+                        .insert({
+                            customer_id: custId,
+                            name: ov.name,
+                            vereinstyp: 'OV',
+                            vereinsname: ov.vereinsname,
+                            rechtsform: ov.rechtsform,
+                            einwohner: ov.einwohner || null,
+                            email: ov.email,
+                            phone: ov.phone,
+                            street: ov.street,
+                            house_number: ov.houseNumber,
+                            postal_code: ov.zip,
+                            city: ov.city,
+                            country: ov.country,
+                            bundesland: ov.bundesland,
+                            address_extra: ov.addressExtra,
+                            website: ov.website,
+                            privacy_policy: ov.privacyPolicy,
+                            is_kreisverbandsgebiet: false,
+                            parent_area_id: parentId
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+
+                    // Area-Contacts speichern
+                    if (ov.contactPersons && ov.contactPersons.length > 0) {
+                        await saveAreaContacts(data.id, ov.contactPersons);
+                    }
+                }
+            }
+        }
+
+        // Area-Ansprechpartner speichern
+        async function saveAreaContacts(areaId, contacts) {
+            const contactsToInsert = contacts.map(c => ({
+                area_id: areaId,
+                first_name: c.firstName,
+                last_name: c.lastName,
+                role: c.role,
+                custom_role: c.customRole,
+                email: c.email,
+                phone: c.phone
+            }));
+
+            const { error } = await supabase
+                .from('customer_area_contacts')
+                .insert(contactsToInsert);
+
+            if (error) throw error;
         }
 
         // ================================================================
@@ -1488,30 +1680,7 @@
         // INITIALISIERUNG
         // ================================================================
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Formularfelder mit Dummy-Daten befüllen
-            document.getElementById('organisation').value = currentCustomer.organisation || 'DRK';
-            document.getElementById('namePrefix').value = 'Landesverband';
-            document.getElementById('name').value = 'Rheinland-Pfalz';
-            document.getElementById('nameSuffix').value = 'e.V.';
-            document.getElementById('contactEmail').value = currentCustomer.contactEmail || '';
-            document.getElementById('contactPhone').value = currentCustomer.contactPhone || '';
-            document.getElementById('customerWebsite').value = currentCustomer.website || '';
-            document.getElementById('customerPrivacyPolicy').value = currentCustomer.privacyPolicy || '';
-            document.getElementById('customerName').textContent = currentCustomer.name;
-            document.getElementById('customerId').textContent = 'KD-' + String(currentCustomer.id).padStart(4, '0');
-            document.getElementById('createdDate').textContent = '15.01.2024';
-
-            // Einsatzgebiete-Section nur bei KV/LV anzeigen
-            const sectionEinsatzgebiete = document.getElementById('sectionEinsatzgebiete');
-            if (sectionEinsatzgebiete) {
-                sectionEinsatzgebiete.style.display = '';
-            }
-
-            renderContactPersons();
-            renderEinsatzgebiete();
-            updateEinsatzgebietDropdownOptions();
-
+        document.addEventListener('DOMContentLoaded', async function() {
             // Kreisverbandsgebiet Toggle
             const kgCheckbox = document.getElementById('areaIsKreisverbandsgebiet');
             if (kgCheckbox) {
@@ -1523,12 +1692,32 @@
                 on: 'Separat - Pro Werbegebiet separate Rechnung',
                 off: 'Zusammen - Alle Werbegebiete zusammen abrechnen'
             });
+
+            // Kunde laden oder Formular für neuen Kunden vorbereiten
+            if (customerId) {
+                await loadCustomer(customerId);
+            } else {
+                // Neuer Kunde: leeres Formular
+                document.getElementById('customerName').textContent = 'Neuer Kunde';
+                document.getElementById('customerId').textContent = '-';
+                document.getElementById('createdDate').textContent = '-';
+                contactPersons = [];
+                renderContactPersons();
+                renderEinsatzgebiete();
+                updateEinsatzgebietDropdownOptions();
+            }
+
+            // Einsatzgebiete-Section nur bei KV/LV anzeigen
+            const sectionEinsatzgebiete = document.getElementById('sectionEinsatzgebiete');
+            if (sectionEinsatzgebiete) {
+                sectionEinsatzgebiete.style.display = '';
+            }
         });
     </script>
 
     <!-- Modal: Einsatzgebiet hinzufügen/bearbeiten -->
     <div class="modal modal-m" id="addAreaModal">
-        <div class="modal-content">
+        <div class="page-container page-container--modal">
             <!-- Modal Header -->
             <div class="page-header">
                 <div class="page-header-row">
@@ -1537,10 +1726,8 @@
                     </div>
                     <div class="page-header-mitte"></div>
                     <div class="page-header-rechts">
-                        <button class="btn-icon" onclick="closeAddAreaModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
+                        <button class="btn btn-icon" onclick="closeAddAreaModal()">
+                            <span class="icon icon--schliessen"></span>
                         </button>
                     </div>
                 </div>
@@ -1549,7 +1736,7 @@
                 </div>
             </div>
             <!-- Modal Body -->
-            <div class="page-content">
+            <div class="page-content page-content--modal">
                 <!-- Unterabschnitt: Allgemeine Informationen -->
                 <div class="unterabschnitt--card">
                     <div class="zeile">
@@ -1669,10 +1856,8 @@
                 <div>
                     <div class="zeile" style="justify-content: space-between; align-items: center;">
                         <div class="text-ueberschrift-unterabschnitt">Ansprechpartner</div>
-                        <button type="button" class="btn btn--secondary btn--sm" onclick="addAreaContactPerson()">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addAreaContactPerson()">
+                            <span class="icon icon--plus"></span>
                             Hinzufügen
                         </button>
                     </div>
@@ -1684,8 +1869,8 @@
             </div>
             <!-- Modal Footer -->
             <div class="page-footer">
-                <button type="button" class="btn btn--secondary" onclick="closeAddAreaModal()">Abbrechen</button>
-                <button type="button" class="btn btn--primary" onclick="saveArea()">Speichern</button>
+                <button type="button" class="btn btn-secondary" onclick="closeAddAreaModal()">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="saveArea()">Speichern</button>
             </div>
         </div>
     </div>

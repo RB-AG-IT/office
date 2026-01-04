@@ -84,30 +84,6 @@ Persistente Shell-Toolbar mit 3 festen Bereichen:
 
 **Seiten-Ordner:** Jeder Ordner im Root (außer css, js, docs, etc.) ist eine eigenständige Seite die per iframe geladen wird. Jeder enthält mindestens eine `index.html`.
 
-## Styles-Seite (Design System)
-
-Die `/styles/`-Seite ist die visuelle Dokumentation aller Komponenten.
-
-**Prinzipien:**
-
-- Jede Komponente wird in einer Tabelle dargestellt
-- Tabellen-Layout beibehalten und weiterführen
-- Alles in **Originalgröße** anzeigen
-- Passt Element nicht in Zelle → Button → Modal mit Originalgröße
-- Alles verlinkt mit zentraler `styles.css` und zentraler `.js`
-
-**Bei neuen Komponenten:**
-
-1. In zentrale `styles.css` eintragen
-2. In Styles-Tabelle visuell darstellen
-3. Verlinken, nicht lokal definieren
-
-**Vereinheitlichung:**
-
-Ähnliche Elemente werden vereinheitlicht, zentral gespeichert und verlinkt (außer explizit anders gewünscht).
-
-**Keine lokalen Styles** außer in Sonderfällen wo es technisch nicht anders geht.
-
 ## Ignorieren
 
 - `/base/` - Separates Projekt (Werber-App) - NICHT ANFASSEN

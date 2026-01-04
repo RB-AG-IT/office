@@ -562,9 +562,9 @@ window.initUnsavedChangesWarning = initUnsavedChangesWarning;
  * @param {string} message - Nachricht
  * @param {string} type - 'success', 'error', 'warning', 'info'
  * @param {string} [title] - Optionaler Titel
- * @param {number} [duration=4000] - Anzeigedauer in ms
+ * @param {number} [duration=6000] - Anzeigedauer in ms
  */
-function showToast(message, type = 'info', title = null, duration = 4000) {
+function showToast(message, type = 'info', title = null, duration = 6000) {
     // Container erstellen falls nicht vorhanden
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -596,8 +596,8 @@ function showToast(message, type = 'info', title = null, duration = 4000) {
             ${icons[type] || icons.info}
         </svg>
         <div class="toast-content">
-            <div class="toast-title">${title || titles[type] || 'Info'}</div>
-            <div class="toast-message">${message}</div>
+            <div class="toast-title text-normal--fett">${title || titles[type] || 'Info'}</div>
+            <div class="toast-message text-klein--fett">${message}</div>
         </div>
         <button class="toast-close" onclick="this.parentElement.remove()">
             <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -648,27 +648,14 @@ const ModalTemplates = {
         });
     },
 
-    // SVG Icons
+    // Icons (zentrale Feather Icons)
     icons: {
-        close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 18L18 6M6 6l12 12"/>
-        </svg>`,
-        info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>`,
-        drag: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
-            <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
-        </svg>`,
-        plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 5v14m-7-7h14"/>
-        </svg>`,
-        warning: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-        </svg>`,
-        trash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>`
+        close: `<span class="icon icon--schliessen"></span>`,
+        info: `<span class="icon icon--info"></span>`,
+        drag: `<span class="icon icon--menu"></span>`,
+        plus: `<span class="icon icon--plus"></span>`,
+        warning: `<span class="icon icon--warnung"></span>`,
+        trash: `<span class="icon icon--papierkorb"></span>`
     },
 
     /**
@@ -680,7 +667,7 @@ const ModalTemplates = {
          */
         storno: () => `
             <div class="modal modal-s" id="stornoModal">
-                <div class="modal-content">
+                <div class="page-container page-container--modal">
                     <!-- Modal Header -->
                     <div class="page-header">
                         <div class="page-header-row">
@@ -690,10 +677,8 @@ const ModalTemplates = {
                             </div>
                             <div class="page-header-mitte"></div>
                             <div class="page-header-rechts">
-                                <button class="btn-icon" onclick="closeStornoModal()">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
+                                <button class="btn btn-icon" onclick="closeStornoModal()">
+                                    <span class="icon icon--schliessen"></span>
                                 </button>
                             </div>
                         </div>
@@ -702,7 +687,7 @@ const ModalTemplates = {
                         </div>
                     </div>
                     <!-- Modal Body -->
-                    <div class="page-content">
+                    <div class="page-content page-content--modal">
                         <div class="zeile">
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Storno-Grund</label>
@@ -761,8 +746,8 @@ const ModalTemplates = {
                     </div>
                     <!-- Modal Footer -->
                     <div class="page-footer">
-                        <button class="btn btn--secondary" onclick="closeStornoModal()">Abbrechen</button>
-                        <button class="btn btn--warning" onclick="confirmStorno()">Stornieren</button>
+                        <button class="btn btn-secondary" onclick="closeStornoModal()">Abbrechen</button>
+                        <button class="btn btn-warning" onclick="confirmStorno()">Stornieren</button>
                     </div>
                 </div>
             </div>
@@ -773,7 +758,7 @@ const ModalTemplates = {
          */
         columns: () => `
             <div class="modal modal-xl" id="columnsModal">
-                <div class="modal-content">
+                <div class="page-container page-container--modal">
                     <!-- Modal Header -->
                     <div class="page-header">
                         <div class="page-header-row">
@@ -784,10 +769,8 @@ const ModalTemplates = {
                                 <span class="text-ueberschrift">Konfiguration</span>
                             </div>
                             <div class="page-header-rechts">
-                                <button class="btn-icon" onclick="closeColumnsModal()">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
+                                <button class="btn btn-icon" onclick="closeColumnsModal()">
+                                    <span class="icon icon--schliessen"></span>
                                 </button>
                             </div>
                         </div>
@@ -796,9 +779,9 @@ const ModalTemplates = {
                         </div>
                     </div>
                     <!-- Modal Body Split -->
-                    <div class="modal-body--split">
-                        <div class="page-content">
-                            <div class="modal-hint">
+                    <div class="page-content--modal-split">
+                        <div class="page-content page-content--modal">
+                            <div class="modal-hint text-klein">
                                 ${ModalTemplates.icons.info}
                                 Ziehen zum Sortieren, Checkbox zum Ein-/Ausblenden
                             </div>
@@ -806,12 +789,12 @@ const ModalTemplates = {
                                 <!-- Wird dynamisch gefüllt -->
                             </div>
                         </div>
-                        <div class="modal-sidebar">
+                        <div class="page-content--modal-split-sidebar">
                             <div class="text-ueberschrift-unterabschnitt">Vorlagen</div>
                             <div class="templates-list" id="templatesList">
                                 <!-- Wird dynamisch gefüllt -->
                             </div>
-                            <button class="template-add-btn" id="templateAddBtn" onclick="startAddTemplate && startAddTemplate()">
+                            <button class="template-add-btn text-normal--fett" id="templateAddBtn" onclick="startAddTemplate && startAddTemplate()">
                                 ${ModalTemplates.icons.plus}
                                 Als Vorlage speichern
                             </button>
@@ -823,8 +806,8 @@ const ModalTemplates = {
                     </div>
                     <!-- Modal Footer -->
                     <div class="page-footer">
-                        <button class="btn btn--secondary" onclick="resetColumns && resetColumns()">Zurücksetzen</button>
-                        <button class="btn btn--primary" onclick="saveColumns && saveColumns()">Übernehmen</button>
+                        <button class="btn btn-secondary" onclick="resetColumns && resetColumns()">Zurücksetzen</button>
+                        <button class="btn btn-primary" onclick="saveColumns && saveColumns()">Übernehmen</button>
                     </div>
                 </div>
             </div>
@@ -835,23 +818,20 @@ const ModalTemplates = {
          */
         edit: () => `
             <div class="modal modal-l" id="editModal">
-                <div class="modal-content">
+                <div class="page-container page-container--modal">
                     <!-- Modal Header -->
                     <div class="page-header">
                         <div class="page-header-row">
-                            <div class="avatar avatar--md" id="editModalAvatar">MM</div>
                             <div class="page-header-links">
                                 <span class="text-ueberschrift" id="editModalName">Max Mustermann</span>
-                                <span class="text-klein"><span class="badge nmg" id="editModalTypeBadge">NMG</span> <span id="editModalDate">Erstellt am 10.12.2025</span></span>
+                                <span class="text-klein"><span class="pill pill--neumitglied" id="editModalTypeBadge">NMG</span> <span id="editModalDate">Erstellt am 10.12.2025</span></span>
                             </div>
                             <div class="page-header-mitte">
                                 <span class="text-ueberschrift">Bearbeiten</span>
                             </div>
                             <div class="page-header-rechts">
-                                <button class="btn-icon" onclick="closeEditModal()">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
+                                <button class="btn btn-icon" onclick="closeEditModal()">
+                                    <span class="icon icon--schliessen"></span>
                                 </button>
                             </div>
                         </div>
@@ -861,9 +841,9 @@ const ModalTemplates = {
                     </div>
 
                     <!-- Modal Body Split -->
-                    <div class="modal-body--split">
+                    <div class="page-content--modal-split">
                         <!-- Linke Seite: Formular -->
-                        <div class="page-content">
+                        <div class="page-content page-content--modal">
                             <!-- Persönliche Daten -->
                             <div class="unterabschnitt--card">
                                 <div class="zeile">
@@ -1023,7 +1003,7 @@ const ModalTemplates = {
                         </div>
 
                         <!-- Rechte Seite: Historie -->
-                        <div class="modal-body-sidebar">
+                        <div class="page-content--modal-split-sidebar">
                             <div class="text-ueberschrift-unterabschnitt">Verlauf</div>
                             <div class="history-timeline" id="editHistoryTimeline">
                                 <!-- Wird dynamisch gefüllt -->
@@ -1033,8 +1013,8 @@ const ModalTemplates = {
 
                     <!-- Modal Footer -->
                     <div class="page-footer">
-                        <button class="btn btn--secondary" onclick="closeEditModal()">Abbrechen</button>
-                        <button class="btn btn--primary" onclick="saveEditModal()">Speichern</button>
+                        <button class="btn btn-secondary" onclick="closeEditModal()">Abbrechen</button>
+                        <button class="btn btn-primary" onclick="saveEditModal()">Speichern</button>
                     </div>
                 </div>
             </div>
@@ -1045,7 +1025,7 @@ const ModalTemplates = {
          */
         import: () => `
             <div class="modal modal-m" id="importModal">
-                <div class="modal-content">
+                <div class="page-container page-container--modal">
                     <!-- Modal Header -->
                     <div class="page-header">
                         <div class="page-header-row">
@@ -1071,10 +1051,8 @@ const ModalTemplates = {
                                 </div>
                             </div>
                             <div class="page-header-rechts">
-                                <button class="btn-icon" onclick="closeModalById('importModal')">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
+                                <button class="btn btn-icon" onclick="closeModalById('importModal')">
+                                    <span class="icon icon--schliessen"></span>
                                 </button>
                             </div>
                         </div>
@@ -1084,7 +1062,7 @@ const ModalTemplates = {
                     </div>
 
                     <!-- Step 1: Datei hochladen -->
-                    <div class="page-content import-step-content" id="importStep1">
+                    <div class="page-content page-content--modal import-step-content" id="importStep1">
                         <div class="import-drop-zone" id="importDropZone">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
@@ -1111,16 +1089,12 @@ const ModalTemplates = {
                             </button>
                         </div>
                         <div class="import-formats">
-                            <span class="text-klein">Unterstützte Formate:</span>
-                            <span class="badge">XLS</span>
-                            <span class="badge">XLSX</span>
-                            <span class="badge">CSV</span>
-                            <span class="badge">ODT</span>
+                            <span class="text-klein">Unterstützte Formate: XLS, XLSX, CSV, ODT</span>
                         </div>
                     </div>
 
                     <!-- Step 2: Spalten zuordnen -->
-                    <div class="page-content import-step-content" id="importStep2" style="display: none;">
+                    <div class="page-content page-content--modal import-step-content" id="importStep2" style="display: none;">
                         <div class="import-mapping-container">
                             <div class="import-mapping-section">
                                 <div class="import-mapping-section-header">
@@ -1167,7 +1141,7 @@ const ModalTemplates = {
                     </div>
 
                     <!-- Step 3: Vorschau -->
-                    <div class="page-content import-step-content" id="importStep3" style="display: none;">
+                    <div class="page-content page-content--modal import-step-content" id="importStep3" style="display: none;">
                         <div class="zeile">
                             <span class="text-klein" id="importPreviewCount">10 von 50 Datensätzen</span>
                         </div>
@@ -1184,9 +1158,9 @@ const ModalTemplates = {
                     </div>
 
                     <div class="page-footer">
-                        <button class="btn btn--secondary" onclick="closeModalById('importModal')">Abbrechen</button>
-                        <button class="btn btn--secondary" id="importBackBtn" onclick="importStepBack()" style="display: none;">Zurück</button>
-                        <button class="btn btn--primary" id="importNextBtn" onclick="importStepNext()" disabled>Weiter</button>
+                        <button class="btn btn-secondary" onclick="closeModalById('importModal')">Abbrechen</button>
+                        <button class="btn btn-secondary" id="importBackBtn" onclick="importStepBack()" style="display: none;">Zurück</button>
+                        <button class="btn btn-primary" id="importNextBtn" onclick="importStepNext()" disabled>Weiter</button>
                     </div>
                 </div>
             </div>
@@ -1197,7 +1171,7 @@ const ModalTemplates = {
          */
         export: () => `
             <div class="modal modal-m" id="exportModal">
-                <div class="modal-content">
+                <div class="page-container page-container--modal">
                     <!-- Modal Header -->
                     <div class="page-header">
                         <div class="page-header-row">
@@ -1206,10 +1180,8 @@ const ModalTemplates = {
                             </div>
                             <div class="page-header-mitte"></div>
                             <div class="page-header-rechts">
-                                <button class="btn-icon" onclick="closeModalById('exportModal')">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
+                                <button class="btn btn-icon" onclick="closeModalById('exportModal')">
+                                    <span class="icon icon--schliessen"></span>
                                 </button>
                             </div>
                         </div>
@@ -1218,7 +1190,7 @@ const ModalTemplates = {
                         </div>
                     </div>
                     <!-- Modal Body -->
-                    <div class="page-content">
+                    <div class="page-content page-content--modal">
                         <!-- Export Info -->
                         <div class="unterabschnitt--card">
                             <div class="zeile">
@@ -1315,8 +1287,8 @@ const ModalTemplates = {
                     </div>
                     <!-- Modal Footer -->
                     <div class="page-footer">
-                        <button class="btn btn--secondary" onclick="closeModalById('exportModal')">Abbrechen</button>
-                        <button class="btn btn--primary" onclick="confirmExport()">Exportieren</button>
+                        <button class="btn btn-secondary" onclick="closeModalById('exportModal')">Abbrechen</button>
+                        <button class="btn btn-primary" onclick="confirmExport()">Exportieren</button>
                     </div>
                 </div>
             </div>
@@ -1327,7 +1299,7 @@ const ModalTemplates = {
          */
         confirm: () => `
             <div class="modal modal-xs" id="confirmModal">
-                <div class="modal-content">
+                <div class="page-container page-container--modal">
                     <div class="modal-body" style="text-align: center; padding: var(--spacing-lg);">
                         <div class="confirm-icon" id="confirmIcon" style="margin-bottom: var(--spacing-md);">
                             ${ModalTemplates.icons.warning}
@@ -1336,8 +1308,8 @@ const ModalTemplates = {
                         <span class="text-klein" id="confirmMessage">Möchten Sie fortfahren?</span>
                     </div>
                     <div class="page-footer" style="justify-content: center;">
-                        <button class="btn btn--secondary" onclick="closeConfirmModal()">Abbrechen</button>
-                        <button class="btn btn--danger" id="confirmBtn" onclick="executeConfirm()">Bestätigen</button>
+                        <button class="btn btn-secondary" onclick="closeConfirmModal()">Abbrechen</button>
+                        <button class="btn btn-danger" id="confirmBtn" onclick="executeConfirm()">Bestätigen</button>
                     </div>
                 </div>
             </div>
@@ -1348,11 +1320,11 @@ const ModalTemplates = {
          */
         deleteConfirmSimple: () => `
             <div class="modal modal-xs" id="deleteConfirmSimpleModal">
-                <div class="modal-content">
+                <div class="page-container page-container--modal">
                     <div class="modal-body">
                         <div class="zeile zeile--header">
                             <div class="text-ueberschrift-abschnitt" id="deleteConfirmSimpleTitle">Löschen bestätigen</div>
-                            <button class="btn-icon" onclick="closeDeleteConfirmSimpleModal()" style="margin-left: auto;">
+                            <button class="btn btn-icon" onclick="closeDeleteConfirmSimpleModal()" style="margin-left: auto;">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -1366,8 +1338,8 @@ const ModalTemplates = {
                         </div>
                     </div>
                     <div class="page-footer">
-                        <button type="button" class="btn btn--secondary" onclick="closeDeleteConfirmSimpleModal()">Abbrechen</button>
-                        <button type="button" class="btn btn--danger" id="deleteConfirmSimpleBtn" onclick="executeDeleteConfirmSimple()">Löschen</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirmSimpleModal()">Abbrechen</button>
+                        <button type="button" class="btn btn-danger" id="deleteConfirmSimpleBtn" onclick="executeDeleteConfirmSimple()">Löschen</button>
                     </div>
                 </div>
             </div>
@@ -1378,7 +1350,7 @@ const ModalTemplates = {
          */
         deleteConfirm: () => `
             <div class="modal modal-xs" id="deleteConfirmModal">
-                <div class="modal-content">
+                <div class="page-container page-container--modal">
                     <div class="modal-body" style="text-align: center; padding: var(--spacing-lg);">
                         <div class="confirm-icon error" style="margin-bottom: var(--spacing-md);">
                             ${ModalTemplates.icons.trash}
@@ -1387,8 +1359,8 @@ const ModalTemplates = {
                         <span class="text-klein" id="deleteConfirmMessage">Dieser Eintrag wird unwiderruflich gelöscht.</span>
                     </div>
                     <div class="page-footer" style="justify-content: center;">
-                        <button class="btn btn--secondary" onclick="closeDeleteConfirmModal()">Abbrechen</button>
-                        <button class="btn btn--danger" onclick="executeDeleteConfirm()">Löschen</button>
+                        <button class="btn btn-secondary" onclick="closeDeleteConfirmModal()">Abbrechen</button>
+                        <button class="btn btn-danger" onclick="executeDeleteConfirm()">Löschen</button>
                     </div>
                 </div>
             </div>
@@ -1609,17 +1581,17 @@ async function confirmStorno() {
     const mailBestaetigung = document.getElementById('stornoMailBestaetigung')?.checked;
 
     if (!grundSelect) {
-        await showAlert('Fehler', 'Bitte wählen Sie einen Storno-Grund aus.', 'warning');
+        showToast('Bitte Storno-Grund auswählen', 'warning');
         return;
     }
 
     if (grundSelect === 'freitext' && !grundFreitext?.trim()) {
-        await showAlert('Fehler', 'Bitte geben Sie einen Storno-Grund ein.', 'warning');
+        showToast('Bitte Storno-Grund eingeben', 'warning');
         return;
     }
 
     if (!datum) {
-        await showAlert('Fehler', 'Bitte geben Sie ein Storno-Datum ein.', 'warning');
+        showToast('Bitte Storno-Datum eingeben', 'warning');
         return;
     }
 
@@ -1635,7 +1607,7 @@ async function confirmStorno() {
     });
 
     closeStornoModal();
-    await showAlert('Erfolg', 'Datensatz erfolgreich storniert.', 'success');
+    showToast('Datensatz storniert', 'success');
 }
 
 // ========================================
@@ -1834,7 +1806,7 @@ const CalendarModal = (function() {
                     <div class="calendar-modal-content" onmousedown="event.stopPropagation()">
                         <div class="calendar-modal-header">
                             <h3>Individueller Zeitraum</h3>
-                            <button class="btn-icon" onclick="CalendarModal.close()" title="Schließen">
+                            <button class="btn btn-icon" onclick="CalendarModal.close()" title="Schließen">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
@@ -1844,12 +1816,12 @@ const CalendarModal = (function() {
                                     <label>Von</label>
                                     <input type="text" id="calendarFromInput" placeholder="TT.MM.JJJJ">
                                     <div class="calendar-kw-picker mt-sm" id="calendarFromKwPicker">
-                                        <button type="button" class="btn-icon btn-icon--sm" id="calendarFromKwPrev" title="Vorherige KW">
+                                        <button type="button" class="btn btn-sm btn-icon" id="calendarFromKwPrev" title="Vorherige KW">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                         </button>
                                         <span class="text-klein" id="calendarFromKwDisplay" title="Klicken zum Bearbeiten"><span id="calendarFromKwNumber">KW --</span> <span class="text-klein" id="calendarFromKwYear">----</span></span>
                                         <input type="text" class="eingabefeld text-klein" id="calendarFromKwInput" placeholder="KW" maxlength="2">
-                                        <button type="button" class="btn-icon btn-icon--sm" id="calendarFromKwNext" title="Nächste KW">
+                                        <button type="button" class="btn btn-sm btn-icon" id="calendarFromKwNext" title="Nächste KW">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                                         </button>
                                     </div>
@@ -1858,12 +1830,12 @@ const CalendarModal = (function() {
                                     <label>Bis</label>
                                     <input type="text" id="calendarToInput" placeholder="TT.MM.JJJJ">
                                     <div class="calendar-kw-picker mt-sm" id="calendarToKwPicker">
-                                        <button type="button" class="btn-icon btn-icon--sm" id="calendarToKwPrev" title="Vorherige KW">
+                                        <button type="button" class="btn btn-sm btn-icon" id="calendarToKwPrev" title="Vorherige KW">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                         </button>
                                         <span class="text-klein" id="calendarToKwDisplay" title="Klicken zum Bearbeiten"><span id="calendarToKwNumber">KW --</span> <span class="text-klein" id="calendarToKwYear">----</span></span>
                                         <input type="text" class="eingabefeld text-klein" id="calendarToKwInput" placeholder="KW" maxlength="2">
-                                        <button type="button" class="btn-icon btn-icon--sm" id="calendarToKwNext" title="Nächste KW">
+                                        <button type="button" class="btn btn-sm btn-icon" id="calendarToKwNext" title="Nächste KW">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                                         </button>
                                     </div>
@@ -2402,16 +2374,16 @@ const additionalModalStyles = `
     align-items: center;
     gap: 12px;
     padding: 12px 14px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.15s;
 }
 
 .template-item:hover {
-    border-color: #6366f1;
-    background: #f0f0ff;
+    border-color: var(--color-werber);
+    background: var(--bg-hover);
 }
 
 .template-add-btn {
@@ -2421,43 +2393,108 @@ const additionalModalStyles = `
     gap: 8px;
     width: 100%;
     padding: 14px;
-    border: 2px dashed #d1d5db;
+    border: 2px dashed var(--border-color);
     border-radius: 8px;
     background: transparent;
-    color: #6b7280;
-    font-size: var(--font-size-sm);
-    font-weight: 500;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.15s;
     flex-shrink: 0;
 }
 
 .template-add-btn:hover:not(:disabled) {
-    border-color: #6366f1;
-    color: #6366f1;
-    background: #f0f0ff;
+    border-color: var(--color-werber);
+    color: var(--color-werber);
+    background: var(--bg-hover);
 }
 
-.template-add-btn svg {
+.modal-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+}
+
+.template-item-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.template-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.template-item-name {
+    color: var(--text-primary);
+}
+
+.template-item-count {
+    color: var(--text-secondary);
+}
+
+.template-empty {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 16px;
+}
+
+.column-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: grab;
+    transition: all 0.15s;
+}
+
+.column-item:hover {
+    border-color: var(--color-werber);
+    background: var(--bg-hover);
+}
+
+.column-item.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.column-item.dragging {
+    opacity: 0.5;
+}
+
+.column-item.drag-over {
+    border-color: var(--color-werber);
+    background: var(--bg-hover);
+}
+
+.column-item-drag {
+    color: var(--text-secondary);
+    cursor: grab;
+}
+
+.column-item-checkbox {
     width: 16px;
     height: 16px;
+    cursor: pointer;
 }
 
-.template-name-input {
-    width: 100%;
-    padding: 14px;
-    border: 2px solid #6366f1;
-    border-radius: 8px;
-    font-size: var(--font-size-sm);
-    color: #374151;
-    background: #ffffff;
-    flex-shrink: 0;
-    box-sizing: border-box;
-}
-
-.template-name-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+.column-item-label {
+    color: var(--text-primary);
+    flex: 1;
 }
 
 `;
@@ -2625,7 +2662,8 @@ function createBadge(options = {}) {
         isTC = false,
         isQ = false,
         stufe = '',          // nur für Werber
-        style = ''
+        style = '',
+        image = ''           // Profilbild-URL (optional)
     } = options;
 
     const sizeClass = size ? `user-badge--${size}` : '';
@@ -2647,12 +2685,23 @@ function createBadge(options = {}) {
     const symbolTypes = ['neumitglied', 'erhoehung', 'bestandsmitglied', 'storno'];
     const useSymbol = symbolTypes.includes(type);
 
-    const avatarContent = useSymbol ? getBadgeSymbolSVG(type) : getInitials(name);
+    // Avatar: Bild > Symbol > Initialen
+    let avatarContent;
+    if (image) {
+        // onerror: Bei Ladefehler auf Initialen zurückfallen
+        const initials = getInitials(name).replace(/'/g, "\\'");
+        avatarContent = `<img src="${image}" alt="${name}" onerror="this.outerHTML='${initials}'">`;
+    } else if (useSymbol) {
+        avatarContent = getBadgeSymbolSVG(type);
+    } else {
+        avatarContent = getInitials(name);
+    }
     const stufeBadge = (type === 'werber' && stufe) ? getStufeBadge(stufe) : '';
     const typeRow = type === 'werber' ? getBadgeTypeRow(typeLabels[type], isTC, isQ) : `<span class="user-badge__type">${typeLabels[type]}</span>`;
+    const avatarStufeClass = (type === 'werber' && stufe) ? `user-badge__avatar--${stufe.toLowerCase()}` : '';
 
     return `<div class="user-badge user-badge--${type} ${sizeClass}"${styleAttr}>
-        <div class="user-badge__avatar">
+        <div class="user-badge__avatar ${avatarStufeClass}">
             ${avatarContent}
             ${stufeBadge}
         </div>
@@ -3033,7 +3082,7 @@ function createAuditModal() {
     };
 
     modalDiv.innerHTML = `
-        <div class="modal-content">
+        <div class="page-container page-container--modal">
             <!-- Modal Header -->
             <div class="page-header">
                 <div class="page-header-row">
@@ -3042,7 +3091,7 @@ function createAuditModal() {
                     </div>
                     <div class="page-header-mitte"></div>
                     <div class="page-header-rechts">
-                        <button class="btn-icon" onclick="closeAuditModal()">
+                        <button class="btn btn-icon" onclick="closeAuditModal()">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -3054,7 +3103,7 @@ function createAuditModal() {
                 </div>
             </div>
             <!-- Modal Body -->
-            <div class="page-content">
+            <div class="page-content page-content--modal">
                 <div class="audit-list" id="auditList">
                     <!-- Wird per JS gefüllt -->
                 </div>
@@ -3144,10 +3193,27 @@ function renderAuditItem(entry) {
         typeClass = 'audit-color-orange';
         titleText = `${entry.member} bearbeitet`;
         if (entry.changes) {
-            previewText = entry.changes.map(c =>
-                `${c.field}:&nbsp; <span class="audit-color-grau-durchgestrichen">${c.oldValue}</span> <span class="audit-color-grau">&nbsp;→&nbsp;</span> <span class="audit-color-orange">${c.newValue}</span>`
-            ).join(', ');
-            detailsHtml = entry.changes.map(c => `
+            previewText = entry.changes.map(c => {
+                // IBAN: nur neuen Wert anzeigen
+                if (c.field === 'IBAN') {
+                    return `${c.field}:&nbsp; <span class="audit-color-orange">${c.newValue}</span>`;
+                }
+                return `${c.field}:&nbsp; <span class="audit-color-grau-durchgestrichen">${c.oldValue}</span> <span class="audit-color-grau">&nbsp;→&nbsp;</span> <span class="audit-color-orange">${c.newValue}</span>`;
+            }).join(', ');
+            detailsHtml = entry.changes.map(c => {
+                // IBAN: nur neuen Wert anzeigen
+                if (c.field === 'IBAN') {
+                    return `
+                <div class="zeile">
+                    <div class="eingabefeld-card-gruppe">
+                        <span class="eingabefeld-beschriftung-oben">Person</span>
+                        <div class="eingabefeld-card">${entry.member}:&nbsp; <span class="audit-color-orange">${c.newValue}</span></div>
+                        <span class="eingabefeld-beschriftung-unten audit-color-orange">${c.field} korrigiert</span>
+                    </div>
+                </div>
+                    `;
+                }
+                return `
                 <div class="zeile">
                     <div class="eingabefeld-card-gruppe">
                         <span class="eingabefeld-beschriftung-oben">Person</span>
@@ -3155,7 +3221,8 @@ function renderAuditItem(entry) {
                         <span class="eingabefeld-beschriftung-unten audit-color-orange">${c.field} bearbeitet</span>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
     }
 
@@ -3169,12 +3236,12 @@ function renderAuditItem(entry) {
                     <span class="eingabefeld-beschriftung-unten eingabefeld-beschriftung-unten--einzeilig ${previewClass}">${previewText}</span>
                 </div>
                 <div style="display: flex; flex-direction: column; align-self: center; gap: 4px;">
-                    <button class="btn-icon" onclick="event.stopPropagation(); showUndoConfirm(${entryId}, this)" title="Rückgängig machen">
+                    <button class="btn btn-icon" onclick="event.stopPropagation(); showUndoConfirm(${entryId}, this)" title="Rückgängig machen">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
                             <path d="M3 10h10a5 5 0 0 1 5 5v2M3 10l4-4M3 10l4 4"/>
                         </svg>
                     </button>
-                    <button class="btn-icon" onclick="event.stopPropagation(); toggleAuditExpand(this)" title="Details anzeigen">
+                    <button class="btn btn-icon" onclick="event.stopPropagation(); toggleAuditExpand(this)" title="Details anzeigen">
                         <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
                             <path d="M19 9l-7 7-7-7"/>
                         </svg>
@@ -3221,8 +3288,8 @@ function showUndoConfirm(entryId, buttonElement) {
     overlay.innerHTML = `
         <div class="zeile zeile--center">
             <span class="text-normal">Änderung rückgängig machen?</span>
-            <button class="btn btn--secondary btn--sm" onclick="cancelUndo(this)">Abbrechen</button>
-            <button class="btn btn--primary btn--sm" onclick="confirmUndo(${entryId}, this)">Rückgängig</button>
+            <button class="btn btn-secondary btn-sm" onclick="cancelUndo(this)">Abbrechen</button>
+            <button class="btn btn-primary btn-sm" onclick="confirmUndo(${entryId}, this)">Rückgängig</button>
         </div>
     `;
 
@@ -3574,7 +3641,7 @@ window.initToggleLabel = initToggleLabel;
  */
 function formatLastLogin(date, isOnline) {
     if (isOnline) {
-        return `<span class="badge-online">Online</span>`;
+        return `<span class="pill pill--success pill--online">Online</span>`;
     }
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
@@ -3582,7 +3649,7 @@ function formatLastLogin(date, isOnline) {
     const year = d.getFullYear();
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
-    return `<span class="badge-offline">${day}.${month}.${year} ${hours}:${minutes}</span>`;
+    return `<span class="pill pill--inaktiv">${day}.${month}.${year} - ${hours}:${minutes}</span>`;
 }
 
 // =====================================================
@@ -3982,7 +4049,7 @@ function switchTab(tabName) {
 // ========== FILTER ==========
 function setFilter(filter) {
     currentFilter = filter;
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    document.querySelectorAll('[data-filter]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.filter === filter);
     });
     renderRecordsTable();
@@ -4044,17 +4111,13 @@ function updateSelectionUI(tableBodyId) {
     const type = tableBodyId.replace('TableBody', '');
 
     const btnCount = document.getElementById(`${type}SelectedCount`);
-    const selectionBtn = document.getElementById(`${type}SelectionBtn`);
-    const headerActions = document.getElementById(`${type}HeaderActions`);
+    const selectionGroup = document.getElementById(`${type}SelectionGroup`);
 
     if (btnCount) {
         btnCount.textContent = count;
     }
-    if (selectionBtn) {
-        selectionBtn.classList.toggle('visible', count > 0);
-    }
-    if (headerActions) {
-        headerActions.classList.toggle('visible', count > 0);
+    if (selectionGroup) {
+        selectionGroup.classList.toggle('visible', count > 0);
     }
 }
 
@@ -4333,16 +4396,12 @@ async function tableAction(action, type, singleRecord = null) {
     switch (action) {
         case 'mail':
             console.log(`E-Mail senden an: ${nameList}`);
-            if (typeof showAlert === 'function') {
-                showAlert('E-Mail', `E-Mail würde gesendet an: ${nameList}`, 'info');
-            }
+            showToast(isSingle ? 'E-Mail gesendet' : `${ids.length} E-Mails gesendet`, 'success');
             break;
 
         case 'pdf':
             console.log(`PDF erstellen für: ${nameList}`);
-            if (typeof showAlert === 'function') {
-                showAlert('PDF', `PDF würde erstellt für: ${nameList}`, 'info');
-            }
+            showToast(isSingle ? 'PDF erstellt' : `${ids.length} PDFs erstellt`, 'success');
             break;
 
         case 'storno':
@@ -4362,10 +4421,8 @@ async function tableAction(action, type, singleRecord = null) {
 
             if (confirmed) {
                 console.log('Löschen:', ids);
-                if (typeof showAlert === 'function') {
-                    const successText = isSingle ? `"${names[0]}" wurde gelöscht.` : `${ids.length} Datensatz/Datensätze wurden gelöscht.`;
-                    showAlert('Gelöscht', successText, 'success');
-                }
+                const successText = isSingle ? `"${names[0]}" gelöscht` : `${ids.length} Einträge gelöscht`;
+                showToast(successText, 'success');
                 if (!singleRecord) clearSelection(type);
             }
             break;
@@ -4436,8 +4493,8 @@ function renderRecordsTable() {
             headerHtml += `<th class="sortable ${def.class} ${sortClass}" data-col="${col.id}" style="${display}" onclick="sortTable('records', '${col.id}')">
                 ${def.label}
                 <span class="sort-arrows">
-                    <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-                    <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                    <span class="icon icon--pfeil-auf arrow-up"></span>
+                    <span class="icon icon--pfeil-ab arrow-down"></span>
                 </span>
             </th>`;
         }
@@ -4452,7 +4509,7 @@ function renderRecordsTable() {
         // Spalten-Daten mit Mapping (generische Spaltenbreiten)
         const colData = {
             name: { class: 'col-name text-left', html: d.name },
-            typ: { class: 'col-s text-center', html: `<span class="badge ${d.typ}">${d.typ === 'nmg' ? 'NMG' : 'ERH'}</span>` },
+            typ: { class: 'col-s text-center', html: `<span class="pill pill--${d.typ === 'nmg' ? 'neumitglied' : 'erhoehung'}">${d.typ === 'nmg' ? 'NMG' : 'ERH'}</span>` },
             date: { class: 'col-m text-left', html: d.date },
             je: { class: 'col-s text-right', html: d.je },
             kunde: { class: 'col-m text-left', html: d.kunde || '' },
@@ -4466,7 +4523,7 @@ function renderRecordsTable() {
             email: { class: 'col-xl text-left', html: d.email || '' },
             phoneFixed: { class: 'col-m text-left', html: d.phoneFixed || '' },
             phoneMobile: { class: 'col-m text-left', html: d.phoneMobile || '' },
-            status: { class: 'col-s text-center', html: `<span class="badge ${d.status}">${d.status.toUpperCase()}</span>` }
+            status: { class: 'col-s text-center', html: `<span class="pill pill--${d.status === 'aktiv' ? 'success' : d.status === 'storniert' ? 'error' : 'inaktiv'}">${d.status}</span>` }
         };
 
         // Spalten in konfigurierter Reihenfolge rendern
@@ -4638,8 +4695,8 @@ function renderBestandTable() {
             headerHtml += `<th class="sortable ${def.class} ${sortClass}" data-col="${col.id}" style="${display}" onclick="sortTable('bestand', '${col.id}')">
                 ${def.label}
                 <span class="sort-arrows">
-                    <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-                    <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                    <span class="icon icon--pfeil-auf arrow-up"></span>
+                    <span class="icon icon--pfeil-ab arrow-down"></span>
                 </span>
             </th>`;
         }
@@ -4658,7 +4715,7 @@ function renderBestandTable() {
             seit: { class: 'col-m text-left', html: d.seit },
             je: { class: 'col-s text-right', html: d.je },
             email: { class: 'col-xl text-left', html: d.email },
-            status: { class: 'col-s text-center', html: `<span class="badge ${d.status}">${d.status.toUpperCase()}</span>` }
+            status: { class: 'col-s text-center', html: `<span class="pill pill--${d.status === 'aktiv' ? 'success' : d.status === 'storniert' ? 'error' : 'inaktiv'}">${d.status}</span>` }
         };
 
         // Spalten in konfigurierter Reihenfolge rendern
@@ -4829,9 +4886,6 @@ function openEditModal(type, id) {
     const nameParts = record.name.split(' ');
     const initials = nameParts.map(p => p[0]).join('').toUpperCase().substring(0, 2);
 
-    const avatar = document.getElementById('editModalAvatar');
-    if (avatar) avatar.textContent = initials;
-
     const nameEl = document.getElementById('editModalName');
     if (nameEl) nameEl.textContent = record.name;
 
@@ -4955,9 +5009,7 @@ async function saveEditModal() {
     console.log('Formulardaten:', formData);
 
     closeEditModal();
-    if (typeof showAlert === 'function') {
-        await showAlert('Erfolg', 'Änderungen wurden gespeichert.', 'success');
-    }
+    showToast('Änderungen wurden gespeichert', 'success');
 
     // Tabelle neu rendern
     renderRecordsTable();
@@ -5014,16 +5066,14 @@ function renderColumnsList() {
              ondrop="handleDrop(event)"
              ondragend="handleDragEnd(event)">
             <div class="column-item-drag">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01"/>
-                </svg>
+                <span class="icon icon--menu"></span>
             </div>
             <input type="checkbox"
                    class="column-item-checkbox"
                    ${col.visible ? 'checked' : ''}
                    ${col.required ? 'disabled' : ''}
                    onchange="toggleColumnVisibility(${index})">
-            <span class="column-item-label">${col.label}</span>
+            <span class="column-item-label text-normal">${col.label}</span>
         </div>
     `).join('');
 }
@@ -5101,6 +5151,7 @@ function saveColumns() {
     }
 
     closeColumnsModal();
+    showToast('Spalten-Konfiguration gespeichert', 'success');
 }
 
 // Globale Funktion um Spalten-Sichtbarkeit in Render-Funktionen zu berücksichtigen
@@ -5135,21 +5186,19 @@ function renderTemplatesList() {
     if (!list || !addBtn) return;
 
     if (templates.length === 0) {
-        list.innerHTML = '<div class="template-empty">Keine Vorlagen</div>';
+        list.innerHTML = '<div class="template-empty text-klein">Keine Vorlagen</div>';
     } else {
         list.innerHTML = templates.map((tpl, index) => {
             const visibleCount = tpl.config.filter(c => c.visible).length;
             return `
                 <div class="template-item" onclick="applyTemplate(${index})">
-                    <div class="template-item-icon">${index + 1}</div>
+                    <div class="template-item-icon text-klein--fett">${index + 1}</div>
                     <div class="template-item-info">
-                        <div class="template-item-name">${tpl.name}</div>
-                        <div class="template-item-count">${visibleCount} Spalten</div>
+                        <div class="template-item-name text-normal--fett">${tpl.name}</div>
+                        <div class="template-item-count text-klein">${visibleCount} Spalten</div>
                     </div>
-                    <button class="template-item-delete" onclick="event.stopPropagation(); deleteTemplate(${index})">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
+                    <button class="btn btn-icon" onclick="event.stopPropagation(); deleteTemplate(${index})">
+                        <span class="icon icon--schliessen"></span>
                     </button>
                 </div>
             `;
@@ -5160,16 +5209,12 @@ function renderTemplatesList() {
     addBtn.disabled = templates.length >= MAX_TEMPLATES;
     if (templates.length >= MAX_TEMPLATES) {
         addBtn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 5v14m-7-7h14"/>
-            </svg>
+            <span class="icon icon--plus"></span>
             Max. ${MAX_TEMPLATES} Vorlagen
         `;
     } else {
         addBtn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 5v14m-7-7h14"/>
-            </svg>
+            <span class="icon icon--plus"></span>
             Als Vorlage speichern
         `;
     }
@@ -5215,6 +5260,7 @@ function saveNewTemplate() {
     saveTemplatesToStorage(type);
     cancelAddTemplate();
     renderTemplatesList();
+    showToast(`Vorlage "${name}" gespeichert`, 'success');
 }
 
 function cancelAddTemplate() {
@@ -5241,6 +5287,7 @@ function deleteTemplate(index) {
     columnTemplates[type].splice(index, 1);
     saveTemplatesToStorage(type);
     renderTemplatesList();
+    showToast('Vorlage gelöscht', 'success');
 }
 
 // ========== MODAL EVENT LISTENERS ==========
@@ -5302,11 +5349,6 @@ function initDatensaetze(config = {}) {
     if (config.contextData) {
         setContextBadge(config.contextData);
         updateBestandTabVisibility(config.contextData.type);
-    }
-
-    // Iframe-Check
-    if (window.self !== window.top) {
-        document.body.classList.add('in-iframe');
     }
 
     // Modal Event Listeners initialisieren
@@ -5375,6 +5417,25 @@ console.log('%c Tabellen.js geladen ', 'background: #6366f1; color: white; paddi
 // ========================================
 
 /**
+ * Toggle Collapse-Button (klappt ein/aus, deaktiviert nicht)
+ * @param {HTMLElement} btn - Der Collapse-Button
+ * @param {string} sectionId - ID des zu klappenden Bereichs
+ */
+function toggleCollapse(btn, sectionId) {
+    const section = document.getElementById(sectionId);
+    const isOpen = btn.classList.contains('open');
+
+    if (isOpen) {
+        btn.classList.remove('open');
+        section.style.display = 'none';
+    } else {
+        btn.classList.add('open');
+        section.style.display = 'block';
+    }
+}
+window.toggleCollapse = toggleCollapse;
+
+/**
  * Initialisiert Tab-Switching für beliebige Tab-Container
  * @param {string} tabSelector - CSS-Selektor für Tab-Buttons (z.B. '.tab', '.template-tab')
  * @param {string} contentSelector - CSS-Selektor für Tab-Contents (z.B. '.tab-content', '.template-content')
@@ -5388,7 +5449,7 @@ function initTabs(tabSelector, contentSelector, contentIdPrefix = 'tab-') {
             tabContainer.querySelectorAll(tabSelector.split(' ').pop()).forEach(t => t.classList.remove('active'));
 
             // Zugehörige Contents finden (im gleichen Modal oder Page)
-            const scope = this.closest('.modal-content, .page-container') || document;
+            const scope = this.closest('.page-container--modal, .page-container') || document;
             scope.querySelectorAll(contentSelector).forEach(c => c.classList.remove('active'));
 
             // Aktuellen Tab aktivieren
@@ -5476,19 +5537,55 @@ function initPopupToggle(triggerSelector, popupSelector) {
 /**
  * Öffnet ein Modal per ID
  * @param {string} modalId - ID des Modal-Elements
+ * @param {Object} [options] - Optionale Einstellungen
+ * @param {boolean} [options.scrollToTop=true] - Nach oben scrollen beim Öffnen
+ * @param {boolean} [options.lockBody=true] - Body-Scroll sperren
+ * @param {string} [options.focusId] - ID des Elements, das fokussiert werden soll
  */
-function openModalById(modalId) {
+function openModalById(modalId, options = {}) {
     const modal = document.getElementById(modalId);
-    if (modal) modal.classList.add('active');
+    if (!modal) return;
+
+    const { scrollToTop = true, lockBody = true, focusId } = options;
+
+    modal.classList.add('active');
+
+    // Body-Scroll sperren
+    if (lockBody && typeof lockBodyScroll === 'function') {
+        lockBodyScroll();
+    }
+
+    // Nach oben scrollen
+    if (scrollToTop) {
+        const scrollableContent = modal.querySelector('.page-content, .modal-body');
+        if (scrollableContent) scrollableContent.scrollTop = 0;
+    }
+
+    // Element fokussieren
+    if (focusId) {
+        const focusEl = document.getElementById(focusId);
+        if (focusEl) setTimeout(() => focusEl.focus(), 50);
+    }
 }
 
 /**
  * Schließt ein Modal per ID
  * @param {string} modalId - ID des Modal-Elements
+ * @param {Object} [options] - Optionale Einstellungen
+ * @param {boolean} [options.unlockBody=true] - Body-Scroll entsperren
  */
-function closeModalById(modalId) {
+function closeModalById(modalId, options = {}) {
     const modal = document.getElementById(modalId);
-    if (modal) modal.classList.remove('active');
+    if (!modal) return;
+
+    const { unlockBody = true } = options;
+
+    modal.classList.remove('active');
+
+    // Body-Scroll entsperren
+    if (unlockBody && typeof unlockBodyScroll === 'function') {
+        unlockBodyScroll();
+    }
 }
 
 /**
@@ -5511,6 +5608,55 @@ function initModalBackdropClose(modalId, closeFunction) {
     }
 }
 
+/**
+ * Shell-gesteuerte Tabs: Zeigt nur den aktiven Tab an
+ * Wird von Shell per postMessage navFilter gesteuert
+ * @param {string} value - Tab-Wert (data-tab Attribut)
+ * @param {Object} [options] - Optionen
+ * @param {string} [options.tabSelector='.page-header-tabs .kw-tab'] - CSS-Selektor für Tabs
+ * @param {string} [options.contentSelector] - CSS-Selektor für Tab-Contents (optional)
+ * @param {string} [options.titleSelector] - CSS-Selektor für Titel-Element (optional)
+ * @param {Object} [options.labelMap] - Mapping von value zu Label-Text (optional)
+ * @param {Object} [options.subTabs] - Sub-Tab-Container pro Section { sectionValue: { containerId, firstTabId } }
+ */
+function selectShellTab(value, options = {}) {
+    // Alle Sub-Tab-Container ausblenden
+    Object.values(options.subTabs).forEach(config => {
+        const container = document.getElementById(config.containerId);
+        if (container) container.style.display = 'none';
+    });
+
+    // Alle Contents ausblenden
+    if (options.contentSelector) {
+        document.querySelectorAll(options.contentSelector).forEach(c => {
+            c.classList.remove('active');
+        });
+    }
+
+    // Aktiven Sub-Tab-Container einblenden
+    const cfg = options.subTabs[value];
+    if (cfg) {
+        const container = document.getElementById(cfg.containerId);
+        if (container) {
+            container.style.display = 'flex';
+            // Ersten Tab im Container aktivieren
+            container.querySelectorAll('.kw-tab').forEach(t => t.classList.remove('active'));
+            const firstTab = container.querySelector('.kw-tab');
+            if (firstTab) firstTab.classList.add('active');
+        }
+        // Ersten Content aktivieren
+        if (cfg.firstContentId) {
+            const firstContent = document.getElementById(cfg.firstContentId);
+            if (firstContent) firstContent.classList.add('active');
+        }
+        // Titel aktualisieren
+        if (options.titleSelector && cfg.title) {
+            const titleEl = document.querySelector(options.titleSelector);
+            if (titleEl) titleEl.textContent = cfg.title;
+        }
+    }
+}
+
 // Global verfügbar machen
 window.initTabs = initTabs;
 window.initFilterButtons = initFilterButtons;
@@ -5519,6 +5665,7 @@ window.initPopupToggle = initPopupToggle;
 window.openModalById = openModalById;
 window.closeModalById = closeModalById;
 window.initModalBackdropClose = initModalBackdropClose;
+window.selectShellTab = selectShellTab;
 
 // ============================================================================
 // PREISVORLAGEN FUNKTIONEN
@@ -5615,7 +5762,7 @@ async function savePreisvorlage() {
     const symbol = document.querySelector('.symbol-option.active')?.dataset.symbol || 'checkmark';
 
     if (!name) {
-        await showAlert('Fehler', 'Bitte geben Sie einen Namen ein.', 'error');
+        showToast('Bitte Namen eingeben', 'warning');
         return;
     }
 
@@ -5639,13 +5786,13 @@ async function savePreisvorlage() {
 
     // Hier würde normalerweise ein API-Call kommen
     closeModalById('preisvorlageModal');
-    await showAlert('Gespeichert', 'Preisvorlage wurde erfolgreich gespeichert.', 'success');
+    showToast('Preisvorlage gespeichert', 'success');
 }
 
 async function deletePreisvorlage(id) {
     const confirmed = await showConfirm('Löschen', 'Möchten Sie diese Preisvorlage wirklich löschen?', 'warning');
     if (confirmed) {
-        await showAlert('Gelöscht', 'Preisvorlage wird gelöscht: ' + id, 'success');
+        showToast('Preisvorlage gelöscht', 'success');
     }
 }
 
@@ -5864,60 +6011,6 @@ function initAddressAutocomplete(config) {
 window.initAddressAutocomplete = initAddressAutocomplete;
 
 // ============================================================================
-// KAMPAGNEN CARDS RENDERING
-// ============================================================================
-
-/**
- * Rendert Kampagnen-Cards in ein Grid
- * @param {string} gridId - ID des Grid-Containers
- * @param {string} emptyId - ID des Empty-State Elements
- * @param {Array} campaigns - Array mit Kampagnen-Daten
- * @param {Object} options - Optionale Konfiguration
- */
-function renderCampaignCards(gridId, emptyId, campaigns, options = {}) {
-    const grid = document.getElementById(gridId);
-    const emptyState = document.getElementById(emptyId);
-
-    if (!grid) return;
-
-    if (!campaigns || campaigns.length === 0) {
-        grid.innerHTML = '';
-        if (emptyState) emptyState.style.display = 'flex';
-        return;
-    }
-
-    if (emptyState) emptyState.style.display = 'none';
-
-    grid.innerHTML = campaigns.map(campaign => {
-        const statusLabel = {
-            'active': 'Aktiv',
-            'planned': 'Geplant',
-            'inactive': 'Abgeschlossen'
-        }[campaign.status] || campaign.status;
-
-        const roleHtml = campaign.role ? `<span>•</span><span>${campaign.role}</span>` : '';
-
-        return `
-            <div class="campaign-card status-${campaign.status}" onclick="window.location.href='/kampagnen/?view=${campaign.id}'">
-                <div class="campaign-header">
-                    <div>
-                        <div class="campaign-title">${escapeHtml(campaign.name)}</div>
-                        <div class="campaign-meta">${escapeHtml(campaign.customer || '')}</div>
-                    </div>
-                    <span class="campaign-status ${campaign.status}">${statusLabel}</span>
-                </div>
-                <div class="campaign-info">
-                    <span>KW ${campaign.kwFrom}-${campaign.kwTo}/${campaign.year}</span>
-                    ${roleHtml}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-window.renderCampaignCards = renderCampaignCards;
-
-// ============================================================================
 // HISTORY ITEMS RENDERING (für Gutschriftrechnungen, Auszahlungen, etc.)
 // ============================================================================
 
@@ -6132,19 +6225,57 @@ function initDocumentUpload(inputId, boxId, listId) {
 
     // Render-Funktion
     function renderFileList() {
+        if (files.length === 0) {
+            list.innerHTML = '';
+            return;
+        }
+
         list.innerHTML = files.map((file, index) => `
             <div class="document-file-row">
-                <span class="document-file-name">${file.name}</span>
-                <button type="button" class="btn-icon btn-icon--sm btn-icon--danger" data-upload="${uploadKey}" data-index="${index}">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+                <svg class="document-file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span class="document-file-name" title="${file.name}">${file.name}</span>
+                <div class="document-file-actions">
+                    <button type="button" class="btn btn-sm btn-icon" data-action="download" data-index="${index}" title="Herunterladen">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-icon btn-danger" data-action="delete" data-index="${index}" title="Löschen">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         `).join('');
 
+        // Download-Handler
+        list.querySelectorAll('[data-action="download"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt(btn.dataset.index);
+                const fileData = files[index];
+                if (fileData.file) {
+                    // Lokale Datei - Download via Blob URL
+                    const url = URL.createObjectURL(fileData.file);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileData.name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } else if (fileData.url) {
+                    // Remote-Datei - direkter Link
+                    window.open(fileData.url, '_blank');
+                }
+            });
+        });
+
         // Delete-Handler
-        list.querySelectorAll('.btn-icon--danger').forEach(btn => {
+        list.querySelectorAll('[data-action="delete"]').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const index = parseInt(btn.dataset.index);
@@ -6157,6 +6288,7 @@ function initDocumentUpload(inputId, boxId, listId) {
                 if (confirmed) {
                     files.splice(index, 1);
                     renderFileList();
+                    showToast('Datei gelöscht', 'success');
                 }
             });
         });
@@ -6165,12 +6297,15 @@ function initDocumentUpload(inputId, boxId, listId) {
     // Click auf Box öffnet File-Dialog
     box.addEventListener('click', () => input.click());
 
-    // File-Change Handler
+    // File-Change Handler - unterstützt mehrere Dateien
     input.addEventListener('change', function() {
-        const file = this.files[0];
-        if (!file) return;
+        if (!this.files || this.files.length === 0) return;
 
-        files.push({ name: file.name, file: file });
+        // Alle ausgewählten Dateien hinzufügen
+        Array.from(this.files).forEach(file => {
+            files.push({ name: file.name, file: file });
+        });
+
         renderFileList();
         this.value = '';
     });
@@ -7150,6 +7285,7 @@ async function validateAndLookupIBAN(iban, ibanField, bankField, bicField) {
     // Leer = Reset
     if (cleanIBAN.length === 0) {
         ibanField.style.borderColor = '';
+        ibanField.style.boxShadow = '';
         if (bankField) bankField.value = '';
         if (bicField) bicField.value = '';
         return;
@@ -7158,18 +7294,21 @@ async function validateAndLookupIBAN(iban, ibanField, bankField, bicField) {
     // Erst ab 15 Zeichen validieren
     if (cleanIBAN.length < 15) {
         ibanField.style.borderColor = '';
+        ibanField.style.boxShadow = '';
         return;
     }
 
     // IBAN Format prüfen
     if (!isValidIBANFormat(cleanIBAN)) {
-        ibanField.style.borderColor = 'var(--error-text)';
+        ibanField.style.borderColor = 'var(--error)';
+        ibanField.style.boxShadow = '0 0 0 1.5px var(--error)';
         if (bankField) bankField.value = '';
         if (bicField) bicField.value = '';
         return;
     }
 
-    ibanField.style.borderColor = 'var(--success-text)';
+    ibanField.style.borderColor = 'var(--success)';
+    ibanField.style.boxShadow = '0 0 0 1.5px var(--success)';
 
     // Bank-Lookup via API
     try {
@@ -7500,15 +7639,15 @@ function initStatsTable(containerId, options = {}) {
     rows.forEach((row, index) => {
         const hasChildren = row.children && row.children.length > 0;
         const typeClass = row.type ? ` stats-row--${row.type}` : '';
-        const parentClass = hasChildren ? `stats-row-parent${typeClass}` : typeClass.trim();
+        const parentClass = hasChildren ? `expandable-row${typeClass}` : typeClass.trim();
         const classAttr = parentClass ? ` class="${parentClass}"` : '';
-        const dataAttr = hasChildren ? ` data-group="${index}"` : '';
+        const dataAttr = hasChildren ? ` data-parent-id="${index}"` : '';
 
         bodyHtml += `<tr${classAttr}${dataAttr}>`;
         columns.forEach((col, colIndex) => {
             const value = renderCellValue(col.id, row[col.id]);
             if (colIndex === 0 && hasChildren) {
-                bodyHtml += `<td><span class="stats-row-toggle"></span>${value}</td>`;
+                bodyHtml += `<td><span class="icon icon--pfeil-unten expand-icon"></span>${value}</td>`;
             } else {
                 bodyHtml += `<td>${value}</td>`;
             }
@@ -7518,10 +7657,14 @@ function initStatsTable(containerId, options = {}) {
         // Child-Rows
         if (hasChildren) {
             row.children.forEach(child => {
-                bodyHtml += `<tr class="stats-row-child stats-row-child--${row.type}" data-parent="${index}">`;
-                columns.forEach(col => {
+                bodyHtml += `<tr class="child-row child-row--${row.type}" data-parent-id="${index}">`;
+                columns.forEach((col, colIndex) => {
                     const value = renderCellValue(col.id, child[col.id]);
-                    bodyHtml += `<td>${value}</td>`;
+                    if (colIndex === 0) {
+                        bodyHtml += `<td><span class="child-indent">└</span>${value}</td>`;
+                    } else {
+                        bodyHtml += `<td>${value}</td>`;
+                    }
                 });
                 bodyHtml += '</tr>';
             });
@@ -7541,12 +7684,12 @@ function initStatsTable(containerId, options = {}) {
     `;
 
     // Click-Handler für Parent-Rows
-    container.querySelectorAll('.stats-row-parent').forEach(row => {
+    container.querySelectorAll('.expandable-row').forEach(row => {
         row.addEventListener('click', function() {
-            const group = this.dataset.group;
-            const isExpanded = this.classList.toggle('expanded');
-            container.querySelectorAll(`.stats-row-child[data-parent="${group}"]`).forEach(child => {
-                child.classList.toggle('visible', isExpanded);
+            const parentId = this.dataset.parentId;
+            const isOpen = this.classList.toggle('open');
+            container.querySelectorAll(`.child-row[data-parent-id="${parentId}"]`).forEach(child => {
+                child.classList.toggle('visible', isOpen);
             });
         });
     });
@@ -7594,9 +7737,17 @@ function initWochenverlaufChart(canvasId, data = null) {
     const canvas = document.getElementById(canvasId);
     if (!canvas || typeof Chart === 'undefined') return;
 
+    // CSS-Variablen auslesen
+    const styles = getComputedStyle(document.documentElement);
+    const textKlein = parseInt(styles.getPropertyValue('--text-klein')) || 12;
+    const textSecondary = styles.getPropertyValue('--text-secondary').trim();
+    const textPrimary = styles.getPropertyValue('--text-primary').trim();
+    const borderColor = styles.getPropertyValue('--border-color').trim();
+    const bgPrimary = styles.getPropertyValue('--bg-primary').trim();
+
     // Chart.js Defaults
     Chart.defaults.font.family = "'Inter', -apple-system, sans-serif";
-    Chart.defaults.color = '#6b7280';
+    Chart.defaults.color = textSecondary;
 
     // Default-Daten falls keine übergeben
     const chartData = data || {
@@ -7639,7 +7790,7 @@ function initWochenverlaufChart(canvasId, data = null) {
                     pointRadius: 5,
                     pointHoverRadius: 7,
                     pointBackgroundColor: '#6366f1',
-                    pointBorderColor: '#fff',
+                    pointBorderColor: bgPrimary,
                     pointBorderWidth: 2,
                     tension: 0.3,
                     yAxisID: 'y1',
@@ -7662,14 +7813,14 @@ function initWochenverlaufChart(canvasId, data = null) {
                         padding: 16,
                         usePointStyle: true,
                         pointStyle: 'circle',
-                        font: { size: 11 }
+                        font: { size: textKlein }
                     }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    titleColor: '#1a1a1a',
-                    bodyColor: '#5f6368',
-                    borderColor: '#e8eaed',
+                    backgroundColor: bgPrimary,
+                    titleColor: textPrimary,
+                    bodyColor: textSecondary,
+                    borderColor: borderColor,
                     borderWidth: 1,
                     padding: 12,
                     boxPadding: 6,
@@ -7702,14 +7853,14 @@ function initWochenverlaufChart(canvasId, data = null) {
             scales: {
                 x: {
                     grid: { display: false },
-                    ticks: { font: { size: 11 } }
+                    ticks: { font: { size: textKlein } }
                 },
                 y: {
                     position: 'left',
                     beginAtZero: true,
                     grid: { color: 'rgba(0, 0, 0, 0.05)' },
                     ticks: {
-                        font: { size: 10 },
+                        font: { size: textKlein },
                         callback: function(value) {
                             return value.toLocaleString('de-DE') + ' JE';
                         }
@@ -7720,7 +7871,7 @@ function initWochenverlaufChart(canvasId, data = null) {
                     beginAtZero: true,
                     grid: { display: false },
                     ticks: {
-                        font: { size: 10 },
+                        font: { size: textKlein },
                         stepSize: 5,
                         callback: function(value) {
                             return value + ' MG';

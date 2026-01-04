@@ -7,47 +7,54 @@
     <link rel="stylesheet" href="../css/styles.css">
     <script src="../js/main.js"></script>
 </head>
-<body class="iframe-body">
-    <div class="page-container page-container--no-border">
-        <!-- Page Header -->
-        <div class="page-header">
-            <div class="page-header-row">
-                <div class="page-header-links">
-                    <span class="text-ueberschrift">Statistik</span>
-                </div>
-                <div class="page-header-mitte">
-                    <span class="text-ueberschrift" id="sectionTitle">Werber Übersicht</span>
-                </div>
-                <div class="page-header-rechts"></div>
+<body>
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-row">
+            <div class="page-header-links">
+                <span class="text-ueberschrift">Statistik</span>
             </div>
-            <!-- Zeile 2: Tabs -->
-            <div class="page-header-tabs">
-                <div class="kw-tab active" data-tab="werber">Werber</div>
-                <div class="kw-tab" data-tab="kunden">Kunden / Gebiete</div>
-                <div class="kw-tab" data-tab="kampagnen">Kampagnen</div>
+            <div class="page-header-mitte">
+                <span class="text-ueberschrift" id="sectionTitle">Werber Übersicht</span>
             </div>
+            <div class="page-header-rechts"></div>
         </div>
-        <div class="content-area">
-            <!-- OVERVIEW VIEW: Lists of Werber/Kunden/Kampagnen -->
-            <div class="overview-view" id="overviewView">
+        <!-- Shell-Tab: Werber (1 Sub-Tab) -->
+        <div class="page-header-tabs" id="werberSubTabs">
+            <div class="kw-tab active" data-tab="werber">Werber</div>
+        </div>
+        <!-- Shell-Tab: Kunden (1 Sub-Tab) -->
+        <div class="page-header-tabs" id="kundenSubTabs" style="display: none;">
+            <div class="kw-tab active" data-tab="kunden">Kunden / Gebiete</div>
+        </div>
+        <!-- Shell-Tab: Kampagnen (1 Sub-Tab) -->
+        <div class="page-header-tabs" id="kampagnenSubTabs" style="display: none;">
+            <div class="kw-tab active" data-tab="kampagnen">Kampagnen</div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content page-content--table">
+        <div class="overview-view" id="overviewView">
                 <!-- WERBER SECTION -->
-                <div id="section-werber" class="category-section">
+                <div id="section-werber" class="category-section active">
                     <div class="table-wrap">
-                        <div class="table-header">
-                            <div class="table-header-left">
-                                <button class="btn-toggle-all" id="toggleAllWerberBtn" onclick="toggleAllWerber()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                    <span>Alle aufklappen</span>
-                                </button>
-                                <button class="btn-delete-selected" id="werberSelectionBtn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                    </svg>
-                                    Ausgewählt<span class="selected-count" id="werberSelectionCount">0</span>
+                        <div class="zeile">
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                                <button class="btn btn-sm btn--hover-blau" id="toggleAllWerberBtn" onclick="toggleAllWerber()">
+                                    <span class="icon icon--pfeil-unten"></span>
+                                    Alle aufklappen
                                 </button>
                             </div>
+                            <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="werberSelectionGroup">
+                                <span class="btn btn-sm" id="werberSelectionBtn">
+                                    <span class="icon icon--clipboard"></span>
+                                    Ausgewählt: <span id="werberSelectionCount">0</span>
+                                </span>
+                            </div>
+                            <div class="anzeigenfeld anzeigenfeld--spacer"></div>
                         </div>
                         <div class="table-container">
                             <table class="table">
@@ -59,43 +66,43 @@
                                         <th class="sortable col-name" data-sort="name">
                                             Werber
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-count" data-sort="mitglieder">
                                             Mitglieder
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-money" data-sort="nettoJE">
                                             Netto JE
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-storno" data-sort="stornoquote">
                                             Stornoquote
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-mgTag" data-sort="mgTag">
                                             ∅ MG/Tag
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-umsatzTag" data-sort="umsatzTag">
                                             ∅ Umsatz/Tag
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="col-spacer"></th>
@@ -114,23 +121,23 @@
                 </div>
 
                 <!-- KUNDEN / GEBIETE SECTION (hierarchisch) -->
-                <div id="section-kunden" class="category-section" style="display: none;">
+                <div id="section-kunden" class="category-section">
                     <div class="table-wrap">
-                        <div class="table-header">
-                            <div class="table-header-left">
-                                <button class="btn-toggle-all" id="toggleAllKundenBtn" onclick="toggleAllKunden()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                    <span>Alle aufklappen</span>
-                                </button>
-                                <button class="btn-delete-selected" id="kundenSelectionBtn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                    </svg>
-                                    Ausgewählt<span class="selected-count" id="kundenSelectionCount">0</span>
+                        <div class="zeile">
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                                <button class="btn btn-sm btn--hover-blau" id="toggleAllKundenBtn" onclick="toggleAllKunden()">
+                                    <span class="icon icon--pfeil-unten"></span>
+                                    Alle aufklappen
                                 </button>
                             </div>
+                            <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="kundenSelectionGroup">
+                                <span class="btn btn-sm" id="kundenSelectionBtn">
+                                    <span class="icon icon--clipboard"></span>
+                                    Ausgewählt: <span id="kundenSelectionCount">0</span>
+                                </span>
+                            </div>
+                            <div class="anzeigenfeld anzeigenfeld--spacer"></div>
                         </div>
                         <div class="table-container">
                             <table class="table">
@@ -142,43 +149,43 @@
                                         <th class="sortable col-name" data-sort="name">
                                             Kunde / Gebiet
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-count" data-sort="mitglieder">
                                             Mitglieder
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-money" data-sort="nettoJE">
                                             Netto JE
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-storno" data-sort="stornoquote">
                                             Stornoquote
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-mgTag" data-sort="mgTag">
                                             ∅ MG/Tag
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-umsatzTag" data-sort="umsatzTag">
                                             ∅ Umsatz/Tag
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="col-spacer"></th>
@@ -197,23 +204,23 @@
                 </div>
 
                 <!-- KAMPAGNEN SECTION -->
-                <div id="section-kampagnen" class="category-section" style="display: none;">
+                <div id="section-kampagnen" class="category-section">
                     <div class="table-wrap">
-                        <div class="table-header">
-                            <div class="table-header-left">
-                                <button class="btn-toggle-all" id="toggleAllKampagnenBtn" onclick="toggleAllKampagnen()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                    <span>Alle aufklappen</span>
-                                </button>
-                                <button class="btn-delete-selected" id="kampagnenSelectionBtn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                    </svg>
-                                    Ausgewählt<span class="selected-count" id="kampagnenSelectionCount">0</span>
+                        <div class="zeile">
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                                <button class="btn btn-sm btn--hover-blau" id="toggleAllKampagnenBtn" onclick="toggleAllKampagnen()">
+                                    <span class="icon icon--pfeil-unten"></span>
+                                    Alle aufklappen
                                 </button>
                             </div>
+                            <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="kampagnenSelectionGroup">
+                                <span class="btn btn-sm" id="kampagnenSelectionBtn">
+                                    <span class="icon icon--clipboard"></span>
+                                    Ausgewählt: <span id="kampagnenSelectionCount">0</span>
+                                </span>
+                            </div>
+                            <div class="anzeigenfeld anzeigenfeld--spacer"></div>
                         </div>
                         <div class="table-container">
                             <table class="table">
@@ -225,43 +232,43 @@
                                         <th class="sortable col-name" data-sort="name">
                                             Kampagne
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-count" data-sort="mitglieder">
                                             Mitglieder
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-money" data-sort="nettoJE">
                                             Netto JE
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-storno" data-sort="stornoquote">
                                             Stornoquote
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-mgTag" data-sort="mgTag">
                                             ∅ MG/Tag
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="sortable col-umsatzTag" data-sort="umsatzTag">
                                             ∅ Umsatz/Tag
                                             <div class="sort-arrows">
-                                                <svg class="arrow-up" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
-                                                <svg class="arrow-down" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
                                             </div>
                                         </th>
                                         <th class="col-spacer"></th>
@@ -279,120 +286,11 @@
                     </div>
                 </div>
 
-            </div>
+        </div><!-- Ende overview-view -->
+    </div><!-- Ende page-content -->
+</div><!-- Ende page-container -->
 
-        </div><!-- Ende content-area -->
-    </div>
-
-    <!-- Import Modal -->
-    <div class="modal modal-s" id="importModal">
-        <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="page-header">
-                <div class="page-header-row">
-                    <div class="page-header-links">
-                        <span class="text-ueberschrift">Datensätze importieren</span>
-                    </div>
-                    <div class="page-header-mitte"></div>
-                    <div class="page-header-rechts">
-                        <button class="btn-icon" onclick="closeImportModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="page-header-tabs">
-                    <div class="kw-tab active" data-tab="daten">Daten</div>
-                </div>
-            </div>
-            <!-- Modal Body -->
-            <div class="page-content">
-                <div class="zeile">
-                    <div class="import-zone" onclick="document.getElementById('fileInput').click()">
-                        <svg width="40" height="40" style="margin-bottom: 8px; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                        </svg>
-                        <span class="text-normal">Datei hierher ziehen oder klicken</span>
-                        <span class="text-klein">Excel, CSV, ODS</span>
-                    </div>
-                </div>
-                <input type="file" id="fileInput" style="display: none;" accept=".xlsx,.xls,.csv,.ods">
-                <div class="zeile">
-                    <div class="eingabefeld-gruppe">
-                        <label class="eingabefeld-beschriftung-oben">Werbegebiet</label>
-                        <select class="eingabefeld" id="importArea">
-                            <option value="">Auswählen...</option>
-                            <option value="1">Ludwigshafen-Mitte e.V.</option>
-                            <option value="2">Ludwigshafen-Süd e.V.</option>
-                        </select>
-                        <span class="eingabefeld-beschriftung-unten"></span>
-                    </div>
-                </div>
-            </div>
-            <!-- Modal Footer -->
-            <div class="page-footer">
-                <button type="button" class="btn btn--secondary" onclick="closeImportModal()">Abbrechen</button>
-                <button type="button" class="btn btn--primary" onclick="executeImport()">Importieren</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Export Modal -->
-    <div class="modal modal-s" id="exportModal">
-        <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="page-header">
-                <div class="page-header-row">
-                    <div class="page-header-links">
-                        <span class="text-ueberschrift">Exportieren</span>
-                    </div>
-                    <div class="page-header-mitte"></div>
-                    <div class="page-header-rechts">
-                        <button class="btn-icon" onclick="closeExportModal()">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="page-header-tabs">
-                    <div class="kw-tab active" data-tab="daten">Daten</div>
-                </div>
-            </div>
-            <!-- Modal Body -->
-            <div class="page-content">
-                <div class="zeile">
-                    <div class="eingabefeld-gruppe">
-                        <label class="eingabefeld-beschriftung-oben">Format</label>
-                        <select class="eingabefeld" id="exportFormat">
-                            <option value="xlsx">Excel (.xlsx)</option>
-                            <option value="csv">CSV</option>
-                            <option value="pdf">PDF</option>
-                        </select>
-                        <span class="eingabefeld-beschriftung-unten"></span>
-                    </div>
-                </div>
-                <div class="zeile zeile--center">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="exportIncludeStorno" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <div class="eingabefeld-gruppe">
-                        <label class="eingabefeld-beschriftung-oben">Stornierte einschließen</label>
-                        <span class="eingabefeld-beschriftung-unten"></span>
-                    </div>
-                </div>
-            </div>
-            <!-- Modal Footer -->
-            <div class="page-footer">
-                <button type="button" class="btn btn--secondary" onclick="closeExportModal()">Abbrechen</button>
-                <button type="button" class="btn btn--primary" onclick="executeExport()">Exportieren</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
+<script>
         // ========== DUMMY DATA ==========
         const kundenData = [
             { id: 1, name: 'DRK KV Ludwigshafen', records: 118, nettoJE: 15340, storno: 9.9 },
@@ -715,29 +613,14 @@
 
         // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', function() {
-            // Detect if in iframe
-            if (window.self !== window.top) {
-                document.body.classList.add('in-iframe');
-            }
-
             renderWerberTable();
             renderKundenGebieteTable();
             renderKampagnenTable();
             setupColumnCheckboxes();
             setupStornoReasons();
 
-            // Tab-Wechsel mit Titel-Update
-            document.querySelectorAll('.page-header-tabs .kw-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const value = this.dataset.tab;
-                    const labelMap = { werber: 'Werber', kunden: 'Kunden / Gebiete', kampagnen: 'Kampagnen' };
-                    // Tab active state
-                    document.querySelectorAll('.page-header-tabs .kw-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    // Switch category
-                    selectCategory(value, labelMap[value]);
-                });
-            });
+            // Initial: Nur ersten Tab anzeigen (Werber)
+            selectCategory('werber');
 
             // Register toolbar config with shell (Import/Export for statistics)
             registerToolbarConfig();
@@ -762,12 +645,7 @@
         window.addEventListener('message', function(e) {
             // Navigation filter from shell
             if (e.data && e.data.type === 'navFilter') {
-                const labelMap = {
-                    'werber': 'Werber',
-                    'kunden': 'Kunden / Gebiete',
-                    'kampagnen': 'Kampagnen'
-                };
-                selectCategory(e.data.value, labelMap[e.data.value] || e.data.value);
+                selectCategory(e.data.value);
             }
 
             // Search query from shell
@@ -801,23 +679,20 @@
         }
 
         // ========== CATEGORY SELECTION ==========
-        function selectCategory(value, label) {
+        const sectionConfig = {
+            werber: { containerId: 'werberSubTabs', firstContentId: 'section-werber', title: 'Werber' },
+            kunden: { containerId: 'kundenSubTabs', firstContentId: 'section-kunden', title: 'Kunden / Gebiete' },
+            kampagnen: { containerId: 'kampagnenSubTabs', firstContentId: 'section-kampagnen', title: 'Kampagnen' }
+        };
+
+        function selectCategory(value) {
             currentCategory = value;
-
-            // Update page header title
-            const sectionTitle = document.getElementById('sectionTitle');
-            if (sectionTitle) {
-                sectionTitle.textContent = label;
-            }
-
-            // Show correct section or detail view
-            showOverviewView();
-            // Hide all category sections
-            ['section-werber', 'section-kunden', 'section-kampagnen'].forEach(id => {
-                document.getElementById(id).style.display = 'none';
+            selectShellTab(value, {
+                subTabs: sectionConfig,
+                contentSelector: '.category-section',
+                titleSelector: '#sectionTitle'
             });
-            // Show selected section (flex für fullheight)
-            document.getElementById('section-' + value).style.display = 'flex';
+            showOverviewView();
         }
 
         // ========== VIEW SWITCHING ==========
@@ -920,19 +795,15 @@
                     <td class="action-cell">
                         <div class="dropdown">
                             <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="1"></circle>
-                                    <circle cx="12" cy="5" r="1"></circle>
-                                    <circle cx="12" cy="19" r="1"></circle>
-                                </svg>
+                                <span class="icon icon--mehr-vertikal"></span>
                             </button>
                             <div class="dropdown-menu">
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openWerberRecords(${werber.id})">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    <span class="icon icon--dokument"></span>
                                     Datensätze
                                 </div>
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openWerberDashboard(${werber.id}, '${werber.name}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                    <span class="icon icon--statistik"></span>
                                     Persönliches Dashboard
                                 </div>
                             </div>
@@ -981,9 +852,7 @@
                     <td class="checkbox-cell"><input type="checkbox" class="row-checkbox parent-checkbox" data-parent-id="${kunde.id}" onclick="event.stopPropagation(); TableCheckbox.toggleParent(this);"></td>
                     <td class="col-name">
                         <div class="name-cell">
-                            <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
+                            <span class="icon icon--pfeil-unten expand-icon"></span>
                             ${createBadge({ type: 'kunde', name: kunde.name })}
                         </div>
                     </td>
@@ -996,19 +865,15 @@
                     <td class="action-cell">
                         <div class="dropdown">
                             <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="1"></circle>
-                                    <circle cx="12" cy="5" r="1"></circle>
-                                    <circle cx="12" cy="19" r="1"></circle>
-                                </svg>
+                                <span class="icon icon--mehr-vertikal"></span>
                             </button>
                             <div class="dropdown-menu">
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openKundeRecords(${kunde.id})">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    <span class="icon icon--dokument"></span>
                                     Datensätze
                                 </div>
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openKundeDashboard(${kunde.id}, '${kunde.name}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                    <span class="icon icon--statistik"></span>
                                     Persönliches Dashboard
                                 </div>
                             </div>
@@ -1038,19 +903,15 @@
                     <td class="action-cell">
                         <div class="dropdown">
                             <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="1"></circle>
-                                    <circle cx="12" cy="5" r="1"></circle>
-                                    <circle cx="12" cy="19" r="1"></circle>
-                                </svg>
+                                <span class="icon icon--mehr-vertikal"></span>
                             </button>
                             <div class="dropdown-menu">
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openGebietRecords(${gebiet.id})">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    <span class="icon icon--dokument"></span>
                                     Datensätze
                                 </div>
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openGebietDashboard(${gebiet.id}, '${gebiet.name}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                    <span class="icon icon--statistik"></span>
                                     Persönliches Dashboard
                                 </div>
                             </div>
@@ -1132,7 +993,7 @@
                     <td class="checkbox-cell"><input type="checkbox" class="row-checkbox parent-checkbox" data-parent-id="${kampagne.id}" onclick="event.stopPropagation(); TableCheckbox.toggleParent(this);"></td>
                     <td class="col-name">
                         <div class="name-cell">
-                            ${hasGebiete ? `<svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>` : ''}
+                            ${hasGebiete ? `<span class="icon icon--pfeil-unten expand-icon"></span>` : ''}
                             ${createBadge({ type: 'kampagne', name: kampagne.name })}
                         </div>
                     </td>
@@ -1145,19 +1006,15 @@
                     <td class="action-cell">
                         <div class="dropdown">
                             <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="1"></circle>
-                                    <circle cx="12" cy="5" r="1"></circle>
-                                    <circle cx="12" cy="19" r="1"></circle>
-                                </svg>
+                                <span class="icon icon--mehr-vertikal"></span>
                             </button>
                             <div class="dropdown-menu">
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openKampagneRecords(${kampagne.id})">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    <span class="icon icon--dokument"></span>
                                     Datensätze
                                 </div>
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openKampagneDashboard(${kampagne.id}, '${kampagne.name}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                    <span class="icon icon--statistik"></span>
                                     Persönliches Dashboard
                                 </div>
                             </div>
@@ -1187,19 +1044,15 @@
                     <td class="action-cell">
                         <div class="dropdown">
                             <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="1"></circle>
-                                    <circle cx="12" cy="5" r="1"></circle>
-                                    <circle cx="12" cy="19" r="1"></circle>
-                                </svg>
+                                <span class="icon icon--mehr-vertikal"></span>
                             </button>
                             <div class="dropdown-menu">
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openKampagneGebietRecords(${kampagne.id}, ${gebiet.id})">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    <span class="icon icon--dokument"></span>
                                     Datensätze
                                 </div>
                                 <div class="dropdown-item" onclick="closeAllDropdowns(); openGebietDashboard(${gebiet.id}, '${gebiet.name}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                    <span class="icon icon--statistik"></span>
                                     Persönliches Dashboard
                                 </div>
                             </div>
@@ -1446,39 +1299,11 @@
             return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
         }
 
-        // ========== IMPORT / EXPORT ==========
-        function openImportModal() {
-            document.getElementById('importModal').classList.add('active');
-        }
-
-        function closeImportModal() {
-            document.getElementById('importModal').classList.remove('active');
-        }
-
-        async function executeImport() {
-            await showAlert('Import', 'Import erfolgreich!', 'success');
-            closeImportModal();
-        }
-
-        function openExportModal() {
-            document.getElementById('exportModal').classList.add('active');
-        }
-
-        function closeExportModal() {
-            document.getElementById('exportModal').classList.remove('active');
-        }
-
-        async function executeExport() {
-            const format = document.getElementById('exportFormat').value;
-            await showAlert('Export', 'Export als ' + format.toUpperCase() + ' wird gestartet...', 'info');
-            closeExportModal();
-        }
-
         // ========== SELECTION UI INITIALISIERUNG ==========
         // Registriere Selection-UI für alle Tabellen (Button + Count)
-        TableCheckbox.registerSelectionUI('werberTableBody', 'werberSelectionBtn', 'werberSelectionCount');
-        TableCheckbox.registerSelectionUI('kundenGebieteTableBody', 'kundenSelectionBtn', 'kundenSelectionCount');
-        TableCheckbox.registerSelectionUI('kampagnenTableBody', 'kampagnenSelectionBtn', 'kampagnenSelectionCount');
+        TableCheckbox.registerSelectionUI('werberTableBody', 'werberSelectionGroup', 'werberSelectionCount');
+        TableCheckbox.registerSelectionUI('kundenGebieteTableBody', 'kundenSelectionGroup', 'kundenSelectionCount');
+        TableCheckbox.registerSelectionUI('kampagnenTableBody', 'kampagnenSelectionGroup', 'kampagnenSelectionCount');
         TableCheckbox.initSelectionUI();
 
         // ========== EXPAND ALL FUNCTIONS ==========
@@ -1629,23 +1454,23 @@
             }
 
             container.innerHTML = auditLog.map(entry => {
-                let iconClass, iconSvg, actionText;
+                let iconClass, iconName, actionText;
 
                 switch (entry.action) {
                     case 'edit':
                         iconClass = 'edit';
-                        iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>';
+                        iconName = 'bearbeiten';
                         const fieldLabel = allColumns[entry.field]?.label || entry.field;
                         actionText = `<span class="audit-field">${fieldLabel}</span> geändert bei ${escapeHtml(entry.recordName)}`;
                         break;
                     case 'delete':
                         iconClass = 'delete';
-                        iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>';
+                        iconName = 'loeschen';
                         actionText = `${escapeHtml(entry.recordName)} gelöscht`;
                         break;
                     case 'create':
                         iconClass = 'create';
-                        iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>';
+                        iconName = 'plus';
                         actionText = `${escapeHtml(entry.recordName)} erstellt`;
                         break;
                 }
@@ -1655,7 +1480,7 @@
                 return `
                     <div class="audit-item">
                         <div class="audit-icon ${iconClass}">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconSvg}</svg>
+                            <span class="icon icon--${iconName}"></span>
                         </div>
                         <div class="audit-details">
                             <div class="audit-action">${actionText}</div>

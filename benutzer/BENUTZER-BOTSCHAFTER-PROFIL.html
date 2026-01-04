@@ -7,16 +7,14 @@
     <link rel="stylesheet" href="../css/styles.css">
     <script src="../js/main.js"></script>
 </head>
-<body class="iframe-body">
-    <div class="page-container page-container--scroll">
+<body >
+    <div class="page-container">
         <!-- Page Header -->
         <div class="page-header">
             <!-- Zeile 1: Zurück | Links | Mitte | Rechts -->
             <div class="page-header-row">
-                <button class="btn-icon btn-icon--lg" onclick="history.back()">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
+                <button class="btn btn-icon" onclick="history.back()">
+                    <span class="icon icon--pfeil-links"></span>
                 </button>
                 <div class="page-header-links">
                     <span class="text-ueberschrift" id="profileName">Max Mustermann</span>
@@ -27,28 +25,24 @@
                         <span class="level-badge-code">JMM</span>
                         <span class="level-badge-stufe">Stufe III</span>
                         <div class="level-stars">
-                            <svg class="level-star" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                            <svg class="level-star" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                            <svg class="level-star" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                            <span class="icon icon--stern level-star"></span>
+                            <span class="icon icon--stern level-star"></span>
+                            <span class="icon icon--stern level-star"></span>
                         </div>
                     </div>
                 </div>
                 <div class="page-header-rechts">
                     <div class="photo-upload-box">
-                        <div class="photo-upload" onclick="document.getElementById('photoInternal').click()">
-                            <svg class="photo-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
+                        <div class="photo-upload hover-umrandung-blau" onclick="document.getElementById('photoInternal').click()">
+                            <span class="icon icon--person photo-upload-icon"></span>
                             <img class="photo-upload-preview" id="previewInternal" alt="Intern">
                         </div>
                         <span class="photo-upload-label">Intern</span>
                         <input type="file" id="photoInternal" accept="image/*" hidden>
                     </div>
                     <div class="photo-upload-box">
-                        <div class="photo-upload" onclick="document.getElementById('photoExternal').click()">
-                            <svg class="photo-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
+                        <div class="photo-upload hover-umrandung-blau" onclick="document.getElementById('photoExternal').click()">
+                            <span class="icon icon--person photo-upload-icon"></span>
                             <img class="photo-upload-preview" id="previewExternal" alt="Extern">
                         </div>
                         <span class="photo-upload-label">Extern (DRK)</span>
@@ -56,8 +50,8 @@
                     </div>
                 </div>
             </div>
-            <!-- Zeile 2: Tabs -->
-            <div class="page-header-tabs">
+            <!-- Lokale Tabs (per Klick navigierbar) -->
+            <div class="page-header-tabs" id="profilSubTabs">
                 <div class="kw-tab active" data-tab="informationen">Informationen</div>
                 <div class="kw-tab" data-tab="einstellungen">Einstellungen</div>
             </div>
@@ -101,13 +95,13 @@
                     <div class="eingabefeld-gruppe">
                         <label class="eingabefeld-beschriftung-oben">Kleidergröße</label>
                         <div class="btn-toggle-group">
-                            <button type="button" class="btn-toggle neutral" data-size="XXS">XXS</button>
-                            <button type="button" class="btn-toggle neutral" data-size="XS">XS</button>
-                            <button type="button" class="btn-toggle neutral" data-size="S">S</button>
-                            <button type="button" class="btn-toggle neutral" data-size="M">M</button>
-                            <button type="button" class="btn-toggle neutral" data-size="L">L</button>
-                            <button type="button" class="btn-toggle neutral" data-size="XL">XL</button>
-                            <button type="button" class="btn-toggle neutral" data-size="XXL">XXL</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="XXS">XXS</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="XS">XS</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="S">S</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="M">M</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="L">L</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="XL">XL</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="XXL">XXL</button>
                         </div>
                         <input type="hidden" id="clothingSize">
                         <span class="eingabefeld-beschriftung-unten"></span>
@@ -289,11 +283,9 @@
                 </div>
                 <div class="history-timeline" id="employeeInvoicesList"></div>
                 <div class="empty-state" id="noEmployeeInvoicesMessage">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <h3>Keine Gutschriftrechnungen</h3>
-                    <p>Noch keine Gutschriftrechnungen vorhanden</p>
+                    <span class="icon icon--dokument-liste"></span>
+                    <div class="text-ueberschrift-abschnitt">Keine Gutschriftrechnungen</div>
+                    <div class="text-normal">Noch keine Gutschriftrechnungen vorhanden</div>
                 </div>
             </div>
 
@@ -305,49 +297,49 @@
                     <div class="text-ueberschrift-abschnitt">Dokumente</div>
                 </div>
                 <div class="document-upload-grid">
-                    <div class="document-upload-item">
-                        <h4>Personalausweis Vorderseite</h4>
-                        <div class="document-upload-box" id="idFrontBox">
-                            <svg class="document-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <span class="document-upload-text">Datei hochladen</span>
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Personalausweis Vorderseite</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="idFrontBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="idFrontInput" accept="image/*,.pdf" hidden>
+                            <div class="document-file-list" id="idFrontFileList"></div>
                         </div>
-                        <input type="file" id="idFrontInput" accept="image/*,.pdf" hidden>
-                        <div class="document-file-list" id="idFrontFileList"></div>
                     </div>
-                    <div class="document-upload-item">
-                        <h4>Personalausweis Rückseite</h4>
-                        <div class="document-upload-box" id="idBackBox">
-                            <svg class="document-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <span class="document-upload-text">Datei hochladen</span>
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Personalausweis Rückseite</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="idBackBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="idBackInput" accept="image/*,.pdf" hidden>
+                            <div class="document-file-list" id="idBackFileList"></div>
                         </div>
-                        <input type="file" id="idBackInput" accept="image/*,.pdf" hidden>
-                        <div class="document-file-list" id="idBackFileList"></div>
                     </div>
-                    <div class="document-upload-item">
-                        <h4>Führerschein Vorderseite</h4>
-                        <div class="document-upload-box" id="licenseFrontBox">
-                            <svg class="document-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <span class="document-upload-text">Datei hochladen</span>
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Führerschein Vorderseite</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="licenseFrontBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="licenseFrontInput" accept="image/*,.pdf" hidden>
+                            <div class="document-file-list" id="licenseFrontFileList"></div>
                         </div>
-                        <input type="file" id="licenseFrontInput" accept="image/*,.pdf" hidden>
-                        <div class="document-file-list" id="licenseFrontFileList"></div>
                     </div>
-                    <div class="document-upload-item">
-                        <h4>Führerschein Rückseite</h4>
-                        <div class="document-upload-box" id="licenseBackBox">
-                            <svg class="document-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <span class="document-upload-text">Datei hochladen</span>
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Führerschein Rückseite</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="licenseBackBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="licenseBackInput" accept="image/*,.pdf" hidden>
+                            <div class="document-file-list" id="licenseBackFileList"></div>
                         </div>
-                        <input type="file" id="licenseBackInput" accept="image/*,.pdf" hidden>
-                        <div class="document-file-list" id="licenseBackFileList"></div>
                     </div>
                 </div>
             </div>
@@ -451,13 +443,13 @@
                     <div class="text-ueberschrift-abschnitt">Zusatz-Rollen</div>
                 </div>
                 <div class="zeile">
-                    <div class="checkbox-pills" id="additionalRoles">
-                        <label class="checkbox-pill">
-                            <input type="checkbox" value="quality_manager">
+                    <div class="btn-toggle-group" id="additionalRoles">
+                        <label class="btn btn-sm btn-secondary">
+                            <input type="checkbox" value="quality_manager" hidden>
                             Quality Manager
                         </label>
-                        <label class="checkbox-pill">
-                            <input type="checkbox" value="recruiting_manager">
+                        <label class="btn btn-sm btn-secondary">
+                            <input type="checkbox" value="recruiting_manager" hidden>
                             Recruiting Manager
                         </label>
                     </div>
@@ -525,7 +517,7 @@
                     <div class="zeile">
                         <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
                             <label class="eingabefeld-beschriftung-oben">Gültigkeitszeitraum</label>
-                            <button type="button" class="btn btn--secondary" id="roleValidityBtn" onclick="openRoleValidityCalendar()">
+                            <button type="button" class="btn btn-secondary" id="roleValidityBtn" onclick="openRoleValidityCalendar()">
                                 <span id="roleValidityDisplay">Zeitraum wählen...</span>
                             </button>
                             <input type="hidden" id="roleEffectiveDate" value="">
@@ -534,7 +526,7 @@
                         </div>
                         <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
                             <label class="eingabefeld-beschriftung-oben"></label>
-                            <button type="button" class="btn btn--primary" id="saveRoleBtn">
+                            <button type="button" class="btn btn-primary" id="saveRoleBtn">
                                 Karrierestufe speichern
                             </button>
                             <span class="eingabefeld-beschriftung-unten"></span>
@@ -552,11 +544,9 @@
                 </div>
                 <div class="history-timeline" id="careerHistoryTimeline"></div>
                 <div class="empty-state" id="noCareerHistoryMessage">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <h3>Keine Historie</h3>
-                    <p>Die Karriere-Historie wird automatisch geführt</p>
+                    <span class="icon icon--uhr"></span>
+                    <div class="text-ueberschrift-abschnitt">Keine Historie</div>
+                    <div class="text-normal">Die Karriere-Historie wird automatisch geführt</div>
                 </div>
             </div>
 
@@ -575,21 +565,17 @@
                 </div>
                 <div class="locked-section" id="preisvorlagenLocked">
                     <div class="locked-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
+                        <span class="icon icon--schloss"></span>
                     </div>
-                    <h3>Preisvorlagen gesperrt</h3>
-                    <p>Diese Funktion ist ab der Karrierestufe EMM (Executive Marketing Manager) verfügbar.</p>
-                    <p class="locked-detail">Erreiche EMM um freizuschalten</p>
+                    <div class="text-ueberschrift">Preisvorlagen gesperrt</div>
+                    <div class="text-normal">Diese Funktion ist ab der Karrierestufe EMM (Executive Marketing Manager) verfügbar.</div>
+                    <div class="text-normal locked-detail">Erreiche EMM um freizuschalten</div>
                 </div>
                 <div class="preisvorlagen-grid" id="preisvorlagenContent" style="display: none;">
                     <div class="empty-state">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <h3>Keine Preisvorlagen</h3>
-                        <p>Preisvorlagen werden in einer zukünftigen Version konfigurierbar sein.</p>
+                        <span class="icon icon--dokument-liste"></span>
+                        <div class="text-ueberschrift-abschnitt">Keine Preisvorlagen</div>
+                        <div class="text-normal">Preisvorlagen werden in einer zukünftigen Version konfigurierbar sein.</div>
                     </div>
                 </div>
             </div>
@@ -603,28 +589,28 @@
                 </div>
                 <div class="document-upload-grid">
                     <!-- HV Vertrag -->
-                    <div class="document-upload-item">
-                        <h4>HV Vertrag (Hauptvertrag)</h4>
-                        <div class="document-upload-box" id="hvContractBox">
-                            <svg class="document-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <span class="document-upload-text">Datei hochladen</span>
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">HV Vertrag (Hauptvertrag)</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="hvContractBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="hvContractInput" accept=".pdf,image/*" hidden>
+                            <div class="document-file-list" id="hvContractFileList"></div>
                         </div>
-                        <input type="file" id="hvContractInput" accept=".pdf,image/*" hidden>
-                        <div class="document-file-list" id="hvContractFileList"></div>
                     </div>
                     <!-- Sonstige Vereinbarungen -->
-                    <div class="document-upload-item">
-                        <h4>Sonstige Vereinbarungen</h4>
-                        <div class="document-upload-box" id="otherContractBox">
-                            <svg class="document-upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <span class="document-upload-text">Datei hochladen</span>
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Sonstige Vereinbarungen</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="otherContractBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="otherContractInput" accept=".pdf,image/*" hidden>
+                            <div class="document-file-list" id="otherContractFileList"></div>
                         </div>
-                        <input type="file" id="otherContractInput" accept=".pdf,image/*" hidden>
-                        <div class="document-file-list" id="otherContractFileList"></div>
                     </div>
                 </div>
             </div>
@@ -634,39 +620,1156 @@
 
         <!-- Footer Actions -->
         <div class="page-footer">
-            <button class="btn btn--secondary">Abbrechen</button>
-            <button class="btn btn--primary" onclick="saveProfile()">Speichern</button>
+            <button class="btn btn-secondary">Abbrechen</button>
+            <button class="btn btn-primary" onclick="saveProfile()">Speichern</button>
         </div>
 
     </div>
 
-    <script>
-        // Navigation
-        function saveProfile() { showAlert('Info', 'Speichern-Funktion noch nicht implementiert', 'info'); }
+    <!-- Photo Crop Modal -->
+    <div class="modal modal-s" id="photoCropModal">
+        <div class="page-container page-container--modal">
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift">Foto zuschneiden</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn btn-icon" onclick="closeCropModal()">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: var(--spacing-lg); display: flex; flex-direction: column; align-items: center; gap: var(--spacing-md);">
+                <div class="crop-container" style="position: relative; width: 280px; height: 280px; overflow: hidden; border-radius: 50%; border: 2px solid var(--border-color); background: var(--bg-secondary);">
+                    <img id="cropImage" src="" alt="Crop" style="position: absolute; cursor: move; max-width: none;">
+                </div>
+                <div class="crop-controls" style="display: flex; align-items: center; gap: var(--spacing-md); width: 100%;">
+                    <span class="icon icon--minus" style="opacity: 0.5;"></span>
+                    <input type="range" id="cropZoom" min="100" max="300" value="100" style="flex: 1;">
+                    <span class="icon icon--plus" style="opacity: 0.5;"></span>
+                </div>
+                <span class="text-klein text-sekundaer">Bild verschieben zum Positionieren</span>
+            </div>
+            <div class="page-footer">
+                <button class="btn btn-secondary" onclick="closeCropModal()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="applyCrop()">Übernehmen</button>
+            </div>
+        </div>
+    </div>
 
-        // Demo-Daten (später durch Supabase ersetzen)
+    <script>
+        // ================================================================
+        // SUPABASE DATA LOADING
+        // ================================================================
+
+        // Supabase Client von parent (Shell) holen
+        const supabase = window.parent.supabase;
+        let currentUserId = null;
+        let userData = null;
+        let userProfile = null;
+        let userRoles = [];
+
+        // User-ID aus URL holen
+        function getUserIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Profil-Daten laden
+        async function loadProfileData() {
+            currentUserId = getUserIdFromUrl();
+            if (!currentUserId) {
+                showToast('Keine User-ID angegeben', 'error');
+                return;
+            }
+
+            try {
+                // 1. User-Basisdaten laden
+                const { data: user, error: userError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', currentUserId)
+                    .single();
+
+                if (userError) throw userError;
+                userData = user;
+
+                // 2. Profil-Daten laden
+                const { data: profile, error: profileError } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', currentUserId)
+                    .single();
+
+                if (profileError && profileError.code !== 'PGRST116') throw profileError;
+                userProfile = profile || {};
+
+                // 3. Rollen laden
+                const { data: roles, error: rolesError } = await supabase
+                    .from('user_roles')
+                    .select('*')
+                    .eq('user_id', currentUserId)
+                    .order('created_at', { ascending: false });
+
+                if (rolesError) throw rolesError;
+                userRoles = roles || [];
+
+                // Felder befüllen
+                populateForm();
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showToast('Fehler beim Laden: ' + error.message, 'error');
+            }
+        }
+
+        // Formular mit Daten befüllen
+        function populateForm() {
+            // Header
+            document.getElementById('profileName').textContent =
+                `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() || userData.name || userData.email;
+            document.getElementById('employeeId').textContent = currentUserId.substring(0, 8);
+            document.getElementById('createdDate').textContent = userData.created_at
+                ? new Date(userData.created_at).toLocaleDateString('de-DE')
+                : '-';
+
+            // Persönliche Daten
+            setValue('firstName', userProfile.first_name);
+            setValue('lastName', userProfile.last_name);
+            setValue('email', userData.email);
+            setValue('phone', userProfile.phone);
+
+            // Kleidergröße
+            if (userProfile.clothing_size) {
+                document.querySelectorAll('.btn-toggle[data-size]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.size === userProfile.clothing_size);
+                });
+                document.getElementById('clothingSize').value = userProfile.clothing_size;
+            }
+
+            // Adresse
+            setValue('street', userProfile.street);
+            setValue('houseNumber', userProfile.house_number);
+            setValue('zip', userProfile.postal_code);
+            setValue('city', userProfile.city);
+            setValue('bundesland', userProfile.state);
+            setValue('country', userProfile.country);
+            setValue('addressExtra', userProfile.address_extra);
+
+            // Bankdaten
+            setValue('accountHolder', userProfile.account_holder);
+            setValue('iban', userProfile.iban);
+            setValue('bic', userProfile.bic);
+            setValue('bankName', userProfile.bank_name);
+
+            // Steuerdaten - Persönlich
+            setValue('taxIdPersonal', userProfile.tax_id);
+            setValue('kvnr', userProfile.kvnr);
+            setValue('socialSecurityNumber', userProfile.social_security_number);
+
+            // Steuerdaten - Gewerblich
+            setValue('companyName', userProfile.company_name);
+            setValue('taxNumber', userProfile.tax_number);
+            setValue('vatNumber', userProfile.vat_id);
+            setChecked('vatLiable', userProfile.is_vat_liable);
+
+            // Einstellungen
+            setValue('gameTag', userProfile.game_tag);
+            setChecked('isGhost', userProfile.ghost_mode);
+            setChecked('canSeeOthers', userProfile.can_see_others !== false); // Default: true
+            setChecked('participateRanking', userProfile.ranking_enabled);
+            setValue('advancePercent', userProfile.advance_rate || 70);
+            setValue('stornoPercent', userProfile.reserve_rate || 30);
+
+            // Fotos laden
+            if (userProfile.photo_intern_url) {
+                const previewIntern = document.getElementById('previewInternal');
+                previewIntern.src = userProfile.photo_intern_url;
+                previewIntern.style.display = 'block';
+                previewIntern.previousElementSibling.style.display = 'none';
+                previewIntern.closest('.photo-upload').classList.add('has-image');
+            }
+            if (userProfile.photo_extern_url) {
+                const previewExtern = document.getElementById('previewExternal');
+                previewExtern.src = userProfile.photo_extern_url;
+                previewExtern.style.display = 'block';
+                previewExtern.previousElementSibling.style.display = 'none';
+                previewExtern.closest('.photo-upload').classList.add('has-image');
+            }
+
+            // Dokumente laden
+            loadExistingDocument('id_front_url', 'idFrontFileList', 'Personalausweis Vorderseite');
+            loadExistingDocument('id_back_url', 'idBackFileList', 'Personalausweis Rückseite');
+            loadExistingDocument('license_front_url', 'licenseFrontFileList', 'Führerschein Vorderseite');
+            loadExistingDocument('license_back_url', 'licenseBackFileList', 'Führerschein Rückseite');
+            loadExistingDocument('hv_contract_url', 'hvContractFileList', 'Handelsvertretervertrag');
+            loadExistingDocument('other_contract_url', 'otherContractFileList', 'Sonstige Verträge');
+
+            // Zusatz-Rollen
+            const additionalRoles = userRoles.filter(r => r.role_type === 'additional' && r.is_active);
+            additionalRoles.forEach(role => {
+                const input = document.querySelector(`#additionalRoles input[value="${role.role_name}"]`);
+                if (input) {
+                    input.checked = true;
+                    input.closest('.btn').classList.add('active');
+                }
+            });
+
+            // Karrierestufe (role_type = 'career')
+            const careerRole = userRoles.find(r => r.role_type === 'career' && r.is_active);
+            if (careerRole) {
+                document.getElementById('mainRole').value = careerRole.role_name;
+                // Individueller Faktor falls vorhanden
+                if (careerRole.factor) {
+                    document.getElementById('individualFactorCheckbox').checked = true;
+                    document.getElementById('customFactor').value = careerRole.factor;
+                    document.getElementById('individualFactorInput').style.visibility = 'visible';
+                    document.getElementById('individualFactorInput').style.opacity = '1';
+                }
+                // Trigger change event für Badge-Update
+                document.getElementById('mainRole').dispatchEvent(new Event('change'));
+
+                // Foto-Rahmen in Stufe-Farbe (nur internes Foto)
+                const photoUploadIntern = document.querySelector('#previewInternal')?.closest('.photo-upload');
+                if (photoUploadIntern) {
+                    photoUploadIntern.classList.add(`photo-upload--${careerRole.role_name.toLowerCase()}`);
+                }
+            }
+
+            // Karriere-Historie laden und anzeigen
+            loadCareerHistory();
+
+            // Toggle-Labels aktualisieren
+            updateToggleLabels();
+        }
+
+        // Hilfsfunktionen
+        function setValue(id, value) {
+            const el = document.getElementById(id);
+            if (el && value !== null && value !== undefined) {
+                el.value = value;
+            }
+        }
+
+        function setChecked(id, value) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.checked = !!value;
+                el.dispatchEvent(new Event('change'));
+            }
+        }
+
+        function updateToggleLabels() {
+            // Ghost-Modus
+            const isGhost = document.getElementById('isGhost').checked;
+            document.getElementById('ghostLabel').textContent = isGhost
+                ? 'An - Mitarbeiter ist unsichtbar (Ghost)'
+                : 'Aus - Mitarbeiter ist sichtbar';
+            document.getElementById('canSeeOthersOption').style.display = isGhost ? '' : 'none';
+
+            // Ranking
+            const ranking = document.getElementById('participateRanking').checked;
+            document.getElementById('rankingLabel').textContent = ranking
+                ? 'An - Nimmt am Ranking teil'
+                : 'Aus - Nicht im Ranking sichtbar';
+
+            // USt
+            const vat = document.getElementById('vatLiable').checked;
+            document.getElementById('vatLiableLabel').textContent = vat
+                ? 'Ja - Umsatzsteuerpflichtig'
+                : 'Nein - Kleinunternehmer (§19 UStG)';
+        }
+
+        // ================================================================
+        // DOKUMENT UPLOAD FUNKTIONEN
+        // ================================================================
+
+        // Bestehende Dokumente anzeigen
+        function loadExistingDocument(urlField, fileListId, displayName) {
+            const url = userProfile[urlField];
+            if (!url) return;
+
+            const fileList = document.getElementById(fileListId);
+            if (!fileList) return;
+
+            // Dateiname aus URL extrahieren
+            const fileName = url.split('/').pop() || displayName;
+
+            fileList.innerHTML = `
+                <div class="document-file-row">
+                    <span class="icon icon--dokument"></span>
+                    <span class="document-file-name" data-action="view" title="${fileName}" style="cursor: pointer;">${fileName}</span>
+                    <div class="document-file-actions">
+                        <button type="button" class="btn btn-sm btn-icon" data-action="download" title="Herunterladen">
+                            <span class="icon icon--download"></span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-icon btn-danger" data-action="delete" title="Löschen">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Event-Handler hinzufügen
+            // Klick auf Namen = Anzeigen im neuen Fenster
+            fileList.querySelector('[data-action="view"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.open(url, '_blank');
+            });
+
+            // Download-Button = Direkter Download
+            fileList.querySelector('[data-action="download"]').addEventListener('click', async (e) => {
+                e.stopPropagation();
+                try {
+                    const response = await fetch(url);
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                } catch (err) {
+                    console.error('Download error:', err);
+                    window.open(url, '_blank');
+                }
+            });
+
+            fileList.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteDocument(urlField, fileListId);
+            });
+        }
+
+        // Dokument hochladen
+        async function uploadDocument(file, docType) {
+            if (!currentUserId || !file) return null;
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${docType}-${Date.now()}.${fileExt}`;
+            const filePath = `${currentUserId}/${fileName}`;
+
+            const { data, error } = await supabase.storage
+                .from('user-files')
+                .upload(filePath, file, { upsert: true });
+
+            if (error) {
+                console.error('Upload error:', error);
+                throw error;
+            }
+
+            // Public URL holen
+            const { data: urlData } = supabase.storage
+                .from('user-files')
+                .getPublicUrl(filePath);
+
+            return urlData.publicUrl;
+        }
+
+        // Dokument löschen
+        async function deleteDocument(urlField, fileListId) {
+            const confirmed = await showConfirm(
+                'Dokument löschen',
+                'Möchten Sie dieses Dokument wirklich löschen?',
+                'warning',
+                { confirmText: 'Löschen', danger: true }
+            );
+
+            if (!confirmed) return;
+
+            try {
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .update({ [urlField]: null })
+                    .eq('user_id', currentUserId);
+
+                if (error) throw error;
+
+                document.getElementById(fileListId).innerHTML = '';
+                userProfile[urlField] = null;
+                showToast('Dokument gelöscht', 'success');
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                showToast('Fehler beim Löschen: ' + error.message, 'error');
+            }
+        }
+
+        // Dokument-Upload mit Supabase initialisieren
+        function initSupabaseDocumentUpload(inputId, boxId, fileListId, urlField, docType) {
+            const input = document.getElementById(inputId);
+            const box = document.getElementById(boxId);
+
+            if (!input || !box) return;
+
+            // Klick auf Box öffnet File-Dialog
+            box.addEventListener('click', () => input.click());
+
+            // Datei ausgewählt
+            input.addEventListener('change', async function() {
+                const file = this.files[0];
+                if (!file) return;
+
+                // Größe prüfen (max 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('Datei zu groß (max. 10MB)', 'error');
+                    return;
+                }
+
+                try {
+                    showToast('Wird hochgeladen...', 'info');
+
+                    // Hochladen
+                    const url = await uploadDocument(file, docType);
+
+                    // In DB speichern
+                    const { error } = await supabase
+                        .from('user_profiles')
+                        .update({ [urlField]: url })
+                        .eq('user_id', currentUserId);
+
+                    if (error) throw error;
+
+                    // UI aktualisieren
+                    userProfile[urlField] = url;
+                    loadExistingDocument(urlField, fileListId, file.name);
+
+                    showToast('Dokument hochgeladen', 'success');
+
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    showToast('Fehler: ' + error.message, 'error');
+                }
+
+                // Input zurücksetzen
+                this.value = '';
+            });
+        }
+
+        // ================================================================
+        // PHOTO CROP FUNKTIONEN
+        // ================================================================
+
+        let cropState = {
+            image: null,
+            previewId: null,
+            urlField: null,
+            zoom: 100,
+            posX: 0,
+            posY: 0,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            imgWidth: 0,
+            imgHeight: 0
+        };
+
+        function initPhotoCropUpload(inputId, previewId, urlField) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Nur Bilder erlauben
+                if (!file.type.startsWith('image/')) {
+                    showToast('Bitte nur Bilddateien auswählen', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    openCropModal(e.target.result, previewId, urlField);
+                };
+                reader.readAsDataURL(file);
+
+                // Input zurücksetzen
+                this.value = '';
+            });
+        }
+
+        function openCropModal(imageSrc, previewId, urlField) {
+            cropState.previewId = previewId;
+            cropState.urlField = urlField;
+            cropState.zoom = 100;
+            cropState.posX = 0;
+            cropState.posY = 0;
+
+            const modal = document.getElementById('photoCropModal');
+            const cropImage = document.getElementById('cropImage');
+            const zoomSlider = document.getElementById('cropZoom');
+
+            zoomSlider.value = 100;
+
+            // Bild laden
+            cropImage.onload = function() {
+                cropState.imgWidth = this.naturalWidth;
+                cropState.imgHeight = this.naturalHeight;
+
+                // Initiale Größe berechnen (mindestens Container füllen)
+                const containerSize = 280;
+                const scale = Math.max(containerSize / cropState.imgWidth, containerSize / cropState.imgHeight);
+                const minZoom = Math.ceil(scale * 100);
+
+                // Slider-Bereich dynamisch anpassen (max +50% vom Minimum)
+                zoomSlider.min = minZoom;
+                zoomSlider.max = minZoom + 50;
+                zoomSlider.value = minZoom;
+                cropState.zoom = minZoom;
+
+                updateCropImage();
+                centerImage();
+            };
+            cropImage.src = imageSrc;
+
+            modal.classList.add('active');
+            initCropDrag();
+        }
+
+        function closeCropModal() {
+            document.getElementById('photoCropModal').classList.remove('active');
+        }
+
+        function updateCropImage() {
+            const cropImage = document.getElementById('cropImage');
+            const scale = cropState.zoom / 100;
+            const newWidth = cropState.imgWidth * scale;
+            const newHeight = cropState.imgHeight * scale;
+
+            cropImage.style.width = newWidth + 'px';
+            cropImage.style.height = newHeight + 'px';
+            cropImage.style.left = cropState.posX + 'px';
+            cropImage.style.top = cropState.posY + 'px';
+        }
+
+        function centerImage() {
+            const containerSize = 280;
+            const scale = cropState.zoom / 100;
+            const newWidth = cropState.imgWidth * scale;
+            const newHeight = cropState.imgHeight * scale;
+
+            cropState.posX = (containerSize - newWidth) / 2;
+            cropState.posY = (containerSize - newHeight) / 2;
+            updateCropImage();
+        }
+
+        function initCropDrag() {
+            const cropImage = document.getElementById('cropImage');
+            const container = cropImage.parentElement;
+
+            // Zoom-Slider
+            document.getElementById('cropZoom').addEventListener('input', function() {
+                const oldZoom = cropState.zoom;
+                cropState.zoom = parseInt(this.value);
+
+                // Position anpassen um Mittelpunkt zu erhalten
+                const containerSize = 280;
+                const centerX = containerSize / 2;
+                const centerY = containerSize / 2;
+
+                const oldScale = oldZoom / 100;
+                const newScale = cropState.zoom / 100;
+
+                const oldCenterOffsetX = centerX - cropState.posX;
+                const oldCenterOffsetY = centerY - cropState.posY;
+
+                cropState.posX = centerX - (oldCenterOffsetX * newScale / oldScale);
+                cropState.posY = centerY - (oldCenterOffsetY * newScale / oldScale);
+
+                updateCropImage();
+            });
+
+            // Drag-Events
+            cropImage.addEventListener('mousedown', startDrag);
+            cropImage.addEventListener('touchstart', startDrag, { passive: false });
+
+            document.addEventListener('mousemove', doDrag);
+            document.addEventListener('touchmove', doDrag, { passive: false });
+
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function startDrag(e) {
+            e.preventDefault();
+            cropState.isDragging = true;
+            const pos = e.touches ? e.touches[0] : e;
+            cropState.startX = pos.clientX - cropState.posX;
+            cropState.startY = pos.clientY - cropState.posY;
+        }
+
+        function doDrag(e) {
+            if (!cropState.isDragging) return;
+            e.preventDefault();
+            const pos = e.touches ? e.touches[0] : e;
+            cropState.posX = pos.clientX - cropState.startX;
+            cropState.posY = pos.clientY - cropState.startY;
+            updateCropImage();
+        }
+
+        function endDrag() {
+            cropState.isDragging = false;
+        }
+
+        async function applyCrop() {
+            const cropImage = document.getElementById('cropImage');
+            const containerSize = 280;
+
+            // Canvas erstellen für den Crop
+            const canvas = document.createElement('canvas');
+            canvas.width = containerSize;
+            canvas.height = containerSize;
+            const ctx = canvas.getContext('2d');
+
+            // Rundes Clipping
+            ctx.beginPath();
+            ctx.arc(containerSize / 2, containerSize / 2, containerSize / 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+
+            // Bild zeichnen
+            const scale = cropState.zoom / 100;
+            ctx.drawImage(
+                cropImage,
+                cropState.posX,
+                cropState.posY,
+                cropState.imgWidth * scale,
+                cropState.imgHeight * scale
+            );
+
+            // Zu Blob konvertieren
+            canvas.toBlob(async (blob) => {
+                try {
+                    showToast('Wird hochgeladen...', 'info');
+
+                    // Hochladen zu Supabase
+                    const fileName = `${cropState.urlField}-${Date.now()}.png`;
+                    const filePath = `${currentUserId}/${fileName}`;
+
+                    const { error: uploadError } = await supabase.storage
+                        .from('user-files')
+                        .upload(filePath, blob, { upsert: true, contentType: 'image/png' });
+
+                    if (uploadError) throw uploadError;
+
+                    // Public URL holen
+                    const { data: urlData } = supabase.storage
+                        .from('user-files')
+                        .getPublicUrl(filePath);
+
+                    const url = urlData.publicUrl;
+
+                    // In DB speichern
+                    const { error: dbError } = await supabase
+                        .from('user_profiles')
+                        .update({ [cropState.urlField]: url })
+                        .eq('user_id', currentUserId);
+
+                    if (dbError) throw dbError;
+
+                    // UI aktualisieren
+                    userProfile[cropState.urlField] = url;
+                    const preview = document.getElementById(cropState.previewId);
+                    preview.src = url;
+                    preview.style.display = 'block';
+                    preview.previousElementSibling.style.display = 'none';
+
+                    closeCropModal();
+                    showToast('Foto gespeichert', 'success');
+
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    showToast('Fehler: ' + error.message, 'error');
+                }
+            }, 'image/png', 0.9);
+        }
+
+        // Zusatz-Rollen speichern
+        async function saveAdditionalRoles() {
+            const selectedRoles = [];
+            document.querySelectorAll('#additionalRoles input:checked').forEach(input => {
+                selectedRoles.push(input.value);
+            });
+
+            // Aktuelle additional Rollen holen
+            const currentAdditional = userRoles.filter(r => r.role_type === 'additional');
+
+            // Deaktivieren: Rollen die nicht mehr ausgewählt sind
+            for (const role of currentAdditional) {
+                if (!selectedRoles.includes(role.role_name) && role.is_active) {
+                    await supabase
+                        .from('user_roles')
+                        .update({ is_active: false })
+                        .eq('id', role.id);
+                }
+            }
+
+            // Aktivieren/Erstellen: Rollen die ausgewählt sind
+            for (const roleName of selectedRoles) {
+                const existing = currentAdditional.find(r => r.role_name === roleName);
+                if (existing) {
+                    if (!existing.is_active) {
+                        await supabase
+                            .from('user_roles')
+                            .update({ is_active: true })
+                            .eq('id', existing.id);
+                    }
+                } else {
+                    await supabase
+                        .from('user_roles')
+                        .insert({
+                            user_id: currentUserId,
+                            role_type: 'additional',
+                            role_name: roleName,
+                            is_active: true
+                        });
+                }
+            }
+        }
+
+        // Speichern-Funktion
+        async function saveProfile() {
+            if (!currentUserId) {
+                showToast('Keine User-ID', 'error');
+                return;
+            }
+
+            try {
+                // Profil-Daten sammeln
+                const clothingSize = document.getElementById('clothingSize').value;
+                const profileData = {
+                    first_name: document.getElementById('firstName').value,
+                    last_name: document.getElementById('lastName').value,
+                    phone: document.getElementById('phone').value,
+                    clothing_size: clothingSize || null, // NULL statt leerer String
+                    street: document.getElementById('street').value,
+                    house_number: document.getElementById('houseNumber').value,
+                    postal_code: document.getElementById('zip').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('bundesland').value,
+                    country: document.getElementById('country').value,
+                    address_extra: document.getElementById('addressExtra').value,
+                    account_holder: document.getElementById('accountHolder').value,
+                    iban: document.getElementById('iban').value,
+                    bic: document.getElementById('bic').value,
+                    bank_name: document.getElementById('bankName').value,
+                    tax_id: document.getElementById('taxIdPersonal').value,
+                    kvnr: document.getElementById('kvnr').value,
+                    social_security_number: document.getElementById('socialSecurityNumber').value,
+                    company_name: document.getElementById('companyName').value,
+                    tax_number: document.getElementById('taxNumber').value,
+                    vat_id: document.getElementById('vatNumber').value,
+                    is_vat_liable: document.getElementById('vatLiable').checked,
+                    game_tag: document.getElementById('gameTag').value,
+                    ghost_mode: document.getElementById('isGhost').checked,
+                    can_see_others: document.getElementById('canSeeOthers').checked,
+                    ranking_enabled: document.getElementById('participateRanking').checked,
+                    advance_rate: parseInt(document.getElementById('advancePercent').value) || 70,
+                    reserve_rate: parseInt(document.getElementById('stornoPercent').value) || 30,
+                    updated_at: new Date().toISOString()
+                };
+
+                // Profil speichern
+                const { error: profileError } = await supabase
+                    .from('user_profiles')
+                    .update(profileData)
+                    .eq('user_id', currentUserId);
+
+                if (profileError) throw profileError;
+
+                // Zusatz-Rollen speichern
+                await saveAdditionalRoles();
+
+                // User-Name in users Tabelle aktualisieren
+                const fullName = `${profileData.first_name} ${profileData.last_name}`.trim();
+                if (fullName) {
+                    await supabase
+                        .from('users')
+                        .update({ name: fullName })
+                        .eq('id', currentUserId);
+                }
+
+                showToast('Profil gespeichert', 'success');
+
+                // Header aktualisieren
+                document.getElementById('profileName').textContent = fullName || userData.email;
+
+            } catch (error) {
+                console.error('Save error:', error);
+                showToast('Fehler beim Speichern: ' + error.message, 'error');
+            }
+        }
+
+        // Demo-Daten für Gutschriftrechnungen (TODO: aus Supabase laden)
         const employeeInvoices = [
             { id: 1, name: 'GS-2025-001', date: '31.01.2025', amount: 1850.00, status: 'paid' },
             { id: 2, name: 'GS-2025-002', date: '28.02.2025', amount: 2340.50, status: 'paid' },
             { id: 3, name: 'GS-2025-003', date: '31.03.2025', amount: 1920.00, status: 'pending' }
         ];
 
+        // ================================================================
+        // KARRIERESTUFE SPEICHERN (role_type = 'career')
+        // ================================================================
+
+        // Rollen-Mapping für Anzeige
+        const CAREER_LEVEL_NAMES = {
+            'sma': 'Starting Marketing Advisor',
+            'ema': 'Executive Marketing Advisor',
+            'jmm': 'Junior Marketing Manager',
+            'emm': 'Executive Marketing Manager',
+            'cemm': 'Chief Executive Marketing Manager',
+            'spb': 'Spitzen Botschafter',
+            'kad': 'Kadermanager',
+            'fue': 'Führungsebene'
+        };
+
+        // Deutsches Datum (DD.MM.YY oder DD.MM.YYYY) zu ISO (YYYY-MM-DD) konvertieren
+        function germanDateToISO(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('.');
+            if (parts.length !== 3) return null;
+            let day = parts[0].padStart(2, '0');
+            let month = parts[1].padStart(2, '0');
+            let year = parts[2];
+            // 2-stelliges Jahr zu 4-stellig
+            if (year.length === 2) {
+                year = (parseInt(year) > 50 ? '19' : '20') + year;
+            }
+            return `${year}-${month}-${day}`;
+        }
+
+        async function saveCareerLevel() {
+            const roleName = document.getElementById('mainRole').value;
+            const fromDateGerman = document.getElementById('roleEffectiveDate').value;
+            const toDateGerman = document.getElementById('roleEffectiveDateTo').value;
+            const hasIndividualFactor = document.getElementById('individualFactorCheckbox').checked;
+            const saveBtn = document.getElementById('saveRoleBtn');
+
+            // Faktor ermitteln: Individuell oder Basis aus ROLE_CONFIG
+            let factor;
+            if (hasIndividualFactor) {
+                factor = parseFloat(document.getElementById('customFactor').value);
+            } else {
+                // Basis-Faktor aus ROLE_CONFIG holen (window.ROLE_CONFIG aus main.js)
+                const config = window.ROLE_CONFIG?.[roleName] || {};
+                factor = config.faktor || null;
+            }
+
+            if (!roleName) {
+                showToast('Bitte Karrierestufe auswählen', 'error');
+                return;
+            }
+
+            if (!fromDateGerman || !toDateGerman) {
+                showToast('Bitte Gültigkeitszeitraum wählen', 'error');
+                return;
+            }
+
+            // Datum konvertieren für Supabase
+            const fromDate = germanDateToISO(fromDateGerman);
+            const toDate = germanDateToISO(toDateGerman);
+            const newValidUntil = toDate === fromDate ? null : toDate; // NULL = unbegrenzt
+
+            try {
+                // Alle Karrierestufen des Users laden
+                const { data: existingEntries, error: checkError } = await supabase
+                    .from('user_roles')
+                    .select('*')
+                    .eq('user_id', currentUserId)
+                    .eq('role_type', 'career');
+
+                if (checkError) throw checkError;
+
+                // Überlappende Einträge filtern
+                const overlapping = (existingEntries || []).filter(entry => {
+                    const entryStart = entry.assigned_at;
+                    const entryEnd = entry.valid_until || '9999-12-31';
+                    const newEnd = newValidUntil || '9999-12-31';
+                    return entryStart <= newEnd && fromDate <= entryEnd;
+                });
+
+                if (overlapping.length > 0) {
+                    const overlapInfo = overlapping.map(e => {
+                        const name = CAREER_LEVEL_NAMES[e.role_name] || e.role_name;
+                        const start = new Date(e.assigned_at).toLocaleDateString('de-DE');
+                        const end = e.valid_until ? new Date(e.valid_until).toLocaleDateString('de-DE') : '∞';
+                        return `• ${name} (${start} - ${end})`;
+                    }).join('\n');
+
+                    const confirmed = await showConfirm(
+                        'Überlappung erkannt',
+                        `Folgende Einträge überschneiden sich:\n\n${overlapInfo}\n\nDie neue Stufe überschreibt diese Zeiträume.`,
+                        'warning'
+                    );
+
+                    if (!confirmed) return;
+                }
+
+                // Button deaktivieren während Speichern
+                if (saveBtn) {
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = 'Speichern...';
+                }
+
+                // Prüfen ob ein angrenzender Eintrag mit gleicher Stufe+Faktor existiert
+                // Dann nur erweitern statt neuen Eintrag erstellen
+                const newEnd = newValidUntil || '9999-12-31';
+
+                // Suche nach Eintrag der direkt vor dem neuen endet (valid_until = fromDate - 1 Tag)
+                const dayBeforeFrom = new Date(fromDate);
+                dayBeforeFrom.setDate(dayBeforeFrom.getDate() - 1);
+                const dayBeforeFromStr = dayBeforeFrom.toISOString().split('T')[0];
+
+                const adjacentBefore = (existingEntries || []).find(entry =>
+                    entry.role_name === roleName &&
+                    entry.factor === factor &&
+                    (entry.valid_until === dayBeforeFromStr || entry.valid_until === fromDate)
+                );
+
+                // Suche nach Eintrag der direkt nach dem neuen startet
+                const dayAfterEnd = new Date(newEnd === '9999-12-31' ? newEnd : toDate);
+                dayAfterEnd.setDate(dayAfterEnd.getDate() + 1);
+                const dayAfterEndStr = dayAfterEnd.toISOString().split('T')[0];
+
+                const adjacentAfter = (existingEntries || []).find(entry =>
+                    entry.role_name === roleName &&
+                    entry.factor === factor &&
+                    (entry.assigned_at === dayAfterEndStr || entry.assigned_at === toDate)
+                );
+
+                // Überlappende Einträge verarbeiten (außer die angrenzenden gleichen)
+                for (const entry of overlapping) {
+                    // Gleiche Stufe+Faktor? → Zusammenführen statt löschen
+                    if (entry.role_name === roleName && entry.factor === factor) {
+                        continue; // Wird später behandelt
+                    }
+
+                    const entryStart = entry.assigned_at;
+                    const entryEnd = entry.valid_until || '9999-12-31';
+
+                    // Fall 1: Neuer Eintrag überschreibt komplett → löschen
+                    if (fromDate <= entryStart && newEnd >= entryEnd) {
+                        await supabase
+                            .from('user_roles')
+                            .delete()
+                            .eq('id', entry.id);
+                    }
+                    // Fall 2: Neuer Eintrag startet mitten im alten → End-Datum anpassen
+                    else if (fromDate > entryStart && fromDate <= entryEnd) {
+                        const dayBefore = new Date(fromDate);
+                        dayBefore.setDate(dayBefore.getDate() - 1);
+                        const newEndDate = dayBefore.toISOString().split('T')[0];
+
+                        await supabase
+                            .from('user_roles')
+                            .update({ valid_until: newEndDate, is_active: false })
+                            .eq('id', entry.id);
+                    }
+                    // Fall 3: Neuer Eintrag endet mitten im alten → Start-Datum anpassen
+                    else if (newEnd >= entryStart && newEnd < entryEnd) {
+                        const dayAfter = new Date(newEnd);
+                        dayAfter.setDate(dayAfter.getDate() + 1);
+                        const newStartDate = dayAfter.toISOString().split('T')[0];
+
+                        await supabase
+                            .from('user_roles')
+                            .update({ assigned_at: newStartDate })
+                            .eq('id', entry.id);
+                    }
+                }
+
+                // Gleiche Stufe+Faktor Einträge zusammenführen
+                const sameEntries = overlapping.filter(e => e.role_name === roleName && e.factor === factor);
+
+                if (sameEntries.length > 0 || adjacentBefore || adjacentAfter) {
+                    // Alle relevanten Einträge sammeln (überlappende + angrenzende gleiche)
+                    const allSameEntries = [...sameEntries];
+                    if (adjacentBefore && !allSameEntries.find(e => e.id === adjacentBefore.id)) {
+                        allSameEntries.push(adjacentBefore);
+                    }
+                    if (adjacentAfter && !allSameEntries.find(e => e.id === adjacentAfter.id)) {
+                        allSameEntries.push(adjacentAfter);
+                    }
+
+                    // Frühestes Start-Datum und spätestes End-Datum ermitteln
+                    let mergedStart = fromDate;
+                    let mergedEnd = newValidUntil;
+
+                    for (const entry of allSameEntries) {
+                        if (entry.assigned_at < mergedStart) mergedStart = entry.assigned_at;
+                        const entryEnd = entry.valid_until;
+                        if (entryEnd === null) {
+                            mergedEnd = null; // Unbegrenzt
+                        } else if (mergedEnd !== null && entryEnd > mergedEnd) {
+                            mergedEnd = entryEnd;
+                        }
+                    }
+
+                    // Ersten Eintrag behalten und updaten, Rest löschen
+                    const keepEntry = allSameEntries[0];
+                    const deleteEntries = allSameEntries.slice(1);
+
+                    await supabase
+                        .from('user_roles')
+                        .update({
+                            assigned_at: mergedStart,
+                            valid_until: mergedEnd,
+                            is_active: mergedEnd === null
+                        })
+                        .eq('id', keepEntry.id);
+
+                    for (const entry of deleteEntries) {
+                        await supabase
+                            .from('user_roles')
+                            .delete()
+                            .eq('id', entry.id);
+                    }
+                } else {
+                    // Keine gleichen Einträge → neuen erstellen
+                    const { error: insertError } = await supabase
+                        .from('user_roles')
+                        .insert({
+                            user_id: currentUserId,
+                            role_type: 'career',
+                            role_name: roleName,
+                            factor: factor,
+                            assigned_at: fromDate,
+                            valid_until: newValidUntil,
+                            is_active: newValidUntil === null
+                        });
+
+                    if (insertError) throw insertError;
+                }
+
+                // Historie neu laden
+                await loadCareerHistory();
+
+                // Formular zurücksetzen für nächste Eingabe
+                document.getElementById('roleEffectiveDate').value = '';
+                document.getElementById('roleEffectiveDateTo').value = '';
+                document.getElementById('roleValidityDisplay').textContent = 'Zeitraum wählen...';
+                document.getElementById('roleKwDisplay').textContent = '';
+
+                // Button zurücksetzen
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Karrierestufe speichern';
+                }
+
+                showToast('Karrierestufe gespeichert', 'success');
+
+            } catch (error) {
+                console.error('Fehler beim Speichern der Karrierestufe:', error);
+                showToast('Fehler: ' + error.message, 'error');
+
+                // Button zurücksetzen bei Fehler
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Karrierestufe speichern';
+                }
+            }
+        }
+
+        // ================================================================
+        // KARRIERE-HISTORIE LADEN
+        // ================================================================
+
+        async function loadCareerHistory() {
+            if (!currentUserId) return;
+
+            try {
+                // Alle Karrierestufen-Einträge laden (chronologisch absteigend)
+                const { data: history, error } = await supabase
+                    .from('user_roles')
+                    .select('*')
+                    .eq('user_id', currentUserId)
+                    .eq('role_type', 'career')
+                    .order('assigned_at', { ascending: false });
+
+                if (error) throw error;
+
+                renderCareerHistory(history || []);
+
+            } catch (error) {
+                console.error('Fehler beim Laden der Karriere-Historie:', error);
+            }
+        }
+
+        function renderCareerHistory(history) {
+            const timeline = document.getElementById('careerHistoryTimeline');
+            const emptyState = document.getElementById('noCareerHistoryMessage');
+
+            if (!history || history.length === 0) {
+                timeline.innerHTML = '';
+                timeline.style.display = 'none';
+                emptyState.style.display = 'flex';
+                return;
+            }
+
+            timeline.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            let html = '';
+            history.forEach((entry, index) => {
+                const levelCode = entry.role_name?.toUpperCase() || '?';
+                const levelName = CAREER_LEVEL_NAMES[entry.role_name] || entry.role_name;
+                const fromDate = entry.assigned_at ? new Date(entry.assigned_at).toLocaleDateString('de-DE') : '-';
+                const toDate = entry.valid_until ? new Date(entry.valid_until).toLocaleDateString('de-DE') : '∞ (unbegrenzt)';
+                const factor = entry.factor ? entry.factor : '-';
+                const isFirst = index === 0;
+
+                // SVG-Pfad: erster Eintrag = Pfeil hoch, Rest = Doppelpfeil
+                const svgPath = isFirst
+                    ? 'M5 10l7-7m0 0l7 7m-7-7v18'
+                    : 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4';
+
+                html += `
+                    <div class="history-item ${isFirst ? 'erhoehung' : 'aenderung'}">
+                        <div class="history-item-dot">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${svgPath}"/>
+                            </svg>
+                        </div>
+                        <div class="history-item-content">
+                            <div class="history-item-title">${levelName} (${levelCode})</div>
+                            <div class="history-item-meta">${fromDate} - ${toDate} • Faktor ${factor}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            timeline.innerHTML = html;
+        }
+
+        // ================================================================
+        // INITIALISIERUNG
+        // ================================================================
+
+        // Profil laden wenn Seite bereit
+        loadProfileData();
 
         // Initialisierung mit zentralen Funktionen
         initTabs('.kw-tab', '.kw-tab-content');
         initFilterButtons('.btn-toggle[data-size]', btn => {
             document.getElementById('clothingSize').value = btn.dataset.size;
         });
-        initPhotoUpload('photoInternal', 'previewInternal');
-        initPhotoUpload('photoExternal', 'previewExternal');
+        // Photo Upload mit Crop-Modal
+        initPhotoCropUpload('photoInternal', 'previewInternal', 'photo_intern_url');
+        initPhotoCropUpload('photoExternal', 'previewExternal', 'photo_extern_url');
 
         // Änderungsverfolgung starten (zentrale Funktion)
         initUnsavedChangesWarning();
 
-        // Checkbox-Pills für Zusatz-Rollen
-        document.querySelectorAll('.checkbox-pill input').forEach(input => {
+        // Zusatz-Rollen Toggle
+        document.querySelectorAll('#additionalRoles .btn input').forEach(input => {
             input.addEventListener('change', function() {
-                this.closest('.checkbox-pill').classList.toggle('active', this.checked);
+                this.closest('.btn').classList.toggle('active', this.checked);
             });
         });
 
@@ -679,18 +1782,21 @@
         // Gutschriftrechnungen rendern
         renderInvoiceHistory('employeeInvoicesList', 'noEmployeeInvoicesMessage', employeeInvoices);
 
-        // Demo-Daten für Karriere-Historie
-        if (!localStorage.getItem('roleHistory')) {
-            const demoHistory = [
-                { role: 'emm', fromKw: 1, fromYear: 2024, toKw: 26, toYear: 2024, faktor: 1.0 },
-                { role: 'smm', fromKw: 27, fromYear: 2024, toKw: 52, toYear: 2024, faktor: 1.2 },
-                { role: 'jmm', fromKw: 1, fromYear: 2025, toKw: null, toYear: null, faktor: 1.5 }
-            ];
-            localStorage.setItem('roleHistory', JSON.stringify(demoHistory));
-        }
+        // localStorage leeren damit initCareerLevelSelector keine alten Dummy-Daten anzeigt
+        localStorage.removeItem('roleHistory');
 
-        // Karrierestufe-System initialisieren (zentrale Funktion aus main.js)
+        // Karrierestufe-System initialisieren (zentrale Funktion aus main.js für Badge, Faktor, Benefits)
         initCareerLevelSelector();
+
+        // Den Standard-Handler von initCareerLevelSelector entfernen und eigene Supabase-Funktion nutzen
+        const saveBtn = document.getElementById('saveRoleBtn');
+        if (saveBtn) {
+            // Neuen Button erstellen um alle alten Event-Handler zu entfernen
+            const newBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newBtn, saveBtn);
+            newBtn.addEventListener('click', saveCareerLevel);
+        }
+        // Hinweis: loadCareerHistory() wird in populateForm() aufgerufen, nachdem currentUserId gesetzt ist
 
         // Gültigkeitszeitraum via CalendarModal
         function openRoleValidityCalendar() {
@@ -713,15 +1819,15 @@
         }
         window.openRoleValidityCalendar = openRoleValidityCalendar;
 
-        // Document Uploads initialisieren (zentrale Funktion aus main.js)
+        // Document Uploads initialisieren (Supabase Storage)
         // Informationen Tab - Dokumente
-        initDocumentUpload('idFrontInput', 'idFrontBox', 'idFrontFileList');
-        initDocumentUpload('idBackInput', 'idBackBox', 'idBackFileList');
-        initDocumentUpload('licenseFrontInput', 'licenseFrontBox', 'licenseFrontFileList');
-        initDocumentUpload('licenseBackInput', 'licenseBackBox', 'licenseBackFileList');
+        initSupabaseDocumentUpload('idFrontInput', 'idFrontBox', 'idFrontFileList', 'id_front_url', 'id-front');
+        initSupabaseDocumentUpload('idBackInput', 'idBackBox', 'idBackFileList', 'id_back_url', 'id-back');
+        initSupabaseDocumentUpload('licenseFrontInput', 'licenseFrontBox', 'licenseFrontFileList', 'license_front_url', 'license-front');
+        initSupabaseDocumentUpload('licenseBackInput', 'licenseBackBox', 'licenseBackFileList', 'license_back_url', 'license-back');
         // Einstellungen Tab - Verträge
-        initDocumentUpload('hvContractInput', 'hvContractBox', 'hvContractFileList');
-        initDocumentUpload('otherContractInput', 'otherContractBox', 'otherContractFileList');
+        initSupabaseDocumentUpload('hvContractInput', 'hvContractBox', 'hvContractFileList', 'hv_contract_url', 'hv-contract');
+        initSupabaseDocumentUpload('otherContractInput', 'otherContractBox', 'otherContractFileList', 'other_contract_url', 'other-contract');
 
         // Preisvorlagen Lock basierend auf Karrierestufe
         const PREISVORLAGEN_ALLOWED = ['emm', 'cemm', 'spb', 'kad', 'fue'];
@@ -773,13 +1879,18 @@
         });
 
         // IBAN Validierung (zentrale Funktion aus main.js)
-        document.getElementById('iban').addEventListener('input', function() {
+        const ibanField = document.getElementById('iban');
+        ibanField.addEventListener('input', function() {
             validateAndLookupIBAN(
                 this.value,
                 this,
                 document.getElementById('bankName'),
                 document.getElementById('bic')
             );
+        });
+        ibanField.addEventListener('blur', function() {
+            this.style.borderColor = '';
+            this.style.boxShadow = '';
         });
 
     </script>

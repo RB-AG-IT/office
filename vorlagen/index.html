@@ -7,23 +7,25 @@
     <link rel="stylesheet" href="../css/styles.css">
     <script src="../js/main.js"></script>
 </head>
-<body class="iframe-body">
-    <div class="page-container page-container--scroll">
+<body >
+    <div class="page-container">
         <!-- Page Header -->
         <div class="page-header">
             <div class="page-header-row">
                 <div class="page-header-links">
+                    <span class="text-ueberschrift">Vorlagen</span>
+                </div>
+                <div class="page-header-mitte">
                     <span class="text-ueberschrift" id="sectionTitle">Preisvorlagen</span>
                 </div>
-                <div class="page-header-mitte"></div>
                 <div class="page-header-rechts"></div>
             </div>
-            <!-- Tabs für Preisvorlagen -->
-            <div class="page-header-tabs" id="preisvorlagenTabs">
-                <div class="kw-tab active" data-tab="formular-preisvorlagen">Formular-Preisvorlagen</div>
+            <!-- Shell-Tab: Preisvorlagen (1 Sub-Tab) -->
+            <div class="page-header-tabs" id="preisvorlagenSubTabs">
+                <div class="kw-tab active" data-tab="preisvorlagen">Formular-Preisvorlagen</div>
             </div>
-            <!-- Tabs für E-Mails (initial versteckt) -->
-            <div class="page-header-tabs" id="emailTabs" style="display: none;">
+            <!-- Shell-Tab: E-Mail (4 Sub-Tabs) -->
+            <div class="page-header-tabs" id="emailSubTabs" style="display: none;">
                 <div class="kw-tab active" data-tab="email-automatisch">Automatisch</div>
                 <div class="kw-tab" data-tab="email-manuell">Manuell</div>
                 <div class="kw-tab" data-tab="email-newsletter">Newsletter</div>
@@ -36,15 +38,13 @@
             <!-- ============================================== -->
             <!-- PREISVORLAGEN CONTENT -->
             <!-- ============================================== -->
-            <div class="kw-tab-content active" id="tab-formular-preisvorlagen">
+            <div class="kw-tab-content active" id="tab-preisvorlagen">
                 <div class="vorlage-grid">
                     <!-- Standard Preisvorlage -->
                     <div class="vorlage-card">
                         <div class="vorlage-card-header">
                             <div class="vorlage-card-icon standard">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
+                                <span class="icon icon--check-kreis"></span>
                             </div>
                             <span class="vorlage-badge default">Standard</span>
                         </div>
@@ -56,8 +56,8 @@
                             <div class="price-item"><span class="price-label">Groß</span><span class="price-value">20€</span><span class="price-sub">pro Monat</span></div>
                         </div>
                         <div class="vorlage-card-actions">
-                            <button class="btn btn--secondary btn--sm" onclick="editPreisvorlage('standard')">Bearbeiten</button>
-                            <button class="btn btn--secondary btn--sm" disabled>Löschen</button>
+                            <button class="btn btn-secondary btn-sm" onclick="editPreisvorlage('standard')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" disabled>Löschen</button>
                         </div>
                     </div>
 
@@ -65,9 +65,7 @@
                     <div class="vorlage-card">
                         <div class="vorlage-card-header">
                             <div class="vorlage-card-icon premium">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                                </svg>
+                                <span class="icon icon--stern"></span>
                             </div>
                             <span class="vorlage-badge premium">Premium</span>
                         </div>
@@ -79,17 +77,15 @@
                             <div class="price-item"><span class="price-label">Premium</span><span class="price-value">50€</span><span class="price-sub">pro Monat</span></div>
                         </div>
                         <div class="vorlage-card-actions">
-                            <button class="btn btn--secondary btn--sm" onclick="editPreisvorlage('premium')">Bearbeiten</button>
-                            <button class="btn btn--secondary btn--sm" onclick="deletePreisvorlage('premium')">Löschen</button>
+                            <button class="btn btn-secondary btn-sm" onclick="editPreisvorlage('premium')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="deletePreisvorlage('premium')">Löschen</button>
                         </div>
                     </div>
 
                     <!-- Create New Preisvorlage Card -->
                     <div class="vorlage-card vorlage-card--new" onclick="openNewPreisvorlageModal()">
                         <div class="vorlage-card-new-content">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
+                            <span class="icon icon--plus"></span>
                             <span>Neue Preisvorlage erstellen</span>
                         </div>
                     </div>
@@ -106,17 +102,15 @@
                     <div class="vorlage-card">
                         <div class="vorlage-card-header">
                             <div class="vorlage-card-icon standard">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
+                                <span class="icon icon--email"></span>
                             </div>
                             <span class="vorlage-badge default">Automatisch</span>
                         </div>
                         <h3 class="vorlage-card-title">Willkommensmail</h3>
                         <p class="vorlage-card-desc">Begrüßung neuer Fördermitglieder nach NMG-Formular</p>
                         <div class="vorlage-card-actions">
-                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('willkommen')">Bearbeiten</button>
-                            <button class="btn btn--secondary btn--sm" onclick="previewTemplate('willkommen')">Vorschau</button>
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('willkommen')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('willkommen')">Vorschau</button>
                         </div>
                     </div>
 
@@ -124,17 +118,15 @@
                     <div class="vorlage-card">
                         <div class="vorlage-card-header">
                             <div class="vorlage-card-icon standard">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                                </svg>
+                                <span class="icon icon--statistik"></span>
                             </div>
                             <span class="vorlage-badge default">Automatisch</span>
                         </div>
                         <h3 class="vorlage-card-title">Erhöhungsmail</h3>
                         <p class="vorlage-card-desc">Bestätigung bei Beitragsanpassung nach ERH-Formular</p>
                         <div class="vorlage-card-actions">
-                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('erhoehung')">Bearbeiten</button>
-                            <button class="btn btn--secondary btn--sm" onclick="previewTemplate('erhoehung')">Vorschau</button>
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('erhoehung')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('erhoehung')">Vorschau</button>
                         </div>
                     </div>
 
@@ -142,17 +134,15 @@
                     <div class="vorlage-card">
                         <div class="vorlage-card-header">
                             <div class="vorlage-card-icon standard">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                                </svg>
+                                <span class="icon icon--kreditkarte"></span>
                             </div>
                             <span class="vorlage-badge default">Automatisch</span>
                         </div>
                         <h3 class="vorlage-card-title">IBAN-Nachtragen</h3>
                         <p class="vorlage-card-desc">Link zum Nachtragen der Bankverbindung</p>
                         <div class="vorlage-card-actions">
-                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('iban')">Bearbeiten</button>
-                            <button class="btn btn--secondary btn--sm" onclick="previewTemplate('iban')">Vorschau</button>
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('iban')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('iban')">Vorschau</button>
                         </div>
                     </div>
                 </div>
@@ -165,17 +155,15 @@
                     <div class="vorlage-card">
                         <div class="vorlage-card-header">
                             <div class="vorlage-card-icon premium">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                </svg>
+                                <span class="icon icon--bearbeiten"></span>
                             </div>
                             <span class="vorlage-badge premium">Manuell</span>
                         </div>
                         <h3 class="vorlage-card-title">Storno-Bestätigung</h3>
                         <p class="vorlage-card-desc">Bestätigung der Kündigung mit Einmalspende-Anfrage</p>
                         <div class="vorlage-card-actions">
-                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('storno')">Bearbeiten</button>
-                            <button class="btn btn--primary btn--sm" onclick="sendManual('storno')">Versenden</button>
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('storno')">Bearbeiten</button>
+                            <button class="btn btn-primary btn-sm" onclick="sendManual('storno')">Versenden</button>
                         </div>
                     </div>
 
@@ -183,16 +171,14 @@
                     <div class="vorlage-card">
                         <div class="vorlage-card-header">
                             <div class="vorlage-card-icon premium">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                </svg>
+                                <span class="icon icon--aktualisieren"></span>
                             </div>
                             <span class="vorlage-badge premium">Manuell</span>
                         </div>
                         <h3 class="vorlage-card-title">Erneut versenden</h3>
                         <p class="vorlage-card-desc">Automatische E-Mail erneut an ein Mitglied senden</p>
                         <div class="vorlage-card-actions">
-                            <button class="btn btn--primary btn--sm" onclick="openResendModal()">Mitglied auswählen</button>
+                            <button class="btn btn-primary btn-sm" onclick="openResendModal()">Mitglied auswählen</button>
                         </div>
                     </div>
                 </div>
@@ -205,17 +191,15 @@
                     <div class="vorlage-card">
                         <div class="vorlage-card-header">
                             <div class="vorlage-card-icon standard">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                                </svg>
+                                <span class="icon icon--zeitung"></span>
                             </div>
                             <span class="vorlage-badge default">Aktiv</span>
                         </div>
                         <h3 class="vorlage-card-title">Newsletter - Standard</h3>
                         <p class="vorlage-card-desc">Allgemeiner Newsletter für alle Fördermitglieder</p>
                         <div class="vorlage-card-actions">
-                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('newsletter1')">Bearbeiten</button>
-                            <button class="btn btn--primary btn--sm" onclick="sendNewsletter('newsletter1')">Newsletter senden</button>
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('newsletter1')">Bearbeiten</button>
+                            <button class="btn btn-primary btn-sm" onclick="sendNewsletter('newsletter1')">Newsletter senden</button>
                         </div>
                     </div>
 
@@ -223,17 +207,15 @@
                     <div class="vorlage-card">
                         <div class="vorlage-card-header">
                             <div class="vorlage-card-icon premium">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                                </svg>
+                                <span class="icon icon--zeitung"></span>
                             </div>
                             <span class="vorlage-badge premium">Entwurf</span>
                         </div>
                         <h3 class="vorlage-card-title">Newsletter - Saisonal</h3>
                         <p class="vorlage-card-desc">Saisonale Grüße (Weihnachten, Ostern, etc.)</p>
                         <div class="vorlage-card-actions">
-                            <button class="btn btn--secondary btn--sm" onclick="editTemplate('newsletter2')">Bearbeiten</button>
-                            <button class="btn btn--secondary btn--sm" onclick="previewTemplate('newsletter2')">Vorschau</button>
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('newsletter2')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('newsletter2')">Vorschau</button>
                         </div>
                     </div>
                 </div>
@@ -244,9 +226,7 @@
                 <!-- Lock Message for lower levels -->
                 <div class="locked-section" id="lockedMessage">
                     <div class="locked-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
+                        <span class="icon icon--schloss"></span>
                     </div>
                     <h3>Individuelle Vorlagen</h3>
                     <p>Ab Stufe III (JMM) freigeschaltet</p>
@@ -259,26 +239,22 @@
                         <div class="vorlage-card">
                             <div class="vorlage-card-header">
                                 <div class="vorlage-card-icon individual">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                    </svg>
+                                    <span class="icon icon--herz"></span>
                                 </div>
                                 <span class="vorlage-badge individual">Individuell</span>
                             </div>
                             <h3 class="vorlage-card-title">Persönlicher Dank</h3>
                             <p class="vorlage-card-desc">Persönliche Danksagung an besondere Mitglieder</p>
                             <div class="vorlage-card-actions">
-                                <button class="btn btn--secondary btn--sm" onclick="editIndividualTemplate('personal-thanks')">Bearbeiten</button>
-                                <button class="btn btn--primary btn--sm" onclick="useIndividualTemplate('personal-thanks')">Verwenden</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editIndividualTemplate('personal-thanks')">Bearbeiten</button>
+                                <button class="btn btn-primary btn-sm" onclick="useIndividualTemplate('personal-thanks')">Verwenden</button>
                             </div>
                         </div>
 
                         <!-- Create New -->
                         <div class="vorlage-card vorlage-card--new" onclick="openCreateIndividualModal()">
                             <div class="vorlage-card-new-content">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                </svg>
+                                <span class="icon icon--plus"></span>
                                 <span>Neue Vorlage erstellen</span>
                             </div>
                         </div>
@@ -290,7 +266,7 @@
 
     <!-- Preisvorlage Modal -->
     <div class="modal modal-m" id="preisvorlageModal">
-        <div class="modal-content">
+        <div class="page-container page-container--modal">
             <!-- Modal Header -->
             <div class="page-header">
                 <div class="page-header-row">
@@ -299,10 +275,8 @@
                     </div>
                     <div class="page-header-mitte"></div>
                     <div class="page-header-rechts">
-                        <button class="btn-icon" onclick="closeModalById('preisvorlageModal')">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
+                        <button class="btn btn-icon" onclick="closeModalById('preisvorlageModal')">
+                            <span class="icon icon--schliessen"></span>
                         </button>
                     </div>
                 </div>
@@ -311,7 +285,7 @@
                 </div>
             </div>
             <!-- Modal Body -->
-            <div class="page-content">
+            <div class="page-content page-content--modal">
                 <!-- Allgemein -->
                 <div class="unterabschnitt--card">
                     <div class="zeile">
@@ -327,29 +301,19 @@
                             <label class="eingabefeld-beschriftung-oben">Symbol</label>
                             <div class="symbol-picker" id="symbolPicker">
                                 <button type="button" class="symbol-option active" data-symbol="checkmark" title="Häkchen">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
+                                    <span class="icon icon--check-kreis"></span>
                                 </button>
                                 <button type="button" class="symbol-option" data-symbol="star" title="Stern">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                                    </svg>
+                                    <span class="icon icon--stern"></span>
                                 </button>
                                 <button type="button" class="symbol-option" data-symbol="euro" title="Euro">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 15.536c-1.171 1.952-3.07 1.952-4.242 0-1.172-1.953-1.172-5.119 0-7.072 1.171-1.952 3.07-1.952 4.242 0M8 10.5h4m-4 3h4"/>
-                                    </svg>
+                                    <span class="icon icon--euro"></span>
                                 </button>
                                 <button type="button" class="symbol-option" data-symbol="heart" title="Herz">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                    </svg>
+                                    <span class="icon icon--herz"></span>
                                 </button>
                                 <button type="button" class="symbol-option" data-symbol="gift" title="Geschenk">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
-                                    </svg>
+                                    <span class="icon icon--geschenk"></span>
                                 </button>
                             </div>
                             <span class="eingabefeld-beschriftung-unten"></span>
@@ -424,8 +388,8 @@
             </div>
             <!-- Modal Footer -->
             <div class="page-footer">
-                <button type="button" class="btn btn--secondary" onclick="closeModalById('preisvorlageModal')">Abbrechen</button>
-                <button type="button" class="btn btn--primary" onclick="savePreisvorlage()">Speichern</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModalById('preisvorlageModal')">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="savePreisvorlage()">Speichern</button>
             </div>
         </div>
     </div>
@@ -436,42 +400,35 @@
         // ============================================
         let currentSection = 'preisvorlagen';
 
-        // Tabs für Preisvorlagen
-        initTabs('#preisvorlagenTabs .kw-tab', '.kw-tab-content');
-        // Tabs für E-Mails
-        initTabs('#emailTabs .kw-tab', '.kw-tab-content');
+        // Sub-Tabs für beide Sektionen
+        initTabs('#preisvorlagenSubTabs .kw-tab', '.kw-tab-content');
+        initTabs('#emailSubTabs .kw-tab', '.kw-tab-content');
 
         initSymbolPicker();
 
         // ============================================
         // SECTION SWITCH (Shell-Navigation)
         // ============================================
+        const sectionConfig = {
+            preisvorlagen: {
+                containerId: 'preisvorlagenSubTabs',
+                firstContentId: 'tab-preisvorlagen',
+                title: 'Preisvorlagen'
+            },
+            email: {
+                containerId: 'emailSubTabs',
+                firstContentId: 'tab-email-automatisch',
+                title: 'E-Mail Vorlagen'
+            }
+        };
+
         function switchSection(section) {
             currentSection = section;
-
-            // Alle Tab-Contents ausblenden
-            document.querySelectorAll('.page-content > .kw-tab-content').forEach(c => c.classList.remove('active'));
-
-            if (section === 'preisvorlagen') {
-                document.getElementById('sectionTitle').textContent = 'Preisvorlagen';
-                document.getElementById('preisvorlagenTabs').style.display = 'flex';
-                document.getElementById('emailTabs').style.display = 'none';
-
-                // Ersten Preisvorlagen-Tab aktivieren
-                document.querySelectorAll('#preisvorlagenTabs .kw-tab').forEach(t => t.classList.remove('active'));
-                document.querySelector('#preisvorlagenTabs .kw-tab').classList.add('active');
-                document.getElementById('tab-formular-preisvorlagen').classList.add('active');
-
-            } else if (section === 'email') {
-                document.getElementById('sectionTitle').textContent = 'E-Mail Vorlagen';
-                document.getElementById('preisvorlagenTabs').style.display = 'none';
-                document.getElementById('emailTabs').style.display = 'flex';
-
-                // Ersten E-Mail-Tab aktivieren
-                document.querySelectorAll('#emailTabs .kw-tab').forEach(t => t.classList.remove('active'));
-                document.querySelector('#emailTabs .kw-tab').classList.add('active');
-                document.getElementById('tab-email-automatisch').classList.add('active');
-            }
+            selectShellTab(section, {
+                subTabs: sectionConfig,
+                contentSelector: '.page-content > .kw-tab-content',
+                titleSelector: '#sectionTitle'
+            });
         }
 
         // ============================================
@@ -526,51 +483,51 @@
         async function deletePreisvorlage(id) {
             const confirmed = await showConfirm('Löschen', 'Möchten Sie diese Preisvorlage wirklich löschen?', 'warning');
             if (confirmed) {
-                await showAlert('Gelöscht', 'Preisvorlage wurde gelöscht.', 'success');
+                showToast('Preisvorlage gelöscht', 'success');
             }
         }
 
         async function savePreisvorlage() {
-            await showAlert('Gespeichert', 'Preisvorlage wurde gespeichert.', 'success');
             closeModalById('preisvorlageModal');
+            showToast('Preisvorlage gespeichert', 'success');
         }
 
         // ============================================
         // EMAIL FUNKTIONEN
         // ============================================
         async function editTemplate(templateId) {
-            await showAlert('Bearbeiten', 'Vorlage bearbeiten: ' + templateId, 'info');
+            showToast('Vorlage bearbeiten - Coming soon', 'info');
         }
 
         async function previewTemplate(templateId) {
-            await showAlert('Vorschau', 'Vorschau für: ' + templateId, 'info');
+            showToast('Vorschau - Coming soon', 'info');
         }
 
         async function sendManual(templateId) {
-            await showAlert('Versenden', 'Manuelle E-Mail senden: ' + templateId, 'info');
+            showToast('Manuelle E-Mail - Coming soon', 'info');
         }
 
         async function sendNewsletter(templateId) {
             const confirmed = await showConfirm('Newsletter versenden', 'Newsletter an alle Fördermitglieder senden?', 'question');
             if (confirmed) {
-                await showAlert('Versendet', 'Newsletter wird versendet...', 'success');
+                showToast('Newsletter wird versendet...', 'success');
             }
         }
 
         async function openResendModal() {
-            await showAlert('Erneut senden', 'Mitglied auswählen - Coming soon', 'info');
+            showToast('Erneut senden - Coming soon', 'info');
         }
 
         async function openCreateIndividualModal() {
-            await showAlert('Neue Vorlage', 'Neue individuelle Vorlage erstellen - Coming soon', 'info');
+            showToast('Neue Vorlage erstellen - Coming soon', 'info');
         }
 
         async function editIndividualTemplate(templateId) {
-            await showAlert('Bearbeiten', 'Individuelle Vorlage bearbeiten: ' + templateId, 'info');
+            showToast('Vorlage bearbeiten - Coming soon', 'info');
         }
 
         async function useIndividualTemplate(templateId) {
-            await showAlert('Verwenden', 'Vorlage wird zum Versenden geöffnet...', 'info');
+            showToast('Vorlage öffnen...', 'info');
         }
 
         // ============================================
@@ -598,12 +555,8 @@
         checkIndividualAccess();
 
         // ============================================
-        // IFRAME / SHELL INTEGRATION
+        // SHELL INTEGRATION
         // ============================================
-        if (window.self !== window.top) {
-            document.body.classList.add('in-iframe');
-        }
-
         window.addEventListener('message', function(e) {
             if (e.data && e.data.type === 'navFilter') {
                 switchSection(e.data.value);
