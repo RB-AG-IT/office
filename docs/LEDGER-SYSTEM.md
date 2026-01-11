@@ -690,7 +690,9 @@ GROUP BY pl.kategorie;
 | 8 | 024 | Schema erweitern (campaign_id, campaign_area_id, customer_id/werber_id) | ✅ Ausgeführt | 11.01.2026 |
 | 9 | 025 | Trigger anpassen (neue Felder kopieren) | ✅ Ausgeführt | 11.01.2026 |
 | 10 | 026 | Bestandsdaten aktualisieren (neue Felder befüllen) | ✅ Ausgeführt | 11.01.2026 |
-| 11 | 027 | Erhöhungen: increase_amount statt yearly_amount verwenden | ⏳ Erstellt | 11.01.2026 |
+| 11 | 027 | Erhöhungen: increase_amount statt yearly_amount verwenden | ✅ Ausgeführt | 11.01.2026 |
+| 12 | 028 | Auto-Set: kw, year aus start_date + teamchef_id, quality_id aus campaign_assignments | ✅ Ausgeführt | 11.01.2026 |
+| 13 | 029 | TC/Quality ≠ Werber: Keine Provision für eigene Records | ✅ Ausgeführt | 11.01.2026 |
 
 ---
 
@@ -711,6 +713,21 @@ GROUP BY pl.kategorie;
 | 11.01.2026 | **Schema-Erweiterung:** Migration 024-026 erstellt (campaign_id, campaign_area_id, customer_id/werber_id) |
 | 11.01.2026 | **Migration 024-026 ausgeführt:** Ledger-Schema erweitert, Trigger aktualisiert, Bestandsdaten migriert |
 | 11.01.2026 | **Migration 027 erstellt:** Trigger unterscheidet jetzt record_type (neumitglied → yearly_amount, erhoehung → increase_amount) |
+| 11.01.2026 | **Migration 028 ausgeführt:** BEFORE INSERT Trigger setzt automatisch kw, year, teamchef_id, quality_id |
+| 11.01.2026 | **Migration 029 ausgeführt:** TC/Quality bekommen keine Provision für eigene Records (TC ≠ Werber Regel) |
+
+---
+
+## Wichtige Regeln
+
+### TC/Quality ≠ Werber
+- **teamleitung**-Eintrag wird nur erstellt wenn `teamchef_id ≠ werber_id`
+- **quality**-Eintrag wird nur erstellt wenn `quality_id ≠ werber_id`
+- Bei TC/Quality-Wechsel: Neuer TC/Quality bekommt nur Provision wenn er nicht selbst der Werber ist
+
+### Auto-Set bei INSERT
+- `kw` und `year` werden automatisch aus `start_date` berechnet
+- `teamchef_id` und `quality_id` werden aus `campaign_assignments` geladen (basierend auf campaign_id + kw)
 
 ---
 
