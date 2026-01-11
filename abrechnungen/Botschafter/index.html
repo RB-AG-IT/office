@@ -277,10 +277,10 @@
     });
 
     // ========== DATEN LADEN ==========
-    async function loadBotschafterData() {
+    async function loadBotschafterData(options = {}) {
         try {
-            // Zentrale Funktion aus main.js verwenden
-            botschafterData = await ladeWerberStatistiken();
+            // Zentrale Funktion aus main.js verwenden (mit optionalem Zeitraum)
+            botschafterData = await ladeWerberStatistiken(options);
             document.getElementById('uebersichtBadge').textContent = botschafterData.length;
         } catch (error) {
             console.error('Fehler beim Laden:', error.message || error);
@@ -1080,11 +1080,20 @@
         }
     }
 
-    function goToWorkflowStep(step) {
+    async function goToWorkflowStep(step) {
         if (step === 2 && abrechnungWorkflowStep === 1) {
             // Daten aus Schritt 1 speichern
             abrechnungWorkflowData.typ = document.getElementById('abrTypSelect').value;
             // Zeitraum wird bereits durch CalendarModal gesetzt
+
+            // Daten mit Zeitraum neu laden
+            await loadBotschafterData({
+                startDate: abrechnungWorkflowData.zeitraum.von,
+                endDate: abrechnungWorkflowData.zeitraum.bis
+            });
+
+            // Botschafter-Daten aktualisieren
+            abrechnungWorkflowData.botschafter = selectedBotschafter.map(id => botschafterData.find(b => b.id === id)).filter(Boolean);
         }
         if (step === 3 && abrechnungWorkflowStep === 2) {
             // Aktion und Auto-Mail speichern
