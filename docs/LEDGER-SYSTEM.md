@@ -20,7 +20,8 @@
 | `database/migrations/018-provision-update-trigger.sql` | `handle_record_provision_update()` Trigger | LÖSCHEN | ✅ Erledigt |
 | `js/main.js` (Zeile ~12095) | `erstelleAbrechnung()` → Insert in provisions_ledger | ANPASSEN | Offen |
 | `tests/test-provisions-db.html` | Test für altes provisions_ledger Schema | ANPASSEN | Offen |
-| Supabase DB | Tabelle `provisions_ledger` (altes Schema) | DROP + NEU | ⏳ Migration 020-023 erstellt |
+| Supabase DB | Tabelle `provisions_ledger` (altes Schema) | DROP + NEU | ✅ Ausgeführt |
+| Supabase DB | View `user_provisions_saldo` | GELÖSCHT | ✅ Erledigt |
 
 ### Detaillierte Code-Stellen
 
@@ -630,14 +631,13 @@ GROUP BY c.name;
 
 | Phase | Migration | Aufgabe | Status | Datum |
 |-------|-----------|---------|--------|-------|
-| 1 | 020 | Altes System löschen (Trigger + Tabelle) | ✅ Erstellt | 11.01.2026 |
-| 2 | 021 | Neue Tabellen erstellen (provisions_ledger + customer_billing_ledger) | ✅ Erstellt | 11.01.2026 |
-| 3 | 022 | Trigger erstellen (INSERT, UPDATE, DELETE) | ✅ Erstellt | 11.01.2026 |
-| 4 | 023 | Bestandsdaten migrieren | ✅ Erstellt | 11.01.2026 |
-| 5 | - | **In Supabase ausführen:** Migration 020-023 | ⏳ Ausstehend | - |
-| 6 | - | Frontend: Abrechnungsseite Werber umstellen | Offen | - |
-| 7 | - | Frontend: Abrechnungsseite Kunden umstellen | Offen | - |
-| 8 | - | Testen | Offen | - |
+| 1 | 020 | Altes System löschen (Trigger + Tabelle + View) | ✅ Ausgeführt | 11.01.2026 |
+| 2 | 021 | Neue Tabellen erstellen (provisions_ledger + customer_billing_ledger) | ✅ Ausgeführt | 11.01.2026 |
+| 3 | 022 | Trigger erstellen (INSERT, UPDATE, DELETE) | ✅ Ausgeführt | 11.01.2026 |
+| 4 | 023 | Bestandsdaten migrieren | ✅ Ausgeführt | 11.01.2026 |
+| 5 | - | Frontend: js/main.js `erstelleAbrechnung()` anpassen | ⏳ Offen | - |
+| 6 | - | Frontend: tests/test-provisions-db.html anpassen | ⏳ Offen | - |
+| 7 | - | Testen (Record erstellen, Storno, Änderungen) | ⏳ Offen | - |
 
 ---
 
@@ -649,6 +649,8 @@ GROUP BY c.name;
 | 11.01.2026 | Entscheidung: Option B (altes System komplett ersetzen) |
 | 11.01.2026 | Migration 018 gelöscht |
 | 11.01.2026 | Migration 020-023 erstellt (Cleanup, Tables, Triggers, Data) |
+| 11.01.2026 | Migration 020-023 in Supabase ausgeführt (inkl. View `user_provisions_saldo` gelöscht) |
+| 11.01.2026 | **DB-Status:** Neues Ledger-System aktiv, Trigger laufen |
 
 ---
 
