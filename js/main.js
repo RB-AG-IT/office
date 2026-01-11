@@ -12044,8 +12044,19 @@ async function erstelleAbrechnung(data) {
         if (posError) console.error('Fehler beim Erstellen der Positions:', posError);
     }
 
-    // HINWEIS: EH-Buchungen erfolgen automatisch via DB-Trigger bei Record-Insert
-    // provisions_ledger wird nicht mehr manuell befüllt
+    // ========== Ledger-Einträge mit Invoice verknüpfen ==========
+    // Alle offenen EH im Zeitraum werden dieser Abrechnung zugeordnet
+    const { error: ledgerUpdateError } = await supabase
+        .from('provisions_ledger')
+        .update({ invoice_id: created.id })
+        .eq('user_id', data.userId)
+        .is('invoice_id', null)
+        .gte('referenz_datum', data.zeitraum.von)
+        .lte('referenz_datum', data.zeitraum.bis);
+
+    if (ledgerUpdateError) {
+        console.error('Fehler beim Verknüpfen der Ledger-Einträge:', ledgerUpdateError);
+    }
 
     // ========== Invoice Items (für Abzüge) ==========
     const items = [];
@@ -12247,7 +12258,7 @@ async function ladeWerberStatistiken(options = {}) {
             };
         });
 
-        // 4. Records laden (mit optionalem Zeitraum-Filter nach Aufnahmedatum = start_date)
+        // 4. Records laden (für Statistik: total, aktiv, storno, nettoJE)
         let recordsQuery = supabase
             .from('records')
             .select('werber_id, yearly_amount, record_status, start_date');
@@ -12262,20 +12273,58 @@ async function ladeWerberStatistiken(options = {}) {
         const { data: records, error: recordsError } = await recordsQuery;
         if (recordsError) throw recordsError;
 
-        // 5. Statistiken pro Werber berechnen
-        const statsMap = {};
+        // 5a. Record-Statistiken pro Werber (für Anzeige: total, aktiv, storno)
+        const recordStatsMap = {};
         (records || []).forEach(r => {
             if (!r.werber_id) return;
-            if (!statsMap[r.werber_id]) {
-                statsMap[r.werber_id] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0, einheiten: 0 };
+            if (!recordStatsMap[r.werber_id]) {
+                recordStatsMap[r.werber_id] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
             }
-            statsMap[r.werber_id].total++;
+            recordStatsMap[r.werber_id].total++;
             if (r.record_status === 'aktiv') {
-                statsMap[r.werber_id].aktiv++;
-                statsMap[r.werber_id].nettoJE += (r.yearly_amount || 0);
-                statsMap[r.werber_id].einheiten += berechneEinheiten(r.yearly_amount || 0);
+                recordStatsMap[r.werber_id].aktiv++;
+                recordStatsMap[r.werber_id].nettoJE += (r.yearly_amount || 0);
             } else if (r.record_status === 'storno') {
-                statsMap[r.werber_id].storno++;
+                recordStatsMap[r.werber_id].storno++;
+            }
+        });
+
+        // 5b. OFFENE Einheiten aus provisions_ledger laden (invoice_id IS NULL)
+        let ledgerQuery = supabase
+            .from('provisions_ledger')
+            .select('user_id, kategorie, einheiten, referenz_datum')
+            .is('invoice_id', null);
+
+        if (startDate) {
+            ledgerQuery = ledgerQuery.gte('referenz_datum', startDate.toISOString().split('T')[0]);
+        }
+        if (endDate) {
+            ledgerQuery = ledgerQuery.lte('referenz_datum', endDate.toISOString().split('T')[0]);
+        }
+
+        const { data: ledgerData, error: ledgerError } = await ledgerQuery;
+        if (ledgerError) throw ledgerError;
+
+        // EH pro User und Kategorie summieren
+        const statsMap = {};
+        (ledgerData || []).forEach(entry => {
+            if (!entry.user_id) return;
+            if (!statsMap[entry.user_id]) {
+                statsMap[entry.user_id] = {
+                    einheiten: 0,
+                    einheitenProKategorie: {
+                        werben: 0,
+                        teamleitung: 0,
+                        quality: 0,
+                        empfehlung: 0,
+                        recruiting: 0
+                    }
+                };
+            }
+            const eh = parseFloat(entry.einheiten) || 0;
+            statsMap[entry.user_id].einheiten += eh;
+            if (statsMap[entry.user_id].einheitenProKategorie[entry.kategorie] !== undefined) {
+                statsMap[entry.user_id].einheitenProKategorie[entry.kategorie] += eh;
             }
         });
 
@@ -12422,7 +12471,13 @@ async function ladeWerberStatistiken(options = {}) {
 
         // 13. Werber-Daten zusammenbauen
         return (users || []).map(user => {
-            const stats = statsMap[user.id] || { total: 0, aktiv: 0, storno: 0, nettoJE: 0, einheiten: 0 };
+            // Record-Statistiken (total, aktiv, storno, nettoJE)
+            const recordStats = recordStatsMap[user.id] || { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
+            // Ledger-Statistiken (einheiten pro Kategorie)
+            const ledgerStats = statsMap[user.id] || {
+                einheiten: 0,
+                einheitenProKategorie: { werben: 0, teamleitung: 0, quality: 0, empfehlung: 0, recruiting: 0 }
+            };
             const profile = profilesMap[user.id] || {};
             const career = careerMap[user.id] || { stufe: '-', roleName: null, factor: 0, isExpired: false };
             const abzuege = abzuegeMap[user.id] || { unterkunft: 0, sonderposten: 0 };
@@ -12430,15 +12485,15 @@ async function ladeWerberStatistiken(options = {}) {
             const stornorucklage = stornorucklageMap[user.id] || { gesperrt: 0, auszahlbar: 0 };
             const provision = provisionMap[user.id] || {};
 
-            const stornoQuote = stats.total > 0 ? (stats.storno / stats.total) * 100 : 0;
+            const stornoQuote = recordStats.total > 0 ? (recordStats.storno / recordStats.total) * 100 : 0;
             const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
             // Faktor: individuell aus provision_settings, sonst aus Zeitraum-Logik (career.factor)
             const faktor = provision.werben_faktor || career.factor || 5.0;
             const vorschussAnteil = provision.vorschuss_anteil || profile.advance_rate || 75;
 
-            // Provision berechnen
-            const brutto = berechneBruttoProvision(stats.einheiten, faktor);
+            // Provision berechnen (nur Werben-EH × Faktor für Brutto)
+            const brutto = berechneBruttoProvision(ledgerStats.einheitenProKategorie.werben, faktor);
             const aufteilung = berechneAufteilung(brutto, vorschussAnteil);
             const netto = berechneNetto(aufteilung.vorschuss, abzuege.unterkunft, abzuege.sonderposten);
 
@@ -12457,14 +12512,21 @@ async function ladeWerberStatistiken(options = {}) {
                 karriereAbgelaufen: career.isExpired || false, // true wenn Zeitraum abgelaufen aber Faktor weitergilt
 
                 // Statistik (für Statistik-Seite)
-                records: stats.aktiv,
-                nettoJE: stats.nettoJE,
+                records: recordStats.aktiv,
+                nettoJE: recordStats.nettoJE,
                 storno: stornoQuote,
                 einsatztage: einsatztageMap[user.id] || 0,
                 stufe: career.stufe,
 
-                // Abrechnung (für Abrechnungs-Seite)
-                einheiten: Math.round(stats.einheiten * 100) / 100,
+                // Abrechnung (für Abrechnungs-Seite) - aus Ledger
+                einheiten: Math.round(ledgerStats.einheiten * 100) / 100,
+                einheitenProKategorie: {
+                    werben: Math.round(ledgerStats.einheitenProKategorie.werben * 100) / 100,
+                    teamleitung: Math.round(ledgerStats.einheitenProKategorie.teamleitung * 100) / 100,
+                    quality: Math.round(ledgerStats.einheitenProKategorie.quality * 100) / 100,
+                    empfehlung: Math.round(ledgerStats.einheitenProKategorie.empfehlung * 100) / 100,
+                    recruiting: Math.round(ledgerStats.einheitenProKategorie.recruiting * 100) / 100
+                },
                 offenerVorschuss: Math.round(aufteilung.vorschuss * 100) / 100,
                 offeneStornorucklage: stornorucklage.auszahlbar || 0,
                 stornorucklageGesperrt: stornorucklage.gesperrt || 0,
