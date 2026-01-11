@@ -1,7 +1,7 @@
 # Ledger-System: Werber & Kunden
 
 **Erstellt:** 11.01.2026
-**Status:** In Arbeit
+**Status:** ✅ Abgeschlossen (getestet)
 **Ziel:** Vollständiges Buchungssystem für Einheiten (Werber) und Jahreseuros (Kunden)
 
 > **WICHTIG:** Bei jedem Fortschritt muss diese Datei aktualisiert werden!
@@ -637,7 +637,7 @@ GROUP BY c.name;
 | 4 | 023 | Bestandsdaten migrieren | ✅ Ausgeführt | 11.01.2026 |
 | 5 | - | Frontend: js/main.js `erstelleAbrechnung()` anpassen | ✅ Erledigt | 11.01.2026 |
 | 6 | - | Frontend: tests/test-provisions-db.html anpassen | ✅ Erledigt | 11.01.2026 |
-| 7 | - | Testen (Record erstellen, Storno, Änderungen) | ⏳ Offen | - |
+| 7 | - | Testen (Record erstellen, Storno, Änderungen) | ✅ Bestanden | 11.01.2026 |
 
 ---
 
@@ -653,6 +653,8 @@ GROUP BY c.name;
 | 11.01.2026 | **DB-Status:** Neues Ledger-System aktiv, Trigger laufen |
 | 11.01.2026 | js/main.js: Altes ledgerEntries-Insert entfernt (EH via Trigger) |
 | 11.01.2026 | tests/test-provisions-db.html: Tests auf neues Schema angepasst + customer_billing_ledger Test |
+| 11.01.2026 | Alte Trigger gelöscht (on_record_insert_provision, on_record_status_change) |
+| 11.01.2026 | **Phase 7 abgeschlossen:** Alle 18 Trigger-Tests bestanden (INSERT, STORNO, Reaktivierung, Betragsänderung, Werber-Wechsel, DELETE) |
 
 ---
 
