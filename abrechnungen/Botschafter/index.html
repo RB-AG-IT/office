@@ -874,64 +874,20 @@
             // Schritt 2: Vorschau
             title.textContent = `Vorschau: ${abrechnungWorkflowData.typ === 'vorschuss' ? 'Vorschuss' : 'Stornorücklage'}-Abrechnung`;
 
-            // Hilfsfunktion: Team-EH berechnen (Summe EH aller Team-Mitglieder)
-            function getTeamEh(teamMembers) {
-                return teamMembers.reduce((sum, memberId) => {
-                    const member = botschafterData.find(x => x.id === memberId);
-                    return sum + (member?.einheiten || 0);
-                }, 0);
-            }
-
-            // Hilfsfunktion: Team-Tage berechnen (Summe Anwesenheitstage)
-            function getTeamTage(teamMembers) {
-                return teamMembers.reduce((sum, memberId) => {
-                    const member = botschafterData.find(x => x.id === memberId);
-                    return sum + (member?.einsatztage || 0);
-                }, 0);
-            }
-
             let cardsHtml = abrechnungWorkflowData.botschafter.map((b, idx) => {
-                // 1. Eigene Provision (Werben)
-                const bruttoWerben = b.einheiten * b.faktor;
+                // EH direkt aus Ledger (einheitenProKategorie)
+                const ehKat = b.einheitenProKategorie || { werben: 0, teamleitung: 0, quality: 0, empfehlung: 0, recruiting: 0 };
 
-                // 2. TC-Provision (falls Teamleiter)
-                let tcProvision = 0;
-                if (b.istTeamleiter && b.tcZuordnungen.length > 0) {
-                    b.tcZuordnungen.forEach(tc => {
-                        const teamEh = getTeamEh(tc.teamMembers);
-                        tcProvision += berechneTcProvision(b, teamEh, b.einheiten);
-                    });
-                }
+                // Faktoren aus Provision-Settings
+                const tcFaktor = b.provisionSettings?.tc_faktor ?? 1.0;
+                const qualityFaktor = b.provisionSettings?.quality_faktor ?? 0.5;
+                const empfehlungFaktor = b.provisionSettings?.empfehlung_faktor ?? 0.5;
 
-                // 3. Quality-Provision (falls Quality-Manager)
-                let qualityProvision = 0;
-                if (b.istQualityManager && b.qualityZuordnungen.length > 0) {
-                    b.qualityZuordnungen.forEach(q => {
-                        const teamEh = getTeamEh(q.teamMembers);
-                        const teamPersonen = q.teamMembers.length;
-                        const teamTage = getTeamTage(q.teamMembers);
-                        qualityProvision += berechneQualityProvision(b, teamEh, teamPersonen, teamTage);
-                    });
-                }
-
-                // 4. Empfehlungs-Provision
-                let empfehlungProvision = 0;
-                if (b.hatEmpfehlungen && b.empfehlungen.length > 0) {
-                    b.empfehlungen.forEach(emp => {
-                        const empfohlener = botschafterData.find(x => x.id === emp.oderId);
-                        if (empfohlener) {
-                            const empfehlungsDatum = empfohlener.ersterAnwesenheitstag;
-                            if (empfehlungsDatum) {
-                                empfehlungProvision += berechneEmpfehlungsProvision(
-                                    b,
-                                    empfohlener.einheiten,
-                                    empfehlungsDatum,
-                                    empfohlener.einsatztage
-                                );
-                            }
-                        }
-                    });
-                }
+                // Provisionen berechnen (EH × Faktor)
+                const bruttoWerben = ehKat.werben * b.faktor;
+                const tcProvision = ehKat.teamleitung * tcFaktor;
+                const qualityProvision = ehKat.quality * qualityFaktor;
+                const empfehlungProvision = ehKat.empfehlung * empfehlungFaktor;
 
                 // Gesamt-Brutto
                 const bruttoGesamt = bruttoWerben + tcProvision + qualityProvision + empfehlungProvision;
@@ -962,22 +918,22 @@
                         </div>
                         <div class="abrechnung-card__body">
                             <div class="abrechnung-card__row">
-                                <span>Werbe-Provision (${b.einheiten.toFixed(2)} EH × ${b.faktor})</span>
+                                <span>Werbe-Provision (${ehKat.werben.toFixed(2)} EH × ${b.faktor})</span>
                                 <span>${formatEuro(bruttoWerben)}</span>
                             </div>
                             ${tcProvision > 0 ? `
                             <div class="abrechnung-card__row">
-                                <span>TC-Provision</span>
+                                <span>TC-Provision (${ehKat.teamleitung.toFixed(2)} EH × ${tcFaktor})</span>
                                 <span>${formatEuro(tcProvision)}</span>
                             </div>` : ''}
                             ${qualityProvision > 0 ? `
                             <div class="abrechnung-card__row">
-                                <span>Quality-Provision</span>
+                                <span>Quality-Provision (${ehKat.quality.toFixed(2)} EH × ${qualityFaktor})</span>
                                 <span>${formatEuro(qualityProvision)}</span>
                             </div>` : ''}
                             ${empfehlungProvision > 0 ? `
                             <div class="abrechnung-card__row">
-                                <span>Empfehlungs-Provision</span>
+                                <span>Empfehlungs-Provision (${ehKat.empfehlung.toFixed(2)} EH × ${empfehlungFaktor})</span>
                                 <span>${formatEuro(empfehlungProvision)}</span>
                             </div>` : ''}
                             ${(tcProvision > 0 || qualityProvision > 0 || empfehlungProvision > 0) ? `
@@ -1217,16 +1173,10 @@
 
             for (const b of abrechnungWorkflowData.botschafter) {
                 // Berechnungen aus Vorschau verwenden (b._berechnungen wurde in Schritt 2 gesetzt)
-                const calc = b._berechnungen || {
-                    bruttoWerben: b.einheiten * b.faktor,
-                    tcProvision: 0,
-                    qualityProvision: 0,
-                    empfehlungProvision: 0,
-                    bruttoGesamt: b.einheiten * b.faktor,
-                    stornorucklage: (b.einheiten * b.faktor) * (1 - b.vorschussAnteil / 100),
-                    vorschuss: (b.einheiten * b.faktor) * (b.vorschussAnteil / 100),
-                    netto: (b.einheiten * b.faktor) * (b.vorschussAnteil / 100) - b.abzuegeUnterkunft - b.abzuegeSonderposten
-                };
+                if (!b._berechnungen) {
+                    throw new Error(`Keine Berechnungen für ${b.name} vorhanden`);
+                }
+                const calc = b._berechnungen;
 
                 // Abrechnung erstellen über zentrale Funktion (erweitert für Ledger)
                 const created = await erstelleAbrechnung({
