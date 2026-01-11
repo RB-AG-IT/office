@@ -179,14 +179,29 @@
 
             log(`<p>Werber: <strong>${werber[0].name}</strong><br>Kunde: <strong>${customer[0].name}</strong></p>`);
 
+            // Kampagne holen (für Pflichtfeld)
+            const { data: campaign } = await db
+                .from('campaigns')
+                .select('id, campaign_areas(id)')
+                .limit(1);
+
+            if (!campaign || campaign.length === 0) {
+                log('<span class="fail">Keine Kampagne gefunden - Test abgebrochen</span>');
+                return null;
+            }
+
+            const campaignAreaId = campaign[0].campaign_areas?.[0]?.id || null;
+
             // Test-Record erstellen
             const testRecord = {
-                member_first_name: 'Test',
-                member_last_name: 'LedgerTrigger',
+                first_name: 'Test',
+                last_name: 'LedgerTrigger',
                 yearly_amount: 120, // = 10 EH
                 record_type: 'neumitglied',
                 record_status: 'aktiv',
                 customer_id: customer[0].id,
+                campaign_id: campaign[0].id,
+                campaign_area_id: campaignAreaId,
                 werber_id: werber[0].id,
                 kw: 2,
                 year: 2026,
@@ -497,7 +512,7 @@
             const { data: testRecords } = await db
                 .from('records')
                 .select('id')
-                .eq('member_last_name', 'LedgerTrigger');
+                .eq('last_name', 'LedgerTrigger');
 
             if (testRecords && testRecords.length > 0) {
                 for (const rec of testRecords) {

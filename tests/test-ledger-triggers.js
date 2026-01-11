@@ -37,6 +37,11 @@ async function getCustomer() {
     return data[0];
 }
 
+async function getCampaign() {
+    const data = await supabaseRequest('campaigns?select=id,campaign_areas(id)&limit=1');
+    return data[0];
+}
+
 async function getLedgerEntries(recordId) {
     const provisions = await supabaseRequest(`provisions_ledger?record_id=eq.${recordId}&order=created_at.asc`);
     const billing = await supabaseRequest(`customer_billing_ledger?record_id=eq.${recordId}&order=created_at.asc`);
@@ -66,26 +71,31 @@ async function test1_insertRecord() {
     console.log('TEST 1: Record INSERT - Ledger-Einträge erstellt?');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    // Werber und Kunde holen
+    // Werber, Kunde und Kampagne holen
     const werber = await getUser('werber');
     const customer = await getCustomer();
+    const campaign = await getCampaign();
 
-    if (!werber || !customer) {
-        console.log('  ⚠️  Kein Werber oder Kunde gefunden - Test übersprungen');
+    if (!werber || !customer || !campaign) {
+        console.log('  ⚠️  Kein Werber, Kunde oder Kampagne gefunden - Test übersprungen');
         return null;
     }
 
     console.log(`  Werber: ${werber.name} (${werber.id})`);
     console.log(`  Kunde: ${customer.name} (${customer.id})`);
 
+    const campaignAreaId = campaign.campaign_areas?.[0]?.id || null;
+
     // Test-Record erstellen
     const testRecord = {
-        member_first_name: 'Test',
-        member_last_name: 'Ledger',
+        first_name: 'Test',
+        last_name: 'LedgerTrigger',
         yearly_amount: 120, // = 10 EH
         record_type: 'neumitglied',
         record_status: 'aktiv',
         customer_id: customer.id,
+        campaign_id: campaign.id,
+        campaign_area_id: campaignAreaId,
         werber_id: werber.id,
         kw: 2,
         year: 2026,
