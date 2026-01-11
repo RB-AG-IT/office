@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kunde bearbeiten - RB Inside Office</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+</head>
+<body >
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <!-- Zeile 1: Zurück | Links | Mitte | Rechts -->
+            <div class="page-header-row">
+                <button class="btn btn-icon back-btn"></button>
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="customerName">Neuer Kunde</span>
+                    <span class="text-klein">Kunden-ID: <span id="customerId">-</span> • Erstellt am: <span id="createdDate">-</span></span>
+                </div>
+                <div class="page-header-mitte">
+                    <!-- Platzhalter für evtl. Badge oder Status -->
+                </div>
+                <div class="page-header-rechts">
+                    <!-- Platzhalter für evtl. Logo-Upload -->
+                </div>
+            </div>
+            <!-- Lokale Tabs (per Klick navigierbar) -->
+            <div class="page-header-tabs" id="profilSubTabs">
+                <div class="kw-tab active" data-tab="informationen">Informationen</div>
+                <div class="kw-tab" data-tab="einstellungen">Einstellungen</div>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+        <!-- TAB: Informationen -->
+        <div id="tab-informationen" class="kw-tab-content active">
+
+            <!-- Allgemeine Informationen -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Allgemeine Informationen</div>
+                </div>
+
+                <!-- Kundenname Builder -->
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                        <label class="eingabefeld-beschriftung-oben">Org.</label>
+                        <select class="eingabefeld" id="organisation" onchange="updateCustomerNameDisplay()">
+                            <option value="DRK" selected>DRK</option>
+                        </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Typ</label>
+                        <select class="eingabefeld" id="namePrefix" onchange="updateCustomerNameDisplay(); updateFormForCustomerType();">
+                            <option value="Landesverband">Landesverband</option>
+                            <option value="Kreisverband" selected>Kreisverband</option>
+                            <option value="Ortsverein">Ortsverein</option>
+                        </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                        <label class="eingabefeld-beschriftung-oben">Name *</label>
+                        <input type="text" class="eingabefeld" id="name" placeholder="z.B. Ludwigshafen" oninput="updateCustomerNameDisplay()">
+                        <span class="eingabefeld-beschriftung-unten" id="customerNamePreview">DRK Kreisverband Ludwigshafen e.V.</span>
+                    </div>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                        <label class="eingabefeld-beschriftung-oben">Rechtsform</label>
+                        <select class="eingabefeld" id="nameSuffix" onchange="updateCustomerNameDisplay()">
+                            <option value="e.V.">e.V.</option>
+                            <option value="gGmbH">gGmbH</option>
+                            <option value="GmbH">GmbH</option>
+                            <option value="">- keine -</option>
+                        </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Kunden-ID</label>
+                        <input type="text" class="eingabefeld" id="kdId" placeholder="z.B. A025-033">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Einwohner</label>
+                        <input type="number" class="eingabefeld" id="customerEinwohner" placeholder="z.B. 45000" min="0">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+
+                <!-- Typ (hidden, wird automatisch gesetzt) -->
+                <select class="eingabefeld" id="type" style="display: none;">
+                    <option value="landesverband">Landesverband</option>
+                    <option value="kreisverband">Kreisverband</option>
+                    <option value="ortsverein">Ortsverein</option>
+                </select>
+
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">E-Mail (für Login) *</label>
+                        <input type="email" class="eingabefeld" id="contactEmail" placeholder="kontakt@drk-example.de">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Telefon</label>
+                        <input type="tel" class="eingabefeld" id="contactPhone" placeholder="+49 621 12345">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Website</label>
+                        <input type="url" class="eingabefeld" id="customerWebsite" placeholder="https://www.drk-example.de">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Datenschutzerklärung (Link)</label>
+                        <input type="url" class="eingabefeld" id="customerPrivacyPolicy" placeholder="https://www.drk-example.de/datenschutz">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Adresse -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Adresse</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                        <label class="eingabefeld-beschriftung-oben">Straße</label>
+                        <div class="autocomplete-container">
+                            <input type="text" class="eingabefeld" id="customerStreet" placeholder="Beginnen Sie zu tippen für Vorschläge...">
+                            <div class="autocomplete-results" id="customerStreetAutocomplete"></div>
+                        </div>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                        <label class="eingabefeld-beschriftung-oben">Nr.</label>
+                        <input type="text" class="eingabefeld" id="customerHouseNumber" placeholder="Nr.">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">PLZ</label>
+                        <input type="text" class="eingabefeld" id="customerPostalCode" placeholder="12345" maxlength="5">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Stadt</label>
+                        <input type="text" class="eingabefeld" id="customerCity" placeholder="Musterstadt">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Land</label>
+                        <input type="text" class="eingabefeld" id="customerCountry" placeholder="Wird automatisch ausgefüllt" readonly>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Bundesland</label>
+                        <input type="text" class="eingabefeld" id="customerBundesland" placeholder="Wird automatisch ausgefüllt" readonly>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Zusatzinformation</label>
+                        <input type="text" class="eingabefeld" id="customerAddressExtra" placeholder="z.B. 2. Stock, Hinterhaus">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Ansprechpartner -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header" style="justify-content: space-between;">
+                    <div class="text-ueberschrift-abschnitt">Ansprechpartner</div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addContactPerson()">
+                        <span class="icon icon--plus"></span>
+                        Hinzufügen
+                    </button>
+                </div>
+                <div id="contactPersonsContainer" class="grid-2-col">
+                    <!-- Ansprechpartner werden hier dynamisch eingefügt -->
+                </div>
+                <div class="empty-state" id="noContactsHint">
+                    <span class="icon icon--personen"></span>
+                    <div class="text-ueberschrift-abschnitt">Keine Ansprechpartner</div>
+                    <div class="text-normal">Noch keine Ansprechpartner hinzugefügt</div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Einsatzgebiete und Vereine -->
+            <div class="abschnitt--card" id="sectionEinsatzgebiete">
+                <div class="zeile zeile--header" style="justify-content: space-between;">
+                    <div class="text-ueberschrift-abschnitt">Einsatzgebiete und Vereine</div>
+                    <div class="dropdown" id="addEinsatzgebietDropdown">
+                        <button class="btn btn-secondary btn-sm" onclick="toggleDropdown(this)">
+                            <span class="icon icon--plus"></span>
+                            <span>Hinzufügen</span>
+                            <span class="icon icon--pfeil-unten" style="margin-left: 4px;"></span>
+                        </button>
+                        <div class="dropdown-menu" id="addEinsatzgebietMenu">
+                            <div class="dropdown-item" id="addKreisverbandBtn" onclick="openAddAreaModal('kreisverband')">
+                                <span class="icon icon--gebaeude"></span>
+                                Kreisverband
+                            </div>
+                            <div class="dropdown-item" id="addOrtsvereinBtn" onclick="openAddAreaModal('ortsverein')">
+                                <span class="icon icon--standort"></span>
+                                Ortsverein
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="zeile zeile--center">
+                    <div id="einsatzgebieteContainer" style="width: 100%;">
+                        <!-- Wird dynamisch gerendert -->
+                    </div>
+                </div>
+                <div class="empty-state" id="noEinsatzgebieteMessage">
+                    <span class="icon icon--standort"></span>
+                    <div class="text-ueberschrift-abschnitt">Keine Einsatzgebiete</div>
+                    <div class="text-normal">Noch keine Einsatzgebiete hinzugefügt</div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Verträge -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Verträge</div>
+                </div>
+                <div class="zeile zeile--center">
+                    <div class="document-upload-grid" style="width: 100%;">
+                    <!-- Rahmenverträge -->
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Rahmenverträge</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="rahmenvertragBox">
+                                <span class="icon icon--plus document-upload-icon"></span>
+                                <span class="document-upload-text">Rahmenvertrag hochladen</span>
+                            </div>
+                            <input type="file" id="rahmenvertragInput" accept=".pdf" hidden multiple>
+                            <div class="document-file-list" id="rahmenvertragList"></div>
+                        </div>
+                    </div>
+
+                    <!-- AVV -->
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Auftragsverarbeitungsverträge</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="avvBox">
+                                <span class="icon icon--plus document-upload-icon"></span>
+                                <span class="document-upload-text">AVV hochladen</span>
+                            </div>
+                            <input type="file" id="avvInput" accept=".pdf" hidden multiple>
+                            <div class="document-file-list" id="avvList"></div>
+                        </div>
+                    </div>
+
+                    <!-- Sonderverträge -->
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Sonderverträge</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="sondervertragBox">
+                                <span class="icon icon--plus document-upload-icon"></span>
+                                <span class="document-upload-text">Sondervertrag hochladen</span>
+                            </div>
+                            <input type="file" id="sondervertragInput" accept=".pdf" hidden multiple>
+                            <div class="document-file-list" id="sondervertragList"></div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Rechnungen -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Rechnungen</div>
+                </div>
+                <div class="zeile zeile--center">
+                    <div class="history-timeline" id="customerInvoicesList" style="width: 100%;">
+                        <!-- Rechnungen werden hier gerendert -->
+                    </div>
+                </div>
+                <div class="zeile zeile--center">
+                    <div class="empty-state" id="noInvoicesMessage" style="width: 100%;">
+                    <span class="icon icon--dokument-liste"></span>
+                        <div class="text-ueberschrift-abschnitt">Keine Rechnungen</div>
+                        <div class="text-normal">Noch keine Rechnungen vorhanden</div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- Ende TAB: Informationen -->
+
+        <!-- TAB: Einstellungen -->
+        <div class="kw-tab-content" id="tab-einstellungen">
+
+            <!-- Rechnungsstellung -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Rechnungsstellung</div>
+                </div>
+                <div class="zeile zeile--center">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="invoiceTypeSeparate">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Rechnungsart</label>
+                        <span class="eingabefeld-beschriftung-unten" id="invoiceTypeLabel">Zusammen - Alle Werbegebiete zusammen abrechnen</span>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- Ende TAB: Einstellungen -->
+        </div><!-- /page-content -->
+
+        <!-- Footer Actions -->
+        <div class="page-footer">
+            <button class="btn btn-secondary back-btn-secondary">Abbrechen</button>
+            <button class="btn btn-primary" onclick="saveCustomer()">Speichern</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ================================================================
+        // SUPABASE SETUP
+        // ================================================================
+        const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
+
+        // Supabase Client (von parent Shell oder eigener)
+        let supabase;
+        if (window.parent && window.parent.supabaseClient) {
+            supabase = window.parent.supabaseClient;
+        } else {
+            supabase = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        // URL-Parameter für Kunden-ID und Name
+        const urlParams = new URLSearchParams(window.location.search);
+        let customerId = urlParams.get('id');
+        const prefilledName = urlParams.get('name');
+        let isNewCustomer = !customerId;
+
+        // ================================================================
+        // NAVIGATION & STATE
+        // ================================================================
+
+        // Initialisierung mit zentralen Funktionen
+        initTabs('.kw-tab', '.kw-tab-content');
+        initUnsavedChangesWarning();
+
+        // Address Autocomplete (zentrale Funktion aus main.js)
+        initAddressAutocomplete({
+            streetId: 'customerStreet',
+            resultsId: 'customerStreetAutocomplete',
+            houseNumberId: 'customerHouseNumber',
+            postalCodeId: 'customerPostalCode',
+            cityId: 'customerCity',
+            countryId: 'customerCountry',
+            stateId: 'customerBundesland'
+        });
+
+        // Document Uploads
+        initDocumentUpload('avvInput', 'avvBox', 'avvList');
+        initDocumentUpload('rahmenvertragInput', 'rahmenvertragBox', 'rahmenvertragList');
+        initDocumentUpload('sondervertragInput', 'sondervertragBox', 'sondervertragList');
+
+        // Rechnungen werden in loadCustomer() geladen
+
+        
+        // ================================================================
+        // KUNDENNAME DISPLAY
+        // ================================================================
+
+        function updateCustomerNameDisplay() {
+            const org = document.getElementById('organisation').value;
+            const prefix = document.getElementById('namePrefix').value;
+            const name = document.getElementById('name').value || '...';
+            const suffix = document.getElementById('nameSuffix').value;
+
+            const fullName = `${org} ${prefix} ${name}${suffix ? ' ' + suffix : ''}`;
+            document.getElementById('customerNamePreview').textContent = fullName;
+            document.getElementById('customerName').textContent = fullName;
+
+            // Typ synchronisieren
+            const typeMap = {
+                'Landesverband': 'landesverband',
+                'Kreisverband': 'kreisverband',
+                'Ortsverein': 'ortsverein'
+            };
+            document.getElementById('type').value = typeMap[prefix] || 'kreisverband';
+        }
+
+        function updateFormForCustomerType() {
+            const customerType = document.getElementById('namePrefix').value;
+
+            // Bei OV-Kunde: Automatisch Einsatzgebiet aus Kundendaten anlegen
+            if (customerType === 'Ortsverein') {
+                createOrUpdateOvEinsatzgebiet();
+            }
+
+            // Dropdown-Optionen aktualisieren
+            updateEinsatzgebietDropdownOptions();
+
+            // Einsatzgebiete neu rendern
+            renderEinsatzgebiete();
+        }
+
+        // Erstellt oder aktualisiert das Einsatzgebiet für OV-Kunden automatisch aus Kundendaten
+        function createOrUpdateOvEinsatzgebiet() {
+            if (!currentCustomer.areas) {
+                currentCustomer.areas = [];
+            }
+
+            const kundenName = document.getElementById('name')?.value || '';
+            const kundenStreet = document.getElementById('customerStreet')?.value || '';
+            const kundenHouseNumber = document.getElementById('customerHouseNumber')?.value || '';
+            const kundenZip = document.getElementById('customerPostalCode')?.value || '';
+            const kundenCity = document.getElementById('customerCity')?.value || '';
+            const kundenCountry = document.getElementById('customerCountry')?.value || '';
+            const kundenBundesland = document.getElementById('customerBundesland')?.value || '';
+            const kundenWebsite = document.getElementById('customerWebsite')?.value || '';
+
+            const areaData = {
+                name: kundenName,
+                vereinstyp: 'OV',
+                vereinsname: kundenName,
+                rechtsform: 'e.V.',
+                street: kundenStreet,
+                houseNumber: kundenHouseNumber,
+                zip: kundenZip,
+                city: kundenCity,
+                country: kundenCountry,
+                bundesland: kundenBundesland,
+                website: kundenWebsite,
+                privacyPolicy: '',
+                kvZuordnung: null,
+                isKreisverbandsgebiet: false,
+                contactPersons: [],
+                einwohner: 0
+            };
+
+            if (currentCustomer.areas.length === 0) {
+                currentCustomer.areas.push(areaData);
+            } else {
+                const existingArea = currentCustomer.areas[0];
+                existingArea.name = kundenName;
+                existingArea.vereinstyp = 'OV';
+                existingArea.street = kundenStreet;
+                existingArea.houseNumber = kundenHouseNumber;
+                existingArea.zip = kundenZip;
+                existingArea.city = kundenCity;
+                existingArea.country = kundenCountry;
+                existingArea.bundesland = kundenBundesland;
+                existingArea.website = kundenWebsite;
+            }
+        }
+
+        // Aktualisiert die Dropdown-Optionen basierend auf dem Kundentyp
+        function updateEinsatzgebietDropdownOptions() {
+            const namePrefix = document.getElementById('namePrefix');
+            const addKvBtn = document.getElementById('addKreisverbandBtn');
+            const addOvBtn = document.getElementById('addOrtsvereinBtn');
+            const dropdown = document.getElementById('addEinsatzgebietDropdown');
+            const mainBtn = dropdown?.querySelector('.btn');
+
+            if (!namePrefix || !addKvBtn || !addOvBtn || !dropdown) return;
+
+            const customerType = namePrefix.value;
+
+            if (customerType === 'Landesverband') {
+                // LV: Beide Optionen verfügbar
+                dropdown.classList.remove('hidden');
+                if (mainBtn) mainBtn.disabled = false;
+                addKvBtn.classList.remove('disabled');
+                addOvBtn.classList.remove('disabled');
+            } else if (customerType === 'Kreisverband') {
+                // KV: Nur OV hinzufügbar, KV ausgegraut
+                dropdown.classList.remove('hidden');
+                if (mainBtn) mainBtn.disabled = false;
+                addKvBtn.classList.add('disabled');
+                addOvBtn.classList.remove('disabled');
+            } else if (customerType === 'Ortsverein') {
+                // OV: Einsatzgebiet wird automatisch angelegt - Button komplett ausgegraut
+                dropdown.classList.remove('hidden');
+                if (mainBtn) mainBtn.disabled = true;
+                addKvBtn.classList.add('disabled');
+                addOvBtn.classList.add('disabled');
+            } else {
+                // Sonstiger Typ
+                dropdown.classList.add('hidden');
+            }
+        }
+
+        // ================================================================
+        // ANSPRECHPARTNER
+        // ================================================================
+
+        // Ansprechpartner werden aus Supabase geladen
+        let contactPersons = [];
+
+        // CONTACT_ROLES ist zentral in main.js definiert
+
+        function addContactPerson() {
+            const newId = Date.now();
+            contactPersons.push({
+                id: newId,
+                firstName: '',
+                lastName: '',
+                role: 'geschaeftsfuehrer',
+                customRole: '',
+                email: '',
+                phone: ''
+            });
+            renderContactPersons();
+
+            // Fokus auf erstes Feld
+            setTimeout(() => {
+                const newCard = document.querySelector(`[data-contact-id="${newId}"]`);
+                if (newCard) {
+                    const firstInput = newCard.querySelector('input');
+                    if (firstInput) firstInput.focus();
+                }
+            }, 100);
+        }
+
+        async function removeContactPerson(id) {
+            const confirmed = await showConfirm('Ansprechpartner entfernen', 'Möchten Sie diesen Ansprechpartner wirklich entfernen?', 'warning');
+            if (!confirmed) return;
+
+            contactPersons = contactPersons.filter(c => c.id !== id);
+            renderContactPersons();
+        }
+
+        function updateContactPerson(id, field, value) {
+            const contact = contactPersons.find(c => c.id === id);
+            if (contact) {
+                contact[field] = value;
+
+                // Bei Rolle "sonstige": Freitext-Feld anzeigen
+                if (field === 'role') {
+                    const card = document.querySelector(`[data-contact-id="${id}"]`);
+                    const customRoleInput = card?.querySelector('.sonstige-rolle-input');
+                    if (customRoleInput) {
+                        customRoleInput.style.display = value === 'sonstige' ? 'block' : 'none';
+                        if (value !== 'sonstige') contact.customRole = '';
+                    }
+                }
+            }
+        }
+
+        function renderContactPersons() {
+            const container = document.getElementById('contactPersonsContainer');
+            const emptyHint = document.getElementById('noContactsHint');
+
+            if (contactPersons.length === 0) {
+                container.innerHTML = '';
+                emptyHint.style.display = 'flex';
+                return;
+            }
+
+            emptyHint.style.display = 'none';
+
+            container.innerHTML = contactPersons.map(contact => {
+                const roleLabel = contact.role === 'sonstige' && contact.customRole
+                    ? contact.customRole
+                    : CONTACT_ROLES[contact.role] || 'Unbekannt';
+                const showCustomRole = contact.role === 'sonstige';
+
+                return `
+                    <div class="unterabschnitt--card" data-contact-id="${contact.id}">
+                        <button type="button" class="btn btn-icon btn-danger" onclick="removeContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                        <div class="zeile">
+                            <div class="text-ueberschrift-unterabschnitt">${roleLabel}</div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Vorname</label>
+                                <input type="text" class="eingabefeld" value="${contact.firstName}"
+                                    onchange="updateContactPerson(${contact.id}, 'firstName', this.value)"
+                                    placeholder="Vorname">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Nachname</label>
+                                <input type="text" class="eingabefeld" value="${contact.lastName}"
+                                    onchange="updateContactPerson(${contact.id}, 'lastName', this.value)"
+                                    placeholder="Nachname">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Rolle</label>
+                                <select class="eingabefeld" onchange="updateContactPerson(${contact.id}, 'role', this.value)">
+                                    ${Object.entries(CONTACT_ROLES).map(([key, label]) =>
+                                        `<option value="${key}" ${contact.role === key ? 'selected' : ''}>${label}</option>`
+                                    ).join('')}
+                                </select>
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                                <div class="sonstige-rolle-input" style="display: ${showCustomRole ? 'block' : 'none'}; margin-top: 8px;">
+                                    <input type="text" class="eingabefeld" value="${contact.customRole || ''}"
+                                        onchange="updateContactPerson(${contact.id}, 'customRole', this.value)"
+                                        placeholder="Rolle beschreiben...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">E-Mail</label>
+                                <input type="email" class="eingabefeld" value="${contact.email}"
+                                    onchange="updateContactPerson(${contact.id}, 'email', this.value)"
+                                    placeholder="email@example.de">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Telefon</label>
+                                <input type="tel" class="eingabefeld" value="${contact.phone}"
+                                    onchange="updateContactPerson(${contact.id}, 'phone', this.value)"
+                                    placeholder="+49 123 456789">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ================================================================
+        // EINSATZGEBIETE
+        // ================================================================
+
+        // Kundendaten (wird aus Supabase geladen)
+        let currentCustomer = {
+            id: null,
+            organisation: 'DRK',
+            name: '',
+            type: 'kreisverband',
+            areas: [],
+            contracts: { avv: [], rahmenvertrag: [], sondervertrag: [] }
+        };
+
+        let editingAreaIndex = null;
+        let areaContactPersons = [];
+
+        // ================================================================
+        // SUPABASE LADEN
+        // ================================================================
+
+        // Kunde aus Supabase laden
+        async function loadCustomer(id) {
+            try {
+                // Kunde laden
+                const { data: customer, error } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+                if (!customer) {
+                    showToast('Kunde nicht gefunden', 'error');
+                    return;
+                }
+
+                currentCustomer = { ...customer, areas: [] };
+
+                // Ansprechpartner laden
+                const { data: contacts } = await supabase
+                    .from('customer_contacts')
+                    .select('*')
+                    .eq('customer_id', id);
+
+                if (contacts) {
+                    contactPersons = contacts.map(c => ({
+                        id: c.id,
+                        firstName: c.first_name || '',
+                        lastName: c.last_name || '',
+                        role: c.role || 'geschaeftsfuehrer',
+                        customRole: c.custom_role || '',
+                        email: c.email || '',
+                        phone: c.phone || ''
+                    }));
+                }
+
+                // Einsatzgebiete laden
+                const { data: areas } = await supabase
+                    .from('customer_areas')
+                    .select('*')
+                    .eq('customer_id', id);
+
+                if (areas) {
+                    // Area-Contacts für jede Area laden
+                    for (const area of areas) {
+                        const { data: areaContacts } = await supabase
+                            .from('customer_area_contacts')
+                            .select('*')
+                            .eq('area_id', area.id);
+
+                        area.contactPersons = (areaContacts || []).map(c => ({
+                            id: c.id,
+                            firstName: c.first_name || '',
+                            lastName: c.last_name || '',
+                            role: c.role || 'geschaeftsfuehrer',
+                            customRole: c.custom_role || '',
+                            email: c.email || '',
+                            phone: c.phone || ''
+                        }));
+                    }
+
+                    // Areas zu lokalem Format konvertieren
+                    currentCustomer.areas = convertAreasFromDB(areas);
+                }
+
+                // Verträge laden
+                const { data: contracts } = await supabase
+                    .from('customer_contracts')
+                    .select('*')
+                    .eq('customer_id', id);
+
+                if (contracts) {
+                    currentCustomer.contracts = {
+                        avv: contracts.filter(c => c.contract_type === 'avv'),
+                        rahmenvertrag: contracts.filter(c => c.contract_type === 'rahmenvertrag'),
+                        sondervertrag: contracts.filter(c => c.contract_type === 'sondervertrag')
+                    };
+                }
+
+                // Rechnungen laden
+                const { data: invoices } = await supabase
+                    .from('customer_invoices')
+                    .select('*')
+                    .eq('customer_id', id)
+                    .order('invoice_date', { ascending: false });
+
+                if (invoices) {
+                    const formattedInvoices = invoices.map(inv => ({
+                        id: inv.id,
+                        name: inv.invoice_number,
+                        date: inv.invoice_date ? new Date(inv.invoice_date).toLocaleDateString('de-DE') : '-',
+                        amount: inv.amount || 0,
+                        status: inv.status || 'pending'
+                    }));
+                    renderInvoiceHistory('customerInvoicesList', 'noInvoicesMessage', formattedInvoices);
+                }
+
+                // Formular befüllen
+                populateForm(customer);
+
+            } catch (err) {
+                console.error('Fehler beim Laden:', err);
+                showToast('Fehler beim Laden des Kunden', 'error');
+            }
+        }
+
+        // Areas von DB-Format zu lokalem Format konvertieren
+        function convertAreasFromDB(dbAreas) {
+            // Mapping von DB-ID zu Index erstellen
+            const idToIndex = {};
+            dbAreas.forEach((area, idx) => {
+                idToIndex[area.id] = idx;
+            });
+
+            return dbAreas.map(area => ({
+                id: area.id,
+                name: area.name || '',
+                vereinstyp: area.vereinstyp || 'OV',
+                vereinsname: area.vereinsname || '',
+                rechtsform: area.rechtsform || '',
+                einwohner: area.einwohner || 0,
+                email: area.email || '',
+                phone: area.phone || '',
+                street: area.street || '',
+                houseNumber: area.house_number || '',
+                zip: area.postal_code || '',
+                city: area.city || '',
+                country: area.country || '',
+                bundesland: area.bundesland || '',
+                addressExtra: area.address_extra || '',
+                website: area.website || '',
+                privacyPolicy: area.privacy_policy || '',
+                kvZuordnung: area.parent_area_id ? idToIndex[area.parent_area_id] : null,
+                parentAreaId: area.parent_area_id,
+                isKreisverbandsgebiet: area.is_kreisverbandsgebiet || false,
+                contactPersons: area.contactPersons || []
+            }));
+        }
+
+        // Formular mit Kundendaten befüllen
+        function populateForm(customer) {
+            document.getElementById('organisation').value = customer.organisation || 'DRK';
+            document.getElementById('namePrefix').value = customer.name_prefix || 'Kreisverband';
+            document.getElementById('name').value = customer.name || '';
+            document.getElementById('nameSuffix').value = customer.name_suffix || 'e.V.';
+            document.getElementById('type').value = customer.type || 'kreisverband';
+            document.getElementById('kdId').value = customer.kd_id || '';
+            document.getElementById('customerEinwohner').value = customer.einwohner || '';
+            document.getElementById('contactEmail').value = customer.email || '';
+            document.getElementById('contactPhone').value = customer.phone || '';
+            document.getElementById('customerWebsite').value = customer.website || '';
+            document.getElementById('customerPrivacyPolicy').value = customer.privacy_policy || '';
+            document.getElementById('customerStreet').value = customer.street || '';
+            document.getElementById('customerHouseNumber').value = customer.house_number || '';
+            document.getElementById('customerPostalCode').value = customer.postal_code || '';
+            document.getElementById('customerCity').value = customer.city || '';
+            document.getElementById('customerCountry').value = customer.country || '';
+            document.getElementById('customerBundesland').value = customer.bundesland || '';
+            document.getElementById('customerAddressExtra').value = customer.address_extra || '';
+            document.getElementById('invoiceTypeSeparate').checked = customer.invoice_type_separate || false;
+
+            // Header aktualisieren
+            updateCustomerNameDisplay();
+            document.getElementById('customerId').textContent = customer.kd_id || '-';
+            document.getElementById('createdDate').textContent = customer.created_at
+                ? new Date(customer.created_at).toLocaleDateString('de-DE')
+                : '-';
+
+            // Toggle-Label aktualisieren
+            const invoiceLabel = document.getElementById('invoiceTypeLabel');
+            if (invoiceLabel) {
+                invoiceLabel.textContent = customer.invoice_type_separate
+                    ? 'Separat - Pro Werbegebiet separate Rechnung'
+                    : 'Zusammen - Alle Werbegebiete zusammen abrechnen';
+            }
+
+            // Rendern
+            renderContactPersons();
+            renderEinsatzgebiete();
+            updateEinsatzgebietDropdownOptions();
+        }
+        let areaAutocompleteInitialized = false;
+
+        // Rendert die Einsatzgebiete-Liste
+        function renderEinsatzgebiete() {
+            const container = document.getElementById('einsatzgebieteContainer');
+            const noMessage = document.getElementById('noEinsatzgebieteMessage');
+
+            if (!container) return;
+
+            const areas = currentCustomer.areas || [];
+            const kundenTyp = document.getElementById('namePrefix')?.value || '';
+            const kundenName = document.getElementById('name')?.value || '';
+
+            if (areas.length === 0) {
+                container.innerHTML = '';
+                if (noMessage) noMessage.style.display = 'flex';
+                return;
+            }
+
+            if (noMessage) noMessage.style.display = 'none';
+
+            let html = '';
+
+            // Ortsverein-Kunde: nur 1 Einsatzgebiet
+            if (kundenTyp === 'Ortsverein') {
+                const area = { ...areas[0], originalIndex: 0 };
+                html = `
+                    <div class="list">
+                        <div class="list-item">
+                            <div class="list-item-info">
+                                <span class="list-item-name">${area.name || '(Name fehlt)'}</span>
+                                <span class="list-item-meta">${formatAddress(area)}</span>
+                            </div>
+                            <div class="list-item-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="editArea(0)" title="Bearbeiten">
+                                    <span class="icon icon--bearbeiten"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-klein mt-sm">Basisdaten werden automatisch aus den Kundendaten übernommen.</p>
+                `;
+                container.innerHTML = html;
+                return;
+            }
+
+            // Kreisverband-Kunde
+            if (kundenTyp === 'Kreisverband') {
+                const kreisverbandsgebiet = areas.map((a, i) => ({ ...a, originalIndex: i })).find(a => a.isKreisverbandsgebiet);
+                const ortsvereine = areas.map((a, i) => ({ ...a, originalIndex: i })).filter(a => a.vereinstyp === 'OV');
+
+                if (kreisverbandsgebiet) {
+                    const gesamtCount = 1 + ortsvereine.length;
+                    let einträgeHTML = renderAreaItem(kreisverbandsgebiet, true);
+                    ortsvereine.forEach(ov => { einträgeHTML += renderAreaItem(ov, false); });
+
+                    html = `
+                        <div class="list-group">
+                            <div class="list-group-header">
+                                <div class="list-group-info">
+                                    <span class="list-group-name">${kundenName || 'Kreisverband'}</span>
+                                    <span class="list-group-meta">${gesamtCount} Einsatzgebiet${gesamtCount !== 1 ? 'e' : ''}</span>
+                                </div>
+                                <button type="button" class="btn btn-icon open" onclick="toggleCollapse(this, 'area-content-kvgebiet')">
+                                    <span class="icon icon--pfeil-unten"></span>
+                                </button>
+                            </div>
+                            <div class="list-group-content" id="area-content-kvgebiet" style="display: block;">
+                                <div class="list">${einträgeHTML}</div>
+                                <button class="btn btn-secondary btn-sm mt-md" onclick="openAddAreaModal('ortsverein')">
+                                    <span class="icon icon--plus"></span>
+                                    Ortsverein hinzufügen
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else if (ortsvereine.length > 0) {
+                    html = '<div class="list">';
+                    ortsvereine.forEach(ov => { html += renderAreaItem(ov, false); });
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+                return;
+            }
+
+            // Landesverband-Kunde
+            const kreisverbände = areas.map((a, i) => ({ ...a, originalIndex: i })).filter(a => a.vereinstyp === 'KV');
+            const ortsvereineZugeordnet = areas.map((a, i) => ({ ...a, originalIndex: i })).filter(a => a.vereinstyp === 'OV' && a.kvZuordnung != null);
+            const ortsvereineOhneZuordnung = areas.map((a, i) => ({ ...a, originalIndex: i })).filter(a => a.vereinstyp === 'OV' && a.kvZuordnung == null);
+
+            kreisverbände.forEach(kv => {
+                const zugeordneteOVs = ortsvereineZugeordnet.filter(ov => ov.kvZuordnung === kv.originalIndex);
+                const hasKreisverbandsgebiet = kv.isKreisverbandsgebiet === true;
+                const totalCount = zugeordneteOVs.length + (hasKreisverbandsgebiet ? 1 : 0);
+                const countLabel = hasKreisverbandsgebiet ? `${totalCount} Einsatzgebiet${totalCount !== 1 ? 'e' : ''}` : `${zugeordneteOVs.length} Ortsverein${zugeordneteOVs.length !== 1 ? 'e' : ''}`;
+
+                let kvEinsatzgebietHTML = hasKreisverbandsgebiet ? renderAreaItem(kv, true) : '';
+                let ortsvereineHTML = zugeordneteOVs.map(ov => renderAreaItem(ov, false)).join('');
+                const kombinierterInhalt = kvEinsatzgebietHTML + ortsvereineHTML;
+                const leerText = hasKreisverbandsgebiet ? '' : '<p class="text-klein">Noch keine Ortsvereine zugeordnet</p>';
+
+                html += `
+                    <div class="list-group mb-md">
+                        <div class="zeile zeile--center zeile--no-padding">
+                            <div class="list-group-header" style="flex: 1;">
+                                <div class="list-group-info">
+                                    <span class="list-group-name">${kv.name}</span>
+                                    <span class="list-group-meta">${countLabel}</span>
+                                </div>
+                                <div class="list-item-actions">
+                                    <button class="btn btn-sm btn-notes" onclick="event.stopPropagation(); editArea(${kv.originalIndex})" title="Bearbeiten">
+                                        <span class="icon icon--bearbeiten"></span>
+                                    </button>
+                                    <button class="btn btn-sm btn-icon btn-danger" onclick="event.stopPropagation(); removeKreisverband(${kv.originalIndex})" title="Löschen">
+                                        <span class="icon icon--schliessen"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-icon open" onclick="event.stopPropagation(); toggleCollapse(this, 'area-content-${kv.originalIndex}')">
+                                        <span class="icon icon--pfeil-unten"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-content" id="area-content-${kv.originalIndex}" style="display: block;">
+                            <div class="list">${kombinierterInhalt || leerText}</div>
+                            <button class="btn btn-secondary btn-sm mt-md" onclick="openAddAreaModal('ortsverein'); prefillKvZuordnung(${kv.originalIndex});">
+                                <span class="icon icon--plus"></span>
+                                Ortsverein hinzufügen
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Nicht zugeordnete OVs
+            if (ortsvereineOhneZuordnung.length > 0) {
+                html += `<div class="mt-lg"><div class="zeile zeile--center"><p class="text-ueberschrift-unterabschnitt">Nicht zugeordnete Ortsvereine</p></div><div class="list">`;
+                ortsvereineOhneZuordnung.forEach(ov => { html += renderAreaItem(ov, false); });
+                html += '</div></div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderAreaItem(area, isKV) {
+            const prefix = isKV ? '<strong>KV</strong> ' : '';
+            return `
+                <div class="zeile zeile--center zeile--no-padding">
+                    <div class="list-item" style="flex: 1;">
+                        <div class="list-item-info">
+                            <span class="list-item-name">${prefix}${area.name || '(Name fehlt)'}</span>
+                            <span class="list-item-meta">${formatAddress(area)}</span>
+                        </div>
+                        <div class="list-item-actions">
+                            <button class="btn btn-sm btn-notes" onclick="editArea(${area.originalIndex})" title="Bearbeiten">
+                                <span class="icon icon--bearbeiten"></span>
+                            </button>
+                            <button class="btn btn-sm btn-icon btn-danger" onclick="removeArea(${area.originalIndex})" title="Entfernen">
+                                <span class="icon icon--schliessen"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // formatAddress() ist zentral in main.js definiert
+
+        let currentAreaType = 'kreisverband'; // Speichert ob KV oder OV hinzugefügt wird
+
+        function updateAreaNamePreview() {
+            const org = document.getElementById('organisation').value || 'DRK';
+            const typPrefix = currentAreaType === 'ortsverein' ? 'Ortsverein' : 'KV';
+            const vereinsname = document.getElementById('areaVereinsname').value || '...';
+            const rechtsform = document.getElementById('nameSuffix').value || '';
+
+            const preview = `${org} ${typPrefix} ${vereinsname}${rechtsform ? ' ' + rechtsform : ''}`;
+            document.getElementById('areaNamePreview').textContent = preview;
+            document.getElementById('areaFullNamePreview').textContent = preview;
+        }
+
+        function openAddAreaModal(type = 'kreisverband') {
+            editingAreaIndex = null;
+            currentAreaType = type;
+            closeAllDropdowns();
+
+            // Felder zurücksetzen
+            document.getElementById('areaEinwohner').value = '';
+            document.getElementById('areaVereinsname').value = '';
+            document.getElementById('areaEmail').value = '';
+            document.getElementById('areaPhone').value = '';
+            document.getElementById('areaStreet').value = '';
+            document.getElementById('areaHouseNumber').value = '';
+            document.getElementById('areaZip').value = '';
+            document.getElementById('areaCity').value = '';
+            document.getElementById('areaCountry').value = '';
+            document.getElementById('areaBundesland').value = '';
+            document.getElementById('areaAddressExtra').value = '';
+            document.getElementById('areaWebsite').value = '';
+            document.getElementById('areaPrivacyPolicy').value = '';
+
+            // KV-Zuordnung
+            const kundenTyp = document.getElementById('namePrefix')?.value || '';
+            const kvZuordnungContainer = document.getElementById('kvZuordnungContainer');
+            const kvZuordnungSelect = document.getElementById('areaKvZuordnung');
+            if (kvZuordnungContainer && kvZuordnungSelect) {
+                if (type === 'ortsverein' && kundenTyp === 'Landesverband') {
+                    kvZuordnungContainer.style.display = '';
+                    populateKvZuordnungDropdown();
+                } else {
+                    kvZuordnungContainer.style.display = 'none';
+                    kvZuordnungSelect.value = '';
+                }
+            }
+
+            // Kreisverbandsgebiet Checkbox
+            const kgContainer = document.getElementById('kreisverbandsgebietContainer');
+            const kgCheckbox = document.getElementById('areaIsKreisverbandsgebiet');
+            if (kgContainer && kgCheckbox) {
+                const isKvCustomer = kundenTyp === 'Kreisverband';
+                const isLvCustomer = kundenTyp === 'Landesverband';
+                const isAddingKv = type === 'kreisverband';
+
+                if (isKvCustomer && isAddingKv) {
+                    const hasKg = (currentCustomer.areas || []).some(a => a.isKreisverbandsgebiet);
+                    kgContainer.style.display = hasKg ? 'none' : '';
+                    kgCheckbox.checked = false;
+                } else if (isLvCustomer && isAddingKv) {
+                    kgContainer.style.display = '';
+                    kgCheckbox.checked = false;
+                } else {
+                    kgContainer.style.display = 'none';
+                    kgCheckbox.checked = false;
+                }
+                // Label aktualisieren
+                updateKreisverbandsgebietLabel();
+            }
+
+            // Ansprechpartner zurücksetzen
+            areaContactPersons = [];
+            renderAreaContactPersons();
+
+            // Address Autocomplete initialisieren (einmalig)
+            if (!areaAutocompleteInitialized) {
+                initAddressAutocomplete({
+                    streetId: 'areaStreet',
+                    resultsId: 'areaStreetAutocomplete',
+                    houseNumberId: 'areaHouseNumber',
+                    postalCodeId: 'areaZip',
+                    cityId: 'areaCity',
+                    countryId: 'areaCountry',
+                    stateId: 'areaBundesland'
+                });
+                areaAutocompleteInitialized = true;
+            }
+
+            // Modal öffnen (zentrale Funktion mit scrollToTop)
+            updateAreaNamePreview();
+            openModalById('addAreaModal', { focusId: 'areaVereinsname' });
+        }
+
+        function editArea(index) {
+            const area = currentCustomer.areas[index];
+            if (!area) return;
+
+            editingAreaIndex = index;
+            currentAreaType = area.vereinstyp === 'OV' ? 'ortsverein' : 'kreisverband';
+
+            document.getElementById('areaEinwohner').value = area.einwohner || '';
+            document.getElementById('areaVereinsname').value = area.vereinsname || '';
+            document.getElementById('areaEmail').value = area.email || '';
+            document.getElementById('areaPhone').value = area.phone || '';
+            document.getElementById('areaStreet').value = area.street || '';
+            document.getElementById('areaHouseNumber').value = area.houseNumber || '';
+            document.getElementById('areaZip').value = area.zip || '';
+            document.getElementById('areaCity').value = area.city || '';
+            document.getElementById('areaCountry').value = area.country || '';
+            document.getElementById('areaBundesland').value = area.bundesland || '';
+            document.getElementById('areaAddressExtra').value = area.addressExtra || '';
+            document.getElementById('areaWebsite').value = area.website || '';
+            document.getElementById('areaPrivacyPolicy').value = area.privacyPolicy || '';
+
+            // KV-Zuordnung
+            const kvZuordnungContainer = document.getElementById('kvZuordnungContainer');
+            const kvZuordnungSelect = document.getElementById('areaKvZuordnung');
+            const kundenTyp = document.getElementById('namePrefix')?.value || '';
+            if (kvZuordnungContainer && kvZuordnungSelect) {
+                if (area.vereinstyp === 'OV' && kundenTyp === 'Landesverband') {
+                    kvZuordnungContainer.style.display = '';
+                    populateKvZuordnungDropdown();
+                    kvZuordnungSelect.value = area.kvZuordnung != null ? area.kvZuordnung.toString() : '';
+                } else {
+                    kvZuordnungContainer.style.display = 'none';
+                }
+            }
+
+            // Kreisverbandsgebiet Checkbox
+            const kgContainer = document.getElementById('kreisverbandsgebietContainer');
+            const kgCheckbox = document.getElementById('areaIsKreisverbandsgebiet');
+            if (kgContainer && kgCheckbox) {
+                const isKvOrLv = kundenTyp === 'Kreisverband' || kundenTyp === 'Landesverband';
+                if (isKvOrLv && area.vereinstyp === 'KV') {
+                    kgContainer.style.display = '';
+                    kgCheckbox.checked = area.isKreisverbandsgebiet === true;
+                } else {
+                    kgContainer.style.display = 'none';
+                    kgCheckbox.checked = false;
+                }
+                // Label aktualisieren
+                updateKreisverbandsgebietLabel();
+            }
+
+            // Ansprechpartner laden
+            areaContactPersons = (area.contactPersons || []).map(c => ({ ...c }));
+            renderAreaContactPersons();
+
+            // Modal öffnen (zentrale Funktion mit scrollToTop)
+            updateAreaNamePreview();
+            openModalById('addAreaModal');
+        }
+
+        function closeAddAreaModal() {
+            closeModalById('addAreaModal');
+            editingAreaIndex = null;
+        }
+
+        function saveArea() {
+            const vereinsname = document.getElementById('areaVereinsname').value.trim();
+
+            if (!vereinsname) {
+                showToast('Bitte Vereinsnamen eingeben', 'warning');
+                return;
+            }
+
+            // Vereinstyp aus currentAreaType ableiten
+            const vereinstyp = currentAreaType === 'ortsverein' ? 'OV' : 'KV';
+
+            // Vollständigen Namen zusammensetzen (z.B. "DRK KV Ludwigshafen e.V.")
+            const org = document.getElementById('organisation').value || 'DRK';
+            const typPrefix = vereinstyp === 'OV' ? 'Ortsverein' : 'KV';
+            const rechtsform = document.getElementById('nameSuffix').value || '';
+            const name = `${org} ${typPrefix} ${vereinsname}${rechtsform ? ' ' + rechtsform : ''}`;
+
+            const kvZuordnungSelect = document.getElementById('areaKvZuordnung');
+            const kvZuordnungValue = kvZuordnungSelect ? kvZuordnungSelect.value : '';
+            const kvZuordnungIndex = kvZuordnungValue !== '' ? parseInt(kvZuordnungValue) : null;
+
+            const kgCheckbox = document.getElementById('areaIsKreisverbandsgebiet');
+            const isKreisverbandsgebiet = kgCheckbox ? kgCheckbox.checked : false;
+
+            const areaData = {
+                name: name,
+                vereinstyp: vereinstyp,
+                vereinsname: vereinsname,
+                rechtsform: '',
+                email: document.getElementById('areaEmail').value.trim(),
+                phone: document.getElementById('areaPhone').value.trim(),
+                street: document.getElementById('areaStreet').value.trim(),
+                houseNumber: document.getElementById('areaHouseNumber').value.trim(),
+                zip: document.getElementById('areaZip').value.trim(),
+                city: document.getElementById('areaCity').value.trim(),
+                country: document.getElementById('areaCountry').value.trim(),
+                bundesland: document.getElementById('areaBundesland').value.trim(),
+                addressExtra: document.getElementById('areaAddressExtra').value.trim(),
+                website: document.getElementById('areaWebsite').value.trim(),
+                privacyPolicy: document.getElementById('areaPrivacyPolicy').value.trim(),
+                kvZuordnung: kvZuordnungIndex,
+                isKreisverbandsgebiet: isKreisverbandsgebiet,
+                contactPersons: areaContactPersons.map(c => ({ ...c })),
+                einwohner: parseInt(document.getElementById('areaEinwohner').value) || 0
+            };
+
+            if (editingAreaIndex !== null) {
+                currentCustomer.areas[editingAreaIndex] = areaData;
+            } else {
+                currentCustomer.areas.push(areaData);
+            }
+
+            renderEinsatzgebiete();
+            closeAddAreaModal();
+            showToast(editingAreaIndex !== null ? 'Einsatzgebiet aktualisiert' : 'Einsatzgebiet hinzugefügt', 'success');
+        }
+
+        async function removeArea(index) {
+            const area = currentCustomer.areas[index];
+            const typeName = area.vereinstyp === 'OV' ? 'Ortsverein' : 'Einsatzgebiet';
+            const confirmed = await showConfirm(`${typeName} entfernen?`, `Möchten Sie "${area.name}" wirklich entfernen?`, 'warning');
+            if (!confirmed) return;
+
+            // Bei KV: OV-Zuordnungen anpassen
+            if (area.vereinstyp === 'KV') {
+                currentCustomer.areas.forEach(a => {
+                    if (a.kvZuordnung === index) a.kvZuordnung = null;
+                    else if (a.kvZuordnung > index) a.kvZuordnung--;
+                });
+            }
+
+            currentCustomer.areas.splice(index, 1);
+            currentCustomer.areas.forEach(a => {
+                if (a.kvZuordnung !== null && a.kvZuordnung > index) a.kvZuordnung--;
+            });
+
+            renderEinsatzgebiete();
+            showToast('Einsatzgebiet entfernt', 'success');
+        }
+
+        async function removeKreisverband(index) {
+            const kv = currentCustomer.areas[index];
+            if (!kv || kv.vereinstyp !== 'KV') return;
+
+            const zugeordneteOVs = currentCustomer.areas.filter(a => a.vereinstyp === 'OV' && a.kvZuordnung === index);
+
+            if (zugeordneteOVs.length > 0) {
+                const deleteOVsToo = await showConfirm(
+                    `Kreisverband "${kv.name}" löschen`,
+                    `Dieser Kreisverband hat ${zugeordneteOVs.length} zugeordnete Ortsverein${zugeordneteOVs.length !== 1 ? 'e' : ''}.\n\nMöchten Sie auch alle Ortsvereine löschen?`,
+                    'warning'
+                );
+
+                if (deleteOVsToo) {
+                    // OVs und KV löschen
+                    currentCustomer.areas = currentCustomer.areas.filter((a, i) => i !== index && !(a.vereinstyp === 'OV' && a.kvZuordnung === index));
+                } else {
+                    // Nur KV löschen, OVs behalten ohne Zuordnung
+                    currentCustomer.areas.forEach(a => {
+                        if (a.kvZuordnung === index) a.kvZuordnung = null;
+                    });
+                    currentCustomer.areas.splice(index, 1);
+                }
+
+                // Indizes anpassen
+                currentCustomer.areas.forEach(a => {
+                    if (a.kvZuordnung !== null && a.kvZuordnung > index) a.kvZuordnung--;
+                });
+
+                renderEinsatzgebiete();
+            } else {
+                await removeArea(index);
+            }
+        }
+
+        function populateKvZuordnungDropdown() {
+            const select = document.getElementById('areaKvZuordnung');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Keine Zuordnung</option>';
+            const kreisverbände = (currentCustomer.areas || []).filter(a => a.vereinstyp === 'KV');
+
+            kreisverbände.forEach((kv, idx) => {
+                const actualIndex = currentCustomer.areas.indexOf(kv);
+                const option = document.createElement('option');
+                option.value = actualIndex.toString();
+                option.textContent = kv.name || `Kreisverband ${idx + 1}`;
+                select.appendChild(option);
+            });
+        }
+
+        function prefillKvZuordnung(kvIndex) {
+            setTimeout(() => {
+                const select = document.getElementById('areaKvZuordnung');
+                const container = document.getElementById('kvZuordnungContainer');
+                const kundenTyp = document.getElementById('namePrefix')?.value || '';
+
+                if (select && container && kundenTyp === 'Landesverband') {
+                    container.style.display = '';
+                    populateKvZuordnungDropdown();
+                    select.value = kvIndex.toString();
+                }
+            }, 100);
+        }
+
+        // Ansprechpartner im Modal
+        function addAreaContactPerson() {
+            const newId = areaContactPersons.length > 0 ? Math.max(...areaContactPersons.map(c => c.id)) + 1 : 1;
+            areaContactPersons.push({
+                id: newId,
+                firstName: '',
+                lastName: '',
+                role: 'geschaeftsfuehrer',
+                customRole: '',
+                email: '',
+                phone: ''
+            });
+            renderAreaContactPersons();
+        }
+
+        async function removeAreaContactPerson(id) {
+            const confirmed = await showConfirm('Ansprechpartner entfernen', 'Möchten Sie diesen Ansprechpartner wirklich entfernen?', 'warning');
+            if (!confirmed) return;
+            areaContactPersons = areaContactPersons.filter(c => c.id !== id);
+            renderAreaContactPersons();
+        }
+
+        function updateAreaContactPerson(id, field, value) {
+            const contact = areaContactPersons.find(c => c.id === id);
+            if (contact) {
+                contact[field] = value;
+                if (field === 'role') {
+                    const card = document.querySelector(`[data-area-contact-id="${id}"]`);
+                    const customInput = card?.querySelector('.sonstige-rolle-input');
+                    if (customInput) {
+                        customInput.style.display = value === 'sonstige' ? 'block' : 'none';
+                        if (value !== 'sonstige') contact.customRole = '';
+                    }
+                }
+            }
+        }
+
+        function renderAreaContactPersons() {
+            const container = document.getElementById('areaContactPersonsContainer');
+
+            if (areaContactPersons.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = areaContactPersons.map(contact => {
+                const roleLabel = contact.role === 'sonstige' && contact.customRole ? contact.customRole : CONTACT_ROLES[contact.role] || 'Unbekannt';
+                const showCustomRole = contact.role === 'sonstige';
+
+                return `
+                    <div class="unterabschnitt--card" data-area-contact-id="${contact.id}">
+                        <button type="button" class="btn btn-icon btn-danger" onclick="removeAreaContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                        <div class="zeile">
+                            <div class="text-ueberschrift-unterabschnitt">${roleLabel}</div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Vorname</label>
+                                <input type="text" class="eingabefeld" value="${contact.firstName}" onchange="updateAreaContactPerson(${contact.id}, 'firstName', this.value)" placeholder="Vorname">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Nachname</label>
+                                <input type="text" class="eingabefeld" value="${contact.lastName}" onchange="updateAreaContactPerson(${contact.id}, 'lastName', this.value)" placeholder="Nachname">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Rolle</label>
+                                <select class="eingabefeld" onchange="updateAreaContactPerson(${contact.id}, 'role', this.value)">
+                                    ${Object.entries(CONTACT_ROLES).map(([key, label]) =>
+                                        `<option value="${key}" ${contact.role === key ? 'selected' : ''}>${label}</option>`
+                                    ).join('')}
+                                </select>
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                                <div class="sonstige-rolle-input" style="display: ${showCustomRole ? 'block' : 'none'}; margin-top: 8px;">
+                                    <input type="text" class="eingabefeld" value="${contact.customRole || ''}" onchange="updateAreaContactPerson(${contact.id}, 'customRole', this.value)" placeholder="Rolle beschreiben...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">E-Mail</label>
+                                <input type="email" class="eingabefeld" value="${contact.email}" onchange="updateAreaContactPerson(${contact.id}, 'email', this.value)" placeholder="email@example.de">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
+                            <div class="eingabefeld-gruppe">
+                                <label class="eingabefeld-beschriftung-oben">Telefon</label>
+                                <input type="tel" class="eingabefeld" value="${contact.phone}" onchange="updateAreaContactPerson(${contact.id}, 'phone', this.value)" placeholder="+49 123 456789">
+                                <span class="eingabefeld-beschriftung-unten"></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ================================================================
+        // SPEICHERN
+        // ================================================================
+
+        async function saveCustomer() {
+            const saveBtn = document.querySelector('.page-footer .btn-primary');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Speichern...';
+            }
+
+            try {
+                // Kundendaten sammeln
+                const org = document.getElementById('organisation').value;
+                const prefix = document.getElementById('namePrefix').value;
+                const name = document.getElementById('name').value.trim();
+                const suffix = document.getElementById('nameSuffix').value;
+                const fullName = `${org} ${prefix} ${name}${suffix ? ' ' + suffix : ''}`;
+
+                const customerData = {
+                    organisation: org,
+                    name_prefix: prefix,
+                    name: name,
+                    name_suffix: suffix,
+                    full_name: fullName,
+                    type: document.getElementById('type').value,
+                    kd_id: document.getElementById('kdId').value.trim(),
+                    einwohner: parseInt(document.getElementById('customerEinwohner').value) || null,
+                    email: document.getElementById('contactEmail').value.trim(),
+                    phone: document.getElementById('contactPhone').value.trim(),
+                    website: document.getElementById('customerWebsite').value.trim(),
+                    privacy_policy: document.getElementById('customerPrivacyPolicy').value.trim(),
+                    street: document.getElementById('customerStreet').value.trim(),
+                    house_number: document.getElementById('customerHouseNumber').value.trim(),
+                    postal_code: document.getElementById('customerPostalCode').value.trim(),
+                    city: document.getElementById('customerCity').value.trim(),
+                    country: document.getElementById('customerCountry').value.trim(),
+                    bundesland: document.getElementById('customerBundesland').value.trim(),
+                    address_extra: document.getElementById('customerAddressExtra').value.trim(),
+                    invoice_type_separate: document.getElementById('invoiceTypeSeparate').checked,
+                    updated_at: new Date().toISOString()
+                };
+
+                // Validierung
+                if (!customerData.name) {
+                    showToast('Bitte Namen eingeben', 'warning');
+                    return;
+                }
+
+                let savedCustomerId = customerId;
+
+                if (isNewCustomer) {
+                    // Neuen Kunden anlegen
+                    const { data, error } = await supabase
+                        .from('customers')
+                        .insert(customerData)
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                    savedCustomerId = data.id;
+                    currentCustomer.id = savedCustomerId;
+
+                    // Neukunden-Modus beenden, damit beim nächsten Speichern ein Update erfolgt
+                    customerId = savedCustomerId;
+                    isNewCustomer = false;
+                } else {
+                    // Bestehenden Kunden aktualisieren
+                    const { error } = await supabase
+                        .from('customers')
+                        .update(customerData)
+                        .eq('id', customerId);
+
+                    if (error) throw error;
+                }
+
+                // Ansprechpartner speichern
+                await saveContactPersons(savedCustomerId);
+
+                // Einsatzgebiete speichern
+                await saveAreas(savedCustomerId);
+
+                showToast('Kunde erfolgreich gespeichert', 'success');
+
+                // Bei neuem Kunden: URL aktualisieren
+                if (isNewCustomer) {
+                    const newUrl = `${window.location.pathname}?id=${savedCustomerId}`;
+                    window.history.replaceState({}, '', newUrl);
+                }
+
+            } catch (err) {
+                console.error('Fehler beim Speichern:', err);
+                showToast('Fehler beim Speichern: ' + err.message, 'error');
+            } finally {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Speichern';
+                }
+            }
+        }
+
+        // Ansprechpartner speichern
+        async function saveContactPersons(custId) {
+            // Alle bestehenden löschen
+            await supabase
+                .from('customer_contacts')
+                .delete()
+                .eq('customer_id', custId);
+
+            // Neue einfügen
+            if (contactPersons.length > 0) {
+                const contactsToInsert = contactPersons.map(c => ({
+                    customer_id: custId,
+                    first_name: c.firstName,
+                    last_name: c.lastName,
+                    role: c.role,
+                    custom_role: c.customRole,
+                    email: c.email,
+                    phone: c.phone
+                }));
+
+                const { error } = await supabase
+                    .from('customer_contacts')
+                    .insert(contactsToInsert);
+
+                if (error) throw error;
+            }
+        }
+
+        // Einsatzgebiete speichern (bestehende aktualisieren, neue einfügen, gelöschte entfernen)
+        async function saveAreas(custId) {
+            // Bestehende Areas aus DB laden
+            const { data: existingAreas } = await supabase
+                .from('customer_areas')
+                .select('id')
+                .eq('customer_id', custId);
+
+            const existingIds = (existingAreas || []).map(a => a.id);
+            const currentIds = currentCustomer.areas.filter(a => a.id).map(a => a.id);
+
+            // Gelöschte Areas entfernen (nur die, die nicht mehr in currentCustomer.areas sind)
+            const deletedIds = existingIds.filter(id => !currentIds.includes(id));
+            for (const id of deletedIds) {
+                await supabase.from('customer_area_contacts').delete().eq('area_id', id);
+                await supabase.from('customer_areas').delete().eq('id', id);
+            }
+
+            // Areas speichern
+            if (currentCustomer.areas.length > 0) {
+                const kvAreas = currentCustomer.areas.filter(a => a.vereinstyp === 'KV');
+                const ovAreas = currentCustomer.areas.filter(a => a.vereinstyp === 'OV');
+
+                const kvIdMap = {}; // localIndex -> DB-ID
+
+                // KVs speichern
+                for (let i = 0; i < kvAreas.length; i++) {
+                    const kv = kvAreas[i];
+                    const localIndex = currentCustomer.areas.indexOf(kv);
+
+                    const areaData = {
+                        customer_id: custId,
+                        name: kv.name,
+                        vereinstyp: 'KV',
+                        vereinsname: kv.vereinsname,
+                        rechtsform: kv.rechtsform,
+                        einwohner: kv.einwohner || null,
+                        email: kv.email,
+                        phone: kv.phone,
+                        street: kv.street,
+                        house_number: kv.houseNumber,
+                        postal_code: kv.zip,
+                        city: kv.city,
+                        country: kv.country,
+                        bundesland: kv.bundesland,
+                        address_extra: kv.addressExtra,
+                        website: kv.website,
+                        privacy_policy: kv.privacyPolicy,
+                        is_kreisverbandsgebiet: kv.isKreisverbandsgebiet || false,
+                        parent_area_id: null
+                    };
+
+                    let areaId;
+                    if (kv.id) {
+                        // Bestehende Area aktualisieren
+                        const { error } = await supabase
+                            .from('customer_areas')
+                            .update(areaData)
+                            .eq('id', kv.id);
+                        if (error) throw error;
+                        areaId = kv.id;
+                    } else {
+                        // Neue Area einfügen
+                        const { data, error } = await supabase
+                            .from('customer_areas')
+                            .insert(areaData)
+                            .select()
+                            .single();
+                        if (error) throw error;
+                        areaId = data.id;
+                        kv.id = areaId;
+                    }
+
+                    kvIdMap[localIndex] = areaId;
+
+                    // Area-Contacts speichern
+                    await supabase.from('customer_area_contacts').delete().eq('area_id', areaId);
+                    if (kv.contactPersons && kv.contactPersons.length > 0) {
+                        await saveAreaContacts(areaId, kv.contactPersons);
+                    }
+                }
+
+                // OVs speichern
+                for (const ov of ovAreas) {
+                    const parentId = ov.kvZuordnung !== null ? kvIdMap[ov.kvZuordnung] : null;
+
+                    const areaData = {
+                        customer_id: custId,
+                        name: ov.name,
+                        vereinstyp: 'OV',
+                        vereinsname: ov.vereinsname,
+                        rechtsform: ov.rechtsform,
+                        einwohner: ov.einwohner || null,
+                        email: ov.email,
+                        phone: ov.phone,
+                        street: ov.street,
+                        house_number: ov.houseNumber,
+                        postal_code: ov.zip,
+                        city: ov.city,
+                        country: ov.country,
+                        bundesland: ov.bundesland,
+                        address_extra: ov.addressExtra,
+                        website: ov.website,
+                        privacy_policy: ov.privacyPolicy,
+                        is_kreisverbandsgebiet: false,
+                        parent_area_id: parentId
+                    };
+
+                    let areaId;
+                    if (ov.id) {
+                        // Bestehende Area aktualisieren
+                        const { error } = await supabase
+                            .from('customer_areas')
+                            .update(areaData)
+                            .eq('id', ov.id);
+                        if (error) throw error;
+                        areaId = ov.id;
+                    } else {
+                        // Neue Area einfügen
+                        const { data, error } = await supabase
+                            .from('customer_areas')
+                            .insert(areaData)
+                            .select()
+                            .single();
+                        if (error) throw error;
+                        areaId = data.id;
+                        ov.id = areaId;
+                    }
+
+                    // Area-Contacts speichern
+                    await supabase.from('customer_area_contacts').delete().eq('area_id', areaId);
+                    if (ov.contactPersons && ov.contactPersons.length > 0) {
+                        await saveAreaContacts(areaId, ov.contactPersons);
+                    }
+                }
+            }
+        }
+
+        // Area-Ansprechpartner speichern
+        async function saveAreaContacts(areaId, contacts) {
+            const contactsToInsert = contacts.map(c => ({
+                area_id: areaId,
+                first_name: c.firstName,
+                last_name: c.lastName,
+                role: c.role,
+                custom_role: c.customRole,
+                email: c.email,
+                phone: c.phone
+            }));
+
+            const { error } = await supabase
+                .from('customer_area_contacts')
+                .insert(contactsToInsert);
+
+            if (error) throw error;
+        }
+
+        // ================================================================
+        // KREISVERBANDSGEBIET TOGGLE
+        // ================================================================
+
+        function updateKreisverbandsgebietLabel() {
+            const checkbox = document.getElementById('areaIsKreisverbandsgebiet');
+            const label = document.getElementById('kreisverbandsgebietLabel');
+            if (checkbox && label) {
+                label.textContent = checkbox.checked
+                    ? 'An - Kreisverbandsgebiet vorhanden'
+                    : 'Aus - Kein Kreisverbandsgebiet';
+            }
+        }
+
+        // ================================================================
+        // INITIALISIERUNG
+        // ================================================================
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Kreisverbandsgebiet Toggle
+            const kgCheckbox = document.getElementById('areaIsKreisverbandsgebiet');
+            if (kgCheckbox) {
+                kgCheckbox.addEventListener('change', updateKreisverbandsgebietLabel);
+            }
+
+            // Rechnungsart Toggle
+            initToggleLabel('invoiceTypeSeparate', 'invoiceTypeLabel', {
+                on: 'Separat - Pro Werbegebiet separate Rechnung',
+                off: 'Zusammen - Alle Werbegebiete zusammen abrechnen'
+            });
+
+            // Kunde laden oder Formular für neuen Kunden vorbereiten
+            if (customerId) {
+                await loadCustomer(customerId);
+            } else {
+                // Neuer Kunde: leeres Formular
+                document.getElementById('customerName').textContent = 'Neuer Kunde';
+                document.getElementById('customerId').textContent = '-';
+                document.getElementById('createdDate').textContent = '-';
+                contactPersons = [];
+                renderContactPersons();
+                renderEinsatzgebiete();
+                updateEinsatzgebietDropdownOptions();
+
+                // Name aus URL-Parameter prefill
+                if (prefilledName) {
+                    document.getElementById('name').value = prefilledName;
+                    updateCustomerNameDisplay();
+                }
+            }
+
+            // Einsatzgebiete-Section nur bei KV/LV anzeigen
+            const sectionEinsatzgebiete = document.getElementById('sectionEinsatzgebiete');
+            if (sectionEinsatzgebiete) {
+                sectionEinsatzgebiete.style.display = '';
+            }
+
+            // ============================================
+            // SHELL INTEGRATION
+            // ============================================
+            // Shell-Listener vorbereiten (für zukünftige Toolbar-Buttons)
+            initShellListener({
+                toolbarActions: {
+                    // Zukünftige Aktionen hier hinzufügen
+                }
+            });
+        });
+    </script>
+
+    <!-- Modal: Einsatzgebiet hinzufügen/bearbeiten -->
+    <div class="modal modal-m" id="addAreaModal">
+        <div class="page-container page-container--modal">
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift" id="areaNamePreview">DRK KV ... e.V.</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn btn-icon" onclick="closeAddAreaModal()">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
+            </div>
+            <!-- Modal Body -->
+            <div class="page-content page-content--modal">
+                <!-- Unterabschnitt: Allgemeine Informationen -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Allgemeine Informationen</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                            <label class="eingabefeld-beschriftung-oben">Vereinsname *</label>
+                            <input type="text" class="eingabefeld" id="areaVereinsname" placeholder="z.B. Ludwigshafen" oninput="updateAreaNamePreview()">
+                            <span class="eingabefeld-beschriftung-unten" id="areaFullNamePreview">DRK KV ... e.V.</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                            <label class="eingabefeld-beschriftung-oben">Einwohner</label>
+                            <input type="number" class="eingabefeld" id="areaEinwohner" placeholder="z.B. 45000" min="0">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">E-Mail (für Login) *</label>
+                            <input type="email" class="eingabefeld" id="areaEmail" placeholder="kontakt@drk-example.de">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Telefon</label>
+                            <input type="tel" class="eingabefeld" id="areaPhone" placeholder="+49 621 12345">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Website</label>
+                            <input type="url" class="eingabefeld" id="areaWebsite" placeholder="https://www.drk-example.de">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Datenschutzerklärung (Link)</label>
+                            <input type="url" class="eingabefeld" id="areaPrivacyPolicy" placeholder="https://www.drk-example.de/datenschutz">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile" id="kvZuordnungContainer" style="display: none;">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Kreisverband-Zuordnung</label>
+                            <select class="eingabefeld" id="areaKvZuordnung">
+                                <option value="">Keine Zuordnung</option>
+                            </select>
+                            <span class="eingabefeld-beschriftung-unten">Optional: Ordnet diesen Ortsverein einem Kreisverband zu</span>
+                        </div>
+                    </div>
+                    <div class="zeile zeile--center" id="kreisverbandsgebietContainer" style="display: none;">
+                        <label class="toggle-switch small">
+                            <input type="checkbox" id="areaIsKreisverbandsgebiet">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Kreisverbandsgebiet</label>
+                            <span class="eingabefeld-beschriftung-unten" id="kreisverbandsgebietLabel">Aus - Kein Kreisverbandsgebiet</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unterabschnitt: Adresse -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Adresse</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                            <label class="eingabefeld-beschriftung-oben">Straße</label>
+                            <div class="autocomplete-container">
+                                <input type="text" class="eingabefeld" id="areaStreet" placeholder="Beginnen Sie zu tippen für Vorschläge...">
+                                <div class="autocomplete-results" id="areaStreetAutocomplete"></div>
+                            </div>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                            <label class="eingabefeld-beschriftung-oben">Nr.</label>
+                            <input type="text" class="eingabefeld" id="areaHouseNumber" placeholder="Nr.">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">PLZ</label>
+                            <input type="text" class="eingabefeld" id="areaZip" placeholder="12345" maxlength="5">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Stadt</label>
+                            <input type="text" class="eingabefeld" id="areaCity" placeholder="Musterstadt">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Land</label>
+                            <input type="text" class="eingabefeld" id="areaCountry" placeholder="Wird automatisch ausgefüllt" readonly>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Bundesland</label>
+                            <input type="text" class="eingabefeld" id="areaBundesland" placeholder="Wird automatisch ausgefüllt" readonly>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Zusatzinformation</label>
+                            <input type="text" class="eingabefeld" id="areaAddressExtra" placeholder="z.B. 2. Stock, Hinterhaus">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unterabschnitt: Ansprechpartner -->
+                <div>
+                    <div class="zeile" style="justify-content: space-between; align-items: center;">
+                        <div class="text-ueberschrift-unterabschnitt">Ansprechpartner</div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addAreaContactPerson()">
+                            <span class="icon icon--plus"></span>
+                            Hinzufügen
+                        </button>
+                    </div>
+                    <div class="zeile">
+                        <span class="text-klein">Wird vom Kunden übernommen, falls leer</span>
+                    </div>
+                    <div id="areaContactPersonsContainer" class="grid-2-col"></div>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="page-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddAreaModal()">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="saveArea()">Speichern</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vorlagen - RB Inside Office</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body >
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Vorlagen</span>
+                </div>
+                <div class="page-header-mitte">
+                    <span class="text-ueberschrift" id="sectionTitle">Preisvorlagen</span>
+                </div>
+                <div class="page-header-rechts"></div>
+            </div>
+            <!-- Shell-Tab: Preisvorlagen (1 Sub-Tab) -->
+            <div class="page-header-tabs" id="preisvorlagenSubTabs">
+                <div class="kw-tab active" data-tab="preisvorlagen">Formular-Preisvorlagen</div>
+            </div>
+            <!-- Shell-Tab: E-Mail (4 Sub-Tabs) -->
+            <div class="page-header-tabs" id="emailSubTabs" style="display: none;">
+                <div class="kw-tab active" data-tab="email-automatisch">Automatisch</div>
+                <div class="kw-tab" data-tab="email-manuell">Manuell</div>
+                <div class="kw-tab" data-tab="email-newsletter">Newsletter</div>
+                <div class="kw-tab" data-tab="email-individuell" id="individualTab">Individuell</div>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- ============================================== -->
+            <!-- PREISVORLAGEN CONTENT -->
+            <!-- ============================================== -->
+            <div class="kw-tab-content active" id="tab-preisvorlagen">
+                <!-- Standard-Vorlage (nicht löschbar) -->
+                <div class="vorlage-grid" id="standardVorlageGrid">
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <span class="icon icon--check-kreis"></span>
+                            </div>
+                            <span class="vorlage-badge default">System</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Standard</h3>
+                        <p class="vorlage-card-desc">Systemweite Standard-Vorlage (5/10/15 €)</p>
+                        <div class="vorlage-card-prices">
+                            <div class="price-item"><span class="price-value">5€</span></div>
+                            <div class="price-item"><span class="price-value">10€</span></div>
+                            <div class="price-item"><span class="price-value">15€</span></div>
+                        </div>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn-secondary btn-sm" disabled>Nicht bearbeitbar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Eigene Vorlagen des Users -->
+                <div style="margin-top: 30px;">
+                    <div class="text-ueberschrift-unterabschnitt" style="margin-bottom: 15px;">Eigene Vorlagen <span id="vorlagenCount" class="text-klein">(0/3)</span></div>
+                    <div class="vorlage-grid" id="userVorlagenGrid">
+                        <!-- Dynamisch geladen -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- EMAIL CONTENT -->
+            <!-- ============================================== -->
+            <!-- Automatische Vorlagen -->
+            <div class="kw-tab-content" id="tab-email-automatisch">
+                <div class="vorlage-grid">
+                    <!-- Willkommensmail -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <span class="icon icon--email"></span>
+                            </div>
+                            <span class="vorlage-badge default">Automatisch</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Willkommensmail</h3>
+                        <p class="vorlage-card-desc">Begrüßung neuer Fördermitglieder nach NMG-Formular</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('willkommen')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('willkommen')">Vorschau</button>
+                        </div>
+                    </div>
+
+                    <!-- Erhöhungsmail -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <span class="icon icon--statistik"></span>
+                            </div>
+                            <span class="vorlage-badge default">Automatisch</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Erhöhungsmail</h3>
+                        <p class="vorlage-card-desc">Bestätigung bei Beitragsanpassung nach ERH-Formular</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('erhoehung')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('erhoehung')">Vorschau</button>
+                        </div>
+                    </div>
+
+                    <!-- IBAN-Nachtragen -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <span class="icon icon--kreditkarte"></span>
+                            </div>
+                            <span class="vorlage-badge default">Automatisch</span>
+                        </div>
+                        <h3 class="vorlage-card-title">IBAN-Nachtragen</h3>
+                        <p class="vorlage-card-desc">Link zum Nachtragen der Bankverbindung</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('iban')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('iban')">Vorschau</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manuelle Vorlagen -->
+            <div class="kw-tab-content" id="tab-email-manuell">
+                <div class="vorlage-grid">
+                    <!-- Storno-Bestätigung -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon premium">
+                                <span class="icon icon--bearbeiten"></span>
+                            </div>
+                            <span class="vorlage-badge premium">Manuell</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Storno-Bestätigung</h3>
+                        <p class="vorlage-card-desc">Bestätigung der Kündigung mit Einmalspende-Anfrage</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('storno')">Bearbeiten</button>
+                            <button class="btn btn-primary btn-sm" onclick="sendManual('storno')">Versenden</button>
+                        </div>
+                    </div>
+
+                    <!-- Erneut senden -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon premium">
+                                <span class="icon icon--aktualisieren"></span>
+                            </div>
+                            <span class="vorlage-badge premium">Manuell</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Erneut versenden</h3>
+                        <p class="vorlage-card-desc">Automatische E-Mail erneut an ein Mitglied senden</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn-primary btn-sm" onclick="openResendModal()">Mitglied auswählen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="kw-tab-content" id="tab-email-newsletter">
+                <div class="vorlage-grid">
+                    <!-- Newsletter Standard -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon standard">
+                                <span class="icon icon--zeitung"></span>
+                            </div>
+                            <span class="vorlage-badge default">Aktiv</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Newsletter - Standard</h3>
+                        <p class="vorlage-card-desc">Allgemeiner Newsletter für alle Fördermitglieder</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('newsletter1')">Bearbeiten</button>
+                            <button class="btn btn-primary btn-sm" onclick="sendNewsletter('newsletter1')">Newsletter senden</button>
+                        </div>
+                    </div>
+
+                    <!-- Newsletter Saisonal -->
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon premium">
+                                <span class="icon icon--zeitung"></span>
+                            </div>
+                            <span class="vorlage-badge premium">Entwurf</span>
+                        </div>
+                        <h3 class="vorlage-card-title">Newsletter - Saisonal</h3>
+                        <p class="vorlage-card-desc">Saisonale Grüße (Weihnachten, Ostern, etc.)</p>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTemplate('newsletter2')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="previewTemplate('newsletter2')">Vorschau</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Individuelle Vorlagen -->
+            <div class="kw-tab-content" id="tab-email-individuell">
+                <!-- Lock Message for lower levels -->
+                <div class="locked-section" id="lockedMessage">
+                    <div class="locked-icon">
+                        <span class="icon icon--schloss"></span>
+                    </div>
+                    <h3>Individuelle Vorlagen</h3>
+                    <p>Ab Stufe III (JMM) freigeschaltet</p>
+                </div>
+
+                <!-- Unlocked Content -->
+                <div class="unlocked-section" id="unlockedContent" style="display: none;">
+                    <div class="vorlage-grid">
+                        <!-- Persönlicher Dank -->
+                        <div class="vorlage-card">
+                            <div class="vorlage-card-header">
+                                <div class="vorlage-card-icon individual">
+                                    <span class="icon icon--herz"></span>
+                                </div>
+                                <span class="vorlage-badge individual">Individuell</span>
+                            </div>
+                            <h3 class="vorlage-card-title">Persönlicher Dank</h3>
+                            <p class="vorlage-card-desc">Persönliche Danksagung an besondere Mitglieder</p>
+                            <div class="vorlage-card-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="editIndividualTemplate('personal-thanks')">Bearbeiten</button>
+                                <button class="btn btn-primary btn-sm" onclick="useIndividualTemplate('personal-thanks')">Verwenden</button>
+                            </div>
+                        </div>
+
+                        <!-- Create New -->
+                        <div class="vorlage-card vorlage-card--new" onclick="openCreateIndividualModal()">
+                            <div class="vorlage-card-new-content">
+                                <span class="icon icon--plus"></span>
+                                <span>Neue Vorlage erstellen</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- E-Mail Vorlage Modal -->
+    <div class="modal modal-m" id="emailVorlageModal">
+        <div class="page-container page-container--modal">
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift" id="emailVorlageModalTitle">E-Mail Vorlage bearbeiten</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn btn-icon" onclick="closeModalById('emailVorlageModal')">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="modal-email-inhalt">Inhalt</div>
+                    <div class="kw-tab" data-tab="modal-email-platzhalter">Platzhalter</div>
+                </div>
+            </div>
+            <!-- Modal Body -->
+            <div class="page-content page-content--modal">
+                <!-- Inhalt Tab -->
+                <div class="kw-tab-content active" id="tab-modal-email-inhalt">
+                    <div class="unterabschnitt--card">
+                        <div class="zeile">
+                            <div class="text-ueberschrift-unterabschnitt">Betreff</div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <input type="text" class="eingabefeld" id="emailBetreff" placeholder="Betreff der E-Mail">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="unterabschnitt--card">
+                        <div class="zeile">
+                            <div class="text-ueberschrift-unterabschnitt">Inhalt</div>
+                        </div>
+                        <div class="zeile">
+                            <div class="eingabefeld-gruppe">
+                                <textarea class="eingabefeld" id="emailInhalt" rows="15" placeholder="Inhalt der E-Mail..." style="font-family: inherit; line-height: 1.6;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Platzhalter Tab -->
+                <div class="kw-tab-content" id="tab-modal-email-platzhalter">
+                    <div class="unterabschnitt--card">
+                        <div class="zeile">
+                            <div class="text-ueberschrift-unterabschnitt">Verfügbare Platzhalter</div>
+                        </div>
+                        <div class="zeile" style="flex-direction: column; gap: 10px;">
+                            <div class="platzhalter-item" onclick="insertPlatzhalter('{{anrede}}')" style="cursor: pointer; padding: 8px 12px; background: #f5f5f5; border-radius: 4px;">
+                                <code style="color: #667eea;">{{anrede}}</code> - Anrede (Herr/Frau)
+                            </div>
+                            <div class="platzhalter-item" onclick="insertPlatzhalter('{{vorname}}')" style="cursor: pointer; padding: 8px 12px; background: #f5f5f5; border-radius: 4px;">
+                                <code style="color: #667eea;">{{vorname}}</code> - Vorname des Mitglieds
+                            </div>
+                            <div class="platzhalter-item" onclick="insertPlatzhalter('{{nachname}}')" style="cursor: pointer; padding: 8px 12px; background: #f5f5f5; border-radius: 4px;">
+                                <code style="color: #667eea;">{{nachname}}</code> - Nachname des Mitglieds
+                            </div>
+                            <div class="platzhalter-item" onclick="insertPlatzhalter('{{betrag}}')" style="cursor: pointer; padding: 8px 12px; background: #f5f5f5; border-radius: 4px;">
+                                <code style="color: #667eea;">{{betrag}}</code> - Beitragshöhe in Euro
+                            </div>
+                            <div class="platzhalter-item" onclick="insertPlatzhalter('{{intervall}}')" style="cursor: pointer; padding: 8px 12px; background: #f5f5f5; border-radius: 4px;">
+                                <code style="color: #667eea;">{{intervall}}</code> - Zahlungsintervall
+                            </div>
+                        </div>
+                        <div class="zeile" style="margin-top: 15px;">
+                            <span class="text-klein">Klicken Sie auf einen Platzhalter, um ihn an der Cursorposition einzufügen.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="page-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModalById('emailVorlageModal')">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="saveEmailVorlage()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preisvorlage Modal -->
+    <div class="modal modal-m" id="preisvorlageModal">
+        <div class="page-container page-container--modal">
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift" id="preisvorlageModalTitle">Preisvorlage bearbeiten</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn btn-icon" onclick="closeModalById('preisvorlageModal')">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="modal-daten">Daten</div>
+                </div>
+            </div>
+            <!-- Modal Body -->
+            <div class="page-content page-content--modal">
+                <!-- Allgemein -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Allgemein</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Name der Vorlage</label>
+                            <input type="text" class="eingabefeld" id="preisvorlageName" maxlength="20" placeholder="z.B. DRK Standard">
+                            <span class="eingabefeld-beschriftung-unten">Max. 20 Zeichen</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                            <label class="eingabefeld-beschriftung-oben">Symbol</label>
+                            <div class="symbol-picker" id="symbolPicker">
+                                <button type="button" class="symbol-option active" data-symbol="checkmark" title="Häkchen">
+                                    <span class="icon icon--check-kreis"></span>
+                                </button>
+                                <button type="button" class="symbol-option" data-symbol="star" title="Stern">
+                                    <span class="icon icon--stern"></span>
+                                </button>
+                                <button type="button" class="symbol-option" data-symbol="euro" title="Euro">
+                                    <span class="icon icon--euro"></span>
+                                </button>
+                                <button type="button" class="symbol-option" data-symbol="heart" title="Herz">
+                                    <span class="icon icon--herz"></span>
+                                </button>
+                                <button type="button" class="symbol-option" data-symbol="gift" title="Geschenk">
+                                    <span class="icon icon--geschenk"></span>
+                                </button>
+                            </div>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Beschreibung</label>
+                            <input type="text" class="eingabefeld" id="preisvorlageDesc" maxlength="42" placeholder="z.B. Standard-Preisvorlage für alle Formulare">
+                            <span class="eingabefeld-beschriftung-unten">Max. 42 Zeichen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Beiträge -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Beiträge konfigurieren</div>
+                    </div>
+                    <!-- Beitrag 1 -->
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Text oben 1</label>
+                            <input type="text" class="eingabefeld" id="beitrag1TextOben" maxlength="30" placeholder="z.B. Empfohlen">
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Text oben 2</label>
+                            <input type="text" class="eingabefeld" id="beitrag2TextOben" maxlength="30" placeholder="">
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Text oben 3</label>
+                            <input type="text" class="eingabefeld" id="beitrag3TextOben" maxlength="30" placeholder="">
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Betrag 1 (€)</label>
+                            <input type="number" class="eingabefeld" id="beitrag1Value" min="1" placeholder="5">
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Betrag 2 (€)</label>
+                            <input type="number" class="eingabefeld" id="beitrag2Value" min="1" placeholder="10">
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Betrag 3 (€)</label>
+                            <input type="number" class="eingabefeld" id="beitrag3Value" min="1" placeholder="15">
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Text unten 1</label>
+                            <input type="text" class="eingabefeld" id="beitrag1TextUnten" maxlength="30" placeholder="z.B. pro Monat">
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Text unten 2</label>
+                            <input type="text" class="eingabefeld" id="beitrag2TextUnten" maxlength="30" placeholder="z.B. pro Monat">
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Text unten 3</label>
+                            <input type="text" class="eingabefeld" id="beitrag3TextUnten" maxlength="30" placeholder="z.B. pro Monat">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="page-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModalById('preisvorlageModal')">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="savePreisvorlage()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SUPABASE CLIENT
+        // ============================================
+        const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzgwNzYxNSwiZXhwIjoyMDc5MzgzNjE1fQ.54kSk9ZSUdQt6LKYWkblqgR6Sjev80W80qkNHYEbPgk';
+
+        // Eigenen Supabase-Client erstellen
+        let localSupabaseClient = null;
+
+        function getSupabaseClient() {
+            // Zuerst vom Parent-Frame versuchen
+            if (window.parent?.supabaseClient) return window.parent.supabaseClient;
+            if (window.supabaseClient) return window.supabaseClient;
+
+            // Eigenen Client erstellen falls noch nicht vorhanden
+            if (!localSupabaseClient && window.supabase) {
+                localSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+            return localSupabaseClient;
+        }
+
+        // ============================================
+        // INITIALISIERUNG
+        // ============================================
+        let currentSection = 'preisvorlagen';
+        let vorlageUserId = null;
+        let userVorlagen = [];
+        let editingVorlageId = null;
+
+        // Sub-Tabs für beide Sektionen
+        initTabs('#preisvorlagenSubTabs .kw-tab', '.kw-tab-content');
+        initTabs('#emailSubTabs .kw-tab', '.kw-tab-content');
+        initSymbolPicker();
+
+        // User-ID aus Parent-Frame holen und Vorlagen laden
+        async function init() {
+            // User-ID aus Parent-Frame oder localStorage holen
+            vorlageUserId = window.parent?.currentUserId || localStorage.getItem('currentUserId');
+            console.log('init - vorlageUserId:', vorlageUserId);
+
+            // Immer rendern (zeigt dann "Neue Vorlage erstellen" Button)
+            await loadUserVorlagen();
+        }
+        init();
+
+        // ============================================
+        // SECTION SWITCH (Shell-Navigation)
+        // ============================================
+        const sectionConfig = {
+            preisvorlagen: {
+                containerId: 'preisvorlagenSubTabs',
+                firstContentId: 'tab-preisvorlagen',
+                title: 'Preisvorlagen'
+            },
+            email: {
+                containerId: 'emailSubTabs',
+                firstContentId: 'tab-email-automatisch',
+                title: 'E-Mail Vorlagen'
+            }
+        };
+
+        function switchSection(section) {
+            currentSection = section;
+            selectShellTab(section, {
+                subTabs: sectionConfig,
+                contentSelector: '.page-content > .kw-tab-content',
+                titleSelector: '#sectionTitle'
+            });
+        }
+
+        // ============================================
+        // SYMBOL MAPPING
+        // ============================================
+        const symbolIcons = {
+            'checkmark': 'icon--check-kreis',
+            'star': 'icon--stern',
+            'euro': 'icon--euro',
+            'heart': 'icon--herz',
+            'gift': 'icon--geschenk'
+        };
+
+        // ============================================
+        // VORLAGEN LADEN
+        // ============================================
+        async function loadUserVorlagen() {
+            const supabase = getSupabaseClient();
+            if (!supabase || !vorlageUserId) {
+                renderUserVorlagen();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('beitrags_vorlagen')
+                    .select('*')
+                    .eq('user_id', vorlageUserId)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+                userVorlagen = data || [];
+            } catch (err) {
+                console.error('Fehler beim Laden der Vorlagen:', err);
+                userVorlagen = [];
+            }
+
+            renderUserVorlagen();
+        }
+
+        // ============================================
+        // VORLAGEN RENDERN
+        // ============================================
+        function renderUserVorlagen() {
+            const grid = document.getElementById('userVorlagenGrid');
+            const countEl = document.getElementById('vorlagenCount');
+
+            if (countEl) {
+                countEl.textContent = `(${userVorlagen.length}/3)`;
+            }
+
+            let html = '';
+
+            // Vorhandene Vorlagen rendern
+            userVorlagen.forEach(vorlage => {
+                const iconClass = symbolIcons[vorlage.symbol] || 'icon--check-kreis';
+                html += `
+                    <div class="vorlage-card">
+                        <div class="vorlage-card-header">
+                            <div class="vorlage-card-icon premium">
+                                <span class="icon ${iconClass}"></span>
+                            </div>
+                            <span class="vorlage-badge premium">Eigene</span>
+                        </div>
+                        <h3 class="vorlage-card-title">${escapeHtml(vorlage.name)}</h3>
+                        <p class="vorlage-card-desc">${escapeHtml(vorlage.beschreibung || '')}</p>
+                        <div class="vorlage-card-prices">
+                            <div class="price-item">
+                                ${vorlage.beitrag1_text_oben ? `<span class="price-label">${escapeHtml(vorlage.beitrag1_text_oben)}</span>` : ''}
+                                <span class="price-value">${vorlage.beitrag1_wert}€</span>
+                                ${vorlage.beitrag1_text_unten ? `<span class="price-sub">${escapeHtml(vorlage.beitrag1_text_unten)}</span>` : ''}
+                            </div>
+                            <div class="price-item">
+                                ${vorlage.beitrag2_text_oben ? `<span class="price-label">${escapeHtml(vorlage.beitrag2_text_oben)}</span>` : ''}
+                                <span class="price-value">${vorlage.beitrag2_wert}€</span>
+                                ${vorlage.beitrag2_text_unten ? `<span class="price-sub">${escapeHtml(vorlage.beitrag2_text_unten)}</span>` : ''}
+                            </div>
+                            <div class="price-item">
+                                ${vorlage.beitrag3_text_oben ? `<span class="price-label">${escapeHtml(vorlage.beitrag3_text_oben)}</span>` : ''}
+                                <span class="price-value">${vorlage.beitrag3_wert}€</span>
+                                ${vorlage.beitrag3_text_unten ? `<span class="price-sub">${escapeHtml(vorlage.beitrag3_text_unten)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="vorlage-card-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editPreisvorlage('${vorlage.id}')">Bearbeiten</button>
+                            <button class="btn btn-secondary btn-sm" onclick="deletePreisvorlage('${vorlage.id}')">Löschen</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // "Neue Vorlage" Card (nur wenn < 3 Vorlagen)
+            if (userVorlagen.length < 3) {
+                html += `
+                    <div class="vorlage-card vorlage-card--new" onclick="openNewPreisvorlageModal()">
+                        <div class="vorlage-card-new-content">
+                            <span class="icon icon--plus"></span>
+                            <span>Neue Preisvorlage erstellen</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            grid.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // PREISVORLAGEN FUNKTIONEN
+        // ============================================
+        function openNewPreisvorlageModal() {
+            if (userVorlagen.length >= 3) {
+                showToast('Maximal 3 eigene Vorlagen erlaubt', 'warning');
+                return;
+            }
+
+            editingVorlageId = null;
+            document.getElementById('preisvorlageModalTitle').textContent = 'Neue Preisvorlage erstellen';
+
+            // Felder leeren
+            document.getElementById('preisvorlageName').value = '';
+            document.getElementById('preisvorlageDesc').value = '';
+            document.getElementById('beitrag1TextOben').value = '';
+            document.getElementById('beitrag2TextOben').value = '';
+            document.getElementById('beitrag3TextOben').value = '';
+            document.getElementById('beitrag1Value').value = '';
+            document.getElementById('beitrag2Value').value = '';
+            document.getElementById('beitrag3Value').value = '';
+            document.getElementById('beitrag1TextUnten').value = '';
+            document.getElementById('beitrag2TextUnten').value = '';
+            document.getElementById('beitrag3TextUnten').value = '';
+
+            // Symbol zurücksetzen
+            document.querySelectorAll('.symbol-option').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.symbol-option[data-symbol="checkmark"]')?.classList.add('active');
+
+            openModalById('preisvorlageModal');
+        }
+
+        function editPreisvorlage(id) {
+            const vorlage = userVorlagen.find(v => v.id === id);
+            if (!vorlage) return;
+
+            editingVorlageId = id;
+            document.getElementById('preisvorlageModalTitle').textContent = 'Preisvorlage bearbeiten';
+
+            document.getElementById('preisvorlageName').value = vorlage.name || '';
+            document.getElementById('preisvorlageDesc').value = vorlage.beschreibung || '';
+            document.getElementById('beitrag1TextOben').value = vorlage.beitrag1_text_oben || '';
+            document.getElementById('beitrag2TextOben').value = vorlage.beitrag2_text_oben || '';
+            document.getElementById('beitrag3TextOben').value = vorlage.beitrag3_text_oben || '';
+            document.getElementById('beitrag1Value').value = vorlage.beitrag1_wert || '';
+            document.getElementById('beitrag2Value').value = vorlage.beitrag2_wert || '';
+            document.getElementById('beitrag3Value').value = vorlage.beitrag3_wert || '';
+            document.getElementById('beitrag1TextUnten').value = vorlage.beitrag1_text_unten || '';
+            document.getElementById('beitrag2TextUnten').value = vorlage.beitrag2_text_unten || '';
+            document.getElementById('beitrag3TextUnten').value = vorlage.beitrag3_text_unten || '';
+
+            // Symbol setzen
+            document.querySelectorAll('.symbol-option').forEach(btn => btn.classList.remove('active'));
+            const symbolBtn = document.querySelector(`.symbol-option[data-symbol="${vorlage.symbol || 'checkmark'}"]`);
+            if (symbolBtn) symbolBtn.classList.add('active');
+
+            openModalById('preisvorlageModal');
+        }
+
+        async function deletePreisvorlage(id) {
+            const confirmed = await showConfirm('Löschen', 'Möchten Sie diese Preisvorlage wirklich löschen?', 'warning');
+            if (!confirmed) return;
+
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                showToast('Fehler: Keine Datenbankverbindung', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('beitrags_vorlagen')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                showToast('Preisvorlage gelöscht', 'success');
+                await loadUserVorlagen();
+            } catch (err) {
+                console.error('Fehler beim Löschen:', err);
+                showToast('Fehler beim Löschen', 'error');
+            }
+        }
+
+        async function savePreisvorlage() {
+            const supabase = getSupabaseClient();
+
+            console.log('savePreisvorlage - supabase:', !!supabase, 'vorlageUserId:', vorlageUserId);
+
+            if (!supabase) {
+                showToast('Fehler: Keine Datenbankverbindung', 'error');
+                return;
+            }
+
+            if (!vorlageUserId) {
+                showToast('Fehler: Kein Benutzer eingeloggt', 'error');
+                return;
+            }
+
+            // Werte sammeln
+            const name = document.getElementById('preisvorlageName').value.trim();
+            const beschreibung = document.getElementById('preisvorlageDesc').value.trim();
+            const symbol = document.querySelector('.symbol-option.active')?.dataset.symbol || 'checkmark';
+
+            const beitrag1Wert = parseFloat(document.getElementById('beitrag1Value').value) || 0;
+            const beitrag2Wert = parseFloat(document.getElementById('beitrag2Value').value) || 0;
+            const beitrag3Wert = parseFloat(document.getElementById('beitrag3Value').value) || 0;
+
+            // Validierung
+            if (!name) {
+                showToast('Bitte Namen eingeben', 'warning');
+                return;
+            }
+            if (beitrag1Wert <= 0 || beitrag2Wert <= 0 || beitrag3Wert <= 0) {
+                showToast('Bitte alle drei Beträge eingeben', 'warning');
+                return;
+            }
+
+            const vorlageData = {
+                user_id: vorlageUserId,
+                name: name,
+                beschreibung: beschreibung,
+                symbol: symbol,
+                beitrag1_wert: beitrag1Wert,
+                beitrag1_text_oben: document.getElementById('beitrag1TextOben').value.trim() || null,
+                beitrag1_text_unten: document.getElementById('beitrag1TextUnten').value.trim() || null,
+                beitrag2_wert: beitrag2Wert,
+                beitrag2_text_oben: document.getElementById('beitrag2TextOben').value.trim() || null,
+                beitrag2_text_unten: document.getElementById('beitrag2TextUnten').value.trim() || null,
+                beitrag3_wert: beitrag3Wert,
+                beitrag3_text_oben: document.getElementById('beitrag3TextOben').value.trim() || null,
+                beitrag3_text_unten: document.getElementById('beitrag3TextUnten').value.trim() || null,
+                updated_at: new Date().toISOString()
+            };
+
+            try {
+                if (editingVorlageId) {
+                    // Update
+                    const { error } = await supabase
+                        .from('beitrags_vorlagen')
+                        .update(vorlageData)
+                        .eq('id', editingVorlageId);
+                    if (error) throw error;
+                } else {
+                    // Insert
+                    const { error } = await supabase
+                        .from('beitrags_vorlagen')
+                        .insert(vorlageData);
+                    if (error) throw error;
+                }
+
+                closeModalById('preisvorlageModal');
+                showToast('Preisvorlage gespeichert', 'success');
+                await loadUserVorlagen();
+            } catch (err) {
+                console.error('Fehler beim Speichern:', err);
+                console.error('Vorlage-Daten:', vorlageData);
+                showToast('Fehler beim Speichern: ' + (err.message || err), 'error');
+            }
+        }
+
+        // ============================================
+        // EMAIL FUNKTIONEN
+        // ============================================
+        let currentEmailVorlageTyp = null;
+
+        // Modal Tabs initialisieren
+        initTabs('#emailVorlageModal .page-header-tabs .kw-tab', '#emailVorlageModal .kw-tab-content');
+
+        async function editTemplate(templateId) {
+            currentEmailVorlageTyp = templateId;
+
+            // Titel setzen
+            const titles = {
+                'willkommen': 'Willkommensmail bearbeiten',
+                'erhoehung': 'Erhöhungsmail bearbeiten',
+                'iban': 'IBAN-Nachtragen bearbeiten'
+            };
+            document.getElementById('emailVorlageModalTitle').textContent = titles[templateId] || 'E-Mail Vorlage bearbeiten';
+
+            // Vorlage aus DB laden
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                showToast('Keine Datenbankverbindung', 'error');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('email_vorlagen')
+                    .select('*')
+                    .eq('vorlage_typ', templateId)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    throw error;
+                }
+
+                // Felder füllen
+                document.getElementById('emailBetreff').value = data?.betreff || '';
+                document.getElementById('emailInhalt').value = data?.inhalt || '';
+
+                openModalById('emailVorlageModal');
+            } catch (err) {
+                console.error('Fehler beim Laden der Vorlage:', err);
+                // Leere Felder bei Fehler
+                document.getElementById('emailBetreff').value = '';
+                document.getElementById('emailInhalt').value = '';
+                openModalById('emailVorlageModal');
+            }
+        }
+
+        async function saveEmailVorlage() {
+            const supabase = getSupabaseClient();
+            if (!supabase || !currentEmailVorlageTyp) {
+                showToast('Fehler beim Speichern', 'error');
+                return;
+            }
+
+            const betreff = document.getElementById('emailBetreff').value.trim();
+            const inhalt = document.getElementById('emailInhalt').value.trim();
+
+            if (!betreff || !inhalt) {
+                showToast('Bitte Betreff und Inhalt ausfüllen', 'warning');
+                return;
+            }
+
+            try {
+                // Upsert: Insert oder Update
+                const { error } = await supabase
+                    .from('email_vorlagen')
+                    .upsert({
+                        vorlage_typ: currentEmailVorlageTyp,
+                        betreff: betreff,
+                        inhalt: inhalt,
+                        aktiv: true,
+                        updated_at: new Date().toISOString()
+                    }, {
+                        onConflict: 'vorlage_typ'
+                    });
+
+                if (error) throw error;
+
+                closeModalById('emailVorlageModal');
+                showToast('E-Mail Vorlage gespeichert', 'success');
+            } catch (err) {
+                console.error('Fehler beim Speichern:', err);
+                showToast('Fehler beim Speichern: ' + err.message, 'error');
+            }
+        }
+
+        function insertPlatzhalter(platzhalter) {
+            const textarea = document.getElementById('emailInhalt');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+
+            textarea.value = text.substring(0, start) + platzhalter + text.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + platzhalter.length;
+            textarea.focus();
+
+            showToast('Platzhalter eingefügt', 'success');
+        }
+
+        async function previewTemplate(templateId) {
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                showToast('Keine Datenbankverbindung', 'error');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('email_vorlagen')
+                    .select('betreff, inhalt')
+                    .eq('vorlage_typ', templateId)
+                    .single();
+
+                if (error) throw error;
+
+                // Beispieldaten für Vorschau
+                let preview = data.inhalt
+                    .replace(/\{\{anrede\}\}/g, 'Herr')
+                    .replace(/\{\{vorname\}\}/g, 'Max')
+                    .replace(/\{\{nachname\}\}/g, 'Mustermann')
+                    .replace(/\{\{betrag\}\}/g, '10')
+                    .replace(/\{\{intervall\}\}/g, 'monatlich');
+
+                alert('Betreff: ' + data.betreff + '\n\n' + preview);
+            } catch (err) {
+                showToast('Keine Vorlage gefunden - bitte erst erstellen', 'warning');
+            }
+        }
+
+        async function sendManual(templateId) {
+            showToast('Manuelle E-Mail - Coming soon', 'info');
+        }
+
+        async function sendNewsletter(templateId) {
+            const confirmed = await showConfirm('Newsletter versenden', 'Newsletter an alle Fördermitglieder senden?', 'question');
+            if (confirmed) {
+                showToast('Newsletter wird versendet...', 'success');
+            }
+        }
+
+        async function openResendModal() {
+            showToast('Erneut senden - Coming soon', 'info');
+        }
+
+        async function openCreateIndividualModal() {
+            showToast('Neue Vorlage erstellen - Coming soon', 'info');
+        }
+
+        async function editIndividualTemplate(templateId) {
+            showToast('Vorlage bearbeiten - Coming soon', 'info');
+        }
+
+        async function useIndividualTemplate(templateId) {
+            showToast('Vorlage öffnen...', 'info');
+        }
+
+        // ============================================
+        // STUFEN-CHECK FÜR INDIVIDUELLE VORLAGEN
+        // ============================================
+        function checkIndividualAccess() {
+            const userStage = 3; // Demo: Stage III
+            const hasAccess = userStage >= 3;
+
+            const lockedMessage = document.getElementById('lockedMessage');
+            const unlockedContent = document.getElementById('unlockedContent');
+            const individualTab = document.getElementById('individualTab');
+
+            if (hasAccess) {
+                lockedMessage.style.display = 'none';
+                unlockedContent.style.display = 'block';
+                if (individualTab) individualTab.classList.remove('locked');
+            } else {
+                lockedMessage.style.display = 'block';
+                unlockedContent.style.display = 'none';
+                if (individualTab) individualTab.classList.add('locked');
+            }
+        }
+
+        checkIndividualAccess();
+
+        // ============================================
+        // SHELL INTEGRATION
+        // ============================================
+        // Shell-Listener vorbereiten (für zukünftige Toolbar-Buttons)
+        initShellListener({
+            // User-ID Update vom Parent
+            toolbarActions: {
+                setUserId: (userId) => {
+                    vorlageUserId = userId;
+                    loadUserVorlagen();
+                }
+            }
+        });
+
+        // Legacy: User-ID Update vom Parent (für Rückwärtskompatibilität)
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'setUserId') {
+                vorlageUserId = e.data.userId;
+                loadUserVorlagen();
+            }
+        });
+    </script>
+</body>
+</html>

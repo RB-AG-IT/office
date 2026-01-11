@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datensätze - RB Inside Office</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+    <!-- SheetJS für Excel/CSV Import -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-row">
+            <div class="page-header-links">
+                <span class="text-ueberschrift">Statistik</span>
+            </div>
+            <div class="page-header-mitte">
+                <span class="text-ueberschrift" id="sectionTitle">Werber Übersicht</span>
+            </div>
+            <div class="page-header-rechts"></div>
+        </div>
+        <!-- Shell-Tab: Werber (1 Sub-Tab) -->
+        <div class="page-header-tabs" id="werberSubTabs">
+            <div class="kw-tab active" data-tab="werber">Werber</div>
+        </div>
+        <!-- Shell-Tab: Kunden (1 Sub-Tab) -->
+        <div class="page-header-tabs" id="kundenSubTabs" style="display: none;">
+            <div class="kw-tab active" data-tab="kunden">Kunden / Gebiete</div>
+        </div>
+        <!-- Shell-Tab: Kampagnen (1 Sub-Tab) -->
+        <div class="page-header-tabs" id="kampagnenSubTabs" style="display: none;">
+            <div class="kw-tab active" data-tab="kampagnen">Kampagnen</div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content page-content--table">
+        <div class="overview-view" id="overviewView">
+                <!-- WERBER SECTION -->
+                <div id="section-werber" class="category-section active">
+                    <div class="table-wrap">
+                        <div class="zeile">
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                                <button class="btn btn-sm btn--hover-blau" id="toggleAllWerberBtn" onclick="toggleAllWerber()">
+                                    <span class="icon icon--pfeil-unten"></span>
+                                    Alle aufklappen
+                                </button>
+                            </div>
+                            <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="werberSelectionGroup">
+                                <span class="btn btn-sm" id="werberSelectionBtn">
+                                    <span class="icon icon--clipboard"></span>
+                                    Ausgewählt: <span id="werberSelectionCount">0</span>
+                                </span>
+                            </div>
+                            <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-cell">
+                                            <input type="checkbox" class="row-checkbox" id="selectAllWerber" onclick="TableCheckbox.toggleSelectAll(this, 'werberTableBody')">
+                                        </th>
+                                        <th class="sortable col-name" data-sort="name">
+                                            Werber
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-count" data-sort="mitglieder">
+                                            Mitglieder
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-money" data-sort="nettoJE">
+                                            Netto JE
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-storno" data-sort="stornoquote">
+                                            Stornoquote
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-mgTag" data-sort="mgTag">
+                                            ∅ MG/Tag
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-umsatzTag" data-sort="umsatzTag">
+                                            ∅ Umsatz/Tag
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="col-spacer"></th>
+                                        <th class="action-cell"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="werberTableBody">
+                                    <!-- Wird per JS befüllt -->
+                                </tbody>
+                                <tbody id="werberTableTotals">
+                                    <!-- Gesamt-Zeile -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KUNDEN / GEBIETE SECTION (hierarchisch) -->
+                <div id="section-kunden" class="category-section">
+                    <div class="table-wrap">
+                        <div class="zeile">
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                                <button class="btn btn-sm btn--hover-blau" id="toggleAllKundenBtn" onclick="toggleAllKunden()">
+                                    <span class="icon icon--pfeil-unten"></span>
+                                    Alle aufklappen
+                                </button>
+                            </div>
+                            <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="kundenSelectionGroup">
+                                <span class="btn btn-sm" id="kundenSelectionBtn">
+                                    <span class="icon icon--clipboard"></span>
+                                    Ausgewählt: <span id="kundenSelectionCount">0</span>
+                                </span>
+                            </div>
+                            <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-cell">
+                                            <input type="checkbox" class="row-checkbox" id="selectAllKunden" onclick="TableCheckbox.toggleSelectAll(this, 'kundenGebieteTableBody')">
+                                        </th>
+                                        <th class="sortable col-name" data-sort="name">
+                                            Kunde / Gebiet
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-count" data-sort="mitglieder">
+                                            Mitglieder
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-money" data-sort="nettoJE">
+                                            Netto JE
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-storno" data-sort="stornoquote">
+                                            Stornoquote
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-mgTag" data-sort="mgTag">
+                                            ∅ MG/Tag
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-umsatzTag" data-sort="umsatzTag">
+                                            ∅ Umsatz/Tag
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="col-spacer"></th>
+                                        <th class="action-cell"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kundenGebieteTableBody">
+                                    <!-- Wird per JS befüllt -->
+                                </tbody>
+                                <tbody id="kundenTableTotals">
+                                    <!-- Gesamt-Zeile -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KAMPAGNEN SECTION -->
+                <div id="section-kampagnen" class="category-section">
+                    <div class="table-wrap">
+                        <div class="zeile">
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                                <button class="btn btn-sm btn--hover-blau" id="toggleAllKampagnenBtn" onclick="toggleAllKampagnen()">
+                                    <span class="icon icon--pfeil-unten"></span>
+                                    Alle aufklappen
+                                </button>
+                            </div>
+                            <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                            <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="kampagnenSelectionGroup">
+                                <span class="btn btn-sm" id="kampagnenSelectionBtn">
+                                    <span class="icon icon--clipboard"></span>
+                                    Ausgewählt: <span id="kampagnenSelectionCount">0</span>
+                                </span>
+                            </div>
+                            <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-cell">
+                                            <input type="checkbox" class="row-checkbox" id="selectAllKampagnen" onclick="TableCheckbox.toggleSelectAll(this, 'kampagnenTableBody')">
+                                        </th>
+                                        <th class="sortable col-name" data-sort="name">
+                                            Kampagne
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-count" data-sort="mitglieder">
+                                            Mitglieder
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-money" data-sort="nettoJE">
+                                            Netto JE
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-storno" data-sort="stornoquote">
+                                            Stornoquote
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-mgTag" data-sort="mgTag">
+                                            ∅ MG/Tag
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="sortable col-umsatzTag" data-sort="umsatzTag">
+                                            ∅ Umsatz/Tag
+                                            <div class="sort-arrows">
+                                                <span class="icon icon--pfeil-auf arrow-up"></span>
+                                                <span class="icon icon--pfeil-ab arrow-down"></span>
+                                            </div>
+                                        </th>
+                                        <th class="col-spacer"></th>
+                                        <th class="action-cell"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kampagnenTableBody">
+                                    <!-- Wird per JS befüllt -->
+                                </tbody>
+                                <tbody id="kampagnenTableTotals">
+                                    <!-- Gesamt-Zeile -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+        </div><!-- Ende overview-view -->
+    </div><!-- Ende page-content -->
+</div><!-- Ende page-container -->
+
+<script>
+        // ========== SUPABASE CLIENT ==========
+        const supabase = window.parent.supabaseClient;
+
+        // ========== DATA (wird aus Supabase geladen) ==========
+        let kundenData = [];
+        let gebieteData = [];
+        let kampagnenData = [];
+        let werberData = [];
+        let einsatztageMap = {}; // userId -> Anzahl Einsatztage
+
+        // ========== SUPABASE DATA LOADING ==========
+        async function loadAllData() {
+            try {
+                // Erst Einsatztage laden (wird von anderen Funktionen benötigt)
+                await loadEinsatztage();
+
+                // Dann Rest parallel laden
+                await Promise.all([
+                    loadWerberData(),
+                    loadKundenData(),
+                    loadKampagnenData()
+                ]);
+            } catch (error) {
+                console.error('Fehler beim Laden der Daten:', error);
+                showToast('Fehler beim Laden der Statistik-Daten', 'error');
+            }
+        }
+
+        // Einsatztage laden (für MG/Tag und Umsatz/Tag)
+        let einsatztageByKampagne = {}; // campaign_id -> Anzahl Einsatztage (summiert über alle User)
+        let einsatztageByKunde = {}; // customer_id -> Anzahl Einsatztage
+
+        async function loadEinsatztage() {
+            // Erst Kampagnen laden um nach Zeitraum filtern zu können
+            let campaignsQuery = supabase
+                .from('campaigns')
+                .select('id, year, kw_from, kw_to');
+
+            const { data: campaigns, error: campaignsError } = await campaignsQuery;
+
+            if (campaignsError) {
+                console.error('Fehler beim Laden der Kampagnen:', campaignsError);
+                return;
+            }
+
+            // Campaign Areas laden für Zuordnung campaign -> customer
+            const { data: campaignAreas } = await supabase
+                .from('campaign_areas')
+                .select('id, campaign_id, customer_area_id');
+
+            // Customer Areas laden für customer_id
+            const { data: customerAreas } = await supabase
+                .from('customer_areas')
+                .select('id, customer_id');
+
+            // Map: customer_area_id -> customer_id
+            const customerAreaToCustomer = {};
+            (customerAreas || []).forEach(ca => {
+                if (ca.customer_id) {
+                    customerAreaToCustomer[ca.id] = ca.customer_id;
+                }
+            });
+
+            // Map: campaign_id -> Set von customer_ids (eine Kampagne kann mehrere Kunden haben)
+            const campaignToCustomers = {};
+            (campaignAreas || []).forEach(ca => {
+                if (ca.campaign_id && ca.customer_area_id) {
+                    const customerId = customerAreaToCustomer[ca.customer_area_id];
+                    if (customerId) {
+                        if (!campaignToCustomers[ca.campaign_id]) {
+                            campaignToCustomers[ca.campaign_id] = new Set();
+                        }
+                        campaignToCustomers[ca.campaign_id].add(customerId);
+                    }
+                }
+            });
+
+            // Kampagnen-IDs im Zeitraum ermitteln
+            let validCampaignIds = new Set();
+            if (periodStartDate || periodEndDate) {
+                const startYear = periodStartDate ? periodStartDate.getFullYear() : 0;
+                const endYear = periodEndDate ? periodEndDate.getFullYear() : 9999;
+                const startKw = periodStartDate ? getKwFromDate(periodStartDate) : 1;
+                const endKw = periodEndDate ? getKwFromDate(periodEndDate) : 53;
+
+                campaigns.forEach(c => {
+                    // Prüfen ob Kampagne im Zeitraum liegt
+                    const cYear = c.year || new Date().getFullYear();
+                    const cKwFrom = c.kw_from || 1;
+                    const cKwTo = c.kw_to || 53;
+
+                    // Kampagne liegt im Zeitraum wenn:
+                    // - Jahr passt UND KW-Bereiche überlappen
+                    if (cYear >= startYear && cYear <= endYear) {
+                        if (cYear === startYear && cYear === endYear) {
+                            // Gleiches Jahr: KW muss überlappen
+                            if (cKwTo >= startKw && cKwFrom <= endKw) {
+                                validCampaignIds.add(c.id);
+                            }
+                        } else if (cYear === startYear) {
+                            if (cKwTo >= startKw) validCampaignIds.add(c.id);
+                        } else if (cYear === endYear) {
+                            if (cKwFrom <= endKw) validCampaignIds.add(c.id);
+                        } else {
+                            validCampaignIds.add(c.id);
+                        }
+                    }
+                });
+            } else {
+                // Kein Filter: alle Kampagnen
+                campaigns.forEach(c => validCampaignIds.add(c.id));
+            }
+
+            // Attendance laden
+            const { data: attendance, error } = await supabase
+                .from('campaign_attendance')
+                .select('user_id, campaign_id, kw, day_0, day_1, day_2, day_3, day_4, day_5, day_6');
+
+            if (error) {
+                console.error('Fehler beim Laden der Einsatztage:', error);
+                return;
+            }
+
+            // Zähle Tage pro User, pro Kampagne und pro Kunde (nur für Kampagnen im Zeitraum)
+            einsatztageMap = {};
+            einsatztageByKampagne = {};
+            einsatztageByKunde = {};
+
+            // Sets für einzigartige Kalendertage pro Kampagne und Kunde
+            const uniqueDaysByKampagne = {}; // campaign_id -> Set von "kw_dayIndex"
+            const uniqueDaysByKunde = {}; // customer_id -> Set von "campaign_kw_dayIndex"
+
+            attendance.forEach(row => {
+                // Nur Kampagnen im Zeitraum berücksichtigen
+                if (!validCampaignIds.has(row.campaign_id)) return;
+
+                // Zusätzlich KW-Filter innerhalb der Kampagne
+                if (periodStartDate || periodEndDate) {
+                    const campaign = campaigns.find(c => c.id === row.campaign_id);
+                    if (campaign) {
+                        const cYear = campaign.year || new Date().getFullYear();
+                        const startYear = periodStartDate ? periodStartDate.getFullYear() : 0;
+                        const endYear = periodEndDate ? periodEndDate.getFullYear() : 9999;
+                        const startKw = periodStartDate ? getKwFromDate(periodStartDate) : 1;
+                        const endKw = periodEndDate ? getKwFromDate(periodEndDate) : 53;
+
+                        // KW muss im Zeitraum liegen
+                        if (cYear === startYear && row.kw < startKw) return;
+                        if (cYear === endYear && row.kw > endKw) return;
+                    }
+                }
+
+                const days = [row.day_0, row.day_1, row.day_2, row.day_3, row.day_4, row.day_5, row.day_6];
+                const countDays = days.filter(d => d === true).length;
+
+                // Pro User (Werber-Tage summiert)
+                if (!einsatztageMap[row.user_id]) {
+                    einsatztageMap[row.user_id] = 0;
+                }
+                einsatztageMap[row.user_id] += countDays;
+
+                // Pro Kampagne und Kunde: Einzigartige Kalendertage zählen
+                if (row.campaign_id) {
+                    if (!uniqueDaysByKampagne[row.campaign_id]) {
+                        uniqueDaysByKampagne[row.campaign_id] = new Set();
+                    }
+
+                    // Jeden aktiven Tag als einzigartigen Kalendertag markieren
+                    days.forEach((isActive, dayIndex) => {
+                        if (isActive) {
+                            const dayKey = `${row.kw}_${dayIndex}`;
+                            uniqueDaysByKampagne[row.campaign_id].add(dayKey);
+
+                            // Pro Kunde (über campaign -> campaign_areas -> customer_areas -> customer)
+                            const customerIds = campaignToCustomers[row.campaign_id];
+                            if (customerIds) {
+                                customerIds.forEach(customerId => {
+                                    if (!uniqueDaysByKunde[customerId]) {
+                                        uniqueDaysByKunde[customerId] = new Set();
+                                    }
+                                    // Einzigartiger Tag pro Kunde (inkl. Kampagne, falls gleicher Kunde in mehreren Kampagnen)
+                                    uniqueDaysByKunde[customerId].add(`${row.campaign_id}_${dayKey}`);
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Sets in Zahlen umwandeln
+            Object.keys(uniqueDaysByKampagne).forEach(campaignId => {
+                einsatztageByKampagne[campaignId] = uniqueDaysByKampagne[campaignId].size;
+            });
+            Object.keys(uniqueDaysByKunde).forEach(customerId => {
+                einsatztageByKunde[customerId] = uniqueDaysByKunde[customerId].size;
+            });
+        }
+
+        // Werber-Daten laden (zentrale Funktion aus main.js)
+        async function loadWerberData() {
+            // Zentrale Funktion mit Zeitraum-Filter verwenden
+            werberData = await ladeWerberStatistiken({
+                startDate: periodStartDate,
+                endDate: periodEndDate
+            });
+
+            // Bei aktivem Datumsfilter: Nur Werber mit Einsatztagen im Zeitraum anzeigen
+            if (periodStartDate || periodEndDate) {
+                werberData = werberData.filter(w => w.einsatztage > 0);
+            }
+        }
+
+        // Kunden und Gebiete laden
+        async function loadKundenData() {
+            // Kunden laden
+            const { data: customers, error: customersError } = await supabase
+                .from('customers')
+                .select('id, name, full_name');
+
+            if (customersError) {
+                console.error('Fehler beim Laden der Kunden:', customersError);
+                return;
+            }
+
+            // Customer Areas laden
+            const { data: areas, error: areasError } = await supabase
+                .from('customer_areas')
+                .select('id, customer_id, name');
+
+            if (areasError) {
+                console.error('Fehler beim Laden der Gebiete:', areasError);
+            }
+
+            // Einsatztage pro Kunde werden global in loadEinsatztage() berechnet
+            // über: campaign_attendance -> campaign -> campaign_areas -> customer_areas -> customer
+
+            // Records laden für Statistiken (mit Zeitraum-Filter nach Aufnahmedatum = start_date)
+            let recordsQuery = supabase
+                .from('records')
+                .select('customer_id, campaign_area_id, yearly_amount, record_status, start_date');
+
+            if (periodStartDate) {
+                recordsQuery = recordsQuery.gte('start_date', periodStartDate.toISOString().split('T')[0]);
+            }
+            if (periodEndDate) {
+                recordsQuery = recordsQuery.lte('start_date', periodEndDate.toISOString().split('T')[0] + 'T23:59:59');
+            }
+
+            const { data: records, error: recordsError } = await recordsQuery;
+
+            if (recordsError) {
+                console.error('Fehler beim Laden der Records:', recordsError);
+                return;
+            }
+
+            // Campaign Areas laden für Zuordnung zu Customer Areas
+            const { data: campaignAreas, error: caError } = await supabase
+                .from('campaign_areas')
+                .select('id, customer_area_id');
+
+            if (caError) {
+                console.error('Fehler beim Laden der Campaign Areas:', caError);
+            }
+
+            // Map campaign_area_id -> customer_area_id
+            const campaignAreaToCustomerArea = {};
+            (campaignAreas || []).forEach(ca => {
+                if (ca.customer_area_id) {
+                    campaignAreaToCustomerArea[ca.id] = ca.customer_area_id;
+                }
+            });
+
+            // Map customer_area_id -> customer_id
+            const customerAreaToCustomer = {};
+            (areas || []).forEach(area => {
+                if (area.customer_id) {
+                    customerAreaToCustomer[area.id] = area.customer_id;
+                }
+            });
+
+            // Statistiken pro Kunde berechnen (über campaign_area_id -> customer_area_id -> customer_id)
+            const kundenStatsMap = {};
+            records.forEach(r => {
+                // customer_id ermitteln: direkt oder über Kette
+                let customerId = r.customer_id;
+                if (!customerId && r.campaign_area_id) {
+                    const customerAreaId = campaignAreaToCustomerArea[r.campaign_area_id];
+                    if (customerAreaId) {
+                        customerId = customerAreaToCustomer[customerAreaId];
+                    }
+                }
+                if (!customerId) return;
+
+                if (!kundenStatsMap[customerId]) {
+                    kundenStatsMap[customerId] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
+                }
+                kundenStatsMap[customerId].total++;
+                if (r.record_status === 'aktiv') {
+                    kundenStatsMap[customerId].aktiv++;
+                    // NMG: Jahresbeitrag, ERH: Erhöhungsbetrag (Differenz)
+                    const isERH = r.record_type === 'erhoehung' || r.record_type === 'ERH';
+                    const nettoValue = isERH ? ((r.yearly_amount || 0) - (r.old_amount || 0)) : (r.yearly_amount || 0);
+                    kundenStatsMap[customerId].nettoJE += nettoValue;
+                } else if (r.record_status === 'storno') {
+                    kundenStatsMap[customerId].storno++;
+                }
+            });
+
+            // Statistiken pro Gebiet berechnen (über campaign_area_id)
+            const gebieteStatsMap = {};
+            records.forEach(r => {
+                if (!r.campaign_area_id) return;
+                const customerAreaId = campaignAreaToCustomerArea[r.campaign_area_id];
+                if (!customerAreaId) return;
+
+                if (!gebieteStatsMap[customerAreaId]) {
+                    gebieteStatsMap[customerAreaId] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
+                }
+                gebieteStatsMap[customerAreaId].total++;
+                if (r.record_status === 'aktiv') {
+                    gebieteStatsMap[customerAreaId].aktiv++;
+                    // NMG: Jahresbeitrag, ERH: Erhöhungsbetrag (Differenz)
+                    const isERH = r.record_type === 'erhoehung' || r.record_type === 'ERH';
+                    const nettoValue = isERH ? ((r.yearly_amount || 0) - (r.old_amount || 0)) : (r.yearly_amount || 0);
+                    gebieteStatsMap[customerAreaId].nettoJE += nettoValue;
+                } else if (r.record_status === 'storno') {
+                    gebieteStatsMap[customerAreaId].storno++;
+                }
+            });
+
+            // Kunden-Daten zusammenbauen
+            kundenData = customers.map(customer => {
+                const stats = kundenStatsMap[customer.id] || { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
+                const stornoQuote = stats.total > 0 ? (stats.storno / stats.total) * 100 : 0;
+
+                return {
+                    id: customer.id,
+                    name: customer.full_name || customer.name,
+                    records: stats.aktiv,
+                    nettoJE: stats.nettoJE,
+                    storno: stornoQuote,
+                    einsatztage: einsatztageByKunde[customer.id] || 0
+                };
+            });
+
+            // Gebiete-Daten zusammenbauen (Einsatztage werden vom Kunden übernommen)
+            gebieteData = (areas || []).map(area => {
+                const stats = gebieteStatsMap[area.id] || { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
+                const stornoQuote = stats.total > 0 ? (stats.storno / stats.total) * 100 : 0;
+                // Einsatztage vom zugehörigen Kunden
+                const kundeEinsatztage = einsatztageByKunde[area.customer_id] || 0;
+
+                return {
+                    id: area.id,
+                    name: area.name,
+                    records: stats.aktiv,
+                    nettoJE: stats.nettoJE,
+                    storno: stornoQuote,
+                    kundeId: area.customer_id,
+                    einsatztage: kundeEinsatztage
+                };
+            });
+
+            // Bei aktivem Datumsfilter: Nur Kunden mit Einsatztagen im Zeitraum anzeigen
+            if (periodStartDate || periodEndDate) {
+                kundenData = kundenData.filter(k => k.einsatztage > 0);
+                // Gebiete auch filtern (nur von sichtbaren Kunden)
+                const visibleKundenIds = new Set(kundenData.map(k => k.id));
+                gebieteData = gebieteData.filter(g => visibleKundenIds.has(g.kundeId));
+            }
+        }
+
+        // Kampagnen laden
+        async function loadKampagnenData() {
+            // Kampagnen laden
+            const { data: campaigns, error: campaignsError } = await supabase
+                .from('campaigns')
+                .select('id, name');
+
+            if (campaignsError) {
+                console.error('Fehler beim Laden der Kampagnen:', campaignsError);
+                return;
+            }
+
+            // Werbegebiete (campaign_areas) laden
+            const { data: werbegebiete, error: wgError } = await supabase
+                .from('campaign_areas')
+                .select('id, campaign_id, name, plz');
+
+            if (wgError) {
+                console.error('Fehler beim Laden der Werbegebiete:', wgError);
+            }
+
+            // Records laden für Statistiken (mit Zeitraum-Filter nach Aufnahmedatum = start_date)
+            let recordsQuery = supabase
+                .from('records')
+                .select('campaign_id, campaign_area_id, yearly_amount, record_status, start_date');
+
+            if (periodStartDate) {
+                recordsQuery = recordsQuery.gte('start_date', periodStartDate.toISOString().split('T')[0]);
+            }
+            if (periodEndDate) {
+                recordsQuery = recordsQuery.lte('start_date', periodEndDate.toISOString().split('T')[0] + 'T23:59:59');
+            }
+
+            const { data: records, error: recordsError } = await recordsQuery;
+
+            if (recordsError) {
+                console.error('Fehler beim Laden der Records:', recordsError);
+                return;
+            }
+
+            // Statistiken pro Kampagne berechnen
+            const kampagnenStatsMap = {};
+            records.forEach(r => {
+                if (!r.campaign_id) return;
+                if (!kampagnenStatsMap[r.campaign_id]) {
+                    kampagnenStatsMap[r.campaign_id] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
+                }
+                kampagnenStatsMap[r.campaign_id].total++;
+                if (r.record_status === 'aktiv') {
+                    kampagnenStatsMap[r.campaign_id].aktiv++;
+                    // NMG: Jahresbeitrag, ERH: Erhöhungsbetrag (Differenz)
+                    const isERH = r.record_type === 'erhoehung' || r.record_type === 'ERH';
+                    const nettoValue = isERH ? ((r.yearly_amount || 0) - (r.old_amount || 0)) : (r.yearly_amount || 0);
+                    kampagnenStatsMap[r.campaign_id].nettoJE += nettoValue;
+                } else if (r.record_status === 'storno') {
+                    kampagnenStatsMap[r.campaign_id].storno++;
+                }
+            });
+
+            // Statistiken pro Werbegebiet berechnen
+            const werbegebietStatsMap = {};
+            records.forEach(r => {
+                if (!r.campaign_area_id) return;
+                if (!werbegebietStatsMap[r.campaign_area_id]) {
+                    werbegebietStatsMap[r.campaign_area_id] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
+                }
+                werbegebietStatsMap[r.campaign_area_id].total++;
+                if (r.record_status === 'aktiv') {
+                    werbegebietStatsMap[r.campaign_area_id].aktiv++;
+                    // NMG: Jahresbeitrag, ERH: Erhöhungsbetrag (Differenz)
+                    const isERH = r.record_type === 'erhoehung' || r.record_type === 'ERH';
+                    const nettoValue = isERH ? ((r.yearly_amount || 0) - (r.old_amount || 0)) : (r.yearly_amount || 0);
+                    werbegebietStatsMap[r.campaign_area_id].nettoJE += nettoValue;
+                } else if (r.record_status === 'storno') {
+                    werbegebietStatsMap[r.campaign_area_id].storno++;
+                }
+            });
+
+            // Werbegebiete nach Kampagne gruppieren
+            const werbegebieteByKampagne = {};
+            (werbegebiete || []).forEach(wg => {
+                if (!werbegebieteByKampagne[wg.campaign_id]) {
+                    werbegebieteByKampagne[wg.campaign_id] = [];
+                }
+                const stats = werbegebietStatsMap[wg.id] || { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
+                const stornoQuote = stats.total > 0 ? (stats.storno / stats.total) * 100 : 0;
+
+                werbegebieteByKampagne[wg.campaign_id].push({
+                    id: wg.id,
+                    name: wg.plz ? `${wg.name} (${wg.plz})` : wg.name,
+                    records: stats.aktiv,
+                    nettoJE: stats.nettoJE,
+                    storno: stornoQuote
+                });
+            });
+
+            // Kampagnen-Daten zusammenbauen
+            kampagnenData = campaigns.map(kampagne => {
+                const stats = kampagnenStatsMap[kampagne.id] || { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
+                const stornoQuote = stats.total > 0 ? (stats.storno / stats.total) * 100 : 0;
+                const wgIds = (werbegebieteByKampagne[kampagne.id] || []).map(wg => wg.id);
+
+                return {
+                    id: kampagne.id,
+                    name: kampagne.name,
+                    records: stats.aktiv,
+                    nettoJE: stats.nettoJE,
+                    storno: stornoQuote,
+                    gebieteIds: wgIds,
+                    werbegebiete: werbegebieteByKampagne[kampagne.id] || [],
+                    einsatztage: einsatztageByKampagne[kampagne.id] || 0
+                };
+            });
+
+            // Bei aktivem Datumsfilter: Nur Kampagnen mit Einsatztagen im Zeitraum anzeigen
+            if (periodStartDate || periodEndDate) {
+                kampagnenData = kampagnenData.filter(k => k.einsatztage > 0);
+            }
+        }
+
+        // ========== STATE ==========
+        let currentCategory = 'werber';
+        let currentEntity = null;
+        let currentStornoId = null;
+
+        // Column Configuration - ALL available columns with labels
+        const allColumns = {
+            // Persönliche Daten
+            date: { label: 'Datum', width: '90px', format: 'date' },
+            type: { label: 'Art', width: '60px', format: 'badge' },
+            salutation: { label: 'Anrede', width: '70px' },
+            title: { label: 'Titel', width: '70px' },
+            company: { label: 'Firma', width: '140px' },
+            firstName: { label: 'Vorname', width: '100px' },
+            lastName: { label: 'Nachname', width: '100px' },
+            name: { label: 'Name', width: '200px', format: 'member' },
+            birthDate: { label: 'Geburtsdatum', width: '100px', format: 'date' },
+            email: { label: 'E-Mail', width: '180px' },
+            phoneMobile: { label: 'Tel. Mobil', width: '130px' },
+            phoneFixed: { label: 'Tel. Festnetz', width: '130px' },
+            // Anschrift
+            street: { label: 'Straße', width: '120px' },
+            houseNumber: { label: 'Nr.', width: '50px' },
+            zipCode: { label: 'PLZ', width: '60px' },
+            city: { label: 'Ort', width: '120px' },
+            country: { label: 'Land', width: '100px' },
+            address: { label: 'Adresse', width: '200px' },
+            // Zahlungsinformation
+            accountHolder: { label: 'Kontoinhaber', width: '140px' },
+            bankName: { label: 'Bank', width: '150px' },
+            iban: { label: 'IBAN', width: '220px' },
+            bic: { label: 'BIC', width: '100px' },
+            // Beitrag
+            amount: { label: 'Beitrag', width: '80px', format: 'currency', align: 'right' },
+            intervalLabel: { label: 'Intervall', width: '100px' },
+            je: { label: 'JE', width: '70px', format: 'currency', align: 'right' },
+            eh: { label: 'EH', width: '50px', align: 'right' },
+            spendenquittung: { label: 'Quittung', width: '70px', format: 'boolean' },
+            // Zuordnungen
+            area: { label: 'Werbegebiet', width: '140px' },
+            kunde: { label: 'Kunde', width: '160px' },
+            werber: { label: 'Werber', width: '120px' },
+            teamchef: { label: 'Teamchef', width: '120px' },
+            // Status & Sonstiges
+            status: { label: 'Status', width: '80px', format: 'status' },
+            laterStartDate: { label: 'Start ab', width: '90px', format: 'date' },
+            notes: { label: 'Anmerkungen', width: '200px' },
+            contactEmail: { label: 'Kontakt Email', width: '90px', format: 'boolean' },
+            contactPhone: { label: 'Kontakt Tel.', width: '90px', format: 'boolean' },
+            // ERH-spezifisch
+            memberNumber: { label: 'Mitgl.Nr.', width: '90px' },
+            memberSince: { label: 'Mitglied seit', width: '100px', format: 'date' },
+            oldAmount: { label: 'Alter Jahresbeitrag', width: '120px', format: 'currency', align: 'right' }
+        };
+
+        // Default visible columns (in order)
+        let currentColumns = ['date', 'type', 'name', 'address', 'email', 'area', 'kunde', 'werber', 'teamchef', 'je', 'status'];
+
+        // Sorting state → Nutzt currentSort aus tabellen.js
+
+        // Pagination
+        const PAGE_SIZE = 100;
+        let currentPage = 1;
+        let currentRecords = [];
+
+        // Detail Tab State
+        let currentDetailTab = 'records';
+
+        // Selection State
+        let selectedRecords = new Set();
+
+        // Audit Log (max 25 entries)
+        const auditLog = [];
+        const MAX_AUDIT_ENTRIES = 25;
+
+        // Editable columns (which columns can be edited inline)
+        const editableColumns = ['firstName', 'lastName', 'name', 'email', 'phoneMobile', 'phoneFixed',
+            'street', 'houseNumber', 'zipCode', 'city', 'country', 'accountHolder', 'iban', 'bic',
+            'amount', 'notes', 'bankName', 'company', 'salutation', 'title'];
+
+        // ========== INITIALIZATION ==========
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Erst Daten aus Supabase laden
+            await loadAllData();
+
+            // Dann Tabellen rendern
+            renderWerberTable();
+            renderKundenGebieteTable();
+            renderKampagnenTable();
+
+            // Initial: Nur ersten Tab anzeigen (Werber)
+            selectCategory('werber');
+
+            // Register toolbar config with shell (Import/Export for statistics)
+            registerToolbarConfig();
+        });
+
+        // Register toolbar buttons
+        function registerToolbarConfig() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'registerToolbar',
+                    config: {
+                        actionButtons: [
+                            { id: 'import', text: 'Import', icon: 'upload', action: 'openImportModal' },
+                            { id: 'export', text: 'Export', icon: 'download', action: 'openExportModal', primary: true }
+                        ]
+                    }
+                }, '*');
+            }
+        }
+
+        // ========== SHELL MESSAGE HANDLER ==========
+        window.addEventListener('message', function(e) {
+            // Navigation filter from shell
+            if (e.data && e.data.type === 'navFilter') {
+                selectCategory(e.data.value);
+            }
+
+            // Search query from shell
+            if (e.data && e.data.type === 'searchQuery') {
+                handleSearch(e.data.query);
+            }
+
+            // Toolbar action from shell
+            if (e.data && e.data.type === 'toolbarAction') {
+                if (e.data.action === 'openImportModal') {
+                    openImportModal();
+                } else if (e.data.action === 'openExportModal') {
+                    openExportModal();
+                }
+            }
+
+            // Period filter from shell
+            if (e.data && e.data.type === 'periodFilter') {
+                filterByPeriod(e.data.value);
+            }
+
+            // Custom date range from shell calendar
+            if (e.data && e.data.type === 'customDateRangeApplied') {
+                applyCustomDateRange(e.data.dateFrom, e.data.dateTo);
+            }
+        });
+
+        // Apply custom date range filter
+        async function applyCustomDateRange(fromStr, toStr) {
+            // Parse DD.MM.YYYY format
+            function parseDateStr(str) {
+                if (!str) return null;
+                const parts = str.split('.');
+                if (parts.length === 3) {
+                    return new Date(parts[2], parts[1] - 1, parts[0]);
+                }
+                return null;
+            }
+
+            periodStartDate = parseDateStr(fromStr);
+            periodEndDate = parseDateStr(toStr);
+            currentPeriod = 'custom';
+
+            // Reload data with new filter
+            await loadAllData();
+
+            // Re-render tables
+            renderWerberTable();
+            renderKundenGebieteTable();
+            renderKampagnenTable();
+        }
+
+        // ========== PERIOD FILTER ==========
+        function calculatePeriodDates(period) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            let start = null;
+            let end = null;
+
+            switch (period) {
+                case 'today':
+                    start = today;
+                    end = today;
+                    break;
+                case 'week':
+                    // KW: Montag bis Sonntag
+                    const dayOfWeek = today.getDay() || 7; // Sonntag = 7
+                    start = new Date(today);
+                    start.setDate(today.getDate() - dayOfWeek + 1);
+                    end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    break;
+                case 'month':
+                    start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    break;
+                case 'quarter':
+                    const quarter = Math.floor(now.getMonth() / 3);
+                    start = new Date(now.getFullYear(), quarter * 3, 1);
+                    end = new Date(now.getFullYear(), quarter * 3 + 3, 0);
+                    break;
+                case 'year':
+                    start = new Date(now.getFullYear(), 0, 1);
+                    end = new Date(now.getFullYear(), 11, 31);
+                    break;
+                case 'all':
+                case 'custom':
+                default:
+                    start = null;
+                    end = null;
+                    break;
+            }
+
+            return { start, end };
+        }
+
+        let currentPeriod = 'year';
+        // Initial: "Dieses Jahr" berechnen
+        const initialPeriod = calculatePeriodDates('year');
+        let periodStartDate = initialPeriod.start;
+        let periodEndDate = initialPeriod.end;
+
+        function getKwFromDate(date) {
+            // ISO-Woche berechnen
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        async function filterByPeriod(period) {
+            currentPeriod = period;
+            const { start, end } = calculatePeriodDates(period);
+            periodStartDate = start;
+            periodEndDate = end;
+
+            // Daten neu laden mit Filter
+            await loadAllData();
+
+            // Tabellen neu rendern
+            renderWerberTable();
+            renderKundenGebieteTable();
+            renderKampagnenTable();
+        }
+
+        // ========== CATEGORY SELECTION ==========
+        const sectionConfig = {
+            werber: { containerId: 'werberSubTabs', firstContentId: 'section-werber', title: 'Werber' },
+            kunden: { containerId: 'kundenSubTabs', firstContentId: 'section-kunden', title: 'Kunden / Gebiete' },
+            kampagnen: { containerId: 'kampagnenSubTabs', firstContentId: 'section-kampagnen', title: 'Kampagnen' }
+        };
+
+        function selectCategory(value) {
+            currentCategory = value;
+            selectShellTab(value, {
+                subTabs: sectionConfig,
+                contentSelector: '.category-section',
+                titleSelector: '#sectionTitle'
+            });
+            showOverviewView();
+        }
+
+        // ========== VIEW SWITCHING ==========
+        function showOverviewView() {
+            const overviewView = document.getElementById('overviewView');
+            if (overviewView) overviewView.classList.remove('hidden');
+        }
+
+        // ========== WERBER TABLE SORTING ==========
+        let werberSort = { field: 'name', direction: 'asc' };
+
+        function sortWerberTable(field) {
+            // Toggle direction if same field
+            if (werberSort.field === field) {
+                werberSort.direction = werberSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                werberSort.field = field;
+                werberSort.direction = 'asc';
+            }
+
+            // Update header classes
+            const table = document.querySelector('#section-werber .table');
+            table.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === field) {
+                    th.classList.add('sort-' + werberSort.direction);
+                }
+            });
+
+            // Sort data
+            const fieldMap = {
+                'name': 'name',
+                'mitglieder': 'records',
+                'nettoJE': 'nettoJE',
+                'stornoquote': 'storno',
+                'mgTag': 'records',      // MG/Tag basiert auf records
+                'umsatzTag': 'nettoJE'   // Umsatz/Tag basiert auf nettoJE
+            };
+            const dataField = fieldMap[field] || field;
+
+            werberData.sort((a, b) => {
+                let valA = a[dataField];
+                let valB = b[dataField];
+
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (valA < valB) return werberSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return werberSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            renderWerberTable();
+        }
+
+        // Attach click handlers for werber table sorting
+        document.addEventListener('DOMContentLoaded', function() {
+            const werberTable = document.querySelector('#section-werber .table');
+            if (werberTable) {
+                werberTable.querySelectorAll('th.sortable').forEach(th => {
+                    th.addEventListener('click', () => sortWerberTable(th.dataset.sort));
+                });
+            }
+        });
+
+        // ========== TABLE RENDERING ==========
+        // Hilfsfunktion: MG/Tag und Umsatz/Tag berechnen
+        function calcMgTag(records, einsatztage) {
+            return einsatztage > 0 ? records / einsatztage : 0;
+        }
+        function calcUmsatzTag(nettoJE, einsatztage) {
+            return einsatztage > 0 ? nettoJE / einsatztage : 0;
+        }
+
+        function renderWerberTable() {
+            const tbody = document.getElementById('werberTableBody');
+            const totalsBody = document.getElementById('werberTableTotals');
+
+            // Totals berechnen
+            const totalRecords = werberData.reduce((sum, w) => sum + w.records, 0);
+            const totalNettoJE = werberData.reduce((sum, w) => sum + w.nettoJE, 0);
+            const totalEinsatztage = werberData.reduce((sum, w) => sum + (w.einsatztage || 0), 0);
+            const avgStorno = werberData.length > 0 ? werberData.reduce((sum, w) => sum + w.storno, 0) / werberData.length : 0;
+            // Korrekter gewichteter Durchschnitt: Gesamt-MG / Gesamt-Einsatztage
+            const avgMgTag = totalEinsatztage > 0 ? totalRecords / totalEinsatztage : 0;
+            const avgUmsatzTag = totalEinsatztage > 0 ? totalNettoJE / totalEinsatztage : 0;
+
+            tbody.innerHTML = werberData.map(werber => {
+                const einsatztage = werber.einsatztage || 0;
+                const mgTag = calcMgTag(werber.records, einsatztage).toFixed(1);
+                const umsatzTag = calcUmsatzTag(werber.nettoJE, einsatztage);
+                return `
+                <tr>
+                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="event.stopPropagation();"></td>
+                    <td class="col-name">
+                        <div class="name-cell">
+                            ${createBadge({ type: 'werber', name: werber.name, stufe: werber.stufe, image: werber.image })}
+                        </div>
+                    </td>
+                    <td class="col-count">${werber.records}</td>
+                    <td class="col-money">${formatCurrency(werber.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(werber.storno)}">${werber.storno.toFixed(1)}%</td>
+                    <td class="col-mgTag">${mgTag}</td>
+                    <td class="col-umsatzTag">${formatCurrency(umsatzTag)}</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                <span class="icon icon--mehr-vertikal"></span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openWerberRecords('${werber.id}')">
+                                    <span class="icon icon--dokument"></span>
+                                    Datensätze
+                                </div>
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openWerberDashboard('${werber.id}', '${werber.name.replace(/'/g, "\\'")}')">
+                                    <span class="icon icon--statistik"></span>
+                                    Persönliches Dashboard
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+
+            // Totals-Zeile
+            totalsBody.innerHTML = `
+                <tr class="totals-row">
+                    <td class="checkbox-cell"></td>
+                    <td class="col-name">${createTotalsNameCell(werberData.length + ' Werber')}</td>
+                    <td class="col-count">${totalRecords}</td>
+                    <td class="col-money">${formatCurrency(totalNettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(avgStorno)}">${avgStorno.toFixed(1)}%</td>
+                    <td class="col-mgTag">${avgMgTag.toFixed(1)}</td>
+                    <td class="col-umsatzTag">${formatCurrency(avgUmsatzTag)}</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
+                </tr>
+            `;
+        }
+
+        function renderKundenGebieteTable() {
+            const tbody = document.getElementById('kundenGebieteTableBody');
+            const totalsBody = document.getElementById('kundenTableTotals');
+            let html = '';
+
+            // Totals berechnen
+            const totalRecords = kundenData.reduce((sum, k) => sum + k.records, 0);
+            const totalNettoJE = kundenData.reduce((sum, k) => sum + k.nettoJE, 0);
+            const totalGebiete = gebieteData.length;
+            const totalEinsatztage = kundenData.reduce((sum, k) => sum + (k.einsatztage || 0), 0);
+            const avgStorno = kundenData.length > 0 ? kundenData.reduce((sum, k) => sum + k.storno, 0) / kundenData.length : 0;
+            // Korrekter gewichteter Durchschnitt: Gesamt-MG / Gesamt-Einsatztage
+            const avgMgTag = totalEinsatztage > 0 ? totalRecords / totalEinsatztage : 0;
+            const avgUmsatzTag = totalEinsatztage > 0 ? totalNettoJE / totalEinsatztage : 0;
+
+            kundenData.forEach(kunde => {
+                const kundeGebiete = gebieteData.filter(g => g.kundeId === kunde.id);
+                const einsatztage = kunde.einsatztage || 0;
+                const mgTag = calcMgTag(kunde.records, einsatztage).toFixed(1);
+                const umsatzTag = calcUmsatzTag(kunde.nettoJE, einsatztage);
+
+                // Kunde Hauptzeile (expandable)
+                html += `
+                <tr class="expandable-row${kundenAllExpanded ? ' open' : ''}" data-kunde-id="${kunde.id}" onclick="toggleKundeRow(&quot;${kunde.id}&quot;)">
+                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox parent-checkbox" data-parent-id="${kunde.id}" onclick="event.stopPropagation(); TableCheckbox.toggleParent(this);"></td>
+                    <td class="col-name">
+                        <div class="name-cell">
+                            <span class="icon icon--pfeil-unten expand-icon"></span>
+                            ${createBadge({ type: 'kunde', name: kunde.name })}
+                        </div>
+                    </td>
+                    <td class="col-count">${kunde.records}</td>
+                    <td class="col-money">${formatCurrency(kunde.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(kunde.storno)}">${kunde.storno.toFixed(1)}%</td>
+                    <td class="col-mgTag">${mgTag}</td>
+                    <td class="col-umsatzTag">${formatCurrency(umsatzTag)}</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                <span class="icon icon--mehr-vertikal"></span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openKundeRecords('${kunde.id}')">
+                                    <span class="icon icon--dokument"></span>
+                                    Datensätze
+                                </div>
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openKundeDashboard('${kunde.id}', '${kunde.name.replace(/'/g, "\\'")}')">
+                                    <span class="icon icon--statistik"></span>
+                                    Persönliches Dashboard
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+
+                // Gebiete als child-rows
+                kundeGebiete.forEach(gebiet => {
+                    const gebietEinsatztage = gebiet.einsatztage || 0;
+                    const gebietMgTag = calcMgTag(gebiet.records, gebietEinsatztage).toFixed(1);
+                    const gebietUmsatzTag = calcUmsatzTag(gebiet.nettoJE, gebietEinsatztage);
+                    html += `
+                <tr class="child-row${kundenAllExpanded ? ' visible' : ''}" data-parent-id="${kunde.id}">
+                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox child-checkbox" data-parent-id="${kunde.id}" onclick="event.stopPropagation(); TableCheckbox.toggleChild(this);"></td>
+                    <td class="col-name">
+                        <div class="name-cell">
+                            <div class="child-indent">└</div>
+                            ${createBadge({ type: 'werbegebiet', name: gebiet.name })}
+                        </div>
+                    </td>
+                    <td class="col-count">${gebiet.records}</td>
+                    <td class="col-money">${formatCurrency(gebiet.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(gebiet.storno)}">${gebiet.storno.toFixed(1)}%</td>
+                    <td class="col-mgTag">${gebietMgTag}</td>
+                    <td class="col-umsatzTag">${formatCurrency(gebietUmsatzTag)}</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                <span class="icon icon--mehr-vertikal"></span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openGebietRecords('${gebiet.id}')">
+                                    <span class="icon icon--dokument"></span>
+                                    Datensätze
+                                </div>
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openGebietDashboard('${gebiet.id}', '${gebiet.name.replace(/'/g, "\\'")}')">
+                                    <span class="icon icon--statistik"></span>
+                                    Persönliches Dashboard
+                                </div>
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openBestandsUpload('${gebiet.id}')">
+                                    <span class="icon icon--upload"></span>
+                                    Bestandsmitglieder importieren
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+                });
+            });
+
+            tbody.innerHTML = html;
+
+            // Totals-Zeile
+            totalsBody.innerHTML = `
+                <tr class="totals-row">
+                    <td class="checkbox-cell"></td>
+                    <td class="col-name">${createTotalsNameCell(kundenData.length + ' Kunden, ' + totalGebiete + ' Gebiete')}</td>
+                    <td class="col-count">${totalRecords}</td>
+                    <td class="col-money">${formatCurrency(totalNettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(avgStorno)}">${avgStorno.toFixed(1)}%</td>
+                    <td class="col-mgTag">${avgMgTag.toFixed(1)}</td>
+                    <td class="col-umsatzTag">${formatCurrency(avgUmsatzTag)}</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
+                </tr>
+            `;
+        }
+
+        function toggleKundeRow(kundeId) {
+            const row = document.querySelector(`tr[data-kunde-id="${kundeId}"]`);
+            const children = document.querySelectorAll(`tr[data-parent-id="${kundeId}"]`);
+            const isOpen = row.classList.contains('open');
+
+            row.classList.toggle('open', !isOpen);
+            children.forEach(child => child.classList.toggle('visible', !isOpen));
+
+            // Selection Count aktualisieren (sichtbare Children zählen)
+            const count = TableCheckbox.updateSelectionCount('kundenGebieteTableBody');
+            TableCheckbox.updateSelectionUI('kundenGebieteTableBody', count);
+        }
+
+        function openWerberRecords(werberId) {
+            const werber = werberData.find(w => w.id === werberId);
+            if (werber) {
+                const datensaetzeUrl = `../datensaetze/index.html?type=werber&id=${werberId}&name=${encodeURIComponent(werber.name)}`;
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'navigate',
+                        url: 'datensaetze/index.html?type=werber&id=' + werberId + '&name=' + encodeURIComponent(werber.name),
+                        section: 'statistics'
+                    }, '*');
+                } else {
+                    window.location.href = datensaetzeUrl;
+                }
+            }
+        }
+
+        function renderKampagnenTable() {
+            const tbody = document.getElementById('kampagnenTableBody');
+            const totalsBody = document.getElementById('kampagnenTableTotals');
+
+            // Berechne Gesamt
+            const totalRecords = kampagnenData.reduce((sum, k) => sum + k.records, 0);
+            const totalNettoJE = kampagnenData.reduce((sum, k) => sum + k.nettoJE, 0);
+            const totalEinsatztage = kampagnenData.reduce((sum, k) => sum + (k.einsatztage || 0), 0);
+            const avgStorno = kampagnenData.length > 0 ? kampagnenData.reduce((sum, k) => sum + k.storno, 0) / kampagnenData.length : 0;
+            // Korrekter gewichteter Durchschnitt: Gesamt-MG / Gesamt-Einsatztage
+            const avgMgTag = totalEinsatztage > 0 ? totalRecords / totalEinsatztage : 0;
+            const avgUmsatzTag = totalEinsatztage > 0 ? totalNettoJE / totalEinsatztage : 0;
+
+            let html = '';
+
+            kampagnenData.forEach(kampagne => {
+                // Kampagne Hauptzeile (expandable)
+                const kampagneGebiete = kampagne.werbegebiete || [];
+                const hasGebiete = kampagneGebiete.length > 0;
+                const einsatztage = kampagne.einsatztage || 0;
+                const mgTag = calcMgTag(kampagne.records, einsatztage).toFixed(1);
+                const umsatzTag = calcUmsatzTag(kampagne.nettoJE, einsatztage);
+
+                html += `
+                <tr class="expandable-row" data-kampagne-id="${kampagne.id}" onclick="toggleKampagneRow(${kampagne.id})" style="cursor: pointer;">
+                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox parent-checkbox" data-parent-id="${kampagne.id}" onclick="event.stopPropagation(); TableCheckbox.toggleParent(this);"></td>
+                    <td class="col-name">
+                        <div class="name-cell">
+                            ${hasGebiete ? `<span class="icon icon--pfeil-unten expand-icon"></span>` : ''}
+                            ${createBadge({ type: 'kampagne', name: kampagne.name })}
+                        </div>
+                    </td>
+                    <td class="col-count">${kampagne.records}</td>
+                    <td class="col-money">${formatCurrency(kampagne.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(kampagne.storno)}">${kampagne.storno.toFixed(1)}%</td>
+                    <td class="col-mgTag">${mgTag}</td>
+                    <td class="col-umsatzTag">${formatCurrency(umsatzTag)}</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                <span class="icon icon--mehr-vertikal"></span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openKampagneRecords('${kampagne.id}')">
+                                    <span class="icon icon--dokument"></span>
+                                    Datensätze
+                                </div>
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openKampagneDashboard('${kampagne.id}', '${kampagne.name.replace(/'/g, "\\'")}')">
+                                    <span class="icon icon--statistik"></span>
+                                    Persönliches Dashboard
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+
+                // Gebiete unter dieser Kampagne (child rows) - verwende Einsatztage der Kampagne
+                kampagneGebiete.forEach(gebiet => {
+                    const gebietMgTag = calcMgTag(gebiet.records, einsatztage).toFixed(1);
+                    const gebietUmsatzTag = calcUmsatzTag(gebiet.nettoJE, einsatztage);
+                    html += `
+                <tr class="child-row" data-parent-id="${kampagne.id}">
+                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox child-checkbox" data-parent-id="${kampagne.id}" onclick="event.stopPropagation(); TableCheckbox.toggleChild(this);"></td>
+                    <td class="col-name">
+                        <div class="name-cell">
+                            <div class="child-indent">└</div>
+                            ${createBadge({ type: 'werbegebiet', name: gebiet.name })}
+                        </div>
+                    </td>
+                    <td class="col-count">${gebiet.records}</td>
+                    <td class="col-money">${formatCurrency(gebiet.nettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(gebiet.storno)}">${gebiet.storno.toFixed(1)}%</td>
+                    <td class="col-mgTag">${gebietMgTag}</td>
+                    <td class="col-umsatzTag">${formatCurrency(gebietUmsatzTag)}</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                <span class="icon icon--mehr-vertikal"></span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openKampagneGebietRecords('${kampagne.id}', '${gebiet.id}')">
+                                    <span class="icon icon--dokument"></span>
+                                    Datensätze
+                                </div>
+                                <div class="dropdown-item" onclick="closeAllDropdowns(); openGebietDashboard('${gebiet.id}', '${gebiet.name.replace(/'/g, "\\'")}')">
+                                    <span class="icon icon--statistik"></span>
+                                    Persönliches Dashboard
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+                });
+            });
+
+            tbody.innerHTML = html;
+
+            // Totals row
+            totalsBody.innerHTML = `
+                <tr class="totals-row">
+                    <td class="checkbox-cell"></td>
+                    <td class="col-name">${createTotalsNameCell(kampagnenData.length + ' Kampagnen')}</td>
+                    <td class="col-count">${totalRecords}</td>
+                    <td class="col-money">${formatCurrency(totalNettoJE)}</td>
+                    <td class="col-storno ${getStornoClass(avgStorno)}">${avgStorno.toFixed(1)}%</td>
+                    <td class="col-mgTag">${avgMgTag.toFixed(1)}</td>
+                    <td class="col-umsatzTag">${formatCurrency(avgUmsatzTag)}</td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
+                </tr>
+            `;
+        }
+
+        function toggleKampagneRow(kampagneId) {
+            const row = document.querySelector(`tr[data-kampagne-id="${kampagneId}"]`);
+            const children = document.querySelectorAll(`tr[data-parent-id="${kampagneId}"]`);
+            const isOpen = row.classList.contains('open');
+
+            row.classList.toggle('open', !isOpen);
+            children.forEach(child => child.classList.toggle('visible', !isOpen));
+
+            // Selection Count aktualisieren (sichtbare Children zählen)
+            const count = TableCheckbox.updateSelectionCount('kampagnenTableBody');
+            TableCheckbox.updateSelectionUI('kampagnenTableBody', count);
+        }
+
+        // ========== OPEN RECORDS ==========
+        function openKundeRecords(kundeId) {
+            const kunde = kundenData.find(k => k.id === kundeId);
+            if (kunde) {
+                const datensaetzeUrl = `../datensaetze/index.html?type=kunde&id=${kundeId}&name=${encodeURIComponent(kunde.name)}`;
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'navigate',
+                        url: 'datensaetze/index.html?type=kunde&id=' + kundeId + '&name=' + encodeURIComponent(kunde.name),
+                        section: 'statistics'
+                    }, '*');
+                } else {
+                    window.location.href = datensaetzeUrl;
+                }
+            }
+        }
+
+        function openGebietRecords(gebietId) {
+            const gebiet = gebieteData.find(g => g.id === gebietId);
+            const gebietName = gebiet?.name || 'Werbegebiet';
+            // type=customer_area für Kunden-Werbegebiete (sucht Records über campaign_areas.customer_area_id)
+            const datensaetzeUrl = `../datensaetze/index.html?type=customer_area&id=${gebietId}&name=${encodeURIComponent(gebietName)}`;
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigate',
+                    url: 'datensaetze/index.html?type=customer_area&id=' + gebietId + '&name=' + encodeURIComponent(gebietName),
+                    section: 'statistics'
+                }, '*');
+            } else {
+                window.location.href = datensaetzeUrl;
+            }
+        }
+
+        function openKampagneRecords(kampagneId) {
+            const kampagne = kampagnenData.find(k => k.id === kampagneId);
+            if (kampagne) {
+                const datensaetzeUrl = `../datensaetze/index.html?type=kampagne&id=${kampagneId}&name=${encodeURIComponent(kampagne.name)}`;
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'navigate',
+                        url: 'datensaetze/index.html?type=kampagne&id=' + kampagneId + '&name=' + encodeURIComponent(kampagne.name),
+                        section: 'statistics'
+                    }, '*');
+                } else {
+                    window.location.href = datensaetzeUrl;
+                }
+            }
+        }
+
+        function openKampagneGebietRecords(kampagneId, gebietId) {
+            const kampagne = kampagnenData.find(k => k.id === kampagneId);
+            const gebiet = gebieteData.find(g => g.id === gebietId);
+            if (kampagne && gebiet) {
+                const datensaetzeUrl = `../datensaetze/index.html?type=kampagne_gebiet&kampagneId=${kampagneId}&gebietId=${gebietId}&name=${encodeURIComponent(kampagne.name + ' → ' + gebiet.name)}`;
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'navigate',
+                        url: 'datensaetze/index.html?type=kampagne_gebiet&kampagneId=' + kampagneId + '&gebietId=' + gebietId + '&name=' + encodeURIComponent(kampagne.name + ' → ' + gebiet.name),
+                        section: 'statistics'
+                    }, '*');
+                } else {
+                    window.location.href = datensaetzeUrl;
+                }
+            }
+        }
+
+        // ========== SEARCH / FILTER ==========
+        function handleSearch(query) {
+            const search = query.toLowerCase().trim();
+
+            if (currentCategory === 'werber') {
+                // Filter Werber table
+                const rows = document.querySelectorAll('#werberTableBody tr:not(.totals-row)');
+                rows.forEach(row => {
+                    const name = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
+                    row.style.display = name.includes(search) || search === '' ? '' : 'none';
+                });
+            } else if (currentCategory === 'kunden') {
+                // Filter Kunden/Gebiete table (Parent-Child Struktur)
+                const rows = document.querySelectorAll('#kundenGebieteTableBody tr:not(.totals-row)');
+                let lastParentVisible = false;
+                rows.forEach(row => {
+                    if (row.classList.contains('child-row')) {
+                        // Child-Row: zeigen wenn Parent sichtbar oder selbst matcht
+                        const childName = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
+                        const matchesSelf = childName.includes(search);
+                        if (search === '' || lastParentVisible || matchesSelf) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    } else {
+                        // Parent-Row (Kunde)
+                        const name = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
+                        lastParentVisible = search === '' || name.includes(search);
+                        row.style.display = lastParentVisible ? '' : 'none';
+                    }
+                });
+            } else if (currentCategory === 'kampagnen') {
+                // Filter Kampagnen table (Parent-Child Struktur)
+                const rows = document.querySelectorAll('#kampagnenTableBody tr:not(.totals-row)');
+                let lastParentVisible = false;
+                rows.forEach(row => {
+                    if (row.classList.contains('child-row')) {
+                        // Child-Row (Gebiet): zeigen wenn Parent sichtbar oder selbst matcht
+                        const childName = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
+                        const matchesSelf = childName.includes(search);
+                        if (search === '' || lastParentVisible || matchesSelf) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    } else {
+                        // Parent-Row (Kampagne)
+                        const name = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
+                        lastParentVisible = search === '' || name.includes(search);
+                        row.style.display = lastParentVisible ? '' : 'none';
+                    }
+                });
+            }
+
+        }
+
+        // ========== DROPDOWN FUNCTIONS ==========
+        // → Nutzt toggleDropdown() und closeAllDropdowns() aus tabellen.js
+
+        // ========== NAVIGATION FUNCTIONS ==========
+        function openWerberDashboard(werberId, werberName) {
+            // Direkt zur individuellen Dashboard-Seite des Werbers
+            const dashboardUrl = `dashboard.html?type=werber&id=${werberId}&name=${encodeURIComponent(werberName)}`;
+            if (window.parent && window.parent !== window) {
+                // Im iframe: Nachricht an Shell senden um Navigation zu triggern
+                window.parent.postMessage({
+                    type: 'navigate',
+                    url: 'statistik/' + dashboardUrl,
+                    section: 'statistics'
+                }, '*');
+            } else {
+                window.location.href = dashboardUrl;
+            }
+        }
+
+        function openKundeDashboard(kundeId, kundeName) {
+            const dashboardUrl = `dashboard.html?type=kunde&id=${kundeId}&name=${encodeURIComponent(kundeName)}`;
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigate',
+                    url: 'statistik/' + dashboardUrl,
+                    section: 'statistics'
+                }, '*');
+            } else {
+                window.location.href = dashboardUrl;
+            }
+        }
+
+        function openGebietDashboard(gebietId, gebietName) {
+            const dashboardUrl = `dashboard.html?type=gebiet&id=${gebietId}&name=${encodeURIComponent(gebietName)}`;
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigate',
+                    url: 'statistik/' + dashboardUrl,
+                    section: 'statistics'
+                }, '*');
+            } else {
+                window.location.href = dashboardUrl;
+            }
+        }
+
+        // Bestandsmitglieder-Import für ein Werbegebiet öffnen
+        function openBestandsUpload(customerAreaId) {
+            if (typeof openBestandImportModal === 'function') {
+                openBestandImportModal(customerAreaId);
+            } else {
+                showToast('Import-Funktion nicht verfügbar', 'error');
+            }
+        }
+
+        function openKampagneDashboard(kampagneId, kampagneName) {
+            const dashboardUrl = `dashboard.html?type=kampagne&id=${kampagneId}&name=${encodeURIComponent(kampagneName)}`;
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigate',
+                    url: 'statistik/' + dashboardUrl,
+                    section: 'statistics'
+                }, '*');
+            } else {
+                window.location.href = dashboardUrl;
+            }
+        }
+
+        function openStatistics(type, id) {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.href = window.parent.location.pathname + '#statistics';
+                setTimeout(() => {
+                    const iframe = window.parent.document.querySelector('#content-container iframe');
+                    if (iframe) {
+                        iframe.src = `../statistik/dashboard.html?id=${id}&type=${type}`;
+                    }
+                }, 100);
+            } else {
+                window.location.href = `../statistik/dashboard.html?id=${id}&type=${type}`;
+            }
+        }
+
+        // ========== HELPER FUNCTIONS ==========
+        // formatDate, formatCurrency, getStornoClass kommen aus main.js
+
+        function adjustColor(hex, amount) {
+            const num = parseInt(hex.replace('#', ''), 16);
+            const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+            const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+            const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+            return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
+        }
+
+        // ========== SELECTION UI INITIALISIERUNG ==========
+        // Registriere Selection-UI für alle Tabellen (Button + Count)
+        TableCheckbox.registerSelectionUI('werberTableBody', 'werberSelectionGroup', 'werberSelectionCount');
+        TableCheckbox.registerSelectionUI('kundenGebieteTableBody', 'kundenSelectionGroup', 'kundenSelectionCount');
+        TableCheckbox.registerSelectionUI('kampagnenTableBody', 'kampagnenSelectionGroup', 'kampagnenSelectionCount');
+        TableCheckbox.initSelectionUI();
+
+        // ========== EXPAND ALL FUNCTIONS ==========
+        let werberAllExpanded = false;
+        let kundenAllExpanded = true;  // Start expanded
+        let kampagnenAllExpanded = false;
+
+        function toggleAllWerber() {
+            const btn = document.getElementById('toggleAllWerberBtn');
+            const table = document.getElementById('werberTableBody');
+            const expandableRows = table.querySelectorAll('.expandable-row');
+            const childRows = table.querySelectorAll('.child-row');
+
+            werberAllExpanded = !werberAllExpanded;
+
+            expandableRows.forEach(row => {
+                if (werberAllExpanded) {
+                    row.classList.add('open');
+                } else {
+                    row.classList.remove('open');
+                }
+            });
+
+            childRows.forEach(child => {
+                if (werberAllExpanded) {
+                    child.classList.add('visible');
+                } else {
+                    child.classList.remove('visible');
+                }
+            });
+
+            const icon = btn.querySelector('svg');
+            const text = btn.querySelector('span');
+
+            if (werberAllExpanded) {
+                icon.style.transform = 'rotate(180deg)';
+                text.textContent = 'Alle zuklappen';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+                text.textContent = 'Alle aufklappen';
+            }
+        }
+
+        function toggleAllKunden() {
+            const btn = document.getElementById('toggleAllKundenBtn');
+            const table = document.getElementById('kundenGebieteTableBody');
+            const expandableRows = table.querySelectorAll('.expandable-row');
+            const childRows = table.querySelectorAll('.child-row');
+
+            kundenAllExpanded = !kundenAllExpanded;
+
+            expandableRows.forEach(row => {
+                if (kundenAllExpanded) {
+                    row.classList.add('open');
+                } else {
+                    row.classList.remove('open');
+                }
+            });
+
+            childRows.forEach(child => {
+                if (kundenAllExpanded) {
+                    child.classList.add('visible');
+                } else {
+                    child.classList.remove('visible');
+                }
+            });
+
+            const icon = btn.querySelector('.icon');
+
+            if (kundenAllExpanded) {
+                icon.style.transform = 'rotate(180deg)';
+                btn.lastChild.textContent = 'Alle zuklappen';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+                btn.lastChild.textContent = 'Alle aufklappen';
+            }
+        }
+
+        function toggleAllKampagnen() {
+            const btn = document.getElementById('toggleAllKampagnenBtn');
+            const table = document.getElementById('kampagnenTableBody');
+            const expandableRows = table.querySelectorAll('.expandable-row');
+            const childRows = table.querySelectorAll('.child-row');
+
+            kampagnenAllExpanded = !kampagnenAllExpanded;
+
+            expandableRows.forEach(row => {
+                if (kampagnenAllExpanded) {
+                    row.classList.add('open');
+                } else {
+                    row.classList.remove('open');
+                }
+            });
+
+            childRows.forEach(child => {
+                if (kampagnenAllExpanded) {
+                    child.classList.add('visible');
+                } else {
+                    child.classList.remove('visible');
+                }
+            });
+
+            const icon = btn.querySelector('svg');
+            const text = btn.querySelector('span');
+
+            if (kampagnenAllExpanded) {
+                icon.style.transform = 'rotate(180deg)';
+                text.textContent = 'Alle zuklappen';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+                text.textContent = 'Alle aufklappen';
+            }
+        }
+
+        // ========== AUDIT LOG ==========
+        function addAuditEntry(action, recordId, recordName, field, oldValue, newValue) {
+            const entry = {
+                id: Date.now(),
+                action: action, // 'edit', 'delete', 'create'
+                recordId: recordId,
+                recordName: recordName,
+                field: field,
+                oldValue: oldValue,
+                newValue: newValue,
+                timestamp: new Date()
+            };
+
+            auditLog.unshift(entry);
+
+            // Keep only last 25
+            if (auditLog.length > MAX_AUDIT_ENTRIES) {
+                auditLog.pop();
+            }
+
+            renderAuditLog();
+        }
+
+        function renderAuditLog() {
+            const container = document.getElementById('auditList');
+            const badge = document.getElementById('auditBadge');
+
+            badge.textContent = auditLog.length;
+
+            if (auditLog.length === 0) {
+                container.innerHTML = '<div class="audit-empty">Keine Änderungen vorhanden</div>';
+                return;
+            }
+
+            container.innerHTML = auditLog.map(entry => {
+                let iconClass, iconName, actionText;
+
+                switch (entry.action) {
+                    case 'edit':
+                        iconClass = 'edit';
+                        iconName = 'bearbeiten';
+                        const fieldLabel = allColumns[entry.field]?.label || entry.field;
+                        actionText = `<span class="audit-field">${fieldLabel}</span> geändert bei ${escapeHtml(entry.recordName)}`;
+                        break;
+                    case 'delete':
+                        iconClass = 'delete';
+                        iconName = 'loeschen';
+                        actionText = `${escapeHtml(entry.recordName)} gelöscht`;
+                        break;
+                    case 'create':
+                        iconClass = 'create';
+                        iconName = 'plus';
+                        actionText = `${escapeHtml(entry.recordName)} erstellt`;
+                        break;
+                }
+
+                const timeAgo = formatTimeAgo(entry.timestamp);
+
+                return `
+                    <div class="audit-item">
+                        <div class="audit-icon ${iconClass}">
+                            <span class="icon icon--${iconName}"></span>
+                        </div>
+                        <div class="audit-details">
+                            <div class="audit-action">${actionText}</div>
+                            <div class="audit-meta">
+                                <span>${timeAgo}</span>
+                                ${entry.action === 'edit' ? `<span>"${escapeHtml(String(entry.oldValue || '-'))}" → "${escapeHtml(String(entry.newValue || '-'))}"</span>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        // formatTimeAgo kommt aus main.js
+
+    </script>
+</body>
+</html>

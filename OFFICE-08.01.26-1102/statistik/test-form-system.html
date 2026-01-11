@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Form-System</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        /* Temporäre Test-Styles - nur für diese Testseite */
+        .test-info {
+            background: var(--neutral-100);
+            border: 1px dashed var(--neutral-400);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--text-klein);
+            color: var(--text-secondary);
+        }
+
+        .test-info code {
+            background: var(--neutral-200);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body >
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <!-- Zeile 1: Zurück | Links | Mitte | Rechts -->
+            <div class="page-header-row">
+                <button class="btn btn-icon" onclick="window.location.href='index.html'">
+                    <span class="icon icon--pfeil-links"></span>
+                </button>
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Test Form-System</span>
+                </div>
+                <div class="page-header-mitte">
+                    <span class="text-klein">Zuletzt bearbeitet: 27.12.2024</span>
+                </div>
+                <div class="page-header-rechts">
+                    <div class="photo-upload-box">
+                        <div class="photo-upload" onclick="document.getElementById('photoInternal').click()">
+                            <span class="icon icon--person photo-upload-icon"></span>
+                            <img class="photo-upload-preview" id="previewInternal" alt="Intern">
+                        </div>
+                        <span class="photo-upload-label">Intern</span>
+                        <input type="file" id="photoInternal" accept="image/*" hidden>
+                    </div>
+                    <div class="photo-upload-box">
+                        <div class="photo-upload" onclick="document.getElementById('photoExternal').click()">
+                            <span class="icon icon--person photo-upload-icon"></span>
+                            <img class="photo-upload-preview" id="previewExternal" alt="Extern">
+                        </div>
+                        <span class="photo-upload-label">Extern</span>
+                        <input type="file" id="photoExternal" accept="image/*" hidden>
+                    </div>
+                </div>
+            </div>
+            <!-- Zeile 2: Tabs -->
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="tab1">Tab 1: Abschnitte</div>
+                <div class="kw-tab" data-tab="tab4">Tab 2: Modal-Stil</div>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+        <!-- TAB 1: Abschnitte in Cards -->
+        <div id="tab-tab1" class="kw-tab-content active">
+            <div class="test-info">
+                <strong>Prinzip:</strong> <code>.abschnitt--card</code> → <code>.unterabschnitt--card</code> → <code>.zeile</code> (Padding nur hier!)
+            </div>
+
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Persönliche Daten</div>
+                </div>
+
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Name</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Vorname</label>
+                            <input type="text" class="eingabefeld" value="Max">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Nachname</label>
+                            <input type="text" class="eingabefeld" value="Mustermann">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Normale Zeilen zwischen Unterabschnitten -->
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Einzelnes Feld (volle Breite)</label>
+                        <input type="text" class="eingabefeld" value="Test außerhalb von Unterabschnitt">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Feld 1</label>
+                        <input type="text" class="eingabefeld" value="Nebeneinander">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Feld 2</label>
+                        <input type="text" class="eingabefeld" value="Nebeneinander">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Feld 3</label>
+                        <input type="text" class="eingabefeld" value="Nebeneinander">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                        <label class="eingabefeld-beschriftung-oben">Breiteres Feld (flex-2)</label>
+                        <input type="text" class="eingabefeld" value="Doppelte Breite">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                        <label class="eingabefeld-beschriftung-oben">Schmal</label>
+                        <input type="text" class="eingabefeld" value="0.5">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Kontakt</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">E-Mail</label>
+                            <input type="email" class="eingabefeld" value="max@example.com">
+                            <span class="eingabefeld-beschriftung-unten">Hauptkontakt für Benachrichtigungen</span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Telefon</label>
+                            <input type="tel" class="eingabefeld" value="+49 123 456789">
+                            <span class="eingabefeld-beschriftung-unten">Mit Ländervorwahl</span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Mobil</label>
+                            <input type="tel" class="eingabefeld" value="+49 170 1234567">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Geburtsdaten</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Geburtsdatum</label>
+                            <input type="date" class="eingabefeld" value="1985-03-15">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Geburtsort</label>
+                            <input type="text" class="eingabefeld" value="München">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Nationalität</label>
+                            <select class="eingabefeld">
+                                <option selected>Deutsch</option>
+                                <option>Österreichisch</option>
+                                <option>Schweizerisch</option>
+                                <option>Andere</option>
+                            </select>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Zweite Abschnitt-Card -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Berufliche Daten</div>
+                </div>
+
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Arbeitgeber</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Firma</label>
+                            <input type="text" class="eingabefeld" value="Musterfirma GmbH">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Position</label>
+                            <input type="text" class="eingabefeld" value="Entwickler">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Beschäftigt seit</label>
+                        <input type="date" class="eingabefeld" value="2020-01-15">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Vertragsart</label>
+                        <select class="eingabefeld">
+                            <option selected>Unbefristet</option>
+                            <option>Befristet</option>
+                            <option>Freiberuflich</option>
+                        </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Gehalt</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Brutto (€)</label>
+                            <input type="number" class="eingabefeld" value="4500">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Zahlungsintervall</label>
+                            <select class="eingabefeld">
+                                <option selected>Monatlich</option>
+                                <option>Wöchentlich</option>
+                            </select>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Echtes Modal -->
+        <div id="tab-tab4" class="kw-tab-content">
+            <div class="test-info">
+                <strong>Test 2:</strong> Echtes Modal mit zentralen Modal-Klassen. Klick auf Button zum Öffnen.
+            </div>
+
+            <button class="btn btn-primary" onclick="document.getElementById('testModal').classList.add('active')">Modal öffnen</button>
+        </div>
+        </div><!-- /page-content -->
+
+        <!-- Footer Actions -->
+        <div class="page-footer">
+            <button class="btn btn-secondary">Abbrechen</button>
+            <button class="btn btn-primary">Speichern</button>
+        </div>
+    </div>
+
+    <!-- Test Modal -->
+    <div class="modal modal-m" id="testModal">
+        <div class="page-container page-container--modal">
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift">Hans Müller</span>
+                        <span class="text-klein"><span class="pill pill--neumitglied">NMG</span> Erstellt am 10.12.2025</span>
+                    </div>
+                    <div class="page-header-mitte">
+                        <span class="text-ueberschrift">Bearbeiten</span>
+                    </div>
+                    <div class="page-header-rechts">
+                        <button class="btn btn-icon" onclick="document.getElementById('testModal').classList.remove('active')">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="page-content">
+                <!-- Unterabschnitt: Persönliche Daten -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Persönliche Daten</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Anrede</label>
+                            <select class="eingabefeld">
+                                <option>Herr</option>
+                                <option>Frau</option>
+                            </select>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Titel</label>
+                            <input type="text" class="eingabefeld" placeholder="Dr., Prof., etc.">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Vorname</label>
+                            <input type="text" class="eingabefeld" value="Hans">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Nachname</label>
+                            <input type="text" class="eingabefeld" value="Müller">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unterabschnitt: Adresse -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Adresse</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                            <label class="eingabefeld-beschriftung-oben">Straße</label>
+                            <input type="text" class="eingabefeld" value="Hauptstraße">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                            <label class="eingabefeld-beschriftung-oben">Nr.</label>
+                            <input type="text" class="eingabefeld" value="1">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                            <label class="eingabefeld-beschriftung-oben">PLZ</label>
+                            <input type="text" class="eingabefeld" value="10115">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                            <label class="eingabefeld-beschriftung-oben">Ort</label>
+                            <input type="text" class="eingabefeld" value="Berlin">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unterabschnitt: Beitrag -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Beitrag</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Betrag (€)</label>
+                            <input type="number" class="eingabefeld" value="10">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Intervall</label>
+                            <select class="eingabefeld">
+                                <option>Monatlich</option>
+                                <option>Vierteljährlich</option>
+                                <option>Jährlich</option>
+                            </select>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Jahresbetrag</label>
+                            <input type="text" class="eingabefeld" value="€ 120" readonly>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Einzelne Felder (nicht in Unterabschnitt) -->
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Notizen</label>
+                        <textarea class="eingabefeld" rows="3" placeholder="Zusätzliche Informationen..."></textarea>
+                        <span class="eingabefeld-beschriftung-unten">Optional: Interne Bemerkungen</span>
+                    </div>
+                </div>
+
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">IBAN</label>
+                        <input type="text" class="eingabefeld" placeholder="DE00 0000 0000 0000 0000 00">
+                        <span class="eingabefeld-beschriftung-unten">Internationale Bankkontonummer</span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">BIC</label>
+                        <input type="text" class="eingabefeld" placeholder="XXXXXXXX">
+                        <span class="eingabefeld-beschriftung-unten">Bank Identifier Code</span>
+                    </div>
+                </div>
+
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Startdatum</label>
+                        <input type="date" class="eingabefeld">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Status</label>
+                        <select class="eingabefeld">
+                            <option>Aktiv</option>
+                            <option>Pausiert</option>
+                            <option>Beendet</option>
+                        </select>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="page-footer">
+                <button class="btn btn-secondary" onclick="document.getElementById('testModal').classList.remove('active')">Abbrechen</button>
+                <button class="btn btn-primary">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Zentrale Tab-Funktion verwenden
+        initTabs('.kw-tab', '.kw-tab-content');
+
+        // Modal schließen bei Klick auf Overlay
+        document.getElementById('testModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

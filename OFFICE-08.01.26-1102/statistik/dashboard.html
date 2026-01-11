@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistik Dashboard - RB Inside Office</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body >
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <!-- Zeile 1: Zurück | Links | Mitte | Rechts -->
+            <div class="page-header-row">
+                <button class="btn btn-icon" onclick="history.back()">
+                    <span class="icon icon--pfeil-links"></span>
+                </button>
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="profileName">Max Mustermann</span>
+                    <span class="text-klein">Mitarbeiternummer: <span id="employeeId">MA-001</span> • Erstellt am: <span id="createdDate">01.01.2024</span></span>
+                </div>
+                <div class="page-header-mitte">
+                    <span class="text-ueberschrift">Statistik Dashboard</span>
+                </div>
+                <div class="page-header-rechts">
+                </div>
+            </div>
+            <!-- Lokale Tabs (per Klick navigierbar) -->
+            <div class="page-header-tabs" id="dashboardSubTabs">
+                <div class="kw-tab active" data-tab="uebersicht">Übersicht</div>
+                <div class="kw-tab" data-tab="werben">Werben</div>
+                <div class="kw-tab" data-tab="teamleitung">Teamleitung</div>
+                <div class="kw-tab" data-tab="quality">Quality</div>
+                <div class="kw-tab" data-tab="recruiting">Recruiting</div>
+                <div class="kw-tab" data-tab="empfehlung">Empfehlung</div>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- TAB: Übersicht -->
+            <div class="kw-tab-content active" id="tab-uebersicht">
+                <!-- Werber: Übersicht mit zusammengefasster Tabelle -->
+                <div class="abschnitt--card--umrandet" id="uebersichtPlaceholder">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Übersicht</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="uebersichtStatsTableContainer" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- Kunde/Kampagne/Gebiet: voller Inhalt -->
+                <div id="kundeKampagneContent" style="display: none;">
+                    <div class="abschnitt--card--umrandet">
+                        <div class="zeile zeile--header">
+                            <div class="text-ueberschrift-abschnitt">Stats</div>
+                        </div>
+                        <div class="zeile">
+                            <div id="kkStatsTableContainer" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="abschnitt--card--umrandet">
+                        <div class="zeile zeile--header">
+                            <div class="text-ueberschrift-abschnitt">Wochenverlauf</div>
+                        </div>
+                        <div class="zeile">
+                            <div style="height: 280px; width: 100%;">
+                                <canvas id="kkChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="abschnitt--card--umrandet">
+                        <div class="zeile zeile--header">
+                            <div class="text-ueberschrift-abschnitt">Einsätze</div>
+                        </div>
+                        <div class="zeile">
+                            <div id="kkEinsatzTimeline" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="abschnitt--card--umrandet">
+                        <div class="zeile zeile--header">
+                            <div class="text-ueberschrift-abschnitt">Achievements</div>
+                        </div>
+                        <div class="zeile">
+                            <div class="achievement-grid" id="kkAchievementGrid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Werben -->
+            <div class="kw-tab-content" id="tab-werben">
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="statsTableContainer" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Wochenverlauf</div>
+                    </div>
+                    <div class="zeile">
+                        <div style="height: 280px; width: 100%;">
+                            <canvas id="werbenChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Einsätze</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="einsatzTimeline" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="achievementGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Teamleitung -->
+            <div class="kw-tab-content" id="tab-teamleitung">
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="tlStatsTableContainer" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Wochenverlauf</div>
+                    </div>
+                    <div class="zeile">
+                        <div style="height: 280px; width: 100%;">
+                            <canvas id="teamleitungChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Einsätze</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="tlEinsatzTimeline" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="tlAchievementGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Quality -->
+            <div class="kw-tab-content" id="tab-quality">
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="qStatsTableContainer" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Wochenverlauf</div>
+                    </div>
+                    <div class="zeile">
+                        <div style="height: 280px; width: 100%;">
+                            <canvas id="qualityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Einsätze</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="qEinsatzTimeline" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="qAchievementGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Recruiting -->
+            <div class="kw-tab-content" id="tab-recruiting">
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="rStatsTableContainer" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Recruiting-Baum</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="rContentContainer" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="rAchievementGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Empfehlung -->
+            <div class="kw-tab-content" id="tab-empfehlung">
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Stats</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="eStatsTableContainer" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Empfehlungs-Baum</div>
+                    </div>
+                    <div class="zeile">
+                        <div id="eContentContainer" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="abschnitt--card--umrandet">
+                    <div class="zeile zeile--header">
+                        <div class="text-ueberschrift-abschnitt">Achievements</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="achievement-grid" id="eAchievementGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /page-content -->
+    </div>
+
+    <script>
+        // =============================================
+        // SUPABASE CLIENT
+        // =============================================
+        const supabase = window.parent.supabaseClient;
+
+        // =============================================
+        // URL-PARAMETER & INITIALISIERUNG
+        // =============================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const personId = urlParams.get('id');
+        const personType = urlParams.get('type');
+        const personName = urlParams.get('name');
+
+        // =============================================
+        // KARRIERESTUFEN/FAKTOR DES BOTSCHAFTERS
+        // =============================================
+        let userCareerRoles = [];
+
+        async function loadUserCareerRoles() {
+            if (!personId || personType !== 'werber') return;
+
+            try {
+                const { data: roles, error } = await supabase
+                    .from('user_roles')
+                    .select('*')
+                    .eq('user_id', personId)
+                    .eq('role_type', 'career')
+                    .order('assigned_at', { ascending: true });
+
+                if (error) throw error;
+                userCareerRoles = roles || [];
+            } catch (error) {
+                console.error('Fehler beim Laden der Karrierestufen:', error);
+            }
+        }
+
+        // Faktor für ein bestimmtes Datum ermitteln
+        function getFaktorForDate(dateStr) {
+            if (!dateStr || userCareerRoles.length === 0) return 0;
+
+            const date = dateStr.split('T')[0]; // YYYY-MM-DD
+
+            // Passenden Eintrag finden (assigned_at <= date <= valid_until)
+            for (const role of userCareerRoles) {
+                const start = role.assigned_at;
+                const end = role.valid_until || '9999-12-31';
+
+                if (date >= start && date <= end) {
+                    return role.factor || 0;
+                }
+            }
+
+            return 0;
+        }
+
+        if (personName) {
+            document.getElementById('profileName').textContent = decodeURIComponent(personName);
+        }
+
+        // =============================================
+        // SHELL-TOOLBAR AKTIVIEREN
+        // =============================================
+        if (window.parent !== window) {
+            window.parent.postMessage({
+                type: 'updateToolbar',
+                config: {
+                    showToolbar: true,
+                    searchPlaceholder: 'Benutzer, Kampagne, Kunde suchen...'
+                }
+            }, '*');
+        }
+
+        // =============================================
+        // SUCHDATEN AUS SUPABASE
+        // =============================================
+        let allSearchItems = [];
+
+        async function loadSearchData() {
+            try {
+                // Werber laden
+                const { data: werber } = await supabase
+                    .from('users')
+                    .select('id, name')
+                    .eq('role', 'werber');
+
+                // Kunden laden
+                const { data: kunden } = await supabase
+                    .from('customers')
+                    .select('id, name, full_name');
+
+                // Kampagnen laden
+                const { data: kampagnen } = await supabase
+                    .from('campaigns')
+                    .select('id, name');
+
+                // Gebiete laden
+                const { data: gebiete } = await supabase
+                    .from('customer_areas')
+                    .select('id, name');
+
+                // Alle zusammenfügen
+                allSearchItems = [
+                    ...(werber || []).map(w => ({ id: w.id, name: w.name, type: 'werber' })),
+                    ...(kunden || []).map(k => ({ id: k.id, name: k.full_name || k.name, type: 'kunde' })),
+                    ...(kampagnen || []).map(k => ({ id: k.id, name: k.name, type: 'kampagne' })),
+                    ...(gebiete || []).map(g => ({ id: g.id, name: g.name, type: 'gebiet' }))
+                ];
+            } catch (error) {
+                console.error('Fehler beim Laden der Suchdaten:', error);
+            }
+        }
+
+        // =============================================
+        // PERIOD FILTER
+        // =============================================
+        let currentPeriod = 'year';
+        let periodStartDate = null;
+        let periodEndDate = null;
+
+        function calculatePeriodDates(period) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            let start = null;
+            let end = null;
+
+            switch (period) {
+                case 'today':
+                    start = today;
+                    end = today;
+                    break;
+                case 'week':
+                    const dayOfWeek = today.getDay() || 7;
+                    start = new Date(today);
+                    start.setDate(today.getDate() - dayOfWeek + 1);
+                    end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    break;
+                case 'month':
+                    start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    break;
+                case 'quarter':
+                    const quarter = Math.floor(now.getMonth() / 3);
+                    start = new Date(now.getFullYear(), quarter * 3, 1);
+                    end = new Date(now.getFullYear(), quarter * 3 + 3, 0);
+                    break;
+                case 'year':
+                    start = new Date(now.getFullYear(), 0, 1);
+                    end = new Date(now.getFullYear(), 11, 31);
+                    break;
+                case 'all':
+                case 'custom':
+                default:
+                    start = null;
+                    end = null;
+                    break;
+            }
+
+            return { start, end };
+        }
+
+        // Initial: "Dieses Jahr" setzen
+        (function() {
+            const initial = calculatePeriodDates('year');
+            periodStartDate = initial.start;
+            periodEndDate = initial.end;
+        })();
+
+        async function filterByPeriod(period) {
+            currentPeriod = period;
+            const { start, end } = calculatePeriodDates(period);
+            periodStartDate = start;
+            periodEndDate = end;
+
+            // Daten neu laden und Dashboard neu rendern
+            await reloadDashboardData();
+        }
+
+        async function applyCustomDateRange(fromStr, toStr) {
+            function parseDateStr(str) {
+                if (!str) return null;
+                const parts = str.split('.');
+                if (parts.length === 3) {
+                    return new Date(parts[2], parts[1] - 1, parts[0]);
+                }
+                return null;
+            }
+
+            periodStartDate = parseDateStr(fromStr);
+            periodEndDate = parseDateStr(toStr);
+            currentPeriod = 'custom';
+
+            await reloadDashboardData();
+        }
+
+        async function reloadDashboardData() {
+            // Daten neu laden mit aktuellem Filter
+            await Promise.all([
+                calculatePersonStats(),
+                calculateWeeklyChartData(),
+                loadEinsaetze(),
+                calculateAchievements()
+            ]);
+
+            // Dashboard neu rendern
+            renderDashboard();
+        }
+
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'searchQuery') {
+                const query = e.data.query.toLowerCase().trim();
+                if (!query) return;
+
+                const results = allSearchItems
+                    .filter(item => item.name.toLowerCase().includes(query))
+                    .slice(0, 10)
+                    .map(item => ({ id: item.id, name: item.name, type: item.type }));
+
+                window.parent.postMessage({
+                    type: 'searchResults',
+                    query: query,
+                    headerText: 'Ergebnisse',
+                    results: results
+                }, '*');
+            }
+
+            if (e.data && e.data.type === 'searchSelect') {
+                const selectedItem = allSearchItems.find(item => item.id === e.data.id);
+                if (selectedItem) {
+                    window.location.href = `dashboard.html?id=${selectedItem.id}&type=${selectedItem.type}&name=${encodeURIComponent(selectedItem.name)}`;
+                }
+            }
+
+            // Period Filter von Shell
+            if (e.data && e.data.type === 'periodFilter') {
+                filterByPeriod(e.data.value);
+            }
+
+            // Custom Date Range von Shell
+            if (e.data && e.data.type === 'customDateRangeApplied') {
+                applyCustomDateRange(e.data.dateFrom, e.data.dateTo);
+            }
+        });
+
+        // =============================================
+        // STATS AUS SUPABASE BERECHNEN
+        // =============================================
+        let calculatedUebersichtRows = null;
+        let weeklyChartData = null;
+
+        async function calculatePersonStats() {
+            if (!personId || personType !== 'werber') return;
+
+            try {
+                // Records laden mit Zeitraum-Filter (nach Aufnahmedatum = start_date)
+                let query = supabase
+                    .from('records')
+                    .select('id, record_type, record_status, yearly_amount, amount, interval, birth_date, email, contact_email, phone_mobile, contact_phone, werber_id, teamchef_id, quality_id, start_date, kw, year');
+
+                if (periodStartDate) {
+                    query = query.gte('start_date', periodStartDate.toISOString().split('T')[0]);
+                }
+                if (periodEndDate) {
+                    query = query.lte('start_date', periodEndDate.toISOString().split('T')[0] + 'T23:59:59');
+                }
+
+                const { data: records, error } = await query;
+
+                if (error) throw error;
+
+                // Hilfsfunktion: Stats für eine Record-Gruppe berechnen
+                function calcStats(recs, label) {
+                    const aktiv = recs.filter(r => r.record_status === 'aktiv');
+                    const storno = recs.filter(r => r.record_status === 'storno');
+                    const nmg = aktiv.filter(r => r.record_type === 'neumitglied');
+                    const erh = aktiv.filter(r => r.record_type === 'erhoehung');
+
+                    const totalJE = aktiv.reduce((sum, r) => sum + (parseFloat(r.yearly_amount) || 0), 0);
+                    const einheiten = Math.round(totalJE / 12 * 100) / 100;
+
+                    // Stornoquoten
+                    const stornoQuoteGesamt = recs.length > 0 ? (storno.length / recs.length * 100) : 0;
+                    const nmgStorno = recs.filter(r => r.record_type === 'neumitglied' && r.record_status === 'storno').length;
+                    const nmgTotal = recs.filter(r => r.record_type === 'neumitglied').length;
+                    const stornoQuoteMg = nmgTotal > 0 ? (nmgStorno / nmgTotal * 100) : 0;
+                    const erhStorno = recs.filter(r => r.record_type === 'erhoehung' && r.record_status === 'storno').length;
+                    const erhTotal = recs.filter(r => r.record_type === 'erhoehung').length;
+                    const stornoQuoteEur = erhTotal > 0 ? (erhStorno / erhTotal * 100) : 0;
+
+                    // Durchschnittsbeitrag
+                    const avgBeitrag = aktiv.length > 0 ? (aktiv.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0) / aktiv.length) : 0;
+
+                    // Durchschnittsalter
+                    const ages = aktiv.filter(r => r.birth_date).map(r => {
+                        const birth = new Date(r.birth_date);
+                        const today = new Date();
+                        return Math.floor((today - birth) / (365.25 * 24 * 60 * 60 * 1000));
+                    });
+                    const avgAlter = ages.length > 0 ? Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) : 0;
+
+                    // Mail/Tel OptIn
+                    const withEmail = aktiv.filter(r => r.email).length;
+                    const withEmailOptin = aktiv.filter(r => r.email && r.contact_email).length;
+                    const mailOptin = aktiv.length > 0 ? `${Math.round(withEmail / aktiv.length * 100)}% / ${Math.round(withEmailOptin / aktiv.length * 100)}%` : '—';
+
+                    const withPhone = aktiv.filter(r => r.phone_mobile).length;
+                    const withPhoneOptin = aktiv.filter(r => r.phone_mobile && r.contact_phone).length;
+                    const telOptin = aktiv.length > 0 ? `${Math.round(withPhone / aktiv.length * 100)}% / ${Math.round(withPhoneOptin / aktiv.length * 100)}%` : '—';
+
+                    // Zahlungsrhythmus
+                    const intervals = { m: 0, qt: 0, hj: 0, j: 0 };
+                    aktiv.forEach(r => {
+                        if (r.interval === 'monthly') intervals.m++;
+                        else if (r.interval === 'quarterly') intervals.qt++;
+                        else if (r.interval === 'halfyearly') intervals.hj++;
+                        else if (r.interval === 'yearly') intervals.j++;
+                    });
+                    const total = intervals.m + intervals.qt + intervals.hj + intervals.j;
+                    const zahlungsrhythmus = total > 0 ? {
+                        m: Math.round(intervals.m / total * 100),
+                        qt: Math.round(intervals.qt / total * 100),
+                        hj: Math.round(intervals.hj / total * 100),
+                        j: Math.round(intervals.j / total * 100)
+                    } : null;
+
+                    // Provision berechnen: Für jeden Record den Faktor aus dem passenden Zeitraum holen
+                    let totalProvision = 0;
+                    let avgFaktor = 0;
+
+                    if (aktiv.length > 0) {
+                        aktiv.forEach(r => {
+                            const recordJE = parseFloat(r.yearly_amount) || 0;
+                            const recordEH = recordJE / 12;
+                            const faktorForRecord = getFaktorForDate(r.start_date);
+                            totalProvision += recordEH * faktorForRecord;
+                        });
+                        // Durchschnittlicher Faktor für Anzeige
+                        avgFaktor = einheiten > 0 ? Math.round(totalProvision / einheiten * 10) / 10 : 0;
+                    }
+
+                    const provision = Math.round(totalProvision);
+
+                    return {
+                        kategorie: label,
+                        type: 'netto',
+                        anzahl: aktiv.length,
+                        jahreseuros: `${totalJE.toLocaleString('de-DE')} €`,
+                        einheiten: einheiten,
+                        ruecklaufquote: `${stornoQuoteGesamt.toFixed(1)}%`,
+                        ruecklaufquoteMg: stornoQuoteMg > 0 ? `${stornoQuoteMg.toFixed(1)}%` : '—',
+                        ruecklaufquoteEur: stornoQuoteEur > 0 ? `${stornoQuoteEur.toFixed(1)}%` : '—',
+                        beitrag: `${avgBeitrag.toFixed(2)} €`,
+                        alter: avgAlter,
+                        mailOptin: mailOptin,
+                        telOptin: telOptin,
+                        zahlungsrhythmus: zahlungsrhythmus,
+                        provision: `${provision.toLocaleString('de-DE')} €`,
+                        faktor: avgFaktor
+                    };
+                }
+
+                // Funktion um Children (NMG/Erhöhung) zu erstellen
+                function createChildren(recs) {
+                    const nmg = recs.filter(r => r.record_type === 'neumitglied');
+                    const erh = recs.filter(r => r.record_type === 'erhoehung');
+                    return [
+                        { ...calcStats(nmg, 'Neumitglieder') },
+                        { ...calcStats(erh, 'Erhöhungen') }
+                    ];
+                }
+
+                // Records nach Rolle filtern
+                const werbenRecords = records.filter(r => r.werber_id === personId);
+                const tlRecords = records.filter(r => r.teamchef_id === personId);
+                const qRecords = records.filter(r => r.quality_id === personId);
+
+                // TODO: Recruiting/Empfehlung Records müssen noch über user_recruitments geladen werden
+                const rRecords = []; // Placeholder
+                const eRecords = []; // Placeholder
+
+                calculatedUebersichtRows = [
+                    { ...calcStats(werbenRecords, 'Netto Mitglieder Werben'), children: createChildren(werbenRecords) },
+                    { ...calcStats(tlRecords, 'Netto Mitglieder Teamleitung'), children: createChildren(tlRecords) },
+                    { ...calcStats(qRecords, 'Netto Mitglieder Quality'), children: createChildren(qRecords) },
+                    { ...calcStats(rRecords, 'Netto Mitglieder Recruiting'), children: createChildren(rRecords) },
+                    { ...calcStats(eRecords, 'Netto Mitglieder Empfehlung'), children: createChildren(eRecords) }
+                ];
+
+            } catch (error) {
+                console.error('Fehler beim Berechnen der Person-Stats:', error);
+            }
+        }
+
+        // =============================================
+        // WOCHENVERLAUF-CHART AUS SUPABASE
+        // =============================================
+        let tlWeeklyChartData = null;
+        let qWeeklyChartData = null;
+
+        async function calculateWeeklyChartData() {
+            if (!personId) return;
+
+            try {
+                // Query-Builder mit Zeitraum-Filter
+                function buildQuery(roleField, roleId) {
+                    let query = supabase
+                        .from('records')
+                        .select('record_type, yearly_amount, record_status, start_date')
+                        .eq('record_status', 'aktiv')
+                        .eq(roleField, roleId);
+
+                    if (periodStartDate) {
+                        query = query.gte('start_date', periodStartDate.toISOString().split('T')[0]);
+                    }
+                    if (periodEndDate) {
+                        query = query.lte('start_date', periodEndDate.toISOString().split('T')[0] + 'T23:59:59');
+                    }
+
+                    return query;
+                }
+
+                // Hilfsfunktion: ISO-Woche aus Datum
+                function getIsoWeek(date) {
+                    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+                    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                    return { year: d.getUTCFullYear(), kw: Math.ceil((((d - yearStart) / 86400000) + 1) / 7) };
+                }
+
+                // Hilfsfunktion: Quartal aus Datum
+                function getQuarter(date) {
+                    return { year: date.getFullYear(), q: Math.floor(date.getMonth() / 3) + 1 };
+                }
+
+                // Hilfsfunktion: Halbjahr aus Datum
+                function getHalfYear(date) {
+                    return { year: date.getFullYear(), h: date.getMonth() < 6 ? 1 : 2 };
+                }
+
+                // Dynamische Chart-Daten basierend auf Datenspanne
+                // Ziel: Alle Daten in ~7 Buckets darstellen, Granularität passend wählen
+                function buildChartData(records) {
+                    if (!records || records.length === 0) {
+                        return { labels: [], nmgJE: [], erhJE: [], nmgAnzahl: [], erhAnzahl: [], gesamtAnzahl: [] };
+                    }
+
+                    // Min/Max Datum aus Records ermitteln
+                    const dates = records.map(r => new Date(r.start_date)).filter(d => !isNaN(d));
+                    if (dates.length === 0) {
+                        return { labels: [], nmgJE: [], erhJE: [], nmgAnzahl: [], erhAnzahl: [], gesamtAnzahl: [] };
+                    }
+
+                    const minDate = new Date(Math.min(...dates));
+                    const maxDate = new Date(Math.max(...dates));
+                    const daySpan = Math.ceil((maxDate - minDate) / (24 * 60 * 60 * 1000)) + 1;
+
+                    // Granularität so wählen, dass alle Daten in ~7 Buckets passen
+                    // Tage: ≤7 Tage, Wochen: ≤7 Wochen (~49 Tage), Monate: ≤7 Monate (~210 Tage),
+                    // Quartale: ≤7 Quartale (~630 Tage), Halbjahre: ≤7 Halbjahre (~1260 Tage), Jahre: >1260 Tage
+                    let granularity = 'days';
+                    if (daySpan > 7) granularity = 'weeks';
+                    if (daySpan > 49) granularity = 'months';
+                    if (daySpan > 210) granularity = 'quarters';
+                    if (daySpan > 630) granularity = 'halfyears';
+                    if (daySpan > 1260) granularity = 'years';
+
+                    const buckets = {};
+                    const dayLabels = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+                    const monthLabels = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+
+                    // Records in Buckets einordnen
+                    records.forEach(r => {
+                        const date = new Date(r.start_date);
+                        if (isNaN(date)) return;
+
+                        let bucketKey, bucketLabel;
+
+                        switch (granularity) {
+                            case 'days':
+                                bucketKey = r.start_date.split('T')[0];
+                                bucketLabel = `${dayLabels[date.getDay()]} ${date.getDate()}.${date.getMonth() + 1}`;
+                                break;
+                            case 'weeks':
+                                const { year: wy, kw } = getIsoWeek(date);
+                                bucketKey = `${wy}-W${String(kw).padStart(2, '0')}`;
+                                bucketLabel = `KW${kw}`;
+                                break;
+                            case 'months':
+                                bucketKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                                bucketLabel = `${monthLabels[date.getMonth()]} ${date.getFullYear().toString().slice(-2)}`;
+                                break;
+                            case 'quarters':
+                                const { year: qy, q } = getQuarter(date);
+                                bucketKey = `${qy}-Q${q}`;
+                                bucketLabel = `Q${q}/${qy.toString().slice(-2)}`;
+                                break;
+                            case 'halfyears':
+                                const { year: hy, h } = getHalfYear(date);
+                                bucketKey = `${hy}-H${h}`;
+                                bucketLabel = `H${h}/${hy.toString().slice(-2)}`;
+                                break;
+                            case 'years':
+                                bucketKey = `${date.getFullYear()}`;
+                                bucketLabel = `${date.getFullYear()}`;
+                                break;
+                        }
+
+                        if (!buckets[bucketKey]) {
+                            buckets[bucketKey] = { label: bucketLabel, nmgJE: 0, erhJE: 0, nmgCount: 0, erhCount: 0 };
+                        }
+
+                        const je = parseFloat(r.yearly_amount) || 0;
+                        if (r.record_type === 'neumitglied') {
+                            buckets[bucketKey].nmgJE += je;
+                            buckets[bucketKey].nmgCount++;
+                        } else if (r.record_type === 'erhoehung') {
+                            buckets[bucketKey].erhJE += je;
+                            buckets[bucketKey].erhCount++;
+                        }
+                    });
+
+                    // Alle Buckets sortiert zurückgeben (keine Begrenzung - alle Daten zeigen)
+                    const sortedBuckets = Object.entries(buckets)
+                        .sort((a, b) => a[0].localeCompare(b[0]));
+
+                    return {
+                        labels: sortedBuckets.map(([_, d]) => d.label),
+                        nmgJE: sortedBuckets.map(([_, d]) => Math.round(d.nmgJE)),
+                        erhJE: sortedBuckets.map(([_, d]) => Math.round(d.erhJE)),
+                        nmgAnzahl: sortedBuckets.map(([_, d]) => d.nmgCount),
+                        erhAnzahl: sortedBuckets.map(([_, d]) => d.erhCount),
+                        gesamtAnzahl: sortedBuckets.map(([_, d]) => d.nmgCount + d.erhCount)
+                    };
+                }
+
+                if (personType === 'werber') {
+                    const { data: werberRecords } = await buildQuery('werber_id', personId);
+                    const { data: tlRecords } = await buildQuery('teamchef_id', personId);
+                    const { data: qRecords } = await buildQuery('quality_id', personId);
+
+                    weeklyChartData = buildChartData(werberRecords);
+                    tlWeeklyChartData = buildChartData(tlRecords);
+                    qWeeklyChartData = buildChartData(qRecords);
+
+                } else if (personType === 'kunde') {
+                    const { data: records } = await buildQuery('customer_id', personId);
+                    weeklyChartData = buildChartData(records);
+
+                } else if (personType === 'kampagne') {
+                    const { data: records } = await buildQuery('campaign_id', personId);
+                    weeklyChartData = buildChartData(records);
+                }
+
+            } catch (error) {
+                console.error('Fehler beim Berechnen der Wochenverlauf-Daten:', error);
+            }
+        }
+
+        // =============================================
+        // EINSÄTZE AUS SUPABASE LADEN
+        // =============================================
+        let einsaetzeData = [];
+        let tlEinsaetzeData = [];
+        let qEinsaetzeData = [];
+
+        async function loadEinsaetze() {
+            if (!personId) return;
+
+            try {
+                // Kampagnen und Gebiete für Namen laden (inkl. year, kw_from, kw_to für Zeitraum)
+                const { data: campaigns } = await supabase.from('campaigns').select('id, name, year, kw_from, kw_to');
+                const { data: areas } = await supabase.from('campaign_areas').select('id, name');
+                const campaignMap = Object.fromEntries((campaigns || []).map(c => [c.id, c]));
+                const areaMap = Object.fromEntries((areas || []).map(a => [a.id, a.name]));
+
+                // Hilfsfunktion: KW + Jahr zu deutschem Datum konvertieren
+                function kwToGermanDate(year, kw, isEnd = false) {
+                    if (!year || !kw) return null;
+                    const jan4 = new Date(year, 0, 4);
+                    const dayOfWeek = jan4.getDay() || 7;
+                    const firstMonday = new Date(jan4);
+                    firstMonday.setDate(jan4.getDate() - dayOfWeek + 1);
+                    const targetDate = new Date(firstMonday);
+                    targetDate.setDate(firstMonday.getDate() + (kw - 1) * 7 + (isEnd ? 6 : 0));
+                    const day = String(targetDate.getDate()).padStart(2, '0');
+                    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+                    return `${day}.${month}.${targetDate.getFullYear()}`;
+                }
+
+                // Hilfsfunktion: Einsätze für eine Rolle berechnen
+                function buildEinsaetze(attendance, records) {
+                    const einsatzMap = {};
+                    (attendance || []).forEach(a => {
+                        if (!einsatzMap[a.campaign_id]) {
+                            einsatzMap[a.campaign_id] = { kws: new Set(), tage: 0, minKw: Infinity, maxKw: -Infinity };
+                        }
+                        einsatzMap[a.campaign_id].kws.add(a.kw);
+                        if (a.kw < einsatzMap[a.campaign_id].minKw) einsatzMap[a.campaign_id].minKw = a.kw;
+                        if (a.kw > einsatzMap[a.campaign_id].maxKw) einsatzMap[a.campaign_id].maxKw = a.kw;
+                        const days = [a.day_0, a.day_1, a.day_2, a.day_3, a.day_4, a.day_5, a.day_6].filter(d => d).length;
+                        einsatzMap[a.campaign_id].tage += days;
+                    });
+
+                    const recordStats = {};
+                    (records || []).forEach(r => {
+                        if (!recordStats[r.campaign_id]) {
+                            recordStats[r.campaign_id] = { mg: 0, je: 0, storno: 0, total: 0 };
+                        }
+                        recordStats[r.campaign_id].total++;
+                        if (r.record_status === 'aktiv') {
+                            recordStats[r.campaign_id].mg++;
+                            recordStats[r.campaign_id].je += (r.yearly_amount || 0);
+                        } else if (r.record_status === 'storno') {
+                            recordStats[r.campaign_id].storno++;
+                        }
+                    });
+
+                    return Object.entries(einsatzMap).map(([campaignId, data]) => {
+                        const campaign = campaignMap[campaignId] || {};
+                        const stats = recordStats[campaignId] || { mg: 0, je: 0, storno: 0, total: 0 };
+                        const stornoquote = stats.total > 0 ? (stats.storno / stats.total * 100) : 0;
+                        const year = campaign.year || new Date().getFullYear();
+                        const von = data.minKw !== Infinity ? kwToGermanDate(year, data.minKw, false) : null;
+                        const bis = data.maxKw !== -Infinity ? kwToGermanDate(year, data.maxKw, true) : null;
+
+                        return {
+                            kampagne: campaign.name || 'Unbekannt',
+                            gebiet: '-',
+                            von: von,
+                            bis: bis,
+                            mg: stats.mg,
+                            je: stats.je,
+                            eh: Math.round(stats.je / 60 * 10) / 10,
+                            effizienz: data.tage > 0 ? Math.round(stats.mg / data.tage * 100) : 0,
+                            stornoquote: Math.round(stornoquote * 10) / 10
+                        };
+                    });
+                }
+
+                // Query-Builder für Records mit Zeitraum-Filter
+                function buildRecordQuery(roleField, roleId) {
+                    let query = supabase
+                        .from('records')
+                        .select('campaign_id, yearly_amount, record_status, start_date')
+                        .eq(roleField, roleId);
+
+                    if (periodStartDate) {
+                        query = query.gte('start_date', periodStartDate.toISOString().split('T')[0]);
+                    }
+                    if (periodEndDate) {
+                        query = query.lte('start_date', periodEndDate.toISOString().split('T')[0] + 'T23:59:59');
+                    }
+
+                    return query;
+                }
+
+                if (personType === 'werber') {
+                    // Werber: Attendance laden
+                    const { data: attendance } = await supabase
+                        .from('campaign_attendance')
+                        .select('campaign_id, kw, day_0, day_1, day_2, day_3, day_4, day_5, day_6')
+                        .eq('user_id', personId);
+
+                    // Records für verschiedene Rollen laden (mit Zeitraum-Filter)
+                    const { data: werberRecords } = await buildRecordQuery('werber_id', personId);
+                    const { data: tlRecords } = await buildRecordQuery('teamchef_id', personId);
+                    const { data: qRecords } = await buildRecordQuery('quality_id', personId);
+
+                    // Einsätze pro Rolle berechnen
+                    einsaetzeData = buildEinsaetze(attendance, werberRecords);
+                    tlEinsaetzeData = buildEinsaetze(attendance, tlRecords);
+                    qEinsaetzeData = buildEinsaetze(attendance, qRecords);
+
+                } else if (personType === 'kampagne') {
+                    const { data: attendance } = await supabase
+                        .from('campaign_attendance')
+                        .select('campaign_id, kw, day_0, day_1, day_2, day_3, day_4, day_5, day_6')
+                        .eq('campaign_id', personId);
+
+                    const { data: records } = await buildRecordQuery('campaign_id', personId);
+
+                    einsaetzeData = buildEinsaetze(attendance, records);
+
+                } else if (personType === 'kunde') {
+                    const { data: records } = await buildRecordQuery('customer_id', personId);
+
+                    einsaetzeData = buildEinsaetze([], records);
+                }
+
+            } catch (error) {
+                console.error('Fehler beim Laden der Einsätze:', error);
+            }
+        }
+
+        // Achievement-Typen
+        const werbenAchievementTypes = [
+            { id: 'mg_tag', name: 'Meiste Mitglieder an einem Tag' },
+            { id: 'eh_tag', name: 'Meiste EH an einem Tag' },
+            { id: 'mg_woche', name: 'Meiste Mitglieder in einer Woche' },
+            { id: 'eh_woche', name: 'Meiste EH in einer Woche' },
+            { id: 'schrieb_nmg', name: 'Höchster Schrieb Neumitglied' },
+            { id: 'beitragsanpassung', name: 'Höchste positive Beitragsanpassung' },
+            { id: 'mg_stunde', name: 'Meiste Mitglieder in 1 Stunde' },
+            { id: 'eh_durchschnitt_tag', name: 'Höchster Ø EH pro MG an einem Tag' },
+            { id: 'serie_stunde', name: 'Längste Stundenserie' },
+            { id: 'serie_15min', name: 'Längste 15-Minuten-Serie' },
+            { id: 'tage_am_stueck', name: 'Meiste Tage am Stück im Einsatz' },
+            { id: 'stornoquote_woche', name: 'Beste Stornoquote in einer Woche' },
+            { id: 'eh_stunde', name: 'Meiste EH in 1 Stunde' }
+        ];
+
+        const tlAchievementTypes = [
+            { id: 'mg_tag', name: 'Meiste Mitglieder an einem Tag' },
+            { id: 'eh_tag', name: 'Meiste EH an einem Tag' },
+            { id: 'mg_woche', name: 'Meiste Mitglieder in einer Woche' },
+            { id: 'eh_woche', name: 'Meiste EH in einer Woche' },
+            { id: 'schrieb_nmg', name: 'Höchster Schrieb Neumitglied' },
+            { id: 'beitragsanpassung', name: 'Höchste positive Beitragsanpassung' },
+            { id: 'mg_stunde', name: 'Meiste Mitglieder in 1 Stunde' },
+            { id: 'eh_durchschnitt_tag', name: 'Höchster Ø EH pro MG an einem Tag' },
+            { id: 'serie_stunde', name: 'Längste Stundenserie' },
+            { id: 'serie_15min', name: 'Längste 15-Minuten-Serie' },
+            { id: 'effizienz', name: 'Höchste Effizienz' },
+            { id: 'stornoquote_woche', name: 'Beste Stornoquote in einer Woche' },
+            { id: 'eh_stunde', name: 'Meiste EH in 1 Stunde' }
+        ];
+
+        const qAchievementTypes = [
+            { id: 'stornoquote_woche', name: 'Niedrigste Stornoquote pro Woche' },
+            { id: 'eh_durchschnitt_woche', name: 'Höchster Tagesdurchschnitt an EH p.P. für eine Woche' },
+            { id: 'einschulungen_woche', name: 'Meiste erfolgreiche Einschulungen in einer Woche' },
+            { id: 'einschulungen_monat', name: 'Meiste erfolgreiche Einschulungen in einem Monat' },
+            { id: 'zahlungsintervall_woche', name: 'Höchster %Satz an jährlichem Zahlungsintervall pro Woche' },
+            { id: 'mail_optin_woche', name: 'Höchster %Satz an Mail + Opt In pro Woche' },
+            { id: 'tel_optin_woche', name: 'Höchster %Satz an Tel + Opt In pro Woche' }
+        ];
+
+        const rAchievementTypes = [
+            ...werbenAchievementTypes,
+            { id: 'recruitings_monat', name: 'Meiste Recruitings pro Monat' },
+            { id: 'recruitings_quartal', name: 'Meiste Recruitings pro Quartal' },
+            { id: 'recruitings_serie', name: 'Meiste erfolgreiche Recruitings am Stück' },
+            { id: 'recruiting_stufe', name: 'Tiefste Recruiting Stufe' }
+        ];
+
+        const eAchievementTypes = [
+            ...werbenAchievementTypes,
+            { id: 'empfehlungen_monat', name: 'Meiste Empfehlungen pro Monat' },
+            { id: 'empfehlungen_quartal', name: 'Meiste Empfehlungen pro Quartal' },
+            { id: 'empfehlungen_serie', name: 'Meiste erfolgreiche Empfehlungen am Stück' },
+            { id: 'empfehlung_stufe', name: 'Tiefste Empfehlung Stufe' }
+        ];
+
+        // =============================================
+        // ACHIEVEMENTS AUS SUPABASE BERECHNEN
+        // =============================================
+        let achievementsData = {};
+        let tlAchievementsData = {};
+        let qAchievementsData = {};
+        let rAchievementsData = {};
+        let eAchievementsData = {};
+
+        async function calculateAchievements() {
+            if (!personId) return;
+
+            try {
+                const { data: campaigns } = await supabase.from('campaigns').select('id, name');
+                const campaignMap = Object.fromEntries((campaigns || []).map(c => [c.id, c.name]));
+
+                // Hilfsfunktion: ISO-Woche aus Datum berechnen
+                function getYearAndKwFromDate(dateStr) {
+                    if (!dateStr) return { year: null, kw: null };
+                    const date = new Date(dateStr);
+                    // ISO-Woche berechnen
+                    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+                    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                    const kw = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                    // ISO-Jahr (kann vom Kalenderjahr abweichen bei Jahreswechsel)
+                    const year = d.getUTCFullYear();
+                    return { year, kw };
+                }
+
+                // Hilfsfunktion: Achievements aus Records berechnen
+                function buildAchievements(records) {
+                    const allRecords = records || [];
+                    const activeRecords = allRecords.filter(r => r.record_status === 'aktiv');
+
+                    // Pro Tag gruppieren (nach start_date = Aufnahmedatum, nicht created_at = Import-Datum)
+                    const recordsByDay = {};
+                    activeRecords.forEach(r => {
+                        const day = r.start_date?.split('T')[0] || 'unknown';
+                        if (!recordsByDay[day]) recordsByDay[day] = [];
+                        recordsByDay[day].push(r);
+                    });
+
+                    // Pro Woche gruppieren (Jahr/KW aus start_date berechnen)
+                    const recordsByWeek = {};
+                    const allRecordsByWeek = {};
+                    activeRecords.forEach(r => {
+                        const { year, kw } = getYearAndKwFromDate(r.start_date);
+                        const weekKey = year && kw ? `${year}-KW${kw}` : 'unknown';
+                        if (!recordsByWeek[weekKey]) recordsByWeek[weekKey] = [];
+                        recordsByWeek[weekKey].push(r);
+                    });
+                    allRecords.forEach(r => {
+                        const { year, kw } = getYearAndKwFromDate(r.start_date);
+                        const weekKey = year && kw ? `${year}-KW${kw}` : 'unknown';
+                        if (!allRecordsByWeek[weekKey]) allRecordsByWeek[weekKey] = { aktiv: 0, storno: 0, campaign: null };
+                        if (r.record_status === 'aktiv') allRecordsByWeek[weekKey].aktiv++;
+                        else if (r.record_status === 'storno') allRecordsByWeek[weekKey].storno++;
+                        if (!allRecordsByWeek[weekKey].campaign) allRecordsByWeek[weekKey].campaign = campaignMap[r.campaign_id];
+                    });
+
+                    let bestMgTag = { count: 0, date: null, campaign: null };
+                    let bestEhTag = { eh: 0, date: null, campaign: null };
+                    let bestMgWoche = { count: 0, week: null, campaign: null };
+                    let bestEhWoche = { eh: 0, week: null, campaign: null };
+                    let bestSchrieb = { amount: 0, date: null, campaign: null };
+                    let bestBeitragsanpassung = { amount: 0, date: null, campaign: null };
+                    let bestEhDurchschnittTag = { avg: 0, date: null, campaign: null };
+                    let besteStornoquoteWoche = { quote: 100, week: null, campaign: null };
+
+                    // Tage am Stück
+                    const sortedDays = Object.keys(recordsByDay).sort();
+                    let maxTageAmStueck = { count: 0, startDate: null, endDate: null, campaign: null };
+                    let currentStreak = { count: 0, startDate: null, endDate: null, campaign: null };
+
+                    function isConsecutiveDay(prev, curr) {
+                        const prevDate = new Date(prev);
+                        const currDate = new Date(curr);
+                        const diff = (currDate - prevDate) / (1000 * 60 * 60 * 24);
+                        return diff === 1;
+                    }
+
+                    sortedDays.forEach((day, idx) => {
+                        const recs = recordsByDay[day];
+                        if (idx === 0 || !isConsecutiveDay(sortedDays[idx - 1], day)) {
+                            if (currentStreak.count > maxTageAmStueck.count) {
+                                maxTageAmStueck = { ...currentStreak };
+                            }
+                            currentStreak = { count: 1, startDate: day, endDate: day, campaign: campaignMap[recs[0]?.campaign_id] };
+                        } else {
+                            currentStreak.count++;
+                            currentStreak.endDate = day;
+                        }
+                    });
+                    if (currentStreak.count > maxTageAmStueck.count) {
+                        maxTageAmStueck = { ...currentStreak };
+                    }
+
+                    Object.entries(recordsByDay).forEach(([day, recs]) => {
+                        if (recs.length > bestMgTag.count) {
+                            bestMgTag = { count: recs.length, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
+                        }
+                        const eh = recs.reduce((sum, r) => sum + (parseFloat(r.yearly_amount) || 0), 0) / 12;
+                        if (eh > bestEhTag.eh) {
+                            bestEhTag = { eh: Math.round(eh * 100) / 100, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
+                        }
+                        const nmgRecs = recs.filter(r => r.record_type === 'neumitglied');
+                        const maxNmgAmount = nmgRecs.length > 0 ? Math.max(...nmgRecs.map(r => parseFloat(r.yearly_amount) || 0)) : 0;
+                        if (maxNmgAmount > bestSchrieb.amount) {
+                            bestSchrieb = { amount: maxNmgAmount, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
+                        }
+                        const erhRecs = recs.filter(r => r.record_type === 'erhoehung');
+                        const maxErhAmount = erhRecs.length > 0 ? Math.max(...erhRecs.map(r => parseFloat(r.increase_amount) || parseFloat(r.yearly_amount) || 0)) : 0;
+                        if (maxErhAmount > bestBeitragsanpassung.amount) {
+                            bestBeitragsanpassung = { amount: maxErhAmount, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
+                        }
+                        const avgEhProMg = recs.length > 0 ? eh / recs.length : 0;
+                        if (avgEhProMg > bestEhDurchschnittTag.avg && recs.length >= 3) {
+                            bestEhDurchschnittTag = { avg: Math.round(avgEhProMg * 100) / 100, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
+                        }
+                    });
+
+                    Object.entries(recordsByWeek).forEach(([week, recs]) => {
+                        if (recs.length > bestMgWoche.count) {
+                            bestMgWoche = { count: recs.length, week: week, campaign: campaignMap[recs[0]?.campaign_id] };
+                        }
+                        const ehWoche = recs.reduce((sum, r) => sum + (parseFloat(r.yearly_amount) || 0), 0) / 12;
+                        if (ehWoche > bestEhWoche.eh) {
+                            bestEhWoche = { eh: Math.round(ehWoche * 100) / 100, week: week, campaign: campaignMap[recs[0]?.campaign_id] };
+                        }
+                    });
+
+                    Object.entries(allRecordsByWeek).forEach(([week, data]) => {
+                        const total = data.aktiv + data.storno;
+                        if (total >= 5) {
+                            const quote = (data.storno / total) * 100;
+                            if (quote < besteStornoquoteWoche.quote) {
+                                besteStornoquoteWoche = { quote: Math.round(quote * 10) / 10, week: week, campaign: data.campaign };
+                            }
+                        }
+                    });
+
+                    const formatDate = (d) => d ? new Date(d).toLocaleDateString('de-DE') : '-';
+
+                    return {
+                        'mg_tag': bestMgTag.count > 0 ? { score: `${bestMgTag.count} MG`, datum: formatDate(bestMgTag.date), kampagne: bestMgTag.campaign || '-', active: true } : null,
+                        'eh_tag': bestEhTag.eh > 0 ? { score: `${bestEhTag.eh} EH`, datum: formatDate(bestEhTag.date), kampagne: bestEhTag.campaign || '-', active: true } : null,
+                        'mg_woche': bestMgWoche.count > 0 ? { score: `${bestMgWoche.count} MG`, datum: bestMgWoche.week, kampagne: bestMgWoche.campaign || '-', active: true } : null,
+                        'eh_woche': bestEhWoche.eh > 0 ? { score: `${bestEhWoche.eh} EH`, datum: bestEhWoche.week, kampagne: bestEhWoche.campaign || '-', active: true } : null,
+                        'schrieb_nmg': bestSchrieb.amount > 0 ? { score: `${bestSchrieb.amount.toFixed(2)} €`, datum: formatDate(bestSchrieb.date), kampagne: bestSchrieb.campaign || '-', active: true } : null,
+                        'beitragsanpassung': bestBeitragsanpassung.amount > 0 ? { score: `${bestBeitragsanpassung.amount.toFixed(2)} €`, datum: formatDate(bestBeitragsanpassung.date), kampagne: bestBeitragsanpassung.campaign || '-', active: true } : null,
+                        'mg_stunde': null,
+                        'eh_durchschnitt_tag': bestEhDurchschnittTag.avg > 0 ? { score: `${bestEhDurchschnittTag.avg} EH`, datum: formatDate(bestEhDurchschnittTag.date), kampagne: bestEhDurchschnittTag.campaign || '-', active: true } : null,
+                        'serie_stunde': null,
+                        'serie_15min': null,
+                        'tage_am_stueck': maxTageAmStueck.count > 1 ? { score: `${maxTageAmStueck.count} Tage`, datumVon: formatDate(maxTageAmStueck.startDate), datumBis: formatDate(maxTageAmStueck.endDate), kampagne: maxTageAmStueck.campaign || '-', active: true } : null,
+                        'stornoquote_woche': besteStornoquoteWoche.quote < 100 ? { score: `${besteStornoquoteWoche.quote}%`, datum: besteStornoquoteWoche.week, kampagne: besteStornoquoteWoche.campaign || '-', active: true } : null,
+                        'eh_stunde': null
+                    };
+                }
+
+                // Query-Builder mit Zeitraum-Filter für Achievements (nach Aufnahmedatum = start_date)
+                function buildAchievementQuery(roleField, roleId) {
+                    let query = supabase
+                        .from('records')
+                        .select('id, campaign_id, yearly_amount, record_status, start_date, kw, year, record_type, increase_amount')
+                        .eq(roleField, roleId);
+
+                    if (periodStartDate) {
+                        query = query.gte('start_date', periodStartDate.toISOString().split('T')[0]);
+                    }
+                    if (periodEndDate) {
+                        query = query.lte('start_date', periodEndDate.toISOString().split('T')[0] + 'T23:59:59');
+                    }
+
+                    return query;
+                }
+
+                if (personType === 'werber') {
+                    const { data: werberRecords } = await buildAchievementQuery('werber_id', personId);
+                    const { data: tlRecords } = await buildAchievementQuery('teamchef_id', personId);
+                    const { data: qRecords } = await buildAchievementQuery('quality_id', personId);
+
+                    achievementsData = buildAchievements(werberRecords);
+                    tlAchievementsData = buildAchievements(tlRecords);
+                    qAchievementsData = buildAchievements(qRecords);
+                    rAchievementsData = {}; // TODO: Recruiting-spezifische Achievements
+                    eAchievementsData = {}; // TODO: Empfehlungs-spezifische Achievements
+
+                } else if (personType === 'kunde') {
+                    const { data: records } = await buildAchievementQuery('customer_id', personId);
+                    achievementsData = buildAchievements(records);
+
+                } else if (personType === 'kampagne') {
+                    const { data: records } = await buildAchievementQuery('campaign_id', personId);
+                    achievementsData = buildAchievements(records);
+                }
+
+            } catch (error) {
+                console.error('Fehler beim Berechnen der Achievements:', error);
+            }
+        }
+
+
+        // =============================================
+        // RECRUITING/EMPFEHLUNGS-BÄUME AUS SUPABASE
+        // =============================================
+        let recruitingTreeData = { name: personName || 'Unbekannt', date: null, children: [] };
+        let empfehlungTreeData = { name: personName || 'Unbekannt', date: null, children: [] };
+
+        async function loadRecruitmentTrees() {
+            if (!personId || personType !== 'werber') return;
+
+            try {
+                // User-Namen laden
+                const { data: users } = await supabase.from('users').select('id, name');
+                const userMap = Object.fromEntries((users || []).map(u => [u.id, u.name]));
+
+                // Recruitments laden (diese Person als recruited_by)
+                const { data: recruitments, error } = await supabase
+                    .from('user_recruitments')
+                    .select('user_id, recruited_by_id, recruitment_type, recruitment_date')
+                    .eq('recruited_by_id', personId);
+
+                if (error) {
+                    console.log('user_recruitments Tabelle noch nicht vorhanden');
+                    return;
+                }
+
+                // Rekursive Funktion um Baum aufzubauen
+                async function buildTree(userId, type) {
+                    const children = (recruitments || [])
+                        .filter(r => r.recruited_by_id === userId && r.recruitment_type === type)
+                        .map(r => ({
+                            id: r.user_id,
+                            name: userMap[r.user_id] || 'Unbekannt',
+                            date: r.recruitment_date ? new Date(r.recruitment_date).toLocaleDateString('de-DE') : null,
+                            children: []
+                        }));
+
+                    // Für jeden Child rekursiv weiter suchen
+                    for (let child of children) {
+                        const subRecruitments = await supabase
+                            .from('user_recruitments')
+                            .select('user_id, recruitment_date')
+                            .eq('recruited_by_id', child.id)
+                            .eq('recruitment_type', type);
+
+                        if (subRecruitments.data) {
+                            child.children = subRecruitments.data.map(sr => ({
+                                name: userMap[sr.user_id] || 'Unbekannt',
+                                date: sr.recruitment_date ? new Date(sr.recruitment_date).toLocaleDateString('de-DE') : null,
+                                children: []
+                            }));
+                        }
+                    }
+
+                    return children;
+                }
+
+                recruitingTreeData = {
+                    name: personName || userMap[personId] || 'Unbekannt',
+                    date: null,
+                    children: await buildTree(personId, 'recruiting')
+                };
+
+                empfehlungTreeData = {
+                    name: personName || userMap[personId] || 'Unbekannt',
+                    date: null,
+                    children: await buildTree(personId, 'empfehlung')
+                };
+
+            } catch (error) {
+                console.error('Fehler beim Laden der Recruitment-Bäume:', error);
+            }
+        }
+
+
+        // Kombinierte Achievements für Kunde/Kampagne/Gebiet
+        const kkAchievementTypes = [
+            ...werbenAchievementTypes,
+            { id: 'effizienz', name: 'Höchste Effizienz' },
+            { id: 'eh_durchschnitt_woche', name: 'Höchster Tagesdurchschnitt an EH p.P. für eine Woche' },
+            { id: 'einschulungen_woche', name: 'Meiste erfolgreiche Einschulungen in einer Woche' },
+            { id: 'einschulungen_monat', name: 'Meiste erfolgreiche Einschulungen in einem Monat' },
+            { id: 'zahlungsintervall_woche', name: 'Höchster %Satz an jährlichem Zahlungsintervall pro Woche' },
+            { id: 'mail_optin_woche', name: 'Höchster %Satz an Mail + Opt In pro Woche' },
+            { id: 'tel_optin_woche', name: 'Höchster %Satz an Tel + Opt In pro Woche' }
+        ];
+
+
+        // =============================================
+        // DASHBOARD RENDERN
+        // =============================================
+        function renderDashboard() {
+            const isKundeOrKampagne = personType === 'kunde' || personType === 'kampagne' || personType === 'gebiet';
+
+            // Tab-spezifische Daten aus calculatedUebersichtRows extrahieren
+            const werbenStats = calculatedUebersichtRows ? calculatedUebersichtRows[0] : null;
+            const tlStats = calculatedUebersichtRows ? calculatedUebersichtRows[1] : null;
+            const qStats = calculatedUebersichtRows ? calculatedUebersichtRows[2] : null;
+            const rStats = calculatedUebersichtRows ? calculatedUebersichtRows[3] : null;
+            const eStats = calculatedUebersichtRows ? calculatedUebersichtRows[4] : null;
+
+            if (isKundeOrKampagne) {
+                // Kunde/Kampagne/Gebiet: Tabs ausblenden, nur Übersicht
+                document.getElementById('dashboardSubTabs').style.display = 'none';
+                document.getElementById('uebersichtPlaceholder').style.display = 'none';
+                document.getElementById('kundeKampagneContent').style.display = 'block';
+
+                document.querySelectorAll('.kw-tab-content:not(#tab-uebersicht)').forEach(el => {
+                    el.style.display = 'none';
+                });
+
+                initStatsTable('kkStatsTableContainer');
+                initWochenverlaufChart('kkChart', weeklyChartData);
+                renderEinsatzTimeline('kkEinsatzTimeline', '01.01.2025', '31.03.2025', einsaetzeData);
+                renderAchievementGrid('kkAchievementGrid', kkAchievementTypes, achievementsData);
+
+            } else {
+                // Werber: Alle Tabs anzeigen
+                initTabs('.kw-tab', '.kw-tab-content');
+
+                // Übersicht - alle Kategorien
+                initStatsTable('uebersichtStatsTableContainer', { rows: calculatedUebersichtRows || [] });
+
+                // Werben - nur Werben-Daten
+                initStatsTable('statsTableContainer', { rows: werbenStats ? [werbenStats] : [] });
+                initWochenverlaufChart('werbenChart', weeklyChartData);
+                renderEinsatzTimeline('einsatzTimeline', '01.01.2025', '31.03.2025', einsaetzeData);
+                renderAchievementGrid('achievementGrid', werbenAchievementTypes, achievementsData);
+
+                // Teamleitung - nur TL-Daten
+                initStatsTable('tlStatsTableContainer', { rows: tlStats ? [tlStats] : [] });
+                initWochenverlaufChart('teamleitungChart', tlWeeklyChartData);
+                renderEinsatzTimeline('tlEinsatzTimeline', '01.01.2025', '31.03.2025', tlEinsaetzeData, {
+                    stats: [{ key: 'effizienz', label: 'Effizienz', suffix: '%' }]
+                });
+                renderAchievementGrid('tlAchievementGrid', tlAchievementTypes, tlAchievementsData);
+
+                // Quality - nur Quality-Daten
+                initStatsTable('qStatsTableContainer', { rows: qStats ? [qStats] : [] });
+                initWochenverlaufChart('qualityChart', qWeeklyChartData);
+                renderEinsatzTimeline('qEinsatzTimeline', '01.01.2025', '31.03.2025', qEinsaetzeData, {
+                    stats: [{ key: 'stornoquote', label: 'Stornoquote', suffix: '%' }]
+                });
+                renderAchievementGrid('qAchievementGrid', qAchievementTypes, qAchievementsData);
+
+                // Recruiting - nur Recruiting-Daten
+                initStatsTable('rStatsTableContainer', { rows: rStats ? [rStats] : [] });
+                renderReferralTree('rContentContainer', recruitingTreeData);
+                renderAchievementGrid('rAchievementGrid', rAchievementTypes, rAchievementsData);
+
+                // Empfehlung - nur Empfehlungs-Daten
+                initStatsTable('eStatsTableContainer', { rows: eStats ? [eStats] : [] });
+                renderReferralTree('eContentContainer', empfehlungTreeData);
+                renderAchievementGrid('eAchievementGrid', eAchievementTypes, eAchievementsData);
+            }
+        }
+
+        // =============================================
+        // INITIALISIERUNG
+        // =============================================
+        async function initDashboard() {
+            // Erst Karrierestufen laden (für Faktor-Berechnung benötigt)
+            await loadUserCareerRoles();
+
+            // Dann restliche Daten aus Supabase laden
+            await Promise.all([
+                loadSearchData(),
+                loadEinsaetze(),
+                calculateAchievements(),
+                loadRecruitmentTrees(),
+                calculatePersonStats(),
+                calculateWeeklyChartData()
+            ]);
+
+            // Dashboard rendern
+            renderDashboard();
+        }
+
+        // Dashboard initialisieren
+        initDashboard();
+    </script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investments - RB Inside</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+    <style>
+        .page-container {
+            padding: var(--spacing-lg);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Idee Banner */
+        .idea-banner {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .idea-banner-icon {
+            width: 48px;
+            height: 48px;
+            background: #f59e0b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .idea-banner-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .idea-banner-content h2 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 4px;
+        }
+
+        .idea-banner-content p {
+            color: #a16207;
+            font-size: var(--font-size-sm);
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .section-title svg {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-color);
+        }
+
+        /* Provisions Flow */
+        .flow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            padding: var(--spacing-xl) 0;
+        }
+
+        .flow-box {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            min-width: 180px;
+            transition: all 0.3s ease;
+        }
+
+        .flow-box.highlight {
+            background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+            border-color: #16a34a;
+        }
+
+        .flow-box-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .flow-box-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .flow-box.highlight .flow-box-value {
+            color: #16a34a;
+        }
+
+        .flow-box-sub {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .flow-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--accent-color);
+        }
+
+        .flow-arrow svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .flow-arrow-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-top: 4px;
+        }
+
+        /* Wallet Section */
+        .wallet-locked {
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+
+        .wallet-lock-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--color-werber);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-lg);
+            color: white;
+        }
+
+        .wallet-lock-icon svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .wallet-locked h3 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .wallet-locked p {
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .wallet-password-form {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .wallet-password-input {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            text-align: center;
+            letter-spacing: 4px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .wallet-password-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .wallet-unlock-btn {
+            width: 100%;
+            padding: var(--spacing-md);
+            background: var(--color-werber);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .wallet-unlock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--color-werber-bg);
+        }
+
+        /* Wallet Unlocked View */
+        .wallet-unlocked {
+            display: none;
+        }
+
+        .wallet-unlocked.active {
+            display: block;
+        }
+
+        .wallet-locked.hidden {
+            display: none;
+        }
+
+        .wallet-balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .wallet-balance-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+
+        .wallet-balance-card.primary {
+            background: var(--color-werber);
+            color: white;
+        }
+
+        .wallet-balance-card.stocks {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .wallet-balance-card.prime {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .wallet-balance-label {
+            font-size: var(--font-size-sm);
+            opacity: 0.9;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .wallet-balance-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .wallet-balance-sub {
+            font-size: var(--font-size-xs);
+            opacity: 0.8;
+            margin-top: var(--spacing-xs);
+        }
+
+        .wallet-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .wallet-action-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .wallet-action-btn.transfer {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            color: white;
+        }
+
+        .wallet-action-btn.transfer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+        }
+
+        .wallet-action-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .instant-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* Coming Soon Overlay */
+        .coming-soon-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            z-index: 10;
+        }
+
+        .coming-soon-overlay h3 {
+            font-size: var(--font-size-xl);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .coming-soon-overlay p {
+            color: var(--text-secondary);
+        }
+
+        .section-card.relative {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Info Text */
+        .info-text {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent-color);
+            padding: var(--spacing-md);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin-top: var(--spacing-lg);
+        }
+
+        .info-text p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            margin: 0;
+        }
+
+        .info-text strong {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body >
+    <div class="page-container">
+        <!-- Idee Banner -->
+        <div class="idea-banner">
+            <div class="idea-banner-icon">
+                <span class="icon icon--gluehbirne"></span>
+            </div>
+            <div class="idea-banner-content">
+                <h2>Konzept / Idee</h2>
+                <p>Diese Seite zeigt ein Konzept für ein zukünftiges Investment-System. Noch nicht aktiv.</p>
+            </div>
+        </div>
+
+        <!-- Provisions Flow -->
+        <div class="section-card">
+            <h2 class="section-title">
+                <span class="icon icon--statistik"></span>
+                Provisions-Auszahlungs-Flow
+            </h2>
+
+            <div class="flow-container">
+                <!-- Provision -->
+                <div class="flow-box">
+                    <div class="flow-box-label">Verdiente Provision</div>
+                    <div class="flow-box-value">1.000 EUR</div>
+                    <div class="flow-box-sub">Brutto-Provision</div>
+                </div>
+
+                <!-- Arrow 1 -->
+                <div class="flow-arrow">
+                    <span class="icon icon--pfeil-rechts"></span>
+                    <span class="flow-arrow-label">70% Vorschuss</span>
+                </div>
+
+                <!-- Wallet -->
+                <div class="flow-box highlight">
+                    <div class="flow-box-label">An deine Wallet</div>
+                    <div class="flow-box-value">700 EUR</div>
+                    <div class="flow-box-sub">Sofort verfügbar</div>
+                </div>
+
+                <!-- Arrow 2 -->
+                <div class="flow-arrow">
+                    <span class="icon icon--pfeil-rechts"></span>
+                    <span class="flow-arrow-label">30% Rücklage</span>
+                </div>
+
+                <!-- Reserve -->
+                <div class="flow-box">
+                    <div class="flow-box-label">Stornorücklage</div>
+                    <div class="flow-box-value">300 EUR</div>
+                    <div class="flow-box-sub">Sicherheit</div>
+                </div>
+            </div>
+
+            <div class="info-text">
+                <p><strong>Wie funktioniert es?</strong> Deine Provisionen werden automatisch aufgeteilt: 70% gehen sofort in deine persönliche Wallet, 30% werden als Stornorücklage einbehalten und nach der Bewährungszeit freigegeben.</p>
+            </div>
+        </div>
+
+        <!-- Wallet Section -->
+        <div class="section-card relative">
+            <h2 class="section-title">
+                <span class="icon icon--kreditkarte"></span>
+                Deine Wallet
+            </h2>
+
+            <!-- Locked State -->
+            <div class="wallet-locked" id="walletLocked">
+                <div class="wallet-lock-icon">
+                    <span class="icon icon--schloss"></span>
+                </div>
+                <h3>Wallet ist gesperrt</h3>
+                <p>Gib dein Wallet-Passwort ein, um auf dein Guthaben zuzugreifen.</p>
+                <div class="wallet-password-form">
+                    <input type="password" class="wallet-password-input" id="walletPassword" placeholder="****" maxlength="6">
+                    <button class="wallet-unlock-btn" onclick="unlockWallet()">
+                        <span class="icon icon--schloss-offen" style="display: inline; vertical-align: middle; margin-right: 8px;"></span>
+                        Wallet entsperren
+                    </button>
+                </div>
+            </div>
+
+            <!-- Unlocked State -->
+            <div class="wallet-unlocked" id="walletUnlocked">
+                <div class="wallet-balance-grid">
+                    <div class="wallet-balance-card primary">
+                        <div class="wallet-balance-label">Verfügbar zum Auszahlen</div>
+                        <div class="wallet-balance-value">2.450 EUR</div>
+                        <div class="wallet-balance-sub">Sofort auszahlbar</div>
+                    </div>
+                    <div class="wallet-balance-card stocks">
+                        <div class="wallet-balance-label">In Aktienpaketen</div>
+                        <div class="wallet-balance-value">5.200 EUR</div>
+                        <div class="wallet-balance-sub">+12.4% Rendite</div>
+                    </div>
+                    <div class="wallet-balance-card prime">
+                        <div class="wallet-balance-label">Prime Investments</div>
+                        <div class="wallet-balance-value">8.750 EUR</div>
+                        <div class="wallet-balance-sub">Langfristig angelegt</div>
+                    </div>
+                </div>
+
+                <div class="wallet-actions">
+                    <button class="wallet-action-btn transfer">
+                        <span class="icon icon--zurueck"></span>
+                        Transfer aufs Konto
+                        <span class="instant-badge">INSTANT</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Coming Soon Overlay -->
+            <div class="coming-soon-overlay">
+                <span class="icon icon--uhr" style="color: var(--accent-color); margin-bottom: 16px;"></span>
+                <h3>Demnächst verfügbar</h3>
+                <p>Die Wallet-Funktion wird in einer zukünftigen Version freigeschaltet.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo: Unlock Wallet (in production this would validate against backend)
+        async function unlockWallet() {
+            const password = document.getElementById('walletPassword').value;
+
+            // Demo password: 1234
+            if (password === '1234') {
+                document.getElementById('walletLocked').classList.add('hidden');
+                document.getElementById('walletUnlocked').classList.add('active');
+            } else {
+                await showAlert('Falsches Passwort', 'Falsches Passwort. Demo-Passwort: 1234', 'error');
+            }
+        }
+
+        // Enter key to unlock
+        document.getElementById('walletPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                unlockWallet();
+            }
+        });
+    </script>
+</body>
+</html>

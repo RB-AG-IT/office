@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datensätze - RB Inside Office</title>
+    <!-- Zentrale Styles -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+    <!-- Zentrale Scripts -->
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- SheetJS für Excel/CSV Import -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        /* Seiten-spezifische Styles (nur wenn nötig) */
+        body {
+            background: var(--bg-secondary);
+        }
+
+        /* Schnellsuche Highlight */
+        .highlight-flash {
+            animation: flashHighlight 2s ease-out;
+        }
+
+        @keyframes flashHighlight {
+            0% { background-color: var(--color-werber); }
+            100% { background-color: transparent; }
+        }
+    </style>
+</head>
+<body class="datensaetze-page">
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-row">
+            <button class="btn btn-icon" onclick="goBack()">
+                <span class="icon icon--pfeil-links"></span>
+            </button>
+            <div class="page-header-links">
+                <span class="text-klein" id="contextBadge"></span>
+            </div>
+            <div class="page-header-mitte">
+                <span class="text-ueberschrift">Datensätze</span>
+            </div>
+        </div>
+        <!-- Lokale Tabs (per Klick navigierbar) -->
+        <div class="page-header-tabs" id="datensaetzeSubTabs">
+            <div class="kw-tab active" data-tab="records">Neumitglieder / Erhöhungen <span class="tab-badge" id="recordsBadge">32</span></div>
+            <div class="kw-tab" data-tab="bestand">Bestandsmitglieder <span class="tab-badge" id="bestandBadge">142</span></div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content page-content--table">
+
+            <!-- NEUMITGLIEDER / ERHÖHUNGEN TAB -->
+            <div class="kw-tab-content active" id="tab-records">
+                <div class="table-wrap">
+                    <div class="zeile">
+                        <!-- Anzeigenfeld 1: Filter -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                            <button class="btn btn-sm active" data-filter="all" onclick="setFilter('all')">Alle</button>
+                            <button class="btn btn-sm" data-filter="nmg" onclick="setFilter('nmg')">Neumitglieder</button>
+                            <button class="btn btn-sm" data-filter="erh" onclick="setFilter('erh')">Erhöhungen</button>
+                            <button class="btn btn-sm" data-filter="storno" onclick="setFilter('storno')">Rückläufer (Stornos)</button>
+                        </div>
+                        <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                        <!-- Anzeigenfeld 2: Auswahl-Aktionen (erscheint bei Selektion) -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="recordsSelectionGroup">
+                            <span class="btn btn-sm" id="recordsSelectionBtn">
+                                <span class="icon icon--clipboard"></span>
+                                Ausgewählt: <span id="recordsSelectedCount">0</span>
+                            </span>
+                            <button class="btn btn-sm" onclick="sendMail('records')">
+                                <span class="icon icon--email"></span>
+                                E-Mail
+                            </button>
+                            <button class="btn btn-sm" onclick="downloadPDF('records')">
+                                <span class="icon icon--dokument"></span>
+                                PDF
+                            </button>
+                            <button class="btn btn-sm" onclick="stornoSelected('records')">
+                                <span class="icon icon--storno"></span>
+                                Stornieren
+                            </button>
+                            <button class="btn btn-sm" onclick="deleteSelected('records')">
+                                <span class="icon icon--loeschen"></span>
+                                Löschen
+                            </button>
+                        </div>
+                        <!-- Spacer -->
+                        <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                        <!-- Anzeigenfeld 3: Spalten & Audit (rechts) -->
+                        <div class="anzeigenfeld anzeigenfeld--auto">
+                            <button class="btn btn-sm" onclick="openColumnsModal('records')">
+                                <span class="icon icon--spalten"></span>
+                                Spalten
+                            </button>
+                            <button class="btn btn-sm" onclick="openAuditModal('nmg-erh', 'default')">
+                                <span class="icon icon--uhr"></span>
+                                Audit
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table--compact" id="recordsTable">
+                            <thead id="recordsTableHead">
+                                <!-- Wird dynamisch gerendert -->
+                            </thead>
+                            <tbody id="recordsTableBody">
+                                <!-- Wird dynamisch gerendert -->
+                            </tbody>
+                            <tfoot id="recordsTableFoot">
+                                <!-- Wird dynamisch gerendert -->
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BESTANDSMITGLIEDER TAB -->
+            <div class="kw-tab-content" id="tab-bestand">
+                <div class="table-wrap">
+                    <div class="zeile">
+                        <!-- Anzeigenfeld 1: Werbegebiet-Filter -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                            <select class="eingabefeld eingabefeld--klein" id="bestandGebietFilter" onchange="filterBestandByGebiet()">
+                                <option value="">Alle Werbegebiete</option>
+                            </select>
+                        </div>
+                        <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                        <!-- Anzeigenfeld 2: Import-Button -->
+                        <div class="anzeigenfeld anzeigenfeld--auto">
+                            <button class="btn btn-sm btn--blau" onclick="openBestandImportModal()">
+                                <span class="icon icon--upload"></span>
+                                Import
+                            </button>
+                        </div>
+                        <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                        <!-- Anzeigenfeld 2b: Alle löschen (nur wenn Gebiet gewählt) -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="bestandDeleteAllGroup">
+                            <button class="btn btn-sm btn-danger" onclick="deleteAllBestandForGebiet()">
+                                <span class="icon icon--loeschen"></span>
+                                Alle löschen
+                            </button>
+                        </div>
+                        <div class="anzeigenfeld anzeigenfeld--divider anzeigenfeld--hidden" id="bestandDeleteAllDivider"></div>
+                        <!-- Anzeigenfeld 3: Auswahl-Aktionen (erscheint bei Selektion) -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="bestandSelectionGroup">
+                            <span class="btn btn-sm" id="bestandSelectionBtn">
+                                <span class="icon icon--clipboard"></span>
+                                Ausgewählt: <span id="bestandSelectedCount">0</span>
+                            </span>
+                            <button class="btn btn-sm" onclick="deleteBestandSelected()">
+                                <span class="icon icon--loeschen"></span>
+                                Löschen
+                            </button>
+                        </div>
+                        <!-- Spacer -->
+                        <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                        <!-- Anzeigenfeld 4: Spalten (rechts) -->
+                        <div class="anzeigenfeld anzeigenfeld--auto">
+                            <button class="btn btn-sm" onclick="openColumnsModal('bestand')">
+                                <span class="icon icon--spalten"></span>
+                                Spalten
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table--compact" id="bestandTable">
+                            <thead id="bestandTableHead">
+                                <!-- Wird dynamisch gerendert -->
+                            </thead>
+                            <tbody id="bestandTableBody">
+                                <!-- Wird dynamisch gerendert -->
+                            </tbody>
+                            <tfoot id="bestandTableFoot">
+                                <!-- Wird dynamisch gerendert -->
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+        </div>
+    </div><!-- Ende page-content -->
+</div><!-- Ende page-container -->
+
+<!-- Storno Modal (aus zentralem Template) -->
+    <!-- Wird durch ModalTemplates.init(['storno']) erstellt -->
+
+    <!-- Alle Modals werden durch ModalTemplates.init() erstellt -->
+    <!-- Verfügbar: storno, columns, edit, import, export -->
+
+    <!-- Seiten-spezifische Daten und Initialisierung -->
+    <script>
+        // ========== SUPABASE CLIENT ==========
+        const supabase = window.parent.supabaseClient;
+
+        // ========== DATA (wird aus Supabase geladen) ==========
+        // recordsData, bestandData und historyData sind bereits in main.js deklariert
+        recordsData = [];
+        bestandData = [];
+        let customerAreasMap = {}; // customer_area_id -> {id, name, customer_name}
+        let bestandGebietFilter = ''; // Aktueller Filter
+        // historyData ist bereits in main.js deklariert
+
+        // Lookup-Maps für Namen
+        let usersMap = {};      // user_id -> name
+        let customersMap = {};  // customer_id -> name
+        let areasMap = {};      // campaign_area_id -> name
+
+        // ========== SUPABASE DATA LOADING ==========
+        async function loadAllData() {
+            try {
+                // Erst Lookup-Daten laden
+                await Promise.all([
+                    loadUsers(),
+                    loadCustomers(),
+                    loadAreas(),
+                    loadCustomerAreas()
+                ]);
+                // Dann Records und Bestandsmitglieder laden
+                await Promise.all([
+                    loadRecords(),
+                    loadBestandsmitglieder()
+                ]);
+            } catch (error) {
+                console.error('Fehler beim Laden der Daten:', error);
+                if (typeof showToast === 'function') {
+                    showToast('Fehler beim Laden der Datensätze', 'error');
+                }
+            }
+        }
+
+        // Users laden (für Werber/Teamchef Namen)
+        async function loadUsers() {
+            const { data, error } = await supabase
+                .from('users')
+                .select('id, name');
+
+            if (error) {
+                console.error('Fehler beim Laden der Users:', error);
+                return;
+            }
+
+            usersMap = {};
+            (data || []).forEach(u => {
+                usersMap[u.id] = u.name;
+            });
+        }
+
+        // Customers laden (für Kunde Namen)
+        async function loadCustomers() {
+            const { data, error } = await supabase
+                .from('customers')
+                .select('id, name, full_name');
+
+            if (error) {
+                console.error('Fehler beim Laden der Customers:', error);
+                return;
+            }
+
+            customersMap = {};
+            (data || []).forEach(c => {
+                customersMap[c.id] = c.full_name || c.name;
+            });
+        }
+
+        // Werbegebiete laden (für Gebiet Namen)
+        async function loadAreas() {
+            const { data, error } = await supabase
+                .from('campaign_areas')
+                .select('id, name, plz');
+
+            if (error) {
+                console.error('Fehler beim Laden der Werbegebiete:', error);
+                return;
+            }
+
+            areasMap = {};
+            (data || []).forEach(a => {
+                areasMap[a.id] = a.plz ? `${a.name} (${a.plz})` : a.name;
+            });
+        }
+
+        // Customer Areas laden (für Bestandsmitglieder-Zuordnung)
+        async function loadCustomerAreas() {
+            const { data, error } = await supabase
+                .from('customer_areas')
+                .select('id, name, customers(name)')
+                .order('name');
+
+            if (error) {
+                console.error('Fehler beim Laden der Customer Areas:', error);
+                return;
+            }
+
+            customerAreasMap = {};
+            (data || []).forEach(a => {
+                customerAreasMap[a.id] = {
+                    id: a.id,
+                    name: a.name,
+                    customerName: a.customers?.name || ''
+                };
+            });
+
+            // Dropdown befüllen
+            populateBestandGebietFilter();
+        }
+
+        // Fehlendes Customer Area nachladen
+        async function loadMissingCustomerArea(areaId) {
+            if (customerAreasMap[areaId]) return; // Schon geladen
+
+            const { data, error } = await supabase
+                .from('customer_areas')
+                .select('id, name, customers(name)')
+                .eq('id', areaId)
+                .single();
+
+            if (error || !data) {
+                console.warn('Customer Area nicht gefunden:', areaId);
+                return;
+            }
+
+            customerAreasMap[areaId] = {
+                id: data.id,
+                name: data.name,
+                customerName: data.customers?.name || ''
+            };
+
+            // Tabelle und Filter aktualisieren
+            allBestandData = allBestandData.map(b => {
+                if (b.customer_area_id === areaId) {
+                    const area = customerAreasMap[areaId];
+                    return { ...b, gebiet: area.name, kunde: area.customerName };
+                }
+                return b;
+            });
+            populateBestandGebietFilter();
+            filterBestandByGebiet(); // Wendet Filter an und rendert
+        }
+
+        // Bestandsmitglieder Filter-Dropdown befüllen
+        // Zeigt nur Gebiete an, die Bestandsmitglieder haben (wenn allBestandData geladen)
+        function populateBestandGebietFilter() {
+            const select = document.getElementById('bestandGebietFilter');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Alle Werbegebiete</option>';
+
+            // Nur Gebiete anzeigen, die Bestandsmitglieder haben
+            const areasWithBestand = new Set(allBestandData.map(b => b.customer_area_id));
+
+            Object.values(customerAreasMap)
+                .filter(area => areasWithBestand.size === 0 || areasWithBestand.has(area.id))
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .forEach(area => {
+                    const option = document.createElement('option');
+                    option.value = area.id;
+                    option.textContent = area.customerName ? `${area.name} (${area.customerName})` : area.name;
+                    select.appendChild(option);
+                });
+        }
+
+        // Bestandsmitglieder laden
+        async function loadBestandsmitglieder() {
+            let query = supabase
+                .from('bestandsmitglieder')
+                .select('*')
+                .order('last_name', { ascending: true });
+
+            const { data, error } = await query;
+
+            if (error) {
+                console.error('Fehler beim Laden der Bestandsmitglieder:', error);
+                return;
+            }
+
+            // Alle Daten speichern (für Filter)
+            allBestandData = (data || []).map(b => transformBestandsmitglied(b));
+            bestandData = [...allBestandData];
+
+            // Filter-Dropdown aktualisieren (nur Gebiete mit Bestandsmitgliedern)
+            populateBestandGebietFilter();
+        }
+
+        // Bestandsmitglied transformieren (neue einheitliche IDs mit 26 Feldern)
+        function transformBestandsmitglied(b) {
+            let area = customerAreasMap[b.customer_area_id];
+
+            // Fallback: Wenn Gebiet nicht in Map, Daten direkt laden (async nachladen)
+            if (!area && b.customer_area_id) {
+                // Temporärer Platzhalter
+                area = { id: b.customer_area_id, name: 'Wird geladen...', customerName: '' };
+                // Async nachladen
+                loadMissingCustomerArea(b.customer_area_id);
+            }
+            area = area || {};
+
+            // Geburtsdatum formatieren
+            let birthDateFormatted = '';
+            if (b.birth_date) {
+                const bd = new Date(b.birth_date);
+                birthDateFormatted = bd.toLocaleDateString('de-DE');
+            }
+
+            // Mitglied seit formatieren
+            let memberSinceFormatted = '';
+            if (b.member_since) {
+                const ms = new Date(b.member_since);
+                memberSinceFormatted = ms.toLocaleDateString('de-DE');
+            }
+
+            // Jahresbeitrag formatieren (aktueller Beitrag)
+            const yearlyAmountVal = b.old_amount || 0;
+            const yearlyAmountFormatted = yearlyAmountVal.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+
+            // Alter Jahresbeitrag (vor Erhöhung) - falls vorhanden
+            const oldYearlyAmountVal = b.old_yearly_amount || 0;
+            const oldYearlyAmountFormatted = oldYearlyAmountVal.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+
+            // Erhöhungsbetrag berechnen (nur wenn alter Beitrag vorhanden)
+            const increaseAmountVal = oldYearlyAmountVal > 0 ? (yearlyAmountVal - oldYearlyAmountVal) : 0;
+            const increaseAmountFormatted = increaseAmountVal.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+
+            // Betrag pro Intervall berechnen
+            const intervalAmountVal = b.interval_amount || 0;
+            const intervalAmountFormatted = intervalAmountVal.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+
+            return {
+                id: b.id,
+                customer_area_id: b.customer_area_id,
+                // Basis-Felder
+                name: `${b.first_name || ''} ${b.last_name || ''}`.trim() || 'Unbekannt',
+                firstName: b.first_name || '',
+                lastName: b.last_name || '',
+                memberNumber: b.member_number || '',
+                memberSince: memberSinceFormatted,
+                yearlyAmount: yearlyAmountFormatted,
+                yearlyAmountValue: yearlyAmountVal,
+                intervalAmount: intervalAmountFormatted,
+                intervalAmountValue: intervalAmountVal,
+                interval: b.old_interval || '',
+                customerId: area.customerName || '-',
+                campaignAreaId: area.name || '-',
+                // Persönliche Daten
+                salutation: b.salutation || '',
+                title: b.title || '',
+                company: b.company || '',
+                birthDate: birthDateFormatted,
+                // Adresse
+                street: b.street || '',
+                houseNumber: b.house_number || '',
+                zipCode: b.zip_code || '',
+                city: b.city || '',
+                country: b.country || 'Deutschland',
+                // Kontakt
+                email: b.email || '',
+                phoneFixed: b.phone_fixed || '',
+                phoneMobile: b.phone_mobile || '',
+                // Bankdaten
+                iban: b.iban || '',
+                bic: b.bic || '',
+                bankName: b.bank_name || '',
+                accountHolder: b.account_holder || '',
+                // Erhöhung
+                oldYearlyAmount: oldYearlyAmountFormatted,
+                oldYearlyAmountValue: oldYearlyAmountVal,
+                increaseAmount: increaseAmountFormatted,
+                increaseAmountValue: increaseAmountVal,
+                // Status
+                recordStatus: 'aktiv', // Bestandsmitglieder haben keinen Status-Feld, default aktiv
+                // Original-Daten für Updates
+                _raw: b
+            };
+        }
+
+        // Originale bestandData speichern (ungefiltert)
+        let allBestandData = [];
+
+        // Filter Bestandsmitglieder nach Gebiet
+        function filterBestandByGebiet() {
+            bestandGebietFilter = document.getElementById('bestandGebietFilter')?.value || '';
+
+            // "Alle löschen"-Button ein/ausblenden
+            const deleteAllGroup = document.getElementById('bestandDeleteAllGroup');
+            const deleteAllDivider = document.getElementById('bestandDeleteAllDivider');
+            if (deleteAllGroup) deleteAllGroup.classList.toggle('anzeigenfeld--hidden', !bestandGebietFilter);
+            if (deleteAllDivider) deleteAllDivider.classList.toggle('anzeigenfeld--hidden', !bestandGebietFilter);
+
+            // Gefilterte Daten in bestandData setzen (für zentrale renderBestandTable)
+            if (bestandGebietFilter) {
+                bestandData = allBestandData.filter(b => b.customer_area_id === bestandGebietFilter);
+            } else {
+                bestandData = [...allBestandData];
+            }
+
+            // Badge aktualisieren
+            const badge = document.getElementById('bestandBadge');
+            if (badge) badge.textContent = bestandData.length;
+
+            // Zentrale Render-Funktion aufrufen
+            renderBestandTable();
+        }
+
+        // Bestandsmitglied löschen
+        async function deleteBestandsmitglied(id) {
+            if (!confirm('Bestandsmitglied wirklich löschen?')) return;
+
+            const { error } = await supabase
+                .from('bestandsmitglieder')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                showToast('Fehler beim Löschen', 'error');
+                return;
+            }
+
+            showToast('Bestandsmitglied gelöscht', 'success');
+            await loadBestandsmitglieder();
+            filterBestandByGebiet(); // Wendet Filter an und rendert
+        }
+
+        // Ausgewählte Bestandsmitglieder löschen
+        async function deleteBestandSelected() {
+            const checked = document.querySelectorAll('#bestandTableBody .row-checkbox:checked');
+            const ids = Array.from(checked).map(cb => cb.dataset.id);
+
+            if (ids.length === 0) return;
+            if (!confirm(`${ids.length} Bestandsmitglieder wirklich löschen?`)) return;
+
+            const { error } = await supabase
+                .from('bestandsmitglieder')
+                .delete()
+                .in('id', ids);
+
+            if (error) {
+                showToast('Fehler beim Löschen', 'error');
+                return;
+            }
+
+            showToast(`${ids.length} Bestandsmitglieder gelöscht`, 'success');
+            await loadBestandsmitglieder();
+            filterBestandByGebiet(); // Wendet Filter an und rendert
+        }
+
+        // Bestandsmitglied bearbeiten (TODO: Edit-Modal implementieren)
+        function editBestandsmitglied(id) {
+            showToast('Bearbeiten-Funktion wird noch implementiert', 'info');
+        }
+
+        // Alle Bestandsmitglieder eines Werbegebiets löschen
+        async function deleteAllBestandForGebiet() {
+            if (!bestandGebietFilter) {
+                showToast('Bitte zuerst ein Werbegebiet auswählen', 'warning');
+                return;
+            }
+
+            // Gebietsnamen für Bestätigung
+            const gebietName = customerAreasMap[bestandGebietFilter]?.name || 'Unbekannt';
+            const count = bestandData.filter(b => b.customer_area_id === bestandGebietFilter).length;
+
+            if (count === 0) {
+                showToast('Keine Bestandsmitglieder zum Löschen', 'info');
+                return;
+            }
+
+            if (!confirm(`Alle ${count} Bestandsmitglieder von "${gebietName}" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`)) {
+                return;
+            }
+
+            const { error } = await supabase
+                .from('bestandsmitglieder')
+                .delete()
+                .eq('customer_area_id', bestandGebietFilter);
+
+            if (error) {
+                showToast('Fehler beim Löschen: ' + error.message, 'error');
+                return;
+            }
+
+            showToast(`${count} Bestandsmitglieder von "${gebietName}" gelöscht`, 'success');
+            await loadBestandsmitglieder();
+            filterBestandByGebiet(); // Wendet Filter an und rendert
+        }
+
+        // Hilfsfunktion: Alle campaign_area_ids für eine customer_area_id finden
+        async function getCampaignAreaIdsForCustomerArea(customerAreaId) {
+            const { data, error } = await supabase
+                .from('campaign_areas')
+                .select('id')
+                .eq('customer_area_id', customerAreaId);
+
+            if (error) {
+                console.error('Fehler beim Laden der Campaign Areas:', error);
+                return [];
+            }
+
+            return (data || []).map(ca => ca.id);
+        }
+
+        // Records laden und transformieren (mit Kontext-Filter)
+        async function loadRecords() {
+            const context = getContextData();
+
+            // Query aufbauen (sortiert nach Aufnahmedatum = start_date)
+            let query = supabase
+                .from('records')
+                .select('*')
+                .order('start_date', { ascending: false });
+
+            // Filter nach Kontext-Typ
+            if (context.id) {
+                switch (context.type) {
+                    case 'werber':
+                        query = query.eq('werber_id', context.id);
+                        break;
+                    case 'kunde':
+                        query = query.eq('customer_id', context.id);
+                        break;
+                    case 'gebiet':
+                        query = query.eq('campaign_area_id', context.id);
+                        break;
+                    case 'customer_area':
+                        // Suche über campaign_areas die zu dieser customer_area gehören
+                        const campaignAreaIds = await getCampaignAreaIdsForCustomerArea(context.id);
+                        if (campaignAreaIds.length > 0) {
+                            query = query.in('campaign_area_id', campaignAreaIds);
+                        } else {
+                            // Keine campaign_areas gefunden - leere Ergebnisse
+                            query = query.eq('campaign_area_id', 'no-match-placeholder');
+                        }
+                        break;
+                    case 'kampagne':
+                        query = query.eq('campaign_id', context.id);
+                        break;
+                    case 'kampagne_gebiet':
+                        // Spezialfall: Kombination aus Kampagne und Gebiet
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const kampagneId = urlParams.get('kampagneId');
+                        const gebietId = urlParams.get('gebietId');
+                        if (kampagneId) query = query.eq('campaign_id', kampagneId);
+                        if (gebietId) query = query.eq('campaign_area_id', gebietId);
+                        break;
+                }
+            }
+
+            const { data, error } = await query;
+
+            if (error) {
+                console.error('Fehler beim Laden der Records:', error);
+                return;
+            }
+
+            // Records transformieren ins Frontend-Format
+            recordsData = (data || []).map(r => transformRecord(r));
+        }
+
+        // Einzelnen Record transformieren (neue einheitliche IDs)
+        function transformRecord(r) {
+            // Daten aus dem data-Objekt holen (Fallback auf Hauptfelder)
+            const d = r.data || {};
+
+            // Aufnahmedatum formatieren (DD.MM.YYYY HH:MM) - aus start_date
+            const startDate = r.start_date ? new Date(r.start_date) : null;
+            const entryDateStr = startDate ? startDate.toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }) + ' ' + startDate.toLocaleTimeString('de-DE', {
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : '';
+
+            // Jahresbeitrag formatieren - aus data oder Hauptfeld
+            const yearlyAmountVal = d.yearlyAmount || r.yearly_amount || 0;
+            const yearlyAmountFormatted = yearlyAmountVal.toLocaleString('de-DE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }) + ' €';
+
+            // Typ mapping - aus data oder Hauptfeld
+            const typeValue = d.type || r.record_type || '';
+            const recordType = (typeValue === 'ERH' || typeValue === 'erhoehung') ? 'erh' : 'nmg';
+
+            // Status mapping
+            const recordStatus = r.record_status === 'storno' ? 'storno' : 'aktiv';
+
+            // Felder aus data oder Hauptfeldern holen
+            const firstName = d.firstName || r.first_name || '';
+            const lastName = d.lastName || r.last_name || '';
+            const salutation = d.salutation || r.salutation || '';
+            const title = d.title || r.title || '';
+
+            // Name zusammensetzen: Anrede + Titel + Vorname + Nachname
+            const nameParts = [salutation, title, firstName, lastName].filter(Boolean);
+            const fullName = nameParts.length > 0 ? nameParts.join(' ') : 'Unbekannt';
+
+            // Geburtsdatum formatieren (DD.MM.YYYY)
+            const birthDateRaw = d.birthDate || r.birth_date || '';
+            let birthDateFormatted = '';
+            if (birthDateRaw) {
+                const bd = new Date(birthDateRaw);
+                birthDateFormatted = bd.toLocaleDateString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            }
+
+            // Alter Jahresbeitrag (für ERH)
+            const oldYearlyAmountVal = r.old_amount || 0;
+
+            // Erhöhungsbetrag berechnen (nur wenn ERH)
+            const increaseAmountVal = recordType === 'erh' ? (yearlyAmountVal - oldYearlyAmountVal) : 0;
+
+            return {
+                id: r.id,
+                name: fullName,
+                firstName: firstName,
+                lastName: lastName,
+                recordType: recordType,
+                recordStatus: recordStatus,
+                entryDate: entryDateStr,
+                yearlyAmount: yearlyAmountFormatted,
+                yearlyAmountValue: yearlyAmountVal,
+                customerId: customersMap[r.customer_id] || '-',
+                campaignAreaId: areasMap[r.campaign_area_id] || '-',
+                werberId: usersMap[r.werber_id] || '-',
+                teamchefId: usersMap[r.teamchef_id] || '-',
+                street: d.street || r.street || '',
+                houseNumber: d.houseNumber || r.house_number || '',
+                zipCode: d.zipCode || r.zip_code || '',
+                city: d.city || r.city || '',
+                country: d.country || r.country || 'Deutschland',
+                email: d.email || r.email || '',
+                phoneFixed: d.phoneFixed || r.phone_fixed || '',
+                phoneMobile: d.phoneMobile || r.phone_mobile || '',
+                // Persönliche Daten
+                salutation: salutation,
+                title: title,
+                company: d.company || r.company || '',
+                birthDate: birthDateFormatted,
+                // Bankdaten
+                iban: d.iban || r.iban || '',
+                bic: d.bic || r.bic || '',
+                bankName: d.bankName || r.bank_name || '',
+                accountHolder: d.accountHolder || r.account_holder || '',
+                // Beitrag
+                intervalAmount: d.amount || r.amount || 0,
+                interval: d.interval || r.interval || '',
+                donationReceipt: (() => {
+                    const val = d.spendenquittung ?? r.donation_receipt;
+                    if (val === true || val === 'true') return 'Ja';
+                    if (val === false || val === 'false') return 'Nein';
+                    return val || '';
+                })(),
+                // Erhöhungs-spezifisch
+                memberNumber: r.member_number || '',
+                memberSince: r.member_since || '',
+                oldYearlyAmount: oldYearlyAmountVal,
+                increaseAmount: increaseAmountVal,
+                // Sonstiges
+                laterEntryDate: d.laterStartDate || r.start_date || '',
+                notes: d.notes || r.notes || '',
+                stornoDate: r.storno_date || '',
+                stornoReason: r.storno_reason || '',
+                // Opt-In Felder
+                contactEmailAllowed: (() => {
+                    const val = d.contactEmail ?? r.contact_email_allowed;
+                    if (val === true || val === 'true') return 'Ja';
+                    if (val === false || val === 'false') return 'Nein';
+                    return val || '';
+                })(),
+                contactPhoneAllowed: (() => {
+                    const val = d.contactPhone ?? r.contact_phone_allowed;
+                    if (val === true || val === 'true') return 'Ja';
+                    if (val === false || val === 'false') return 'Nein';
+                    return val || '';
+                })(),
+                // Original-Daten für Updates
+                _raw: r
+            };
+        }
+
+        // Kontext-Daten aus URL-Parametern
+        function getContextData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                type: urlParams.get('type') || 'alle',
+                id: urlParams.get('id') || null,
+                name: urlParams.get('name') || 'Alle Datensätze'
+            };
+        }
+
+        // ========== INIT ==========
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Tabs initialisieren
+            initTabs('.kw-tab', '.kw-tab-content');
+
+            // Zentrale Modals initialisieren
+            ModalTemplates.init(['storno', 'columns', 'edit', 'import', 'export', 'confirm']);
+
+            // Daten aus Supabase laden
+            await loadAllData();
+
+            // Spalten-Vorlagen laden (mit User-ID falls verfügbar)
+            const userId = window.parent?.currentUser?.id || null;
+            if (typeof initColumnTemplates === 'function') {
+                await initColumnTemplates(userId);
+            }
+
+            // Kontext aus URL
+            const contextData = getContextData();
+
+            // Datensätze-System initialisieren mit Supabase-Daten
+            initDatensaetze({
+                recordsData: recordsData,
+                bestandData: bestandData,
+                historyData: historyData,
+                contextData: contextData
+            });
+
+            // Tab-Badges aktualisieren
+            document.getElementById('recordsBadge').textContent = recordsData.length;
+            document.getElementById('bestandBadge').textContent = bestandData.length;
+
+            // Register toolbar config with shell (Import/Export for data tables)
+            registerToolbarConfig();
+        });
+
+        // Register toolbar buttons for data tables
+        function registerToolbarConfig() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'registerToolbar',
+                    config: {
+                        actionButtons: [
+                            { id: 'import', text: 'Import', icon: 'upload', action: 'openImportModal' },
+                            { id: 'export', text: 'Export', icon: 'download', action: 'openExportModal', primary: true }
+                        ]
+                    }
+                }, '*');
+            }
+        }
+
+        // Listen for toolbar actions from shell
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'toolbarAction') {
+                if (e.data.action === 'openImportModal' && typeof openImportModal === 'function') {
+                    openImportModal();
+                } else if (e.data.action === 'openExportModal' && typeof openExportModal === 'function') {
+                    openExportModal();
+                }
+            }
+
+            // Schnellsuche
+            if (e.data && e.data.type === 'searchQuery') {
+                handleShellSearch(e.data.query);
+            }
+
+            // Schnellsuche Auswahl
+            if (e.data && e.data.type === 'searchSelect') {
+                handleShellSearchSelect(e.data.id);
+            }
+        });
+
+        // Schnellsuche Handler
+        function handleShellSearch(query) {
+            if (!query || query.length < 2) {
+                window.parent.postMessage({ type: 'searchResults', results: [], query: query }, '*');
+                return;
+            }
+
+            const queryLower = query.toLowerCase();
+            const results = [];
+
+            // In Records suchen
+            if (typeof recordsData !== 'undefined' && recordsData.length > 0) {
+                recordsData.forEach(record => {
+                    const name = record.name || '';
+                    const firstName = record.firstName || '';
+                    const lastName = record.lastName || '';
+                    const city = record.city || '';
+                    const zipCode = record.zipCode || '';
+                    const email = record.email || '';
+
+                    const searchStr = `${name} ${firstName} ${lastName} ${city} ${zipCode} ${email}`.toLowerCase();
+
+                    if (searchStr.includes(queryLower)) {
+                        results.push({
+                            id: record.id,
+                            name: `${name} - ${city || 'Kein Ort'}`,
+                            type: 'record'
+                        });
+                    }
+                });
+            }
+
+            // Max 10 Ergebnisse
+            const limitedResults = results.slice(0, 10);
+
+            window.parent.postMessage({
+                type: 'searchResults',
+                results: limitedResults,
+                query: query,
+                headerText: `Datensätze (${results.length})`
+            }, '*');
+        }
+
+        // Schnellsuche Auswahl Handler
+        function handleShellSearchSelect(id) {
+            // Record in Tabelle finden und markieren
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (row) {
+                // Zur Zeile scrollen
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Zeile kurz hervorheben
+                row.classList.add('highlight-flash');
+                setTimeout(() => row.classList.remove('highlight-flash'), 2000);
+
+                // Checkbox aktivieren
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+        }
+    </script>
+</body>
+</html>

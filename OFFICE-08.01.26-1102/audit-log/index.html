@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit-Log - RB Inside Office</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            overflow-y: auto;
+            height: 100%;
+            margin: 0;
+            background: var(--bg-secondary);
+        }
+
+        /* Tab Content Areas */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Log Timeline */
+        .log-container {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: var(--spacing-lg);
+        }
+
+        .log-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .log-empty .icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .log-timeline {
+            position: relative;
+        }
+
+        .log-timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .log-entry {
+            position: relative;
+            padding-left: 52px;
+            padding-bottom: 24px;
+        }
+
+        .log-entry:last-child {
+            padding-bottom: 0;
+        }
+
+        .log-entry::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 3px solid var(--accent-color);
+        }
+
+        .log-entry.type-create::before {
+            border-color: #10b981;
+        }
+
+        .log-entry.type-update::before {
+            border-color: #f59e0b;
+        }
+
+        .log-entry.type-delete::before {
+            border-color: #ef4444;
+        }
+
+        .log-entry.type-role::before {
+            border-color: #8b5cf6;
+        }
+
+        .log-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .log-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .log-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--color-werber);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .log-username {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .log-action {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .log-action-type {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .log-action-type.create {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .log-action-type.update {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .log-action-type.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .log-action-type.role {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+
+        .log-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        .log-details {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+        }
+
+        .log-detail-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .log-detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .log-detail-label {
+            color: var(--text-secondary);
+            min-width: 100px;
+        }
+
+        .log-detail-value {
+            color: var(--text-primary);
+        }
+
+        .log-detail-old {
+            color: #ef4444;
+            text-decoration: line-through;
+        }
+
+        .log-detail-new {
+            color: #10b981;
+        }
+
+        .log-detail-arrow {
+            color: var(--text-secondary);
+            margin: 0 4px;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: var(--spacing-lg);
+        }
+
+        .pagination-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Date Groups */
+        .log-date-group {
+            margin-bottom: 24px;
+        }
+
+        .log-date-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            padding-left: 52px;
+        }
+
+        /* Letzte Mitglieder Section */
+        .mitglieder-section {
+            margin-top: var(--spacing-lg);
+        }
+
+        .mitglieder-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .mitglieder-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .mitglieder-section-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body >
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+        <div class="toolbar-left"></div>
+        <div class="toolbar-center">
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Zeitraum</span>
+                <select class="toolbar-filter" id="filterTimeRange" onchange="applyFilters()">
+                    <option value="today">Heute</option>
+                    <option value="week" selected>Diese Woche</option>
+                    <option value="month">Dieser Monat</option>
+                    <option value="all">Alle</option>
+                </select>
+            </div>
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Aktion</span>
+                <select class="toolbar-filter" id="filterAction" onchange="applyFilters()">
+                    <option value="">Alle Aktionen</option>
+                    <option value="create">Erstellt</option>
+                    <option value="update">Aktualisiert</option>
+                    <option value="delete">Gelöscht</option>
+                    <option value="role">Rollenänderung</option>
+                </select>
+            </div>
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Bereich</span>
+                <select class="toolbar-filter" id="filterArea" onchange="applyFilters()">
+                    <option value="">Alle Bereiche</option>
+                    <option value="users">Mitarbeiter</option>
+                    <option value="campaigns">Kampagnen</option>
+                    <option value="records">Datensätze</option>
+                    <option value="roles">Rollen</option>
+                    <option value="provisions">Provisionen</option>
+                </select>
+            </div>
+            <div class="toolbar-filter-group">
+                <span class="toolbar-filter-label">Benutzer</span>
+                <select class="toolbar-filter" id="filterUser" onchange="applyFilters()">
+                    <option value="">Alle Benutzer</option>
+                </select>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="btn" onclick="exportLog()">
+                <span class="icon icon--download"></span>
+                <span>Export</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <!-- TAB: Dashboard (Audit-Log Timeline) -->
+        <div class="tab-content active" id="tabDashboard">
+            <!-- Log Container -->
+            <div class="log-container" id="logContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    Lade Audit-Log...
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button class="pagination-btn" id="prevBtn" onclick="prevPage()" disabled>Zurück</button>
+                <span class="pagination-info" id="pageInfo">Seite 1 von 1</span>
+                <button class="pagination-btn" id="nextBtn" onclick="nextPage()">Weiter</button>
+            </div>
+
+            <!-- Letzte 25 Mitglieder -->
+            <div class="mitglieder-section">
+                <div class="mitglieder-section-header">
+                    <h2 class="mitglieder-section-title">Letzte 25 Mitglieder</h2>
+                    <span class="mitglieder-section-subtitle">Neueste Schriebe aus allen Kampagnen</span>
+                </div>
+                <div id="mitgliederGrid" class="schriebe-grid">
+                    <div class="mitglieder-loading">
+                        <div class="loading-spinner"></div>
+                        Lade Mitglieder...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Mitglieder (Letzte 100 Mitglieder Tabelle) -->
+        <div class="tab-content" id="tabMitglieder">
+            <div class="table-wrap">
+                <div class="table-header">
+                    <div class="table-header-left">
+                        <span class="table-title">Letzte 100 Mitglieder</span>
+                        <!-- Filter Buttons -->
+                        <div class="filter-buttons">
+                            <button class="btn btn-sm active" data-filter="all" onclick="setFilter('all')">Alle</button>
+                            <button class="btn btn-sm" data-filter="nmg" onclick="setFilter('nmg')">Neumitglieder</button>
+                            <button class="btn btn-sm" data-filter="erh" onclick="setFilter('erh')">Erhöhungen</button>
+                            <button class="btn btn-sm" data-filter="storno" onclick="setFilter('storno')">Rückläufer (Stornos)</button>
+                        </div>
+                        <button class="btn btn-sm btn-sm--hidden" id="recordsSelectionBtn">
+                            <span class="icon icon--clipboard"></span>
+                            Ausgewählt: <span id="recordsSelectedCount">0</span>
+                        </button>
+                        <div class="header-actions" id="recordsHeaderActions">
+                            <button class="btn btn-sm" onclick="sendMail('records')">
+                                <span class="icon icon--email"></span>
+                                E-Mail
+                            </button>
+                            <button class="btn btn-sm" onclick="downloadPDF('records')">
+                                <span class="icon icon--dokument"></span>
+                                PDF
+                            </button>
+                            <button class="btn btn-sm" onclick="stornoSelected('records')">
+                                <span class="icon icon--storno"></span>
+                                Stornieren
+                            </button>
+                            <button class="btn btn-sm" onclick="deleteSelected('records')">
+                                <span class="icon icon--loeschen"></span>
+                                Löschen
+                            </button>
+                        </div>
+                        <span class="header-divider"></span>
+                        <button class="btn btn-sm" onclick="openColumnsModal('records')">
+                            <span class="icon icon--spalten"></span>
+                            Spalten
+                        </button>
+                        <button class="btn btn-sm" onclick="openAuditModal('nmg-erh', 'default')">
+                            <span class="icon icon--uhr"></span>
+                            Audit
+                        </button>
+                    </div>
+                    <div class="table-header-right">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="recordsTable">
+                        <thead id="recordsTableHead">
+                            <!-- Wird dynamisch gerendert -->
+                        </thead>
+                        <tbody id="recordsTableBody">
+                            <!-- Wird dynamisch gerendert -->
+                        </tbody>
+                        <tfoot id="recordsTableFoot">
+                            <!-- Wird dynamisch gerendert -->
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>  <!-- Ende content-area -->
+
+    <!-- Modals (aus zentralem Template) -->
+    <!-- Werden durch ModalTemplates.init(['storno', 'columns']) erstellt -->
+
+    <script>
+        // ================================================================
+        // SUPABASE SETUP
+        // ================================================================
+        const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // State
+        let currentPage = 1;
+        const pageSize = 50;
+        let totalEntries = 0;
+        let adminUsers = [];
+        let currentTab = 'dashboard';
+
+        // ================================================================
+        // TAB NAVIGATION
+        // ================================================================
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+
+            // Update tab content visibility
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            if (tabName === 'dashboard') {
+                document.getElementById('tabDashboard').classList.add('active');
+            } else if (tabName === 'mitglieder') {
+                document.getElementById('tabMitglieder').classList.add('active');
+            }
+
+            // Notify shell about tab change and update toolbar buttons
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'updateNavDropdown',
+                    value: tabName
+                }, '*');
+
+                // Register toolbar config based on current tab
+                registerToolbarConfig(tabName);
+            }
+        }
+
+        // ================================================================
+        // INITIALIZATION
+        // ================================================================
+
+        async function init() {
+            // Zentrale Modals initialisieren
+            ModalTemplates.init(['storno', 'columns']);
+
+            await loadAdminUsers();
+            await loadAuditLog();
+            loadLastMitglieder();
+            initMitgliederTable();
+
+            // Register toolbar config with shell
+            registerToolbarConfig();
+        }
+
+        function registerToolbarConfig(activeTab = 'dashboard') {
+            // Send toolbar config to shell
+            if (window.parent && window.parent !== window) {
+                const config = {
+                    navDropdown: [
+                        { value: 'dashboard', label: 'Dashboard', selected: activeTab === 'dashboard' },
+                        { value: 'mitglieder', label: 'Mitglieder', selected: activeTab === 'mitglieder' }
+                    ],
+                    searchPlaceholder: 'Audit-Log durchsuchen...'
+                };
+
+                // Tab "Mitglieder" zeigt Datensätze -> Import/Export Buttons
+                if (activeTab === 'mitglieder') {
+                    config.actionButtons = [
+                        { id: 'import', text: 'Import', icon: 'upload', action: 'openImportModal' },
+                        { id: 'export', text: 'Export', icon: 'download', action: 'openExportModal', primary: true }
+                    ];
+                } else {
+                    // Dashboard: nur Export
+                    config.actionButtons = [
+                        { id: 'export', text: 'Export', icon: 'download', action: 'openExportModal', primary: true }
+                    ];
+                }
+
+                window.parent.postMessage({
+                    type: 'registerToolbar',
+                    config: config
+                }, '*');
+            }
+        }
+
+        async function loadAdminUsers() {
+            try {
+                const { data, error } = await supabase
+                    .from('user_with_roles')
+                    .select('id, name')
+                    .in('main_role', ['admin', 'führungsebene'])
+                    .order('name');
+
+                if (error) throw error;
+
+                adminUsers = data || [];
+
+                // Populate filter dropdown
+                const filterUser = document.getElementById('filterUser');
+                adminUsers.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    filterUser.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading admin users:', error);
+            }
+        }
+
+        // ================================================================
+        // LOAD AUDIT LOG
+        // ================================================================
+
+        async function loadAuditLog() {
+            const container = document.getElementById('logContainer');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    Lade Audit-Log...
+                </div>
+            `;
+
+            try {
+                // Get filters
+                const timeRange = document.getElementById('filterTimeRange').value;
+                const action = document.getElementById('filterAction').value;
+                const area = document.getElementById('filterArea').value;
+                const userId = document.getElementById('filterUser').value;
+
+                // Build date filter
+                let dateFilter = null;
+                const now = new Date();
+                if (timeRange === 'today') {
+                    dateFilter = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+                } else if (timeRange === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    dateFilter = weekAgo.toISOString();
+                } else if (timeRange === 'month') {
+                    const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    dateFilter = monthAgo.toISOString();
+                }
+
+                // Query audit_log table
+                let query = supabase
+                    .from('audit_log')
+                    .select('*', { count: 'exact' })
+                    .order('created_at', { ascending: false })
+                    .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
+
+                if (dateFilter) {
+                    query = query.gte('created_at', dateFilter);
+                }
+
+                if (action) {
+                    query = query.eq('action_type', action);
+                }
+
+                if (area) {
+                    query = query.eq('table_name', area);
+                }
+
+                if (userId) {
+                    query = query.eq('performed_by', userId);
+                }
+
+                const { data: logs, error, count } = await query;
+
+                if (error) {
+                    // If table doesn't exist yet, show empty state
+                    if (error.code === '42P01') {
+                        showEmptyState('Audit-Log Tabelle noch nicht eingerichtet');
+                        return;
+                    }
+                    throw error;
+                }
+
+                totalEntries = count || 0;
+
+                if (!logs || logs.length === 0) {
+                    showEmptyState('Keine Einträge gefunden');
+                    return;
+                }
+
+                // Get user names for the logs
+                const userIds = [...new Set(logs.map(l => l.performed_by).filter(Boolean))];
+                let userMap = {};
+
+                if (userIds.length > 0) {
+                    const { data: users } = await supabase
+                        .from('users')
+                        .select('id, name')
+                        .in('id', userIds);
+
+                    if (users) {
+                        users.forEach(u => userMap[u.id] = u.name);
+                    }
+                }
+
+                // Group logs by date
+                const groupedLogs = groupByDate(logs);
+
+                // Render logs
+                renderLogs(groupedLogs, userMap);
+
+                // Update pagination
+                updatePagination();
+
+            } catch (error) {
+                console.error('Error loading audit log:', error);
+                container.innerHTML = `
+                    <div class="log-empty">
+                        <span class="icon icon--warnung"></span>
+                        <p>Fehler beim Laden des Audit-Logs</p>
+                        <p style="font-size: 12px; margin-top: 8px;">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showEmptyState(message) {
+            const container = document.getElementById('logContainer');
+            container.innerHTML = `
+                <div class="log-empty">
+                    <span class="icon icon--clipboard-leer"></span>
+                    <p>${message}</p>
+                </div>
+            `;
+            document.getElementById('pagination').style.display = 'none';
+        }
+
+        function groupByDate(logs) {
+            const groups = {};
+            logs.forEach(log => {
+                const date = new Date(log.created_at).toLocaleDateString('de-DE', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                if (!groups[date]) {
+                    groups[date] = [];
+                }
+                groups[date].push(log);
+            });
+            return groups;
+        }
+
+        function renderLogs(groupedLogs, userMap) {
+            const container = document.getElementById('logContainer');
+            let html = '<div class="log-timeline">';
+
+            Object.entries(groupedLogs).forEach(([date, logs]) => {
+                html += `
+                    <div class="log-date-group">
+                        <div class="log-date-header">${date}</div>
+                `;
+
+                logs.forEach(log => {
+                    const userName = userMap[log.performed_by] || 'System';
+                    const initials = getInitials(userName);
+                    const actionType = log.action_type || 'update';
+                    const time = new Date(log.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+                    // Stufen-Badge für Werber
+                    const stufeBadge = typeof getStufeBadge === 'function'
+                        ? getStufeBadge(getUserStufe(initials))
+                        : '';
+
+                    html += `
+                        <div class="log-entry type-${actionType}">
+                            <div class="log-header">
+                                <div class="user-badge user-badge--werber user-badge--small">
+                                    <div class="user-badge__avatar">${initials}${stufeBadge}</div>
+                                    <div class="user-badge__info">
+                                        <span class="user-badge__name">${userName}</span>
+                                        <span class="user-badge__type">Werber</span>
+                                    </div>
+                                </div>
+                                <span class="log-action">${getActionText(log)}</span>
+                                <span class="log-action-type ${actionType}">${getActionLabel(actionType)}</span>
+                                <span class="log-time">${time}</span>
+                            </div>
+                            ${renderLogDetails(log)}
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // getInitials kommt aus main.js
+
+        function getActionLabel(type) {
+            const labels = {
+                'create': 'Erstellt',
+                'update': 'Aktualisiert',
+                'delete': 'Gelöscht',
+                'role': 'Rolle'
+            };
+            return labels[type] || type;
+        }
+
+        function getActionText(log) {
+            const tableLabels = {
+                'users': 'Mitarbeiter',
+                'campaigns': 'Kampagne',
+                'records': 'Datensatz',
+                'roles': 'Rolle',
+                'provisions': 'Provision',
+                'user_roles': 'Benutzerrolle',
+                'user_profiles': 'Profil'
+            };
+
+            const table = tableLabels[log.table_name] || log.table_name;
+            const targetName = log.target_name || '';
+
+            if (log.action_type === 'create') {
+                return `hat ${table} ${targetName} erstellt`;
+            } else if (log.action_type === 'update') {
+                return `hat ${table} ${targetName} aktualisiert`;
+            } else if (log.action_type === 'delete') {
+                return `hat ${table} ${targetName} gelöscht`;
+            } else if (log.action_type === 'role') {
+                return `hat Rolle von ${targetName} geändert`;
+            }
+
+            return `hat Änderung an ${table} vorgenommen`;
+        }
+
+        function renderLogDetails(log) {
+            if (!log.old_data && !log.new_data && !log.description) {
+                return '';
+            }
+
+            let html = '<div class="log-details">';
+
+            // Show description if available
+            if (log.description) {
+                html += `<div class="log-detail-row">
+                    <span class="log-detail-value">${log.description}</span>
+                </div>`;
+            }
+
+            // Show changed fields
+            if (log.old_data || log.new_data) {
+                const oldData = log.old_data || {};
+                const newData = log.new_data || {};
+                const allKeys = new Set([...Object.keys(oldData), ...Object.keys(newData)]);
+
+                allKeys.forEach(key => {
+                    if (key === 'id' || key === 'created_at' || key === 'updated_at') return;
+
+                    const oldVal = oldData[key];
+                    const newVal = newData[key];
+
+                    if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
+                        html += `<div class="log-detail-row">
+                            <span class="log-detail-label">${formatFieldName(key)}:</span>
+                            ${oldVal !== undefined ? `<span class="log-detail-old">${formatValue(oldVal)}</span>` : ''}
+                            ${oldVal !== undefined && newVal !== undefined ? '<span class="log-detail-arrow">→</span>' : ''}
+                            ${newVal !== undefined ? `<span class="log-detail-new">${formatValue(newVal)}</span>` : ''}
+                        </div>`;
+                    }
+                });
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function formatFieldName(name) {
+            const labels = {
+                'name': 'Name',
+                'email': 'E-Mail',
+                'main_role': 'Hauptrolle',
+                'karriere_stufe': 'Karrierestufe',
+                'custom_provision_factor': 'Ind. Provision',
+                'is_quality_manager': 'Quality Manager',
+                'is_recruiting_manager': 'Recruiting Manager',
+                'status': 'Status',
+                'campaign_name': 'Kampagne'
+            };
+            return labels[name] || name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatValue(val) {
+            if (val === null || val === undefined) return '-';
+            if (typeof val === 'boolean') return val ? 'Ja' : 'Nein';
+            if (typeof val === 'object') return JSON.stringify(val);
+            return String(val);
+        }
+
+        // ================================================================
+        // PAGINATION
+        // ================================================================
+
+        function updatePagination() {
+            const totalPages = Math.ceil(totalEntries / pageSize);
+            const pagination = document.getElementById('pagination');
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            pagination.style.display = 'flex';
+            document.getElementById('pageInfo').textContent = `Seite ${currentPage} von ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage <= 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadAuditLog();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(totalEntries / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadAuditLog();
+            }
+        }
+
+        // ================================================================
+        // FILTERS
+        // ================================================================
+
+        function applyFilters() {
+            currentPage = 1;
+            loadAuditLog();
+        }
+
+        // ================================================================
+        // EXPORT
+        // ================================================================
+
+        async function exportLog() {
+            try {
+                // Get all filtered data
+                const timeRange = document.getElementById('filterTimeRange').value;
+                const action = document.getElementById('filterAction').value;
+                const area = document.getElementById('filterArea').value;
+                const userId = document.getElementById('filterUser').value;
+
+                let dateFilter = null;
+                const now = new Date();
+                if (timeRange === 'today') {
+                    dateFilter = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+                } else if (timeRange === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    dateFilter = weekAgo.toISOString();
+                } else if (timeRange === 'month') {
+                    const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    dateFilter = monthAgo.toISOString();
+                }
+
+                let query = supabase
+                    .from('audit_log')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (dateFilter) query = query.gte('created_at', dateFilter);
+                if (action) query = query.eq('action_type', action);
+                if (area) query = query.eq('table_name', area);
+                if (userId) query = query.eq('performed_by', userId);
+
+                const { data, error } = await query;
+
+                if (error) throw error;
+
+                // Convert to CSV
+                const headers = ['Datum', 'Uhrzeit', 'Benutzer', 'Aktion', 'Bereich', 'Beschreibung'];
+                const rows = data.map(log => {
+                    const date = new Date(log.created_at);
+                    return [
+                        date.toLocaleDateString('de-DE'),
+                        date.toLocaleTimeString('de-DE'),
+                        log.performed_by || 'System',
+                        getActionLabel(log.action_type),
+                        log.table_name,
+                        log.description || ''
+                    ];
+                });
+
+                const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+                // Download
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `audit-log-${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+
+            } catch (error) {
+                console.error('Export error:', error);
+                await showAlert('Fehler', 'Fehler beim Exportieren: ' + error.message, 'error');
+            }
+        }
+
+        // ========== STUFEN-MAPPING ==========
+        const werberStufen = {
+            'MS': 'JMM',
+            'AS': 'CEMM',
+            'TM': 'EMA',
+            'PH': 'JMM',
+            'SK': 'SMA',
+            'NW': 'EMM',
+            'FG': 'SMA',
+            'LB': 'JMM',
+            'MK': 'EMA',
+            'JS': 'SPB',
+            'MM': 'JMM',
+            'TF': 'EMA',
+            'JW': 'EMM'
+        };
+
+        function getUserStufe(initials) {
+            return werberStufen[initials] || null;
+        }
+
+        // ========== LETZTE 25 MITGLIEDER ==========
+        function loadLastMitglieder() {
+            const container = document.getElementById('mitgliederGrid');
+
+            // Dummy-Daten
+            const mitglieder = [
+                { id: 1, name: 'Maria Schneider', eh: 36, typ: 'NMG', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Hauptstr.', hausnr: '12', uhrzeit: '14:30', emailStatus: 'opened', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 2, name: 'Hans Weber', eh: 24, typ: 'ERH', werbegebiet: 'Mannheim-Nord', strasse: 'Bergstr.', hausnr: '45', uhrzeit: '11:15', emailStatus: 'sent', ibanFilled: false, botschafter: 'L. Bauer' },
+                { id: 3, name: 'Lisa Müller', eh: 48, typ: 'NMG', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Schillerstr.', hausnr: '8', uhrzeit: '09:45', emailStatus: 'not_sent', ibanFilled: true, botschafter: 'M. Klein' },
+                { id: 4, name: 'Thomas Fischer', eh: 18, typ: 'NMG', werbegebiet: 'Ludwigshafen-Süd', strasse: 'Goethestr.', hausnr: '23', uhrzeit: '16:20', emailStatus: 'opened', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 5, name: 'Anna Becker', eh: 30, typ: 'ERH', werbegebiet: 'Mannheim-Neckarau', strasse: 'Mozartstr.', hausnr: '17', uhrzeit: '13:00', emailStatus: 'sent', ibanFilled: false, botschafter: 'P. Hoffmann' },
+                { id: 6, name: 'Michael Hoffmann', eh: 42, typ: 'NMG', werbegebiet: 'Heidelberg-Neuenheim', strasse: 'Bachstr.', hausnr: '31', uhrzeit: '10:30', emailStatus: 'opened', ibanFilled: true, botschafter: 'M. Klein' },
+                { id: 7, name: 'Julia Wagner', eh: 15, typ: 'NMG', werbegebiet: 'Mannheim-Käfertal', strasse: 'Lindenstr.', hausnr: '5', uhrzeit: '15:45', emailStatus: 'not_sent', ibanFilled: false, botschafter: 'L. Bauer' },
+                { id: 8, name: 'Stefan Schulz', eh: 27, typ: 'ERH', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Rosenweg', hausnr: '9', uhrzeit: '08:15', emailStatus: 'sent', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 9, name: 'Sabine Koch', eh: 33, typ: 'NMG', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Tulpenstr.', hausnr: '14', uhrzeit: '12:00', emailStatus: 'opened', ibanFilled: true, botschafter: 'P. Hoffmann' },
+                { id: 10, name: 'Andreas Braun', eh: 21, typ: 'NMG', werbegebiet: 'Mannheim-Nord', strasse: 'Nelkenweg', hausnr: '27', uhrzeit: '17:30', emailStatus: 'sent', ibanFilled: false, botschafter: 'M. Klein' },
+                { id: 11, name: 'Sandra Hoffmann', eh: 22, typ: 'NMG', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Königstr.', hausnr: '15', uhrzeit: '07:15', emailStatus: 'opened', ibanFilled: true, botschafter: 'L. Bauer' },
+                { id: 12, name: 'Peter Krause', eh: 18, typ: 'ERH', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Neuenheimer Landstr.', hausnr: '88', uhrzeit: '19:30', emailStatus: 'sent', ibanFilled: false, botschafter: 'A. Schneider' },
+                { id: 13, name: 'Monika Schulz', eh: 33, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', strasse: 'Rheingoldstr.', hausnr: '42', uhrzeit: '16:45', emailStatus: 'opened', ibanFilled: true, botschafter: 'P. Hoffmann' },
+                { id: 14, name: 'Jürgen Wolf', eh: 28, typ: 'NMG', werbegebiet: 'Ludwigshafen-Süd', strasse: 'Südring', hausnr: '7', uhrzeit: '11:20', emailStatus: 'not_sent', ibanFilled: false, botschafter: 'M. Klein' },
+                { id: 15, name: 'Claudia Meyer', eh: 45, typ: 'ERH', werbegebiet: 'Heidelberg-Neuenheim', strasse: 'Handschuhsheimer Landstr.', hausnr: '56', uhrzeit: '14:00', emailStatus: 'opened', ibanFilled: true, botschafter: 'L. Bauer' },
+                { id: 16, name: 'Ralf Zimmermann', eh: 12, typ: 'NMG', werbegebiet: 'Mannheim-Käfertal', strasse: 'Waldstr.', hausnr: '33', uhrzeit: '08:55', emailStatus: 'sent', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 17, name: 'Ingrid Braun', eh: 38, typ: 'NMG', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Bismarckstr.', hausnr: '21', uhrzeit: '10:10', emailStatus: 'opened', ibanFilled: false, botschafter: 'P. Hoffmann' },
+                { id: 18, name: 'Wolfgang Huber', eh: 27, typ: 'ERH', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Karlsruher Str.', hausnr: '9', uhrzeit: '15:25', emailStatus: 'sent', ibanFilled: true, botschafter: 'M. Klein' },
+                { id: 19, name: 'Stefanie Lang', eh: 19, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', strasse: 'Neckarauer Str.', hausnr: '112', uhrzeit: '12:40', emailStatus: 'not_sent', ibanFilled: false, botschafter: 'L. Bauer' },
+                { id: 20, name: 'Dieter Schwarz', eh: 31, typ: 'NMG', werbegebiet: 'Ludwigshafen-Süd', strasse: 'Mundenheimer Str.', hausnr: '67', uhrzeit: '17:05', emailStatus: 'opened', ibanFilled: true, botschafter: 'A. Schneider' },
+                { id: 21, name: 'Heike Neumann', eh: 24, typ: 'ERH', werbegebiet: 'Heidelberg-Neuenheim', strasse: 'Berliner Str.', hausnr: '3', uhrzeit: '09:15', emailStatus: 'sent', ibanFilled: false, botschafter: 'P. Hoffmann' },
+                { id: 22, name: 'Uwe Becker', eh: 42, typ: 'NMG', werbegebiet: 'Mannheim-Käfertal', strasse: 'Lampertheimer Str.', hausnr: '28', uhrzeit: '13:50', emailStatus: 'opened', ibanFilled: true, botschafter: 'M. Klein' },
+                { id: 23, name: 'Martina Klein', eh: 16, typ: 'NMG', werbegebiet: 'Ludwigshafen-Mitte', strasse: 'Oggersheimer Str.', hausnr: '45', uhrzeit: '18:20', emailStatus: 'sent', ibanFilled: true, botschafter: 'L. Bauer' },
+                { id: 24, name: 'Helmut Richter', eh: 55, typ: 'ERH', werbegebiet: 'Heidelberg-Altstadt', strasse: 'Philosophenweg', hausnr: '1', uhrzeit: '07:45', emailStatus: 'opened', ibanFilled: false, botschafter: 'A. Schneider' },
+                { id: 25, name: 'Renate Vogel', eh: 29, typ: 'NMG', werbegebiet: 'Mannheim-Neckarau', strasse: 'Casterfeldstr.', hausnr: '89', uhrzeit: '14:55', emailStatus: 'not_sent', ibanFilled: false, botschafter: 'P. Hoffmann' }
+            ];
+
+            // Zentrale Render-Funktion aus member-cards.js verwenden
+            if (typeof renderMemberCards === 'function') {
+                container.innerHTML = renderMemberCards(mitglieder);
+            }
+        }
+
+        // ========== MITGLIEDER TABELLE ==========
+        function initMitgliederTable() {
+            const testRecordsData = generateDummyRecords(100);
+
+            if (typeof initDatensaetze === 'function') {
+                initDatensaetze({
+                    recordsData: testRecordsData,
+                    bestandData: [],
+                    historyData: {},
+                    contextData: { type: 'audit', name: 'Audit-Log' }
+                });
+            }
+        }
+
+        function generateDummyRecords(count) {
+            const vornamen = ['Max', 'Anna', 'Peter', 'Lisa', 'Julia', 'Daniel', 'Sandra', 'Markus', 'Katrin', 'Christian', 'Klaus', 'Maria', 'Stefan', 'Heike', 'Jürgen', 'Thomas', 'Sarah', 'Michael', 'Nina', 'Felix', 'Laura', 'Tobias', 'Emma', 'Paul', 'Sophie'];
+            const nachnamen = ['Müller', 'Schmidt', 'Weber', 'Hoffmann', 'Wagner', 'Klein', 'Bauer', 'Schulz', 'Wolf', 'Becker', 'Schneider', 'Koch', 'Lorenz', 'Schuster', 'Fischer', 'Braun', 'Meier', 'Neumann', 'Lang', 'Richter'];
+            const gebiete = ['Ludwigshafen-Mitte', 'Mannheim-Nord', 'Heidelberg-Altstadt', 'Ludwigshafen-Süd', 'Mannheim-Neckarau', 'Heidelberg-Neuenheim', 'Mannheim-Käfertal', 'Wiesbaden', 'Darmstadt', 'Offenbach'];
+            const werber = ['A. Schneider', 'L. Bauer', 'M. Klein', 'P. Hoffmann', 'T. Müller', 'S. Weber'];
+            const teamchefs = ['Hans Meier', 'Klaus Fischer', 'Petra Schulz', 'Markus Lang'];
+            const strassen = ['Hauptstraße', 'Berliner Str.', 'Rheinstraße', 'Goethestraße', 'Kaiserstraße', 'Wilhelmstraße', 'Schillerstraße', 'Bahnhofstraße', 'Marktplatz', 'Gartenweg'];
+            const kunden = ['DRK KV Ludwigshafen', 'DRK KV Mannheim', 'DRK KV Heidelberg', 'DRK KV Frankfurt', 'DRK KV Darmstadt'];
+
+            const records = [];
+            const today = new Date();
+
+            for (let i = 1; i <= count; i++) {
+                const vorname = vornamen[Math.floor(Math.random() * vornamen.length)];
+                const nachname = nachnamen[Math.floor(Math.random() * nachnamen.length)];
+                const typ = Math.random() > 0.3 ? 'nmg' : 'erh';
+                const dayOffset = Math.floor(Math.random() * 30);
+                const date = new Date(today);
+                date.setDate(date.getDate() - dayOffset);
+                const dateStr = date.toLocaleDateString('de-DE');
+                const je = [60, 120, 180, 240][Math.floor(Math.random() * 4)];
+                const status = Math.random() > 0.9 ? 'storniert' : 'aktiv';
+
+                records.push({
+                    id: i,
+                    name: `${vorname} ${nachname}`,
+                    typ: typ,
+                    date: dateStr,
+                    je: `${je},00 €`,
+                    kunde: kunden[Math.floor(Math.random() * kunden.length)],
+                    gebiet: gebiete[Math.floor(Math.random() * gebiete.length)],
+                    werber: werber[Math.floor(Math.random() * werber.length)],
+                    teamchef: teamchefs[Math.floor(Math.random() * teamchefs.length)],
+                    street: strassen[Math.floor(Math.random() * strassen.length)],
+                    houseNumber: String(Math.floor(Math.random() * 150) + 1),
+                    zipCode: String(60000 + Math.floor(Math.random() * 10000)),
+                    city: gebiete[Math.floor(Math.random() * gebiete.length)].split('-')[0],
+                    email: `${vorname.toLowerCase()}.${nachname.toLowerCase()}@email.de`,
+                    phoneFixed: `0${Math.floor(Math.random() * 900) + 100} ${Math.floor(Math.random() * 9000000) + 1000000}`,
+                    phoneMobile: `01${Math.floor(Math.random() * 90) + 70} ${Math.floor(Math.random() * 9000000) + 1000000}`,
+                    status: status
+                });
+            }
+            return records;
+        }
+
+        // ========== SHELL INTEGRATION ==========
+        // Listen for messages from shell
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'searchQuery') {
+                handleSearch(e.data.query);
+            }
+            if (e.data && e.data.type === 'navFilter') {
+                switchTab(e.data.value);
+            }
+        });
+
+        // Search/filter function
+        function handleSearch(query) {
+            const search = query.toLowerCase().trim();
+            // Filter log entries
+            document.querySelectorAll('.log-entry').forEach(entry => {
+                const text = entry.textContent.toLowerCase();
+                entry.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

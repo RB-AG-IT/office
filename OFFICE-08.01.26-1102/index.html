@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backoffice - RB Inside</title>
+    <link rel="icon" href="data:," type="image/x-icon">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/main.js"></script>
+
+    <!-- SheetJS für Excel/CSV Import -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+<body class="shell-body">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <div class="nav-link" id="sidebarToggle">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--menu"></span></span>
+                </div>
+                <!-- Hauptnavigation -->
+                <div class="nav-link active" data-page="dashboard">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--haus"></span><span class="nav-text">Dashboard</span></span>
+                </div>
+                <div class="nav-link" data-page="users">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--personen"></span><span class="nav-text">Benutzer</span></span>
+                </div>
+                <div class="nav-link" data-page="campaigns">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--ordner"></span><span class="nav-text">Kampagnen</span></span>
+                </div>
+                <div class="nav-link" data-page="statistics">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--statistik"></span><span class="nav-text">Statistik</span></span>
+                </div>
+                <div class="nav-link" data-page="templates">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--dokument"></span><span class="nav-text">Vorlagen</span></span>
+                </div>
+                <div class="nav-link" data-page="payouts">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--geld"></span><span class="nav-text">Abrechnungen</span></span>
+                </div>
+            </nav>
+
+            <!-- Angeheftete Items (über Footer) -->
+            <div class="sidebar-pinned">
+                <div class="nav-link nav-link--blau" data-page="audit-log">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--uhr"></span><span class="nav-text">Audit-Log</span></span>
+                </div>
+                <div class="nav-link nav-link--blau" data-page="alerts">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--warnung"></span><span class="nav-text">Auffälligkeiten</span></span>
+                </div>
+                <div class="nav-link nav-link--blau" data-page="deletion-requests">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--papierkorb"></span><span class="nav-text">Lösch-Anfragen</span></span>
+                    <span class="nav-badge" id="deletionBadge" style="display: none;">0</span>
+                </div>
+                <div class="nav-link nav-link--blau" data-page="investments">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--trend"></span><span class="nav-text">Investments</span></span>
+                </div>
+                <div class="nav-link nav-link--blau" data-page="stufen">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--stern"></span><span class="nav-text">Stufen & Achievements</span></span>
+                </div>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="sidebar-footer">
+                <div class="nav-link" onclick="toggleSettingsDropdown(event)">
+                    <span class="anzeigenfeld anzeigenfeld--fett"><span class="icon icon--einstellungen"></span><span class="nav-text">Einstellungen</span></span>
+                </div>
+                <div class="dropdown-menu" id="settingsDropdownMenu">
+                    <div class="dropdown-item" id="profileDropdownItem" onclick="openMyProfile()" style="display: none;">
+                        <span class="icon icon--person"></span>
+                        <span class="text-klein--fett">Profil</span>
+                    </div>
+                    <div class="dropdown-item" id="authDropdownItem" onclick="window.currentUser ? handleLogout() : openLoginModal()">
+                        <span class="icon icon--schloss" id="authDropdownIcon"></span>
+                        <span id="authDropdownText" class="text-klein--fett">Anmelden</span>
+                    </div>
+                    <div class="dropdown-item" onclick="window.open('base/formular/', '_blank')">
+                        <span class="icon icon--clipboard"></span>
+                        <span class="text-klein--fett">Formular</span>
+                    </div>
+                    <div class="dropdown-item" onclick="openImportModal()">
+                        <span class="icon icon--upload"></span>
+                        <span class="text-klein--fett">Import Data</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Persistente Action Toolbar -->
+        <div class="zeile zeile--shell-toolbar" id="shellToolbar">
+            <!-- Left -->
+            <div class="anzeigenfeld anzeigenfeld--w-280 anzeigenfeld--no-padding">
+                <div class="toolbar-nav-dropdown" id="shellNavDropdown">
+                    <div class="toolbar-nav-trigger">
+                        <span id="shellNavText">Dashboard</span>
+                        <span class="icon icon--pfeil-unten"></span>
+                    </div>
+                    <div class="toolbar-nav-menu" id="shellNavMenu">
+                        <!-- Wird dynamisch befüllt -->
+                    </div>
+                </div>
+                <!-- Zeitraum Filter (dynamisch) -->
+                <div id="shellFiltersLeft" style="display: none;"></div>
+            </div>
+
+            <!-- Spacer -->
+            <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+
+            <!-- Center: Searchbar -->
+            <div class="anzeigenfeld anzeigenfeld--w-320 anzeigenfeld--no-padding toolbar-search-wrapper">
+                <span class="icon icon--suche toolbar-search-icon"></span>
+                <input type="search" class="toolbar-search-input" id="shellSearchInput" name="site-search" placeholder=" " autocomplete="off" data-lpignore="true" data-form-type="other" role="searchbox">
+                <span class="toolbar-search-placeholder" id="shellSearchPlaceholder">Suchen...</span>
+            </div>
+
+            <!-- Spacer -->
+            <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+
+            <!-- Right -->
+            <div class="anzeigenfeld anzeigenfeld--w-280 anzeigenfeld--no-padding" style="justify-content: flex-end;">
+                <!-- Kontext Filter (dynamisch) -->
+                <div id="shellFilters"></div>
+                <!-- Action Buttons (dynamisch) -->
+                <div id="shellToolbarRight"></div>
+            </div>
+
+            <!-- Search Dropdown -->
+            <div class="shell-search-dropdown" id="shellSearchDropdown">
+                <div class="shell-search-dropdown-header" id="shellSearchDropdownHeader">Ergebnisse</div>
+                <div id="shellSearchResults"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="content-area">
+            <div class="content-frame no-iframe" id="content-container">
+                <!-- Content will be loaded here dynamically -->
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal modal-s" id="loginModal">
+        <div class="page-container page-container--modal">
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift">Anmelden</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn btn-icon" onclick="closeLoginModal()">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(); return false;" autocomplete="on">
+                <!-- Modal Body -->
+                <div class="page-content">
+                    <div class="zeile" style="justify-content: center;">
+                        <span class="text-klein">Melden Sie sich mit Ihrem Office-Konto an</span>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" for="loginEmail">E-Mail</label>
+                            <input type="email" class="eingabefeld" id="loginEmail" name="username" autocomplete="username" placeholder="ihre.email@example.com">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" for="loginPassword">Passwort</label>
+                            <input type="password" class="eingabefeld" id="loginPassword" name="password" autocomplete="current-password" placeholder="••••••••">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="anzeigenfeld text-klein" id="loginError" style="display: none; background: #fee2e2; color: #dc2626; border-radius: var(--radius-md);">
+                    </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="page-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeLoginModal()">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary" id="loginBtn">Anmelden</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CalendarModal wird zentral aus main.js geladen -->
+
+    <!-- Benutzer anlegen Modal -->
+    <div class="modal modal-s" id="createUserModal">
+        <div class="page-container page-container--modal">
+            <!-- Modal Header -->
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift">Benutzer anlegen</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn btn-icon" onclick="closeCreateUserModal()">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
+            </div>
+            <form id="createUserForm" onsubmit="handleCreateUser(); return false;">
+                <!-- Modal Body -->
+                <div class="page-content">
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" for="createUserType">Benutzertyp *</label>
+                            <select class="eingabefeld" id="createUserType" required onchange="toggleCreateUserFields()">
+                                <option value="">Bitte wählen...</option>
+                                <option value="werber">Botschafter</option>
+                                <option value="kunde">Kunde</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" for="createUserName">Name *</label>
+                            <input type="text" class="eingabefeld" id="createUserName" placeholder="Vor- und Nachname" required>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile" id="createUserEmailRow" style="display: none;">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" for="createUserEmail">E-Mail *</label>
+                            <input type="email" class="eingabefeld" id="createUserEmail" placeholder="admin@example.com">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="anzeigenfeld text-klein" id="createUserError" style="display: none; background: #fee2e2; color: #dc2626; border-radius: var(--radius-md);">
+                    </div>
+                    <div class="anzeigenfeld text-klein" id="createUserSuccess" style="display: none; background: #dcfce7; color: #16a34a; border-radius: var(--radius-md);">
+                    </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="page-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateUserModal()">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary" id="createUserBtn">Anlegen & Weiter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Passwort setzen Modal (für neue User aus Einladung) -->
+    <div class="modal modal-s" id="setPasswordModal">
+        <div class="page-container page-container--modal">
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift">Passwort setzen</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts"></div>
+                </div>
+                <div class="page-header-tabs">
+                    <div class="kw-tab active" data-tab="daten">Daten</div>
+                </div>
+            </div>
+            <form id="setPasswordForm" onsubmit="handleSetPassword(); return false;">
+                <div class="page-content">
+                    <div class="zeile" style="justify-content: center;">
+                        <span class="text-klein">Willkommen! Bitte setzen Sie Ihr Passwort.</span>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" for="newPassword">Neues Passwort</label>
+                            <input type="password" class="eingabefeld" id="newPassword" placeholder="••••••••" required minlength="8">
+                            <span class="eingabefeld-beschriftung-unten">Mindestens 8 Zeichen</span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" for="confirmPassword">Passwort bestätigen</label>
+                            <input type="password" class="eingabefeld" id="confirmPassword" placeholder="••••••••" required minlength="8">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="anzeigenfeld text-klein" id="setPasswordError" style="display: none; background: #fee2e2; color: #dc2626; border-radius: var(--radius-md);">
+                    </div>
+                </div>
+                <div class="page-footer">
+                    <button type="submit" class="btn btn-primary" id="setPasswordBtn">Passwort speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // SUPABASE SETUP
+        // ================================================================
+        const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzgwNzYxNSwiZXhwIjoyMDc5MzgzNjE1fQ.54kSk9ZSUdQt6LKYWkblqgR6Sjev80W80qkNHYEbPgk';
+
+        // Supabase Client (auf window setzen für iframe-Zugriff)
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Current user state (global für iframe-Zugriff)
+        window.currentUser = null;
+
+        // ================================================================
+        // AUTH FUNCTIONS
+        // ================================================================
+
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('loginEmail').focus();
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        // Close modal when clicking outside (use mousedown to avoid text selection issues)
+        document.getElementById('loginModal').addEventListener('mousedown', function(e) {
+            if (e.target === this) closeLoginModal();
+        });
+
+        // Enter key now handled by form submit
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+
+            // Validation
+            if (!email || !password) {
+                loginError.textContent = 'Bitte E-Mail und Passwort eingeben';
+                loginError.style.display = 'block';
+                return;
+            }
+
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Anmelden...';
+            loginError.style.display = 'none';
+
+            try {
+                const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                // Success!
+                window.currentUser = data.user;
+                await updateAuthUI();
+                closeLoginModal();
+
+                // Nach Login: Dashboard öffnen
+                window.location.hash = 'dashboard';
+                document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelector('.sidebar [data-page="dashboard"]').classList.add('active');
+                loadPage('dashboard');
+
+            } catch (error) {
+                console.error('Login error:', error);
+                loginError.textContent = error.message === 'Invalid login credentials'
+                    ? 'Ungültige E-Mail oder Passwort'
+                    : `Fehler: ${error.message}`;
+                loginError.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Anmelden';
+            }
+        }
+
+        // ================================================================
+        // CREATE USER FUNCTIONS
+        // ================================================================
+
+        function openCreateUserModal() {
+            document.getElementById('createUserModal').classList.add('active');
+            document.getElementById('createUserType').focus();
+        }
+
+        function closeCreateUserModal() {
+            document.getElementById('createUserModal').classList.remove('active');
+            document.getElementById('createUserType').value = '';
+            document.getElementById('createUserName').value = '';
+            document.getElementById('createUserEmail').value = '';
+            document.getElementById('createUserEmailRow').style.display = 'none';
+            document.getElementById('createUserError').style.display = 'none';
+            document.getElementById('createUserSuccess').style.display = 'none';
+        }
+
+        // Felder anpassen je nach Benutzertyp
+        function toggleCreateUserFields() {
+            const userType = document.getElementById('createUserType').value;
+            const nameInput = document.getElementById('createUserName');
+            const emailRow = document.getElementById('createUserEmailRow');
+
+            nameInput.placeholder = userType === 'kunde' ? 'z.B. Ludwigshafen' : 'Vor- und Nachname';
+            emailRow.style.display = userType === 'admin' ? 'flex' : 'none';
+        }
+
+        // Close modal when clicking on backdrop (not on select dropdowns)
+        document.getElementById('createUserModal').addEventListener('mousedown', function(e) {
+            if (e.target === this) closeCreateUserModal();
+        });
+
+        async function handleCreateUser() {
+            const userType = document.getElementById('createUserType').value;
+            const name = document.getElementById('createUserName').value.trim();
+            const email = document.getElementById('createUserEmail').value.trim();
+            const createBtn = document.getElementById('createUserBtn');
+            const errorEl = document.getElementById('createUserError');
+            const successEl = document.getElementById('createUserSuccess');
+
+            // Validation
+            if (!userType) {
+                errorEl.textContent = 'Bitte Benutzertyp wählen';
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+                return;
+            }
+
+            if (!name) {
+                errorEl.textContent = 'Bitte Namen eingeben';
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+                return;
+            }
+
+            // Admin braucht E-Mail
+            if (userType === 'admin' && !email) {
+                errorEl.textContent = 'Bitte E-Mail für Admin angeben';
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+                return;
+            }
+
+            // Show loading state
+            createBtn.disabled = true;
+            createBtn.textContent = 'Wird erstellt...';
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+
+            try {
+                if (userType === 'kunde') {
+                    // Kunde: Direkt zur Kunden-Profil-Seite mit Name
+                    closeCreateUserModal();
+                    loadPage(`benutzer/BENUTZER-KUNDEN-PROFIL.html?name=${encodeURIComponent(name)}`);
+                    return;
+                }
+
+                if (userType === 'werber') {
+                    // Werber: In users-Tabelle anlegen (ohne Auth)
+                    const { data, error } = await window.supabaseClient
+                        .from('users')
+                        .insert({
+                            name: name,
+                            email: null,
+                            role: 'werber'
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+
+                    closeCreateUserModal();
+                    loadPage(`benutzer/BENUTZER-BOTSCHAFTER-PROFIL.html?id=${data.id}&new=true`);
+                    return;
+                }
+
+                if (userType === 'admin') {
+                    // Admin: Supabase Auth Account erstellen + users-Tabelle
+                    const tempPassword = crypto.randomUUID().slice(0, 12);
+
+                    const { data: authData, error: authError } = await window.supabaseClient.auth.admin.createUser({
+                        email: email,
+                        password: tempPassword,
+                        email_confirm: true
+                    });
+
+                    if (authError) throw authError;
+
+                    // User in users-Tabelle mit Auth-ID anlegen
+                    const { data, error } = await window.supabaseClient
+                        .from('users')
+                        .insert({
+                            id: authData.user.id,
+                            name: name,
+                            email: email,
+                            role: 'admin'
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+
+                    closeCreateUserModal();
+                    showToast(`Admin erstellt. Temporäres Passwort: ${tempPassword}`, 'success', 10000);
+                    loadPage(`benutzer/BENUTZER-BOTSCHAFTER-PROFIL.html?id=${data.id}&new=true`);
+                    return;
+                }
+
+            } catch (error) {
+                console.error('Create user error:', error);
+                errorEl.textContent = error.message || 'Fehler beim Erstellen des Benutzers';
+                errorEl.style.display = 'block';
+            } finally {
+                createBtn.disabled = false;
+                createBtn.textContent = 'Anlegen & Weiter';
+            }
+        }
+
+        // ================================================================
+        // LOGOUT FUNCTION
+        // ================================================================
+
+        async function handleLogout() {
+            const confirmed = await showConfirm('Abmelden', 'Möchten Sie sich wirklich abmelden?', 'question');
+            if (!confirmed) return;
+
+            try {
+                const { error } = await window.supabaseClient.auth.signOut();
+                if (error) throw error;
+
+                window.currentUser = null;
+                await updateAuthUI();
+
+                // Redirect to dashboard
+                window.location.hash = 'dashboard';
+                loadPage('dashboard');
+
+            } catch (error) {
+                console.error('Logout error:', error);
+                await showAlert('Fehler', 'Fehler beim Abmelden: ' + error.message, 'error');
+            }
+        }
+
+        function updateAuthUI() {
+            const authText = document.getElementById('authDropdownText');
+            const authIcon = document.getElementById('authDropdownIcon');
+            const profileItem = document.getElementById('profileDropdownItem');
+
+            if (authText) {
+                authText.textContent = window.currentUser ? 'Abmelden' : 'Anmelden';
+            }
+
+            // Icon wechseln: schloss (anmelden) / schloss-offen (abmelden)
+            if (authIcon) {
+                authIcon.className = window.currentUser ? 'icon icon--schloss-offen' : 'icon icon--schloss';
+            }
+
+            // Profil-Link nur anzeigen wenn eingeloggt
+            if (profileItem) {
+                profileItem.style.display = window.currentUser ? 'flex' : 'none';
+            }
+        }
+
+        async function openMyProfile() {
+            if (!window.currentUser) return;
+
+            // User-Typ aus DB holen
+            const { data: userData } = await window.supabaseClient
+                .from('users')
+                .select('role')
+                .eq('id', window.currentUser.id)
+                .single();
+
+            const profilePage = userData?.role === 'kunde'
+                ? `benutzer/BENUTZER-KUNDEN-PROFIL.html?id=${window.currentUser.id}`
+                : `benutzer/BENUTZER-BOTSCHAFTER-PROFIL.html?id=${window.currentUser.id}`;
+
+            // Erst zur Benutzer-Seite navigieren, dann iframe URL setzen
+            loadPage('users');
+            setTimeout(() => {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe) {
+                    iframe.src = profilePage;
+                }
+            }, 100);
+        }
+
+        // ================================================================
+        // SET PASSWORD FUNCTIONS (für Invite-Links)
+        // ================================================================
+
+        function openSetPasswordModal() {
+            document.getElementById('setPasswordModal').classList.add('active');
+            document.getElementById('newPassword').focus();
+        }
+
+        function closeSetPasswordModal() {
+            document.getElementById('setPasswordModal').classList.remove('active');
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('setPasswordError').style.display = 'none';
+        }
+
+        async function handleSetPassword() {
+            const password = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const btn = document.getElementById('setPasswordBtn');
+            const errorEl = document.getElementById('setPasswordError');
+
+            // Validation
+            if (password !== confirmPassword) {
+                errorEl.textContent = 'Passwörter stimmen nicht überein';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (password.length < 8) {
+                errorEl.textContent = 'Passwort muss mindestens 8 Zeichen haben';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Wird gespeichert...';
+            errorEl.style.display = 'none';
+
+            try {
+                const { error } = await window.supabaseClient.auth.updateUser({ password });
+
+                if (error) throw error;
+
+                closeSetPasswordModal();
+                await showAlert('Erfolg', 'Passwort wurde gesetzt. Sie sind jetzt eingeloggt.', 'success');
+
+                // Reload to update UI
+                await checkAuthState();
+
+            } catch (error) {
+                console.error('Set password error:', error);
+                errorEl.textContent = error.message || 'Fehler beim Setzen des Passworts';
+                errorEl.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Passwort speichern';
+            }
+        }
+
+        // Check for invite/recovery token in URL hash
+        async function checkForAuthToken() {
+            const hash = window.location.hash;
+            if (!hash || hash === '#') return;
+
+            // Parse hash parameters
+            const params = new URLSearchParams(hash.substring(1));
+            const accessToken = params.get('access_token');
+            const type = params.get('type');
+
+            // Handle invite or recovery
+            if (accessToken && (type === 'invite' || type === 'recovery' || type === 'magiclink')) {
+                // Clear hash from URL
+                history.replaceState(null, '', window.location.pathname);
+
+                // Set session with token
+                const { data, error } = await window.supabaseClient.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: params.get('refresh_token') || ''
+                });
+
+                if (error) {
+                    console.error('Token error:', error);
+                    await showAlert('Fehler', 'Link ist ungültig oder abgelaufen.', 'error');
+                    return;
+                }
+
+                // Show set password modal for invite
+                if (type === 'invite' || type === 'recovery') {
+                    openSetPasswordModal();
+                }
+            }
+        }
+
+        // Check auth state on page load
+        async function checkAuthState() {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+            if (session) {
+                window.currentUser = session.user;
+                window.currentUserId = session.user.id; // Für iFrame-Zugriff
+            } else {
+                window.currentUser = null;
+                window.currentUserId = null;
+            }
+
+            await updateAuthUI();
+        }
+
+        // Listen for auth state changes (ignoriere Token-Refresh um Flackern zu verhindern)
+        window.supabaseClient.auth.onAuthStateChange((event, session) => {
+            // Ignoriere Token-Refresh Events - diese ändern den User nicht
+            if (event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+                return;
+            }
+
+            if (event === 'SIGNED_IN') {
+                // Nur updaten wenn sich der User wirklich geändert hat
+                const newUserId = session?.user?.id;
+                if (window.currentUser?.id !== newUserId) {
+                    window.currentUser = session.user;
+                    window.currentUserId = session.user.id; // Für iFrame-Zugriff
+                    updateAuthUI();
+                }
+            } else if (event === 'SIGNED_OUT') {
+                window.currentUser = null;
+                window.currentUserId = null;
+                updateAuthUI();
+            }
+        });
+
+        // ================================================================
+        // NAVIGATION
+        // ================================================================
+
+        // Sidebar Toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const container = document.querySelector('.app-container');
+            container.classList.toggle('expanded');
+
+            // Nach der Transition den iframe-Inhalt neu berechnen lassen
+            setTimeout(() => {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.dispatchEvent(new Event('resize'));
+                }
+            }, 350); // Etwas länger als die 0.3s Transition
+        });
+
+        // Navigation Handler
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Externe Links (mit data-href) in neuem Tab öffnen
+                if (this.hasAttribute('data-href')) {
+                    window.open(this.getAttribute('data-href'), '_blank');
+                    return;
+                }
+
+                // Remove active class from all links
+                document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+
+                // Add active class to clicked link
+                this.classList.add('active');
+
+                // Get page name
+                const page = this.getAttribute('data-page');
+                if (!page) return;
+
+                // Set URL hash
+                window.location.hash = page;
+
+                // Sidebar automatisch schließen
+                document.querySelector('.app-container').classList.remove('expanded');
+
+                // Load content
+                loadPage(page);
+            });
+        });
+
+        // ================================================================
+        // SHELL TOOLBAR CONFIGURATION
+        // ================================================================
+
+        const toolbarConfig = {
+            dashboard: {
+                showToolbar: false
+            },
+            users: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'alle', label: 'Alle Benutzer', active: true },
+                    { value: 'werber', label: 'Werber' },
+                    { value: 'kunde', label: 'Kunden' }
+                ],
+                actionBtn: { text: 'Benutzer anlegen', icon: 'plus' }
+            },
+            campaigns: {
+                showToolbar: true,
+                navOptions: [
+                    { value: '', label: 'Alle Kampagnen', active: true },
+                    { value: 'active', label: 'Aktive' },
+                    { value: 'planned', label: 'Geplante' },
+                    { value: 'inactive', label: 'Inaktive' }
+                ],
+                actionBtn: { text: 'Neue Kampagne', icon: 'plus', action: 'add' }
+            },
+            statistics: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'werber', label: 'Werber', active: true },
+                    { value: 'kunden', label: 'Kunden / Gebiete' },
+                    { value: 'kampagnen', label: 'Kampagnen' }
+                ],
+                periodFilter: [
+                    { value: 'custom', label: 'Individuell' },
+                    { value: 'today', label: 'Heute' },
+                    { value: 'week', label: 'Diese Woche' },
+                    { value: 'month', label: 'Dieser Monat' },
+                    { value: 'quarter', label: 'Dieses Quartal' },
+                    { value: 'year', label: 'Dieses Jahr', selected: true },
+                    { value: 'all', label: 'Gesamt' }
+                ],
+                actionBtn: { text: 'Export', icon: 'download' }
+            },
+            records: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'werber', label: 'Werber', active: true },
+                    { value: 'kunden', label: 'Kunden / Gebiete' },
+                    { value: 'kampagnen', label: 'Kampagnen' }
+                ],
+                periodFilter: [
+                    { value: 'custom', label: 'Individuell' },
+                    { value: 'today', label: 'Heute' },
+                    { value: 'week', label: 'Diese Woche' },
+                    { value: 'month', label: 'Dieser Monat' },
+                    { value: 'quarter', label: 'Dieses Quartal' },
+                    { value: 'year', label: 'Dieses Jahr', selected: true },
+                    { value: 'all', label: 'Gesamt' }
+                ],
+                actionButtons: [
+                    { id: 'import', text: 'Import', icon: 'download', action: 'openImportModal' },
+                    { id: 'export', text: 'Export', icon: 'upload', action: 'openExportModal', primary: true }
+                ]
+            },
+            payouts: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'drk', label: 'DRK', active: true },
+                    { value: 'botschafter', label: 'Botschafter' }
+                ],
+                actionBtn: { text: 'Export', icon: 'download' }
+            },
+            'audit-log': {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'dashboard', label: 'Dashboard', active: true },
+                    { value: 'mitglieder', label: 'Mitglieder' }
+                ]
+            },
+            alerts: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'alle', label: 'Alle', active: true },
+                    { value: 'kritisch', label: 'Kritisch' },
+                    { value: 'warnung', label: 'Warnung' },
+                    { value: 'geloest', label: 'Gelöst' }
+                ],
+                actionBtn: { text: 'Export', icon: 'download' }
+            },
+            'deletion-requests': {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'alle', label: 'Alle', active: true },
+                    { value: 'offen', label: 'Offen' },
+                    { value: 'bearbeitet', label: 'Bearbeitet' },
+                    { value: 'abgelehnt', label: 'Abgelehnt' }
+                ]
+            },
+            templates: {
+                showToolbar: true,
+                navOptions: [
+                    { value: 'preisvorlagen', label: 'Preisvorlagen', active: true },
+                    { value: 'email', label: 'E-Mail Vorlagen' }
+                ],
+                actionBtn: { text: 'Neue Vorlage', icon: 'plus' }
+            },
+            info: {
+                showToolbar: false
+            },
+            test: {
+                showToolbar: false
+            }
+        };
+
+        let currentShellNav = null;
+
+        function updateShellToolbar(page) {
+            const config = toolbarConfig[page];
+            const toolbarRight = document.getElementById('shellToolbarRight');
+
+            // Update Nav Dropdown with animation
+            if (config.navOptions) {
+                const navText = document.getElementById('shellNavText');
+                const navMenu = document.getElementById('shellNavMenu');
+                const activeOption = config.navOptions.find(o => o.active && o.value !== 'divider') || config.navOptions[0];
+
+                // Slide-up animation for nav text
+                if (currentShellNav !== page) {
+                    navText.style.transition = 'none';
+                    navText.style.transform = 'translateY(100%)';
+                    navText.style.opacity = '0';
+                    navText.offsetHeight; // Force reflow
+                    navText.style.transition = '';
+
+                    setTimeout(() => {
+                        navText.textContent = activeOption.label;
+                        navText.style.transform = 'translateY(0)';
+                        navText.style.opacity = '1';
+                    }, 50);
+                }
+
+                // Build menu options (with divider support)
+                navMenu.innerHTML = config.navOptions.map(opt => {
+                    if (opt.value === 'divider') {
+                        return '<div class="toolbar-nav-divider"></div>';
+                    }
+                    return `<div class="toolbar-nav-option${opt.active ? ' active' : ''}"
+                          data-value="${opt.value}"
+                          onclick="selectShellNavOption('${opt.value}', '${opt.label}')">${opt.label}</div>`;
+                }).join('');
+
+                currentShellNav = page;
+            }
+
+            // Update Action Buttons with text-only animation
+            const existingButtons = toolbarRight.querySelectorAll('.btn');
+            let newButtonsConfig = [];
+
+            if (config.actionButtons && config.actionButtons.length > 0) {
+                newButtonsConfig = config.actionButtons;
+            } else if (config.actionBtn) {
+                newButtonsConfig = [{ ...config.actionBtn, primary: true }];
+            }
+
+            // Same number of buttons = animate text only, update icon instantly
+            if (existingButtons.length === newButtonsConfig.length && existingButtons.length > 0) {
+                existingButtons.forEach((btn, i) => {
+                    const textSpan = btn.querySelector('span:not(.icon)');
+                    const iconSpan = btn.querySelector('.icon');
+                    const newText = newButtonsConfig[i].text;
+                    const newIconClass = `icon--${newButtonsConfig[i].icon}`;
+
+                    // Animate text if changed
+                    if (textSpan && textSpan.textContent !== newText) {
+                        btn.classList.add('slide-out');
+
+                        setTimeout(() => {
+                            textSpan.textContent = newText;
+                            // Update icon class
+                            if (iconSpan) {
+                                iconSpan.className = `icon ${newIconClass}`;
+                            }
+                            btn.classList.remove('slide-out');
+                            btn.classList.add('slide-in');
+
+                            btn.offsetHeight;
+                            setTimeout(() => {
+                                btn.classList.remove('slide-in');
+                            }, 20);
+                        }, 150);
+                    } else if (iconSpan) {
+                        // Just update icon class if text is same
+                        iconSpan.className = `icon ${newIconClass}`;
+                    }
+
+                    // Update action
+                    btn.onclick = () => shellToolbarAction(newButtonsConfig[i].action || 'default');
+                });
+            } else {
+                // Different number of buttons - animate content only, not container position
+                const existingBtns = toolbarRight.querySelectorAll('.btn');
+
+                // Phase 1: Slide out existing button content
+                existingBtns.forEach(btn => btn.classList.add('slide-out'));
+
+                setTimeout(() => {
+                    // Phase 2: Replace with new buttons (already with slide-in class)
+                    const newButtonsHtml = newButtonsConfig.map(btn => {
+                        const primaryClass = btn.primary ? ' btn-primary' : '';
+                        return `<button class="btn${primaryClass} slide-in" onclick="shellToolbarAction('${btn.action || 'default'}')">
+                            <span class="icon icon--${btn.icon}"></span>
+                            <span>${btn.text}</span>
+                        </button>`;
+                    }).join('');
+
+                    toolbarRight.innerHTML = newButtonsHtml;
+
+                    // Force reflow
+                    toolbarRight.offsetHeight;
+
+                    // Phase 3: Slide in new content
+                    setTimeout(() => {
+                        toolbarRight.querySelectorAll('.btn').forEach(btn => {
+                            btn.classList.remove('slide-in');
+                        });
+                    }, 20);
+                }, 150);
+            }
+
+            // Update Period Filter (links von Searchbar)
+            const filtersLeft = document.getElementById('shellFiltersLeft');
+            if (config.periodFilter) {
+                filtersLeft.style.display = 'flex';
+                const selectedOpt = config.periodFilter.find(opt => opt.selected) || config.periodFilter[0];
+                filtersLeft.innerHTML = `
+                    <div class="toolbar-nav-dropdown toolbar-nav-click" id="shellPeriodDropdown">
+                        <div class="toolbar-nav-trigger" onclick="toggleShellPeriodDropdown(event)">
+                            <span id="shellPeriodDropdownText">${selectedOpt.label}</span>
+                            <span class="icon icon--pfeil-unten"></span>
+                        </div>
+                        <div class="toolbar-nav-menu">
+                            ${config.periodFilter.map(opt =>
+                                `<div class="toolbar-nav-option${opt.selected ? ' active' : ''}" data-value="${opt.value}" onclick="selectShellPeriod('${opt.value}', '${opt.label}')">${opt.label}</div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                filtersLeft.style.display = 'none';
+                filtersLeft.innerHTML = '';
+            }
+
+        }
+
+        // Toolbar action handler - forwards to iframe or handles shell-level actions
+        function shellToolbarAction(action) {
+            // Handle shell-level actions
+            const currentPage = window.location.hash.replace('#', '') || 'dashboard';
+
+            // "Benutzer anlegen" auf der Benutzer-Seite
+            if (currentPage === 'users' && action === 'default') {
+                openCreateUserModal();
+                return;
+            }
+
+            // Forward other actions to iframe
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'toolbarAction', action: action }, '*');
+            }
+        }
+
+        function selectShellNavOption(value, label) {
+            const navText = document.getElementById('shellNavText');
+
+            // Slide-up animation
+            navText.style.transform = 'translateY(-100%)';
+            navText.style.opacity = '0';
+
+            setTimeout(() => {
+                navText.style.transition = 'none';
+                navText.textContent = label;
+                navText.style.transform = 'translateY(100%)';
+                navText.offsetHeight;
+                navText.style.transition = '';
+                navText.style.transform = 'translateY(0)';
+                navText.style.opacity = '1';
+            }, 150);
+
+            // Update active state
+            document.querySelectorAll('#shellNavMenu .toolbar-nav-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.value === value);
+            });
+
+            // Spezialfall: Abrechnungen - lädt Unterseiten statt Filter
+            if (currentPage === 'payouts') {
+                const subpages = {
+                    'drk': 'abrechnungen/DRK/',
+                    'botschafter': 'abrechnungen/Botschafter/'
+                };
+                if (subpages[value]) {
+                    // Zentral über loadPage() laden (handelt URL-Speicherung automatisch)
+                    loadPage('payouts', subpages[value]);
+                    return;
+                }
+            }
+
+            // Send message to iframe to filter
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'navFilter', value: value }, '*');
+            }
+        }
+
+        // Shell Period Dropdown Toggle (Click-based)
+        function toggleShellPeriodDropdown(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('shellPeriodDropdown');
+            if (dropdown) dropdown.classList.toggle('open');
+        }
+
+        // Shell Period Dropdown - Option auswählen
+        function selectShellPeriod(value, label) {
+            const dropdown = document.getElementById('shellPeriodDropdown');
+            const textEl = document.getElementById('shellPeriodDropdownText');
+
+            // Slide-Up Animation
+            textEl.style.transform = 'translateY(-100%)';
+            textEl.style.opacity = '0';
+
+            setTimeout(() => {
+                textEl.style.transition = 'none';
+                textEl.textContent = label;
+                textEl.style.transform = 'translateY(100%)';
+                textEl.offsetHeight;
+                textEl.style.transition = '';
+                textEl.style.transform = 'translateY(0)';
+                textEl.style.opacity = '1';
+            }, 150);
+
+            // Update active state
+            document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.value === value);
+            });
+
+            // Close dropdown
+            dropdown.classList.remove('open');
+
+            // Send message to iframe
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'periodFilter', value: value }, '*');
+            }
+
+            // Handle "Individuell" - Kalender-Modal öffnen
+            if (value === 'custom') {
+                openShellCalendarModal();
+            }
+        }
+
+        // Close Period Dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('shellPeriodDropdown');
+            if (!dropdown) return;
+
+            // Prüfe ob Klick außerhalb des Dropdowns
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        // Listen for messages from iframe
+        window.addEventListener('message', function(e) {
+            // Update shell period filter text when custom date range is applied
+            if (e.data && e.data.type === 'customDateRangeApplied') {
+                const textEl = document.getElementById('shellPeriodDropdownText');
+                if (textEl) {
+                    textEl.textContent = e.data.dateRangeText;
+                }
+                // Also update the dropdown option text
+                const customOption = document.querySelector('#shellPeriodDropdown .toolbar-nav-option[data-value="custom"]');
+                if (customOption) {
+                    customOption.textContent = e.data.dateRangeText;
+                }
+                // Update active state
+                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === 'custom');
+                });
+            }
+            // Update shell when period changed from iframe (e.g. returning from dashboard)
+            if (e.data && e.data.type === 'periodChanged') {
+                const textEl = document.getElementById('shellPeriodDropdownText');
+                const option = document.querySelector(`#shellPeriodDropdown .toolbar-nav-option[data-value="${e.data.value}"]`);
+                if (textEl && option) {
+                    textEl.textContent = option.textContent;
+                }
+                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === e.data.value);
+                });
+            }
+            // Update shell when category changed from iframe (e.g. returning from dashboard)
+            if (e.data && e.data.type === 'navFilterChanged') {
+                const textEl = document.getElementById('shellNavDropdownText');
+                const option = document.querySelector(`#shellNavDropdown .toolbar-nav-option[data-value="${e.data.value}"]`);
+                if (textEl && option) {
+                    textEl.textContent = option.textContent;
+                }
+                document.querySelectorAll('#shellNavDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === e.data.value);
+                });
+            }
+            // Dynamic toolbar registration from iframe (for Import/Export buttons etc.)
+            if (e.data && e.data.type === 'registerToolbar') {
+                updateToolbarFromIframe(e.data.config);
+            }
+        });
+
+        // Update toolbar dynamically based on iframe registration
+        function updateToolbarFromIframe(config) {
+            const toolbarRight = document.getElementById('shellToolbarRight');
+            if (!toolbarRight) return;
+
+            // Update action buttons if provided
+            if (config.actionButtons && config.actionButtons.length > 0) {
+                const existingButtons = toolbarRight.querySelectorAll('.btn');
+
+                // Animate out existing buttons
+                existingButtons.forEach(btn => btn.classList.add('slide-out'));
+
+                setTimeout(() => {
+                    const newButtonsHtml = config.actionButtons.map(btn => {
+                        const primaryClass = btn.primary ? ' btn-primary' : '';
+                        return `<button class="btn${primaryClass} slide-in" onclick="shellToolbarAction('${btn.action || 'default'}')">
+                            <span class="icon icon--${btn.icon}"></span>
+                            <span>${btn.text}</span>
+                        </button>`;
+                    }).join('');
+
+                    toolbarRight.innerHTML = newButtonsHtml;
+                    toolbarRight.offsetHeight; // Force reflow
+
+                    setTimeout(() => {
+                        toolbarRight.querySelectorAll('.btn').forEach(btn => {
+                            btn.classList.remove('slide-in');
+                        });
+                    }, 20);
+                }, 150);
+            }
+
+            // Update nav dropdown if provided
+            if (config.navDropdown) {
+                const navText = document.getElementById('shellNavText');
+                const navMenu = document.getElementById('shellNavMenu');
+                const activeOption = config.navDropdown.find(o => o.selected) || config.navDropdown[0];
+
+                if (navText) navText.textContent = activeOption.label;
+                if (navMenu) {
+                    navMenu.innerHTML = config.navDropdown.map(opt =>
+                        `<div class="toolbar-nav-option${opt.selected ? ' active' : ''}"
+                              data-value="${opt.value}"
+                              onclick="selectShellNavOption('${opt.value}', '${opt.label}')">${opt.label}</div>`
+                    ).join('');
+                }
+            }
+        }
+
+        let currentPage = null;
+
+        // Page URLs mapping
+        const pages = {
+            dashboard: 'dashboard/',
+            users: 'benutzer/',
+            campaigns: 'kampagnen/',
+            alerts: 'auffaelligkeiten/',
+            statistics: 'statistik/',
+            payouts: 'abrechnungen/DRK/',
+            investments: 'investments/',
+            templates: 'vorlagen/',
+            'audit-log': 'audit-log/',
+            stufen: 'stufen/',
+            'deletion-requests': 'loeschanfragen/',
+            settings: 'settings.html',
+            info: 'info/',
+            test: 'test/'
+        };
+
+        // Speichert die aktuelle iframe-URL für Refresh (inkl. Hash für Tab-Zustand)
+        function saveCurrentIframeUrl() {
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                try {
+                    const iframeUrl = iframe.contentWindow.location.pathname + iframe.contentWindow.location.search + iframe.contentWindow.location.hash;
+                    sessionStorage.setItem('lastIframeUrl', iframeUrl);
+                } catch (e) {
+                    // Cross-origin Fehler ignorieren
+                }
+            }
+        }
+
+        function loadPage(page, restoreUrl = null) {
+            currentPage = page;
+            const container = document.getElementById('content-container');
+
+            // Direkte iframe-Pfade (z.B. benutzer/BENUTZER-KUNDEN-PROFIL.html?name=...)
+            const isDirectPath = page.includes('/') || page.includes('.html');
+
+            // Update shell toolbar (nur für bekannte Seiten)
+            if (!isDirectPath) {
+                updateShellToolbar(page);
+            } else {
+                // Bei direkten Pfaden: Toolbar für übergeordnete Seite (users)
+                updateShellToolbar('users');
+            }
+
+            // URL zum Laden bestimmen
+            let urlToLoad = restoreUrl || pages[page] || (isDirectPath ? page : null);
+
+            // Bei Restore: Nav-Dropdown-Option anpassen (z.B. bei payouts: DRK/Botschafter)
+            if (restoreUrl && page === 'payouts') {
+                const navValue = restoreUrl.includes('/Botschafter/') || restoreUrl.includes('Botschafter') ? 'botschafter' : 'drk';
+                const navLabel = navValue === 'botschafter' ? 'Botschafter' : 'DRK';
+
+                // Nav-Text und aktive Option aktualisieren (nach kurzer Verzögerung, damit updateShellToolbar fertig ist)
+                setTimeout(() => {
+                    const navText = document.getElementById('shellNavText');
+                    if (navText) navText.textContent = navLabel;
+
+                    document.querySelectorAll('#shellNavMenu .toolbar-nav-option').forEach(opt => {
+                        opt.classList.toggle('active', opt.dataset.value === navValue);
+                    });
+                }, 50);
+            }
+
+            // Load page in iframe
+            if (urlToLoad) {
+                container.classList.remove('no-iframe');
+                container.innerHTML = `<iframe src="${urlToLoad}"></iframe>`;
+
+                // Nach dem Laden: URL-Änderungen im iframe tracken
+                const iframe = container.querySelector('iframe');
+                iframe.addEventListener('load', function() {
+                    saveCurrentIframeUrl();
+                    // Auch auf Hash-Änderungen im iframe reagieren (Tab-Wechsel)
+                    try {
+                        iframe.contentWindow.addEventListener('hashchange', saveCurrentIframeUrl);
+                    } catch (e) {
+                        // Cross-origin Fehler ignorieren
+                    }
+                });
+            } else {
+                container.classList.add('no-iframe');
+                container.innerHTML = '<h1 class="text-ueberschrift" style="margin-bottom: 8px;">Seite nicht gefunden</h1><p class="text-ueberschrift-unterabschnitt" style="color: var(--text-secondary);">Die angeforderte Seite konnte nicht geladen werden.</p>';
+            }
+        }
+
+        // ================================================================
+        // DATE INFO
+        // ================================================================
+
+        function updateTopbarDate() {
+            const now = new Date();
+            const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+            const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+            const dayName = days[now.getDay()];
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+
+            // Calculate KW (ISO week number)
+            const tempDate = new Date(now.getTime());
+            tempDate.setHours(0, 0, 0, 0);
+            tempDate.setDate(tempDate.getDate() + 3 - (tempDate.getDay() + 6) % 7);
+            const week1 = new Date(tempDate.getFullYear(), 0, 4);
+            const kw = 1 + Math.round(((tempDate.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+
+            const dateText = `${dayName} | ${day}. ${month} | ${year} | KW ${kw}`;
+
+            // Update search placeholder
+            const searchPlaceholder = document.getElementById('shellSearchPlaceholder');
+            if (searchPlaceholder) searchPlaceholder.textContent = dateText;
+        }
+
+        // ================================================================
+        // INITIALIZATION
+        // ================================================================
+
+        // Load page based on URL hash on page load
+        window.addEventListener('DOMContentLoaded', async function() {
+            // Update date in topbar
+            updateTopbarDate();
+
+            // Import Modal initialisieren
+            if (typeof ModalTemplates !== 'undefined') {
+                ModalTemplates.init(['import']);
+            }
+
+            // Check for invite/recovery token FIRST (before other hash handling)
+            await checkForAuthToken();
+
+            // Check auth state
+            await checkAuthState();
+
+            const hash = window.location.hash.substring(1); // Remove #
+
+            if (hash && document.querySelector(`.sidebar [data-page="${hash}"]`)) {
+                // Remove active from all
+                document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+
+                // Set active on hash page
+                const navLink = document.querySelector(`.sidebar [data-page="${hash}"]`);
+                if (navLink) {
+                    navLink.classList.add('active');
+
+                    // Prüfe ob eine gespeicherte iframe-URL existiert (für Cmd+R)
+                    const lastIframeUrl = sessionStorage.getItem('lastIframeUrl');
+                    const lastHash = sessionStorage.getItem('lastHash');
+
+                    // Nur wiederherstellen wenn gleicher Hash (gleiche Sektion)
+                    if (lastIframeUrl && lastHash === hash) {
+                        loadPage(hash, lastIframeUrl);
+                    } else {
+                        loadPage(hash);
+                    }
+                }
+            }
+
+            // Hash für nächsten Refresh speichern
+            sessionStorage.setItem('lastHash', hash || 'dashboard');
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.substring(1);
+
+            if (hash && document.querySelector(`.sidebar [data-page="${hash}"]`)) {
+                // Remove active from all
+                document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+
+                // Set active on hash page
+                const navLink = document.querySelector(`.sidebar [data-page="${hash}"]`);
+                if (navLink) {
+                    navLink.classList.add('active');
+                    loadPage(hash);
+                }
+
+                // Hash für nächsten Refresh speichern
+                sessionStorage.setItem('lastHash', hash);
+                // Bei Sektionswechsel: alte iframe-URL löschen
+                sessionStorage.removeItem('lastIframeUrl');
+            }
+        });
+
+        // ================================================================
+        // SEARCH FUNCTIONALITY
+        // ================================================================
+        const shellSearchInput = document.getElementById('shellSearchInput');
+        const shellSearchDropdown = document.getElementById('shellSearchDropdown');
+        const shellSearchResults = document.getElementById('shellSearchResults');
+        const shellSearchDropdownHeader = document.getElementById('shellSearchDropdownHeader');
+        let searchTimeout;
+
+        shellSearchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'searchQuery', query: query }, '*');
+                }
+            }, 150);
+        });
+
+        // Bei Enter: Suche ausführen und Fokus entfernen
+        shellSearchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = e.target.value.trim();
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'searchQuery', query: query }, '*');
+                }
+                // Fokus entfernen
+                shellSearchInput.blur();
+            }
+        });
+
+        // Bei Blur: Suchtext NICHT löschen, nur Dropdown schließen
+        shellSearchInput.addEventListener('blur', function() {
+            setTimeout(() => {
+                closeShellSearchDropdown();
+            }, 200);
+        });
+
+        function closeShellSearchDropdown() {
+            shellSearchDropdown.classList.remove('active');
+        }
+
+        function showShellSearchResults(data) {
+            if (!data || !data.results || data.results.length === 0) {
+                if (data && data.query && data.query.length > 0) {
+                    shellSearchDropdownHeader.textContent = data.headerText || 'Ergebnisse';
+                    shellSearchResults.innerHTML = '<div class="shell-search-no-results">Keine Ergebnisse gefunden</div>';
+                    shellSearchDropdown.classList.add('active');
+                } else {
+                    closeShellSearchDropdown();
+                }
+                return;
+            }
+
+            shellSearchDropdownHeader.textContent = data.headerText || 'Ergebnisse';
+            shellSearchResults.innerHTML = data.results.map(item =>
+                `<div class="shell-search-result-item" onclick="handleShellSearchSelect('${item.id}', '${item.name.replace(/'/g, "\\'")}')">${item.name}</div>`
+            ).join('');
+            shellSearchDropdown.classList.add('active');
+        }
+
+        function handleShellSearchSelect(id, name) {
+            closeShellSearchDropdown();
+            shellSearchInput.value = '';
+
+            // Tell iframe to navigate to selected item
+            const iframe = document.querySelector('#content-container iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: 'searchSelect', id: id, name: name }, '*');
+            }
+        }
+
+        // Listen for messages from iframe
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'searchResults') {
+                showShellSearchResults(e.data);
+            }
+            // Navigation request from iframe
+            if (e.data && e.data.type === 'navigate') {
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe) {
+                    // Store the return page before navigating
+                    const currentHash = window.location.hash.substring(1);
+                    if (currentHash && !e.data.url.includes('returnTo=')) {
+                        // Add returnTo parameter so we know where to go back
+                        const separator = e.data.url.includes('?') ? '&' : '?';
+                        iframe.src = e.data.url + separator + 'returnTo=' + currentHash;
+                    } else {
+                        iframe.src = e.data.url;
+                    }
+                }
+                // Update active nav item if section specified
+                if (e.data.section) {
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove('active');
+                        if (item.dataset.section === e.data.section) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            }
+            // Back navigation request from iframe
+            if (e.data && e.data.type === 'navigateBack') {
+                const returnTo = e.data.returnTo;
+                if (returnTo && document.querySelector(`.sidebar [data-page="${returnTo}"]`)) {
+                    window.location.hash = returnTo;
+                    document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+                    document.querySelector(`.sidebar [data-page="${returnTo}"]`).classList.add('active');
+                    loadPage(returnTo);
+                } else {
+                    // Fallback: go to previous history entry
+                    history.back();
+                }
+            }
+        });
+
+        // ================================================================
+        // SETTINGS DROPDOWN (Sidebar)
+        // ================================================================
+
+        function toggleSettingsDropdown(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('settingsDropdownMenu');
+            const btn = e.currentTarget;
+            const rect = btn.getBoundingClientRect();
+
+            if (menu.classList.contains('open')) {
+                menu.classList.remove('open');
+            } else {
+                closeAllDropdowns();
+                menu.classList.add('open');
+                menu.style.position = 'fixed';
+                menu.style.left = (rect.right + 8) + 'px';
+                menu.style.bottom = (window.innerHeight - rect.bottom) + 'px';
+            }
+        }
+
+        document.addEventListener('click', function() {
+            const menu = document.getElementById('settingsDropdownMenu');
+            if (menu) menu.classList.remove('open');
+        });
+
+        // Schließe Dropdowns wenn iframe fokussiert wird
+        window.addEventListener('blur', function() {
+            const menu = document.getElementById('settingsDropdownMenu');
+            if (menu) menu.classList.remove('open');
+
+            const periodDropdown = document.getElementById('shellPeriodDropdown');
+            if (periodDropdown) periodDropdown.classList.remove('open');
+        });
+
+        // ================================================================
+        // SHELL CALENDAR MODAL
+        // ================================================================
+
+        // Shell Kalender nutzt zentrales CalendarModal aus main.js
+        function openShellCalendarModal() {
+            CalendarModal.open((fromInput, toInput, dateRangeText) => {
+                // Update dropdown text
+                document.getElementById('shellPeriodDropdownText').textContent = dateRangeText;
+
+                // Update active state
+                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.value === 'custom');
+                });
+
+                // Update option text
+                const customOption = document.querySelector('#shellPeriodDropdown .toolbar-nav-option[data-value="custom"]');
+                if (customOption) customOption.textContent = dateRangeText;
+
+                // Send to iframe
+                const iframe = document.querySelector('#content-container iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        type: 'customDateRangeApplied',
+                        dateRangeText: dateRangeText,
+                        dateFrom: fromInput,
+                        dateTo: toInput
+                    }, '*');
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitarbeiter Profil - RB Inside</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+</head>
+<body >
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <!-- Zeile 1: Zurück | Links | Mitte | Rechts -->
+            <div class="page-header-row">
+                <button class="btn btn-icon back-btn"></button>
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="profileName">Max Mustermann</span>
+                    <span class="text-klein">Mitarbeiternummer: <span id="employeeId">-</span> • Erstellt am: <span id="createdDate">-</span></span>
+                </div>
+                <div class="page-header-mitte">
+                    <div class="level-badge level-badge--lg level-badge--jmm">
+                        <span class="level-badge-code">JMM</span>
+                        <span class="level-badge-stufe">Stufe III</span>
+                        <div class="level-stars">
+                            <span class="icon icon--stern level-star"></span>
+                            <span class="icon icon--stern level-star"></span>
+                            <span class="icon icon--stern level-star"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-header-rechts">
+                    <div class="photo-upload-box">
+                        <div class="photo-upload hover-umrandung-blau" onclick="document.getElementById('photoInternal').click()">
+                            <span class="icon icon--person photo-upload-icon"></span>
+                            <img class="photo-upload-preview" id="previewInternal" alt="Intern">
+                        </div>
+                        <span class="photo-upload-label">Intern</span>
+                        <input type="file" id="photoInternal" accept="image/*" hidden>
+                    </div>
+                    <div class="photo-upload-box">
+                        <div class="photo-upload hover-umrandung-blau" onclick="document.getElementById('photoExternal').click()">
+                            <span class="icon icon--person photo-upload-icon"></span>
+                            <img class="photo-upload-preview" id="previewExternal" alt="Extern">
+                        </div>
+                        <span class="photo-upload-label">Extern (DRK)</span>
+                        <input type="file" id="photoExternal" accept="image/*" hidden>
+                    </div>
+                </div>
+            </div>
+            <!-- Lokale Tabs (per Klick navigierbar) -->
+            <div class="page-header-tabs" id="profilSubTabs">
+                <div class="kw-tab active" data-tab="informationen">Informationen</div>
+                <div class="kw-tab" data-tab="einstellungen">Einstellungen</div>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+        <!-- TAB: Informationen -->
+        <div id="tab-informationen" class="kw-tab-content active">
+
+            <!-- Persönliche Daten -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Persönliche Daten</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Vorname *</label>
+                        <input type="text" class="eingabefeld" id="firstName" placeholder="Max">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Nachname *</label>
+                        <input type="text" class="eingabefeld" id="lastName" placeholder="Mustermann">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">E-Mail *</label>
+                        <input type="email" class="eingabefeld" id="email" placeholder="max.mustermann@rb-inside.de">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Telefon *</label>
+                        <input type="tel" class="eingabefeld" id="phone" placeholder="+49 123 456789">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Kleidergröße</label>
+                        <div class="btn-toggle-group">
+                            <button type="button" class="btn btn-toggle neutral" data-size="XXS">XXS</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="XS">XS</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="S">S</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="M">M</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="L">L</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="XL">XL</button>
+                            <button type="button" class="btn btn-toggle neutral" data-size="XXL">XXL</button>
+                        </div>
+                        <input type="hidden" id="clothingSize">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Adresse -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Adresse</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                        <label class="eingabefeld-beschriftung-oben">Straße</label>
+                        <div class="autocomplete-container">
+                            <input type="text" class="eingabefeld" id="street" placeholder="Beginnen Sie zu tippen...">
+                            <div class="autocomplete-results" id="streetAutocomplete"></div>
+                        </div>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-0-5">
+                        <label class="eingabefeld-beschriftung-oben">Nr.</label>
+                        <input type="text" class="eingabefeld" id="houseNumber" placeholder="123">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">PLZ</label>
+                        <input type="text" class="eingabefeld" id="zip" placeholder="12345" maxlength="5">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Stadt</label>
+                        <input type="text" class="eingabefeld" id="city" placeholder="Musterstadt">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Bundesland</label>
+                        <input type="text" class="eingabefeld" id="bundesland" placeholder="Wird automatisch ausgefüllt" readonly>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Land</label>
+                        <input type="text" class="eingabefeld" id="country" placeholder="Deutschland" readonly>
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Adresszusatz</label>
+                        <input type="text" class="eingabefeld" id="addressExtra" placeholder="z.B. 2. Stock, Hinterhaus">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Bankdaten -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Bankdaten</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Kontoinhaber</label>
+                        <input type="text" class="eingabefeld" id="accountHolder" placeholder="Max Mustermann">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">IBAN</label>
+                        <input type="text" class="eingabefeld" id="iban" placeholder="DE89 3704 0044 0532 0130 00" maxlength="34">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">BIC</label>
+                        <input type="text" class="eingabefeld" id="bic" placeholder="COBADEFFXXX" maxlength="11">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Bank</label>
+                        <input type="text" class="eingabefeld" id="bankName" placeholder="z.B. Commerzbank">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Steuerdaten -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Steuerdaten</div>
+                </div>
+
+                <!-- Persönliche Steuerdaten -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Persönliche Angaben</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Steuer-ID</label>
+                            <input type="text" class="eingabefeld" id="taxIdPersonal" placeholder="12 345 678 901" maxlength="14">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">KVNR</label>
+                            <input type="text" class="eingabefeld" id="kvnr" placeholder="A123456789" maxlength="10">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Sozialversicherungsnummer</label>
+                            <input type="text" class="eingabefeld" id="socialSecurityNumber" placeholder="12 150270 M 123" maxlength="15">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gewerbliche Steuerdaten -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Gewerbliche Angaben (optional)</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Firmenname</label>
+                            <input type="text" class="eingabefeld" id="companyName" placeholder="z.B. Max Mustermann Marketing">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Umsatzsteuerpflichtig</label>
+                            <div class="toggle-row">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="vatLiable">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="vatLiableLabel" class="text-klein">Nein - Kleinunternehmer (§19 UStG)</span>
+                            </div>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Steuernummer</label>
+                            <input type="text" class="eingabefeld" id="taxNumber" placeholder="12/345/67890">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben" id="vatNumberLabel">USt-IdNr.</label>
+                            <input type="text" class="eingabefeld" id="vatNumber" placeholder="DE123456789" maxlength="14">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Gutschriftrechnungen -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Gutschriftrechnungen</div>
+                </div>
+                <div class="zeile">
+                    <span class="text-klein">Alle Auszahlungen an diesen Mitarbeiter</span>
+                </div>
+                <div class="history-timeline" id="employeeInvoicesList"></div>
+                <div class="empty-state" id="noEmployeeInvoicesMessage">
+                    <span class="icon icon--dokument-liste"></span>
+                    <div class="text-ueberschrift-abschnitt">Keine Gutschriftrechnungen</div>
+                    <div class="text-normal">Noch keine Gutschriftrechnungen vorhanden</div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Dokumente -->
+            <div class="abschnitt--card">
+                <div class="zeile zeile--header">
+                    <div class="text-ueberschrift-abschnitt">Dokumente</div>
+                </div>
+                <div class="document-upload-grid">
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Personalausweis Vorderseite</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="idFrontBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="idFrontInput" accept="image/*,.pdf" hidden>
+                            <div class="document-file-list" id="idFrontFileList"></div>
+                        </div>
+                    </div>
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Personalausweis Rückseite</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="idBackBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="idBackInput" accept="image/*,.pdf" hidden>
+                            <div class="document-file-list" id="idBackFileList"></div>
+                        </div>
+                    </div>
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Führerschein Vorderseite</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="licenseFrontBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="licenseFrontInput" accept="image/*,.pdf" hidden>
+                            <div class="document-file-list" id="licenseFrontFileList"></div>
+                        </div>
+                    </div>
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Führerschein Rückseite</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="licenseBackBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="licenseBackInput" accept="image/*,.pdf" hidden>
+                            <div class="document-file-list" id="licenseBackFileList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB: Einstellungen -->
+        <div class="kw-tab-content" id="tab-einstellungen">
+
+            <!-- Sichtbarkeit & Ranking -->
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Sichtbarkeit & Ranking</div>
+                </div>
+
+                <!-- GameTag -->
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">GameTag</label>
+                        <input type="text" class="eingabefeld" id="gameTag" placeholder="z.B. MaxPro#1234">
+                        <span class="eingabefeld-beschriftung-unten"></span>
+                    </div>
+                </div>
+
+                <!-- Sichtbarkeit -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Sichtbarkeit</div>
+                    </div>
+                    <!-- Ghost-Modus -->
+                    <div class="zeile zeile--center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="isGhost">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Ghost-Modus</label>
+                            <span class="eingabefeld-beschriftung-unten" id="ghostLabel">Aus - Mitarbeiter ist sichtbar</span>
+                        </div>
+                    </div>
+                    <!-- Darf andere sehen (nur bei Ghost) -->
+                    <div class="zeile zeile--center" id="canSeeOthersOption" style="display: none;">
+                        <label class="toggle-switch small">
+                            <input type="checkbox" id="canSeeOthers" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Darf andere sehen</label>
+                            <span class="eingabefeld-beschriftung-unten" id="canSeeOthersLabel">Ja - Kann andere sehen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ranking -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Ranking</div>
+                    </div>
+                    <!-- Ranking-Teilnahme -->
+                    <div class="zeile zeile--center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="participateRanking" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Ranking-Teilnahme</label>
+                            <span class="eingabefeld-beschriftung-unten" id="rankingLabel">An - Nimmt am Ranking teil</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Vorschuss & Stornorücklage -->
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Vorschuss & Stornorücklage</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                        <label class="eingabefeld-beschriftung-oben">Vorschuss-Anteil (%)</label>
+                        <input type="number" class="eingabefeld" id="advancePercent" value="70" min="0" max="100" step="5">
+                        <span class="eingabefeld-beschriftung-unten">Standard: 70% - Wird wöchentlich (Montag) ausgezahlt</span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                        <label class="eingabefeld-beschriftung-oben">Stornorücklage-Anteil (%)</label>
+                        <input type="number" class="eingabefeld" id="stornoPercent" value="30" min="0" max="100" step="5" readonly>
+                        <span class="eingabefeld-beschriftung-unten">Wird automatisch berechnet (100% - Vorschuss)</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Zusatz-Rollen -->
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Zusatz-Rollen</div>
+                </div>
+                <div class="zeile">
+                    <div class="btn-toggle-group" id="additionalRoles">
+                        <label class="btn btn-sm btn-secondary">
+                            <input type="checkbox" value="quality_manager" hidden>
+                            Quality Manager
+                        </label>
+                        <label class="btn btn-sm btn-secondary">
+                            <input type="checkbox" value="recruiting_manager" hidden>
+                            Recruiting Manager
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Empfehlung & Recruiting -->
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Empfehlung & Recruiting</div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Empfohlen von</label>
+                        <select class="eingabefeld" id="empfehlungSelect">
+                            <option value="">-- Keine Empfehlung --</option>
+                        </select>
+                        <span class="eingabefeld-beschriftung-unten" id="empfehlungHint"></span>
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Rekrutiert von</label>
+                        <select class="eingabefeld" id="recruitingSelect">
+                            <option value="">-- Kein Recruiting --</option>
+                        </select>
+                        <span class="eingabefeld-beschriftung-unten" id="recruitingHint"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Provisions-Einstellungen -->
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Provisions-Einstellungen</div>
+                </div>
+                <div class="zeile">
+                    <span class="text-klein">Individuelle Provisions-Faktoren und Anforderungen für diesen Botschafter.</span>
+                </div>
+
+                <!-- TC (Teamleitung) -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">TC (Teamleitung)</div>
+                    </div>
+                    <div class="zeile">
+                        <span class="text-klein">Faktor 1.0 auf alle Team-Einheiten (außer eigene). Anforderung: Mind. eigene EH, sonst 0.</span>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">TC-Faktor</label>
+                            <input type="number" class="eingabefeld" id="tcFaktor" value="1.0" min="0" max="5" step="0.1">
+                            <span class="eingabefeld-beschriftung-unten">Standard: 1.0</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Mind. eigene EH</label>
+                            <input type="number" class="eingabefeld" id="tcMindEh" value="100" min="0" step="10">
+                            <span class="eingabefeld-beschriftung-unten">Standard: 100 EH</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empfehlung / Recruiting -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Empfehlung / Recruiting</div>
+                    </div>
+                    <div class="zeile">
+                        <span class="text-klein">Faktor 0.5 auf jede Einheit der empfohlenen/rekrutierten Person. Zeitraum: 1 Jahr seit erstem Tag.</span>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Empfehlungs-Faktor</label>
+                            <input type="number" class="eingabefeld" id="empfehlungFaktor" value="0.5" min="0" max="5" step="0.1">
+                            <span class="eingabefeld-beschriftung-unten">Standard: 0.5</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Zeitraum (Monate)</label>
+                            <input type="number" class="eingabefeld" id="empfehlungZeitraum" value="12" min="1" max="60">
+                            <span class="eingabefeld-beschriftung-unten">Standard: 12 Monate</span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="text-klein" style="margin-bottom: 8px;">Anforderung (ENTWEDER/ODER):</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Mind. EH</label>
+                            <input type="number" class="eingabefeld" id="empfehlungMindEh" placeholder="z.B. 50" min="0">
+                            <span class="eingabefeld-beschriftung-unten">EH bevor Empfehlung gültig</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5" style="display: flex; align-items: center; justify-content: center;">
+                            <span class="text-normal--fett">ODER</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Mind. Anwesenheitstage</label>
+                            <input type="number" class="eingabefeld" id="empfehlungMindTage" placeholder="z.B. 21" min="0">
+                            <span class="eingabefeld-beschriftung-unten">Tage bevor Empfehlung gültig</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Quality</div>
+                    </div>
+                    <div class="zeile">
+                        <span class="text-klein">Faktor 0.5 auf alle Team-Einheiten (außer eigene). Anforderung: EH-Durchschnitt pro Tag pro Person.</span>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Quality-Faktor</label>
+                            <input type="number" class="eingabefeld" id="qualityFaktor" value="0.5" min="0" max="5" step="0.1">
+                            <span class="eingabefeld-beschriftung-unten">Standard: 0.5</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">EH-Durchschnitt (pro Tag/Person)</label>
+                            <input type="number" class="eingabefeld" id="qualityEhDurchschnitt" value="50" min="0" step="5">
+                            <span class="eingabefeld-beschriftung-unten">Standard: 50 EH</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Karrierestufe -->
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Karrierestufe</div>
+                </div>
+
+                <!-- Unterabschnitt: Ausgewählte Stufe -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Ausgewählte Stufe</div>
+                    </div>
+                    <div class="zeile zeile--center">
+                        <!-- Karrierestufe Dropdown -->
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
+                            <label class="eingabefeld-beschriftung-oben">Karrierestufe auswählen *</label>
+                            <select class="eingabefeld" id="mainRole">
+                                <option value="">-- Stufe wählen --</option>
+                                <option value="sma">SMA - Starting Marketing Advisor</option>
+                                <option value="ema">EMA - Executive Marketing Advisor</option>
+                                <option value="jmm">JMM - Junior Marketing Manager</option>
+                                <option value="emm">EMM - Executive Marketing Manager</option>
+                                <option value="cemm">CEMM - Chief Executive Marketing Manager</option>
+                                <option value="spb">SPB - Spitzen Botschafter</option>
+                                <option value="kad">KAD - Kadermanager</option>
+                                <option value="fue">FUE - Führungsebene</option>
+                            </select>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <!-- Badge -->
+                        <div id="careerBadgeDisplay"></div>
+                        <!-- Faktor -->
+                        <div class="text-ueberschrift" id="displayFaktor">-</div>
+                        <span id="factorIndividualHint" style="display: none; color: var(--warning-text);">individuell</span>
+                        <!-- Benefits -->
+                        <div id="roleBenefits"></div>
+                    </div>
+                    <div class="zeile zeile--center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="individualFactorCheckbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
+                            <label class="eingabefeld-beschriftung-oben">Individueller Faktor</label>
+                            <div id="individualFactorInput" style="visibility: hidden; opacity: 0;">
+                                <input type="number" class="eingabefeld" id="customFactor" placeholder="6.5" min="0" max="15" step="0.1">
+                            </div>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+
+                    <!-- KW Hint -->
+                    <div class="zeile" id="kwHint" style="display: none;">
+                        <span class="text-klein" style="color: var(--warning-text);" id="kwHintText"></span>
+                    </div>
+
+                    <!-- Gültigkeitszeitraum + Speichern Button -->
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
+                            <label class="eingabefeld-beschriftung-oben">Gültigkeitszeitraum</label>
+                            <button type="button" class="btn btn-secondary" id="roleValidityBtn" onclick="openRoleValidityCalendar()">
+                                <span id="roleValidityDisplay">Zeitraum wählen...</span>
+                            </button>
+                            <input type="hidden" id="roleEffectiveDate" value="">
+                            <input type="hidden" id="roleEffectiveDateTo" value="">
+                            <span class="eingabefeld-beschriftung-unten" id="roleKwDisplay"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--auto">
+                            <label class="eingabefeld-beschriftung-oben"></label>
+                            <button type="button" class="btn btn-primary" id="saveRoleBtn">
+                                Karrierestufe speichern
+                            </button>
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Karriere-Historie -->
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Karriere-Historie</div>
+                </div>
+                <div class="history-timeline" id="careerHistoryTimeline"></div>
+                <div class="empty-state" id="noCareerHistoryMessage">
+                    <span class="icon icon--uhr"></span>
+                    <div class="text-ueberschrift-abschnitt">Keine Historie</div>
+                    <div class="text-normal">Die Karriere-Historie wird automatisch geführt</div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Preisvorlagen (ab EMM freigeschaltet) -->
+            <div class="abschnitt--card" id="preisvorlagenSection">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">
+                        Preisvorlagen
+                        <span class="section-badge">ab EMM</span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <span class="text-klein">Individuelle Preisvorlagen für Formulare. Diese werden bei der Mitglieder-Erfassung verwendet.</span>
+                </div>
+                <div class="locked-section" id="preisvorlagenLocked">
+                    <div class="locked-icon">
+                        <span class="icon icon--schloss"></span>
+                    </div>
+                    <div class="text-ueberschrift">Preisvorlagen gesperrt</div>
+                    <div class="text-normal">Diese Funktion ist ab der Karrierestufe EMM (Executive Marketing Manager) verfügbar.</div>
+                    <div class="text-normal locked-detail">Erreiche EMM um freizuschalten</div>
+                </div>
+                <div class="preisvorlagen-grid" id="preisvorlagenContent" style="display: none;">
+                    <div class="empty-state">
+                        <span class="icon icon--dokument-liste"></span>
+                        <div class="text-ueberschrift-abschnitt">Keine Preisvorlagen</div>
+                        <div class="text-normal">Preisvorlagen werden in einer zukünftigen Version konfigurierbar sein.</div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
+            <!-- Verträge & Vereinbarungen -->
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Verträge & Vereinbarungen</div>
+                </div>
+                <div class="document-upload-grid">
+                    <!-- HV Vertrag -->
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">HV Vertrag (Hauptvertrag)</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="hvContractBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="hvContractInput" accept=".pdf,image/*" hidden>
+                            <div class="document-file-list" id="hvContractFileList"></div>
+                        </div>
+                    </div>
+                    <!-- Sonstige Vereinbarungen -->
+                    <div class="document-upload-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Sonstige Vereinbarungen</label>
+                        <div class="document-upload-item">
+                            <div class="document-upload-box" id="otherContractBox">
+                                <span class="icon icon--cloud-upload document-upload-icon"></span>
+                                <span class="document-upload-text">Datei hochladen</span>
+                            </div>
+                            <input type="file" id="otherContractInput" accept=".pdf,image/*" hidden>
+                            <div class="document-file-list" id="otherContractFileList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        </div><!-- /page-content -->
+
+        <!-- Footer Actions -->
+        <div class="page-footer">
+            <button class="btn btn-secondary back-btn-secondary">Abbrechen</button>
+            <button class="btn btn-primary" onclick="saveProfile()">Speichern</button>
+        </div>
+
+    </div>
+
+    <!-- Photo Crop Modal -->
+    <div class="modal modal-s" id="photoCropModal">
+        <div class="page-container page-container--modal">
+            <div class="page-header">
+                <div class="page-header-row">
+                    <div class="page-header-links">
+                        <span class="text-ueberschrift">Foto zuschneiden</span>
+                    </div>
+                    <div class="page-header-mitte"></div>
+                    <div class="page-header-rechts">
+                        <button class="btn btn-icon" onclick="closeCropModal()">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: var(--spacing-lg); display: flex; flex-direction: column; align-items: center; gap: var(--spacing-md);">
+                <div class="crop-container" style="position: relative; width: 280px; height: 280px; overflow: hidden; border-radius: var(--radius-md); border: 2px solid var(--border-color); background: var(--bg-secondary);">
+                    <img id="cropImage" src="" alt="Crop" style="position: absolute; cursor: move; max-width: none;">
+                    <!-- Runder Overlay der den Badge-Ausschnitt zeigt -->
+                    <div class="crop-circle-overlay" style="position: absolute; inset: 0; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); border-radius: 50%;"></div>
+                    <div class="crop-circle-border" style="position: absolute; inset: 0; border: 2px dashed var(--accent-color); border-radius: 50%; pointer-events: none;"></div>
+                </div>
+                <div class="crop-controls" style="display: flex; align-items: center; gap: var(--spacing-md); width: 100%;">
+                    <span class="icon icon--minus" style="opacity: 0.5;"></span>
+                    <input type="range" id="cropZoom" min="100" max="300" value="100" style="flex: 1;">
+                    <span class="icon icon--plus" style="opacity: 0.5;"></span>
+                </div>
+                <span class="text-klein text-sekundaer">Bild verschieben zum Positionieren</span>
+            </div>
+            <div class="page-footer">
+                <button class="btn btn-secondary" onclick="closeCropModal()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="applyCrop()">Übernehmen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // SUPABASE DATA LOADING
+        // ================================================================
+
+        // Supabase Client von parent (Shell) holen
+        const supabase = window.parent.supabaseClient;
+        let profileUserId = null;
+        let userData = null;
+        let userProfile = null;
+        let userRoles = [];
+        let provisionSettings = null;
+        let unsavedChanges = null; // Wird später initialisiert
+
+        // User-ID aus URL holen
+        function getUserIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Profil-Daten laden
+        async function loadProfileData() {
+            profileUserId = getUserIdFromUrl();
+            if (!profileUserId) {
+                showToast('Keine User-ID angegeben', 'error');
+                return;
+            }
+
+            try {
+                // 1. User-Basisdaten laden
+                const { data: user, error: userError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', profileUserId)
+                    .single();
+
+                if (userError) throw userError;
+                userData = user;
+
+                // 2. Profil-Daten laden
+                const { data: profile, error: profileError } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', profileUserId)
+                    .single();
+
+                if (profileError && profileError.code !== 'PGRST116') throw profileError;
+                userProfile = profile || {};
+
+                // 3. Rollen laden
+                const { data: roles, error: rolesError } = await supabase
+                    .from('user_roles')
+                    .select('*')
+                    .eq('user_id', profileUserId)
+                    .order('created_at', { ascending: false });
+
+                if (rolesError) throw rolesError;
+                userRoles = roles || [];
+
+                // 4. Provisions-Einstellungen laden
+                await loadProvisionSettings();
+
+                // Felder befüllen
+                populateForm();
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showToast('Fehler beim Laden: ' + error.message, 'error');
+            }
+        }
+
+        // Formular mit Daten befüllen
+        function populateForm() {
+            // Header
+            document.getElementById('profileName').textContent =
+                `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() || userData.name || userData.email;
+            document.getElementById('employeeId').textContent = profileUserId.substring(0, 8);
+            document.getElementById('createdDate').textContent = userData.created_at
+                ? new Date(userData.created_at).toLocaleDateString('de-DE')
+                : '-';
+
+            // Persönliche Daten
+            setValue('firstName', userProfile.first_name);
+            setValue('lastName', userProfile.last_name);
+            setValue('email', userData.email);
+            setValue('phone', userProfile.phone);
+
+            // Kleidergröße
+            if (userProfile.clothing_size) {
+                document.querySelectorAll('.btn-toggle[data-size]').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.size === userProfile.clothing_size);
+                });
+                document.getElementById('clothingSize').value = userProfile.clothing_size;
+            }
+
+            // Adresse
+            setValue('street', userProfile.street);
+            setValue('houseNumber', userProfile.house_number);
+            setValue('zip', userProfile.postal_code);
+            setValue('city', userProfile.city);
+            setValue('bundesland', userProfile.state);
+            setValue('country', userProfile.country);
+            setValue('addressExtra', userProfile.address_extra);
+
+            // Bankdaten
+            setValue('accountHolder', userProfile.account_holder);
+            setValue('iban', userProfile.iban);
+            setValue('bic', userProfile.bic);
+            setValue('bankName', userProfile.bank_name);
+
+            // Steuerdaten - Persönlich
+            setValue('taxIdPersonal', userProfile.tax_id);
+            setValue('kvnr', userProfile.kvnr);
+            setValue('socialSecurityNumber', userProfile.social_security_number);
+
+            // Steuerdaten - Gewerblich
+            setValue('companyName', userProfile.company_name);
+            setValue('taxNumber', userProfile.tax_number);
+            setValue('vatNumber', userProfile.vat_id);
+            setChecked('vatLiable', userProfile.is_vat_liable);
+
+            // Einstellungen
+            setValue('gameTag', userProfile.game_tag);
+            setChecked('isGhost', userProfile.ghost_mode);
+            setChecked('canSeeOthers', userProfile.can_see_others !== false); // Default: true
+            setChecked('participateRanking', userProfile.ranking_enabled);
+            setValue('advancePercent', userProfile.advance_rate || 70);
+            setValue('stornoPercent', userProfile.reserve_rate || 30);
+
+            // Fotos laden
+            if (userProfile.photo_intern_url) {
+                const previewIntern = document.getElementById('previewInternal');
+                previewIntern.src = userProfile.photo_intern_url;
+                previewIntern.style.display = 'block';
+                previewIntern.previousElementSibling.style.display = 'none';
+                previewIntern.closest('.photo-upload').classList.add('has-image');
+            }
+            if (userProfile.photo_extern_url) {
+                const previewExtern = document.getElementById('previewExternal');
+                previewExtern.src = userProfile.photo_extern_url;
+                previewExtern.style.display = 'block';
+                previewExtern.previousElementSibling.style.display = 'none';
+                previewExtern.closest('.photo-upload').classList.add('has-image');
+            }
+
+            // Dokumente laden
+            loadExistingDocument('id_front_url', 'idFrontFileList', 'Personalausweis Vorderseite');
+            loadExistingDocument('id_back_url', 'idBackFileList', 'Personalausweis Rückseite');
+            loadExistingDocument('license_front_url', 'licenseFrontFileList', 'Führerschein Vorderseite');
+            loadExistingDocument('license_back_url', 'licenseBackFileList', 'Führerschein Rückseite');
+            loadExistingDocument('hv_contract_url', 'hvContractFileList', 'Handelsvertretervertrag');
+            loadExistingDocument('other_contract_url', 'otherContractFileList', 'Sonstige Verträge');
+
+            // Zusatz-Rollen
+            const additionalRoles = userRoles.filter(r => r.role_type === 'additional' && r.is_active);
+            additionalRoles.forEach(role => {
+                const input = document.querySelector(`#additionalRoles input[value="${role.role_name}"]`);
+                if (input) {
+                    input.checked = true;
+                    input.closest('.btn').classList.add('active');
+                }
+            });
+
+            // Karrierestufe (role_type = 'career')
+            const careerRole = userRoles.find(r => r.role_type === 'career' && r.is_active);
+            if (careerRole) {
+                document.getElementById('mainRole').value = careerRole.role_name;
+                // Individueller Faktor falls vorhanden
+                if (careerRole.factor) {
+                    document.getElementById('individualFactorCheckbox').checked = true;
+                    document.getElementById('customFactor').value = careerRole.factor;
+                    document.getElementById('individualFactorInput').style.visibility = 'visible';
+                    document.getElementById('individualFactorInput').style.opacity = '1';
+                }
+                // Trigger change event für Badge-Update
+                document.getElementById('mainRole').dispatchEvent(new Event('change'));
+
+                // Foto-Rahmen in Stufe-Farbe (nur internes Foto)
+                const photoUploadIntern = document.querySelector('#previewInternal')?.closest('.photo-upload');
+                if (photoUploadIntern) {
+                    photoUploadIntern.classList.add(`photo-upload--${careerRole.role_name.toLowerCase()}`);
+                }
+            }
+
+            // Karriere-Historie laden und anzeigen
+            loadCareerHistory();
+
+            // Empfehlung & Recruiting laden
+            loadRecruitmentData();
+
+            // Toggle-Labels aktualisieren
+            updateToggleLabels();
+        }
+
+        // Hilfsfunktionen
+        function setValue(id, value) {
+            const el = document.getElementById(id);
+            if (el && value !== null && value !== undefined) {
+                el.value = value;
+            }
+        }
+
+        function setChecked(id, value) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.checked = !!value;
+                el.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // ================================================================
+        // PROVISIONS-EINSTELLUNGEN LADEN/SPEICHERN
+        // ================================================================
+
+        // Provisions-Einstellungen laden
+        async function loadProvisionSettings() {
+            if (!profileUserId) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_provision_settings')
+                    .select('*')
+                    .eq('user_id', profileUserId)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') throw error;
+
+                provisionSettings = data || {};
+                populateProvisionSettings();
+
+            } catch (error) {
+                console.error('Error loading provision settings:', error);
+            }
+        }
+
+        // Provisions-Felder befüllen
+        function populateProvisionSettings() {
+            if (!provisionSettings) return;
+
+            // TC
+            setValue('tcFaktor', provisionSettings.tc_faktor ?? 1.0);
+            setValue('tcMindEh', provisionSettings.tc_mind_eh ?? 100);
+
+            // Empfehlung
+            setValue('empfehlungFaktor', provisionSettings.empfehlung_faktor ?? 0.5);
+            setValue('empfehlungZeitraum', provisionSettings.empfehlung_zeitraum_monate ?? 12);
+            setValue('empfehlungMindEh', provisionSettings.empfehlung_mind_eh || '');
+            setValue('empfehlungMindTage', provisionSettings.empfehlung_mind_tage || '');
+
+            // Quality
+            setValue('qualityFaktor', provisionSettings.quality_faktor ?? 0.5);
+            setValue('qualityEhDurchschnitt', provisionSettings.quality_eh_durchschnitt ?? 50);
+        }
+
+        // Provisions-Einstellungen speichern
+        async function saveProvisionSettings() {
+            if (!profileUserId) return true;
+
+            // Entweder/Oder Logik für Empfehlung
+            const mindEh = document.getElementById('empfehlungMindEh')?.value;
+            const mindTage = document.getElementById('empfehlungMindTage')?.value;
+
+            // Wenn beide gefüllt, Warnung
+            if (mindEh && mindTage) {
+                showToast('Empfehlung: Bitte nur Mind. EH ODER Mind. Tage ausfüllen', 'warning');
+                return false;
+            }
+
+            // Prüfen ob Felder existieren (falls HTML noch nicht eingefügt)
+            if (!document.getElementById('tcFaktor')) {
+                return true; // Felder nicht vorhanden, überspringen
+            }
+
+            const data = {
+                user_id: profileUserId,
+
+                // TC
+                tc_faktor: parseFloat(document.getElementById('tcFaktor').value) || 1.0,
+                tc_mind_eh: parseInt(document.getElementById('tcMindEh').value) || 100,
+
+                // Empfehlung
+                empfehlung_faktor: parseFloat(document.getElementById('empfehlungFaktor').value) || 0.5,
+                empfehlung_zeitraum_monate: parseInt(document.getElementById('empfehlungZeitraum').value) || 12,
+                empfehlung_mind_eh: mindEh ? parseInt(mindEh) : null,
+                empfehlung_mind_tage: mindTage ? parseInt(mindTage) : null,
+
+                // Quality
+                quality_faktor: parseFloat(document.getElementById('qualityFaktor').value) || 0.5,
+                quality_eh_durchschnitt: parseInt(document.getElementById('qualityEhDurchschnitt').value) || 50,
+
+                updated_at: new Date().toISOString()
+            };
+
+            try {
+                const { error } = await supabase
+                    .from('user_provision_settings')
+                    .upsert(data, { onConflict: 'user_id' });
+
+                if (error) throw error;
+
+                provisionSettings = data;
+                return true;
+
+            } catch (error) {
+                console.error('Error saving provision settings:', error);
+                showToast('Fehler beim Speichern der Provisions-Einstellungen', 'error');
+                return false;
+            }
+        }
+
+        function updateToggleLabels() {
+            // Ghost-Modus
+            const isGhost = document.getElementById('isGhost').checked;
+            document.getElementById('ghostLabel').textContent = isGhost
+                ? 'An - Mitarbeiter ist unsichtbar (Ghost)'
+                : 'Aus - Mitarbeiter ist sichtbar';
+            document.getElementById('canSeeOthersOption').style.display = isGhost ? '' : 'none';
+
+            // Ranking
+            const ranking = document.getElementById('participateRanking').checked;
+            document.getElementById('rankingLabel').textContent = ranking
+                ? 'An - Nimmt am Ranking teil'
+                : 'Aus - Nicht im Ranking sichtbar';
+
+            // USt
+            const vat = document.getElementById('vatLiable').checked;
+            document.getElementById('vatLiableLabel').textContent = vat
+                ? 'Ja - Umsatzsteuerpflichtig'
+                : 'Nein - Kleinunternehmer (§19 UStG)';
+        }
+
+        // ================================================================
+        // DOKUMENT UPLOAD FUNKTIONEN
+        // ================================================================
+
+        // Bestehende Dokumente anzeigen
+        function loadExistingDocument(urlField, fileListId, displayName) {
+            const url = userProfile[urlField];
+            if (!url) return;
+
+            const fileList = document.getElementById(fileListId);
+            if (!fileList) return;
+
+            // Dateiname aus URL extrahieren
+            const fileName = url.split('/').pop() || displayName;
+
+            fileList.innerHTML = `
+                <div class="document-file-row">
+                    <span class="icon icon--dokument"></span>
+                    <span class="document-file-name" data-action="view" title="${fileName}" style="cursor: pointer;">${fileName}</span>
+                    <div class="document-file-actions">
+                        <button type="button" class="btn btn-sm btn-icon" data-action="download" title="Herunterladen">
+                            <span class="icon icon--download"></span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-icon btn-danger" data-action="delete" title="Löschen">
+                            <span class="icon icon--schliessen"></span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Event-Handler hinzufügen
+            // Klick auf Namen = Anzeigen im neuen Fenster
+            fileList.querySelector('[data-action="view"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.open(url, '_blank');
+            });
+
+            // Download-Button = Direkter Download
+            fileList.querySelector('[data-action="download"]').addEventListener('click', async (e) => {
+                e.stopPropagation();
+                try {
+                    const response = await fetch(url);
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                } catch (err) {
+                    console.error('Download error:', err);
+                    window.open(url, '_blank');
+                }
+            });
+
+            fileList.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteDocument(urlField, fileListId);
+            });
+        }
+
+        // Dokument hochladen
+        async function uploadDocument(file, docType) {
+            if (!profileUserId || !file) return null;
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${docType}-${Date.now()}.${fileExt}`;
+            const filePath = `${profileUserId}/${fileName}`;
+
+            const { data, error } = await supabase.storage
+                .from('user-files')
+                .upload(filePath, file, { upsert: true });
+
+            if (error) {
+                console.error('Upload error:', error);
+                throw error;
+            }
+
+            // Public URL holen
+            const { data: urlData } = supabase.storage
+                .from('user-files')
+                .getPublicUrl(filePath);
+
+            return urlData.publicUrl;
+        }
+
+        // Dokument löschen
+        async function deleteDocument(urlField, fileListId) {
+            const confirmed = await showConfirm(
+                'Dokument löschen',
+                'Möchten Sie dieses Dokument wirklich löschen?',
+                'warning',
+                { confirmText: 'Löschen', danger: true }
+            );
+
+            if (!confirmed) return;
+
+            try {
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .update({ [urlField]: null })
+                    .eq('user_id', profileUserId);
+
+                if (error) throw error;
+
+                document.getElementById(fileListId).innerHTML = '';
+                userProfile[urlField] = null;
+                showToast('Dokument gelöscht', 'success');
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                showToast('Fehler beim Löschen: ' + error.message, 'error');
+            }
+        }
+
+        // Dokument-Upload mit Supabase initialisieren
+        function initSupabaseDocumentUpload(inputId, boxId, fileListId, urlField, docType) {
+            const input = document.getElementById(inputId);
+            const box = document.getElementById(boxId);
+
+            if (!input || !box) return;
+
+            // Klick auf Box öffnet File-Dialog
+            box.addEventListener('click', () => input.click());
+
+            // Datei ausgewählt
+            input.addEventListener('change', async function() {
+                const file = this.files[0];
+                if (!file) return;
+
+                // Größe prüfen (max 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('Datei zu groß (max. 10MB)', 'error');
+                    return;
+                }
+
+                try {
+                    showToast('Wird hochgeladen...', 'info');
+
+                    // Hochladen
+                    const url = await uploadDocument(file, docType);
+
+                    // In DB speichern
+                    const { error } = await supabase
+                        .from('user_profiles')
+                        .update({ [urlField]: url })
+                        .eq('user_id', profileUserId);
+
+                    if (error) throw error;
+
+                    // UI aktualisieren
+                    userProfile[urlField] = url;
+                    loadExistingDocument(urlField, fileListId, file.name);
+
+                    showToast('Dokument hochgeladen', 'success');
+
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    showToast('Fehler: ' + error.message, 'error');
+                }
+
+                // Input zurücksetzen
+                this.value = '';
+            });
+        }
+
+        // ================================================================
+        // PHOTO CROP FUNKTIONEN
+        // ================================================================
+
+        let cropState = {
+            image: null,
+            previewId: null,
+            urlField: null,
+            zoom: 100,
+            posX: 0,
+            posY: 0,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            imgWidth: 0,
+            imgHeight: 0
+        };
+
+        function initPhotoCropUpload(inputId, previewId, urlField) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Nur Bilder erlauben
+                if (!file.type.startsWith('image/')) {
+                    showToast('Bitte nur Bilddateien auswählen', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    openCropModal(e.target.result, previewId, urlField);
+                };
+                reader.readAsDataURL(file);
+
+                // Input zurücksetzen
+                this.value = '';
+            });
+        }
+
+        function openCropModal(imageSrc, previewId, urlField) {
+            cropState.previewId = previewId;
+            cropState.urlField = urlField;
+            cropState.zoom = 100;
+            cropState.posX = 0;
+            cropState.posY = 0;
+
+            const modal = document.getElementById('photoCropModal');
+            const cropImage = document.getElementById('cropImage');
+            const zoomSlider = document.getElementById('cropZoom');
+
+            zoomSlider.value = 100;
+
+            // Bild laden
+            cropImage.onload = function() {
+                cropState.imgWidth = this.naturalWidth;
+                cropState.imgHeight = this.naturalHeight;
+
+                // Zoom-Bereich: 10% bis 300%, Start bei passendem Wert
+                const containerSize = 280;
+                const fitScale = Math.max(containerSize / cropState.imgWidth, containerSize / cropState.imgHeight);
+                const fitZoom = Math.ceil(fitScale * 100);
+
+                // Slider-Bereich: mindestens 10%, max 300%
+                zoomSlider.min = 10;
+                zoomSlider.max = 300;
+                zoomSlider.value = fitZoom;
+                cropState.zoom = fitZoom;
+
+                updateCropImage();
+                centerImage();
+            };
+            cropImage.src = imageSrc;
+
+            modal.classList.add('active');
+            initCropDrag();
+        }
+
+        function closeCropModal() {
+            document.getElementById('photoCropModal').classList.remove('active');
+        }
+
+        function updateCropImage() {
+            const cropImage = document.getElementById('cropImage');
+            const scale = cropState.zoom / 100;
+            const newWidth = cropState.imgWidth * scale;
+            const newHeight = cropState.imgHeight * scale;
+
+            cropImage.style.width = newWidth + 'px';
+            cropImage.style.height = newHeight + 'px';
+            cropImage.style.left = cropState.posX + 'px';
+            cropImage.style.top = cropState.posY + 'px';
+        }
+
+        function centerImage() {
+            const containerSize = 280;
+            const scale = cropState.zoom / 100;
+            const newWidth = cropState.imgWidth * scale;
+            const newHeight = cropState.imgHeight * scale;
+
+            cropState.posX = (containerSize - newWidth) / 2;
+            cropState.posY = (containerSize - newHeight) / 2;
+            updateCropImage();
+        }
+
+        function initCropDrag() {
+            const cropImage = document.getElementById('cropImage');
+            const container = cropImage.parentElement;
+
+            // Zoom-Slider
+            document.getElementById('cropZoom').addEventListener('input', function() {
+                const oldZoom = cropState.zoom;
+                cropState.zoom = parseInt(this.value);
+
+                // Position anpassen um Mittelpunkt zu erhalten
+                const containerSize = 280;
+                const centerX = containerSize / 2;
+                const centerY = containerSize / 2;
+
+                const oldScale = oldZoom / 100;
+                const newScale = cropState.zoom / 100;
+
+                const oldCenterOffsetX = centerX - cropState.posX;
+                const oldCenterOffsetY = centerY - cropState.posY;
+
+                cropState.posX = centerX - (oldCenterOffsetX * newScale / oldScale);
+                cropState.posY = centerY - (oldCenterOffsetY * newScale / oldScale);
+
+                updateCropImage();
+            });
+
+            // Drag-Events
+            cropImage.addEventListener('mousedown', startDrag);
+            cropImage.addEventListener('touchstart', startDrag, { passive: false });
+
+            document.addEventListener('mousemove', doDrag);
+            document.addEventListener('touchmove', doDrag, { passive: false });
+
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function startDrag(e) {
+            e.preventDefault();
+            cropState.isDragging = true;
+            const pos = e.touches ? e.touches[0] : e;
+            cropState.startX = pos.clientX - cropState.posX;
+            cropState.startY = pos.clientY - cropState.posY;
+        }
+
+        function doDrag(e) {
+            if (!cropState.isDragging) return;
+            e.preventDefault();
+            const pos = e.touches ? e.touches[0] : e;
+            cropState.posX = pos.clientX - cropState.startX;
+            cropState.posY = pos.clientY - cropState.startY;
+            updateCropImage();
+        }
+
+        function endDrag() {
+            cropState.isDragging = false;
+        }
+
+        async function applyCrop() {
+            const cropImage = document.getElementById('cropImage');
+            const containerSize = 280;
+
+            // Canvas erstellen für den Crop (rechteckig, kein rundes Clipping)
+            const canvas = document.createElement('canvas');
+            canvas.width = containerSize;
+            canvas.height = containerSize;
+            const ctx = canvas.getContext('2d');
+
+            // Bild zeichnen (rechteckig - der runde Ausschnitt wird bei der Badge-Anzeige gemacht)
+            const scale = cropState.zoom / 100;
+            ctx.drawImage(
+                cropImage,
+                cropState.posX,
+                cropState.posY,
+                cropState.imgWidth * scale,
+                cropState.imgHeight * scale
+            );
+
+            // Zu Blob konvertieren
+            canvas.toBlob(async (blob) => {
+                try {
+                    showToast('Wird hochgeladen...', 'info');
+
+                    // Hochladen zu Supabase
+                    const fileName = `${cropState.urlField}-${Date.now()}.png`;
+                    const filePath = `${profileUserId}/${fileName}`;
+
+                    const { error: uploadError } = await supabase.storage
+                        .from('user-files')
+                        .upload(filePath, blob, { upsert: true, contentType: 'image/png' });
+
+                    if (uploadError) throw uploadError;
+
+                    // Public URL holen
+                    const { data: urlData } = supabase.storage
+                        .from('user-files')
+                        .getPublicUrl(filePath);
+
+                    const url = urlData.publicUrl;
+
+                    // In DB speichern
+                    const { error: dbError } = await supabase
+                        .from('user_profiles')
+                        .update({ [cropState.urlField]: url })
+                        .eq('user_id', profileUserId);
+
+                    if (dbError) throw dbError;
+
+                    // UI aktualisieren
+                    userProfile[cropState.urlField] = url;
+                    const preview = document.getElementById(cropState.previewId);
+                    preview.src = url;
+                    preview.style.display = 'block';
+                    preview.previousElementSibling.style.display = 'none';
+
+                    closeCropModal();
+                    showToast('Foto gespeichert', 'success');
+
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    showToast('Fehler: ' + error.message, 'error');
+                }
+            }, 'image/png', 0.9);
+        }
+
+        // Zusatz-Rollen speichern
+        async function saveAdditionalRoles() {
+            const selectedRoles = [];
+            document.querySelectorAll('#additionalRoles input:checked').forEach(input => {
+                selectedRoles.push(input.value);
+            });
+
+            // Aktuelle additional Rollen holen
+            const currentAdditional = userRoles.filter(r => r.role_type === 'additional');
+
+            // Deaktivieren: Rollen die nicht mehr ausgewählt sind
+            for (const role of currentAdditional) {
+                if (!selectedRoles.includes(role.role_name) && role.is_active) {
+                    await supabase
+                        .from('user_roles')
+                        .update({ is_active: false })
+                        .eq('id', role.id);
+                }
+            }
+
+            // Aktivieren/Erstellen: Rollen die ausgewählt sind
+            for (const roleName of selectedRoles) {
+                const existing = currentAdditional.find(r => r.role_name === roleName);
+                if (existing) {
+                    if (!existing.is_active) {
+                        await supabase
+                            .from('user_roles')
+                            .update({ is_active: true })
+                            .eq('id', existing.id);
+                    }
+                } else {
+                    await supabase
+                        .from('user_roles')
+                        .insert({
+                            user_id: profileUserId,
+                            role_type: 'additional',
+                            role_name: roleName,
+                            is_active: true
+                        });
+                }
+            }
+        }
+
+        // Speichern-Funktion
+        async function saveProfile() {
+            if (!profileUserId) {
+                showToast('Keine User-ID', 'error');
+                return;
+            }
+
+            try {
+                // Profil-Daten sammeln
+                const clothingSize = document.getElementById('clothingSize').value;
+                const profileData = {
+                    first_name: document.getElementById('firstName').value,
+                    last_name: document.getElementById('lastName').value,
+                    phone: document.getElementById('phone').value,
+                    clothing_size: clothingSize || null, // NULL statt leerer String
+                    street: document.getElementById('street').value,
+                    house_number: document.getElementById('houseNumber').value,
+                    postal_code: document.getElementById('zip').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('bundesland').value,
+                    country: document.getElementById('country').value,
+                    address_extra: document.getElementById('addressExtra').value,
+                    account_holder: document.getElementById('accountHolder').value,
+                    iban: document.getElementById('iban').value,
+                    bic: document.getElementById('bic').value,
+                    bank_name: document.getElementById('bankName').value,
+                    tax_id: document.getElementById('taxIdPersonal').value,
+                    kvnr: document.getElementById('kvnr').value,
+                    social_security_number: document.getElementById('socialSecurityNumber').value,
+                    company_name: document.getElementById('companyName').value,
+                    tax_number: document.getElementById('taxNumber').value,
+                    vat_id: document.getElementById('vatNumber').value,
+                    is_vat_liable: document.getElementById('vatLiable').checked,
+                    game_tag: document.getElementById('gameTag').value,
+                    ghost_mode: document.getElementById('isGhost').checked,
+                    can_see_others: document.getElementById('canSeeOthers').checked,
+                    ranking_enabled: document.getElementById('participateRanking').checked,
+                    advance_rate: parseInt(document.getElementById('advancePercent').value) || 70,
+                    reserve_rate: parseInt(document.getElementById('stornoPercent').value) || 30,
+                    updated_at: new Date().toISOString()
+                };
+
+                // Profil speichern
+                const { error: profileError } = await supabase
+                    .from('user_profiles')
+                    .update(profileData)
+                    .eq('user_id', profileUserId);
+
+                if (profileError) throw profileError;
+
+                // Zusatz-Rollen speichern
+                await saveAdditionalRoles();
+
+                // Provisions-Einstellungen speichern
+                const provisionSaved = await saveProvisionSettings();
+                if (!provisionSaved) return;
+
+                // User-Name in users Tabelle aktualisieren
+                const fullName = `${profileData.first_name} ${profileData.last_name}`.trim();
+                if (fullName) {
+                    await supabase
+                        .from('users')
+                        .update({ name: fullName })
+                        .eq('id', profileUserId);
+                }
+
+                showToast('Profil gespeichert', 'success');
+
+                // Header aktualisieren
+                document.getElementById('profileName').textContent = fullName || userData.email;
+
+                // Änderungsstatus zurücksetzen
+                if (unsavedChanges) unsavedChanges.markSaved();
+
+            } catch (error) {
+                console.error('Save error:', error);
+                showToast('Fehler beim Speichern: ' + error.message, 'error');
+            }
+        }
+
+        // Demo-Daten für Gutschriftrechnungen (TODO: aus Supabase laden)
+        const employeeInvoices = [
+            { id: 1, name: 'GS-2025-001', date: '31.01.2025', amount: 1850.00, status: 'paid' },
+            { id: 2, name: 'GS-2025-002', date: '28.02.2025', amount: 2340.50, status: 'paid' },
+            { id: 3, name: 'GS-2025-003', date: '31.03.2025', amount: 1920.00, status: 'pending' }
+        ];
+
+        // ================================================================
+        // KARRIERESTUFE SPEICHERN (role_type = 'career')
+        // ================================================================
+
+        // Rollen-Mapping für Anzeige
+        const CAREER_LEVEL_NAMES = {
+            'sma': 'Starting Marketing Advisor',
+            'ema': 'Executive Marketing Advisor',
+            'jmm': 'Junior Marketing Manager',
+            'emm': 'Executive Marketing Manager',
+            'cemm': 'Chief Executive Marketing Manager',
+            'spb': 'Spitzen Botschafter',
+            'kad': 'Kadermanager',
+            'fue': 'Führungsebene'
+        };
+
+        // Deutsches Datum (DD.MM.YY oder DD.MM.YYYY) zu ISO (YYYY-MM-DD) konvertieren
+        function germanDateToISO(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('.');
+            if (parts.length !== 3) return null;
+            let day = parts[0].padStart(2, '0');
+            let month = parts[1].padStart(2, '0');
+            let year = parts[2];
+            // 2-stelliges Jahr zu 4-stellig
+            if (year.length === 2) {
+                year = (parseInt(year) > 50 ? '19' : '20') + year;
+            }
+            return `${year}-${month}-${day}`;
+        }
+
+        async function saveCareerLevel() {
+            const roleName = document.getElementById('mainRole').value;
+            const fromDateGerman = document.getElementById('roleEffectiveDate').value;
+            const toDateGerman = document.getElementById('roleEffectiveDateTo').value;
+            const hasIndividualFactor = document.getElementById('individualFactorCheckbox').checked;
+            const saveBtn = document.getElementById('saveRoleBtn');
+
+            // Faktor ermitteln: Individuell oder Basis aus ROLE_CONFIG
+            let factor;
+            if (hasIndividualFactor) {
+                factor = parseFloat(document.getElementById('customFactor').value);
+            } else {
+                // Basis-Faktor aus ROLE_CONFIG holen (window.ROLE_CONFIG aus main.js)
+                const config = window.ROLE_CONFIG?.[roleName] || {};
+                factor = config.faktor || null;
+            }
+
+            if (!roleName) {
+                showToast('Bitte Karrierestufe auswählen', 'error');
+                return;
+            }
+
+            if (!fromDateGerman || !toDateGerman) {
+                showToast('Bitte Gültigkeitszeitraum wählen', 'error');
+                return;
+            }
+
+            // Datum konvertieren für Supabase
+            const fromDate = germanDateToISO(fromDateGerman);
+            const toDate = germanDateToISO(toDateGerman);
+            const newValidUntil = toDate === fromDate ? null : toDate; // NULL = unbegrenzt
+
+            try {
+                // Alle Karrierestufen des Users laden
+                const { data: existingEntries, error: checkError } = await supabase
+                    .from('user_roles')
+                    .select('*')
+                    .eq('user_id', profileUserId)
+                    .eq('role_type', 'career');
+
+                if (checkError) throw checkError;
+
+                // Überlappende Einträge filtern
+                const overlapping = (existingEntries || []).filter(entry => {
+                    const entryStart = entry.assigned_at;
+                    const entryEnd = entry.valid_until || '9999-12-31';
+                    const newEnd = newValidUntil || '9999-12-31';
+                    return entryStart <= newEnd && fromDate <= entryEnd;
+                });
+
+                if (overlapping.length > 0) {
+                    const overlapInfo = overlapping.map(e => {
+                        const name = CAREER_LEVEL_NAMES[e.role_name] || e.role_name;
+                        const start = new Date(e.assigned_at).toLocaleDateString('de-DE');
+                        const end = e.valid_until ? new Date(e.valid_until).toLocaleDateString('de-DE') : '∞';
+                        return `• ${name} (${start} - ${end})`;
+                    }).join('\n');
+
+                    const confirmed = await showConfirm(
+                        'Überlappung erkannt',
+                        `Folgende Einträge überschneiden sich:\n\n${overlapInfo}\n\nDie neue Stufe überschreibt diese Zeiträume.`,
+                        'warning'
+                    );
+
+                    if (!confirmed) return;
+                }
+
+                // Button deaktivieren während Speichern
+                if (saveBtn) {
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = 'Speichern...';
+                }
+
+                // Prüfen ob ein angrenzender Eintrag mit gleicher Stufe+Faktor existiert
+                // Dann nur erweitern statt neuen Eintrag erstellen
+                const newEnd = newValidUntil || '9999-12-31';
+
+                // Suche nach Eintrag der direkt vor dem neuen endet (valid_until = fromDate - 1 Tag)
+                const dayBeforeFrom = new Date(fromDate);
+                dayBeforeFrom.setDate(dayBeforeFrom.getDate() - 1);
+                const dayBeforeFromStr = dayBeforeFrom.toISOString().split('T')[0];
+
+                const adjacentBefore = (existingEntries || []).find(entry =>
+                    entry.role_name === roleName &&
+                    entry.factor === factor &&
+                    (entry.valid_until === dayBeforeFromStr || entry.valid_until === fromDate)
+                );
+
+                // Suche nach Eintrag der direkt nach dem neuen startet
+                const dayAfterEnd = new Date(newEnd === '9999-12-31' ? newEnd : toDate);
+                dayAfterEnd.setDate(dayAfterEnd.getDate() + 1);
+                const dayAfterEndStr = dayAfterEnd.toISOString().split('T')[0];
+
+                const adjacentAfter = (existingEntries || []).find(entry =>
+                    entry.role_name === roleName &&
+                    entry.factor === factor &&
+                    (entry.assigned_at === dayAfterEndStr || entry.assigned_at === toDate)
+                );
+
+                // Überlappende Einträge verarbeiten (außer die angrenzenden gleichen)
+                for (const entry of overlapping) {
+                    // Gleiche Stufe+Faktor? → Zusammenführen statt löschen
+                    if (entry.role_name === roleName && entry.factor === factor) {
+                        continue; // Wird später behandelt
+                    }
+
+                    const entryStart = entry.assigned_at;
+                    const entryEnd = entry.valid_until || '9999-12-31';
+
+                    // Fall 1: Neuer Eintrag überschreibt komplett → löschen
+                    if (fromDate <= entryStart && newEnd >= entryEnd) {
+                        await supabase
+                            .from('user_roles')
+                            .delete()
+                            .eq('id', entry.id);
+                    }
+                    // Fall 2: Neuer Eintrag startet mitten im alten → End-Datum anpassen
+                    else if (fromDate > entryStart && fromDate <= entryEnd) {
+                        const dayBefore = new Date(fromDate);
+                        dayBefore.setDate(dayBefore.getDate() - 1);
+                        const newEndDate = dayBefore.toISOString().split('T')[0];
+
+                        await supabase
+                            .from('user_roles')
+                            .update({ valid_until: newEndDate, is_active: false })
+                            .eq('id', entry.id);
+                    }
+                    // Fall 3: Neuer Eintrag endet mitten im alten → Start-Datum anpassen
+                    else if (newEnd >= entryStart && newEnd < entryEnd) {
+                        const dayAfter = new Date(newEnd);
+                        dayAfter.setDate(dayAfter.getDate() + 1);
+                        const newStartDate = dayAfter.toISOString().split('T')[0];
+
+                        await supabase
+                            .from('user_roles')
+                            .update({ assigned_at: newStartDate })
+                            .eq('id', entry.id);
+                    }
+                }
+
+                // Gleiche Stufe+Faktor Einträge zusammenführen
+                const sameEntries = overlapping.filter(e => e.role_name === roleName && e.factor === factor);
+
+                if (sameEntries.length > 0 || adjacentBefore || adjacentAfter) {
+                    // Alle relevanten Einträge sammeln (überlappende + angrenzende gleiche)
+                    const allSameEntries = [...sameEntries];
+                    if (adjacentBefore && !allSameEntries.find(e => e.id === adjacentBefore.id)) {
+                        allSameEntries.push(adjacentBefore);
+                    }
+                    if (adjacentAfter && !allSameEntries.find(e => e.id === adjacentAfter.id)) {
+                        allSameEntries.push(adjacentAfter);
+                    }
+
+                    // Frühestes Start-Datum und spätestes End-Datum ermitteln
+                    let mergedStart = fromDate;
+                    let mergedEnd = newValidUntil;
+
+                    for (const entry of allSameEntries) {
+                        if (entry.assigned_at < mergedStart) mergedStart = entry.assigned_at;
+                        const entryEnd = entry.valid_until;
+                        if (entryEnd === null) {
+                            mergedEnd = null; // Unbegrenzt
+                        } else if (mergedEnd !== null && entryEnd > mergedEnd) {
+                            mergedEnd = entryEnd;
+                        }
+                    }
+
+                    // Ersten Eintrag behalten und updaten, Rest löschen
+                    const keepEntry = allSameEntries[0];
+                    const deleteEntries = allSameEntries.slice(1);
+
+                    await supabase
+                        .from('user_roles')
+                        .update({
+                            assigned_at: mergedStart,
+                            valid_until: mergedEnd,
+                            is_active: mergedEnd === null
+                        })
+                        .eq('id', keepEntry.id);
+
+                    for (const entry of deleteEntries) {
+                        await supabase
+                            .from('user_roles')
+                            .delete()
+                            .eq('id', entry.id);
+                    }
+                } else {
+                    // Keine gleichen Einträge → neuen erstellen
+                    const { error: insertError } = await supabase
+                        .from('user_roles')
+                        .insert({
+                            user_id: profileUserId,
+                            role_type: 'career',
+                            role_name: roleName,
+                            factor: factor,
+                            assigned_at: fromDate,
+                            valid_until: newValidUntil,
+                            is_active: newValidUntil === null
+                        });
+
+                    if (insertError) throw insertError;
+                }
+
+                // Historie neu laden
+                await loadCareerHistory();
+
+                // Formular zurücksetzen für nächste Eingabe
+                document.getElementById('roleEffectiveDate').value = '';
+                document.getElementById('roleEffectiveDateTo').value = '';
+                document.getElementById('roleValidityDisplay').textContent = 'Zeitraum wählen...';
+                document.getElementById('roleKwDisplay').textContent = '';
+
+                // Button zurücksetzen
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Karrierestufe speichern';
+                }
+
+                showToast('Karrierestufe gespeichert', 'success');
+
+            } catch (error) {
+                console.error('Fehler beim Speichern der Karrierestufe:', error);
+                showToast('Fehler: ' + error.message, 'error');
+
+                // Button zurücksetzen bei Fehler
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Karrierestufe speichern';
+                }
+            }
+        }
+
+        // ================================================================
+        // KARRIERE-HISTORIE LADEN
+        // ================================================================
+
+        async function loadCareerHistory() {
+            if (!profileUserId) return;
+
+            try {
+                // Alle Karrierestufen-Einträge laden (chronologisch absteigend)
+                const { data: history, error } = await supabase
+                    .from('user_roles')
+                    .select('*')
+                    .eq('user_id', profileUserId)
+                    .eq('role_type', 'career')
+                    .order('assigned_at', { ascending: false });
+
+                if (error) throw error;
+
+                renderCareerHistory(history || []);
+
+            } catch (error) {
+                console.error('Fehler beim Laden der Karriere-Historie:', error);
+            }
+        }
+
+        function renderCareerHistory(history) {
+            const timeline = document.getElementById('careerHistoryTimeline');
+            const emptyState = document.getElementById('noCareerHistoryMessage');
+
+            if (!history || history.length === 0) {
+                timeline.innerHTML = '';
+                timeline.style.display = 'none';
+                emptyState.style.display = 'flex';
+                return;
+            }
+
+            timeline.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            let html = '';
+            history.forEach((entry, index) => {
+                const levelCode = entry.role_name?.toUpperCase() || '?';
+                const levelName = CAREER_LEVEL_NAMES[entry.role_name] || entry.role_name;
+                const fromDate = entry.assigned_at ? new Date(entry.assigned_at).toLocaleDateString('de-DE') : '-';
+                const toDate = entry.valid_until ? new Date(entry.valid_until).toLocaleDateString('de-DE') : '∞ (unbegrenzt)';
+                const factor = entry.factor ? entry.factor : '-';
+                const isFirst = index === 0;
+
+                // SVG-Pfad: erster Eintrag = Pfeil hoch, Rest = Doppelpfeil
+                const svgPath = isFirst
+                    ? 'M5 10l7-7m0 0l7 7m-7-7v18'
+                    : 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4';
+
+                html += `
+                    <div class="history-item ${isFirst ? 'erhoehung' : 'aenderung'}">
+                        <div class="history-item-dot">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${svgPath}"/>
+                            </svg>
+                        </div>
+                        <div class="history-item-content">
+                            <div class="history-item-title">${levelName} (${levelCode})</div>
+                            <div class="history-item-meta">${fromDate} - ${toDate} • Faktor ${factor}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            timeline.innerHTML = html;
+        }
+
+        // ================================================================
+        // INITIALISIERUNG
+        // ================================================================
+
+        // ================================================================
+        // EMPFEHLUNG & RECRUITING FUNKTIONEN
+        // ================================================================
+
+        let allWerber = [];
+        let currentEmpfehlung = null;
+        let currentRecruiting = null;
+
+        // Alle Werber für Dropdown laden
+        async function loadWerberForDropdowns() {
+            try {
+                const { data: werber, error } = await supabase
+                    .from('users')
+                    .select('id, name')
+                    .eq('role', 'werber')
+                    .order('name');
+
+                if (error) throw error;
+                allWerber = werber || [];
+
+                // Dropdowns befüllen (ohne sich selbst)
+                const empfehlungSelect = document.getElementById('empfehlungSelect');
+                const recruitingSelect = document.getElementById('recruitingSelect');
+
+                allWerber.forEach(w => {
+                    if (w.id !== profileUserId) {
+                        empfehlungSelect.innerHTML += `<option value="${w.id}">${w.name}</option>`;
+                        recruitingSelect.innerHTML += `<option value="${w.id}">${w.name}</option>`;
+                    }
+                });
+
+            } catch (error) {
+                console.error('Fehler beim Laden der Werber:', error);
+            }
+        }
+
+        // Bestehende Empfehlung/Recruiting laden
+        async function loadRecruitmentData() {
+            if (!profileUserId) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_recruitments')
+                    .select('*')
+                    .eq('user_id', profileUserId);
+
+                if (error && error.code !== 'PGRST116') throw error;
+
+                (data || []).forEach(entry => {
+                    if (entry.recruitment_type === 'empfehlung') {
+                        currentEmpfehlung = entry;
+                        document.getElementById('empfehlungSelect').value = entry.recruited_by_id;
+                        document.getElementById('empfehlungHint').textContent =
+                            entry.recruitment_date ? `Seit ${new Date(entry.recruitment_date).toLocaleDateString('de-DE')}` : '';
+                    } else if (entry.recruitment_type === 'recruiting') {
+                        currentRecruiting = entry;
+                        document.getElementById('recruitingSelect').value = entry.recruited_by_id;
+                        document.getElementById('recruitingHint').textContent =
+                            entry.recruitment_date ? `Seit ${new Date(entry.recruitment_date).toLocaleDateString('de-DE')}` : '';
+                    }
+                });
+
+                // Dropdown-Status aktualisieren (Entweder/Oder)
+                updateRecruitmentDropdownState();
+
+            } catch (error) {
+                console.error('Fehler beim Laden der Recruitment-Daten:', error);
+            }
+        }
+
+        // Empfehlung speichern
+        async function saveEmpfehlung(recruitedById) {
+            if (!profileUserId) return;
+
+            try {
+                if (currentEmpfehlung) {
+                    // Update oder löschen
+                    if (recruitedById) {
+                        await supabase
+                            .from('user_recruitments')
+                            .update({ recruited_by_id: recruitedById })
+                            .eq('id', currentEmpfehlung.id);
+                    } else {
+                        await supabase
+                            .from('user_recruitments')
+                            .delete()
+                            .eq('id', currentEmpfehlung.id);
+                        currentEmpfehlung = null;
+                    }
+                } else if (recruitedById) {
+                    // Neu erstellen
+                    const { data, error } = await supabase
+                        .from('user_recruitments')
+                        .insert({
+                            user_id: profileUserId,
+                            recruited_by_id: recruitedById,
+                            recruitment_type: 'empfehlung',
+                            recruitment_date: new Date().toISOString().split('T')[0]
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                    currentEmpfehlung = data;
+                }
+
+                showToast('Empfehlung gespeichert', 'success');
+
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                showToast('Fehler: ' + error.message, 'error');
+            }
+        }
+
+        // Recruiting speichern
+        async function saveRecruiting(recruitedById) {
+            if (!profileUserId) return;
+
+            try {
+                if (currentRecruiting) {
+                    // Update oder löschen
+                    if (recruitedById) {
+                        await supabase
+                            .from('user_recruitments')
+                            .update({ recruited_by_id: recruitedById })
+                            .eq('id', currentRecruiting.id);
+                    } else {
+                        await supabase
+                            .from('user_recruitments')
+                            .delete()
+                            .eq('id', currentRecruiting.id);
+                        currentRecruiting = null;
+                    }
+                } else if (recruitedById) {
+                    // Neu erstellen
+                    const { data, error } = await supabase
+                        .from('user_recruitments')
+                        .insert({
+                            user_id: profileUserId,
+                            recruited_by_id: recruitedById,
+                            recruitment_type: 'recruiting',
+                            recruitment_date: new Date().toISOString().split('T')[0]
+                        })
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                    currentRecruiting = data;
+                }
+
+                showToast('Recruiting gespeichert', 'success');
+
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                showToast('Fehler: ' + error.message, 'error');
+            }
+        }
+
+        // UI-Status der Dropdowns aktualisieren (Entweder/Oder)
+        function updateRecruitmentDropdownState() {
+            const empfehlungSelect = document.getElementById('empfehlungSelect');
+            const recruitingSelect = document.getElementById('recruitingSelect');
+            const empfehlungHint = document.getElementById('empfehlungHint');
+            const recruitingHint = document.getElementById('recruitingHint');
+
+            if (empfehlungSelect.value) {
+                // Empfehlung ausgewählt → Recruiting deaktivieren
+                recruitingSelect.disabled = true;
+                recruitingSelect.value = '';
+                recruitingHint.textContent = 'Nicht verfügbar (Empfehlung aktiv)';
+                recruitingHint.style.color = 'var(--text-secondary)';
+            } else if (recruitingSelect.value) {
+                // Recruiting ausgewählt → Empfehlung deaktivieren
+                empfehlungSelect.disabled = true;
+                empfehlungSelect.value = '';
+                empfehlungHint.textContent = 'Nicht verfügbar (Recruiting aktiv)';
+                empfehlungHint.style.color = 'var(--text-secondary)';
+            } else {
+                // Keines ausgewählt → beide aktivieren
+                empfehlungSelect.disabled = false;
+                recruitingSelect.disabled = false;
+                empfehlungHint.textContent = '';
+                empfehlungHint.style.color = '';
+                recruitingHint.textContent = '';
+                recruitingHint.style.color = '';
+            }
+        }
+
+        // Event-Listener für Dropdowns
+        document.getElementById('empfehlungSelect').addEventListener('change', async function() {
+            if (this.value) {
+                // Erst ggf. bestehendes Recruiting löschen
+                if (currentRecruiting) {
+                    await supabase
+                        .from('user_recruitments')
+                        .delete()
+                        .eq('id', currentRecruiting.id);
+                    currentRecruiting = null;
+                }
+            }
+            await saveEmpfehlung(this.value || null);
+            updateRecruitmentDropdownState();
+        });
+
+        document.getElementById('recruitingSelect').addEventListener('change', async function() {
+            if (this.value) {
+                // Erst ggf. bestehende Empfehlung löschen
+                if (currentEmpfehlung) {
+                    await supabase
+                        .from('user_recruitments')
+                        .delete()
+                        .eq('id', currentEmpfehlung.id);
+                    currentEmpfehlung = null;
+                }
+            }
+            await saveRecruiting(this.value || null);
+            updateRecruitmentDropdownState();
+        });
+
+        // Profil laden wenn Seite bereit
+        loadProfileData();
+        loadWerberForDropdowns();
+
+        // Initialisierung mit zentralen Funktionen
+        initTabs('.kw-tab', '.kw-tab-content');
+        initFilterButtons('.btn-toggle[data-size]', btn => {
+            document.getElementById('clothingSize').value = btn.dataset.size;
+        });
+        // Photo Upload mit Crop-Modal
+        initPhotoCropUpload('photoInternal', 'previewInternal', 'photo_intern_url');
+        initPhotoCropUpload('photoExternal', 'previewExternal', 'photo_extern_url');
+
+        // Änderungsverfolgung starten (zentrale Funktion)
+        unsavedChanges = initUnsavedChangesWarning();
+
+        // Zusatz-Rollen Toggle
+        document.querySelectorAll('#additionalRoles .btn input').forEach(input => {
+            input.addEventListener('change', function() {
+                this.closest('.btn').classList.toggle('active', this.checked);
+            });
+        });
+
+        // Vorschuss/Stornorücklage automatisch berechnen
+        document.getElementById('advancePercent').addEventListener('input', function() {
+            const advance = parseInt(this.value) || 0;
+            document.getElementById('stornoPercent').value = Math.max(0, 100 - advance);
+        });
+
+        // Gutschriftrechnungen rendern
+        renderInvoiceHistory('employeeInvoicesList', 'noEmployeeInvoicesMessage', employeeInvoices);
+
+        // localStorage leeren damit initCareerLevelSelector keine alten Dummy-Daten anzeigt
+        localStorage.removeItem('roleHistory');
+
+        // Karrierestufe-System initialisieren (zentrale Funktion aus main.js für Badge, Faktor, Benefits)
+        initCareerLevelSelector();
+
+        // Den Standard-Handler von initCareerLevelSelector entfernen und eigene Supabase-Funktion nutzen
+        const saveBtn = document.getElementById('saveRoleBtn');
+        if (saveBtn) {
+            // Neuen Button erstellen um alle alten Event-Handler zu entfernen
+            const newBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newBtn, saveBtn);
+            newBtn.addEventListener('click', saveCareerLevel);
+        }
+        // Hinweis: loadCareerHistory() wird in populateForm() aufgerufen, nachdem profileUserId gesetzt ist
+
+        // Gültigkeitszeitraum via CalendarModal
+        function openRoleValidityCalendar() {
+            CalendarModal.open((from, to) => {
+                // Daten speichern
+                document.getElementById('roleEffectiveDate').value = from;
+                document.getElementById('roleEffectiveDateTo').value = to;
+
+                // Anzeige aktualisieren (parseGermanDate + getWeekNumber aus main.js)
+                const fromDate = parseGermanDate(from);
+                const toDate = parseGermanDate(to);
+                const fromKw = getWeekNumber(fromDate);
+                const toKw = getWeekNumber(toDate);
+                const fromYear = fromDate.getFullYear();
+                const toYear = toDate.getFullYear();
+
+                document.getElementById('roleValidityDisplay').textContent = `${from} - ${to}`;
+                document.getElementById('roleKwDisplay').textContent = `KW ${fromKw}/${fromYear} - KW ${toKw}/${toYear}`;
+            });
+        }
+        window.openRoleValidityCalendar = openRoleValidityCalendar;
+
+        // Document Uploads initialisieren (Supabase Storage)
+        // Informationen Tab - Dokumente
+        initSupabaseDocumentUpload('idFrontInput', 'idFrontBox', 'idFrontFileList', 'id_front_url', 'id-front');
+        initSupabaseDocumentUpload('idBackInput', 'idBackBox', 'idBackFileList', 'id_back_url', 'id-back');
+        initSupabaseDocumentUpload('licenseFrontInput', 'licenseFrontBox', 'licenseFrontFileList', 'license_front_url', 'license-front');
+        initSupabaseDocumentUpload('licenseBackInput', 'licenseBackBox', 'licenseBackFileList', 'license_back_url', 'license-back');
+        // Einstellungen Tab - Verträge
+        initSupabaseDocumentUpload('hvContractInput', 'hvContractBox', 'hvContractFileList', 'hv_contract_url', 'hv-contract');
+        initSupabaseDocumentUpload('otherContractInput', 'otherContractBox', 'otherContractFileList', 'other_contract_url', 'other-contract');
+
+        // Preisvorlagen Lock basierend auf Karrierestufe
+        const PREISVORLAGEN_ALLOWED = ['emm', 'cemm', 'spb', 'kad', 'fue'];
+        function updatePreisvorlagenLock() {
+            const level = document.getElementById('mainRole').value.toLowerCase();
+            const lockedEl = document.getElementById('preisvorlagenLocked');
+            const contentEl = document.getElementById('preisvorlagenContent');
+            if (PREISVORLAGEN_ALLOWED.includes(level)) {
+                lockedEl.style.display = 'none';
+                contentEl.style.display = 'grid';
+            } else {
+                lockedEl.style.display = 'block';
+                contentEl.style.display = 'none';
+            }
+        }
+        document.getElementById('mainRole').addEventListener('change', updatePreisvorlagenLock);
+        updatePreisvorlagenLock();
+
+        // Toggle-Labels initialisieren (zentrale Funktion aus main.js)
+        initToggleLabel('isGhost', 'ghostLabel', {
+            on: 'An - Mitarbeiter ist unsichtbar (Ghost)',
+            off: 'Aus - Mitarbeiter ist sichtbar'
+        }, (isGhost) => {
+            document.getElementById('canSeeOthersOption').style.display = isGhost ? '' : 'none';
+        });
+
+        initToggleLabel('canSeeOthers', 'canSeeOthersLabel', {
+            on: 'Ja - Kann andere sehen',
+            off: 'Nein - Kann andere nicht sehen'
+        });
+
+        initToggleLabel('participateRanking', 'rankingLabel', {
+            on: 'An - Nimmt am Ranking teil',
+            off: 'Aus - Nicht im Ranking sichtbar'
+        });
+
+        // Umsatzsteuer Toggle (zentrale Funktion aus main.js)
+        initVatToggle('vatLiable', 'vatLiableLabel');
+
+        // Address Autocomplete (zentrale Funktion aus main.js)
+        initAddressAutocomplete({
+            streetId: 'street',
+            resultsId: 'streetAutocomplete',
+            houseNumberId: 'houseNumber',
+            postalCodeId: 'zip',
+            cityId: 'city',
+            countryId: 'country',
+            stateId: 'bundesland'
+        });
+
+        // IBAN Validierung (zentrale Funktion aus main.js)
+        const ibanField = document.getElementById('iban');
+        ibanField.addEventListener('input', function() {
+            validateAndLookupIBAN(
+                this.value,
+                this,
+                document.getElementById('bankName'),
+                document.getElementById('bic')
+            );
+        });
+        ibanField.addEventListener('blur', function() {
+            this.style.borderColor = '';
+            this.style.boxShadow = '';
+        });
+
+        // ============================================
+        // SHELL INTEGRATION
+        // ============================================
+        // Shell-Listener vorbereiten (für zukünftige Toolbar-Buttons)
+        initShellListener({
+            toolbarActions: {
+                // Zukünftige Aktionen hier hinzufügen
+            }
+        });
+
+    </script>
+</body>
+</html>

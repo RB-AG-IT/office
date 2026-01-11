@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Botschafter Abrechnungen - RB Inside Office</title>
+    <!-- Zentrale Styles -->
+    <link rel="stylesheet" href="../../css/styles.css">
+    <script src="../../js/main.js"></script>
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- jsPDF für PDF-Generierung -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body class="abrechnungen-page">
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-row">
+            <div class="page-header-links">
+                <span class="text-ueberschrift-unterabschnitt">Botschafter</span>
+            </div>
+            <div class="page-header-mitte">
+                <span class="text-ueberschrift">Abrechnungen</span>
+            </div>
+        </div>
+        <!-- Tabs -->
+        <div class="page-header-tabs" id="abrechnungenTabs">
+            <div class="kw-tab active" data-tab="uebersicht">Übersicht <span class="tab-badge" id="uebersichtBadge">0</span></div>
+            <div class="kw-tab" data-tab="geplant">Abrechnungen <span class="tab-badge" id="geplantBadge">0</span></div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content page-content--table">
+
+        <!-- ÜBERSICHT TAB -->
+        <div class="kw-tab-content active" id="tab-uebersicht">
+            <div class="table-wrap">
+                <div class="zeile">
+                    <!-- Filter -->
+                    <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                        <button class="btn btn-sm active" data-filter="all" onclick="setAbrechnungFilter('all')">Alle</button>
+                        <button class="btn btn-sm" data-filter="offenerVorschuss" onclick="setAbrechnungFilter('offenerVorschuss')">Offener Vorschuss</button>
+                        <button class="btn btn-sm" data-filter="stornorucklage" onclick="setAbrechnungFilter('stornorucklage')">Stornorücklage fällig</button>
+                    </div>
+                    <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                    <!-- Auswahl-Aktionen -->
+                    <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="selectionGroup">
+                        <span class="btn btn-sm" id="selectionBtn">
+                            <span class="icon icon--clipboard"></span>
+                            Ausgewählt: <span id="selectedCount">0</span>
+                        </span>
+                        <button class="btn btn-sm" onclick="openAbzugModal()">
+                            <span class="icon icon--minus"></span>
+                            Abzug hinzufügen
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="openAbrechnungWorkflow()">
+                            <span class="icon icon--dokument"></span>
+                            Abrechnung erstellen
+                        </button>
+                    </div>
+                    <!-- Spacer -->
+                    <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                    <!-- Spalten -->
+                    <div class="anzeigenfeld anzeigenfeld--auto">
+                        <button class="btn btn-sm" onclick="openColumnsModal('botschafter')">
+                            <span class="icon icon--spalten"></span>
+                            Spalten
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="botschafterTable">
+                        <thead id="botschafterTableHead"></thead>
+                        <tbody id="botschafterTableBody"></tbody>
+                        <tfoot id="botschafterTableFoot"></tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- GEPLANT TAB -->
+        <div class="kw-tab-content" id="tab-geplant">
+            <div class="table-wrap">
+                <div class="zeile">
+                    <!-- Filter -->
+                    <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                        <button class="btn btn-sm active" data-abrfilter="geplant" onclick="setAbrechnungenFilter('geplant')">Geplant</button>
+                        <button class="btn btn-sm" data-abrfilter="archiv" onclick="setAbrechnungenFilter('archiv')">Archiv</button>
+                    </div>
+                    <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                    <!-- Auswahl-Aktionen -->
+                    <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="geplantSelectionGroup">
+                        <span class="btn btn-sm" id="geplantSelectionBtn">
+                            <span class="icon icon--clipboard"></span>
+                            Ausgewählt: <span id="geplantSelectedCount">0</span>
+                        </span>
+                        <button class="btn btn-sm btn-primary" onclick="freigebenSelected()">
+                            <span class="icon icon--check"></span>
+                            Freigeben
+                        </button>
+                        <button class="btn btn-sm" onclick="loeschenSelected()">
+                            <span class="icon icon--schliessen"></span>
+                            Löschen
+                        </button>
+                    </div>
+                    <!-- Spacer -->
+                    <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                    <!-- Spalten -->
+                    <div class="anzeigenfeld anzeigenfeld--auto">
+                        <button class="btn btn-sm" onclick="openColumnsModal('geplant')">
+                            <span class="icon icon--spalten"></span>
+                            Spalten
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="geplantTable">
+                        <thead id="geplantTableHead"></thead>
+                        <tbody id="geplantTableBody"></tbody>
+                        <tfoot id="geplantTableFoot"></tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Abzug Modal -->
+<div class="modal modal-s" id="abzugModal">
+    <div class="page-container page-container--modal">
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Abzug hinzufügen</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn btn-icon" onclick="closeModalById('abzugModal')">
+                        <span class="icon icon--schliessen"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="zeile">
+                <div class="anzeigenfeld anzeigenfeld--auto">
+                    <span class="text-normal--fett">Botschafter:</span>
+                    <span id="abzugBotschafterName" class="text-normal--fett">-</span>
+                </div>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Typ</label>
+                    <select class="eingabefeld" id="abzugTypSelect">
+                        <option value="unterkunft">Unterkunft</option>
+                        <option value="sonderposten">Sonderposten</option>
+                    </select>
+                </div>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Beschreibung</label>
+                    <input type="text" class="eingabefeld" id="abzugBeschreibung" placeholder="z.B. Unterkunft KW 01-02">
+                </div>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Betrag</label>
+                    <div class="eingabefeld-mit-einheit">
+                        <input type="number" class="eingabefeld" id="abzugBetrag" step="0.01" min="0" placeholder="0,00">
+                        <span>€</span>
+                    </div>
+                </div>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Abzug von</label>
+                    <select class="eingabefeld" id="abzugVonSelect">
+                        <option value="vorschuss">Vorschuss</option>
+                        <option value="stornorucklage">Stornorücklage</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="page-footer">
+            <button class="btn" onclick="closeModalById('abzugModal')">Abbrechen</button>
+            <button class="btn btn-primary" onclick="saveAbzug()">Hinzufügen</button>
+        </div>
+    </div>
+</div>
+
+<!-- Abrechnungs-Workflow Modal -->
+<div class="modal modal-l" id="abrechnungModal">
+    <div class="page-container page-container--modal">
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift" id="abrechnungModalTitle">Abrechnung erstellen</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn btn-icon" onclick="closeModalById('abrechnungModal')">
+                        <span class="icon icon--schliessen"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="page-content page-content--modal" id="abrechnungModalBody">
+            <!-- Wird dynamisch gefüllt -->
+        </div>
+        <div class="page-footer" id="abrechnungModalFooter">
+            <!-- Wird dynamisch gefüllt -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== STATE ==========
+    let botschafterData = [];
+    let geplantData = [];
+    let allAbrechnungenData = [];
+    let selectedBotschafter = [];
+    let selectedGeplant = [];
+    let abrechnungFilter = 'all';
+    let abrechnungenFilter = 'geplant';
+    let abrechnungWorkflowStep = 1;
+    let abrechnungWorkflowData = {};
+
+    // Spalten-Konfiguration für Übersicht
+    const columnsConfig = [
+        { id: 'werber', label: 'Werber', visible: true, class: 'col-name text-left' },
+        { id: 'karrierestufe', label: 'Stufe', visible: false, class: 'col-s text-center' },
+        { id: 'faktor', label: 'Faktor', visible: true, class: 'col-s text-right' },
+        { id: 'einheiten', label: 'Einheiten', visible: true, class: 'col-s text-right' },
+        { id: 'vorschussAnteil', label: 'Vorschuss %', visible: true, class: 'col-s text-right' },
+        { id: 'offenerVorschuss', label: 'Offener Vorschuss', visible: true, class: 'col-m text-right' },
+        { id: 'offeneStornorucklage', label: 'Stornorücklage', visible: true, class: 'col-m text-right' },
+        { id: 'abzuegeUnterkunft', label: 'Abz. Unterkunft', visible: false, class: 'col-m text-right' },
+        { id: 'abzuegeSonderposten', label: 'Abz. Sonderposten', visible: false, class: 'col-m text-right' },
+        { id: 'nettoAuszahlung', label: 'Netto', visible: true, class: 'col-m text-right' },
+        { id: 'letzteAbrechnung', label: 'Letzte Abr.', visible: true, class: 'col-m text-left' },
+        { id: 'email', label: 'E-Mail', visible: false, class: 'col-xl text-left' }
+    ];
+
+    // Spalten-Konfiguration für Geplant (identische Struktur, andere Spalten)
+    const geplantColumnsConfig = [
+        { id: 'werber', label: 'Werber', visible: true, class: 'col-name text-left' },
+        { id: 'invoiceNumber', label: 'Rechnungsnr.', visible: true, class: 'col-m text-left' },
+        { id: 'typ', label: 'Typ', visible: true, class: 'col-m text-center' },
+        { id: 'betrag', label: 'Betrag', visible: true, class: 'col-m text-right' },
+        { id: 'status', label: 'Status', visible: true, class: 'col-m text-center' },
+        { id: 'scheduledAt', label: 'Geplant für', visible: true, class: 'col-m text-left' },
+        { id: 'email', label: 'E-Mail', visible: false, class: 'col-xl text-left' },
+        { id: 'createdAt', label: 'Erstellt am', visible: false, class: 'col-m text-left' }
+    ];
+
+    // ========== INIT ==========
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Tabs initialisieren
+        initTabs('.kw-tab', '.kw-tab-content');
+
+        // Modals initialisieren
+        if (typeof ModalTemplates !== 'undefined') {
+            ModalTemplates.init(['columns']);
+        }
+
+        // Daten laden
+        await loadBotschafterData();
+        await loadGeplantData();
+
+        // Tabellen rendern
+        renderBotschafterTable();
+        renderGeplantTable();
+    });
+
+    // ========== DATEN LADEN ==========
+    async function loadBotschafterData() {
+        try {
+            // Zentrale Funktion aus main.js verwenden
+            botschafterData = await ladeWerberStatistiken();
+            document.getElementById('uebersichtBadge').textContent = botschafterData.length;
+        } catch (error) {
+            console.error('Fehler beim Laden:', error.message || error);
+            showToast('Fehler: ' + (error.message || 'Unbekannter Fehler'), 'error');
+        }
+    }
+
+    async function loadGeplantData() {
+        const supabase = window.parent?.supabaseClient || window.supabaseClient;
+        if (!supabase) {
+            geplantData = [];
+            allAbrechnungenData = [];
+            return;
+        }
+
+        try {
+            // Alle Abrechnungen laden (nicht nur geplante)
+            const { data, error } = await supabase
+                .from('invoices')
+                .select(`
+                    *,
+                    users!invoices_user_id_fkey(
+                        name,
+                        email,
+                        user_profiles(photo_url),
+                        user_roles!user_roles_user_id_fkey(role_name)
+                    )
+                `)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            // Daten für einfacheren Zugriff transformieren
+            allAbrechnungenData = (data || []).map(inv => ({
+                ...inv,
+                users: inv.users ? {
+                    name: inv.users.name,
+                    email: inv.users.email,
+                    karrierestufe: inv.users.user_roles?.[0]?.role_name || '',
+                    image: inv.users.user_profiles?.[0]?.photo_url || ''
+                } : null
+            }));
+
+            // Gefilterte Daten setzen
+            applyAbrechnungenFilter();
+        } catch (error) {
+            console.error('Fehler beim Laden der Abrechnungen:', error);
+            geplantData = [];
+            allAbrechnungenData = [];
+        }
+    }
+
+    // ========== ABRECHNUNGEN FILTER ==========
+    function setAbrechnungenFilter(filter) {
+        abrechnungenFilter = filter;
+        document.querySelectorAll('[data-abrfilter]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.abrfilter === filter);
+        });
+        applyAbrechnungenFilter();
+        renderGeplantTable();
+    }
+
+    function applyAbrechnungenFilter() {
+        const now = new Date();
+
+        switch (abrechnungenFilter) {
+            case 'geplant':
+                // Geplant: Entwürfe ODER (freigegeben mit Datum in der Zukunft)
+                geplantData = allAbrechnungenData.filter(inv => {
+                    if (inv.status === 'entwurf') return true;
+                    if (inv.status === 'freigegeben' && inv.scheduled_send_at) {
+                        return new Date(inv.scheduled_send_at) > now;
+                    }
+                    return false;
+                });
+                break;
+            case 'archiv':
+                // Archiv: Freigegeben UND (kein Datum ODER Datum in der Vergangenheit)
+                geplantData = allAbrechnungenData.filter(inv => {
+                    if (inv.status !== 'freigegeben') return false;
+                    if (!inv.scheduled_send_at) return true;
+                    return new Date(inv.scheduled_send_at) <= now;
+                });
+                break;
+            default:
+                geplantData = allAbrechnungenData;
+        }
+
+        // Badge aktualisieren
+        document.getElementById('geplantBadge').textContent = geplantData.length;
+    }
+
+
+    // ========== FILTER ==========
+    function setAbrechnungFilter(filter) {
+        abrechnungFilter = filter;
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+        renderBotschafterTable();
+    }
+
+    function getFilteredData() {
+        if (abrechnungFilter === 'all') return botschafterData;
+        if (abrechnungFilter === 'offenerVorschuss') {
+            return botschafterData.filter(b => b.offenerVorschuss > 0);
+        }
+        if (abrechnungFilter === 'stornorucklage') {
+            return botschafterData.filter(b => b.offeneStornorucklage > 0);
+        }
+        return botschafterData;
+    }
+
+    // ========== TABELLE RENDERN ==========
+    function renderBotschafterTable() {
+        const filtered = getFilteredData();
+        const thead = document.getElementById('botschafterTableHead');
+        const tbody = document.getElementById('botschafterTableBody');
+        const tfoot = document.getElementById('botschafterTableFoot');
+
+        // Prüfen ob alle ausgewählt sind
+        const allSelected = filtered.length > 0 && filtered.every(b => selectedBotschafter.includes(b.id));
+
+        // Header
+        let headerHtml = `<tr>
+            <th class="checkbox-cell">
+                <input type="checkbox" class="row-checkbox" id="selectAll" ${allSelected ? 'checked' : ''} onchange="toggleSelectAll(this)">
+            </th>
+            <th class="action-cell"></th>`;
+
+        columnsConfig.filter(c => c.visible).forEach(col => {
+            headerHtml += `<th class="${col.class}">${col.label}</th>`;
+        });
+        headerHtml += `<th class="col-spacer"></th></tr>`;
+        thead.innerHTML = headerHtml;
+
+        // Body
+        tbody.innerHTML = filtered.map(b => {
+            const isSelected = selectedBotschafter.includes(b.id);
+            let rowHtml = `<tr data-id="${b.id}" class="${isSelected ? 'selected' : ''}">
+                <td class="checkbox-cell">
+                    <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRowSelection('${b.id}')">
+                </td>
+                <td class="action-cell">
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown(this, 'abrechnung', '${b.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item" onclick="openAbzugModalFor('${b.id}', '${b.name}')">
+                                <span class="icon icon--minus"></span>
+                                Abzug hinzufügen
+                            </div>
+                            <div class="dropdown-item" onclick="openSingleAbrechnung('${b.id}')">
+                                <span class="icon icon--dokument"></span>
+                                Abrechnung erstellen
+                            </div>
+                        </div>
+                    </div>
+                </td>`;
+
+            columnsConfig.filter(c => c.visible).forEach(col => {
+                let value = b[col.id];
+                let html = '';
+
+                switch(col.id) {
+                    case 'werber':
+                        if (typeof createBadge === 'function') {
+                            html = `<div class="name-cell">${createBadge({ type: 'werber', name: b.name, stufe: b.karrierestufe, image: b.image })}</div>`;
+                        } else {
+                            html = b.name || '-';
+                        }
+                        break;
+                    case 'karrierestufe':
+                        html = `<span class="pill pill--career">${value}</span>`;
+                        break;
+                    case 'faktor':
+                        html = value.toFixed(1);
+                        break;
+                    case 'einheiten':
+                        html = value.toFixed(2);
+                        break;
+                    case 'vorschussAnteil':
+                        html = `${value}%`;
+                        break;
+                    case 'offenerVorschuss':
+                    case 'offeneStornorucklage':
+                    case 'abzuegeUnterkunft':
+                    case 'abzuegeSonderposten':
+                    case 'nettoAuszahlung':
+                        html = formatEuro(value);
+                        break;
+                    default:
+                        html = value || '-';
+                }
+
+                rowHtml += `<td class="${col.class}">${html}</td>`;
+            });
+
+            rowHtml += `<td class="col-spacer"></td></tr>`;
+            return rowHtml;
+        }).join('');
+
+        // Footer (Summen)
+        const totals = {
+            offenerVorschuss: filtered.reduce((s, b) => s + b.offenerVorschuss, 0),
+            offeneStornorucklage: filtered.reduce((s, b) => s + b.offeneStornorucklage, 0),
+            nettoAuszahlung: filtered.reduce((s, b) => s + b.nettoAuszahlung, 0),
+            einheiten: filtered.reduce((s, b) => s + b.einheiten, 0)
+        };
+
+        let footHtml = `<tr class="totals-row">
+            <td class="checkbox-cell"></td>
+            <td class="action-cell"></td>`;
+
+        columnsConfig.filter(c => c.visible).forEach(col => {
+            let html = '';
+            if (col.id === 'werber') html = `Gesamt <span class="totals-count">(${filtered.length})</span>`;
+            else if (col.id === 'einheiten') html = totals.einheiten.toFixed(2);
+            else if (col.id === 'offenerVorschuss') html = formatEuro(totals.offenerVorschuss);
+            else if (col.id === 'offeneStornorucklage') html = formatEuro(totals.offeneStornorucklage);
+            else if (col.id === 'nettoAuszahlung') html = formatEuro(totals.nettoAuszahlung);
+
+            footHtml += `<td class="${col.class}">${html}</td>`;
+        });
+        footHtml += `<td class="col-spacer"></td></tr>`;
+        tfoot.innerHTML = footHtml;
+    }
+
+    function renderGeplantTable() {
+        const thead = document.getElementById('geplantTableHead');
+        const tbody = document.getElementById('geplantTableBody');
+        const tfoot = document.getElementById('geplantTableFoot');
+
+        // Prüfen ob alle ausgewählt sind
+        const allSelected = geplantData.length > 0 && geplantData.every(inv => selectedGeplant.includes(inv.id));
+
+        // Header (identische Struktur zur Übersicht)
+        let headerHtml = `<tr>
+            <th class="checkbox-cell">
+                <input type="checkbox" class="row-checkbox" id="selectAllGeplant" ${allSelected ? 'checked' : ''} onchange="toggleSelectAllGeplant(this)">
+            </th>
+            <th class="action-cell"></th>`;
+
+        geplantColumnsConfig.filter(c => c.visible).forEach(col => {
+            headerHtml += `<th class="${col.class}">${col.label}</th>`;
+        });
+        headerHtml += `<th class="col-spacer"></th></tr>`;
+        thead.innerHTML = headerHtml;
+
+        // Body
+        if (geplantData.length === 0) {
+            const colCount = geplantColumnsConfig.filter(c => c.visible).length + 3;
+            const emptyText = abrechnungenFilter === 'archiv' ? 'Keine archivierten Abrechnungen' : 'Keine geplanten Abrechnungen';
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="${colCount}"><div class="empty-state-cell">${emptyText}</div></td></tr>`;
+            tfoot.innerHTML = '';
+            return;
+        }
+
+        tbody.innerHTML = geplantData.map(inv => {
+            const isSelected = selectedGeplant.includes(inv.id);
+            const sendDate = new Date(inv.scheduled_send_at);
+            const formattedDate = sendDate.toLocaleDateString('de-DE') + ' ' + sendDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            const createdDate = inv.created_at ? new Date(inv.created_at).toLocaleDateString('de-DE') : '-';
+
+            let rowHtml = `<tr data-id="${inv.id}" class="${isSelected ? 'selected' : ''}">
+                <td class="checkbox-cell">
+                    <input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleGeplantRowSelection('${inv.id}')">
+                </td>
+                <td class="action-cell">
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown(this, 'geplant', '${inv.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            ${inv.status === 'entwurf' ? `
+                            <div class="dropdown-item" onclick="closeAllDropdowns(); freigebenAbrechnung('${inv.id}')">
+                                <span class="icon icon--check"></span>
+                                Freigeben
+                            </div>` : ''}
+                            <div class="dropdown-item" onclick="closeAllDropdowns(); loeschenAbrechnung('${inv.id}')">
+                                <span class="icon icon--schliessen"></span>
+                                Löschen
+                            </div>
+                        </div>
+                    </div>
+                </td>`;
+
+            geplantColumnsConfig.filter(c => c.visible).forEach(col => {
+                let html = '';
+
+                switch(col.id) {
+                    case 'werber':
+                        const werberName = inv.users?.name || '-';
+                        const werberStufe = inv.users?.karrierestufe || '';
+                        const werberImage = inv.users?.image || '';
+                        if (typeof createBadge === 'function') {
+                            html = `<div class="name-cell">${createBadge({ type: 'werber', name: werberName, stufe: werberStufe, image: werberImage })}</div>`;
+                        } else {
+                            html = werberName;
+                        }
+                        break;
+                    case 'invoiceNumber':
+                        html = inv.invoice_number || '-';
+                        break;
+                    case 'typ':
+                        const typLabel = inv.invoice_type === 'vorschuss' ? 'Vorschuss' : 'Stornorücklage';
+                        html = `<span class="pill pill--${inv.invoice_type === 'vorschuss' ? 'info' : 'warning'}">${typLabel}</span>`;
+                        break;
+                    case 'betrag':
+                        html = formatEuro(inv.netto_auszahlung);
+                        break;
+                    case 'status':
+                        const statusLabel = inv.status === 'entwurf' ? 'Entwurf' : 'Freigegeben';
+                        const statusClass = inv.status === 'entwurf' ? 'warning' : 'success';
+                        html = `<span class="pill pill--${statusClass}">${statusLabel}</span>`;
+                        break;
+                    case 'scheduledAt':
+                        html = inv.scheduled_send_at ? formattedDate : '-';
+                        break;
+                    case 'email':
+                        html = inv.users?.email || '-';
+                        break;
+                    case 'createdAt':
+                        html = createdDate;
+                        break;
+                    default:
+                        html = '-';
+                }
+
+                rowHtml += `<td class="${col.class}">${html}</td>`;
+            });
+
+            rowHtml += `<td class="col-spacer"></td></tr>`;
+            return rowHtml;
+        }).join('');
+
+        // Footer (Summen - identische Struktur zur Übersicht)
+        const totals = {
+            betrag: geplantData.reduce((s, inv) => s + (inv.netto_auszahlung || 0), 0)
+        };
+
+        let footHtml = `<tr class="totals-row">
+            <td class="checkbox-cell"></td>
+            <td class="action-cell"></td>`;
+
+        geplantColumnsConfig.filter(c => c.visible).forEach(col => {
+            let html = '';
+            if (col.id === 'werber') html = `Gesamt <span class="totals-count">(${geplantData.length})</span>`;
+            else if (col.id === 'betrag') html = formatEuro(totals.betrag);
+
+            footHtml += `<td class="${col.class}">${html}</td>`;
+        });
+        footHtml += `<td class="col-spacer"></td></tr>`;
+        tfoot.innerHTML = footHtml;
+    }
+
+    // ========== AUSWAHL ==========
+    function toggleSelectAll(checkbox) {
+        const filtered = getFilteredData();
+        if (checkbox.checked) {
+            selectedBotschafter = filtered.map(b => b.id);
+        } else {
+            selectedBotschafter = [];
+        }
+        updateSelectionUI();
+        renderBotschafterTable();
+    }
+
+    function toggleRowSelection(id) {
+        const idx = selectedBotschafter.indexOf(id);
+        if (idx > -1) {
+            selectedBotschafter.splice(idx, 1);
+        } else {
+            selectedBotschafter.push(id);
+        }
+        updateSelectionUI();
+        renderBotschafterTable();
+    }
+
+    function updateSelectionUI() {
+        const group = document.getElementById('selectionGroup');
+        const count = document.getElementById('selectedCount');
+        count.textContent = selectedBotschafter.length;
+        group.classList.toggle('anzeigenfeld--hidden', selectedBotschafter.length === 0);
+    }
+
+    // ========== GEPLANT AUSWAHL ==========
+    function toggleSelectAllGeplant(checkbox) {
+        if (checkbox.checked) {
+            selectedGeplant = geplantData.map(inv => inv.id);
+        } else {
+            selectedGeplant = [];
+        }
+        updateGeplantSelectionUI();
+        renderGeplantTable();
+    }
+
+    function toggleGeplantRowSelection(id) {
+        const idx = selectedGeplant.indexOf(id);
+        if (idx > -1) {
+            selectedGeplant.splice(idx, 1);
+        } else {
+            selectedGeplant.push(id);
+        }
+        updateGeplantSelectionUI();
+        renderGeplantTable();
+    }
+
+    function updateGeplantSelectionUI() {
+        const group = document.getElementById('geplantSelectionGroup');
+        const count = document.getElementById('geplantSelectedCount');
+        count.textContent = selectedGeplant.length;
+        group.classList.toggle('anzeigenfeld--hidden', selectedGeplant.length === 0);
+    }
+
+    async function freigebenSelected() {
+        if (selectedGeplant.length === 0) {
+            showToast('Bitte mindestens eine Abrechnung auswählen', 'warning');
+            return;
+        }
+        try {
+            for (const id of selectedGeplant) {
+                await updateAbrechnungStatus(id, 'freigegeben');
+            }
+            showToast(`${selectedGeplant.length} Abrechnung(en) freigegeben`, 'success');
+            selectedGeplant = [];
+            await loadGeplantData();
+            renderGeplantTable();
+            updateGeplantSelectionUI();
+        } catch (error) {
+            console.error('Fehler:', error);
+            showToast('Fehler beim Freigeben', 'error');
+        }
+    }
+
+    async function loeschenSelected() {
+        if (selectedGeplant.length === 0) {
+            showToast('Bitte mindestens eine Abrechnung auswählen', 'warning');
+            return;
+        }
+        if (!confirm(`${selectedGeplant.length} Abrechnung(en) wirklich löschen?`)) return;
+
+        const supabase = window.parent?.supabaseClient || window.supabaseClient;
+        if (!supabase) {
+            showToast('Supabase nicht verfügbar', 'error');
+            return;
+        }
+
+        try {
+            for (const id of selectedGeplant) {
+                await supabase.from('invoices').delete().eq('id', id);
+            }
+            showToast(`${selectedGeplant.length} Abrechnung(en) gelöscht`, 'success');
+            selectedGeplant = [];
+            await loadGeplantData();
+            renderGeplantTable();
+            updateGeplantSelectionUI();
+        } catch (error) {
+            console.error('Fehler:', error);
+            showToast('Fehler beim Löschen', 'error');
+        }
+    }
+
+    // ========== ABZUG MODAL ==========
+    let currentAbzugUserId = null;
+
+    function openAbzugModal() {
+        if (selectedBotschafter.length === 0) {
+            showToast('Bitte mindestens einen Botschafter auswählen', 'warning');
+            return;
+        }
+        if (selectedBotschafter.length === 1) {
+            const b = botschafterData.find(x => x.id === selectedBotschafter[0]);
+            openAbzugModalFor(selectedBotschafter[0], b?.name || 'Unbekannt');
+        } else {
+            document.getElementById('abzugBotschafterName').textContent = `${selectedBotschafter.length} Botschafter ausgewählt`;
+            currentAbzugUserId = selectedBotschafter;
+            openModalById('abzugModal');
+        }
+    }
+
+    function openAbzugModalFor(userId, name) {
+        closeAllDropdowns();
+        document.getElementById('abzugBotschafterName').textContent = name;
+        document.getElementById('abzugBeschreibung').value = '';
+        document.getElementById('abzugBetrag').value = '';
+        currentAbzugUserId = [userId];
+        openModalById('abzugModal');
+    }
+
+    async function saveAbzug() {
+        const typ = document.getElementById('abzugTypSelect').value;
+        const beschreibung = document.getElementById('abzugBeschreibung').value;
+        const betrag = parseFloat(document.getElementById('abzugBetrag').value) || 0;
+        const von = document.getElementById('abzugVonSelect').value;
+
+        if (betrag <= 0) {
+            showToast('Bitte einen Betrag eingeben', 'warning');
+            return;
+        }
+
+        try {
+            for (const userId of currentAbzugUserId) {
+                await fuegeAbzugHinzu({
+                    userId,
+                    type: typ,
+                    von,
+                    beschreibung,
+                    betrag
+                });
+            }
+            showToast(`Abzug für ${currentAbzugUserId.length} Botschafter hinzugefügt`, 'success');
+            closeModalById('abzugModal');
+            await loadBotschafterData();
+            renderBotschafterTable();
+        } catch (error) {
+            console.error('Fehler:', error);
+            showToast('Fehler beim Speichern', 'error');
+        }
+    }
+
+    // ========== ABRECHNUNGS-WORKFLOW ==========
+    function openAbrechnungWorkflow() {
+        if (selectedBotschafter.length === 0) {
+            showToast('Bitte mindestens einen Botschafter auswählen', 'warning');
+            return;
+        }
+        abrechnungWorkflowStep = 1;
+        abrechnungWorkflowData = {
+            botschafter: selectedBotschafter.map(id => botschafterData.find(b => b.id === id)),
+            typ: 'vorschuss',
+            zeitraum: { von: new Date(), bis: new Date() },
+            scheduledAt: null,
+            aktion: 'planen'
+        };
+        renderWorkflowStep();
+        openModalById('abrechnungModal');
+    }
+
+    function openSingleAbrechnung(userId) {
+        closeAllDropdowns();
+        selectedBotschafter = [userId];
+        openAbrechnungWorkflow();
+    }
+
+    function renderWorkflowStep() {
+        const body = document.getElementById('abrechnungModalBody');
+        const footer = document.getElementById('abrechnungModalFooter');
+        const title = document.getElementById('abrechnungModalTitle');
+
+        if (abrechnungWorkflowStep === 1) {
+            // Schritt 1: Auswahl
+            title.textContent = 'Abrechnung erstellen';
+            body.innerHTML = `
+                <div class="zeile">
+                    <div class="anzeigenfeld anzeigenfeld--full" style="flex-wrap: wrap;">
+                        <span class="text-normal--fett">Ausgewählt: ${abrechnungWorkflowData.botschafter.length} Botschafter</span>
+                        <span class="text-klein--fett">${abrechnungWorkflowData.botschafter.map(b => b.name).join(', ')}</span>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Abrechnungstyp</label>
+                        <select class="eingabefeld" id="abrTypSelect">
+                            <option value="vorschuss" ${abrechnungWorkflowData.typ === 'vorschuss' ? 'selected' : ''}>Vorschuss (wöchentlich)</option>
+                            <option value="stornorucklage" ${abrechnungWorkflowData.typ === 'stornorucklage' ? 'selected' : ''}>Stornorücklage (halbjährlich)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Zeitraum</label>
+                        <input type="text" class="eingabefeld" id="zeitraumDisplay" value="${abrechnungWorkflowData.zeitraum.von.toLocaleDateString('de-DE')} - ${abrechnungWorkflowData.zeitraum.bis.toLocaleDateString('de-DE')}" readonly onclick="openZeitraumCalendar()">
+                    </div>
+                </div>
+            `;
+            footer.innerHTML = `
+                <button class="btn" onclick="closeModalById('abrechnungModal')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="goToWorkflowStep(2)">Weiter</button>
+            `;
+        } else if (abrechnungWorkflowStep === 2) {
+            // Schritt 2: Vorschau
+            title.textContent = `Vorschau: ${abrechnungWorkflowData.typ === 'vorschuss' ? 'Vorschuss' : 'Stornorücklage'}-Abrechnung`;
+
+            // Hilfsfunktion: Team-EH berechnen (Summe EH aller Team-Mitglieder)
+            function getTeamEh(teamMembers) {
+                return teamMembers.reduce((sum, memberId) => {
+                    const member = botschafterData.find(x => x.id === memberId);
+                    return sum + (member?.einheiten || 0);
+                }, 0);
+            }
+
+            // Hilfsfunktion: Team-Tage berechnen (Summe Anwesenheitstage)
+            function getTeamTage(teamMembers) {
+                return teamMembers.reduce((sum, memberId) => {
+                    const member = botschafterData.find(x => x.id === memberId);
+                    return sum + (member?.einsatztage || 0);
+                }, 0);
+            }
+
+            let cardsHtml = abrechnungWorkflowData.botschafter.map((b, idx) => {
+                // 1. Eigene Provision (Werben)
+                const bruttoWerben = b.einheiten * b.faktor;
+
+                // 2. TC-Provision (falls Teamleiter)
+                let tcProvision = 0;
+                if (b.istTeamleiter && b.tcZuordnungen.length > 0) {
+                    b.tcZuordnungen.forEach(tc => {
+                        const teamEh = getTeamEh(tc.teamMembers);
+                        tcProvision += berechneTcProvision(b, teamEh, b.einheiten);
+                    });
+                }
+
+                // 3. Quality-Provision (falls Quality-Manager)
+                let qualityProvision = 0;
+                if (b.istQualityManager && b.qualityZuordnungen.length > 0) {
+                    b.qualityZuordnungen.forEach(q => {
+                        const teamEh = getTeamEh(q.teamMembers);
+                        const teamPersonen = q.teamMembers.length;
+                        const teamTage = getTeamTage(q.teamMembers);
+                        qualityProvision += berechneQualityProvision(b, teamEh, teamPersonen, teamTage);
+                    });
+                }
+
+                // 4. Empfehlungs-Provision
+                let empfehlungProvision = 0;
+                if (b.hatEmpfehlungen && b.empfehlungen.length > 0) {
+                    b.empfehlungen.forEach(emp => {
+                        const empfohlener = botschafterData.find(x => x.id === emp.oderId);
+                        if (empfohlener) {
+                            const empfehlungsDatum = empfohlener.ersterAnwesenheitstag;
+                            if (empfehlungsDatum) {
+                                empfehlungProvision += berechneEmpfehlungsProvision(
+                                    b,
+                                    empfohlener.einheiten,
+                                    empfehlungsDatum,
+                                    empfohlener.einsatztage
+                                );
+                            }
+                        }
+                    });
+                }
+
+                // Gesamt-Brutto
+                const bruttoGesamt = bruttoWerben + tcProvision + qualityProvision + empfehlungProvision;
+                const stornorucklage = bruttoGesamt * (1 - b.vorschussAnteil / 100);
+                const vorschuss = bruttoGesamt - stornorucklage;
+                const netto = vorschuss - b.abzuegeUnterkunft - b.abzuegeSonderposten;
+
+                // Für spätere Speicherung merken
+                b._berechnungen = {
+                    bruttoWerben,
+                    tcProvision,
+                    qualityProvision,
+                    empfehlungProvision,
+                    bruttoGesamt,
+                    stornorucklage,
+                    vorschuss,
+                    netto
+                };
+
+                return `
+                    <div class="abrechnung-card ${idx === 0 ? 'expanded' : ''}" data-idx="${idx}">
+                        <div class="abrechnung-card__header" onclick="toggleAbrechnungCard(${idx})">
+                            <div>
+                                <div class="abrechnung-card__name">${b.name}</div>
+                                <div class="abrechnung-card__meta">${b.karrierestufe} (Faktor ${b.faktor})</div>
+                            </div>
+                            <div class="abrechnung-card__amount">${formatEuro(netto)}</div>
+                        </div>
+                        <div class="abrechnung-card__body">
+                            <div class="abrechnung-card__row">
+                                <span>Werbe-Provision (${b.einheiten.toFixed(2)} EH × ${b.faktor})</span>
+                                <span>${formatEuro(bruttoWerben)}</span>
+                            </div>
+                            ${tcProvision > 0 ? `
+                            <div class="abrechnung-card__row">
+                                <span>TC-Provision</span>
+                                <span>${formatEuro(tcProvision)}</span>
+                            </div>` : ''}
+                            ${qualityProvision > 0 ? `
+                            <div class="abrechnung-card__row">
+                                <span>Quality-Provision</span>
+                                <span>${formatEuro(qualityProvision)}</span>
+                            </div>` : ''}
+                            ${empfehlungProvision > 0 ? `
+                            <div class="abrechnung-card__row">
+                                <span>Empfehlungs-Provision</span>
+                                <span>${formatEuro(empfehlungProvision)}</span>
+                            </div>` : ''}
+                            ${(tcProvision > 0 || qualityProvision > 0 || empfehlungProvision > 0) ? `
+                            <div class="abrechnung-card__row abrechnung-card__row--subtotal">
+                                <span>Brutto Gesamt</span>
+                                <span>${formatEuro(bruttoGesamt)}</span>
+                            </div>` : ''}
+                            <div class="abrechnung-card__row abrechnung-card__row--negative">
+                                <span>Stornorücklage (${100 - b.vorschussAnteil}%)</span>
+                                <span>- ${formatEuro(stornorucklage)}</span>
+                            </div>
+                            <div class="abrechnung-card__row">
+                                <span>Vorschuss <span class="text-klein">(${b.vorschussAnteil}%)</span></span>
+                                <span>${formatEuro(vorschuss)}</span>
+                            </div>
+                            ${b.abzuegeUnterkunft > 0 ? `
+                            <div class="abrechnung-card__row abrechnung-card__row--negative">
+                                <span>Abzug Unterkunft</span>
+                                <span>- ${formatEuro(b.abzuegeUnterkunft)}</span>
+                            </div>` : ''}
+                            ${b.abzuegeSonderposten > 0 ? `
+                            <div class="abrechnung-card__row abrechnung-card__row--negative">
+                                <span>Abzug Sonderposten</span>
+                                <span>- ${formatEuro(b.abzuegeSonderposten)}</span>
+                            </div>` : ''}
+                            <div class="abrechnung-card__row abrechnung-card__row--total">
+                                <span>AUSZAHLUNG</span>
+                                <input type="number" class="abrechnung-card__input" value="${netto.toFixed(2)}" data-user="${b.id}" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const isPlanen = abrechnungWorkflowData.aktion === 'planen';
+
+            body.innerHTML = `
+                <div class="abschnitt">
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Aktion</label>
+                            <select class="eingabefeld" id="abrechnungAktionSelect" onchange="toggleVersandFelder()">
+                                <option value="planen" ${isPlanen ? 'selected' : ''}>Abrechnung planen</option>
+                                <option value="erstellen" ${!isPlanen ? 'selected' : ''}>Abrechnung erstellen</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="zeile" id="versandFelder" style="display: ${isPlanen ? 'flex' : 'none'};">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Versand planen - Datum</label>
+                            <input type="text" class="eingabefeld" id="scheduledDateDisplay" value="${new Date().toLocaleDateString('de-DE')}" readonly onclick="openVersandCalendar()">
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">Uhrzeit</label>
+                            <input type="time" class="eingabefeld" id="scheduledTime" value="08:00">
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="toggle-row" id="autoMailRow">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoMailToggle" ${isPlanen ? 'checked disabled' : ''}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="text-normal">Mails automatisch verschicken</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="abschnitt">
+                    ${cardsHtml}
+                </div>
+            `;
+
+            footer.innerHTML = `
+                <button class="btn" onclick="goToWorkflowStep(1)">Zurück</button>
+                <button class="btn btn-primary" onclick="goToWorkflowStep(3)">Speichern</button>
+            `;
+        } else if (abrechnungWorkflowStep === 3) {
+            // Schritt 3: Bestätigung
+            const isPlanen = abrechnungWorkflowData.aktion === 'planen';
+            const autoMail = abrechnungWorkflowData.autoMail;
+
+            let confirmTitle = '';
+            let confirmText = '';
+
+            if (isPlanen) {
+                const date = abrechnungWorkflowData.scheduledDate || new Date();
+                const time = document.getElementById('scheduledTime')?.value || '08:00';
+                const [hours, minutes] = time.split(':');
+                date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+                confirmTitle = `${abrechnungWorkflowData.botschafter.length} Abrechnungen geplant`;
+                confirmText = `
+                    <p class="confirmation-box__text">
+                        Geplanter Versand:<br>
+                        <strong>${date.toLocaleString('de-DE')}</strong>
+                    </p>
+                    <p class="confirmation-box__text">
+                        Die Abrechnungen werden automatisch per E-Mail an die Botschafter versendet.
+                    </p>
+                `;
+            } else {
+                confirmTitle = `${abrechnungWorkflowData.botschafter.length} Abrechnungen erstellt`;
+                if (autoMail) {
+                    confirmText = `
+                        <p class="confirmation-box__text">
+                            Die Abrechnungen wurden erstellt und per E-Mail an die Botschafter versendet.
+                        </p>
+                    `;
+                } else {
+                    confirmText = `
+                        <p class="confirmation-box__text">
+                            Die Abrechnungen wurden erstellt.<br>
+                            <strong>Kein automatischer E-Mail-Versand.</strong>
+                        </p>
+                    `;
+                }
+            }
+
+            // Download-Link für alle Optionen
+            const downloadLink = `
+                <a href="#" class="confirmation-box__link" onclick="downloadAbrechnungenPDF(); return false;">
+                    <span class="icon icon--download"></span>
+                    Abrechnungen als PDF herunterladen
+                </a>
+            `;
+
+            title.textContent = confirmTitle;
+
+            body.innerHTML = `
+                <div class="confirmation-box">
+                    <div class="confirmation-box__icon">✓</div>
+                    <h3 class="confirmation-box__title">${confirmTitle}</h3>
+                    ${confirmText}
+                    ${downloadLink}
+                </div>
+            `;
+
+            footer.innerHTML = `
+                <button class="btn btn-primary" onclick="closeModalById('abrechnungModal'); location.reload();">Schließen</button>
+            `;
+
+            // Abrechnungen erstellen
+            createAbrechnungen();
+        }
+    }
+
+    function goToWorkflowStep(step) {
+        if (step === 2 && abrechnungWorkflowStep === 1) {
+            // Daten aus Schritt 1 speichern
+            abrechnungWorkflowData.typ = document.getElementById('abrTypSelect').value;
+            // Zeitraum wird bereits durch CalendarModal gesetzt
+        }
+        if (step === 3 && abrechnungWorkflowStep === 2) {
+            // Aktion und Auto-Mail speichern
+            abrechnungWorkflowData.aktion = document.getElementById('abrechnungAktionSelect').value;
+            abrechnungWorkflowData.autoMail = document.getElementById('autoMailToggle').checked;
+
+            // Scheduled-At speichern (nur bei planen)
+            if (abrechnungWorkflowData.aktion === 'planen') {
+                const time = document.getElementById('scheduledTime').value;
+                const date = abrechnungWorkflowData.scheduledDate || new Date();
+                const [hours, minutes] = time.split(':');
+                date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                abrechnungWorkflowData.scheduledAt = date;
+            } else {
+                abrechnungWorkflowData.scheduledAt = null;
+            }
+        }
+        abrechnungWorkflowStep = step;
+        renderWorkflowStep();
+    }
+
+    // Parse deutsches Datum (TT.MM.JJ oder TT.MM.JJJJ) zu Date
+    function parseGermanDate(str) {
+        const [d, m, y] = str.split('.');
+        let year = parseInt(y);
+        // 2-stellige Jahre zu 4-stellig konvertieren
+        if (year < 100) {
+            year = year < 50 ? 2000 + year : 1900 + year;
+        }
+        return new Date(year, parseInt(m) - 1, parseInt(d));
+    }
+
+    function openZeitraumCalendar() {
+        CalendarModal.open((from, to, range) => {
+            abrechnungWorkflowData.zeitraum.von = parseGermanDate(from);
+            abrechnungWorkflowData.zeitraum.bis = parseGermanDate(to);
+            document.getElementById('zeitraumDisplay').value = range;
+        });
+    }
+
+    function openVersandCalendar() {
+        CalendarModal.open((from, to, range) => {
+            // Nur das Von-Datum verwenden (Einzeldatum)
+            abrechnungWorkflowData.scheduledDate = parseGermanDate(from);
+            document.getElementById('scheduledDateDisplay').value = from;
+        });
+    }
+
+    function toggleVersandFelder() {
+        const aktion = document.getElementById('abrechnungAktionSelect').value;
+        const versandFelder = document.getElementById('versandFelder');
+        const autoMailToggle = document.getElementById('autoMailToggle');
+        const isPlanen = aktion === 'planen';
+
+        versandFelder.style.display = isPlanen ? 'flex' : 'none';
+        autoMailToggle.checked = isPlanen;
+        autoMailToggle.disabled = isPlanen;
+
+        abrechnungWorkflowData.aktion = aktion;
+    }
+
+    function toggleAbrechnungCard(idx) {
+        const card = document.querySelectorAll('.abrechnung-card')[idx];
+        card.classList.toggle('expanded');
+    }
+
+    async function saveAsEntwurf() {
+        showToast('Als Entwurf gespeichert', 'success');
+        closeModalById('abrechnungModal');
+    }
+
+    function downloadAbrechnungenPDF() {
+        // TODO: PDF-Generierung implementieren
+        showToast('PDF-Download wird vorbereitet...', 'info');
+    }
+
+    async function createAbrechnungen() {
+        const supabase = window.parent?.supabaseClient || window.supabaseClient;
+        if (!supabase) {
+            showToast('Supabase nicht verfügbar', 'error');
+            return;
+        }
+
+        try {
+            const year = new Date().getFullYear();
+
+            for (const b of abrechnungWorkflowData.botschafter) {
+                // Berechnungen aus Vorschau verwenden (b._berechnungen wurde in Schritt 2 gesetzt)
+                const calc = b._berechnungen || {
+                    bruttoWerben: b.einheiten * b.faktor,
+                    tcProvision: 0,
+                    qualityProvision: 0,
+                    empfehlungProvision: 0,
+                    bruttoGesamt: b.einheiten * b.faktor,
+                    stornorucklage: (b.einheiten * b.faktor) * (1 - b.vorschussAnteil / 100),
+                    vorschuss: (b.einheiten * b.faktor) * (b.vorschussAnteil / 100),
+                    netto: (b.einheiten * b.faktor) * (b.vorschussAnteil / 100) - b.abzuegeUnterkunft - b.abzuegeSonderposten
+                };
+
+                // Abrechnung erstellen über zentrale Funktion (erweitert für Ledger)
+                const created = await erstelleAbrechnung({
+                    userId: b.id,
+                    invoice_type: abrechnungWorkflowData.typ,
+                    zeitraum: {
+                        von: abrechnungWorkflowData.zeitraum.von.toISOString().split('T')[0],
+                        bis: abrechnungWorkflowData.zeitraum.bis.toISOString().split('T')[0]
+                    },
+                    year: year,
+                    // Einzelne Provisions-Typen (Ledger-Prinzip)
+                    provisionen: {
+                        werben: calc.bruttoWerben,
+                        teamleitung: calc.tcProvision,
+                        quality: calc.qualityProvision,
+                        empfehlung: calc.empfehlungProvision
+                    },
+                    brutto: calc.bruttoGesamt,
+                    vorschuss: calc.vorschuss,
+                    stornorucklage: calc.stornorucklage,
+                    abzuegeUnterkunft: b.abzuegeUnterkunft || 0,
+                    abzuegeSonderposten: b.abzuegeSonderposten || 0,
+                    netto: calc.netto,
+                    einheiten: b.einheiten,
+                    faktor: b.faktor,
+                    karrierestufe: b.karrierestufe,
+                    vorschussAnteil: b.vorschussAnteil,
+                    scheduled_send_at: abrechnungWorkflowData.scheduledAt?.toISOString() || null
+                });
+            }
+
+            showToast(`${abrechnungWorkflowData.botschafter.length} Abrechnung(en) erfolgreich erstellt`, 'success');
+
+            // Daten neu laden
+            await loadGeplantData();
+            renderGeplantTable();
+
+        } catch (error) {
+            console.error('Fehler beim Erstellen:', error);
+            showToast('Fehler: ' + (error.message || 'Unbekannter Fehler'), 'error');
+        }
+    }
+
+    // ========== ABRECHNUNGS-AKTIONEN ==========
+    async function freigebenAbrechnung(invoiceId) {
+        try {
+            await updateAbrechnungStatus(invoiceId, 'freigegeben');
+            showToast('Abrechnung freigegeben', 'success');
+            await loadGeplantData();
+            renderGeplantTable();
+        } catch (error) {
+            console.error('Fehler:', error);
+            showToast('Fehler beim Freigeben', 'error');
+        }
+    }
+
+    async function loeschenAbrechnung(invoiceId) {
+        if (!confirm('Abrechnung wirklich löschen?')) return;
+
+        const supabase = window.parent?.supabaseClient || window.supabaseClient;
+        if (!supabase) {
+            showToast('Supabase nicht verfügbar', 'error');
+            return;
+        }
+
+        try {
+            const { error } = await supabase
+                .from('invoices')
+                .delete()
+                .eq('id', invoiceId);
+
+            if (error) throw error;
+
+            showToast('Abrechnung gelöscht', 'success');
+            await loadGeplantData();
+            renderGeplantTable();
+        } catch (error) {
+            console.error('Fehler:', error);
+            showToast('Fehler beim Löschen', 'error');
+        }
+    }
+
+    // ========== SHELL INTEGRATION ==========
+    // Suche in Botschafter-Daten
+    function searchBotschafter(query) {
+        const queryLower = query.toLowerCase();
+        const results = [];
+
+        botschafterData.forEach(b => {
+            const name = b.name || '';
+            const email = b.email || '';
+            const searchStr = `${name} ${email}`.toLowerCase();
+
+            if (searchStr.includes(queryLower)) {
+                results.push({
+                    id: b.userId,
+                    name: name,
+                    subtitle: email,
+                    type: 'botschafter'
+                });
+            }
+        });
+
+        return results;
+    }
+
+    // Shell-Listener initialisieren
+    initShellListener({
+        onSearch: searchBotschafter,
+        onSearchSelect: (id) => highlightTableRow(id)
+    });
+
+</script>
+</body>
+</html>

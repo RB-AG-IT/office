@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benutzer - RB Inside Office</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/main.js"></script>
+</head>
+<body>
+
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-row">
+            <div class="page-header-links">
+                <span class="text-ueberschrift">Benutzer</span>
+            </div>
+            <div class="page-header-mitte">
+                <span class="text-ueberschrift">Benutzerübersicht</span>
+            </div>
+            <div class="page-header-rechts"></div>
+        </div>
+        <!-- Shell-Tab: Alle (1 Sub-Tab) -->
+        <div class="page-header-tabs" id="alleSubTabs">
+            <div class="kw-tab active" data-tab="alle">Alle Benutzer</div>
+        </div>
+        <!-- Shell-Tab: Werber (1 Sub-Tab) -->
+        <div class="page-header-tabs" id="werberSubTabs" style="display: none;">
+            <div class="kw-tab active" data-tab="werber">Werber</div>
+        </div>
+        <!-- Shell-Tab: Kunde (1 Sub-Tab) -->
+        <div class="page-header-tabs" id="kundeSubTabs" style="display: none;">
+            <div class="kw-tab active" data-tab="kunde">Kunden</div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content page-content--table">
+        <div class="table-wrap">
+            <div class="zeile">
+                <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                    <button class="btn btn-sm btn--hover-blau" id="toggleAllBtn" onclick="toggleAllExpand()">
+                        <span class="icon icon--pfeil-unten"></span>
+                        Alle aufklappen
+                    </button>
+                </div>
+                <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="selectionGroup">
+                    <span class="btn btn-sm" id="selectionBtn">
+                        <span class="icon icon--clipboard"></span>
+                        Ausgewählt: <span id="selectionCount">0</span>
+                    </span>
+                </div>
+                <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" class="row-checkbox" id="selectAll" onclick="TableCheckbox.toggleSelectAll(this, 'tableBody')">
+                            </th>
+                            <th class="sortable col-name" data-sort="name">
+                                Benutzer
+                                <div class="sort-arrows">
+                                    <span class="icon icon--pfeil-auf arrow-up"></span>
+                                    <span class="icon icon--pfeil-ab arrow-down"></span>
+                                </div>
+                            </th>
+                            <th class="sortable col-xl text-left" data-sort="email">
+                                E-Mail
+                                <div class="sort-arrows">
+                                    <span class="icon icon--pfeil-auf arrow-up"></span>
+                                    <span class="icon icon--pfeil-ab arrow-down"></span>
+                                </div>
+                            </th>
+                            <th class="sortable col-xl text-left" data-sort="herkunft">
+                                Herkunft
+                                <div class="sort-arrows">
+                                    <span class="icon icon--pfeil-auf arrow-up"></span>
+                                    <span class="icon icon--pfeil-ab arrow-down"></span>
+                                </div>
+                            </th>
+                            <th class="sortable col-m text-center" data-sort="status">
+                                Status
+                                <div class="sort-arrows">
+                                    <span class="icon icon--pfeil-auf arrow-up"></span>
+                                    <span class="icon icon--pfeil-ab arrow-down"></span>
+                                </div>
+                            </th>
+                            <th class="col-spacer"></th>
+                            <th class="action-cell"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Wird per JS befüllt -->
+                    </tbody>
+                    <tbody id="tableTotals">
+                        <!-- Gesamt-Zeile -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        // ================================================================
+        // SUPABASE CLIENT (von Shell holen)
+        // ================================================================
+        const supabase = window.parent.supabaseClient;
+
+        // ================================================================
+        // STATE
+        // ================================================================
+        let users = [];
+        let userSort = { field: 'name', direction: 'asc' };
+        let searchTerm = '';
+        let typeFilter = 'alle'; // 'alle', 'werber', 'kunde'
+        let isLoading = false;
+
+        // ================================================================
+        // SUPABASE DATA LOADING
+        // ================================================================
+
+        // Werber aus users-Tabelle laden
+        async function loadWerberFromSupabase() {
+            try {
+                // Users mit Profiles laden
+                const { data: usersData, error: usersError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .order('name', { ascending: true });
+
+                if (usersError) throw usersError;
+
+                // Profiles laden
+                const { data: profilesData, error: profilesError } = await supabase
+                    .from('user_profiles')
+                    .select('*');
+
+                if (profilesError) throw profilesError;
+
+                // Karrierestufen laden (role_type = 'career')
+                const today = new Date().toISOString().split('T')[0];
+                const { data: careerData } = await supabase
+                    .from('user_roles')
+                    .select('*')
+                    .eq('role_type', 'career')
+                    .lte('assigned_at', today)
+                    .or(`valid_until.gte.${today},valid_until.is.null`);
+
+                // Rollen-Mapping
+                const ROLE_TO_STUFE = {
+                    'starting_marketing_advisor': 'SMA',
+                    'executive_marketing_advisor': 'EMA',
+                    'junior_marketing_manager': 'JMM',
+                    'executive_marketing_manager': 'EMM',
+                    'senior_marketing_manager': 'SMM',
+                    'chief_executive_marketing_manager': 'CEMM',
+                    'spitzen_botschafter': 'SPB',
+                    'kadermanager': 'KAD',
+                    'führungsebene': 'FUE',
+                    'sma': 'SMA', 'ema': 'EMA', 'jmm': 'JMM', 'emm': 'EMM',
+                    'smm': 'SMM', 'cemm': 'CEMM', 'spb': 'SPB', 'kad': 'KAD', 'fue': 'FUE'
+                };
+
+                return usersData.map(user => {
+                    const profile = profilesData.find(p => p.user_id === user.id) || {};
+                    const career = careerData?.find(c => c.user_id === user.id);
+                    const careerName = career?.role_name?.toLowerCase() || '';
+                    const stufe = ROLE_TO_STUFE[careerName] || '';
+
+                    return {
+                        id: user.id,
+                        type: 'werber',
+                        name: user.name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || user.email,
+                        stufe: stufe,
+                        image: profile.photo_intern_url || '',
+                        email: user.email,
+                        bundesland: profile.state || '',
+                        stadt: profile.city || '',
+                        lastLogin: user.updated_at ? new Date(user.updated_at) : null,
+                        isOnline: false,
+                        einsatzgebiete: []
+                    };
+                });
+            } catch (error) {
+                console.error('Fehler beim Laden der Werber:', error);
+                return [];
+            }
+        }
+
+        // Kunden aus customers-Tabelle laden
+        async function loadCustomersFromSupabase() {
+            try {
+                const { data: customersData, error } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .order('name', { ascending: true });
+
+                if (error) throw error;
+
+                return (customersData || []).map(customer => {
+                    const fullName = `${customer.organisation || ''} ${customer.name_prefix || ''} ${customer.name || ''} ${customer.name_suffix || ''}`.trim();
+                    return {
+                        id: customer.id,
+                        type: 'kunde',
+                        name: fullName || customer.name || '-',
+                        stufe: '', // Kunden haben keine Stufe
+                        image: '', // Kunden haben kein Bild
+                        email: customer.email || '',
+                        bundesland: customer.bundesland || '',
+                        stadt: customer.city || '',
+                        lastLogin: null,
+                        isOnline: false,
+                        einsatzgebiete: [],
+                        kdId: customer.kd_id || ''
+                    };
+                });
+            } catch (error) {
+                console.error('Fehler beim Laden der Kunden:', error);
+                return [];
+            }
+        }
+
+        // Alle Benutzer laden (Werber + Kunden)
+        async function loadUsersFromSupabase() {
+            if (!supabase) {
+                console.error('Supabase client nicht verfügbar');
+                return [];
+            }
+
+            isLoading = true;
+            renderLoadingState();
+
+            try {
+                // Werber und Kunden parallel laden
+                const [werber, kunden] = await Promise.all([
+                    loadWerberFromSupabase(),
+                    loadCustomersFromSupabase()
+                ]);
+
+                return [...werber, ...kunden];
+
+            } catch (error) {
+                console.error('Fehler beim Laden der Benutzer:', error);
+                showToast('Fehler beim Laden der Benutzer: ' + error.message, 'error');
+                return [];
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        function renderLoadingState() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px;">
+                        <span class="btn-spinner" style="display: inline-block; margin-right: 8px;"></span>
+                        Lade Benutzer...
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Herkunft formatieren (Bundesland, Stadt)
+        function formatHerkunft(bundesland, stadt) {
+            if (bundesland && stadt) return `${bundesland}, ${stadt}`;
+            if (bundesland) return bundesland;
+            if (stadt) return stadt;
+            return '-';
+        }
+
+        // ================================================================
+        // RENDER TABLE
+        // formatLastLogin() kommt aus badges-karten.js
+        // ================================================================
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const totalsBody = document.getElementById('tableTotals');
+
+            // Filter
+            let filtered = users.filter(user => {
+                // Type filter (Werber/Kunde/Alle)
+                if (typeFilter !== 'alle') {
+                    if (user.type !== typeFilter) return false;
+                }
+                // Search filter
+                if (searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    if (!user.name.toLowerCase().includes(term) &&
+                        !user.email.toLowerCase().includes(term)) return false;
+                }
+                return true;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                let valA, valB;
+                switch (userSort.field) {
+                    case 'name':
+                        valA = a.name.toLowerCase();
+                        valB = b.name.toLowerCase();
+                        break;
+                    case 'email':
+                        valA = a.email.toLowerCase();
+                        valB = b.email.toLowerCase();
+                        break;
+                    case 'herkunft':
+                        valA = a.bundesland.toLowerCase();
+                        valB = b.bundesland.toLowerCase();
+                        break;
+                    case 'status':
+                        valA = a.isOnline ? 0 : 1;
+                        valB = b.isOnline ? 0 : 1;
+                        break;
+                    default:
+                        valA = a.name.toLowerCase();
+                        valB = b.name.toLowerCase();
+                }
+
+                if (valA < valB) return userSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return userSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Count totals
+            const werberCount = filtered.filter(u => u.type === 'werber').length;
+            const kundenCount = filtered.filter(u => u.type === 'kunde').length;
+
+            // Build totals text based on filter
+            let totalsText;
+            if (typeFilter === 'werber') {
+                totalsText = werberCount + ' Werber';
+            } else if (typeFilter === 'kunde') {
+                totalsText = kundenCount + ' Kunden';
+            } else {
+                totalsText = werberCount + ' Werber, ' + kundenCount + ' Kunden';
+            }
+
+            // Render totals row
+            totalsBody.innerHTML = `
+                <tr class="totals-row">
+                    <td class="checkbox-cell"></td>
+                    <td class="col-name">${createTotalsNameCell(totalsText)}</td>
+                    <td class="col-xl text-left"></td>
+                    <td class="col-xl text-left"></td>
+                    <td class="col-m text-center"></td>
+                    <td class="col-spacer"></td>
+                    <td class="action-cell"></td>
+                </tr>
+            `;
+
+            // Render user rows
+            let html = '';
+            filtered.forEach(user => {
+                const hasChildren = user.type === 'kunde' && user.einsatzgebiete && user.einsatzgebiete.length > 0;
+
+                // Badge aus zentralem System
+                const badge = createBadge({
+                    type: user.type,
+                    name: user.name,
+                    stufe: user.type === 'werber' ? user.stufe : '',
+                    image: user.image
+                });
+
+                if (hasChildren) {
+                    // Kunde mit Gebieten (expandable)
+                    html += `
+                    <tr class="expandable-row" data-user-id="${user.id}" onclick="toggleExpandableRow('${user.id}')">
+                        <td class="checkbox-cell"><input type="checkbox" class="row-checkbox parent-checkbox" data-parent-id="${user.id}" onclick="event.stopPropagation(); TableCheckbox.toggleParent(this);"></td>
+                        <td class="col-name">
+                            <div class="name-cell">
+                                <span class="icon icon--pfeil-unten expand-icon"></span>
+                                ${badge}
+                            </div>
+                        </td>
+                        <td class="col-xl text-left">${user.email}</td>
+                        <td class="col-xl text-left">${formatHerkunft(user.bundesland, user.stadt)}</td>
+                        <td class="col-m text-center">${formatLastLogin(user.lastLogin, user.isOnline)}</td>
+                        <td class="col-spacer"></td>
+                        <td class="action-cell">
+                            <div class="dropdown">
+                                <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                    <span class="icon icon--mehr-vertikal"></span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-item" onclick="closeAllDropdowns(); editUser('${user.id}', '${user.type}')">
+                                        <span class="icon icon--bearbeiten"></span>
+                                        Bearbeiten
+                                    </div>
+                                    <div class="dropdown-item" onclick="closeAllDropdowns(); openDashboard('${user.id}', '${user.type}')">
+                                        <span class="icon icon--statistik"></span>
+                                        Persönliches Dashboard
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="dropdown-item danger" onclick="closeAllDropdowns(); deleteUser('${user.id}')">
+                                        <span class="icon icon--loeschen"></span>
+                                        Löschen
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+
+                    // Child-Rows für Gebiete
+                    user.einsatzgebiete.forEach(gebiet => {
+                        const gebietBadge = createBadge({
+                            type: 'werbegebiet',
+                            name: gebiet.name,
+                            size: 'small'
+                        });
+
+                        html += `
+                        <tr class="child-row" data-parent-id="${user.id}">
+                            <td class="checkbox-cell"><input type="checkbox" class="row-checkbox child-checkbox" data-parent-id="${user.id}" onclick="TableCheckbox.toggleChild(this);"></td>
+                            <td class="col-name">
+                                <div class="name-cell">
+                                    <div class="child-indent">└</div>
+                                    ${gebietBadge}
+                                </div>
+                            </td>
+                            <td class="col-xl text-left"></td>
+                            <td class="col-xl text-left"></td>
+                            <td class="col-m text-center"></td>
+                            <td class="col-spacer"></td>
+                            <td class="action-cell">
+                                <div class="dropdown">
+                                    <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                        <span class="icon icon--mehr-vertikal"></span>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item" onclick="closeAllDropdowns(); openGebietDashboard('${gebiet.id}')">
+                                            <span class="icon icon--statistik"></span>
+                                            Persönliches Dashboard
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>`;
+                    });
+                } else {
+                    // Werber oder Kunde ohne Gebiete
+                    html += `
+                    <tr data-user-id="${user.id}">
+                        <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="event.stopPropagation();"></td>
+                        <td class="col-name">
+                            <div class="name-cell">
+                                ${badge}
+                            </div>
+                        </td>
+                        <td class="col-xl text-left">${user.email}</td>
+                        <td class="col-xl text-left">${formatHerkunft(user.bundesland, user.stadt)}</td>
+                        <td class="col-m text-center">${formatLastLogin(user.lastLogin, user.isOnline)}</td>
+                        <td class="col-spacer"></td>
+                        <td class="action-cell">
+                            <div class="dropdown">
+                                <button class="dropdown-btn" onclick="toggleDropdown(this); event.stopPropagation();">
+                                    <span class="icon icon--mehr-vertikal"></span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-item" onclick="closeAllDropdowns(); editUser('${user.id}', '${user.type}')">
+                                        <span class="icon icon--bearbeiten"></span>
+                                        Bearbeiten
+                                    </div>
+                                    <div class="dropdown-item" onclick="closeAllDropdowns(); openDashboard('${user.id}', '${user.type}')">
+                                        <span class="icon icon--statistik"></span>
+                                        Persönliches Dashboard
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="dropdown-item danger" onclick="closeAllDropdowns(); deleteUser('${user.id}')">
+                                        <span class="icon icon--loeschen"></span>
+                                        Löschen
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+                }
+            });
+
+            tbody.innerHTML = html;
+
+            // Toggle-Button nur anzeigen wenn es expandable rows gibt
+            const toggleBtn = document.getElementById('toggleAllBtn');
+            const hasExpandableRows = document.querySelectorAll('.expandable-row').length > 0;
+            if (toggleBtn) {
+                toggleBtn.style.display = hasExpandableRows ? 'flex' : 'none';
+            }
+        }
+
+        // ================================================================
+        // EVENT HANDLERS
+        // toggleExpandableRow(), toggleAllExpand(), updateSortState() kommen aus tabellen.js
+        // ================================================================
+
+        // ================================================================
+        // NAVIGATION FUNCTIONS
+        // toggleDropdown() und closeAllDropdowns() kommen aus tabellen.js
+        // ================================================================
+        function editUser(userId, userType) {
+            if (userType === 'werber') {
+                window.location.href = 'BENUTZER-BOTSCHAFTER-PROFIL.html?id=' + userId;
+            } else {
+                window.location.href = 'BENUTZER-KUNDEN-PROFIL.html?id=' + userId;
+            }
+        }
+
+        function openDashboard(userId, userType) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigate',
+                    url: `statistik/dashboard.html?id=${userId}&type=${userType}`,
+                    section: 'statistics'
+                }, '*');
+            } else {
+                window.location.href = `../statistik/dashboard.html?id=${userId}&type=${userType}`;
+            }
+        }
+
+        function openGebietDashboard(gebietId) {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'navigate',
+                    url: `statistik/dashboard.html?gebiet=${gebietId}`,
+                    section: 'statistics'
+                }, '*');
+            } else {
+                window.location.href = `../statistik/dashboard.html?gebiet=${gebietId}`;
+            }
+        }
+
+        async function deleteUser(userId) {
+            const confirmed = await showConfirm(
+                'Benutzer löschen',
+                'Möchten Sie diesen Benutzer wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+                'warning',
+                { confirmText: 'Löschen', danger: true }
+            );
+
+            if (confirmed) {
+                try {
+                    // Prüfen ob Werber oder Kunde
+                    const user = users.find(u => u.id === userId);
+                    const tableName = user?.type === 'kunde' ? 'customers' : 'users';
+
+                    // In Supabase löschen (Cascade sollte verknüpfte Daten mitlöschen)
+                    const { error } = await supabase
+                        .from(tableName)
+                        .delete()
+                        .eq('id', userId);
+
+                    if (error) throw error;
+
+                    // Lokale Liste aktualisieren
+                    users = users.filter(u => u.id !== userId);
+                    renderTable();
+                    showToast(user?.type === 'kunde' ? 'Kunde wurde gelöscht' : 'Benutzer wurde gelöscht', 'success');
+
+                } catch (error) {
+                    console.error('Fehler beim Löschen:', error);
+                    showToast('Fehler beim Löschen: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // ================================================================
+        // INITIALIZATION
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Benutzer von Supabase laden
+            users = await loadUsersFromSupabase();
+            renderTable();
+
+            // Selection UI registrieren
+            TableCheckbox.registerSelectionUI('tableBody', 'selectionGroup', 'selectionCount');
+            TableCheckbox.initSelectionUI();
+
+            // Attach sorting handlers
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', () => updateSortState(th.dataset.sort, userSort, renderTable));
+            });
+
+            // Listen for messages from parent shell
+            window.addEventListener('message', function(e) {
+                if (e.data && e.data.type === 'searchQuery') {
+                    searchTerm = e.data.query;
+                    renderTable();
+                }
+                if (e.data && e.data.type === 'navFilter') {
+                    typeFilter = e.data.value; // 'alle', 'werber', 'kunde'
+                    selectShellTab(e.data.value, {
+                        subTabs: {
+                            alle: { containerId: 'alleSubTabs', title: 'Benutzerübersicht' },
+                            werber: { containerId: 'werberSubTabs', title: 'Werber' },
+                            kunde: { containerId: 'kundeSubTabs', title: 'Kunden' }
+                        },
+                        titleSelector: '.page-header-mitte .text-ueberschrift'
+                    });
+                    renderTable();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

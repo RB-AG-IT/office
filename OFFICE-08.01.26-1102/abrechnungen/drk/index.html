@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datensätze - RB Inside Office</title>
+    <!-- Zentrale Styles -->
+    <link rel="stylesheet" href="../../css/styles.css">
+    <script src="../../js/main.js"></script>
+    <!-- Zentrale Scripts -->
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- SheetJS für Excel/CSV Import -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        /* Seiten-spezifische Styles (nur wenn nötig) */
+        body {
+            background: var(--bg-secondary);
+        }
+        /* Dropdown-Optionen Stornieren und Löschen ausblenden */
+        .dropdown-item.warning,
+        .dropdown-item.danger,
+        .dropdown-item.warning + .dropdown-divider,
+        .dropdown-divider:has(+ .dropdown-item.warning) {
+            display: none;
+        }
+    </style>
+</head>
+<body class="datensaetze-page">
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-row">
+            <div class="page-header-links">
+                <span class="text-ueberschrift-unterabschnitt">DRK</span>
+            </div>
+            <div class="page-header-mitte">
+                <span class="text-ueberschrift">Abrechnungen</span>
+            </div>
+        </div>
+        <!-- Lokale Tabs (per Klick navigierbar) -->
+        <div class="page-header-tabs" id="datensaetzeSubTabs">
+            <div class="kw-tab active" data-tab="records">Übersicht <span class="tab-badge" id="recordsBadge">32</span></div>
+            <div class="kw-tab" data-tab="bestand">TEST <span class="tab-badge" id="bestandBadge">142</span></div>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content page-content--table">
+
+            <!-- NEUMITGLIEDER / ERHÖHUNGEN TAB -->
+            <div class="kw-tab-content active" id="tab-records">
+                <div class="table-wrap">
+                    <div class="zeile">
+                        <!-- Anzeigenfeld 1: Filter -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                            <button class="btn btn-sm active" data-filter="all" onclick="setFilter('all')">Alle</button>
+                            <button class="btn btn-sm" data-filter="offenerVorschuss" onclick="setFilter('offenerVorschuss')">Offener Vorschuss</button>
+                        </div>
+                        <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                        <!-- Anzeigenfeld 2: Auswahl-Aktionen (erscheint bei Selektion) -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="recordsSelectionGroup">
+                            <span class="btn btn-sm" id="recordsSelectionBtn">
+                                <span class="icon icon--clipboard"></span>
+                                Ausgewählt: <span id="recordsSelectedCount">0</span>
+                            </span>
+                            <button class="btn btn-sm" onclick="sendMail('records')">
+                                <span class="icon icon--email"></span>
+                                E-Mail
+                            </button>
+                            <button class="btn btn-sm" onclick="createAbrechnung('records')">
+                                <span class="icon icon--dokument"></span>
+                                Abrechnung erstellen
+                            </button>
+                        </div>
+                        <!-- Spacer -->
+                        <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                        <!-- Anzeigenfeld 3: Spalten & Audit (rechts) -->
+                        <div class="anzeigenfeld anzeigenfeld--auto">
+                            <button class="btn btn-sm" onclick="openColumnsModal('records')">
+                                <span class="icon icon--spalten"></span>
+                                Spalten
+                            </button>
+                            <button class="btn btn-sm" onclick="openAuditModal('nmg-erh', 'default')">
+                                <span class="icon icon--uhr"></span>
+                                Audit
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table--compact" id="recordsTable">
+                            <thead id="recordsTableHead">
+                                <!-- Wird dynamisch gerendert -->
+                            </thead>
+                            <tbody id="recordsTableBody">
+                                <!-- Wird dynamisch gerendert -->
+                            </tbody>
+                            <tfoot id="recordsTableFoot">
+                                <!-- Wird dynamisch gerendert -->
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BESTANDSMITGLIEDER TAB -->
+            <div class="kw-tab-content" id="tab-bestand">
+                <div class="table-wrap">
+                    <div class="zeile">
+                        <!-- Anzeigenfeld 1: Auswahl-Aktionen (erscheint bei Selektion) -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden anzeigenfeld--min-height" id="bestandSelectionGroup">
+                            <span class="btn btn-sm" id="bestandSelectionBtn">
+                                <span class="icon icon--clipboard"></span>
+                                Ausgewählt: <span id="bestandSelectedCount">0</span>
+                            </span>
+                            <button class="btn btn-sm" onclick="sendMail('bestand')">
+                                <span class="icon icon--email"></span>
+                                E-Mail
+                            </button>
+                            <button class="btn btn-sm" onclick="createAbrechnung('bestand')">
+                                <span class="icon icon--dokument"></span>
+                                Abrechnung erstellen
+                            </button>
+                        </div>
+                        <!-- Spacer -->
+                        <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                        <!-- Anzeigenfeld 2: Spalten & Audit (rechts) -->
+                        <div class="anzeigenfeld anzeigenfeld--auto">
+                            <button class="btn btn-sm" onclick="openColumnsModal('bestand')">
+                                <span class="icon icon--spalten"></span>
+                                Spalten
+                            </button>
+                            <button class="btn btn-sm" onclick="openAuditModal('bestand', 'default')">
+                                <span class="icon icon--uhr"></span>
+                                Audit
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table--compact" id="bestandTable">
+                            <thead id="bestandTableHead">
+                                <!-- Wird dynamisch gerendert -->
+                            </thead>
+                            <tbody id="bestandTableBody">
+                                <!-- Wird dynamisch gerendert -->
+                            </tbody>
+                            <tfoot id="bestandTableFoot">
+                                <!-- Wird dynamisch gerendert -->
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+        </div>
+    </div><!-- Ende page-content -->
+</div><!-- Ende page-container -->
+
+<!-- Storno Modal (aus zentralem Template) -->
+    <!-- Wird durch ModalTemplates.init(['storno']) erstellt -->
+
+    <!-- Alle Modals werden durch ModalTemplates.init() erstellt -->
+    <!-- Verfügbar: storno, columns, edit, import, export -->
+
+    <!-- Seiten-spezifische Daten und Initialisierung -->
+    <script>
+        // ========== TEST DATA ==========
+        const testRecordsData = [
+            { id: 1, name: 'DRK KV Frankfurt', kundenId: 'DRK-001', rechnungsnummer: 'RE-2025-0001', auftragsnummer: 'A-2025-001', offeneProv1Jahr: '1.250,00 €', stornopufferProzent: '10%', stornopufferSumme: '125,00 €', offeneProv2Jahr: '800,00 €', offeneProv3Jahr: '600,00 €', offeneProv4Jahr: '400,00 €', offeneProv5Jahr: '200,00 €', provisionGesamt: '3.250,00 €', mitglieder: 125, jahreseuros: '15.000,00 €' },
+            { id: 2, name: 'DRK KV Darmstadt', kundenId: 'DRK-002', rechnungsnummer: 'RE-2025-0002', auftragsnummer: 'A-2025-002', offeneProv1Jahr: '980,00 €', stornopufferProzent: '10%', stornopufferSumme: '98,00 €', offeneProv2Jahr: '650,00 €', offeneProv3Jahr: '450,00 €', offeneProv4Jahr: '300,00 €', offeneProv5Jahr: '150,00 €', provisionGesamt: '2.530,00 €', mitglieder: 98, jahreseuros: '11.760,00 €' },
+            { id: 3, name: 'DRK KV Wiesbaden', kundenId: 'DRK-003', rechnungsnummer: 'RE-2025-0003', auftragsnummer: 'A-2025-003', offeneProv1Jahr: '1.540,00 €', stornopufferProzent: '12%', stornopufferSumme: '184,80 €', offeneProv2Jahr: '920,00 €', offeneProv3Jahr: '720,00 €', offeneProv4Jahr: '480,00 €', offeneProv5Jahr: '240,00 €', provisionGesamt: '3.900,00 €', mitglieder: 154, jahreseuros: '18.480,00 €' },
+            { id: 4, name: 'DRK KV Offenbach', kundenId: 'DRK-004', rechnungsnummer: 'RE-2025-0004', auftragsnummer: 'A-2025-004', offeneProv1Jahr: '720,00 €', stornopufferProzent: '10%', stornopufferSumme: '72,00 €', offeneProv2Jahr: '480,00 €', offeneProv3Jahr: '360,00 €', offeneProv4Jahr: '240,00 €', offeneProv5Jahr: '120,00 €', provisionGesamt: '1.920,00 €', mitglieder: 72, jahreseuros: '8.640,00 €' },
+            { id: 5, name: 'DRK KV Kassel', kundenId: 'DRK-005', rechnungsnummer: 'RE-2025-0005', auftragsnummer: 'A-2025-005', offeneProv1Jahr: '1.890,00 €', stornopufferProzent: '15%', stornopufferSumme: '283,50 €', offeneProv2Jahr: '1.100,00 €', offeneProv3Jahr: '850,00 €', offeneProv4Jahr: '600,00 €', offeneProv5Jahr: '350,00 €', provisionGesamt: '4.790,00 €', mitglieder: 189, jahreseuros: '22.680,00 €' },
+            { id: 6, name: 'DRK KV Gießen', kundenId: 'DRK-006', rechnungsnummer: 'RE-2025-0006', auftragsnummer: 'A-2025-006', offeneProv1Jahr: '560,00 €', stornopufferProzent: '10%', stornopufferSumme: '56,00 €', offeneProv2Jahr: '380,00 €', offeneProv3Jahr: '280,00 €', offeneProv4Jahr: '180,00 €', offeneProv5Jahr: '90,00 €', provisionGesamt: '1.490,00 €', mitglieder: 56, jahreseuros: '6.720,00 €' },
+            { id: 7, name: 'DRK KV Fulda', kundenId: 'DRK-007', rechnungsnummer: 'RE-2025-0007', auftragsnummer: 'A-2025-007', offeneProv1Jahr: '830,00 €', stornopufferProzent: '10%', stornopufferSumme: '83,00 €', offeneProv2Jahr: '550,00 €', offeneProv3Jahr: '420,00 €', offeneProv4Jahr: '280,00 €', offeneProv5Jahr: '140,00 €', provisionGesamt: '2.220,00 €', mitglieder: 83, jahreseuros: '9.960,00 €' },
+            { id: 8, name: 'DRK KV Marburg', kundenId: 'DRK-008', rechnungsnummer: 'RE-2025-0008', auftragsnummer: 'A-2025-008', offeneProv1Jahr: '1.120,00 €', stornopufferProzent: '12%', stornopufferSumme: '134,40 €', offeneProv2Jahr: '740,00 €', offeneProv3Jahr: '560,00 €', offeneProv4Jahr: '380,00 €', offeneProv5Jahr: '190,00 €', provisionGesamt: '2.990,00 €', mitglieder: 112, jahreseuros: '13.440,00 €' },
+        ];
+
+        const testBestandData = [
+            { id: 201, name: 'Herbert Fischer', memberNr: 'MG-2019-0042', seit: '15.03.2019', je: '120,00 €', email: 'h.fischer@email.de', status: 'aktiv' },
+            { id: 202, name: 'Ursula Meier', memberNr: 'MG-2018-0187', seit: '22.08.2018', je: '60,00 €', email: 'u.meier@email.de', status: 'aktiv' },
+            { id: 203, name: 'Wolfgang Braun', memberNr: 'MG-2020-0023', seit: '04.01.2020', je: '180,00 €', email: 'w.braun@email.de', status: 'aktiv' },
+            { id: 204, name: 'Ingrid Schulz', memberNr: 'MG-2017-0312', seit: '11.11.2017', je: '120,00 €', email: 'i.schulz@email.de', status: 'inaktiv' },
+        ];
+
+        const testHistoryData = {
+            1: [
+                { type: 'neumitglied', date: '10.12.2025', title: 'Mitglied geworden', detail: 'Beitrag: 10,00 € monatlich' },
+            ],
+            101: [
+                { type: 'neumitglied', date: '15.03.2023', title: 'Mitglied geworden', detail: 'Beitrag: 3,00 € monatlich' },
+                { type: 'erhoehung', date: '10.12.2025', title: 'Beitrag erhöht', detail: 'Von 3,00 € auf 10,00 € monatlich' },
+            ],
+            201: [
+                { type: 'neumitglied', date: '15.03.2019', title: 'Mitglied geworden', detail: 'Beitrag: 5,00 € monatlich' },
+                { type: 'erhoehung', date: '01.01.2021', title: 'Beitrag erhöht', detail: 'Von 5,00 € auf 8,00 € monatlich' },
+                { type: 'aenderung', date: '15.06.2022', title: 'Adresse geändert', detail: 'Neue Adresse: Musterstr. 12' },
+                { type: 'erhoehung', date: '01.01.2024', title: 'Beitrag erhöht', detail: 'Von 8,00 € auf 10,00 € monatlich' },
+            ],
+            4: [
+                { type: 'neumitglied', date: '07.12.2025', title: 'Mitglied geworden', detail: 'Beitrag: 10,00 € monatlich' },
+                { type: 'storno', date: '09.12.2025', title: 'Storniert', detail: 'Grund: Widerruf' },
+            ],
+        };
+
+        // Kontext-Daten (würde normalerweise von URL-Parameter oder API kommen)
+        const contextData = {
+            type: 'kunde',  // 'werber', 'kunde', 'werbegebiet', 'kampagne'
+            name: 'DRK KV Ludwigshafen'
+        };
+
+        // ========== INIT ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            // Tabs initialisieren
+            initTabs('.kw-tab', '.kw-tab-content');
+
+            // Zentrale Modals initialisieren
+            ModalTemplates.init(['storno', 'columns', 'edit', 'import', 'export']);
+
+            // Abrechnungs-eigene Render-Funktion (überschreibt die aus main.js)
+            window.renderRecordsTable = renderAbrechnungenTable;
+
+            // Datensätze-System initialisieren mit Test-Daten
+            initDatensaetze({
+                recordsData: testRecordsData,
+                bestandData: testBestandData,
+                historyData: testHistoryData,
+                contextData: contextData
+            });
+
+            // Tab-Badges aktualisieren
+            document.getElementById('recordsBadge').textContent = testRecordsData.length;
+            document.getElementById('bestandBadge').textContent = testBestandData.length;
+
+            // Register toolbar config with shell (Import/Export for data tables)
+            registerToolbarConfig();
+        });
+
+        // Abrechnungs-spezifische Render-Funktion (Kopie aus main.js mit zusätzlichen Spalten)
+        function renderAbrechnungenTable() {
+            let filtered;
+            if (currentFilter === 'all') {
+                filtered = recordsData;
+            } else if (currentFilter === 'offenerVorschuss') {
+                // Zeigt Einträge mit offenem Vorschuss (Wert > 0)
+                filtered = recordsData.filter(d => {
+                    const val = parseFloat(String(d.offenerVorschuss || '0').replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                    return val > 0;
+                });
+            } else {
+                filtered = recordsData.filter(d => d.typ === currentFilter);
+            }
+
+            // DRK-spezifische Spalten-Konfiguration
+            const config = [
+                { id: 'name', visible: true },
+                { id: 'kundenId', visible: true },
+                { id: 'rechnungsnummer', visible: true },
+                { id: 'auftragsnummer', visible: true },
+                { id: 'offeneProv1Jahr', visible: true },
+                { id: 'stornopufferProzent', visible: true },
+                { id: 'stornopufferSumme', visible: true },
+                { id: 'offeneProv2Jahr', visible: true },
+                { id: 'offeneProv3Jahr', visible: true },
+                { id: 'offeneProv4Jahr', visible: true },
+                { id: 'offeneProv5Jahr', visible: true },
+                { id: 'provisionGesamt', visible: true },
+                { id: 'mitglieder', visible: true },
+                { id: 'jahreseuros', visible: true }
+            ];
+
+            // Header-Definitionen für DRK-Abrechnungen
+            const headerDefs = {
+                name: { class: 'col-name text-left', label: 'Name' },
+                kundenId: { class: 'col-m text-left', label: 'Kunden ID' },
+                rechnungsnummer: { class: 'col-m text-left', label: 'Rechnungsnummer' },
+                auftragsnummer: { class: 'col-m text-left', label: 'Auftr. / Vertr.-Nr.' },
+                offeneProv1Jahr: { class: 'col-m text-right', label: 'Offene Prov. 1. Jahr' },
+                stornopufferProzent: { class: 'col-s text-right', label: 'Stornopuffer (%)' },
+                stornopufferSumme: { class: 'col-m text-right', label: 'Stornopuffer Summe' },
+                offeneProv2Jahr: { class: 'col-m text-right', label: 'Offene Prov. 2. Jahr' },
+                offeneProv3Jahr: { class: 'col-m text-right', label: 'Offene Prov. 3. Jahr' },
+                offeneProv4Jahr: { class: 'col-m text-right', label: 'Offene Prov. 4. Jahr' },
+                offeneProv5Jahr: { class: 'col-m text-right', label: 'Offene Prov. 5. Jahr' },
+                provisionGesamt: { class: 'col-m text-right', label: 'Provision gesamt' },
+                mitglieder: { class: 'col-s text-right', label: 'Mitglieder' },
+                jahreseuros: { class: 'col-m text-right', label: 'Jahreseuros' }
+            };
+
+            // Header rendern
+            const sort = currentSort.records;
+            const thead = document.getElementById('recordsTableHead');
+            if (!thead) return;
+
+            let headerHtml = `<tr>
+                <th class="checkbox-cell">
+                    <input type="checkbox" class="row-checkbox" id="selectAllRecords" onclick="TableCheckbox.toggleSelectAll(this, 'recordsTableBody'); updateSelectionUI('recordsTableBody')">
+                </th>
+                <th class="action-cell"></th>`;
+
+            config.forEach(col => {
+                const def = headerDefs[col.id];
+                if (def) {
+                    const display = col.visible ? '' : 'display:none;';
+                    const sortClass = sort.col === col.id ? (sort.direction === 'asc' ? 'sort-asc' : 'sort-desc') : '';
+                    headerHtml += `<th class="sortable ${def.class} ${sortClass}" data-col="${col.id}" style="${display}" onclick="sortTable('records', '${col.id}')">
+                        ${def.label}
+                        <span class="sort-arrows">
+                            <span class="icon icon--pfeil-auf arrow-up"></span>
+                            <span class="icon icon--pfeil-ab arrow-down"></span>
+                        </span>
+                    </th>`;
+                }
+            });
+            headerHtml += `<th class="col-spacer"></th></tr>`;
+            thead.innerHTML = headerHtml;
+
+            const body = document.getElementById('recordsTableBody');
+            if (!body) return;
+
+            body.innerHTML = filtered.map(d => {
+                // DRK-spezifische Spalten-Daten
+                const colData = {
+                    name: { class: 'col-name text-left', html: d.name },
+                    kundenId: { class: 'col-m text-left', html: d.kundenId || '-' },
+                    rechnungsnummer: { class: 'col-m text-left', html: d.rechnungsnummer || '-' },
+                    auftragsnummer: { class: 'col-m text-left', html: d.auftragsnummer || '-' },
+                    offeneProv1Jahr: { class: 'col-m text-right', html: d.offeneProv1Jahr || '-' },
+                    stornopufferProzent: { class: 'col-s text-right', html: d.stornopufferProzent || '-' },
+                    stornopufferSumme: { class: 'col-m text-right', html: d.stornopufferSumme || '-' },
+                    offeneProv2Jahr: { class: 'col-m text-right', html: d.offeneProv2Jahr || '-' },
+                    offeneProv3Jahr: { class: 'col-m text-right', html: d.offeneProv3Jahr || '-' },
+                    offeneProv4Jahr: { class: 'col-m text-right', html: d.offeneProv4Jahr || '-' },
+                    offeneProv5Jahr: { class: 'col-m text-right', html: d.offeneProv5Jahr || '-' },
+                    provisionGesamt: { class: 'col-m text-right', html: d.provisionGesamt || '-' },
+                    mitglieder: { class: 'col-s text-right', html: d.mitglieder || '0' },
+                    jahreseuros: { class: 'col-m text-right', html: d.jahreseuros || '-' }
+                };
+
+                // Spalten in konfigurierter Reihenfolge rendern
+                let columnsHtml = '';
+                config.forEach(col => {
+                    const data = colData[col.id];
+                    if (data) {
+                        const display = col.visible ? '' : 'display:none;';
+                        columnsHtml += `<td class="${data.class}" style="${display}">${data.html}</td>`;
+                    }
+                });
+
+                return `
+                <tr data-id="${d.id}" data-typ="${d.typ}">
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" onchange="handleRowCheckbox(this, 'records', ${d.id})">
+                    </td>
+                    <td class="action-cell">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this, 'records', ${d.id})">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="handleDropdownAction('edit', this.parentElement)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                    Bearbeiten
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item" onclick="handleDropdownAction('mail', this.parentElement)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    E-Mail senden
+                                </div>
+                                <div class="dropdown-item" onclick="handleDropdownAction('pdf', this.parentElement)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    PDF Download
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item warning" onclick="handleDropdownAction('storno', this.parentElement)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                    </svg>
+                                    Stornieren
+                                </div>
+                                <div class="dropdown-item danger" onclick="handleDropdownAction('delete', this.parentElement)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                    Löschen
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    ${columnsHtml}
+                    <td class="col-spacer"></td>
+                </tr>
+            `;
+            }).join('');
+
+            // Totals-Row rendern
+            renderAbrechnungenTotals(filtered, config);
+        }
+
+        // DRK-spezifische Totals-Funktion
+        function renderAbrechnungenTotals(data, config) {
+            const tfoot = document.getElementById('recordsTableFoot');
+            if (!tfoot) return;
+
+            // Summen berechnen
+            const parseEuro = (val) => {
+                if (typeof val === 'number') return val;
+                return parseFloat(String(val || '0').replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+            };
+
+            const totalProv1 = data.reduce((sum, d) => sum + parseEuro(d.offeneProv1Jahr), 0);
+            const totalStornopuffer = data.reduce((sum, d) => sum + parseEuro(d.stornopufferSumme), 0);
+            const totalProv2 = data.reduce((sum, d) => sum + parseEuro(d.offeneProv2Jahr), 0);
+            const totalProv3 = data.reduce((sum, d) => sum + parseEuro(d.offeneProv3Jahr), 0);
+            const totalProv4 = data.reduce((sum, d) => sum + parseEuro(d.offeneProv4Jahr), 0);
+            const totalProv5 = data.reduce((sum, d) => sum + parseEuro(d.offeneProv5Jahr), 0);
+            const totalProvGesamt = data.reduce((sum, d) => sum + parseEuro(d.provisionGesamt), 0);
+            const totalMitglieder = data.reduce((sum, d) => sum + (parseInt(d.mitglieder) || 0), 0);
+            const totalJahreseuros = data.reduce((sum, d) => sum + parseEuro(d.jahreseuros), 0);
+
+            const formatEuro = (val) => val.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+            // Totals-Definitionen für DRK
+            const totalsDefs = {
+                name: { class: 'col-name text-left', html: `Gesamt<span class="totals-count">(${data.length})</span>` },
+                kundenId: { class: 'col-m text-left', html: '' },
+                rechnungsnummer: { class: 'col-m text-left', html: '' },
+                auftragsnummer: { class: 'col-m text-left', html: '' },
+                offeneProv1Jahr: { class: 'col-m text-right', html: formatEuro(totalProv1) },
+                stornopufferProzent: { class: 'col-s text-right', html: '' },
+                stornopufferSumme: { class: 'col-m text-right', html: formatEuro(totalStornopuffer) },
+                offeneProv2Jahr: { class: 'col-m text-right', html: formatEuro(totalProv2) },
+                offeneProv3Jahr: { class: 'col-m text-right', html: formatEuro(totalProv3) },
+                offeneProv4Jahr: { class: 'col-m text-right', html: formatEuro(totalProv4) },
+                offeneProv5Jahr: { class: 'col-m text-right', html: formatEuro(totalProv5) },
+                provisionGesamt: { class: 'col-m text-right', html: formatEuro(totalProvGesamt) },
+                mitglieder: { class: 'col-s text-right', html: totalMitglieder.toString() },
+                jahreseuros: { class: 'col-m text-right', html: formatEuro(totalJahreseuros) }
+            };
+
+            let totalsHtml = '<tr class="totals-row">';
+            totalsHtml += '<td class="checkbox-cell"></td>';
+            totalsHtml += '<td class="action-cell"></td>';
+
+            config.forEach(col => {
+                const def = totalsDefs[col.id];
+                if (def) {
+                    const display = col.visible ? '' : 'display:none;';
+                    totalsHtml += `<td class="${def.class}" style="${display}">${def.html}</td>`;
+                }
+            });
+            totalsHtml += '<td class="col-spacer"></td></tr>';
+            tfoot.innerHTML = totalsHtml;
+        }
+
+        // Register toolbar buttons for data tables
+        function registerToolbarConfig() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'registerToolbar',
+                    config: {
+                        actionButtons: [
+                            { id: 'import', text: 'Import', icon: 'upload', action: 'openImportModal' },
+                            { id: 'export', text: 'Export', icon: 'download', action: 'openExportModal', primary: true }
+                        ]
+                    }
+                }, '*');
+            }
+        }
+
+        // Listen for toolbar actions from shell
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'toolbarAction') {
+                if (e.data.action === 'openImportModal' && typeof openImportModal === 'function') {
+                    openImportModal();
+                } else if (e.data.action === 'openExportModal' && typeof openExportModal === 'function') {
+                    openExportModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
