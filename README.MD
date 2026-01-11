@@ -43,11 +43,24 @@ Persistente Shell-Toolbar mit 3 festen Bereichen:
 - Daten aus: `users`, `user_with_roles`, `user_profiles`
 - Keine E-Mail Verifizierung
 
+### Datenarchitektur (Zwei-Bereiche-Prinzip)
+
+| Bereich | Datenquelle | Zweck |
+|---------|-------------|-------|
+| **Bezahlung** | `provisions_ledger` / `customer_billing_ledger` | EH, Jahreseuros, Abrechnungen |
+| **Statistik** | `records` (direkt) | Alter, Opt-Ins, Stornoquote |
+
+**Ledger-System:** Buchungsprinzip für alle geldrelevanten Daten. Trigger buchen automatisch bei Record-Änderungen (INSERT, UPDATE, DELETE). Speichert EH (Einheiten), nicht EUR - Faktor wird erst bei Abrechnung angewendet.
+
+**Records:** Stammdaten der Mitglieder für Statistiken und Auswertungen.
+
+→ Details: [docs/LEDGER-SYSTEM.md](docs/LEDGER-SYSTEM.md)
+
 ### Dummy-Daten (Übergang)
 
 **IST:** Lokal in JS-Dateien gespeichert
 
-**ZIEL:** 
+**ZIEL:**
 1. Alle Dummy-Daten in einer zentralen Datei
 2. Mit Supabase verbinden
 3. Bei Löschung → auch in Supabase gelöscht
