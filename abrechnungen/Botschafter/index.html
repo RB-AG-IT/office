@@ -128,13 +128,13 @@
     </div>
 </div>
 
-<!-- Abzug Modal -->
+<!-- Abzug/Zubuchung Modal -->
 <div class="modal modal-s" id="abzugModal">
     <div class="page-container page-container--modal">
         <div class="page-header">
             <div class="page-header-row">
                 <div class="page-header-links">
-                    <span class="text-ueberschrift">Abzug hinzufügen</span>
+                    <span class="text-ueberschrift" id="abzugModalTitle">Abzug hinzufügen</span>
                 </div>
                 <div class="page-header-mitte"></div>
                 <div class="page-header-rechts">
@@ -149,6 +149,15 @@
                 <div class="anzeigenfeld anzeigenfeld--auto">
                     <span class="text-normal--fett">Botschafter:</span>
                     <span id="abzugBotschafterName" class="text-normal--fett">-</span>
+                </div>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Buchungsart</label>
+                    <select class="eingabefeld" id="buchungArtSelect" onchange="updateBuchungArtUI()">
+                        <option value="abzug">Abzug (wird abgezogen)</option>
+                        <option value="zubuchung">Zubuchung (wird gutgeschrieben)</option>
+                    </select>
                 </div>
             </div>
             <div class="zeile">
@@ -177,7 +186,7 @@
             </div>
             <div class="zeile">
                 <div class="eingabefeld-gruppe">
-                    <label class="eingabefeld-beschriftung-oben">Abzug von</label>
+                    <label class="eingabefeld-beschriftung-oben" id="abzugVonLabel">Abzug von</label>
                     <select class="eingabefeld" id="abzugVonSelect">
                         <option value="vorschuss">Vorschuss</option>
                         <option value="stornorucklage">Stornorücklage</option>
@@ -767,6 +776,7 @@
         } else {
             document.getElementById('abzugBotschafterName').textContent = `${selectedBotschafter.length} Botschafter ausgewählt`;
             currentAbzugUserId = selectedBotschafter;
+            resetAbzugModal();
             openModalById('abzugModal');
         }
     }
@@ -774,13 +784,28 @@
     function openAbzugModalFor(userId, name) {
         closeAllDropdowns();
         document.getElementById('abzugBotschafterName').textContent = name;
-        document.getElementById('abzugBeschreibung').value = '';
-        document.getElementById('abzugBetrag').value = '';
         currentAbzugUserId = [userId];
+        resetAbzugModal();
         openModalById('abzugModal');
     }
 
+    function resetAbzugModal() {
+        document.getElementById('abzugBeschreibung').value = '';
+        document.getElementById('abzugBetrag').value = '';
+        document.getElementById('buchungArtSelect').value = 'abzug';
+        updateBuchungArtUI();
+    }
+
+    function updateBuchungArtUI() {
+        const buchungArt = document.getElementById('buchungArtSelect').value;
+        const istZubuchung = buchungArt === 'zubuchung';
+
+        document.getElementById('abzugModalTitle').textContent = istZubuchung ? 'Zubuchung hinzufügen' : 'Abzug hinzufügen';
+        document.getElementById('abzugVonLabel').textContent = istZubuchung ? 'Zubuchung auf' : 'Abzug von';
+    }
+
     async function saveAbzug() {
+        const buchungArt = document.getElementById('buchungArtSelect').value;
         const typ = document.getElementById('abzugTypSelect').value;
         const beschreibung = document.getElementById('abzugBeschreibung').value;
         const betrag = parseFloat(document.getElementById('abzugBetrag').value) || 0;
@@ -798,10 +823,12 @@
                     type: typ,
                     von,
                     beschreibung,
-                    betrag
+                    betrag,
+                    buchungArt
                 });
             }
-            showToast(`Abzug für ${currentAbzugUserId.length} Botschafter hinzugefügt`, 'success');
+            const label = buchungArt === 'zubuchung' ? 'Zubuchung' : 'Abzug';
+            showToast(`${label} für ${currentAbzugUserId.length} Botschafter hinzugefügt`, 'success');
             closeModalById('abzugModal');
             await loadBotschafterData();
             renderBotschafterTable();

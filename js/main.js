@@ -11813,19 +11813,34 @@ async function ladeAbrechnungsdaten(userId, zeitraum) {
         const vorschussAnteil = profile?.advance_rate || 75;
         const aufteilung = berechneAufteilung(brutto, vorschussAnteil);
 
-        // 9. Abzüge summieren
+        // 9. Abzüge und Zubuchungen summieren
         let abzuegeUnterkunft = 0;
         let abzuegeSonderposten = 0;
+        let zubuchungenUnterkunft = 0;
+        let zubuchungenSonderposten = 0;
         (abzuege || []).filter(a => a.abzug_von === 'vorschuss').forEach(a => {
+            const betrag = parseFloat(a.betrag) || 0;
+            const istZubuchung = a.buchung_art === 'zubuchung';
+
             if (a.abzug_type === 'unterkunft') {
-                abzuegeUnterkunft += parseFloat(a.betrag) || 0;
+                if (istZubuchung) {
+                    zubuchungenUnterkunft += betrag;
+                } else {
+                    abzuegeUnterkunft += betrag;
+                }
             } else {
-                abzuegeSonderposten += parseFloat(a.betrag) || 0;
+                if (istZubuchung) {
+                    zubuchungenSonderposten += betrag;
+                } else {
+                    abzuegeSonderposten += betrag;
+                }
             }
         });
 
-        // 10. Netto berechnen
-        const netto = berechneNetto(aufteilung.vorschuss, abzuegeUnterkunft, abzuegeSonderposten);
+        // 10. Netto berechnen (Abzüge subtrahieren, Zubuchungen addieren)
+        const nettoAbzuege = abzuegeUnterkunft + abzuegeSonderposten;
+        const nettoZubuchungen = zubuchungenUnterkunft + zubuchungenSonderposten;
+        const netto = berechneNetto(aufteilung.vorschuss, nettoAbzuege, 0) + nettoZubuchungen;
 
         return {
             userId,
@@ -11840,6 +11855,8 @@ async function ladeAbrechnungsdaten(userId, zeitraum) {
             stornorucklage: aufteilung.stornorucklage,
             abzuegeUnterkunft,
             abzuegeSonderposten,
+            zubuchungenUnterkunft,
+            zubuchungenSonderposten,
             netto,
             records: records || [],
             abzuege: abzuege || []
@@ -12131,27 +12148,28 @@ async function erstelleAbrechnung(data) {
 }
 
 /**
- * Fügt einen Abzug hinzu
- * @param {object} data - { userId, type, von, beschreibung, betrag }
- * @returns {Promise<object>} Erstellter Abzug
+ * Fügt einen Abzug oder eine Zubuchung hinzu
+ * @param {object} data - { userId, type, von, beschreibung, betrag, buchungArt }
+ * @returns {Promise<object>} Erstellte Buchung
  */
 async function fuegeAbzugHinzu(data) {
     const supabase = window.parent?.supabaseClient || window.supabaseClient;
     if (!supabase) throw new Error('Supabase Client nicht verfügbar');
 
-    const abzug = {
+    const buchung = {
         user_id: data.userId,
         abzug_type: data.type, // 'unterkunft' | 'sonderposten'
         abzug_von: data.von,   // 'vorschuss' | 'stornorucklage'
         beschreibung: data.beschreibung,
         betrag: data.betrag,
+        buchung_art: data.buchungArt || 'abzug', // 'abzug' | 'zubuchung'
         gueltig_ab: data.gueltig_ab || new Date().toISOString().split('T')[0],
         verrechnet: false
     };
 
     const { data: created, error } = await supabase
         .from('abzuege')
-        .insert(abzug)
+        .insert(buchung)
         .select()
         .single();
 
@@ -12328,21 +12346,37 @@ async function ladeWerberStatistiken(options = {}) {
             }
         });
 
-        // 6. Abzüge laden
+        // 6. Abzüge und Zubuchungen laden
         const { data: abzuegeData } = await supabase
             .from('abzuege')
-            .select('user_id, abzug_type, betrag')
+            .select('user_id, abzug_type, betrag, buchung_art')
             .eq('verrechnet', false);
 
         const abzuegeMap = {};
         (abzuegeData || []).forEach(a => {
             if (!abzuegeMap[a.user_id]) {
-                abzuegeMap[a.user_id] = { unterkunft: 0, sonderposten: 0 };
+                abzuegeMap[a.user_id] = {
+                    unterkunft: 0,
+                    sonderposten: 0,
+                    zubuchungUnterkunft: 0,
+                    zubuchungSonderposten: 0
+                };
             }
+            const betrag = parseFloat(a.betrag) || 0;
+            const istZubuchung = a.buchung_art === 'zubuchung';
+
             if (a.abzug_type === 'unterkunft') {
-                abzuegeMap[a.user_id].unterkunft += parseFloat(a.betrag) || 0;
+                if (istZubuchung) {
+                    abzuegeMap[a.user_id].zubuchungUnterkunft += betrag;
+                } else {
+                    abzuegeMap[a.user_id].unterkunft += betrag;
+                }
             } else {
-                abzuegeMap[a.user_id].sonderposten += parseFloat(a.betrag) || 0;
+                if (istZubuchung) {
+                    abzuegeMap[a.user_id].zubuchungSonderposten += betrag;
+                } else {
+                    abzuegeMap[a.user_id].sonderposten += betrag;
+                }
             }
         });
 
@@ -12480,7 +12514,7 @@ async function ladeWerberStatistiken(options = {}) {
             };
             const profile = profilesMap[user.id] || {};
             const career = careerMap[user.id] || { stufe: '-', roleName: null, factor: 0, isExpired: false };
-            const abzuege = abzuegeMap[user.id] || { unterkunft: 0, sonderposten: 0 };
+            const abzuege = abzuegeMap[user.id] || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 };
             const lastInvoice = lastInvoiceMap[user.id];
             const stornorucklage = stornorucklageMap[user.id] || { gesperrt: 0, auszahlbar: 0 };
             const provision = provisionMap[user.id] || {};
@@ -12495,7 +12529,9 @@ async function ladeWerberStatistiken(options = {}) {
             // Provision berechnen (nur Werben-EH × Faktor für Brutto)
             const brutto = berechneBruttoProvision(ledgerStats.einheitenProKategorie.werben, faktor);
             const aufteilung = berechneAufteilung(brutto, vorschussAnteil);
-            const netto = berechneNetto(aufteilung.vorschuss, abzuege.unterkunft, abzuege.sonderposten);
+            const nettoAbzuege = abzuege.unterkunft + abzuege.sonderposten;
+            const nettoZubuchungen = abzuege.zubuchungUnterkunft + abzuege.zubuchungSonderposten;
+            const netto = berechneNetto(aufteilung.vorschuss, nettoAbzuege, 0) + nettoZubuchungen;
 
             return {
                 // Basis
@@ -12532,6 +12568,8 @@ async function ladeWerberStatistiken(options = {}) {
                 stornorucklageGesperrt: stornorucklage.gesperrt || 0,
                 abzuegeUnterkunft: abzuege.unterkunft,
                 abzuegeSonderposten: abzuege.sonderposten,
+                zubuchungenUnterkunft: abzuege.zubuchungUnterkunft,
+                zubuchungenSonderposten: abzuege.zubuchungSonderposten,
                 nettoAuszahlung: Math.round(netto * 100) / 100,
                 vorschussAnteil: vorschussAnteil,
 

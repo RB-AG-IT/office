@@ -3,6 +3,7 @@
 - Immer 1x nachfragen vor Beginn/Ausführung (auch wenn Auftrag sicher ist)
 - Immer genau und nur das Gefragte tun
 - Kurz und knappe Kommunikation
+- Wir arbeiten auf GitHub - lokale Änderungen immer committen und pushen
 
 ## Projekt Aufbau
 - README.md lesen
@@ -11,6 +12,7 @@
 - Frontend: Website
 - Backend: Supabase
 - Supabase Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzgwNzYxNSwiZXhwIjoyMDc5MzgzNjE1fQ.54kSk9ZSUdQt6LKYWkblqgR6Sjev80W80qkNHYEbPgk
+- GitHub Token: (in git remote gespeichert)
 
 ## Projekt Struktur
 - Kunden (zur Zuordnung)
