@@ -1,0 +1,617 @@
+# Ledger-System: Werber & Kunden
+
+**Erstellt:** 11.01.2026
+**Status:** In Arbeit
+**Ziel:** Vollständiges Buchungssystem für Einheiten (Werber) und Jahreseuros (Kunden)
+
+---
+
+## Konzept
+
+### Warum Ledger?
+
+| Vorteil | Beschreibung |
+|---------|--------------|
+| **Korrektheit** | Zeitraum-Filter funktionieren (EH für KW 3-5 abfragen) |
+| **Nachvollziehbarkeit** | Jede Buchung dokumentiert (Audit-Trail) |
+| **Einfachere Logik** | Keine Neuberechnung, nur SUM() |
+| **Storno-Handling** | Gegenbuchung statt Neuberechnung |
+| **Konsistenz** | Einmal gebucht = bleibt so |
+| **Performance** | Schnellere Dashboard-Abfragen |
+
+### Zwei getrennte Ledger
+
+| | Werber-Ledger | Kunden-Ledger |
+|---|---------------|---------------|
+| **Tabelle** | `provisions_ledger` | `customer_billing_ledger` |
+| **Referenz** | `user_id` | `customer_id` |
+| **Einheit** | EH (Einheiten) | Jahreseuros |
+| **Kategorien** | werben, teamleitung, quality, empfehlung, recruiting | - |
+| **Zweck** | Provision berechnen | Rechnung an Kunde |
+
+### Prinzip: Nur EH buchen, Provision bei Abrechnung
+
+```
+Record erstellt → EH sofort ins Ledger buchen
+Abrechnung erstellt → EH aus Ledger × Faktor = Provision
+```
+
+**Vorteil:** Bei Faktor-Änderung keine Umbuchungen nötig. Faktor wird erst bei Abrechnung angewendet.
+
+---
+
+## Datenbank-Schema
+
+### 1. Werber-Ledger (provisions_ledger)
+
+```sql
+CREATE TABLE IF NOT EXISTS public.provisions_ledger (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Referenzen
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    record_id UUID REFERENCES public.records(id) ON DELETE SET NULL,
+    invoice_id UUID REFERENCES public.invoices(id) ON DELETE SET NULL,
+
+    -- Buchungsdetails
+    kategorie TEXT NOT NULL CHECK (kategorie IN ('werben', 'teamleitung', 'quality', 'empfehlung', 'recruiting')),
+    typ TEXT NOT NULL CHECK (typ IN ('provision', 'storno', 'korrektur')),
+    einheiten DECIMAL(10,4) NOT NULL,  -- Kann negativ sein bei Storno
+
+    -- Zeitbezug (wann wurde EH verdient)
+    kw INTEGER CHECK (kw >= 1 AND kw <= 53),
+    year INTEGER,
+    referenz_datum DATE,
+
+    -- Audit
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    beschreibung TEXT
+);
+
+-- Indizes
+CREATE INDEX idx_provisions_ledger_user_id ON provisions_ledger(user_id);
+CREATE INDEX idx_provisions_ledger_record_id ON provisions_ledger(record_id);
+CREATE INDEX idx_provisions_ledger_kategorie ON provisions_ledger(kategorie);
+CREATE INDEX idx_provisions_ledger_kw_year ON provisions_ledger(kw, year);
+CREATE INDEX idx_provisions_ledger_created_at ON provisions_ledger(created_at);
+```
+
+### 2. Kunden-Ledger (customer_billing_ledger)
+
+```sql
+CREATE TABLE IF NOT EXISTS public.customer_billing_ledger (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Referenzen
+    customer_id UUID NOT NULL REFERENCES public.customers(id) ON DELETE CASCADE,
+    record_id UUID REFERENCES public.records(id) ON DELETE SET NULL,
+    invoice_id UUID REFERENCES public.invoices(id) ON DELETE SET NULL,  -- Verknüpfung zur Kundenrechnung
+
+    -- Buchungsdetails
+    typ TEXT NOT NULL CHECK (typ IN ('provision', 'storno', 'korrektur')),
+    jahreseuros DECIMAL(10,2) NOT NULL,  -- Kann negativ sein bei Storno
+
+    -- Zeitbezug
+    kw INTEGER CHECK (kw >= 1 AND kw <= 53),
+    year INTEGER,
+    referenz_datum DATE,
+
+    -- Audit
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    beschreibung TEXT
+);
+
+-- Indizes
+CREATE INDEX idx_customer_billing_ledger_customer_id ON customer_billing_ledger(customer_id);
+CREATE INDEX idx_customer_billing_ledger_record_id ON customer_billing_ledger(record_id);
+CREATE INDEX idx_customer_billing_ledger_invoice_id ON customer_billing_ledger(invoice_id);
+CREATE INDEX idx_customer_billing_ledger_kw_year ON customer_billing_ledger(kw, year);
+```
+
+---
+
+## Trigger-Logik
+
+### Übersicht: Record-Events
+
+| Event | Werber-Ledger | Kunden-Ledger |
+|-------|---------------|---------------|
+| **INSERT** | Buchung für alle zugewiesenen Kategorien | Buchung für customer_id |
+| **UPDATE: yearly_amount** | Differenz-Buchung (Korrektur) | Differenz-Buchung |
+| **UPDATE: record_status → storno** | Gegenbuchung alle Kategorien | Gegenbuchung |
+| **UPDATE: werber_id** | Storno alt + Buchung neu | - |
+| **UPDATE: teamchef_id** | Storno alt + Buchung neu | - |
+| **UPDATE: quality_id** | Storno alt + Buchung neu | - |
+| **UPDATE: empfehlung_id** | Storno alt + Buchung neu | - |
+| **UPDATE: recruiting_id** | Storno alt + Buchung neu | - |
+| **UPDATE: customer_id** | - | Storno alt + Buchung neu |
+| **DELETE** | Gegenbuchung alle | Gegenbuchung |
+
+### Trigger 1: Record INSERT
+
+```sql
+CREATE OR REPLACE FUNCTION handle_record_insert()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_einheiten DECIMAL(10,4);
+BEGIN
+    -- Nur bei aktiven Records
+    IF NEW.record_status != 'aktiv' THEN
+        RETURN NEW;
+    END IF;
+
+    -- Einheiten berechnen (Jahreseuros / 12)
+    v_einheiten := COALESCE(NEW.yearly_amount, 0) / 12;
+
+    -- ========== WERBER-LEDGER ==========
+
+    -- 1. Werben-Provision (werber_id)
+    IF NEW.werber_id IS NOT NULL THEN
+        INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+        VALUES (NEW.werber_id, NEW.id, 'werben', 'provision', v_einheiten, NEW.kw, NEW.year, NEW.start_date, 'Record erstellt');
+    END IF;
+
+    -- 2. Teamleitung-Provision (teamchef_id)
+    IF NEW.teamchef_id IS NOT NULL THEN
+        INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+        VALUES (NEW.teamchef_id, NEW.id, 'teamleitung', 'provision', v_einheiten, NEW.kw, NEW.year, NEW.start_date, 'Record erstellt');
+    END IF;
+
+    -- 3. Quality-Provision (quality_id)
+    IF NEW.quality_id IS NOT NULL THEN
+        INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+        VALUES (NEW.quality_id, NEW.id, 'quality', 'provision', v_einheiten, NEW.kw, NEW.year, NEW.start_date, 'Record erstellt');
+    END IF;
+
+    -- 4. Empfehlungs-Provision (empfehlung_id)
+    IF NEW.empfehlung_id IS NOT NULL THEN
+        INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+        VALUES (NEW.empfehlung_id, NEW.id, 'empfehlung', 'provision', v_einheiten, NEW.kw, NEW.year, NEW.start_date, 'Record erstellt');
+    END IF;
+
+    -- 5. Recruiting-Provision (recruiting_id)
+    IF NEW.recruiting_id IS NOT NULL THEN
+        INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+        VALUES (NEW.recruiting_id, NEW.id, 'recruiting', 'provision', v_einheiten, NEW.kw, NEW.year, NEW.start_date, 'Record erstellt');
+    END IF;
+
+    -- ========== KUNDEN-LEDGER ==========
+
+    IF NEW.customer_id IS NOT NULL THEN
+        INSERT INTO customer_billing_ledger (customer_id, record_id, typ, jahreseuros, kw, year, referenz_datum, beschreibung)
+        VALUES (NEW.customer_id, NEW.id, 'provision', COALESCE(NEW.yearly_amount, 0), NEW.kw, NEW.year, NEW.start_date, 'Record erstellt');
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger erstellen
+DROP TRIGGER IF EXISTS on_record_insert ON public.records;
+CREATE TRIGGER on_record_insert
+    AFTER INSERT ON public.records
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_record_insert();
+```
+
+### Trigger 2: Record UPDATE (yearly_amount, record_status, werber_id, customer_id)
+
+```sql
+CREATE OR REPLACE FUNCTION handle_record_update()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_old_einheiten DECIMAL(10,4);
+    v_new_einheiten DECIMAL(10,4);
+    v_diff_einheiten DECIMAL(10,4);
+    v_diff_jahreseuros DECIMAL(10,2);
+BEGIN
+    v_old_einheiten := COALESCE(OLD.yearly_amount, 0) / 12;
+    v_new_einheiten := COALESCE(NEW.yearly_amount, 0) / 12;
+    v_diff_einheiten := v_new_einheiten - v_old_einheiten;
+    v_diff_jahreseuros := COALESCE(NEW.yearly_amount, 0) - COALESCE(OLD.yearly_amount, 0);
+
+    -- ========== STORNO (record_status → storno) ==========
+
+    IF OLD.record_status = 'aktiv' AND NEW.record_status = 'storno' THEN
+        -- Werber-Ledger: Gegenbuchung für alle Kategorien
+        INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+        SELECT user_id, record_id, kategorie, 'storno', -einheiten, kw, year, referenz_datum, 'Record storniert'
+        FROM provisions_ledger
+        WHERE record_id = NEW.id AND typ = 'provision';
+
+        -- Kunden-Ledger: Gegenbuchung
+        INSERT INTO customer_billing_ledger (customer_id, record_id, typ, jahreseuros, kw, year, referenz_datum, beschreibung)
+        SELECT customer_id, record_id, 'storno', -jahreseuros, kw, year, referenz_datum, 'Record storniert'
+        FROM customer_billing_ledger
+        WHERE record_id = NEW.id AND typ = 'provision';
+
+        RETURN NEW;
+    END IF;
+
+    -- ========== REAKTIVIERUNG (record_status storno → aktiv) ==========
+
+    IF OLD.record_status = 'storno' AND NEW.record_status = 'aktiv' THEN
+        -- Werber-Ledger: Neue Buchungen
+        IF NEW.werber_id IS NOT NULL THEN
+            INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+            VALUES (NEW.werber_id, NEW.id, 'werben', 'provision', v_new_einheiten, NEW.kw, NEW.year, NEW.start_date, 'Record reaktiviert');
+        END IF;
+        -- (analog für teamchef_id, quality_id, empfehlung_id, recruiting_id)
+
+        -- Kunden-Ledger: Neue Buchung
+        IF NEW.customer_id IS NOT NULL THEN
+            INSERT INTO customer_billing_ledger (customer_id, record_id, typ, jahreseuros, kw, year, referenz_datum, beschreibung)
+            VALUES (NEW.customer_id, NEW.id, 'provision', COALESCE(NEW.yearly_amount, 0), NEW.kw, NEW.year, NEW.start_date, 'Record reaktiviert');
+        END IF;
+
+        RETURN NEW;
+    END IF;
+
+    -- Ab hier nur für aktive Records
+    IF NEW.record_status != 'aktiv' THEN
+        RETURN NEW;
+    END IF;
+
+    -- ========== BETRAGS-ÄNDERUNG (yearly_amount) ==========
+
+    IF OLD.yearly_amount IS DISTINCT FROM NEW.yearly_amount THEN
+        -- Werber-Ledger: Korrektur-Buchung für alle bestehenden Kategorien
+        INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+        SELECT DISTINCT user_id, record_id, kategorie, 'korrektur', v_diff_einheiten, NEW.kw, NEW.year, NEW.start_date,
+               'Betrag geändert: ' || COALESCE(OLD.yearly_amount, 0) || ' → ' || COALESCE(NEW.yearly_amount, 0)
+        FROM provisions_ledger
+        WHERE record_id = NEW.id AND typ IN ('provision', 'korrektur')
+        GROUP BY user_id, kategorie, record_id;
+
+        -- Kunden-Ledger: Korrektur-Buchung
+        IF NEW.customer_id IS NOT NULL THEN
+            INSERT INTO customer_billing_ledger (customer_id, record_id, typ, jahreseuros, kw, year, referenz_datum, beschreibung)
+            VALUES (NEW.customer_id, NEW.id, 'korrektur', v_diff_jahreseuros, NEW.kw, NEW.year, NEW.start_date,
+                   'Betrag geändert: ' || COALESCE(OLD.yearly_amount, 0) || ' → ' || COALESCE(NEW.yearly_amount, 0));
+        END IF;
+    END IF;
+
+    -- ========== WERBER-ÄNDERUNG (werber_id) ==========
+
+    IF OLD.werber_id IS DISTINCT FROM NEW.werber_id THEN
+        -- Alter Werber: Storno
+        IF OLD.werber_id IS NOT NULL THEN
+            INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+            SELECT user_id, record_id, kategorie, 'storno', -SUM(einheiten), NEW.kw, NEW.year, NEW.start_date, 'Werber geändert'
+            FROM provisions_ledger
+            WHERE record_id = NEW.id AND kategorie = 'werben' AND user_id = OLD.werber_id
+            GROUP BY user_id, record_id, kategorie;
+        END IF;
+
+        -- Neuer Werber: Buchung
+        IF NEW.werber_id IS NOT NULL THEN
+            INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+            VALUES (NEW.werber_id, NEW.id, 'werben', 'provision', v_new_einheiten, NEW.kw, NEW.year, NEW.start_date, 'Werber zugewiesen');
+        END IF;
+    END IF;
+
+    -- ========== KUNDEN-ÄNDERUNG (customer_id) ==========
+
+    IF OLD.customer_id IS DISTINCT FROM NEW.customer_id THEN
+        -- Alter Kunde: Storno
+        IF OLD.customer_id IS NOT NULL THEN
+            INSERT INTO customer_billing_ledger (customer_id, record_id, typ, jahreseuros, kw, year, referenz_datum, beschreibung)
+            SELECT customer_id, record_id, 'storno', -SUM(jahreseuros), NEW.kw, NEW.year, NEW.start_date, 'Kunde geändert'
+            FROM customer_billing_ledger
+            WHERE record_id = NEW.id AND customer_id = OLD.customer_id
+            GROUP BY customer_id, record_id;
+        END IF;
+
+        -- Neuer Kunde: Buchung
+        IF NEW.customer_id IS NOT NULL THEN
+            INSERT INTO customer_billing_ledger (customer_id, record_id, typ, jahreseuros, kw, year, referenz_datum, beschreibung)
+            VALUES (NEW.customer_id, NEW.id, 'provision', COALESCE(NEW.yearly_amount, 0), NEW.kw, NEW.year, NEW.start_date, 'Kunde zugewiesen');
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger erstellen
+DROP TRIGGER IF EXISTS on_record_update ON public.records;
+CREATE TRIGGER on_record_update
+    AFTER UPDATE ON public.records
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_record_update();
+```
+
+### Trigger 3: Record DELETE
+
+```sql
+CREATE OR REPLACE FUNCTION handle_record_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Werber-Ledger: Gegenbuchung für alle Kategorien
+    INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+    SELECT user_id, record_id, kategorie, 'storno', -SUM(einheiten), OLD.kw, OLD.year, OLD.start_date, 'Record gelöscht'
+    FROM provisions_ledger
+    WHERE record_id = OLD.id
+    GROUP BY user_id, record_id, kategorie;
+
+    -- Kunden-Ledger: Gegenbuchung
+    INSERT INTO customer_billing_ledger (customer_id, record_id, typ, jahreseuros, kw, year, referenz_datum, beschreibung)
+    SELECT customer_id, record_id, 'storno', -SUM(jahreseuros), OLD.kw, OLD.year, OLD.start_date, 'Record gelöscht'
+    FROM customer_billing_ledger
+    WHERE record_id = OLD.id
+    GROUP BY customer_id, record_id;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger erstellen
+DROP TRIGGER IF EXISTS on_record_delete ON public.records;
+CREATE TRIGGER on_record_delete
+    BEFORE DELETE ON public.records
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_record_delete();
+```
+
+### Trigger 4: Record UPDATE (TC, Quality, Empfehlung, Recruiting)
+
+> **Hinweis:** Bereits implementiert in `database/migrations/018-provision-update-trigger.sql`
+
+Dieser Trigger reagiert auf Änderungen von:
+- `teamchef_id`
+- `quality_id`
+- `empfehlung_id`
+- `recruiting_id`
+
+**Anpassung nötig:** Der bestehende Trigger bucht EUR, muss auf EH umgestellt werden.
+
+---
+
+## Frontend-Änderungen
+
+### Abrechnungsseite Werber
+
+**Alte Logik (ersetzen):**
+```javascript
+// ALT: Records laden → Einheiten berechnen
+botschafterData = await ladeWerberStatistiken();
+```
+
+**Neue Logik:**
+```javascript
+// NEU: Einheiten aus Ledger laden
+async function ladeEinheitenAusLedger(userId, zeitraumVon, zeitraumBis) {
+    const { data, error } = await supabase
+        .from('provisions_ledger')
+        .select('kategorie, einheiten')
+        .eq('user_id', userId)
+        .gte('referenz_datum', zeitraumVon)
+        .lte('referenz_datum', zeitraumBis);
+
+    if (error) throw error;
+
+    // Summen pro Kategorie
+    return data.reduce((acc, row) => {
+        acc[row.kategorie] = (acc[row.kategorie] || 0) + parseFloat(row.einheiten);
+        return acc;
+    }, {});
+}
+
+// Bei Abrechnung:
+// 1. EH aus Ledger für Zeitraum
+// 2. Faktor aus user_provision_settings / user_roles
+// 3. Provision = EH × Faktor
+```
+
+### Abrechnungsseite Kunden (DRK)
+
+```javascript
+// Offene Jahreseuros (noch nicht abgerechnet)
+async function ladeOffeneJahreseuros(customerId) {
+    const { data, error } = await supabase
+        .from('customer_billing_ledger')
+        .select('jahreseuros')
+        .eq('customer_id', customerId)
+        .is('invoice_id', null);  // Noch nicht abgerechnet
+
+    if (error) throw error;
+
+    return data.reduce((sum, row) => sum + parseFloat(row.jahreseuros), 0);
+}
+
+// Abgerechnete Jahreseuros
+async function ladeAbgerechneteJahreseuros(customerId, invoiceId) {
+    const { data, error } = await supabase
+        .from('customer_billing_ledger')
+        .select('jahreseuros')
+        .eq('customer_id', customerId)
+        .eq('invoice_id', invoiceId);
+
+    if (error) throw error;
+
+    return data.reduce((sum, row) => sum + parseFloat(row.jahreseuros), 0);
+}
+```
+
+---
+
+## Migration bestehender Daten
+
+### Schritt 1: Werber-Ledger befüllen
+
+```sql
+-- Werben-Provision aus bestehenden aktiven Records
+INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+SELECT
+    werber_id,
+    id,
+    'werben',
+    'provision',
+    COALESCE(yearly_amount, 0) / 12,
+    kw,
+    year,
+    COALESCE(start_date, created_at::date),
+    'Migration: Bestandsdaten'
+FROM records
+WHERE record_status = 'aktiv'
+AND werber_id IS NOT NULL
+ON CONFLICT DO NOTHING;
+
+-- Teamleitung aus bestehenden Records
+INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+SELECT
+    teamchef_id,
+    id,
+    'teamleitung',
+    'provision',
+    COALESCE(yearly_amount, 0) / 12,
+    kw,
+    year,
+    COALESCE(start_date, created_at::date),
+    'Migration: Bestandsdaten'
+FROM records
+WHERE record_status = 'aktiv'
+AND teamchef_id IS NOT NULL
+ON CONFLICT DO NOTHING;
+
+-- Quality aus bestehenden Records
+INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+SELECT
+    quality_id,
+    id,
+    'quality',
+    'provision',
+    COALESCE(yearly_amount, 0) / 12,
+    kw,
+    year,
+    COALESCE(start_date, created_at::date),
+    'Migration: Bestandsdaten'
+FROM records
+WHERE record_status = 'aktiv'
+AND quality_id IS NOT NULL
+ON CONFLICT DO NOTHING;
+
+-- Empfehlung aus bestehenden Records
+INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+SELECT
+    empfehlung_id,
+    id,
+    'empfehlung',
+    'provision',
+    COALESCE(yearly_amount, 0) / 12,
+    kw,
+    year,
+    COALESCE(start_date, created_at::date),
+    'Migration: Bestandsdaten'
+FROM records
+WHERE record_status = 'aktiv'
+AND empfehlung_id IS NOT NULL
+ON CONFLICT DO NOTHING;
+
+-- Recruiting aus bestehenden Records
+INSERT INTO provisions_ledger (user_id, record_id, kategorie, typ, einheiten, kw, year, referenz_datum, beschreibung)
+SELECT
+    recruiting_id,
+    id,
+    'recruiting',
+    'provision',
+    COALESCE(yearly_amount, 0) / 12,
+    kw,
+    year,
+    COALESCE(start_date, created_at::date),
+    'Migration: Bestandsdaten'
+FROM records
+WHERE record_status = 'aktiv'
+AND recruiting_id IS NOT NULL
+ON CONFLICT DO NOTHING;
+```
+
+### Schritt 2: Kunden-Ledger befüllen
+
+```sql
+INSERT INTO customer_billing_ledger (customer_id, record_id, typ, jahreseuros, kw, year, referenz_datum, beschreibung)
+SELECT
+    customer_id,
+    id,
+    'provision',
+    COALESCE(yearly_amount, 0),
+    kw,
+    year,
+    COALESCE(start_date, created_at::date),
+    'Migration: Bestandsdaten'
+FROM records
+WHERE record_status = 'aktiv'
+AND customer_id IS NOT NULL
+ON CONFLICT DO NOTHING;
+```
+
+---
+
+## Prüf-Queries
+
+### Werber-Ledger prüfen
+
+```sql
+-- Einheiten pro User und Kategorie
+SELECT
+    u.name,
+    pl.kategorie,
+    SUM(pl.einheiten) as total_eh
+FROM provisions_ledger pl
+JOIN users u ON u.id = pl.user_id
+GROUP BY u.name, pl.kategorie
+ORDER BY u.name, pl.kategorie;
+
+-- Einheiten für Zeitraum (z.B. KW 1-5, 2026)
+SELECT
+    u.name,
+    pl.kategorie,
+    SUM(pl.einheiten) as eh
+FROM provisions_ledger pl
+JOIN users u ON u.id = pl.user_id
+WHERE pl.year = 2026 AND pl.kw BETWEEN 1 AND 5
+GROUP BY u.name, pl.kategorie;
+```
+
+### Kunden-Ledger prüfen
+
+```sql
+-- Jahreseuros pro Kunde
+SELECT
+    c.name,
+    SUM(cbl.jahreseuros) as total_je,
+    SUM(CASE WHEN cbl.invoice_id IS NULL THEN cbl.jahreseuros ELSE 0 END) as offen,
+    SUM(CASE WHEN cbl.invoice_id IS NOT NULL THEN cbl.jahreseuros ELSE 0 END) as abgerechnet
+FROM customer_billing_ledger cbl
+JOIN customers c ON c.id = cbl.customer_id
+GROUP BY c.name;
+```
+
+---
+
+## Umsetzungsreihenfolge
+
+| Phase | Aufgabe | Status |
+|-------|---------|--------|
+| 1 | Schema erstellen (provisions_ledger anpassen) | Offen |
+| 2 | Schema erstellen (customer_billing_ledger neu) | Offen |
+| 3 | Trigger: Record INSERT | Offen |
+| 4 | Trigger: Record UPDATE (Storno, Betrag, Werber, Kunde) | Offen |
+| 5 | Trigger: Record DELETE | Offen |
+| 6 | Trigger 018 anpassen (EH statt EUR) | Offen |
+| 7 | Migration: Bestandsdaten buchen | Offen |
+| 8 | Frontend: Abrechnungsseite Werber umstellen | Offen |
+| 9 | Frontend: Abrechnungsseite Kunden umstellen | Offen |
+| 10 | Testen | Offen |
+
+---
+
+## Verwandte Dokumentation
+
+- [PROVISIONEN.md](PROVISIONEN.md) - Provisionsmodell und Regeln
+- [KARRIERE.md](KARRIERE.md) - Karrierestufen und Faktoren
+- [KUNDEN.md](KUNDEN.md) - Kundenmanagement
+
+---
+
+*Erstellt: 11.01.2026*
