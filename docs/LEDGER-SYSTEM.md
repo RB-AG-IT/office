@@ -4,6 +4,48 @@
 **Status:** In Arbeit
 **Ziel:** Vollständiges Buchungssystem für Einheiten (Werber) und Jahreseuros (Kunden)
 
+> **WICHTIG:** Bei jedem Fortschritt muss diese Datei aktualisiert werden!
+> Dokumentiere hier: Status-Änderungen, neue Erkenntnisse, Probleme, Entscheidungen.
+
+---
+
+## Migration vom alten System
+
+**Entscheidung:** Option B - Altes System komplett löschen und durch neues ersetzen.
+
+### Betroffene Stellen (müssen angepasst/entfernt werden)
+
+| Datei | Komponente | Aktion | Status |
+|-------|------------|--------|--------|
+| `database/migrations/018-provision-update-trigger.sql` | `handle_record_provision_update()` Trigger | LÖSCHEN | ✅ Erledigt |
+| `js/main.js` (Zeile ~12095) | `erstelleAbrechnung()` → Insert in provisions_ledger | ANPASSEN | Offen |
+| `tests/test-provisions-db.html` | Test für altes provisions_ledger Schema | ANPASSEN | Offen |
+| Supabase DB | Tabelle `provisions_ledger` (altes Schema) | DROP + NEU | ✅ Ausgeführt |
+| Supabase DB | View `user_provisions_saldo` | GELÖSCHT | ✅ Erledigt |
+
+### Detaillierte Code-Stellen
+
+**js/main.js (~Zeile 12092-12098):**
+```javascript
+// ALT - Muss angepasst werden:
+const { error: ledgerError } = await supabase
+    .from('provisions_ledger')
+    .insert(ledgerEntries);  // ledgerEntries verwendet altes Schema!
+```
+
+**tests/test-provisions-db.html:**
+- Test-Funktion `test5_provisionsLedger()` erwartet altes Schema
+- Muss auf neue Spalten (`einheiten`, `kw`, `year`, etc.) angepasst werden
+
+### Unterschied Alt vs. Neu
+
+| Aspekt | Altes System | Neues System |
+|--------|--------------|--------------|
+| Einheit | EUR (betrag_provision) | EH (einheiten) |
+| Vorschuss | Direkt berechnet & gespeichert | Erst bei Abrechnung berechnet |
+| Spalten | vorschuss_anteil, betrag_vorschuss, betrag_stornorucklage | einheiten, kw, year, referenz_datum, beschreibung |
+| Flexibilität | Faktor-Änderung = Umbuchung nötig | Faktor-Änderung = kein Problem |
+
 ---
 
 ## Konzept
@@ -355,15 +397,11 @@ CREATE TRIGGER on_record_delete
 
 ### Trigger 4: Record UPDATE (TC, Quality, Empfehlung, Recruiting)
 
-> **Hinweis:** Bereits implementiert in `database/migrations/018-provision-update-trigger.sql`
+> **ENTSCHEIDUNG:** Migration 018 wird GELÖSCHT. Die Logik für TC/Quality/Empfehlung/Recruiting
+> wird in den neuen `handle_record_update()` Trigger integriert (siehe Trigger 2).
 
-Dieser Trigger reagiert auf Änderungen von:
-- `teamchef_id`
-- `quality_id`
-- `empfehlung_id`
-- `recruiting_id`
-
-**Anpassung nötig:** Der bestehende Trigger bucht EUR, muss auf EH umgestellt werden.
+Änderungen von `teamchef_id`, `quality_id`, `empfehlung_id`, `recruiting_id` werden
+im neuen UPDATE-Trigger behandelt (analog zu `werber_id`).
 
 ---
 
@@ -591,18 +629,28 @@ GROUP BY c.name;
 
 ## Umsetzungsreihenfolge
 
-| Phase | Aufgabe | Status |
-|-------|---------|--------|
-| 1 | Schema erstellen (provisions_ledger anpassen) | Offen |
-| 2 | Schema erstellen (customer_billing_ledger neu) | Offen |
-| 3 | Trigger: Record INSERT | Offen |
-| 4 | Trigger: Record UPDATE (Storno, Betrag, Werber, Kunde) | Offen |
-| 5 | Trigger: Record DELETE | Offen |
-| 6 | Trigger 018 anpassen (EH statt EUR) | Offen |
-| 7 | Migration: Bestandsdaten buchen | Offen |
-| 8 | Frontend: Abrechnungsseite Werber umstellen | Offen |
-| 9 | Frontend: Abrechnungsseite Kunden umstellen | Offen |
-| 10 | Testen | Offen |
+| Phase | Migration | Aufgabe | Status | Datum |
+|-------|-----------|---------|--------|-------|
+| 1 | 020 | Altes System löschen (Trigger + Tabelle + View) | ✅ Ausgeführt | 11.01.2026 |
+| 2 | 021 | Neue Tabellen erstellen (provisions_ledger + customer_billing_ledger) | ✅ Ausgeführt | 11.01.2026 |
+| 3 | 022 | Trigger erstellen (INSERT, UPDATE, DELETE) | ✅ Ausgeführt | 11.01.2026 |
+| 4 | 023 | Bestandsdaten migrieren | ✅ Ausgeführt | 11.01.2026 |
+| 5 | - | Frontend: js/main.js `erstelleAbrechnung()` anpassen | ⏳ Offen | - |
+| 6 | - | Frontend: tests/test-provisions-db.html anpassen | ⏳ Offen | - |
+| 7 | - | Testen (Record erstellen, Storno, Änderungen) | ⏳ Offen | - |
+
+---
+
+## Änderungsprotokoll
+
+| Datum | Änderung |
+|-------|----------|
+| 11.01.2026 | Dokumentation erstellt |
+| 11.01.2026 | Entscheidung: Option B (altes System komplett ersetzen) |
+| 11.01.2026 | Migration 018 gelöscht |
+| 11.01.2026 | Migration 020-023 erstellt (Cleanup, Tables, Triggers, Data) |
+| 11.01.2026 | Migration 020-023 in Supabase ausgeführt (inkl. View `user_provisions_saldo` gelöscht) |
+| 11.01.2026 | **DB-Status:** Neues Ledger-System aktiv, Trigger laufen |
 
 ---
 
@@ -615,3 +663,4 @@ GROUP BY c.name;
 ---
 
 *Erstellt: 11.01.2026*
+*Letzte Aktualisierung: 11.01.2026*
