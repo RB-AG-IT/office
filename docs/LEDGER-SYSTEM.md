@@ -95,6 +95,11 @@ CREATE TABLE IF NOT EXISTS public.provisions_ledger (
     record_id UUID REFERENCES public.records(id) ON DELETE SET NULL,
     invoice_id UUID REFERENCES public.invoices(id) ON DELETE SET NULL,
 
+    -- Kontext-Referenzen (für Filterung)
+    campaign_id UUID REFERENCES public.campaigns(id) ON DELETE SET NULL,
+    campaign_area_id UUID REFERENCES public.campaign_areas(id) ON DELETE SET NULL,
+    customer_id UUID REFERENCES public.customers(id) ON DELETE SET NULL,
+
     -- Buchungsdetails
     kategorie TEXT NOT NULL CHECK (kategorie IN ('werben', 'teamleitung', 'quality', 'empfehlung', 'recruiting')),
     typ TEXT NOT NULL CHECK (typ IN ('provision', 'storno', 'korrektur')),
@@ -116,6 +121,9 @@ CREATE INDEX idx_provisions_ledger_record_id ON provisions_ledger(record_id);
 CREATE INDEX idx_provisions_ledger_kategorie ON provisions_ledger(kategorie);
 CREATE INDEX idx_provisions_ledger_kw_year ON provisions_ledger(kw, year);
 CREATE INDEX idx_provisions_ledger_created_at ON provisions_ledger(created_at);
+CREATE INDEX idx_provisions_ledger_campaign ON provisions_ledger(campaign_id);
+CREATE INDEX idx_provisions_ledger_area ON provisions_ledger(campaign_area_id);
+CREATE INDEX idx_provisions_ledger_customer ON provisions_ledger(customer_id);
 ```
 
 ### 2. Kunden-Ledger (customer_billing_ledger)
@@ -128,6 +136,11 @@ CREATE TABLE IF NOT EXISTS public.customer_billing_ledger (
     customer_id UUID NOT NULL REFERENCES public.customers(id) ON DELETE CASCADE,
     record_id UUID REFERENCES public.records(id) ON DELETE SET NULL,
     invoice_id UUID REFERENCES public.invoices(id) ON DELETE SET NULL,  -- Verknüpfung zur Kundenrechnung
+
+    -- Kontext-Referenzen (für Filterung)
+    campaign_id UUID REFERENCES public.campaigns(id) ON DELETE SET NULL,
+    campaign_area_id UUID REFERENCES public.campaign_areas(id) ON DELETE SET NULL,
+    werber_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
 
     -- Buchungsdetails
     typ TEXT NOT NULL CHECK (typ IN ('provision', 'storno', 'korrektur')),
@@ -148,6 +161,9 @@ CREATE INDEX idx_customer_billing_ledger_customer_id ON customer_billing_ledger(
 CREATE INDEX idx_customer_billing_ledger_record_id ON customer_billing_ledger(record_id);
 CREATE INDEX idx_customer_billing_ledger_invoice_id ON customer_billing_ledger(invoice_id);
 CREATE INDEX idx_customer_billing_ledger_kw_year ON customer_billing_ledger(kw, year);
+CREATE INDEX idx_billing_ledger_campaign ON customer_billing_ledger(campaign_id);
+CREATE INDEX idx_billing_ledger_area ON customer_billing_ledger(campaign_area_id);
+CREATE INDEX idx_billing_ledger_werber ON customer_billing_ledger(werber_id);
 ```
 
 ---
@@ -625,6 +641,39 @@ JOIN customers c ON c.id = cbl.customer_id
 GROUP BY c.name;
 ```
 
+### Filterung nach Kampagne/Einsatzgebiet
+
+```sql
+-- EH pro Werber für eine bestimmte Kampagne
+SELECT
+    u.name,
+    pl.kategorie,
+    SUM(pl.einheiten) as eh
+FROM provisions_ledger pl
+JOIN users u ON u.id = pl.user_id
+WHERE pl.campaign_id = 'UUID-der-Kampagne'
+GROUP BY u.name, pl.kategorie;
+
+-- Jahreseuros pro Kunde für ein bestimmtes Einsatzgebiet
+SELECT
+    c.name,
+    SUM(cbl.jahreseuros) as jahreseuros
+FROM customer_billing_ledger cbl
+JOIN customers c ON c.id = cbl.customer_id
+WHERE cbl.campaign_area_id = 'UUID-des-Einsatzgebiets'
+GROUP BY c.name;
+
+-- EH eines Werbers gefiltert nach Kunde und Kampagne
+SELECT
+    pl.kategorie,
+    SUM(pl.einheiten) as eh
+FROM provisions_ledger pl
+WHERE pl.user_id = 'UUID-des-Werbers'
+  AND pl.customer_id = 'UUID-des-Kunden'
+  AND pl.campaign_id = 'UUID-der-Kampagne'
+GROUP BY pl.kategorie;
+```
+
 ---
 
 ## Umsetzungsreihenfolge
@@ -638,6 +687,9 @@ GROUP BY c.name;
 | 5 | - | Frontend: js/main.js `erstelleAbrechnung()` anpassen | ✅ Erledigt | 11.01.2026 |
 | 6 | - | Frontend: tests/test-provisions-db.html anpassen | ✅ Erledigt | 11.01.2026 |
 | 7 | - | Testen (Record erstellen, Storno, Änderungen) | ✅ Bestanden | 11.01.2026 |
+| 8 | 024 | Schema erweitern (campaign_id, campaign_area_id, customer_id/werber_id) | ⏳ Erstellt | 11.01.2026 |
+| 9 | 025 | Trigger anpassen (neue Felder kopieren) | ⏳ Erstellt | 11.01.2026 |
+| 10 | 026 | Bestandsdaten aktualisieren (neue Felder befüllen) | ⏳ Erstellt | 11.01.2026 |
 
 ---
 
@@ -655,6 +707,7 @@ GROUP BY c.name;
 | 11.01.2026 | tests/test-provisions-db.html: Tests auf neues Schema angepasst + customer_billing_ledger Test |
 | 11.01.2026 | Alte Trigger gelöscht (on_record_insert_provision, on_record_status_change) |
 | 11.01.2026 | **Phase 7 abgeschlossen:** Alle 18 Trigger-Tests bestanden (INSERT, STORNO, Reaktivierung, Betragsänderung, Werber-Wechsel, DELETE) |
+| 11.01.2026 | **Schema-Erweiterung:** Migration 024-026 erstellt (campaign_id, campaign_area_id, customer_id/werber_id) |
 
 ---
 

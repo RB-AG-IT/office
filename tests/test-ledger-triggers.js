@@ -1,6 +1,7 @@
 /**
  * Ledger-System Trigger Tests
  * Testet: INSERT, UPDATE (Storno, yearly_amount, werber_id), DELETE
+ * Prüft auch: campaign_id, campaign_area_id, customer_id/werber_id in Ledger-Einträgen
  */
 
 const SUPABASE_URL = 'https://lgztglycqtiwcmiydxnm.supabase.co';
@@ -124,7 +125,7 @@ async function test1_insertRecord() {
         console.log(`    - ${b.jahreseuros} EUR (${b.typ})`);
     });
 
-    // Assertions
+    // Assertions - Grundfunktion
     assert(provisions.length >= 1, 'Mindestens 1 Eintrag im provisions_ledger');
 
     const werbenEntry = provisions.find(p => p.kategorie === 'werben');
@@ -135,6 +136,25 @@ async function test1_insertRecord() {
     assert(billing.length >= 1, 'Mindestens 1 Eintrag im customer_billing_ledger');
     const billingEntry = billing[0];
     assert(billingEntry && parseFloat(billingEntry.jahreseuros) === 120, 'Jahreseuros korrekt (120)');
+
+    // Assertions - Kontext-Felder (campaign_id, campaign_area_id, customer_id/werber_id)
+    console.log('\n  Kontext-Felder im provisions_ledger:');
+    console.log(`    campaign_id: ${werbenEntry?.campaign_id || 'NULL'}`);
+    console.log(`    campaign_area_id: ${werbenEntry?.campaign_area_id || 'NULL'}`);
+    console.log(`    customer_id: ${werbenEntry?.customer_id || 'NULL'}`);
+
+    assert(werbenEntry && werbenEntry.campaign_id === campaign.id, 'campaign_id korrekt im provisions_ledger');
+    assert(werbenEntry && werbenEntry.campaign_area_id === campaignAreaId, 'campaign_area_id korrekt im provisions_ledger');
+    assert(werbenEntry && werbenEntry.customer_id === customer.id, 'customer_id korrekt im provisions_ledger');
+
+    console.log('\n  Kontext-Felder im customer_billing_ledger:');
+    console.log(`    campaign_id: ${billingEntry?.campaign_id || 'NULL'}`);
+    console.log(`    campaign_area_id: ${billingEntry?.campaign_area_id || 'NULL'}`);
+    console.log(`    werber_id: ${billingEntry?.werber_id || 'NULL'}`);
+
+    assert(billingEntry && billingEntry.campaign_id === campaign.id, 'campaign_id korrekt im customer_billing_ledger');
+    assert(billingEntry && billingEntry.campaign_area_id === campaignAreaId, 'campaign_area_id korrekt im customer_billing_ledger');
+    assert(billingEntry && billingEntry.werber_id === werber.id, 'werber_id korrekt im customer_billing_ledger');
 
     return recordId;
 }
