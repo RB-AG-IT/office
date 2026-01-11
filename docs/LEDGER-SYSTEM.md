@@ -18,8 +18,8 @@
 | Datei | Komponente | Aktion | Status |
 |-------|------------|--------|--------|
 | `database/migrations/018-provision-update-trigger.sql` | `handle_record_provision_update()` Trigger | LÖSCHEN | ✅ Erledigt |
-| `js/main.js` (Zeile ~12095) | `erstelleAbrechnung()` → Insert in provisions_ledger | ANPASSEN | Offen |
-| `tests/test-provisions-db.html` | Test für altes provisions_ledger Schema | ANPASSEN | Offen |
+| `js/main.js` (Zeile ~12095) | `erstelleAbrechnung()` → Insert in provisions_ledger | ENTFERNT | ✅ Erledigt |
+| `tests/test-provisions-db.html` | Test für altes provisions_ledger Schema | ANGEPASST | ✅ Erledigt |
 | Supabase DB | Tabelle `provisions_ledger` (altes Schema) | DROP + NEU | ✅ Ausgeführt |
 | Supabase DB | View `user_provisions_saldo` | GELÖSCHT | ✅ Erledigt |
 
@@ -635,8 +635,8 @@ GROUP BY c.name;
 | 2 | 021 | Neue Tabellen erstellen (provisions_ledger + customer_billing_ledger) | ✅ Ausgeführt | 11.01.2026 |
 | 3 | 022 | Trigger erstellen (INSERT, UPDATE, DELETE) | ✅ Ausgeführt | 11.01.2026 |
 | 4 | 023 | Bestandsdaten migrieren | ✅ Ausgeführt | 11.01.2026 |
-| 5 | - | Frontend: js/main.js `erstelleAbrechnung()` anpassen | ⏳ Offen | - |
-| 6 | - | Frontend: tests/test-provisions-db.html anpassen | ⏳ Offen | - |
+| 5 | - | Frontend: js/main.js `erstelleAbrechnung()` anpassen | ✅ Erledigt | 11.01.2026 |
+| 6 | - | Frontend: tests/test-provisions-db.html anpassen | ✅ Erledigt | 11.01.2026 |
 | 7 | - | Testen (Record erstellen, Storno, Änderungen) | ⏳ Offen | - |
 
 ---
@@ -651,6 +651,8 @@ GROUP BY c.name;
 | 11.01.2026 | Migration 020-023 erstellt (Cleanup, Tables, Triggers, Data) |
 | 11.01.2026 | Migration 020-023 in Supabase ausgeführt (inkl. View `user_provisions_saldo` gelöscht) |
 | 11.01.2026 | **DB-Status:** Neues Ledger-System aktiv, Trigger laufen |
+| 11.01.2026 | js/main.js: Altes ledgerEntries-Insert entfernt (EH via Trigger) |
+| 11.01.2026 | tests/test-provisions-db.html: Tests auf neues Schema angepasst + customer_billing_ledger Test |
 
 ---
 

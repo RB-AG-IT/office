@@ -11972,9 +11972,8 @@ async function erstelleAbrechnung(data) {
 
     if (error) throw error;
 
-    // ========== LEDGER-PRINZIP: Invoice Positions ==========
+    // ========== Invoice Positions (für Abrechnungsdetails) ==========
     const positions = [];
-    const ledgerEntries = [];
 
     // 1. Werbe-Provision
     if (provisionen.werben > 0) {
@@ -11988,17 +11987,6 @@ async function erstelleAbrechnung(data) {
             vorschuss_anteil: data.vorschussAnteil,
             vorschuss: werbenVorschuss,
             stornorucklage: werbenStorno
-        });
-
-        ledgerEntries.push({
-            user_id: data.userId,
-            kategorie: 'werben',
-            invoice_id: created.id,
-            typ: 'abrechnung',
-            vorschuss_anteil: data.vorschussAnteil,
-            betrag_provision: provisionen.werben,
-            betrag_vorschuss: werbenVorschuss,
-            betrag_stornorucklage: werbenStorno
         });
     }
 
@@ -12015,17 +12003,6 @@ async function erstelleAbrechnung(data) {
             vorschuss: tcVorschuss,
             stornorucklage: tcStorno
         });
-
-        ledgerEntries.push({
-            user_id: data.userId,
-            kategorie: 'teamleitung',
-            invoice_id: created.id,
-            typ: 'abrechnung',
-            vorschuss_anteil: data.vorschussAnteil,
-            betrag_provision: provisionen.teamleitung,
-            betrag_vorschuss: tcVorschuss,
-            betrag_stornorucklage: tcStorno
-        });
     }
 
     // 3. Quality-Provision
@@ -12040,17 +12017,6 @@ async function erstelleAbrechnung(data) {
             vorschuss_anteil: data.vorschussAnteil,
             vorschuss: qualityVorschuss,
             stornorucklage: qualityStorno
-        });
-
-        ledgerEntries.push({
-            user_id: data.userId,
-            kategorie: 'quality',
-            invoice_id: created.id,
-            typ: 'abrechnung',
-            vorschuss_anteil: data.vorschussAnteil,
-            betrag_provision: provisionen.quality,
-            betrag_vorschuss: qualityVorschuss,
-            betrag_stornorucklage: qualityStorno
         });
     }
 
@@ -12067,17 +12033,6 @@ async function erstelleAbrechnung(data) {
             vorschuss: empfehlungVorschuss,
             stornorucklage: empfehlungStorno
         });
-
-        ledgerEntries.push({
-            user_id: data.userId,
-            kategorie: 'empfehlung',
-            invoice_id: created.id,
-            typ: 'abrechnung',
-            vorschuss_anteil: data.vorschussAnteil,
-            betrag_provision: provisionen.empfehlung,
-            betrag_vorschuss: empfehlungVorschuss,
-            betrag_stornorucklage: empfehlungStorno
-        });
     }
 
     // Invoice Positions speichern
@@ -12089,14 +12044,8 @@ async function erstelleAbrechnung(data) {
         if (posError) console.error('Fehler beim Erstellen der Positions:', posError);
     }
 
-    // Provisions Ledger speichern
-    if (ledgerEntries.length > 0) {
-        const { error: ledgerError } = await supabase
-            .from('provisions_ledger')
-            .insert(ledgerEntries);
-
-        if (ledgerError) console.error('Fehler beim Erstellen der Ledger-Einträge:', ledgerError);
-    }
+    // HINWEIS: EH-Buchungen erfolgen automatisch via DB-Trigger bei Record-Insert
+    // provisions_ledger wird nicht mehr manuell befüllt
 
     // ========== Invoice Items (für Abzüge) ==========
     const items = [];

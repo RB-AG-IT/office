@@ -20,8 +20,8 @@
     </style>
 </head>
 <body>
-    <h1>🔍 Provisions-System Datenbank-Test</h1>
-    <p>Phase 4.1: Datenbank-Prüfung</p>
+    <h1>🔍 Ledger-System Datenbank-Test</h1>
+    <p>Neues EH-basiertes Ledger-System (provisions_ledger + customer_billing_ledger)</p>
 
     <button onclick="runAllTests()">Alle Tests ausführen</button>
 
@@ -75,8 +75,11 @@
             // Test 4: invoice_positions Tabelle
             await test4_invoicePositions();
 
-            // Test 5: provisions_ledger Tabelle
+            // Test 5: provisions_ledger Tabelle (neues Schema)
             await test5_provisionsLedger();
+
+            // Test 6: customer_billing_ledger Tabelle
+            await test6_customerBillingLedger();
 
             log('<h2>✅ Tests abgeschlossen</h2>');
         }
@@ -186,7 +189,7 @@ WHERE tgname LIKE '%provision%' OR tgname LIKE '%sync%';</pre>`, 'info');
         }
 
         async function test5_provisionsLedger() {
-            log('<h2>Test 5: provisions_ledger Tabelle</h2>');
+            log('<h2>Test 5: provisions_ledger (neues EH-Schema)</h2>');
 
             const { data, error, count } = await db
                 .from('provisions_ledger')
@@ -200,18 +203,102 @@ WHERE tgname LIKE '%provision%' OR tgname LIKE '%sync%';</pre>`, 'info');
 
             log(`✅ Tabelle existiert mit <strong>${count}</strong> Einträgen`, 'pass');
 
+            // Schema prüfen (neue Spalten)
             if (data && data.length > 0) {
-                // Kategorien gruppieren
-                const { data: katStats } = await db
-                    .from('provisions_ledger')
-                    .select('kategorie');
+                const requiredCols = ['user_id', 'kategorie', 'typ', 'einheiten', 'kw', 'year', 'referenz_datum'];
+                const firstRow = data[0];
+                const missingCols = requiredCols.filter(col => !(col in firstRow));
 
+                if (missingCols.length > 0) {
+                    log(`❌ Fehlende Spalten im neuen Schema: ${missingCols.join(', ')}`, 'fail');
+                } else {
+                    log(`✅ Neues Schema korrekt (einheiten, kw, year, etc.)`, 'pass');
+                }
+
+                // Beispiel-Daten anzeigen
+                const tableData = data.map(d => ({
+                    kategorie: d.kategorie,
+                    typ: d.typ,
+                    einheiten: d.einheiten,
+                    kw: d.kw,
+                    year: d.year
+                }));
+                logTable('Beispiel-Einträge (neu)', tableData, ['kategorie', 'typ', 'einheiten', 'kw', 'year']);
+            }
+
+            // Kategorien & Typen gruppieren
+            const { data: stats } = await db
+                .from('provisions_ledger')
+                .select('kategorie, typ');
+
+            if (stats && stats.length > 0) {
                 const katCounts = {};
-                (katStats || []).forEach(k => {
-                    katCounts[k.kategorie] = (katCounts[k.kategorie] || 0) + 1;
+                const typCounts = {};
+                stats.forEach(s => {
+                    katCounts[s.kategorie] = (katCounts[s.kategorie] || 0) + 1;
+                    typCounts[s.typ] = (typCounts[s.typ] || 0) + 1;
                 });
 
-                log(`Ledger-Kategorien: ${JSON.stringify(katCounts)}`, 'info');
+                log(`Kategorien: ${JSON.stringify(katCounts)}`, 'info');
+                log(`Typen: ${JSON.stringify(typCounts)}`, 'info');
+            }
+
+            // EH-Summen pro Kategorie
+            const { data: ehSums } = await db.rpc('get_eh_sums_by_kategorie');
+            if (ehSums) {
+                log(`EH-Summen: ${JSON.stringify(ehSums)}`, 'info');
+            }
+        }
+
+        async function test6_customerBillingLedger() {
+            log('<h2>Test 6: customer_billing_ledger (Kunden-Ledger)</h2>');
+
+            const { data, error, count } = await db
+                .from('customer_billing_ledger')
+                .select('*', { count: 'exact' })
+                .limit(5);
+
+            if (error) {
+                log(`❌ Tabelle nicht gefunden oder Fehler: ${error.message}`, 'fail');
+                return;
+            }
+
+            log(`✅ Tabelle existiert mit <strong>${count}</strong> Einträgen`, 'pass');
+
+            // Schema prüfen
+            if (data && data.length > 0) {
+                const requiredCols = ['customer_id', 'typ', 'jahreseuros', 'kw', 'year', 'referenz_datum'];
+                const firstRow = data[0];
+                const missingCols = requiredCols.filter(col => !(col in firstRow));
+
+                if (missingCols.length > 0) {
+                    log(`❌ Fehlende Spalten: ${missingCols.join(', ')}`, 'fail');
+                } else {
+                    log(`✅ Schema korrekt (jahreseuros, kw, year, etc.)`, 'pass');
+                }
+
+                // Beispiel-Daten anzeigen
+                const tableData = data.map(d => ({
+                    typ: d.typ,
+                    jahreseuros: d.jahreseuros,
+                    kw: d.kw,
+                    year: d.year,
+                    abgerechnet: d.invoice_id ? 'Ja' : 'Nein'
+                }));
+                logTable('Beispiel-Einträge', tableData, ['typ', 'jahreseuros', 'kw', 'year', 'abgerechnet']);
+            }
+
+            // Typ-Statistik
+            const { data: typStats } = await db
+                .from('customer_billing_ledger')
+                .select('typ');
+
+            if (typStats && typStats.length > 0) {
+                const typCounts = {};
+                typStats.forEach(t => {
+                    typCounts[t.typ] = (typCounts[t.typ] || 0) + 1;
+                });
+                log(`Typen: ${JSON.stringify(typCounts)}`, 'info');
             }
         }
 
