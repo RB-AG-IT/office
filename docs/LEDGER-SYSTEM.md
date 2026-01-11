@@ -687,9 +687,9 @@ GROUP BY pl.kategorie;
 | 5 | - | Frontend: js/main.js `erstelleAbrechnung()` anpassen | ✅ Erledigt | 11.01.2026 |
 | 6 | - | Frontend: tests/test-provisions-db.html anpassen | ✅ Erledigt | 11.01.2026 |
 | 7 | - | Testen (Record erstellen, Storno, Änderungen) | ✅ Bestanden | 11.01.2026 |
-| 8 | 024 | Schema erweitern (campaign_id, campaign_area_id, customer_id/werber_id) | ⏳ Erstellt | 11.01.2026 |
-| 9 | 025 | Trigger anpassen (neue Felder kopieren) | ⏳ Erstellt | 11.01.2026 |
-| 10 | 026 | Bestandsdaten aktualisieren (neue Felder befüllen) | ⏳ Erstellt | 11.01.2026 |
+| 8 | 024 | Schema erweitern (campaign_id, campaign_area_id, customer_id/werber_id) | ✅ Ausgeführt | 11.01.2026 |
+| 9 | 025 | Trigger anpassen (neue Felder kopieren) | ✅ Ausgeführt | 11.01.2026 |
+| 10 | 026 | Bestandsdaten aktualisieren (neue Felder befüllen) | ✅ Ausgeführt | 11.01.2026 |
 
 ---
 
@@ -708,6 +708,7 @@ GROUP BY pl.kategorie;
 | 11.01.2026 | Alte Trigger gelöscht (on_record_insert_provision, on_record_status_change) |
 | 11.01.2026 | **Phase 7 abgeschlossen:** Alle 18 Trigger-Tests bestanden (INSERT, STORNO, Reaktivierung, Betragsänderung, Werber-Wechsel, DELETE) |
 | 11.01.2026 | **Schema-Erweiterung:** Migration 024-026 erstellt (campaign_id, campaign_area_id, customer_id/werber_id) |
+| 11.01.2026 | **Migration 024-026 ausgeführt:** Ledger-Schema erweitert, Trigger aktualisiert, Bestandsdaten migriert |
 
 ---
 
