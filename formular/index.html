@@ -795,7 +795,7 @@ input[type="radio"][name="type"]:checked::after {
                     </div>
                     <div>
                         <label id="ibanLabel">IBAN:</label>
-                        <input type="text" id="iban" placeholder="DE00 0000 0000 0000 0000 00">
+                        <input type="text" id="iban" placeholder="DE00 0000 0000 0000 0000 00" maxlength="42">
                         <div id="ibanStatus" class="text-klein" style="text-align: right; margin-top: 3px;"></div>
                     </div>
                 </div>
@@ -1890,10 +1890,10 @@ const streetResults = data.results.filter(result => {
                         }
                     });
 
-                    // Extra IBAN validation (length check) for NMG
+                    // Extra IBAN validation for NMG
                     const ibanFieldNMG = document.getElementById('iban');
                     const ibanValueNMG = ibanFieldNMG ? ibanFieldNMG.value.replace(/\s/g, '') : '';
-                    if (ibanValueNMG && ibanValueNMG.length !== 22) {
+                    if (ibanValueNMG && !isValidIBAN(ibanValueNMG)) {
                         if (ibanFieldNMG) ibanFieldNMG.style.borderColor = '#ff4444';
                         isValid = false;
                     }
