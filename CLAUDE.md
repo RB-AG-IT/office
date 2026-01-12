@@ -3,7 +3,11 @@
 - Immer 1x nachfragen vor Beginn/Ausführung (auch wenn Auftrag sicher ist)
 - Immer genau und nur das Gefragte tun
 - Kurz und knappe Kommunikation
-- Wir arbeiten auf GitHub - lokale Änderungen immer committen und pushen
+
+## Git Workflow (WICHTIG!)
+- Änderungen sind erst abgeschlossen wenn sie auf GitHub gepusht sind
+- Nach jeder Änderung: `git add` → `git commit` → `git push`
+- Niemals nur lokal speichern ohne push
 
 ## Projekt Aufbau
 - README.md lesen
