@@ -914,7 +914,15 @@
             setValue('gameTag', userProfile.game_tag);
             setChecked('isGhost', userProfile.ghost_mode);
             setChecked('canSeeOthers', userProfile.can_see_others !== false); // Default: true
-            setChecked('participateRanking', userProfile.ranking_enabled);
+
+            // Ranking: Ghost-Modus überschreibt
+            if (userProfile.ghost_mode) {
+                setChecked('participateRanking', false);
+                document.getElementById('participateRanking').disabled = true;
+            } else {
+                setChecked('participateRanking', userProfile.ranking_enabled);
+            }
+
             setValue('advancePercent', userProfile.advance_rate || 70);
             setValue('stornoPercent', userProfile.reserve_rate || 30);
 
@@ -1660,7 +1668,8 @@
                     game_tag: document.getElementById('gameTag').value,
                     ghost_mode: document.getElementById('isGhost').checked,
                     can_see_others: document.getElementById('canSeeOthers').checked,
-                    ranking_enabled: document.getElementById('participateRanking').checked,
+                    // Ghost-Modus überschreibt Ranking-Teilnahme
+                    ranking_enabled: document.getElementById('isGhost').checked ? false : document.getElementById('participateRanking').checked,
                     advance_rate: parseInt(document.getElementById('advancePercent').value) || 70,
                     reserve_rate: parseInt(document.getElementById('stornoPercent').value) || 30,
                     updated_at: new Date().toISOString()
@@ -2370,6 +2379,21 @@
             off: 'Aus - Mitarbeiter ist sichtbar'
         }, (isGhost) => {
             document.getElementById('canSeeOthersOption').style.display = isGhost ? '' : 'none';
+
+            // Ghost-Modus überschreibt Ranking-Teilnahme
+            const rankingToggle = document.getElementById('participateRanking');
+            if (isGhost) {
+                rankingToggle.checked = false;
+                rankingToggle.disabled = true;
+                document.getElementById('rankingLabel').textContent = 'Aus - Automatisch deaktiviert (Ghost-Modus)';
+            } else {
+                rankingToggle.disabled = false;
+                // Label wird durch initToggleLabel aktualisiert
+                const rankingChecked = rankingToggle.checked;
+                document.getElementById('rankingLabel').textContent = rankingChecked
+                    ? 'An - Nimmt am Ranking teil'
+                    : 'Aus - Nicht im Ranking sichtbar';
+            }
         });
 
         initToggleLabel('canSeeOthers', 'canSeeOthersLabel', {
