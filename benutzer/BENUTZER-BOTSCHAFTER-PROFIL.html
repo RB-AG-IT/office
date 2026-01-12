@@ -1615,6 +1615,16 @@
 
                 // E-Mail in users Tabelle aktualisieren
                 if (email && email !== userData?.email) {
+                    // Auch Auth-User E-Mail aktualisieren (falls vorhanden)
+                    const { data: authUser } = await supabase.auth.admin.getUserById(profileUserId);
+                    if (authUser?.user) {
+                        const { error: emailError } = await supabase.auth.admin.updateUserById(
+                            profileUserId,
+                            { email: email }
+                        );
+                        if (emailError) throw emailError;
+                    }
+
                     await supabase
                         .from('users')
                         .update({ email: email })
