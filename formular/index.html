@@ -2633,13 +2633,118 @@ const streetResults = data.results.filter(result => {
                 };
                 const intervallText = intervallMap[formData.interval] || formData.interval;
 
+                // Hilfsfunktionen
+                const formatDate = (dateStr) => {
+                    if (!dateStr) return '';
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('de-DE');
+                };
+
+                const maskIban = (iban) => {
+                    if (!iban) return '';
+                    const clean = iban.replace(/\s/g, '');
+                    if (clean.length < 6) return iban;
+                    return clean.substring(0, 4) + ' **** **** **** ' + clean.substring(clean.length - 2);
+                };
+
+                // Adresse zusammenbauen
+                const adresse = [
+                    formData.street && formData.houseNumber ? `${formData.street} ${formData.houseNumber}` : formData.street,
+                    formData.zipCode && formData.city ? `${formData.zipCode} ${formData.city}` : formData.city
+                ].filter(Boolean).join(', ');
+
+                // Telefon (mobil bevorzugt)
+                const telefon = formData.phoneMobile || formData.phoneFixed || '';
+
+                // WG/Kunden-Daten laden (Website, Datenschutz)
+                let websiteLink = '';
+                let datenschutzLink = '';
+                let ansprechpartnerName = '';
+                let ansprechpartnerTelefon = '';
+                let ansprechpartnerEmail = '';
+
+                if (formContext.campaign_area_id) {
+                    // WG-Daten laden
+                    const { data: areaData } = await supabaseClient
+                        .from('customer_areas')
+                        .select('website, privacy_policy, customer_id')
+                        .eq('id', formContext.campaign_area_id)
+                        .single();
+
+                    if (areaData) {
+                        websiteLink = areaData.website || '';
+                        datenschutzLink = areaData.privacy_policy || '';
+
+                        // WG-Ansprechpartner laden
+                        const { data: areaContacts } = await supabaseClient
+                            .from('customer_area_contacts')
+                            .select('first_name, last_name, phone, email')
+                            .eq('area_id', formContext.campaign_area_id)
+                            .limit(1);
+
+                        if (areaContacts && areaContacts.length > 0) {
+                            const contact = areaContacts[0];
+                            ansprechpartnerName = [contact.first_name, contact.last_name].filter(Boolean).join(' ');
+                            ansprechpartnerTelefon = contact.phone || '';
+                            ansprechpartnerEmail = contact.email || '';
+                        }
+
+                        // Fallback: Kunden-Daten wenn WG-Daten fehlen
+                        const customerId = areaData.customer_id || formContext.customer_id;
+                        if (customerId && (!websiteLink || !datenschutzLink || !ansprechpartnerName)) {
+                            const { data: customerData } = await supabaseClient
+                                .from('customers')
+                                .select('website, privacy_policy')
+                                .eq('id', customerId)
+                                .single();
+
+                            if (customerData) {
+                                if (!websiteLink) websiteLink = customerData.website || '';
+                                if (!datenschutzLink) datenschutzLink = customerData.privacy_policy || '';
+                            }
+
+                            // Kunden-Ansprechpartner als Fallback
+                            if (!ansprechpartnerName) {
+                                const { data: customerContacts } = await supabaseClient
+                                    .from('customer_contacts')
+                                    .select('first_name, last_name, phone, email')
+                                    .eq('customer_id', customerId)
+                                    .limit(1);
+
+                                if (customerContacts && customerContacts.length > 0) {
+                                    const contact = customerContacts[0];
+                                    ansprechpartnerName = [contact.first_name, contact.last_name].filter(Boolean).join(' ');
+                                    ansprechpartnerTelefon = contact.phone || '';
+                                    ansprechpartnerEmail = contact.email || '';
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Platzhalter ersetzen
                 let emailBody = vorlage.inhalt
+                    // Persönliche Daten
                     .replace(/\{\{anrede\}\}/g, formData.salutation || '')
                     .replace(/\{\{vorname\}\}/g, formData.firstName || '')
                     .replace(/\{\{nachname\}\}/g, formData.lastName || '')
+                    .replace(/\{\{email\}\}/g, formData.email || '')
+                    .replace(/\{\{telefon\}\}/g, telefon)
+                    .replace(/\{\{geburtsdatum\}\}/g, formatDate(formData.birthDate))
+                    .replace(/\{\{adresse\}\}/g, adresse)
+                    // Bankdaten
+                    .replace(/\{\{kontoinhaber\}\}/g, formData.accountHolder || '')
+                    .replace(/\{\{iban_maskiert\}\}/g, maskIban(formData.iban))
+                    // Beitrag
                     .replace(/\{\{betrag\}\}/g, formData.amount || '')
-                    .replace(/\{\{intervall\}\}/g, intervallText);
+                    .replace(/\{\{intervall\}\}/g, intervallText)
+                    // WG/Kunden-Daten
+                    .replace(/\{\{werbegebiet_name\}\}/g, senderName || '')
+                    .replace(/\{\{ansprechpartner_name\}\}/g, ansprechpartnerName)
+                    .replace(/\{\{ansprechpartner_telefon\}\}/g, ansprechpartnerTelefon)
+                    .replace(/\{\{ansprechpartner_email\}\}/g, ansprechpartnerEmail)
+                    .replace(/\{\{website_link\}\}/g, websiteLink)
+                    .replace(/\{\{datenschutz_link\}\}/g, datenschutzLink);
 
                 let emailSubject = vorlage.betreff
                     .replace(/\{\{anrede\}\}/g, formData.salutation || '')
