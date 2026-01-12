@@ -2662,6 +2662,7 @@ const streetResults = data.results.filter(result => {
                 let ansprechpartnerName = '';
                 let ansprechpartnerTelefon = '';
                 let ansprechpartnerEmail = '';
+                let anschriftOv = '';
 
                 if (formContext.campaign_area_id) {
                     // Erst campaign_areas laden um customer_area_id zu bekommen
@@ -2677,13 +2678,20 @@ const streetResults = data.results.filter(result => {
                         // customer_areas laden (WG-Daten)
                         const { data: areaData } = await supabaseClient
                             .from('customer_areas')
-                            .select('website, privacy_policy, customer_id')
+                            .select('website, privacy_policy, customer_id, street, house_number, postal_code, city')
                             .eq('id', customerAreaId)
                             .single();
 
                         if (areaData) {
                             websiteLink = areaData.website || '';
                             datenschutzLink = areaData.privacy_policy || '';
+
+                            // WG-Anschrift zusammenbauen
+                            if (areaData.street || areaData.city) {
+                                const strasseHnr = [areaData.street, areaData.house_number].filter(Boolean).join(' ');
+                                const plzOrt = [areaData.postal_code, areaData.city].filter(Boolean).join(' ');
+                                anschriftOv = [strasseHnr, plzOrt].filter(Boolean).join(', ');
+                            }
 
                             // WG-Ansprechpartner laden
                             const { data: areaContacts } = await supabaseClient
@@ -2701,16 +2709,22 @@ const streetResults = data.results.filter(result => {
 
                             // Fallback: Kunden-Daten wenn WG-Daten fehlen
                             const customerId = areaData.customer_id || formContext.customer_id;
-                            if (customerId && (!websiteLink || !datenschutzLink || !ansprechpartnerName)) {
+                            if (customerId && (!websiteLink || !datenschutzLink || !ansprechpartnerName || !anschriftOv)) {
                                 const { data: customerData } = await supabaseClient
                                     .from('customers')
-                                    .select('website, privacy_policy')
+                                    .select('website, privacy_policy, street, house_number, postal_code, city')
                                     .eq('id', customerId)
                                     .single();
 
                                 if (customerData) {
                                     if (!websiteLink) websiteLink = customerData.website || '';
                                     if (!datenschutzLink) datenschutzLink = customerData.privacy_policy || '';
+                                    // Kunden-Anschrift als Fallback
+                                    if (!anschriftOv && (customerData.street || customerData.city)) {
+                                        const strasseHnr = [customerData.street, customerData.house_number].filter(Boolean).join(' ');
+                                        const plzOrt = [customerData.postal_code, customerData.city].filter(Boolean).join(' ');
+                                        anschriftOv = [strasseHnr, plzOrt].filter(Boolean).join(', ');
+                                    }
                                 }
 
                                 // Kunden-Ansprechpartner als Fallback
@@ -2755,7 +2769,8 @@ const streetResults = data.results.filter(result => {
                     .replace(/\{\{ansprechpartner_telefon\}\}/g, ansprechpartnerTelefon)
                     .replace(/\{\{ansprechpartner_email\}\}/g, ansprechpartnerEmail)
                     .replace(/\{\{website_link\}\}/g, websiteLink)
-                    .replace(/\{\{datenschutz_link\}\}/g, datenschutzLink);
+                    .replace(/\{\{datenschutz_link\}\}/g, datenschutzLink)
+                    .replace(/\{\{anschrift_ov\}\}/g, anschriftOv);
 
                 let emailSubject = vorlage.betreff
                     .replace(/\{\{anrede\}\}/g, formData.salutation || '')
