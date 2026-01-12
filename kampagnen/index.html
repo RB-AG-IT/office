@@ -1804,21 +1804,70 @@ function renderCampaigns() {
         const allHaveContracts = einsatzgebieteCount > 0 && einsatzgebieteWithContract === einsatzgebieteCount;
         const someHaveContracts = einsatzgebieteWithContract > 0 && einsatzgebieteWithContract < einsatzgebieteCount;
 
-        // Build KW timeline
+        // Build KW timeline - kompakt mit max 5 Items, aktuelle KW in der Mitte
         const currentWeek = getCurrentWeek();
-        let kwTimelineHTML = '<div class="anzeigenfeld anzeigenfeld--wrap">';
-        for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
+        const totalKWs = campaign.kwTo - campaign.kwFrom + 1;
+        const maxVisible = 5;
+
+        let kwTimelineHTML = '<div class="anzeigenfeld" style="display: flex; gap: 4px; align-items: center;">';
+
+        // Helper-Funktion für einzelnes KW-Item
+        const renderKWItem = (kw) => {
             const assignment = campaign.assignments[kw] || {};
             const personCount = (assignment.werber?.length || 0) + (assignment.teamchef ? 1 : 0);
             const isCurrent = kw === currentWeek;
             const isEmpty = personCount === 0;
-            kwTimelineHTML += `
+            return `
                 <div class="kw-timeline-item ${isCurrent ? 'kw-current' : ''} ${isEmpty ? 'kw-empty' : ''}">
                     <span class="kw-num text-klein--fett">KW ${kw}</span>
                     <span class="kw-count text-klein--fett">${personCount}P</span>
                 </div>
             `;
+        };
+
+        if (totalKWs <= maxVisible) {
+            // Alle KWs anzeigen wenn weniger als maxVisible
+            for (let kw = campaign.kwFrom; kw <= campaign.kwTo; kw++) {
+                kwTimelineHTML += renderKWItem(kw);
+            }
+        } else {
+            // Aktuelle KW in der Mitte, begrenzte Anzeige
+            let centerKW = currentWeek;
+            if (centerKW < campaign.kwFrom) centerKW = campaign.kwFrom + 2;
+            if (centerKW > campaign.kwTo) centerKW = campaign.kwTo - 2;
+
+            const halfVisible = Math.floor(maxVisible / 2);
+            let startKW = centerKW - halfVisible;
+            let endKW = centerKW + halfVisible;
+
+            // Anpassen falls am Rand
+            if (startKW < campaign.kwFrom) {
+                startKW = campaign.kwFrom;
+                endKW = Math.min(campaign.kwFrom + maxVisible - 1, campaign.kwTo);
+            }
+            if (endKW > campaign.kwTo) {
+                endKW = campaign.kwTo;
+                startKW = Math.max(campaign.kwTo - maxVisible + 1, campaign.kwFrom);
+            }
+
+            // "+X" links anzeigen
+            const kwsBefore = startKW - campaign.kwFrom;
+            if (kwsBefore > 0) {
+                kwTimelineHTML += `<span class="text-klein text-secondary" style="padding: 2px 6px; background: var(--background-secondary); border-radius: 4px;">+${kwsBefore}</span>`;
+            }
+
+            // Sichtbare KWs anzeigen
+            for (let kw = startKW; kw <= endKW; kw++) {
+                kwTimelineHTML += renderKWItem(kw);
+            }
+
+            // "+X" rechts anzeigen
+            const kwsAfter = campaign.kwTo - endKW;
+            if (kwsAfter > 0) {
+                kwTimelineHTML += `<span class="text-klein text-secondary" style="padding: 2px 6px; background: var(--background-secondary); border-radius: 4px;">+${kwsAfter}</span>`;
+            }
         }
+
         kwTimelineHTML += '</div>';
 
         // Contract status badge
