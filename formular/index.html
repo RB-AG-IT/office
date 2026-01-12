@@ -2626,10 +2626,10 @@ const streetResults = data.results.filter(result => {
 
                 // Intervall-Bezeichnung
                 const intervallMap = {
-                    'monthly': 'monatlich',
-                    'quarterly': 'vierteljährlich',
-                    'halfyearly': 'halbjährlich',
-                    'yearly': 'jährlich'
+                    'monthly': 'Monat',
+                    'quarterly': 'Quartal',
+                    'halfyearly': 'Halbjahr',
+                    'yearly': 'Jahr'
                 };
                 const intervallText = intervallMap[formData.interval] || formData.interval;
 
@@ -2656,7 +2656,7 @@ const streetResults = data.results.filter(result => {
                 // Telefon (mobil bevorzugt)
                 const telefon = formData.phoneMobile || formData.phoneFixed || '';
 
-                // WG/Kunden-Daten laden (Website, Datenschutz)
+                // WG/Kunden-Daten laden (Website, Datenschutz, Ansprechpartner)
                 let websiteLink = '';
                 let datenschutzLink = '';
                 let ansprechpartnerName = '';
@@ -2664,58 +2664,69 @@ const streetResults = data.results.filter(result => {
                 let ansprechpartnerEmail = '';
 
                 if (formContext.campaign_area_id) {
-                    // WG-Daten laden
-                    const { data: areaData } = await supabaseClient
-                        .from('customer_areas')
-                        .select('website, privacy_policy, customer_id')
+                    // Erst campaign_areas laden um customer_area_id zu bekommen
+                    const { data: campaignArea } = await supabaseClient
+                        .from('campaign_areas')
+                        .select('customer_area_id')
                         .eq('id', formContext.campaign_area_id)
                         .single();
 
-                    if (areaData) {
-                        websiteLink = areaData.website || '';
-                        datenschutzLink = areaData.privacy_policy || '';
+                    const customerAreaId = campaignArea?.customer_area_id;
 
-                        // WG-Ansprechpartner laden
-                        const { data: areaContacts } = await supabaseClient
-                            .from('customer_area_contacts')
-                            .select('first_name, last_name, phone, email')
-                            .eq('area_id', formContext.campaign_area_id)
-                            .limit(1);
+                    if (customerAreaId) {
+                        // customer_areas laden (WG-Daten)
+                        const { data: areaData } = await supabaseClient
+                            .from('customer_areas')
+                            .select('website, privacy_policy, customer_id')
+                            .eq('id', customerAreaId)
+                            .single();
 
-                        if (areaContacts && areaContacts.length > 0) {
-                            const contact = areaContacts[0];
-                            ansprechpartnerName = [contact.first_name, contact.last_name].filter(Boolean).join(' ');
-                            ansprechpartnerTelefon = contact.phone || '';
-                            ansprechpartnerEmail = contact.email || '';
-                        }
+                        if (areaData) {
+                            websiteLink = areaData.website || '';
+                            datenschutzLink = areaData.privacy_policy || '';
 
-                        // Fallback: Kunden-Daten wenn WG-Daten fehlen
-                        const customerId = areaData.customer_id || formContext.customer_id;
-                        if (customerId && (!websiteLink || !datenschutzLink || !ansprechpartnerName)) {
-                            const { data: customerData } = await supabaseClient
-                                .from('customers')
-                                .select('website, privacy_policy')
-                                .eq('id', customerId)
-                                .single();
+                            // WG-Ansprechpartner laden
+                            const { data: areaContacts } = await supabaseClient
+                                .from('customer_area_contacts')
+                                .select('first_name, last_name, phone, email')
+                                .eq('area_id', customerAreaId)
+                                .limit(1);
 
-                            if (customerData) {
-                                if (!websiteLink) websiteLink = customerData.website || '';
-                                if (!datenschutzLink) datenschutzLink = customerData.privacy_policy || '';
+                            if (areaContacts && areaContacts.length > 0) {
+                                const contact = areaContacts[0];
+                                ansprechpartnerName = [contact.first_name, contact.last_name].filter(Boolean).join(' ');
+                                ansprechpartnerTelefon = contact.phone || '';
+                                ansprechpartnerEmail = contact.email || '';
                             }
 
-                            // Kunden-Ansprechpartner als Fallback
-                            if (!ansprechpartnerName) {
-                                const { data: customerContacts } = await supabaseClient
-                                    .from('customer_contacts')
-                                    .select('first_name, last_name, phone, email')
-                                    .eq('customer_id', customerId)
-                                    .limit(1);
+                            // Fallback: Kunden-Daten wenn WG-Daten fehlen
+                            const customerId = areaData.customer_id || formContext.customer_id;
+                            if (customerId && (!websiteLink || !datenschutzLink || !ansprechpartnerName)) {
+                                const { data: customerData } = await supabaseClient
+                                    .from('customers')
+                                    .select('website, privacy_policy')
+                                    .eq('id', customerId)
+                                    .single();
 
-                                if (customerContacts && customerContacts.length > 0) {
-                                    const contact = customerContacts[0];
-                                    ansprechpartnerName = [contact.first_name, contact.last_name].filter(Boolean).join(' ');
-                                    ansprechpartnerTelefon = contact.phone || '';
-                                    ansprechpartnerEmail = contact.email || '';
+                                if (customerData) {
+                                    if (!websiteLink) websiteLink = customerData.website || '';
+                                    if (!datenschutzLink) datenschutzLink = customerData.privacy_policy || '';
+                                }
+
+                                // Kunden-Ansprechpartner als Fallback
+                                if (!ansprechpartnerName) {
+                                    const { data: customerContacts } = await supabaseClient
+                                        .from('customer_contacts')
+                                        .select('first_name, last_name, phone, email')
+                                        .eq('customer_id', customerId)
+                                        .limit(1);
+
+                                    if (customerContacts && customerContacts.length > 0) {
+                                        const contact = customerContacts[0];
+                                        ansprechpartnerName = [contact.first_name, contact.last_name].filter(Boolean).join(' ');
+                                        ansprechpartnerTelefon = contact.phone || '';
+                                        ansprechpartnerEmail = contact.email || '';
+                                    }
                                 }
                             }
                         }
