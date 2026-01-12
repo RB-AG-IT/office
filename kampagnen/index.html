@@ -3876,9 +3876,11 @@ function renderKWDetails(campaign) {
         const vergebenerFaktor = kwDienste.reduce((sum, d) => sum + (d.faktor || 0), 0);
         const tcFaktorVerbleibend = Math.max(0, 1 - vergebenerFaktor);
 
-        // Werbegebiete dieser KW
+        // Werbegebiete dieser KW (nur wenn KW in wg.kws aktiviert ist)
         const kwWerbegebiete = assignment.werbegebiete || campaignWerbegebiete.map(wg => wg.id);
-        const activeWerbegebiete = campaignWerbegebiete.filter(wg => kwWerbegebiete.includes(wg.id));
+        const activeWerbegebiete = campaignWerbegebiete.filter(wg =>
+            kwWerbegebiete.includes(wg.id) && wg.kws.includes(kw)
+        );
 
         // MA-Zuordnung pro Werbegebiet
         const wgMaZuordnung = assignment.wgMaZuordnung || {};
