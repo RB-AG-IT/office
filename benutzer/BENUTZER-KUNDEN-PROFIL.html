@@ -431,7 +431,11 @@
                 currentCustomer.areas = [];
             }
 
-            const kundenName = document.getElementById('name')?.value || '';
+            const kundenNameKurz = document.getElementById('name')?.value || '';
+            const kundenOrg = document.getElementById('organisation')?.value || '';
+            const kundenPrefix = document.getElementById('namePrefix')?.value || '';
+            const kundenSuffix = document.getElementById('nameSuffix')?.value || '';
+            const kundenNameVoll = `${kundenOrg} ${kundenPrefix} ${kundenNameKurz}${kundenSuffix ? ' ' + kundenSuffix : ''}`.trim();
             const kundenStreet = document.getElementById('customerStreet')?.value || '';
             const kundenHouseNumber = document.getElementById('customerHouseNumber')?.value || '';
             const kundenZip = document.getElementById('customerPostalCode')?.value || '';
@@ -441,9 +445,9 @@
             const kundenWebsite = document.getElementById('customerWebsite')?.value || '';
 
             const areaData = {
-                name: kundenName,
+                name: kundenNameVoll,
                 vereinstyp: 'OV',
-                vereinsname: kundenName,
+                vereinsname: kundenNameKurz,
                 rechtsform: 'e.V.',
                 street: kundenStreet,
                 houseNumber: kundenHouseNumber,
@@ -463,7 +467,8 @@
                 currentCustomer.areas.push(areaData);
             } else {
                 const existingArea = currentCustomer.areas[0];
-                existingArea.name = kundenName;
+                existingArea.name = kundenNameVoll;
+                existingArea.vereinsname = kundenNameKurz;
                 existingArea.vereinstyp = 'OV';
                 existingArea.street = kundenStreet;
                 existingArea.houseNumber = kundenHouseNumber;
