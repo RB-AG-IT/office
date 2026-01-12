@@ -2066,17 +2066,50 @@ const streetResults = data.results.filter(result => {
                                 if (footerKundeName) footerKundeName.textContent = customerArea.name;
                             }
 
-                            // Adresse anzeigen (nur wenn Straße vorhanden)
-                            if (verbandAdresse && customerArea.street) {
-                                const adresseParts = [customerArea.street];
-                                if (customerArea.house_number) adresseParts.push(customerArea.house_number);
-                                let adresse = adresseParts.join(' ');
-                                if (customerArea.postal_code || customerArea.city) {
-                                    adresse += ', ';
-                                    if (customerArea.postal_code) adresse += customerArea.postal_code + ' ';
-                                    if (customerArea.city) adresse += customerArea.city;
+                            // Adresse anzeigen (WG oder Fallback Kunde)
+                            if (verbandAdresse) {
+                                let adresseGeladen = false;
+
+                                // Erst WG-Adresse versuchen
+                                if (customerArea.street) {
+                                    const adresseParts = [customerArea.street];
+                                    if (customerArea.house_number) adresseParts.push(customerArea.house_number);
+                                    let adresse = adresseParts.join(' ');
+                                    if (customerArea.postal_code || customerArea.city) {
+                                        adresse += ', ';
+                                        if (customerArea.postal_code) adresse += customerArea.postal_code + ' ';
+                                        if (customerArea.city) adresse += customerArea.city;
+                                    }
+                                    verbandAdresse.textContent = adresse.trim();
+                                    adresseGeladen = true;
                                 }
-                                verbandAdresse.textContent = adresse.trim();
+
+                                // Fallback: Kunden-Adresse
+                                if (!adresseGeladen && customerArea.customer_id) {
+                                    const { data: customerAddr } = await supabaseClient
+                                        .from('customers')
+                                        .select('street, house_number, postal_code, city')
+                                        .eq('id', customerArea.customer_id)
+                                        .single();
+
+                                    if (customerAddr && customerAddr.street) {
+                                        const adresseParts = [customerAddr.street];
+                                        if (customerAddr.house_number) adresseParts.push(customerAddr.house_number);
+                                        let adresse = adresseParts.join(' ');
+                                        if (customerAddr.postal_code || customerAddr.city) {
+                                            adresse += ', ';
+                                            if (customerAddr.postal_code) adresse += customerAddr.postal_code + ' ';
+                                            if (customerAddr.city) adresse += customerAddr.city;
+                                        }
+                                        verbandAdresse.textContent = adresse.trim();
+                                        adresseGeladen = true;
+                                    }
+                                }
+
+                                // Wenn keine Adresse gefunden, Dummy entfernen
+                                if (!adresseGeladen) {
+                                    verbandAdresse.textContent = '';
+                                }
                             }
 
                             // Datenschutzlink: Erst vom Werbegebiet
