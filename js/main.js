@@ -4321,7 +4321,9 @@ const BestandImportSystem = {
                     }
                 }
 
-                // Default-Wert für old_amount falls nicht gemappt
+                // Default-Werte für Pflichtfelder falls nicht gemappt
+                if (!record.first_name) record.first_name = '';
+                if (!record.last_name) record.last_name = '';
                 if (record.old_amount === undefined || record.old_amount === null) {
                     record.old_amount = 0;
                 }
