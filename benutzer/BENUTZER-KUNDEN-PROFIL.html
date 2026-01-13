@@ -57,6 +57,7 @@
                         <select class="eingabefeld" id="namePrefix" onchange="updateCustomerNameDisplay(); updateFormForCustomerType();">
                             <option value="Landesverband">Landesverband</option>
                             <option value="Kreisverband" selected>Kreisverband</option>
+                            <option value="Stadtverband">Stadtverband</option>
                             <option value="Ortsverein">Ortsverein</option>
                         </select>
                         <span class="eingabefeld-beschriftung-unten"></span>
@@ -92,6 +93,7 @@
                 <select class="eingabefeld" id="type" style="display: none;">
                     <option value="landesverband">Landesverband</option>
                     <option value="kreisverband">Kreisverband</option>
+                    <option value="stadtverband">Stadtverband</option>
                     <option value="ortsverein">Ortsverein</option>
                 </select>
 
@@ -405,6 +407,7 @@
             const typeMap = {
                 'Landesverband': 'landesverband',
                 'Kreisverband': 'kreisverband',
+                'Stadtverband': 'stadtverband',
                 'Ortsverein': 'ortsverein'
             };
             document.getElementById('type').value = typeMap[prefix] || 'kreisverband';
@@ -413,8 +416,8 @@
         function updateFormForCustomerType() {
             const customerType = document.getElementById('namePrefix').value;
 
-            // Bei OV-Kunde: Automatisch Einsatzgebiet aus Kundendaten anlegen
-            if (customerType === 'Ortsverein') {
+            // Bei OV oder Stadtverband: Automatisch Einsatzgebiet aus Kundendaten anlegen
+            if (customerType === 'Ortsverein' || customerType === 'Stadtverband') {
                 createOrUpdateOvEinsatzgebiet();
             }
 
@@ -504,8 +507,8 @@
                 if (mainBtn) mainBtn.disabled = false;
                 addKvBtn.classList.add('disabled');
                 addOvBtn.classList.remove('disabled');
-            } else if (customerType === 'Ortsverein') {
-                // OV: Einsatzgebiet wird automatisch angelegt - Button komplett ausgegraut
+            } else if (customerType === 'Ortsverein' || customerType === 'Stadtverband') {
+                // OV/Stadtverband: Einsatzgebiet wird automatisch angelegt - Button komplett ausgegraut
                 dropdown.classList.remove('hidden');
                 if (mainBtn) mainBtn.disabled = true;
                 addKvBtn.classList.add('disabled');
