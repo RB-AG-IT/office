@@ -4286,7 +4286,7 @@ const BestandImportSystem = {
                     const dbFieldMap = {
                         firstName: 'first_name',
                         lastName: 'last_name',
-                        oldAmount: 'old_amount',
+                        oldYearlyAmount: 'old_amount',
                         memberNumber: 'member_number',
                         memberSince: 'member_since',
                         oldInterval: 'old_interval',
@@ -4311,7 +4311,7 @@ const BestandImportSystem = {
                     if (!dbField) continue;
 
                     // Wert konvertieren
-                    if (fieldId === 'oldAmount') {
+                    if (fieldId === 'oldYearlyAmount') {
                         record[dbField] = parseFloat(String(value).replace(',', '.')) || 0;
                     } else if (fieldId === 'memberSince' || fieldId === 'birthDate') {
                         // Datum konvertieren - verschiedene Formate erkennen -> YYYY-MM-DD für DB
@@ -4319,6 +4319,11 @@ const BestandImportSystem = {
                     } else {
                         record[dbField] = String(value).trim();
                     }
+                }
+
+                // Default-Wert für old_amount falls nicht gemappt
+                if (record.old_amount === undefined || record.old_amount === null) {
+                    record.old_amount = 0;
                 }
 
                 return record;
