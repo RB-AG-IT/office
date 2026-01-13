@@ -3485,7 +3485,8 @@ async function saveWgConfig() {
                 avv_url: wg.avv,
                 gruppenbild_url: wg.gruppenbild,
                 payment_modalities: wg.paymentModalities,
-                erhohungen_enabled: wg.erhohungen
+                erhohungen_enabled: wg.erhohungen,
+                active_kws: wg.kws
             })
             .eq('id', wg.id);
 
@@ -3876,11 +3877,13 @@ function renderKWDetails(campaign) {
         const vergebenerFaktor = kwDienste.reduce((sum, d) => sum + (d.faktor || 0), 0);
         const tcFaktorVerbleibend = Math.max(0, 1 - vergebenerFaktor);
 
-        // Werbegebiete dieser KW (nur wenn KW in wg.kws aktiviert ist)
+        // Werbegebiete dieser KW (nur wenn KW in wg.kws/active_kws aktiviert ist)
         const kwWerbegebiete = assignment.werbegebiete || campaignWerbegebiete.map(wg => wg.id);
-        const activeWerbegebiete = campaignWerbegebiete.filter(wg =>
-            kwWerbegebiete.includes(wg.id) && wg.kws && wg.kws.includes(kw)
-        );
+        const activeWerbegebiete = campaignWerbegebiete.filter(wg => {
+            const wgKws = wg.kws || wg.active_kws;
+            const isKwActive = !wgKws || wgKws.length === 0 || wgKws.includes(kw);
+            return kwWerbegebiete.includes(wg.id) && isKwActive;
+        });
 
         // MA-Zuordnung pro Werbegebiet
         const wgMaZuordnung = assignment.wgMaZuordnung || {};
