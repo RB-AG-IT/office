@@ -4331,6 +4331,9 @@ const BestandImportSystem = {
                 return record;
             });
 
+            // Debug: Ersten Record anzeigen
+            console.log('Import Records (erste 2):', records.slice(0, 2));
+
             // In Supabase einfügen
             const { data, error } = await supabase
                 .from('bestandsmitglieder')
@@ -4352,7 +4355,9 @@ const BestandImportSystem = {
 
         } catch (error) {
             console.error('Import-Fehler:', error);
-            showToast('Fehler beim Import: ' + error.message, 'error');
+            console.error('Error details:', error.details, error.hint, error.code);
+            const errorMsg = error.message || error.details || 'Unbekannter Fehler';
+            showToast('Fehler beim Import: ' + errorMsg, 'error');
         } finally {
             nextBtn.disabled = false;
             nextBtn.textContent = 'Importieren';
