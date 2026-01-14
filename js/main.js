@@ -12294,10 +12294,12 @@ async function ladeWerberStatistiken(options = {}) {
             .select('werber_id, yearly_amount, record_status, start_date');
 
         if (startDate) {
-            recordsQuery = recordsQuery.gte('start_date', startDate.toISOString().split('T')[0]);
+            const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+            recordsQuery = recordsQuery.gte('start_date', startStr);
         }
         if (endDate) {
-            recordsQuery = recordsQuery.lte('start_date', endDate.toISOString().split('T')[0] + 'T23:59:59');
+            const endStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+            recordsQuery = recordsQuery.lte('start_date', endStr + 'T23:59:59');
         }
 
         const { data: records, error: recordsError } = await recordsQuery;
@@ -12326,10 +12328,12 @@ async function ladeWerberStatistiken(options = {}) {
             .is('invoice_id', null);
 
         if (startDate) {
-            ledgerQuery = ledgerQuery.gte('referenz_datum', startDate.toISOString().split('T')[0]);
+            const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+            ledgerQuery = ledgerQuery.gte('referenz_datum', startStr);
         }
         if (endDate) {
-            ledgerQuery = ledgerQuery.lte('referenz_datum', endDate.toISOString().split('T')[0]);
+            const endStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+            ledgerQuery = ledgerQuery.lte('referenz_datum', endStr);
         }
 
         const { data: ledgerData, error: ledgerError } = await ledgerQuery;

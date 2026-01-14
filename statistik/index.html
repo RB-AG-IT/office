@@ -535,10 +535,12 @@
                 .select('customer_id, campaign_area_id, yearly_amount, record_status, start_date');
 
             if (periodStartDate) {
-                recordsQuery = recordsQuery.gte('start_date', periodStartDate.toISOString().split('T')[0]);
+                const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;
+                recordsQuery = recordsQuery.gte('start_date', startStr);
             }
             if (periodEndDate) {
-                recordsQuery = recordsQuery.lte('start_date', periodEndDate.toISOString().split('T')[0] + 'T23:59:59');
+                const endStr = `${periodEndDate.getFullYear()}-${String(periodEndDate.getMonth() + 1).padStart(2, '0')}-${String(periodEndDate.getDate()).padStart(2, '0')}`;
+                recordsQuery = recordsQuery.lte('start_date', endStr + 'T23:59:59');
             }
 
             const { data: records, error: recordsError } = await recordsQuery;
@@ -692,10 +694,12 @@
                 .select('campaign_id, campaign_area_id, yearly_amount, record_status, start_date');
 
             if (periodStartDate) {
-                recordsQuery = recordsQuery.gte('start_date', periodStartDate.toISOString().split('T')[0]);
+                const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;
+                recordsQuery = recordsQuery.gte('start_date', startStr);
             }
             if (periodEndDate) {
-                recordsQuery = recordsQuery.lte('start_date', periodEndDate.toISOString().split('T')[0] + 'T23:59:59');
+                const endStr = `${periodEndDate.getFullYear()}-${String(periodEndDate.getMonth() + 1).padStart(2, '0')}-${String(periodEndDate.getDate()).padStart(2, '0')}`;
+                recordsQuery = recordsQuery.lte('start_date', endStr + 'T23:59:59');
             }
 
             const { data: records, error: recordsError } = await recordsQuery;
