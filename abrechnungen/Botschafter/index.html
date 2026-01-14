@@ -12,6 +12,24 @@
     <!-- jsPDF für PDF-Generierung -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .checkbox-gruppe {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body class="abrechnungen-page">
 <div class="page-container">
@@ -237,6 +255,14 @@
     let abrechnungenFilter = 'geplant';
     let abrechnungWorkflowStep = 1;
     let abrechnungWorkflowData = {};
+
+    // Provisionsarten für Auswahl im Workflow
+    const provisionsArten = [
+        { id: 'werben', label: 'Werben' },
+        { id: 'teamleitung', label: 'TC (Teamleitung)' },
+        { id: 'quality', label: 'Quality' },
+        { id: 'empfehlung', label: 'Empfehlung' }
+    ];
 
     // Spalten-Konfiguration für Übersicht
     const columnsConfig = [
@@ -850,7 +876,8 @@
             typ: 'vorschuss',
             zeitraum: { von: new Date(), bis: new Date() },
             scheduledAt: null,
-            aktion: 'planen'
+            aktion: 'planen',
+            selectedProvisionen: provisionsArten.map(p => p.id) // Alle standardmäßig aktiviert
         };
         renderWorkflowStep();
         openModalById('abrechnungModal');
@@ -892,6 +919,19 @@
                         <input type="text" class="eingabefeld" id="zeitraumDisplay" value="${abrechnungWorkflowData.zeitraum.von.toLocaleDateString('de-DE')} - ${abrechnungWorkflowData.zeitraum.bis.toLocaleDateString('de-DE')}" readonly onclick="openZeitraumCalendar()">
                     </div>
                 </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Provisionsarten</label>
+                        <div class="checkbox-gruppe">
+                            ${provisionsArten.map(p => `
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="prov_${p.id}" ${abrechnungWorkflowData.selectedProvisionen.includes(p.id) ? 'checked' : ''} onchange="toggleProvisionArt('${p.id}')">
+                                    <span>${p.label}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
             `;
             footer.innerHTML = `
                 <button class="btn" onclick="closeModalById('abrechnungModal')">Abbrechen</button>
@@ -900,6 +940,8 @@
         } else if (abrechnungWorkflowStep === 2) {
             // Schritt 2: Vorschau
             title.textContent = `Vorschau: ${abrechnungWorkflowData.typ === 'vorschuss' ? 'Vorschuss' : 'Stornorücklage'}-Abrechnung`;
+
+            const selectedProv = abrechnungWorkflowData.selectedProvisionen;
 
             let cardsHtml = abrechnungWorkflowData.botschafter.map((b, idx) => {
                 // EH direkt aus Ledger (einheitenProKategorie)
@@ -910,11 +952,11 @@
                 const qualityFaktor = b.provisionSettings?.quality_faktor ?? 0.5;
                 const empfehlungFaktor = b.provisionSettings?.empfehlung_faktor ?? 0.5;
 
-                // Provisionen berechnen (EH × Faktor)
-                const bruttoWerben = ehKat.werben * b.faktor;
-                const tcProvision = ehKat.teamleitung * tcFaktor;
-                const qualityProvision = ehKat.quality * qualityFaktor;
-                const empfehlungProvision = ehKat.empfehlung * empfehlungFaktor;
+                // Provisionen berechnen (EH × Faktor) - nur wenn ausgewählt
+                const bruttoWerben = selectedProv.includes('werben') ? ehKat.werben * b.faktor : 0;
+                const tcProvision = selectedProv.includes('teamleitung') ? ehKat.teamleitung * tcFaktor : 0;
+                const qualityProvision = selectedProv.includes('quality') ? ehKat.quality * qualityFaktor : 0;
+                const empfehlungProvision = selectedProv.includes('empfehlung') ? ehKat.empfehlung * empfehlungFaktor : 0;
 
                 // Gesamt-Brutto
                 const bruttoGesamt = bruttoWerben + tcProvision + qualityProvision + empfehlungProvision;
@@ -944,21 +986,22 @@
                             <div class="abrechnung-card__amount">${formatEuro(netto)}</div>
                         </div>
                         <div class="abrechnung-card__body">
+                            ${selectedProv.includes('werben') ? `
                             <div class="abrechnung-card__row">
                                 <span>Werbe-Provision (${ehKat.werben.toFixed(2)} EH × ${b.faktor})</span>
                                 <span>${formatEuro(bruttoWerben)}</span>
-                            </div>
-                            ${tcProvision > 0 ? `
+                            </div>` : ''}
+                            ${selectedProv.includes('teamleitung') && tcProvision > 0 ? `
                             <div class="abrechnung-card__row">
                                 <span>TC-Provision (${ehKat.teamleitung.toFixed(2)} EH × ${tcFaktor})</span>
                                 <span>${formatEuro(tcProvision)}</span>
                             </div>` : ''}
-                            ${qualityProvision > 0 ? `
+                            ${selectedProv.includes('quality') && qualityProvision > 0 ? `
                             <div class="abrechnung-card__row">
                                 <span>Quality-Provision (${ehKat.quality.toFixed(2)} EH × ${qualityFaktor})</span>
                                 <span>${formatEuro(qualityProvision)}</span>
                             </div>` : ''}
-                            ${empfehlungProvision > 0 ? `
+                            ${selectedProv.includes('empfehlung') && empfehlungProvision > 0 ? `
                             <div class="abrechnung-card__row">
                                 <span>Empfehlungs-Provision (${ehKat.empfehlung.toFixed(2)} EH × ${empfehlungFaktor})</span>
                                 <span>${formatEuro(empfehlungProvision)}</span>
@@ -1185,6 +1228,15 @@
     function toggleAbrechnungCard(idx) {
         const card = document.querySelectorAll('.abrechnung-card')[idx];
         card.classList.toggle('expanded');
+    }
+
+    function toggleProvisionArt(id) {
+        const idx = abrechnungWorkflowData.selectedProvisionen.indexOf(id);
+        if (idx > -1) {
+            abrechnungWorkflowData.selectedProvisionen.splice(idx, 1);
+        } else {
+            abrechnungWorkflowData.selectedProvisionen.push(id);
+        }
     }
 
     async function saveAsEntwurf() {
