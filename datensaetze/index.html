@@ -865,6 +865,11 @@
             if (e.data && e.data.type === 'searchSelect') {
                 handleShellSearchSelect(e.data.id);
             }
+
+            // Zeitraum-Filter
+            if (e.data && e.data.type === 'periodFilter') {
+                handlePeriodFilter(e.data.value);
+            }
         });
 
         // Schnellsuche Handler
@@ -929,6 +934,87 @@
                     checkbox.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             }
+        }
+
+        // =============================================
+        // ZEITRAUM-FILTER
+        // =============================================
+        let allRecordsData = []; // Original-Daten ohne Filter
+        let currentPeriod = 'year';
+
+        function calculatePeriodDates(period) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            let start = null;
+            let end = null;
+
+            switch (period) {
+                case 'today':
+                    start = today;
+                    end = today;
+                    break;
+                case 'week':
+                    const dayOfWeek = today.getDay() || 7;
+                    start = new Date(today);
+                    start.setDate(today.getDate() - dayOfWeek + 1);
+                    end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    break;
+                case 'month':
+                    start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    break;
+                case 'quarter':
+                    const quarter = Math.floor(now.getMonth() / 3);
+                    start = new Date(now.getFullYear(), quarter * 3, 1);
+                    end = new Date(now.getFullYear(), quarter * 3 + 3, 0);
+                    break;
+                case 'year':
+                    start = new Date(now.getFullYear(), 0, 1);
+                    end = new Date(now.getFullYear(), 11, 31);
+                    break;
+                case 'all':
+                case 'custom':
+                default:
+                    start = null;
+                    end = null;
+                    break;
+            }
+
+            return { start, end };
+        }
+
+        function handlePeriodFilter(period) {
+            currentPeriod = period;
+
+            // Original-Daten sichern beim ersten Aufruf
+            if (allRecordsData.length === 0 && recordsData.length > 0) {
+                allRecordsData = [...recordsData];
+            }
+
+            const { start, end } = calculatePeriodDates(period);
+
+            if (start && end) {
+                // Nach Aufnahmedatum filtern (_raw.start_date ist das Original)
+                recordsData = allRecordsData.filter(record => {
+                    const rawDate = record._raw ? record._raw.start_date : null;
+                    const recordDate = rawDate ? new Date(rawDate) : null;
+                    if (!recordDate) return false;
+                    const recordDay = new Date(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate());
+                    return recordDay >= start && recordDay <= end;
+                });
+            } else {
+                // Kein Filter - alle anzeigen
+                recordsData = [...allRecordsData];
+            }
+
+            // Tabelle neu rendern
+            if (typeof renderRecordsTable === 'function') {
+                renderRecordsTable();
+            }
+
+            // Badge aktualisieren
+            document.getElementById('recordsBadge').textContent = recordsData.length;
         }
     </script>
 </body>
