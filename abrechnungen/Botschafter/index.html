@@ -1274,9 +1274,9 @@
         const adresseZeile1 = b.adresse ? `${b.adresse.street || ''} ${b.adresse.houseNumber || ''}`.trim() : '';
         const adresseZeile2 = b.adresse ? `${b.adresse.postalCode || ''} ${b.adresse.city || ''}`.trim() : '';
 
-        // Zeitraum formatieren
-        const vonDate = new Date(zeitraum.von);
-        const bisDate = new Date(zeitraum.bis);
+        // Zeitraum formatieren (sicherstellen dass es Date-Objekte sind)
+        const vonDate = zeitraum.von instanceof Date && !isNaN(zeitraum.von) ? zeitraum.von : new Date();
+        const bisDate = zeitraum.bis instanceof Date && !isNaN(zeitraum.bis) ? zeitraum.bis : new Date();
         const kwVon = getKW(vonDate);
         const kwBis = getKW(bisDate);
         const zeitraumText = `Abrechnungszeitraum KW ${String(kwVon).padStart(2, '0')}–${String(kwBis).padStart(2, '0')} · ${bisDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}`;
