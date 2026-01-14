@@ -12233,18 +12233,19 @@ async function ladeWerberStatistiken(options = {}) {
     const { startDate, endDate } = options;
 
     try {
-        // 1. Alle Werber laden
+        // 1. Alle Werber laden (inkl. created_at für Personalnummer)
         const { data: users, error: usersError } = await supabase
             .from('users')
-            .select('id, name, email, avatar_url')
-            .eq('role', 'werber');
+            .select('id, name, email, avatar_url, created_at')
+            .eq('role', 'werber')
+            .order('created_at', { ascending: true });
 
         if (usersError) throw usersError;
 
-        // 2. User Profiles laden (Profilbilder, Vorschuss-Anteil)
+        // 2. User Profiles laden (Profilbilder, Vorschuss-Anteil, Adresse)
         const { data: profilesData } = await supabase
             .from('user_profiles')
-            .select('user_id, photo_intern_url, advance_rate, reserve_rate');
+            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city');
 
         const profilesMap = {};
         (profilesData || []).forEach(p => {
@@ -12522,7 +12523,7 @@ async function ladeWerberStatistiken(options = {}) {
         });
 
         // 13. Werber-Daten zusammenbauen
-        return (users || []).map(user => {
+        return (users || []).map((user, userIndex) => {
             // Record-Statistiken (total, aktiv, storno, nettoJE)
             const recordStats = recordStatsMap[user.id] || { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
             // Ledger-Statistiken (einheiten pro Kategorie)
@@ -12556,9 +12557,19 @@ async function ladeWerberStatistiken(options = {}) {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                createdAt: user.created_at,
+                userIndex: userIndex + 1, // Fortlaufende Nummer (1-basiert)
                 initials: initials,
                 color: '#6366f1',
                 image: profile.photo_intern_url || '',
+
+                // Adresse (für PDF-Abrechnungen)
+                adresse: {
+                    street: profile.street || '',
+                    houseNumber: profile.house_number || '',
+                    postalCode: profile.postal_code || '',
+                    city: profile.city || ''
+                },
 
                 // Karriere
                 karrierestufe: career.stufe,

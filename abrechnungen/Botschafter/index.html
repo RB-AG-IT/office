@@ -12,6 +12,8 @@
     <!-- jsPDF für PDF-Generierung -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+    <!-- html2pdf für HTML zu PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .checkbox-gruppe {
             display: flex;
@@ -261,7 +263,8 @@
         { id: 'werben', label: 'Werben' },
         { id: 'teamleitung', label: 'TC (Teamleitung)' },
         { id: 'quality', label: 'Quality' },
-        { id: 'empfehlung', label: 'Empfehlung' }
+        { id: 'empfehlung', label: 'Empfehlung' },
+        { id: 'recruiting', label: 'Recruiting' }
     ];
 
     // Spalten-Konfiguration für Übersicht
@@ -951,15 +954,17 @@
                 const tcFaktor = b.provisionSettings?.tc_faktor ?? 1.0;
                 const qualityFaktor = b.provisionSettings?.quality_faktor ?? 0.5;
                 const empfehlungFaktor = b.provisionSettings?.empfehlung_faktor ?? 0.5;
+                const recruitingFaktor = b.provisionSettings?.recruiting_faktor ?? 1.0;
 
                 // Provisionen berechnen (EH × Faktor) - nur wenn ausgewählt
                 const bruttoWerben = selectedProv.includes('werben') ? ehKat.werben * b.faktor : 0;
                 const tcProvision = selectedProv.includes('teamleitung') ? ehKat.teamleitung * tcFaktor : 0;
                 const qualityProvision = selectedProv.includes('quality') ? ehKat.quality * qualityFaktor : 0;
                 const empfehlungProvision = selectedProv.includes('empfehlung') ? ehKat.empfehlung * empfehlungFaktor : 0;
+                const recruitingProvision = selectedProv.includes('recruiting') ? ehKat.recruiting * recruitingFaktor : 0;
 
                 // Gesamt-Brutto
-                const bruttoGesamt = bruttoWerben + tcProvision + qualityProvision + empfehlungProvision;
+                const bruttoGesamt = bruttoWerben + tcProvision + qualityProvision + empfehlungProvision + recruitingProvision;
                 const stornorucklage = bruttoGesamt * (1 - b.vorschussAnteil / 100);
                 const vorschuss = bruttoGesamt - stornorucklage;
                 const netto = vorschuss - b.abzuegeUnterkunft - b.abzuegeSonderposten;
@@ -970,6 +975,7 @@
                     tcProvision,
                     qualityProvision,
                     empfehlungProvision,
+                    recruitingProvision,
                     bruttoGesamt,
                     stornorucklage,
                     vorschuss,
@@ -1006,7 +1012,12 @@
                                 <span>Empfehlungs-Provision (${ehKat.empfehlung.toFixed(2)} EH × ${empfehlungFaktor})</span>
                                 <span>${formatEuro(empfehlungProvision)}</span>
                             </div>` : ''}
-                            ${(tcProvision > 0 || qualityProvision > 0 || empfehlungProvision > 0) ? `
+                            ${selectedProv.includes('recruiting') && recruitingProvision > 0 ? `
+                            <div class="abrechnung-card__row">
+                                <span>Recruiting-Provision (${ehKat.recruiting.toFixed(2)} EH × ${recruitingFaktor})</span>
+                                <span>${formatEuro(recruitingProvision)}</span>
+                            </div>` : ''}
+                            ${(tcProvision > 0 || qualityProvision > 0 || empfehlungProvision > 0 || recruitingProvision > 0) ? `
                             <div class="abrechnung-card__row abrechnung-card__row--subtotal">
                                 <span>Brutto Gesamt</span>
                                 <span>${formatEuro(bruttoGesamt)}</span>
@@ -1244,9 +1255,349 @@
         closeModalById('abrechnungModal');
     }
 
-    function downloadAbrechnungenPDF() {
-        // TODO: PDF-Generierung implementieren
+    // Personalnummer generieren: RB{JJ}-{MM}-{NNNN}
+    function generatePersonalnummer(createdAt, userIndex) {
+        const date = new Date(createdAt);
+        const year = String(date.getFullYear()).slice(-2);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const num = String(userIndex).padStart(4, '0');
+        return `RB${year}-${month}-${num}`;
+    }
+
+    // Invoice HTML Template generieren
+    function generateInvoiceHTML(b, calc, zeitraum, invoiceNumber) {
+        const today = new Date();
+        const personalnummer = generatePersonalnummer(b.createdAt, b.userIndex);
+        const abrechnungsDatum = today.toLocaleDateString('de-DE');
+
+        // Adresse formatieren
+        const adresseZeile1 = b.adresse ? `${b.adresse.street || ''} ${b.adresse.houseNumber || ''}`.trim() : '';
+        const adresseZeile2 = b.adresse ? `${b.adresse.postalCode || ''} ${b.adresse.city || ''}`.trim() : '';
+
+        // Zeitraum formatieren
+        const vonDate = new Date(zeitraum.von);
+        const bisDate = new Date(zeitraum.bis);
+        const kwVon = getKW(vonDate);
+        const kwBis = getKW(bisDate);
+        const zeitraumText = `Abrechnungszeitraum KW ${String(kwVon).padStart(2, '0')}–${String(kwBis).padStart(2, '0')} · ${bisDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}`;
+
+        // Vorschuss-Anteil
+        const vorschussAnteil = b.vorschussAnteil || 75;
+
+        // Provisionszeilen generieren
+        let positionsHtml = '';
+
+        if (calc.bruttoWerben > 0) {
+            const brutto = calc.bruttoWerben / (vorschussAnteil / 100);
+            positionsHtml += generatePositionCard('werben', 'Werben', brutto, vorschussAnteil, calc.bruttoWerben);
+        }
+        if (calc.tcProvision > 0) {
+            const brutto = calc.tcProvision / (vorschussAnteil / 100);
+            positionsHtml += generatePositionCard('teamleitung', 'Teamleitung', brutto, vorschussAnteil, calc.tcProvision);
+        }
+        if (calc.qualityProvision > 0) {
+            const brutto = calc.qualityProvision / (vorschussAnteil / 100);
+            positionsHtml += generatePositionCard('quality', 'Quality', brutto, vorschussAnteil, calc.qualityProvision);
+        }
+        if (calc.empfehlungProvision > 0) {
+            const brutto = calc.empfehlungProvision / (vorschussAnteil / 100);
+            positionsHtml += generatePositionCard('empfehlung', 'Empfehlung', brutto, vorschussAnteil, calc.empfehlungProvision);
+        }
+        if (calc.recruitingProvision > 0) {
+            const brutto = calc.recruitingProvision / (vorschussAnteil / 100);
+            positionsHtml += generatePositionCard('recruiting', 'Recruiting', brutto, vorschussAnteil, calc.recruitingProvision);
+        }
+
+        return `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vorschuss-Abrechnung</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1408 0%, #2d2310 50%, #3d2e14 100%);
+            min-height: 100vh;
+            padding: 40px;
+            color: #fff;
+        }
+        .invoice-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            padding: 50px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        .employee-info .card-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .employee-info .name { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .employee-info .address { font-size: 14px; color: rgba(255, 255, 255, 0.6); line-height: 1.6; }
+        .invoice-meta { text-align: right; }
+        .meta-row { display: flex; gap: 40px; margin-bottom: 20px; justify-content: flex-end; }
+        .meta-row:last-child { margin-bottom: 0; }
+        .meta-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255, 255, 255, 0.4); margin-bottom: 5px; }
+        .meta-item .value { font-size: 15px; font-weight: 600; color: #fff; }
+        .meta-item .rank {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700, #b8860b);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1408;
+        }
+        .invoice-title { text-align: center; margin-bottom: 50px; }
+        .invoice-title h2 {
+            font-size: 42px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #ffd700 0%, #daa520 50%, #b8860b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .invoice-title .subtitle { font-size: 14px; color: rgba(255, 255, 255, 0.5); margin-top: 10px; letter-spacing: 2px; }
+        .positions-section { margin-bottom: 40px; }
+        .section-header {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .position-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-radius: 16px;
+            padding: 25px 30px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .position-info { display: flex; align-items: center; gap: 20px; }
+        .position-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+        .position-icon svg { width: 24px; height: 24px; }
+        .position-icon.werben { background: linear-gradient(135deg, #ffd700, #daa520); }
+        .position-icon.teamleitung { background: linear-gradient(135deg, #b8860b, #8b6914); }
+        .position-icon.quality { background: linear-gradient(135deg, #d4af37, #aa8c2c); }
+        .position-icon.empfehlung { background: linear-gradient(135deg, #f0c040, #c9a030); }
+        .position-icon.recruiting { background: linear-gradient(135deg, #e6be44, #c4a035); }
+        .position-name { font-size: 18px; font-weight: 600; }
+        .position-details { display: flex; align-items: center; gap: 40px; }
+        .position-calc { text-align: right; color: rgba(255, 255, 255, 0.5); font-size: 13px; }
+        .position-calc span { color: rgba(255, 255, 255, 0.7); font-weight: 500; }
+        .position-amount {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffd700, #f0c040);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            min-width: 140px;
+            text-align: right;
+        }
+        .total-section {
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+            border-radius: 20px;
+            padding: 35px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.3);
+        }
+        .total-label { font-size: 14px; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; color: #1a1408; }
+        .total-amount { font-size: 52px; font-weight: 900; letter-spacing: -2px; color: #1a1408; }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 215, 0, 0.15);
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 11px;
+        }
+        .footer span { letter-spacing: 0.5px; }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <div class="employee-info">
+                <div class="card-label">Mitarbeiter</div>
+                <div class="name">${b.name}</div>
+                <div class="address">${adresseZeile1}<br>${adresseZeile2}</div>
+            </div>
+            <div class="invoice-meta">
+                <div class="meta-row">
+                    <div class="meta-item">
+                        <div class="label">Personalnummer</div>
+                        <div class="value">${personalnummer}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="label">Rank</div>
+                        <div class="rank">${b.karrierestufe || '-'}</div>
+                    </div>
+                </div>
+                <div class="meta-row">
+                    <div class="meta-item">
+                        <div class="label">Rechnungsnummer</div>
+                        <div class="value">${invoiceNumber}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="label">Abrechnungsdatum</div>
+                        <div class="value">${abrechnungsDatum}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="invoice-title">
+            <h2>Vorschuss-Abrechnung</h2>
+            <div class="subtitle">${zeitraumText}</div>
+        </div>
+        <div class="positions-section">
+            <div class="section-header">Provisionsübersicht</div>
+            ${positionsHtml}
+        </div>
+        <div class="total-section">
+            <div class="total-label">Auszahlungsbetrag</div>
+            <div class="total-amount">${formatEuro(calc.netto)}</div>
+        </div>
+        <div class="footer">
+            <span>${b.name}</span>
+            <span>${invoiceNumber}</span>
+            <span>${personalnummer}</span>
+            <span>${abrechnungsDatum}</span>
+        </div>
+    </div>
+</body>
+</html>`;
+    }
+
+    // Position Card HTML generieren
+    function generatePositionCard(type, name, brutto, vorschussAnteil, netto) {
+        const icons = {
+            werben: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>',
+            teamleitung: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            quality: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+            empfehlung: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+            recruiting: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>'
+        };
+
+        return `
+            <div class="position-card">
+                <div class="position-info">
+                    <div class="position-icon ${type}">${icons[type]}</div>
+                    <div class="position-name">${name}</div>
+                </div>
+                <div class="position-details">
+                    <div class="position-calc"><span>${formatEuro(brutto)}</span> × ${vorschussAnteil}%</div>
+                    <div class="position-amount">${formatEuro(netto)}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // KW berechnen
+    function getKW(date) {
+        const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        const dayNum = d.getUTCDay() || 7;
+        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    async function downloadAbrechnungenPDF() {
         showToast('PDF-Download wird vorbereitet...', 'info');
+
+        const botschafter = abrechnungWorkflowData.botschafter;
+        if (!botschafter || botschafter.length === 0) {
+            showToast('Keine Botschafter für PDF-Download', 'warning');
+            return;
+        }
+
+        // Für jeden Botschafter ein PDF generieren
+        for (let i = 0; i < botschafter.length; i++) {
+            const b = botschafter[i];
+            const calc = b._berechnungen;
+
+            if (!calc) {
+                console.warn(`Keine Berechnungen für ${b.name}`);
+                continue;
+            }
+
+            // Rechnungsnummer generieren
+            const year = new Date().getFullYear();
+            const invoiceNumber = `GS-V-${year}-${String(i + 1).padStart(4, '0')}`;
+
+            // HTML generieren
+            const html = generateInvoiceHTML(b, calc, abrechnungWorkflowData.zeitraum, invoiceNumber);
+
+            // HTML in temporäres Element einfügen
+            const container = document.createElement('div');
+            container.innerHTML = html;
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            document.body.appendChild(container);
+
+            // PDF generieren
+            const opt = {
+                margin: 0,
+                filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${invoiceNumber}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            try {
+                await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).save();
+            } catch (err) {
+                console.error('PDF-Fehler für', b.name, err);
+            }
+
+            // Container entfernen
+            document.body.removeChild(container);
+
+            // Kurze Pause zwischen Downloads
+            if (i < botschafter.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        showToast(`${botschafter.length} PDF(s) heruntergeladen`, 'success');
     }
 
     async function createAbrechnungen() {
