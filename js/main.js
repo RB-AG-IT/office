@@ -12291,7 +12291,7 @@ async function ladeWerberStatistiken(options = {}) {
         // 4. Records laden (für Statistik: total, aktiv, storno, nettoJE)
         let recordsQuery = supabase
             .from('records')
-            .select('werber_id, yearly_amount, record_status, start_date');
+            .select('werber_id, yearly_amount, record_status, start_date, record_type, old_amount');
 
         if (startDate) {
             const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
@@ -12315,7 +12315,9 @@ async function ladeWerberStatistiken(options = {}) {
             recordStatsMap[r.werber_id].total++;
             if (r.record_status === 'aktiv') {
                 recordStatsMap[r.werber_id].aktiv++;
-                recordStatsMap[r.werber_id].nettoJE += (r.yearly_amount || 0);
+                const isERH = r.record_type === 'erhoehung';
+                const nettoValue = isERH ? ((r.yearly_amount || 0) - (r.old_amount || 0)) : (r.yearly_amount || 0);
+                recordStatsMap[r.werber_id].nettoJE += nettoValue;
             } else if (r.record_status === 'storno') {
                 recordStatsMap[r.werber_id].storno++;
             }
