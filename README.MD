@@ -107,4 +107,4 @@ Persistente Shell-Toolbar mit 3 festen Bereichen:
 2. Bei jeder Gelegenheit: Auf Zentralisierung hinweisen
 3. Doppelten Code identifizieren und Zusammenführung vorschlagen
 4. Keine eigenmächtigen Änderungen - immer erst fragen
-5. Wir arbeiten nur LOKAL, kein git hub verwenden für irgendwas!
+5. Git Workflow: Nach jeder Änderung `git add` → `git commit` → `git push`
