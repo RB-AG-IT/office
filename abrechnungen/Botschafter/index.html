@@ -347,6 +347,7 @@
                     users!invoices_user_id_fkey(
                         name,
                         email,
+                        address,
                         user_profiles(photo_url),
                         user_roles!user_roles_user_id_fkey(role_name)
                     )
@@ -361,6 +362,7 @@
                 users: inv.users ? {
                     name: inv.users.name,
                     email: inv.users.email,
+                    address: inv.users.address || {},
                     karrierestufe: inv.users.user_roles?.[0]?.role_name || '',
                     image: inv.users.user_profiles?.[0]?.photo_url || ''
                 } : null
@@ -1678,6 +1680,42 @@
         return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
     }
 
+    // ========== ZENTRALE PDF-GENERIERUNG ==========
+    async function generateAndDownloadPDF(data) {
+        // data enthält: b, calc, zeitraum, invoiceNumber
+        const { b, calc, zeitraum, invoiceNumber } = data;
+
+        // HTML generieren
+        const html = generateInvoiceHTML(b, calc, zeitraum, invoiceNumber);
+
+        // HTML in temporäres Element einfügen
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '0';
+        document.body.appendChild(container);
+
+        // PDF generieren
+        const opt = {
+            margin: 0,
+            filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${invoiceNumber}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 6, useCORS: true, backgroundColor: '#ffffff' },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).save();
+        } catch (err) {
+            console.error('PDF-Fehler:', err);
+            throw err;
+        }
+
+        // Container entfernen
+        document.body.removeChild(container);
+    }
+
     async function downloadAbrechnungenPDF() {
         showToast('PDF-Download wird vorbereitet...', 'info');
 
@@ -1687,7 +1725,8 @@
             return;
         }
 
-        // Für jeden Botschafter ein PDF generieren
+        const year = new Date().getFullYear();
+
         for (let i = 0; i < botschafter.length; i++) {
             const b = botschafter[i];
             const calc = b._berechnungen;
@@ -1697,38 +1736,16 @@
                 continue;
             }
 
-            // Rechnungsnummer generieren
-            const year = new Date().getFullYear();
-            const invoiceNumber = `GS-V-${year}-${String(i + 1).padStart(4, '0')}`;
-
-            // HTML generieren
-            const html = generateInvoiceHTML(b, calc, abrechnungWorkflowData.zeitraum, invoiceNumber);
-
-            // HTML in temporäres Element einfügen
-            const container = document.createElement('div');
-            container.innerHTML = html;
-            container.style.position = 'absolute';
-            container.style.left = '-9999px';
-            container.style.top = '0';
-            document.body.appendChild(container);
-
-            // PDF generieren
-            const opt = {
-                margin: 0,
-                filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${invoiceNumber}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 6, useCORS: true, backgroundColor: '#ffffff' },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
             try {
-                await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).save();
+                await generateAndDownloadPDF({
+                    b: b,
+                    calc: calc,
+                    zeitraum: abrechnungWorkflowData.zeitraum,
+                    invoiceNumber: `GS-V-${year}-${String(i + 1).padStart(4, '0')}`
+                });
             } catch (err) {
                 console.error('PDF-Fehler für', b.name, err);
             }
-
-            // Container entfernen
-            document.body.removeChild(container);
 
             // Kurze Pause zwischen Downloads
             if (i < botschafter.length - 1) {
@@ -1782,6 +1799,8 @@
                     faktor: b.faktor,
                     karrierestufe: b.karrierestufe,
                     vorschussAnteil: b.vorschussAnteil,
+                    einheitenProKategorie: b.einheitenProKategorie || {},
+                    provisionSettings: b.provisionSettings || {},
                     scheduled_send_at: abrechnungWorkflowData.scheduledAt?.toISOString() || null
                 });
             }
@@ -1847,63 +1866,48 @@
 
         showToast('PDF wird generiert...', 'info');
 
+        // Daten aus calculation_data extrahieren
+        const calcData = inv.calculation_data || {};
+
         // Datenstruktur für generateInvoiceHTML rekonstruieren
         const b = {
             name: inv.users?.name || 'Unbekannt',
-            adresse: inv.address || {},
-            karrierestufe: inv.users?.karrierestufe || '',
+            adresse: inv.users?.address || {},
+            karrierestufe: calcData.karrierestufe || inv.users?.karrierestufe || '',
             createdAt: inv.created_at,
             userIndex: 1,
-            vorschussAnteil: inv.vorschuss_anteil || 75,
-            einheitenProKategorie: inv.einheiten_pro_kategorie || {},
-            provisionSettings: inv.provision_settings || {},
-            faktor: inv.faktor || 1.0
+            vorschussAnteil: calcData.vorschuss_anteil || 75,
+            einheitenProKategorie: calcData.einheiten_pro_kategorie || {},
+            provisionSettings: calcData.provision_settings || {},
+            faktor: calcData.faktor || 1.0
         };
 
         const calc = {
-            bruttoWerben: inv.provisionen?.werben || 0,
-            tcProvision: inv.provisionen?.teamleitung || 0,
-            qualityProvision: inv.provisionen?.quality || 0,
-            empfehlungProvision: inv.provisionen?.empfehlung || 0,
-            recruitingProvision: inv.provisionen?.recruiting || 0,
+            bruttoWerben: calcData.provisionen?.werben || 0,
+            tcProvision: calcData.provisionen?.teamleitung || 0,
+            qualityProvision: calcData.provisionen?.quality || 0,
+            empfehlungProvision: calcData.provisionen?.empfehlung || 0,
+            recruitingProvision: calcData.provisionen?.recruiting || 0,
             netto: inv.netto_auszahlung || 0
         };
 
         const zeitraum = {
-            von: new Date(inv.zeitraum_von),
-            bis: new Date(inv.zeitraum_bis)
-        };
-
-        // HTML generieren
-        const html = generateInvoiceHTML(b, calc, zeitraum, inv.invoice_number);
-
-        // HTML in temporäres Element einfügen
-        const container = document.createElement('div');
-        container.innerHTML = html;
-        container.style.position = 'absolute';
-        container.style.left = '-9999px';
-        container.style.top = '0';
-        document.body.appendChild(container);
-
-        // PDF generieren
-        const opt = {
-            margin: 0,
-            filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${inv.invoice_number}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 6, useCORS: true, backgroundColor: '#ffffff' },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            von: new Date(inv.period_start),
+            bis: new Date(inv.period_end)
         };
 
         try {
-            await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).save();
+            await generateAndDownloadPDF({
+                b: b,
+                calc: calc,
+                zeitraum: zeitraum,
+                invoiceNumber: inv.invoice_number
+            });
             showToast('PDF heruntergeladen', 'success');
         } catch (err) {
             console.error('PDF-Fehler:', err);
             showToast('Fehler beim PDF-Download', 'error');
         }
-
-        // Container entfernen
-        document.body.removeChild(container);
     }
 
     async function downloadSelectedInvoices() {

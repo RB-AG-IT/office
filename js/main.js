@@ -11987,7 +11987,9 @@ async function erstelleAbrechnung(data) {
             faktor: data.faktor,
             karrierestufe: data.karrierestufe,
             vorschuss_anteil: data.vorschussAnteil,
-            provisionen: provisionen
+            provisionen: provisionen,
+            einheiten_pro_kategorie: data.einheitenProKategorie || {},
+            provision_settings: data.provisionSettings || {}
         },
         status: 'entwurf',
         scheduled_send_at: data.scheduled_send_at || null
