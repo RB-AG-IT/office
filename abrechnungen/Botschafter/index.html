@@ -1815,6 +1815,13 @@
         try {
             const year = new Date().getFullYear();
 
+            // Kategorie aus selectedProvisionen ableiten
+            const selectedProv = abrechnungWorkflowData.selectedProvisionen;
+            let kategorie = 'all';
+            if (selectedProv.length === 1) {
+                kategorie = selectedProv[0];
+            }
+
             for (const b of abrechnungWorkflowData.botschafter) {
                 // Berechnungen aus Vorschau verwenden (b._berechnungen wurde in Schritt 2 gesetzt)
                 if (!b._berechnungen) {
@@ -1854,6 +1861,7 @@
                     vorschussAnteil: b.vorschussAnteil,
                     einheitenProKategorie: b.einheitenProKategorie || {},
                     provisionSettings: b.provisionSettings || {},
+                    kategorie: kategorie,
                     scheduled_send_at: abrechnungWorkflowData.scheduledAt?.toISOString() || null
                 });
 
