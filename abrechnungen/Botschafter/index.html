@@ -1279,7 +1279,10 @@
         const bisDate = zeitraum.bis instanceof Date && !isNaN(zeitraum.bis) ? zeitraum.bis : new Date();
         const kwVon = getKW(vonDate);
         const kwBis = getKW(bisDate);
-        const zeitraumText = `Abrechnungszeitraum KW ${String(kwVon).padStart(2, '0')}–${String(kwBis).padStart(2, '0')} · ${bisDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}`;
+        const kwText = kwVon === kwBis
+            ? `KW ${String(kwVon).padStart(2, '0')}`
+            : `KW ${String(kwVon).padStart(2, '0')}–${String(kwBis).padStart(2, '0')}`;
+        const zeitraumText = `Abrechnungszeitraum ${kwText} · ${bisDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}`;
 
         // Vorschuss-Anteil
         const vorschussAnteil = b.vorschussAnteil || 75;
