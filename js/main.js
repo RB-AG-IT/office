@@ -11955,11 +11955,14 @@ async function erstelleAbrechnung(data) {
         werben: data.brutto,
         teamleitung: 0,
         quality: 0,
-        empfehlung: 0
+        empfehlung: 0,
+        recruiting: 0
     };
+    // Recruiting hinzufügen falls nicht vorhanden
+    if (!provisionen.recruiting) provisionen.recruiting = 0;
 
-    // Gesamt-Provisionen berechnen
-    const gesamtProvision = provisionen.werben + provisionen.teamleitung + provisionen.quality + provisionen.empfehlung;
+    // Gesamt-Provisionen berechnen (inkl. recruiting)
+    const gesamtProvision = provisionen.werben + provisionen.teamleitung + provisionen.quality + provisionen.empfehlung + provisionen.recruiting;
     const gesamtVorschuss = gesamtProvision * (data.vorschussAnteil / 100);
     const gesamtStornorucklage = gesamtProvision - gesamtVorschuss;
 
@@ -11983,6 +11986,9 @@ async function erstelleAbrechnung(data) {
         gesamt_vorschuss: gesamtVorschuss,
         gesamt_stornorucklage: gesamtStornorucklage,
         calculation_data: {
+            // Snapshot der Botschafter-Daten bei Erstellung (unveränderlich)
+            name: data.name,
+            adresse: data.adresse || {},
             einheiten: data.einheiten,
             faktor: data.faktor,
             karrierestufe: data.karrierestufe,

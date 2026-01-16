@@ -1685,6 +1685,68 @@
     }
 
     // ========== ZENTRALE PDF-GENERIERUNG ==========
+
+    // PDF als Blob generieren (für Upload)
+    async function generatePDFBlob(data) {
+        const { b, calc, zeitraum, invoiceNumber } = data;
+        const html = generateInvoiceHTML(b, calc, zeitraum, invoiceNumber);
+
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '0';
+        document.body.appendChild(container);
+
+        const opt = {
+            margin: 0,
+            filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${invoiceNumber}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 6, useCORS: true, backgroundColor: '#ffffff' },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            const pdfBlob = await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).outputPdf('blob');
+            document.body.removeChild(container);
+            return pdfBlob;
+        } catch (err) {
+            document.body.removeChild(container);
+            throw err;
+        }
+    }
+
+    // PDF in Supabase Storage hochladen
+    async function uploadPDFToStorage(pdfBlob, invoiceNumber, year, type = 'botschafter') {
+        const supabase = window.parent?.supabaseClient || window.supabaseClient;
+        if (!supabase) throw new Error('Supabase nicht verfügbar');
+
+        const filePath = `${type}/${year}/${invoiceNumber}.pdf`;
+
+        const { data, error } = await supabase.storage
+            .from('abrechnungen')
+            .upload(filePath, pdfBlob, {
+                contentType: 'application/pdf',
+                upsert: true
+            });
+
+        if (error) throw error;
+        return filePath;
+    }
+
+    // PDF-Pfad in Invoice speichern
+    async function updateInvoicePdfPath(invoiceId, pdfPath) {
+        const supabase = window.parent?.supabaseClient || window.supabaseClient;
+        if (!supabase) throw new Error('Supabase nicht verfügbar');
+
+        const { error } = await supabase
+            .from('invoices')
+            .update({ pdf_path: pdfPath })
+            .eq('id', invoiceId);
+
+        if (error) throw error;
+    }
+
     async function generateAndDownloadPDF(data) {
         // data enthält: b, calc, zeitraum, invoiceNumber
         const { b, calc, zeitraum, invoiceNumber } = data;
@@ -1780,18 +1842,22 @@
                 // Abrechnung erstellen über zentrale Funktion (erweitert für Ledger)
                 const created = await erstelleAbrechnung({
                     userId: b.id,
+                    // Snapshot der Botschafter-Daten (für PDF-Reproduktion)
+                    name: b.name,
+                    adresse: b.adresse || {},
                     invoice_type: abrechnungWorkflowData.typ,
                     zeitraum: {
                         von: abrechnungWorkflowData.zeitraum.von.toISOString().split('T')[0],
                         bis: abrechnungWorkflowData.zeitraum.bis.toISOString().split('T')[0]
                     },
                     year: year,
-                    // Einzelne Provisions-Typen (Ledger-Prinzip)
+                    // Einzelne Provisions-Typen (Ledger-Prinzip, inkl. recruiting)
                     provisionen: {
                         werben: calc.bruttoWerben,
                         teamleitung: calc.tcProvision,
                         quality: calc.qualityProvision,
-                        empfehlung: calc.empfehlungProvision
+                        empfehlung: calc.empfehlungProvision,
+                        recruiting: calc.recruitingProvision || 0
                     },
                     brutto: calc.bruttoGesamt,
                     vorschuss: calc.vorschuss,
@@ -1807,6 +1873,17 @@
                     provisionSettings: b.provisionSettings || {},
                     scheduled_send_at: abrechnungWorkflowData.scheduledAt?.toISOString() || null
                 });
+
+                // PDF generieren und in Storage speichern
+                const pdfBlob = await generatePDFBlob({
+                    b: b,
+                    calc: calc,
+                    zeitraum: abrechnungWorkflowData.zeitraum,
+                    invoiceNumber: created.invoice_number
+                });
+
+                const pdfPath = await uploadPDFToStorage(pdfBlob, created.invoice_number, year, 'botschafter');
+                await updateInvoicePdfPath(created.id, pdfPath);
             }
 
             showToast(`${abrechnungWorkflowData.botschafter.length} Abrechnung(en) erfolgreich erstellt`, 'success');
@@ -1868,49 +1945,79 @@
             return;
         }
 
-        showToast('PDF wird generiert...', 'info');
+        // Prüfen ob PDF im Storage existiert
+        if (inv.pdf_path) {
+            showToast('PDF wird heruntergeladen...', 'info');
 
-        // Daten aus calculation_data extrahieren
-        const calcData = inv.calculation_data || {};
+            try {
+                const supabase = window.parent?.supabaseClient || window.supabaseClient;
+                if (!supabase) throw new Error('Supabase nicht verfügbar');
 
-        // Datenstruktur für generateInvoiceHTML rekonstruieren
-        const b = {
-            name: inv.users?.name || 'Unbekannt',
-            adresse: inv.users?.address || {},
-            karrierestufe: calcData.karrierestufe || inv.users?.karrierestufe || '',
-            createdAt: inv.created_at,
-            userIndex: 1,
-            vorschussAnteil: calcData.vorschuss_anteil || 75,
-            einheitenProKategorie: calcData.einheiten_pro_kategorie || {},
-            provisionSettings: calcData.provision_settings || {},
-            faktor: calcData.faktor || 1.0
-        };
+                const { data, error } = await supabase.storage
+                    .from('abrechnungen')
+                    .download(inv.pdf_path);
 
-        const calc = {
-            bruttoWerben: calcData.provisionen?.werben || 0,
-            tcProvision: calcData.provisionen?.teamleitung || 0,
-            qualityProvision: calcData.provisionen?.quality || 0,
-            empfehlungProvision: calcData.provisionen?.empfehlung || 0,
-            recruitingProvision: calcData.provisionen?.recruiting || 0,
-            netto: inv.netto_auszahlung || 0
-        };
+                if (error) throw error;
 
-        const zeitraum = {
-            von: new Date(inv.period_start),
-            bis: new Date(inv.period_end)
-        };
+                // Blob als Datei herunterladen
+                const url = URL.createObjectURL(data);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${inv.invoice_number}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
 
-        try {
-            await generateAndDownloadPDF({
-                b: b,
-                calc: calc,
-                zeitraum: zeitraum,
-                invoiceNumber: inv.invoice_number
-            });
-            showToast('PDF heruntergeladen', 'success');
-        } catch (err) {
-            console.error('PDF-Fehler:', err);
-            showToast('Fehler beim PDF-Download', 'error');
+                showToast('PDF heruntergeladen', 'success');
+            } catch (err) {
+                console.error('PDF-Download-Fehler:', err);
+                showToast('Fehler beim PDF-Download', 'error');
+            }
+        } else {
+            // Fallback: PDF neu generieren für alte Abrechnungen ohne pdf_path
+            showToast('PDF wird generiert (alte Abrechnung)...', 'info');
+
+            const calcData = inv.calculation_data || {};
+
+            const b = {
+                name: calcData.name || inv.users?.name || 'Unbekannt',
+                adresse: calcData.adresse || inv.users?.address || {},
+                karrierestufe: calcData.karrierestufe || '',
+                createdAt: inv.created_at,
+                userIndex: 1,
+                vorschussAnteil: calcData.vorschuss_anteil || 75,
+                einheitenProKategorie: calcData.einheiten_pro_kategorie || {},
+                provisionSettings: calcData.provision_settings || {},
+                faktor: calcData.faktor || 1.0
+            };
+
+            const calc = {
+                bruttoWerben: calcData.provisionen?.werben || 0,
+                tcProvision: calcData.provisionen?.teamleitung || 0,
+                qualityProvision: calcData.provisionen?.quality || 0,
+                empfehlungProvision: calcData.provisionen?.empfehlung || 0,
+                recruitingProvision: calcData.provisionen?.recruiting || 0,
+                netto: inv.netto_auszahlung || 0
+            };
+
+            const zeitraum = {
+                von: new Date(inv.period_start),
+                bis: new Date(inv.period_end)
+            };
+
+            try {
+                await generateAndDownloadPDF({
+                    b: b,
+                    calc: calc,
+                    zeitraum: zeitraum,
+                    invoiceNumber: inv.invoice_number
+                });
+                showToast('PDF heruntergeladen', 'success');
+            } catch (err) {
+                console.error('PDF-Fehler:', err);
+                showToast('Fehler beim PDF-Download', 'error');
+            }
         }
     }
 
