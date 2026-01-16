@@ -117,6 +117,10 @@
                             <span class="icon icon--clipboard"></span>
                             Ausgewählt: <span id="geplantSelectedCount">0</span>
                         </span>
+                        <button class="btn btn-sm" onclick="downloadSelectedInvoices()">
+                            <span class="icon icon--download"></span>
+                            Download
+                        </button>
                         <button class="btn btn-sm btn-primary" onclick="freigebenSelected()">
                             <span class="icon icon--check"></span>
                             Freigeben
@@ -602,6 +606,10 @@
                             </svg>
                         </button>
                         <div class="dropdown-menu">
+                            <div class="dropdown-item" onclick="closeAllDropdowns(); downloadInvoicePDF('${inv.id}')">
+                                <span class="icon icon--download"></span>
+                                Download PDF
+                            </div>
                             ${inv.status === 'entwurf' ? `
                             <div class="dropdown-item" onclick="closeAllDropdowns(); freigebenAbrechnung('${inv.id}')">
                                 <span class="icon icon--check"></span>
@@ -1827,6 +1835,95 @@
             console.error('Fehler:', error);
             showToast('Fehler beim Löschen', 'error');
         }
+    }
+
+    // ========== PDF DOWNLOAD FÜR BESTEHENDE ABRECHNUNGEN ==========
+    async function downloadInvoicePDF(invoiceId) {
+        const inv = allAbrechnungenData.find(i => i.id === invoiceId);
+        if (!inv) {
+            showToast('Abrechnung nicht gefunden', 'error');
+            return;
+        }
+
+        showToast('PDF wird generiert...', 'info');
+
+        // Datenstruktur für generateInvoiceHTML rekonstruieren
+        const b = {
+            name: inv.users?.name || 'Unbekannt',
+            adresse: inv.address || {},
+            karrierestufe: inv.users?.karrierestufe || '',
+            createdAt: inv.created_at,
+            userIndex: 1,
+            vorschussAnteil: inv.vorschuss_anteil || 75,
+            einheitenProKategorie: inv.einheiten_pro_kategorie || {},
+            provisionSettings: inv.provision_settings || {},
+            faktor: inv.faktor || 1.0
+        };
+
+        const calc = {
+            bruttoWerben: inv.provisionen?.werben || 0,
+            tcProvision: inv.provisionen?.teamleitung || 0,
+            qualityProvision: inv.provisionen?.quality || 0,
+            empfehlungProvision: inv.provisionen?.empfehlung || 0,
+            recruitingProvision: inv.provisionen?.recruiting || 0,
+            netto: inv.netto_auszahlung || 0
+        };
+
+        const zeitraum = {
+            von: new Date(inv.zeitraum_von),
+            bis: new Date(inv.zeitraum_bis)
+        };
+
+        // HTML generieren
+        const html = generateInvoiceHTML(b, calc, zeitraum, inv.invoice_number);
+
+        // HTML in temporäres Element einfügen
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '0';
+        document.body.appendChild(container);
+
+        // PDF generieren
+        const opt = {
+            margin: 0,
+            filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${inv.invoice_number}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 6, useCORS: true, backgroundColor: '#ffffff' },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).save();
+            showToast('PDF heruntergeladen', 'success');
+        } catch (err) {
+            console.error('PDF-Fehler:', err);
+            showToast('Fehler beim PDF-Download', 'error');
+        }
+
+        // Container entfernen
+        document.body.removeChild(container);
+    }
+
+    async function downloadSelectedInvoices() {
+        if (selectedGeplant.length === 0) {
+            showToast('Keine Abrechnungen ausgewählt', 'warning');
+            return;
+        }
+
+        showToast('PDF-Download wird vorbereitet...', 'info');
+
+        for (let i = 0; i < selectedGeplant.length; i++) {
+            await downloadInvoicePDF(selectedGeplant[i]);
+
+            // Kurze Pause zwischen Downloads
+            if (i < selectedGeplant.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        showToast(`${selectedGeplant.length} PDF(s) heruntergeladen`, 'success');
     }
 
     // ========== SHELL INTEGRATION ==========
