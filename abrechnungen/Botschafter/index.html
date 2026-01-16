@@ -1317,139 +1317,150 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* === A4 SEITE === */
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #3d2208 0%, #713f12 50%, #854d0e 100%);
-            min-height: 100vh;
-            padding: 0;
-            color: #ffffff;
+            background: #ffffff;
+            color: #1f2937;
         }
         .invoice-container {
-            max-width: 100%;
-            min-height: 290mm;
+            width: 210mm;
+            height: 297mm;
             margin: 0;
-            background: linear-gradient(135deg, #3d2208 0%, #713f12 50%, #854d0e 100%);
-            border-radius: 0;
-            padding: 50px;
-            border: none;
-            box-shadow: none;
-            display: flex;
-            flex-direction: column;
+            padding: 12mm 15mm;
+            background: #ffffff;
+            display: grid;
+            grid-template-rows: auto auto 1fr auto auto;
+            /* Header, Titel, Posten(flex), Total, Footer */
         }
+
+        /* === HEADER (farbig) === */
         .header {
+            background: linear-gradient(135deg, #3d2208 0%, #713f12 50%, #854d0e 100%);
+            border-radius: 12px;
+            padding: 20px 25px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 50px;
-            padding-bottom: 30px;
-            border-bottom: 1px solid rgba(202, 138, 4, 0.3);
+            color: #ffffff;
         }
         .employee-info .card-label {
-            font-size: 10px;
+            font-size: 9px;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: #facc15;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             font-weight: 600;
         }
-        .employee-info .name { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #ffffff; }
-        .employee-info .address { font-size: 14px; color: rgba(255, 255, 255, 0.6); line-height: 1.6; }
+        .employee-info .name { font-size: 20px; font-weight: 700; margin-bottom: 4px; color: #ffffff; }
+        .employee-info .address { font-size: 12px; color: rgba(255, 255, 255, 0.7); line-height: 1.5; }
         .invoice-meta { text-align: right; }
-        .meta-row { display: flex; gap: 40px; margin-bottom: 20px; justify-content: flex-end; }
+        .meta-row { display: flex; gap: 25px; margin-bottom: 12px; justify-content: flex-end; }
         .meta-row:last-child { margin-bottom: 0; }
-        .meta-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255, 255, 255, 0.4); margin-bottom: 5px; }
-        .meta-item .value { font-size: 15px; font-weight: 600; color: #ffffff; }
+        .meta-item .label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255, 255, 255, 0.5); margin-bottom: 3px; }
+        .meta-item .value { font-size: 13px; font-weight: 600; color: #ffffff; }
         .meta-item .rank {
             display: inline-block;
             background: linear-gradient(135deg, #facc15, #ca8a04);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 13px;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
             font-weight: 600;
             color: #3d2208;
         }
-        .invoice-title { text-align: center; margin-bottom: 50px; }
+
+        /* === TITEL === */
+        .invoice-title { text-align: center; padding: 15px 0; }
         .invoice-title h2 {
-            font-size: 42px;
+            font-size: 28px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            background: linear-gradient(135deg, #facc15 0%, #eab308 50%, #ca8a04 100%);
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #854d0e 0%, #a16207 50%, #ca8a04 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .invoice-title .subtitle { font-size: 14px; color: rgba(255, 255, 255, 0.5); margin-top: 10px; letter-spacing: 2px; }
-        .positions-section { margin-bottom: 40px; }
+        .invoice-title .subtitle { font-size: 12px; color: #6b7280; margin-top: 5px; letter-spacing: 1px; }
+
+        /* === POSTEN-BEREICH === */
+        .positions-section {
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+        }
         .section-header {
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.4);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #9ca3af;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
         }
         .position-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            border-radius: 16px;
-            padding: 25px 30px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(202, 138, 4, 0.2);
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 8px;
+            border: 1px solid #fcd34d;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .position-info { display: flex; align-items: center; gap: 20px; }
+        .position-info { display: flex; align-items: center; gap: 12px; }
         .position-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #3d2208;
+            color: #ffffff;
         }
-        .position-icon svg { width: 24px; height: 24px; }
-        .position-icon.werben { background: linear-gradient(135deg, #facc15, #eab308); }
-        .position-icon.teamleitung { background: linear-gradient(135deg, #ca8a04, #a16207); }
-        .position-icon.quality { background: linear-gradient(135deg, #eab308, #ca8a04); }
-        .position-icon.empfehlung { background: linear-gradient(135deg, #f59e0b, #eab308); }
-        .position-icon.recruiting { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
-        .position-name { font-size: 18px; font-weight: 600; color: #ffffff; }
-        .position-details { display: flex; align-items: center; gap: 40px; }
-        .position-calc { text-align: right; color: rgba(255, 255, 255, 0.5); font-size: 13px; }
-        .position-calc span { color: rgba(255, 255, 255, 0.7); font-weight: 500; }
+        .position-icon svg { width: 18px; height: 18px; }
+        .position-icon.werben { background: linear-gradient(135deg, #ca8a04, #a16207); }
+        .position-icon.teamleitung { background: linear-gradient(135deg, #92400e, #78350f); }
+        .position-icon.quality { background: linear-gradient(135deg, #b45309, #92400e); }
+        .position-icon.empfehlung { background: linear-gradient(135deg, #d97706, #b45309); }
+        .position-icon.recruiting { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .position-icon.abzug { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+        .position-icon.gutschrift { background: linear-gradient(135deg, #16a34a, #15803d); }
+        .position-name { font-size: 14px; font-weight: 600; color: #3d2208; }
+        .position-details { display: flex; align-items: center; gap: 25px; }
+        .position-calc { text-align: right; color: #92400e; font-size: 11px; }
+        .position-calc span { color: #78350f; font-weight: 500; }
         .position-amount {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 800;
-            background: linear-gradient(135deg, #facc15, #eab308);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            min-width: 140px;
+            color: #78350f;
+            min-width: 100px;
             text-align: right;
         }
+
+        /* === TOTAL === */
         .total-section {
             background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%);
-            border-radius: 20px;
-            padding: 35px 40px;
+            border-radius: 12px;
+            padding: 20px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 20px 60px rgba(202, 138, 4, 0.4);
+            box-shadow: 0 8px 25px rgba(202, 138, 4, 0.3);
         }
-        .total-label { font-size: 14px; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; color: #3d2208; }
-        .total-amount { font-size: 52px; font-weight: 900; letter-spacing: -2px; color: #3d2208; }
+        .total-label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; color: #3d2208; }
+        .total-amount { font-size: 36px; font-weight: 900; letter-spacing: -1px; color: #3d2208; }
+
+        /* === FOOTER === */
         .footer {
-            margin-top: auto;
-            padding-top: 20px;
-            border-top: 1px solid rgba(202, 138, 4, 0.2);
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
             display: flex;
             justify-content: center;
-            gap: 30px;
-            color: rgba(255, 255, 255, 0.35);
-            font-size: 11px;
+            gap: 20px;
+            color: #9ca3af;
+            font-size: 10px;
         }
         .footer span { letter-spacing: 0.5px; }
     </style>
@@ -1580,7 +1591,7 @@
                 margin: 0,
                 filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${invoiceNumber}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#3d2208' },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
