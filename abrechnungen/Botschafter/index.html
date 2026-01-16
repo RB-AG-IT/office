@@ -1284,28 +1284,35 @@
         // Vorschuss-Anteil
         const vorschussAnteil = b.vorschussAnteil || 75;
 
+        // EH und Faktoren für Berechnungsanzeige
+        const ehKat = b.einheitenProKategorie || { werben: 0, teamleitung: 0, quality: 0, empfehlung: 0, recruiting: 0 };
+        const tcFaktor = b.provisionSettings?.tc_faktor ?? 1.0;
+        const qualityFaktor = b.provisionSettings?.quality_faktor ?? 0.5;
+        const empfehlungFaktor = b.provisionSettings?.empfehlung_faktor ?? 0.5;
+        const recruitingFaktor = b.provisionSettings?.recruiting_faktor ?? 1.0;
+
         // Provisionszeilen generieren
         let positionsHtml = '';
 
         if (calc.bruttoWerben > 0) {
             const brutto = calc.bruttoWerben / (vorschussAnteil / 100);
-            positionsHtml += generatePositionCard('werben', 'Werben', brutto, vorschussAnteil, calc.bruttoWerben);
+            positionsHtml += generatePositionCard('werben', 'Werben', ehKat.werben, b.faktor, brutto, vorschussAnteil, calc.bruttoWerben);
         }
         if (calc.tcProvision > 0) {
             const brutto = calc.tcProvision / (vorschussAnteil / 100);
-            positionsHtml += generatePositionCard('teamleitung', 'Teamleitung', brutto, vorschussAnteil, calc.tcProvision);
+            positionsHtml += generatePositionCard('teamleitung', 'Teamleitung', ehKat.teamleitung, tcFaktor, brutto, vorschussAnteil, calc.tcProvision);
         }
         if (calc.qualityProvision > 0) {
             const brutto = calc.qualityProvision / (vorschussAnteil / 100);
-            positionsHtml += generatePositionCard('quality', 'Quality', brutto, vorschussAnteil, calc.qualityProvision);
+            positionsHtml += generatePositionCard('quality', 'Quality', ehKat.quality, qualityFaktor, brutto, vorschussAnteil, calc.qualityProvision);
         }
         if (calc.empfehlungProvision > 0) {
             const brutto = calc.empfehlungProvision / (vorschussAnteil / 100);
-            positionsHtml += generatePositionCard('empfehlung', 'Empfehlung', brutto, vorschussAnteil, calc.empfehlungProvision);
+            positionsHtml += generatePositionCard('empfehlung', 'Empfehlung', ehKat.empfehlung, empfehlungFaktor, brutto, vorschussAnteil, calc.empfehlungProvision);
         }
         if (calc.recruitingProvision > 0) {
             const brutto = calc.recruitingProvision / (vorschussAnteil / 100);
-            positionsHtml += generatePositionCard('recruiting', 'Recruiting', brutto, vorschussAnteil, calc.recruitingProvision);
+            positionsHtml += generatePositionCard('recruiting', 'Recruiting', ehKat.recruiting, recruitingFaktor, brutto, vorschussAnteil, calc.recruitingProvision);
         }
 
         return `<!DOCTYPE html>
@@ -1464,14 +1471,14 @@
             padding: 8px 0;
         }
         .section-header {
-            font-size: 11px;
+            font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 3px;
             color: var(--gold-dark);
-            margin-bottom: 8px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid var(--gold-light);
-            font-weight: 600;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gold-light);
+            font-weight: 700;
         }
         .position-card {
             background: var(--champagne);
@@ -1644,7 +1651,7 @@
                     <div class="position-name">${name}</div>
                 </div>
                 <div class="position-details">
-                    <div class="position-calc"><span>${formatEuro(brutto)}</span> × ${vorschussAnteil}%</div>
+                    <div class="position-calc">${formatEuro(brutto)} → ${vorschussAnteil}% Vorschuss</div>
                     <div class="position-amount">${formatEuro(netto)}</div>
                 </div>
             </div>
