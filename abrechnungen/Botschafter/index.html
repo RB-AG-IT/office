@@ -347,8 +347,7 @@
                     users!invoices_user_id_fkey(
                         name,
                         email,
-                        address,
-                        user_profiles(photo_url),
+                        user_profiles(photo_url, street, house_number, postal_code, city),
                         user_roles!user_roles_user_id_fkey(role_name)
                     )
                 `)
@@ -362,7 +361,12 @@
                 users: inv.users ? {
                     name: inv.users.name,
                     email: inv.users.email,
-                    address: inv.users.address || {},
+                    address: {
+                        street: inv.users.user_profiles?.[0]?.street || '',
+                        houseNumber: inv.users.user_profiles?.[0]?.house_number || '',
+                        postalCode: inv.users.user_profiles?.[0]?.postal_code || '',
+                        city: inv.users.user_profiles?.[0]?.city || ''
+                    },
                     karrierestufe: inv.users.user_roles?.[0]?.role_name || '',
                     image: inv.users.user_profiles?.[0]?.photo_url || ''
                 } : null
