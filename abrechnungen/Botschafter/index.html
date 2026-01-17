@@ -1246,7 +1246,15 @@
             abrechnungWorkflowData.typ = document.getElementById('abrTypSelect').value;
             // Zeitraum wird bereits durch CalendarModal gesetzt
 
-            // Daten mit Zeitraum neu laden
+            // Automatische Unterkunftsabzüge für den Zeitraum erstellen
+            // (erstellt nur, wenn noch kein Abzug für die KW existiert)
+            if (typeof erstelleAnwesenheitsAbzuegeFuerZeitraum === 'function') {
+                for (const userId of selectedBotschafter) {
+                    await erstelleAnwesenheitsAbzuegeFuerZeitraum(userId, abrechnungWorkflowData.zeitraum);
+                }
+            }
+
+            // Daten mit Zeitraum neu laden (inkl. neu erstellte Abzüge)
             await loadBotschafterData({
                 startDate: abrechnungWorkflowData.zeitraum.von,
                 endDate: abrechnungWorkflowData.zeitraum.bis
