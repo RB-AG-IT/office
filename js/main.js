@@ -2159,25 +2159,6 @@ const CalendarModal = (function() {
                 }
             });
 
-            // Doppelklick: Einzeltag auswählen (Start = Ende)
-            container.addEventListener('dblclick', function(e) {
-                const dayEl = e.target.closest('.calendar-day[data-date]');
-                if (dayEl) {
-                    const date = new Date(dayEl.dataset.date);
-                    date.setHours(0, 0, 0, 0);
-                    calendarStartDate = date;
-                    calendarEndDate = new Date(date);
-                    calendarHoverDate = null;
-                    isSelectingStart = true;
-                    const fromInput = document.getElementById('calendarFromInput');
-                    const toInput = document.getElementById('calendarToInput');
-                    if (fromInput) fromInput.value = formatGermanDate(calendarStartDate);
-                    if (toInput) toInput.value = formatGermanDate(calendarEndDate);
-                    renderCalendars();
-                    updateKwDisplays();
-                }
-            });
-
             container.addEventListener('mouseover', function(e) {
                 const dayEl = e.target.closest('.calendar-day[data-date]');
                 if (dayEl) {
