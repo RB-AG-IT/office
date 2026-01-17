@@ -348,7 +348,7 @@
                     users!invoices_user_id_fkey(
                         name,
                         email,
-                        user_profiles(photo_url, street, house_number, postal_code, city),
+                        user_profiles(photo_url, street, house_number, postal_code, city, personalnummer),
                         user_roles!user_roles_user_id_fkey(role_name)
                     )
                 `)
@@ -1282,7 +1282,7 @@
     // Invoice HTML Template generieren
     function generateInvoiceHTML(b, calc, zeitraum, invoiceNumber) {
         const today = new Date();
-        const personalnummer = generatePersonalnummer(b.createdAt, b.userIndex);
+        const personalnummer = b.personalnummer || '-';
         const abrechnungsDatum = today.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
         // Adresse formatieren

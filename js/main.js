@@ -11623,14 +11623,40 @@ function parseEuro(wert) {
 
 /**
  * Generiert die nächste Rechnungsnummer
+ * Format: GS-[VS/STR]-[JJ]-[MM]-[A-F][NNNNN]
+ * Beispiel: GS-VS-026-01-A00001
+ *
  * @param {string} typ - 'vorschuss' | 'stornorucklage'
- * @param {number} jahr - Jahr
+ * @param {number} jahr - Jahr (z.B. 2026)
+ * @param {number} monat - Monat (1-12)
+ * @param {string} kategorie - Provisions-Kategorie: 'all'|'werben'|'teamleitung'|'quality'|'empfehlung'|'recruiting'
  * @param {Array} existingInvoices - Bestehende Rechnungen
- * @returns {string} Rechnungsnummer z.B. "GS-V-2026-0001"
+ * @returns {string} Rechnungsnummer z.B. "GS-VS-026-01-A00001"
  */
-function generateInvoiceNumber(typ, jahr, existingInvoices = []) {
-    const prefix = typ === 'vorschuss' ? 'GS-V' : 'GS-S';
-    const pattern = new RegExp(`^${prefix}-${jahr}-(\\d+)$`);
+function generateInvoiceNumber(typ, jahr, monat, kategorie = 'all', existingInvoices = []) {
+    // Typ-Kürzel
+    const typKuerzel = typ === 'vorschuss' ? 'VS' : 'STR';
+
+    // Jahr kurz (letzte 3 Ziffern: 2026 -> 026)
+    const jahrKurz = String(jahr).slice(-3).padStart(3, '0');
+
+    // Monat 2-stellig
+    const monatStr = String(monat).padStart(2, '0');
+
+    // Kategorie-Buchstabe
+    const kategorieBuchstaben = {
+        'all': 'A',
+        'werben': 'B',
+        'teamleitung': 'C',
+        'quality': 'D',
+        'empfehlung': 'E',
+        'recruiting': 'F'
+    };
+    const buchstabe = kategorieBuchstaben[kategorie] || 'A';
+
+    // Höchste Nummer im Jahr finden (über alle Monate, da fortlaufend übers Jahr)
+    // Pattern: GS-VS-026-XX-X##### oder GS-STR-026-XX-X#####
+    const pattern = new RegExp(`^GS-(?:VS|STR)-${jahrKurz}-\\d{2}-[A-F](\\d+)$`);
 
     let maxNum = 0;
     existingInvoices.forEach(inv => {
@@ -11641,7 +11667,7 @@ function generateInvoiceNumber(typ, jahr, existingInvoices = []) {
         }
     });
 
-    return `${prefix}-${jahr}-${String(maxNum + 1).padStart(4, '0')}`;
+    return `GS-${typKuerzel}-${jahrKurz}-${monatStr}-${buchstabe}${String(maxNum + 1).padStart(5, '0')}`;
 }
 
 /**
@@ -11944,9 +11970,17 @@ async function erstelleAbrechnung(data) {
         .select('invoice_number')
         .eq('year', data.year);
 
+    // Monat aus Zeitraum-Ende ermitteln
+    const monat = new Date(data.zeitraum.bis).getMonth() + 1;
+
+    // Kategorie (Standard: 'all', kann über data.kategorie übergeben werden)
+    const kategorie = data.kategorie || 'all';
+
     const invoiceNumber = generateInvoiceNumber(
         data.invoice_type,
         data.year,
+        monat,
+        kategorie,
         existingInvoices || []
     );
 
@@ -12253,7 +12287,7 @@ async function ladeWerberStatistiken(options = {}) {
         // 2. User Profiles laden (Profilbilder, Vorschuss-Anteil, Adresse)
         const { data: profilesData } = await supabase
             .from('user_profiles')
-            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city');
+            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city, personalnummer');
 
         const profilesMap = {};
         (profilesData || []).forEach(p => {
@@ -12578,6 +12612,9 @@ async function ladeWerberStatistiken(options = {}) {
                     postalCode: profile.postal_code || '',
                     city: profile.city || ''
                 },
+
+                // Personalnummer (aus DB)
+                personalnummer: profile.personalnummer || '',
 
                 // Karriere
                 karrierestufe: career.stufe,
