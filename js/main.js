@@ -13010,6 +13010,13 @@ async function storniereAbrechnung(invoiceId) {
             record_id: entry.record_id,
             einheiten: -entry.einheiten,
             typ: 'storno',
+            kategorie: entry.kategorie,
+            kw: entry.kw,
+            year: entry.year,
+            referenz_datum: entry.referenz_datum,
+            campaign_id: entry.campaign_id,
+            campaign_area_id: entry.campaign_area_id,
+            customer_id: entry.customer_id,
             beschreibung: `Storno zu Invoice ${invoiceId}`,
             invoice_id: null
         });
@@ -13027,6 +13034,10 @@ async function storniereAbrechnung(invoiceId) {
             betrag: -entry.betrag,
             typ: 'korrektur',
             kategorie: entry.kategorie,
+            quelle: entry.quelle,
+            kw: entry.kw,
+            year: entry.year,
+            referenz_datum: entry.referenz_datum,
             beschreibung: `Storno zu Invoice ${invoiceId}`,
             invoice_id: null
         });
