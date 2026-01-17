@@ -501,7 +501,7 @@
                         html = `<span class="pill pill--career">${value}</span>`;
                         break;
                     case 'faktor':
-                        html = value.toFixed(1);
+                        html = value.toFixed(2);
                         break;
                     case 'einheiten':
                         html = value.toFixed(2);
@@ -1009,14 +1009,14 @@
                         <div class="abrechnung-card__header" onclick="toggleAbrechnungCard(${idx})">
                             <div>
                                 <div class="abrechnung-card__name">${b.name}</div>
-                                <div class="abrechnung-card__meta">${b.karrierestufe} (Faktor ${b.faktor})</div>
+                                <div class="abrechnung-card__meta">${b.karrierestufe} (Faktor ${b.faktor.toFixed(2)})</div>
                             </div>
                             <div class="abrechnung-card__amount">${formatEuro(netto)}</div>
                         </div>
                         <div class="abrechnung-card__body">
                             ${selectedProv.includes('werben') ? `
                             <div class="abrechnung-card__row">
-                                <span>Werbe-Provision (${ehKat.werben.toFixed(2)} EH × ${b.faktor})</span>
+                                <span>Werbe-Provision (${ehKat.werben.toFixed(2)} EH × ${b.faktor.toFixed(2)})</span>
                                 <span>${formatEuro(bruttoWerben)}</span>
                             </div>` : ''}
                             ${selectedProv.includes('teamleitung') && tcProvision > 0 ? `
