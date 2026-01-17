@@ -12926,57 +12926,46 @@ async function generateAbrechnungPDF(data) {
 
     // ========== POSITIONEN-TABELLE ==========
     const tableStartY = 100;
+    const boxWidth = pageWidth - 2 * margin;
+    const goldColor = [212, 175, 55]; // Gold
 
-    // Tabellen-Daten vorbereiten
-    const tableBody = [];
+    // Tabellen-Daten vorbereiten - Provisionsübersicht
+    const provisionenBody = [];
 
-    // Brutto-Provision
-    tableBody.push([
-        `Provision (${data.einheiten.toFixed(2)} Einheiten × ${data.faktor})`,
-        formatEuro(data.brutto)
-    ]);
+    // Einzelne Provisionen falls vorhanden
+    if (data.provisionen) {
+        if (data.provisionen.werben > 0) {
+            provisionenBody.push(['Werben', formatEuro(data.provisionen.werben)]);
+        }
+        if (data.provisionen.teamleitung > 0) {
+            provisionenBody.push(['Teamleitung', formatEuro(data.provisionen.teamleitung)]);
+        }
+        if (data.provisionen.quality > 0) {
+            provisionenBody.push(['Quality', formatEuro(data.provisionen.quality)]);
+        }
+        if (data.provisionen.empfehlung > 0) {
+            provisionenBody.push(['Empfehlung', formatEuro(data.provisionen.empfehlung)]);
+        }
+        if (data.provisionen.recruiting > 0) {
+            provisionenBody.push(['Recruiting', formatEuro(data.provisionen.recruiting)]);
+        }
+    }
 
-    // Stornorücklage Einbehalt
-    if (data.stornorucklage > 0 && data.invoice_type === 'vorschuss') {
-        tableBody.push([
-            `Stornorücklage (${100 - data.vorschussAnteil}%)`,
-            `- ${formatEuro(data.stornorucklage)}`
+    // Falls keine Einzelpositionen, zeige Gesamtprovision mit Einheiten
+    if (provisionenBody.length === 0) {
+        provisionenBody.push([
+            `Provision (${data.einheiten.toFixed(2)} EH × ${data.faktor})`,
+            formatEuro(data.brutto)
         ]);
     }
 
-    // Zwischensumme Vorschuss
-    if (data.invoice_type === 'vorschuss') {
-        tableBody.push([
-            { content: 'Vorschuss', styles: { fontStyle: 'bold' } },
-            { content: formatEuro(data.vorschuss), styles: { fontStyle: 'bold' } }
-        ]);
-    }
-
-    // Abzüge
-    if (data.abzuegeUnterkunft > 0) {
-        tableBody.push([
-            'Abzug Unterkunftskosten',
-            `- ${formatEuro(data.abzuegeUnterkunft)}`
-        ]);
-    }
-
-    if (data.abzuegeSonderposten > 0) {
-        tableBody.push([
-            'Abzug Sonderposten',
-            `- ${formatEuro(data.abzuegeSonderposten)}`
-        ]);
-    }
-
-    // Tabelle rendern
+    // Provisionsübersicht Tabelle
     doc.autoTable({
         startY: tableStartY,
-        head: [['Beschreibung', 'Betrag']],
-        body: tableBody,
+        head: [['Provisionsübersicht', 'Betrag']],
+        body: provisionenBody,
         theme: 'plain',
-        styles: {
-            fontSize: 10,
-            cellPadding: 5
-        },
+        styles: { fontSize: 10, cellPadding: 4 },
         headStyles: {
             fillColor: [245, 245, 245],
             textColor: primaryColor,
@@ -12989,29 +12978,147 @@ async function generateAbrechnungPDF(data) {
         margin: { left: margin, right: margin }
     });
 
-    // ========== AUSZAHLUNGSBETRAG ==========
-    const finalY = doc.lastAutoTable.finalY + 10;
+    let currentY = doc.lastAutoTable.finalY + 5;
 
-    // Box für Auszahlungsbetrag
-    doc.setFillColor(34, 197, 94); // Grün
-    doc.roundedRect(margin, finalY, pageWidth - 2 * margin, 20, 3, 3, 'F');
+    // ========== GESAMTPROVISION BOX ==========
+    doc.setFillColor(245, 245, 245);
+    doc.roundedRect(margin, currentY, boxWidth, 16, 2, 2, 'F');
+    doc.setFontSize(11);
+    doc.setTextColor(...primaryColor);
+    doc.text('Gesamtprovision', margin + 8, currentY + 11);
+    doc.setFontSize(12);
+    doc.text(formatEuro(data.brutto), pageWidth - margin - 8, currentY + 11, { align: 'right' });
+    currentY += 22;
 
-    doc.setFontSize(14);
-    doc.setTextColor(255, 255, 255);
-    doc.text('Auszahlungsbetrag:', margin + 10, finalY + 13);
+    // ========== VORSCHUSS BOX ==========
+    if (data.invoice_type === 'vorschuss') {
+        doc.setFillColor(230, 240, 250);
+        doc.roundedRect(margin, currentY, boxWidth, 16, 2, 2, 'F');
+        doc.setFontSize(11);
+        doc.setTextColor(...primaryColor);
+        doc.text(`Vorschuss (${data.vorschussAnteil}%)`, margin + 8, currentY + 11);
+        doc.setFontSize(12);
+        doc.text(formatEuro(data.vorschuss), pageWidth - margin - 8, currentY + 11, { align: 'right' });
+        currentY += 22;
+    }
+
+    // ========== ABZÜGE SECTION ==========
+    const hatAbzuege = (data.abzuegeUnterkunft > 0) || (data.abzuegeSonderposten > 0) ||
+                       (data.abzuege && data.abzuege.length > 0);
+
+    if (hatAbzuege) {
+        // Abzüge Header
+        doc.setFillColor(255, 240, 240);
+        doc.roundedRect(margin, currentY, boxWidth, 12, 2, 2, 'F');
+        doc.setFontSize(9);
+        doc.setTextColor(180, 80, 80);
+        doc.text('Abzüge', margin + 8, currentY + 8);
+        currentY += 14;
+
+        // Einzelne Abzüge
+        doc.setFontSize(10);
+        doc.setTextColor(...primaryColor);
+
+        if (data.abzuegeUnterkunft > 0) {
+            doc.text('Unterkunft', margin + 12, currentY + 5);
+            doc.text(`- ${formatEuro(data.abzuegeUnterkunft)}`, pageWidth - margin - 8, currentY + 5, { align: 'right' });
+            currentY += 10;
+        }
+
+        if (data.abzuegeSonderposten > 0) {
+            doc.text('Sonderposten', margin + 12, currentY + 5);
+            doc.text(`- ${formatEuro(data.abzuegeSonderposten)}`, pageWidth - margin - 8, currentY + 5, { align: 'right' });
+            currentY += 10;
+        }
+
+        // Dynamische Abzüge aus Array
+        if (data.abzuege && data.abzuege.length > 0) {
+            data.abzuege.forEach(abzug => {
+                doc.text(abzug.beschreibung || 'Abzug', margin + 12, currentY + 5);
+                doc.text(`- ${formatEuro(Math.abs(abzug.betrag))}`, pageWidth - margin - 8, currentY + 5, { align: 'right' });
+                currentY += 10;
+            });
+        }
+
+        currentY += 5;
+    }
+
+    // ========== ZUBUCHUNGEN SECTION ==========
+    const hatZubuchungen = (data.zubuchungUnterkunft > 0) || (data.zubuchungSonderposten > 0) ||
+                           (data.zubuchungen && data.zubuchungen.length > 0);
+
+    if (hatZubuchungen) {
+        // Zubuchungen Header
+        doc.setFillColor(240, 255, 240);
+        doc.roundedRect(margin, currentY, boxWidth, 12, 2, 2, 'F');
+        doc.setFontSize(9);
+        doc.setTextColor(80, 150, 80);
+        doc.text('Zubuchungen', margin + 8, currentY + 8);
+        currentY += 14;
+
+        // Einzelne Zubuchungen
+        doc.setFontSize(10);
+        doc.setTextColor(...primaryColor);
+
+        if (data.zubuchungUnterkunft > 0) {
+            doc.text('Unterkunft', margin + 12, currentY + 5);
+            doc.text(`+ ${formatEuro(data.zubuchungUnterkunft)}`, pageWidth - margin - 8, currentY + 5, { align: 'right' });
+            currentY += 10;
+        }
+
+        if (data.zubuchungSonderposten > 0) {
+            doc.text('Sonderposten', margin + 12, currentY + 5);
+            doc.text(`+ ${formatEuro(data.zubuchungSonderposten)}`, pageWidth - margin - 8, currentY + 5, { align: 'right' });
+            currentY += 10;
+        }
+
+        // Dynamische Zubuchungen aus Array
+        if (data.zubuchungen && data.zubuchungen.length > 0) {
+            data.zubuchungen.forEach(zubuchung => {
+                doc.text(zubuchung.beschreibung || 'Zubuchung', margin + 12, currentY + 5);
+                doc.text(`+ ${formatEuro(Math.abs(zubuchung.betrag))}`, pageWidth - margin - 8, currentY + 5, { align: 'right' });
+                currentY += 10;
+            });
+        }
+
+        currentY += 5;
+    }
+
+    // ========== AUSZAHLUNGSBETRAG (GOLD) ==========
+    const finalY = currentY;
+    doc.setFillColor(...goldColor);
+    doc.roundedRect(margin, finalY, boxWidth, 22, 3, 3, 'F');
+
+    doc.setFontSize(12);
+    doc.setTextColor(45, 35, 20);
+    doc.text('Auszahlungsbetrag', margin + 10, finalY + 14);
     doc.setFontSize(16);
-    doc.text(formatEuro(data.netto), pageWidth - margin - 10, finalY + 13, { align: 'right' });
+    doc.setFont(undefined, 'bold');
+    doc.text(formatEuro(data.netto), pageWidth - margin - 10, finalY + 14, { align: 'right' });
+    doc.setFont(undefined, 'normal');
+
+    // ========== STORNORÜCKLAGE (WAS ÜBRIG BLEIBT) ==========
+    let stornorucklageY = finalY + 28;
+    if (data.stornorucklage > 0 && data.invoice_type === 'vorschuss') {
+        doc.setFillColor(250, 250, 250);
+        doc.roundedRect(margin, stornorucklageY, boxWidth, 14, 2, 2, 'F');
+        doc.setFontSize(9);
+        doc.setTextColor(...secondaryColor);
+        doc.text(`Stornorücklage (${100 - data.vorschussAnteil}%)`, margin + 8, stornorucklageY + 9);
+        doc.text(formatEuro(data.stornorucklage), pageWidth - margin - 8, stornorucklageY + 9, { align: 'right' });
+    }
 
     // ========== BANKVERBINDUNG ==========
+    let bankY = stornorucklageY + (data.stornorucklage > 0 && data.invoice_type === 'vorschuss' ? 20 : -8);
     doc.setFontSize(10);
     doc.setTextColor(...primaryColor);
-    doc.text('Überweisung an:', margin, finalY + 40);
+    doc.text('Überweisung an:', margin, bankY);
     doc.setTextColor(...secondaryColor);
     if (data.iban) {
-        doc.text(`IBAN: ${data.iban}`, margin, finalY + 47);
+        doc.text(`IBAN: ${data.iban}`, margin, bankY + 7);
     }
     if (data.kontoinhaber) {
-        doc.text(`Kontoinhaber: ${data.kontoinhaber}`, margin, finalY + 54);
+        doc.text(`Kontoinhaber: ${data.kontoinhaber}`, margin, bankY + 14);
     }
 
     // ========== UMSATZSTEUER-HINWEIS ==========
