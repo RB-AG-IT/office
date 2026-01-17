@@ -12131,7 +12131,9 @@ async function erstelleAbrechnung(data) {
         .from('euro_ledger')
         .update({ invoice_id: created.id })
         .eq('user_id', data.userId)
-        .is('invoice_id', null);
+        .is('invoice_id', null)
+        .gte('referenz_datum', data.zeitraum.von)
+        .lte('referenz_datum', data.zeitraum.bis);
 
     if (euroLedgerError) {
         console.error('Fehler beim Verknüpfen der Euro-Ledger-Einträge:', euroLedgerError);
