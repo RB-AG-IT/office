@@ -481,7 +481,8 @@
                 calculatePersonStats(),
                 calculateWeeklyChartData(),
                 loadEinsaetze(),
-                calculateAchievements()
+                calculateAchievements(),
+                loadRecruitmentTrees()
             ]);
 
             // Dashboard neu rendern
@@ -1269,19 +1270,39 @@
                 }
 
                 // Ledger-Daten laden für MG/EH pro empfohlene/rekrutierte Person
-                const { data: ledgerRecruiting } = await supabase
+                let recruitingQuery = supabase
                     .from('provisions_ledger')
                     .select('einheiten, record_id, records(werber_id)')
                     .eq('user_id', personId)
                     .eq('kategorie', 'recruiting')
                     .eq('typ', 'provision');
 
-                const { data: ledgerEmpfehlung } = await supabase
+                // Zeitraumfilter anwenden
+                if (periodStartDate) {
+                    recruitingQuery = recruitingQuery.gte('referenz_datum', periodStartDate.toISOString().split('T')[0]);
+                }
+                if (periodEndDate) {
+                    recruitingQuery = recruitingQuery.lte('referenz_datum', periodEndDate.toISOString().split('T')[0]);
+                }
+
+                const { data: ledgerRecruiting } = await recruitingQuery;
+
+                let empfehlungQuery = supabase
                     .from('provisions_ledger')
                     .select('einheiten, record_id, records(werber_id)')
                     .eq('user_id', personId)
                     .eq('kategorie', 'empfehlung')
                     .eq('typ', 'provision');
+
+                // Zeitraumfilter anwenden
+                if (periodStartDate) {
+                    empfehlungQuery = empfehlungQuery.gte('referenz_datum', periodStartDate.toISOString().split('T')[0]);
+                }
+                if (periodEndDate) {
+                    empfehlungQuery = empfehlungQuery.lte('referenz_datum', periodEndDate.toISOString().split('T')[0]);
+                }
+
+                const { data: ledgerEmpfehlung } = await empfehlungQuery;
 
                 // Gruppiere Ledger-Daten nach werber_id
                 function groupByWerber(ledgerData) {
