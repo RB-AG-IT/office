@@ -1171,14 +1171,14 @@
                             bestEhTag = { eh: Math.round(eh * 100) / 100, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
                         }
                         const nmgRecs = recs.filter(r => r.record_type === 'neumitglied');
-                        const maxNmgAmount = nmgRecs.length > 0 ? Math.max(...nmgRecs.map(r => parseFloat(r.yearly_amount) || 0)) : 0;
-                        if (maxNmgAmount > bestSchrieb.amount) {
-                            bestSchrieb = { amount: maxNmgAmount, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
+                        const maxNmgEH = nmgRecs.length > 0 ? Math.max(...nmgRecs.map(r => (parseFloat(r.yearly_amount) || 0) / 12)) : 0;
+                        if (maxNmgEH > bestSchrieb.amount) {
+                            bestSchrieb = { amount: Math.round(maxNmgEH * 100) / 100, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
                         }
                         const erhRecs = recs.filter(r => r.record_type === 'erhoehung');
-                        const maxErhAmount = erhRecs.length > 0 ? Math.max(...erhRecs.map(r => parseFloat(r.increase_amount) || parseFloat(r.yearly_amount) || 0)) : 0;
-                        if (maxErhAmount > bestBeitragsanpassung.amount) {
-                            bestBeitragsanpassung = { amount: maxErhAmount, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
+                        const maxErhEH = erhRecs.length > 0 ? Math.max(...erhRecs.map(r => (parseFloat(r.increase_amount) || parseFloat(r.yearly_amount) || 0) / 12)) : 0;
+                        if (maxErhEH > bestBeitragsanpassung.amount) {
+                            bestBeitragsanpassung = { amount: Math.round(maxErhEH * 100) / 100, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
                         }
                         const avgEhProMg = recs.length > 0 ? eh / recs.length : 0;
                         if (avgEhProMg > bestEhDurchschnittTag.avg && recs.length >= 3) {
@@ -1213,8 +1213,8 @@
                         'eh_tag': bestEhTag.eh > 0 ? { score: `${bestEhTag.eh} EH`, datum: formatDate(bestEhTag.date), kampagne: bestEhTag.campaign || '-', active: true } : null,
                         'mg_woche': bestMgWoche.count > 0 ? { score: `${bestMgWoche.count} MG`, datum: bestMgWoche.week, kampagne: bestMgWoche.campaign || '-', active: true } : null,
                         'eh_woche': bestEhWoche.eh > 0 ? { score: `${bestEhWoche.eh} EH`, datum: bestEhWoche.week, kampagne: bestEhWoche.campaign || '-', active: true } : null,
-                        'schrieb_nmg': bestSchrieb.amount > 0 ? { score: `${bestSchrieb.amount.toFixed(2)} €`, datum: formatDate(bestSchrieb.date), kampagne: bestSchrieb.campaign || '-', active: true } : null,
-                        'beitragsanpassung': bestBeitragsanpassung.amount > 0 ? { score: `${bestBeitragsanpassung.amount.toFixed(2)} €`, datum: formatDate(bestBeitragsanpassung.date), kampagne: bestBeitragsanpassung.campaign || '-', active: true } : null,
+                        'schrieb_nmg': bestSchrieb.amount > 0 ? { score: `${bestSchrieb.amount} EH`, datum: formatDate(bestSchrieb.date), kampagne: bestSchrieb.campaign || '-', active: true } : null,
+                        'beitragsanpassung': bestBeitragsanpassung.amount > 0 ? { score: `${bestBeitragsanpassung.amount} EH`, datum: formatDate(bestBeitragsanpassung.date), kampagne: bestBeitragsanpassung.campaign || '-', active: true } : null,
                         'mg_stunde': null,
                         'eh_durchschnitt_tag': bestEhDurchschnittTag.avg > 0 ? { score: `${bestEhDurchschnittTag.avg} EH`, datum: formatDate(bestEhDurchschnittTag.date), kampagne: bestEhDurchschnittTag.campaign || '-', active: true } : null,
                         'serie_stunde': null,
