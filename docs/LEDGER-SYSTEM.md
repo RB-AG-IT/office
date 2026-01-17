@@ -61,15 +61,16 @@ const { error: ledgerError } = await supabase
 | **Konsistenz** | Einmal gebucht = bleibt so |
 | **Performance** | Schnellere Dashboard-Abfragen |
 
-### Zwei getrennte Ledger
+### Drei Ledger
 
-| | Werber-Ledger | Kunden-Ledger |
-|---|---------------|---------------|
-| **Tabelle** | `provisions_ledger` | `customer_billing_ledger` |
-| **Referenz** | `user_id` | `customer_id` |
-| **Einheit** | EH (Einheiten) | Jahreseuros |
-| **Kategorien** | werben, teamleitung, quality, empfehlung, recruiting | - |
-| **Zweck** | Provision berechnen | Rechnung an Kunde |
+| | Werber-Ledger | Kunden-Ledger | Euro-Ledger |
+|---|---------------|---------------|-------------|
+| **Tabelle** | `provisions_ledger` | `customer_billing_ledger` | `euro_ledger` |
+| **Referenz** | `user_id` | `customer_id` | `user_id` |
+| **Einheit** | EH (Einheiten) | Jahreseuros | EUR |
+| **Kategorien** | werben, teamleitung, quality, empfehlung, recruiting | - | unterkunft, sonderposten, sonstiges |
+| **Typen** | provision, storno, korrektur | provision, storno, korrektur | abzug, zubuchung, korrektur |
+| **Zweck** | Provision berechnen | Rechnung an Kunde | Abzüge/Zubuchungen bei Abrechnung |
 
 ### Prinzip: Nur EH buchen, Provision bei Abrechnung
 
@@ -165,6 +166,40 @@ CREATE INDEX idx_billing_ledger_campaign ON customer_billing_ledger(campaign_id)
 CREATE INDEX idx_billing_ledger_area ON customer_billing_ledger(campaign_area_id);
 CREATE INDEX idx_billing_ledger_werber ON customer_billing_ledger(werber_id);
 ```
+
+### 3. Euro-Ledger (euro_ledger)
+
+```sql
+CREATE TABLE IF NOT EXISTS public.euro_ledger (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Referenzen
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    invoice_id UUID REFERENCES public.invoices(id) ON DELETE SET NULL,
+
+    -- Buchungsdetails
+    kategorie TEXT NOT NULL CHECK (kategorie IN ('unterkunft', 'sonderposten', 'sonstiges')),
+    typ TEXT NOT NULL CHECK (typ IN ('abzug', 'zubuchung', 'korrektur')),
+    betrag DECIMAL(10,2) NOT NULL,  -- Positiv = Zubuchung, Negativ = Abzug
+    quelle TEXT CHECK (quelle IN ('vorschuss', 'stornorucklage')),
+
+    -- Kontext
+    beschreibung TEXT,
+    kw INTEGER,
+    year INTEGER,
+    referenz_datum DATE,
+
+    -- Audit
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Indizes
+CREATE INDEX idx_euro_ledger_user_id ON euro_ledger(user_id);
+CREATE INDEX idx_euro_ledger_invoice_id ON euro_ledger(invoice_id);
+CREATE INDEX idx_euro_ledger_kategorie ON euro_ledger(kategorie);
+```
+
+**Hinweis:** Euro-Ledger hat keine Trigger - Einträge werden manuell über `fuegeAbzugHinzu()` erstellt.
 
 ---
 
