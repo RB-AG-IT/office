@@ -12337,31 +12337,7 @@ async function updateAbrechnungStatus(invoiceId, status, scheduledAt = null) {
 
     if (status === 'offen') {
         updateData.approved_at = new Date().toISOString();
-
-        // Rechnungsnummer vergeben falls noch keine vorhanden
-        const { data: invoice } = await supabase
-            .from('invoices')
-            .select('invoice_number, invoice_type, year, period_start')
-            .eq('id', invoiceId)
-            .single();
-
-        if (!invoice.invoice_number) {
-            // Existierende Rechnungen für Nummern-Generierung laden
-            const { data: existing } = await supabase
-                .from('invoices')
-                .select('invoice_number')
-                .eq('year', invoice.year)
-                .not('invoice_number', 'is', null);
-
-            const monat = new Date(invoice.period_start).getMonth() + 1;
-            updateData.invoice_number = generateInvoiceNumber(
-                invoice.invoice_type,
-                invoice.year,
-                monat,
-                'all',
-                existing || []
-            );
-        }
+        // Rechnungsnummer wird automatisch per DB-Trigger vergeben
     }
 
     if (scheduledAt) {
