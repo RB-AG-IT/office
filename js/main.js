@@ -12103,6 +12103,7 @@ async function erstelleAbrechnung(data) {
             // Snapshot der Botschafter-Daten bei Erstellung (unveränderlich)
             name: data.name,
             adresse: data.adresse || {},
+            personalnummer: data.personalnummer || '-',
             einheiten: data.einheiten,
             faktor: data.faktor,
             karrierestufe: data.karrierestufe,
