@@ -351,7 +351,7 @@
                         name,
                         email,
                         user_profiles(photo_url, street, house_number, postal_code, city, personalnummer),
-                        user_roles!user_roles_user_id_fkey(role_name)
+                        user_roles!user_roles_user_id_fkey(role_name, role_type)
                     )
                 `)
                 .order('created_at', { ascending: false });
@@ -359,21 +359,25 @@
             if (error) throw error;
 
             // Daten für einfacheren Zugriff transformieren
-            allAbrechnungenData = (data || []).map(inv => ({
-                ...inv,
-                users: inv.users ? {
-                    name: inv.users.name,
-                    email: inv.users.email,
-                    address: {
-                        street: inv.users.user_profiles?.[0]?.street || '',
-                        houseNumber: inv.users.user_profiles?.[0]?.house_number || '',
-                        postalCode: inv.users.user_profiles?.[0]?.postal_code || '',
-                        city: inv.users.user_profiles?.[0]?.city || ''
-                    },
-                    karrierestufe: inv.users.user_roles?.[0]?.role_name || '',
-                    image: inv.users.user_profiles?.[0]?.photo_url || ''
-                } : null
-            }));
+            allAbrechnungenData = (data || []).map(inv => {
+                // Karrierestufe aus user_roles (nur role_type = 'career')
+                const careerRole = inv.users?.user_roles?.find(r => r.role_type === 'career');
+                return {
+                    ...inv,
+                    users: inv.users ? {
+                        name: inv.users.name,
+                        email: inv.users.email,
+                        address: {
+                            street: inv.users.user_profiles?.[0]?.street || '',
+                            houseNumber: inv.users.user_profiles?.[0]?.house_number || '',
+                            postalCode: inv.users.user_profiles?.[0]?.postal_code || '',
+                            city: inv.users.user_profiles?.[0]?.city || ''
+                        },
+                        karrierestufe: careerRole?.role_name || '',
+                        image: inv.users.user_profiles?.[0]?.photo_url || ''
+                    } : null
+                };
+            });
 
             // Gefilterte Daten setzen
             applyAbrechnungenFilter();
