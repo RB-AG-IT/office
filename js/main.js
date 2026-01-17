@@ -12968,7 +12968,13 @@ async function loescheAbrechnung(invoiceId) {
         .update({ invoice_id: null })
         .eq('invoice_id', invoiceId);
 
-    // 3. Invoice löschen
+    // 3. Invoice Items löschen
+    await supabase
+        .from('invoice_items')
+        .delete()
+        .eq('invoice_id', invoiceId);
+
+    // 4. Invoice löschen
     const { error: deleteError } = await supabase
         .from('invoices')
         .delete()
