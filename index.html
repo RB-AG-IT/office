@@ -474,6 +474,35 @@
 
                     if (error) throw error;
 
+                    // Personalnummer generieren
+                    const { data: lastProfile } = await window.supabaseClient
+                        .from('user_profiles')
+                        .select('personalnummer')
+                        .not('personalnummer', 'is', null)
+                        .order('personalnummer', { ascending: false })
+                        .limit(1)
+                        .single();
+
+                    const now = new Date();
+                    const year = String(now.getFullYear()).slice(-2);
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+
+                    let nextNum = 1;
+                    if (lastProfile?.personalnummer) {
+                        const match = lastProfile.personalnummer.match(/\d{4}$/);
+                        if (match) nextNum = parseInt(match[0]) + 1;
+                    }
+
+                    const personalnummer = `RB${year}-${month}-${String(nextNum).padStart(4, '0')}`;
+
+                    // user_profiles anlegen
+                    await window.supabaseClient
+                        .from('user_profiles')
+                        .insert({
+                            user_id: data.id,
+                            personalnummer: personalnummer
+                        });
+
                     closeCreateUserModal();
                     loadPage(`benutzer/BENUTZER-BOTSCHAFTER-PROFIL.html?id=${data.id}&new=true`);
                     return;
