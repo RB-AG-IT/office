@@ -13024,9 +13024,10 @@ async function storniereAbrechnung(invoiceId) {
     for (const entry of (euroEntries || [])) {
         await supabase.from('euro_ledger').insert({
             user_id: entry.user_id,
-            amount: -entry.amount,
-            entry_type: 'storno',
-            description: `Storno zu Invoice ${invoiceId}`,
+            betrag: -entry.betrag,
+            typ: 'korrektur',
+            kategorie: entry.kategorie,
+            beschreibung: `Storno zu Invoice ${invoiceId}`,
             invoice_id: null
         });
     }
