@@ -12163,11 +12163,11 @@ async function ladeWerberStatistiken(options = {}) {
             }
         });
 
-        // 5b. OFFENE Einheiten aus provisions_ledger laden (invoice_id IS NULL)
+        // 5b. OFFENE Einheiten aus provisions_ledger laden (invoice_id_vorschuss IS NULL)
         let ledgerQuery = supabase
             .from('provisions_ledger')
             .select('user_id, kategorie, einheiten, referenz_datum')
-            .is('invoice_id', null);
+            .is('invoice_id_vorschuss', null);
 
         if (startDate) {
             const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
@@ -12208,7 +12208,7 @@ async function ladeWerberStatistiken(options = {}) {
         const { data: euroLedgerData } = await supabase
             .from('euro_ledger')
             .select('user_id, kategorie, quelle, betrag')
-            .is('invoice_id', null);
+            .is('invoice_id_vorschuss', null);
 
         const abzuegeMap = {};
         (euroLedgerData || []).forEach(e => {
@@ -12716,7 +12716,7 @@ async function markAsBezahlt(invoiceId) {
 
 /**
  * Löscht eine Abrechnung im Status 'entwurf'
- * Gibt Ledger-Einträge frei (invoice_id = NULL)
+ * Gibt Ledger-Einträge frei (invoice_id_vorschuss/invoice_id_stornorucklage = NULL)
  * @param {string} invoiceId - Invoice UUID
  * @returns {Promise<boolean>} - Erfolg
  */
@@ -12727,7 +12727,7 @@ async function loescheAbrechnung(invoiceId) {
     // 1. Prüfen ob Status = entwurf
     const { data: invoice, error: fetchError } = await supabase
         .from('invoices')
-        .select('status')
+        .select('status, invoice_type')
         .eq('id', invoiceId)
         .single();
 
@@ -12736,16 +12736,23 @@ async function loescheAbrechnung(invoiceId) {
         throw new Error('Nur Entwürfe können gelöscht werden');
     }
 
-    // 2. Ledger-Einträge freigeben (invoice_id = NULL)
-    await supabase
-        .from('provisions_ledger')
-        .update({ invoice_id: null })
-        .eq('invoice_id', invoiceId);
+    // 2. Ledger-Einträge freigeben (je nach invoice_type)
+    if (invoice.invoice_type === 'stornorucklage') {
+        await supabase
+            .from('provisions_ledger')
+            .update({ invoice_id_stornorucklage: null })
+            .eq('invoice_id_stornorucklage', invoiceId);
+    } else {
+        await supabase
+            .from('provisions_ledger')
+            .update({ invoice_id_vorschuss: null })
+            .eq('invoice_id_vorschuss', invoiceId);
 
-    await supabase
-        .from('euro_ledger')
-        .update({ invoice_id: null })
-        .eq('invoice_id', invoiceId);
+        await supabase
+            .from('euro_ledger')
+            .update({ invoice_id_vorschuss: null })
+            .eq('invoice_id_vorschuss', invoiceId);
+    }
 
     // 3. Invoice Items löschen
     await supabase
@@ -12785,11 +12792,15 @@ async function storniereAbrechnung(invoiceId) {
         throw new Error('Nur offene oder bezahlte Abrechnungen können storniert werden');
     }
 
-    // 2. Provisions-Ledger Gegenbuchungen
+    // 2. Provisions-Ledger Gegenbuchungen (je nach invoice_type)
+    const invoiceIdField = invoice.invoice_type === 'stornorucklage'
+        ? 'invoice_id_stornorucklage'
+        : 'invoice_id_vorschuss';
+
     const { data: provEntries } = await supabase
         .from('provisions_ledger')
         .select('*')
-        .eq('invoice_id', invoiceId);
+        .eq(invoiceIdField, invoiceId);
 
     for (const entry of (provEntries || [])) {
         await supabase.from('provisions_ledger').insert({
@@ -12805,7 +12816,8 @@ async function storniereAbrechnung(invoiceId) {
             campaign_area_id: entry.campaign_area_id,
             customer_id: entry.customer_id,
             beschreibung: `Storno zu Invoice ${invoiceId}`,
-            invoice_id: null
+            invoice_id_vorschuss: null,
+            invoice_id_stornorucklage: null
         });
     }
 
@@ -12813,7 +12825,7 @@ async function storniereAbrechnung(invoiceId) {
     const { data: euroEntries } = await supabase
         .from('euro_ledger')
         .select('*')
-        .eq('invoice_id', invoiceId);
+        .eq('invoice_id_vorschuss', invoiceId);
 
     for (const entry of (euroEntries || [])) {
         await supabase.from('euro_ledger').insert({
@@ -12826,7 +12838,8 @@ async function storniereAbrechnung(invoiceId) {
             year: entry.year,
             referenz_datum: entry.referenz_datum,
             beschreibung: `Storno zu Invoice ${invoiceId}`,
-            invoice_id: null
+            invoice_id_vorschuss: null,
+            invoice_id_stornorucklage: null
         });
     }
 
