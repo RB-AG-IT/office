@@ -12898,8 +12898,8 @@ async function generateAbrechnungPDF(data) {
         sunday.setDate(sunday.getDate() + 6);
 
         const kwText = kwStart === kwEnd ? `KW ${kwStart}` : `KW ${kwStart}-${kwEnd}`;
-        const dateRange = `(${formatShortDate(monday)} - ${formatShortDate(sunday)}${data.year})`;
-        periodText = `Vorschuss-Abrechnung für ${kwText} ${dateRange}`;
+        const monthName = sunday.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+        periodText = `Vorschuss-Abrechnung für ${kwText} (${formatShortDate(monday)} - ${formatShortDate(sunday)}) · ${monthName}`;
     } else {
         periodText = `Stornorücklage-Auszahlung H${data.halbjahr} / ${data.year}`;
     }

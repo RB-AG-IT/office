@@ -1315,7 +1315,7 @@
         const kwBis = getKW(bisDate);
         const kwText = kwVon === kwBis ? `KW ${kwVon}` : `KW ${kwVon}-${kwBis}`;
         const formatShortDate = (d) => `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.`;
-        const zeitraumText = `Abrechnungszeitraum ${kwText} (${formatShortDate(vonDate)} - ${formatShortDate(bisDate)}${bisDate.getFullYear()})`;
+        const zeitraumText = `Abrechnungszeitraum ${kwText} (${formatShortDate(vonDate)} - ${formatShortDate(bisDate)}) · ${bisDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}`;
 
         // Vorschuss-Anteil
         const vorschussAnteil = b.vorschussAnteil || 75;
@@ -1891,8 +1891,8 @@
                     personalnummer: b.personalnummer || '-',
                     invoice_type: abrechnungWorkflowData.typ,
                     zeitraum: {
-                        von: abrechnungWorkflowData.zeitraum.von.toISOString().split('T')[0],
-                        bis: abrechnungWorkflowData.zeitraum.bis.toISOString().split('T')[0]
+                        von: `${abrechnungWorkflowData.zeitraum.von.getFullYear()}-${String(abrechnungWorkflowData.zeitraum.von.getMonth() + 1).padStart(2, '0')}-${String(abrechnungWorkflowData.zeitraum.von.getDate()).padStart(2, '0')}`,
+                        bis: `${abrechnungWorkflowData.zeitraum.bis.getFullYear()}-${String(abrechnungWorkflowData.zeitraum.bis.getMonth() + 1).padStart(2, '0')}-${String(abrechnungWorkflowData.zeitraum.bis.getDate()).padStart(2, '0')}`
                     },
                     year: year,
                     // Einzelne Provisions-Typen (Ledger-Prinzip, inkl. recruiting)
