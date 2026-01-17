@@ -1715,9 +1715,10 @@
         const { b, calc, zeitraum, invoiceNumber } = data;
         const html = generateInvoiceHTML(b, calc, zeitraum, invoiceNumber);
 
-        // Container komplett isoliert vom Dokumentenfluss
         const container = document.createElement('div');
-        container.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 210mm; pointer-events: none; z-index: -9999;';
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '0';
         document.body.appendChild(container);
         container.innerHTML = html;
 
@@ -1725,16 +1726,7 @@
             margin: 0,
             filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${invoiceNumber}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 6,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                windowWidth: 794, // A4 width in px at 96dpi
-                windowHeight: 1123, // A4 height in px at 96dpi
-                onclone: function(clonedDoc) {
-                    // Arbeitet nur mit geklontem DOM, keine Änderungen am Original
-                }
-            },
+            html2canvas: { scale: 6, useCORS: true, backgroundColor: '#ffffff' },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
@@ -1786,9 +1778,10 @@
         // HTML generieren
         const html = generateInvoiceHTML(b, calc, zeitraum, invoiceNumber);
 
-        // Container komplett isoliert vom Dokumentenfluss
         const container = document.createElement('div');
-        container.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 210mm; pointer-events: none; z-index: -9999;';
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '0';
         document.body.appendChild(container);
         container.innerHTML = html;
 
@@ -1797,16 +1790,7 @@
             margin: 0,
             filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${invoiceNumber}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 6,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                windowWidth: 794,
-                windowHeight: 1123,
-                onclone: function(clonedDoc) {
-                    // Arbeitet nur mit geklontem DOM
-                }
-            },
+            html2canvas: { scale: 6, useCORS: true, backgroundColor: '#ffffff' },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
