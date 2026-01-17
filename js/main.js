@@ -12767,16 +12767,17 @@ async function ladeWerberStatistiken(options = {}) {
                 nettoAuszahlung: Math.round(netto * 100) / 100,
                 vorschussAnteil: vorschussAnteil,
 
-                // Provisions-Einstellungen (TC, Quality, Empfehlung)
+                // Provisions-Einstellungen (TC, Quality, Empfehlung, Recruiting)
                 provisionSettings: {
-                    tc_faktor: provision.tc_faktor ?? 1.0,
-                    tc_mind_eh: provision.tc_mind_eh ?? 100,
-                    empfehlung_faktor: provision.empfehlung_faktor ?? 0.5,
-                    empfehlung_mind_eh: provision.empfehlung_mind_eh ?? null,
-                    empfehlung_mind_tage: provision.empfehlung_mind_tage ?? null,
-                    empfehlung_zeitraum_monate: provision.empfehlung_zeitraum_monate ?? 12,
-                    quality_faktor: provision.quality_faktor ?? 0.5,
-                    quality_eh_durchschnitt: provision.quality_eh_durchschnitt ?? 50
+                    tc_faktor: provision.tc_faktor,
+                    tc_mind_eh: provision.tc_mind_eh,
+                    empfehlung_faktor: provision.empfehlung_faktor,
+                    empfehlung_mind_eh: provision.empfehlung_mind_eh,
+                    empfehlung_mind_tage: provision.empfehlung_mind_tage,
+                    empfehlung_zeitraum_monate: provision.empfehlung_zeitraum_monate,
+                    quality_faktor: provision.quality_faktor,
+                    quality_eh_durchschnitt: provision.quality_eh_durchschnitt,
+                    recruiting_faktor: provision.recruiting_faktor
                 },
 
                 // TC-Zuordnungen (wo ist dieser User Teamchef)
