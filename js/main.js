@@ -12777,7 +12777,10 @@ async function ladeWerberStatistiken(options = {}) {
                     empfehlung_zeitraum_monate: provision.empfehlung_zeitraum_monate,
                     quality_faktor: provision.quality_faktor,
                     quality_eh_durchschnitt: provision.quality_eh_durchschnitt,
-                    recruiting_faktor: provision.recruiting_faktor
+                    recruiting_faktor: provision.recruiting_faktor,
+                    recruiting_mind_eh: provision.recruiting_mind_eh,
+                    recruiting_mind_tage: provision.recruiting_mind_tage,
+                    recruiting_zeitraum_monate: provision.recruiting_zeitraum_monate
                 },
 
                 // TC-Zuordnungen (wo ist dieser User Teamchef)

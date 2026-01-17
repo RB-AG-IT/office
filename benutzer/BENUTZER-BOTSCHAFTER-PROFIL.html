@@ -524,13 +524,13 @@
                     </div>
                 </div>
 
-                <!-- Empfehlung / Recruiting -->
+                <!-- Empfehlung -->
                 <div class="unterabschnitt--card">
                     <div class="zeile">
-                        <div class="text-ueberschrift-unterabschnitt">Empfehlung / Recruiting</div>
+                        <div class="text-ueberschrift-unterabschnitt">Empfehlung</div>
                     </div>
                     <div class="zeile">
-                        <span class="text-klein">Faktor 0.5 auf jede Einheit der empfohlenen/rekrutierten Person. Zeitraum: 1 Jahr seit erstem Tag.</span>
+                        <span class="text-klein">Faktor auf jede Einheit der empfohlenen Person. Zeitraum seit erstem Anwesenheitstag.</span>
                     </div>
                     <div class="zeile">
                         <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
@@ -560,6 +560,46 @@
                             <label class="eingabefeld-beschriftung-oben">Mind. Anwesenheitstage</label>
                             <input type="number" class="eingabefeld" id="empfehlungMindTage" placeholder="z.B. 21" min="0">
                             <span class="eingabefeld-beschriftung-unten">Tage bevor Empfehlung gültig</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recruiting -->
+                <div class="unterabschnitt--card">
+                    <div class="zeile">
+                        <div class="text-ueberschrift-unterabschnitt">Recruiting</div>
+                    </div>
+                    <div class="zeile">
+                        <span class="text-klein">Faktor auf jede Einheit der rekrutierten Person. Zeitraum seit erstem Anwesenheitstag.</span>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Recruiting-Faktor</label>
+                            <input type="number" class="eingabefeld" id="recruitingFaktor" value="0.5" min="0" max="5" step="0.1">
+                            <span class="eingabefeld-beschriftung-unten">Standard: 0.5</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Zeitraum (Monate)</label>
+                            <input type="number" class="eingabefeld" id="recruitingZeitraum" value="12" min="1" max="60">
+                            <span class="eingabefeld-beschriftung-unten">Standard: 12 Monate</span>
+                        </div>
+                    </div>
+                    <div class="zeile">
+                        <div class="text-klein" style="margin-bottom: 8px;">Anforderung (ENTWEDER/ODER):</div>
+                    </div>
+                    <div class="zeile">
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Mind. EH</label>
+                            <input type="number" class="eingabefeld" id="recruitingMindEh" placeholder="z.B. 50" min="0">
+                            <span class="eingabefeld-beschriftung-unten">EH bevor Recruiting gültig</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5" style="display: flex; align-items: center; justify-content: center;">
+                            <span class="text-normal--fett">ODER</span>
+                        </div>
+                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                            <label class="eingabefeld-beschriftung-oben">Mind. Anwesenheitstage</label>
+                            <input type="number" class="eingabefeld" id="recruitingMindTage" placeholder="z.B. 21" min="0">
+                            <span class="eingabefeld-beschriftung-unten">Tage bevor Recruiting gültig</span>
                         </div>
                     </div>
                 </div>
@@ -1052,6 +1092,12 @@
             setValue('empfehlungMindEh', provisionSettings.empfehlung_mind_eh || '');
             setValue('empfehlungMindTage', provisionSettings.empfehlung_mind_tage || '');
 
+            // Recruiting
+            setValue('recruitingFaktor', provisionSettings.recruiting_faktor ?? 0.5);
+            setValue('recruitingZeitraum', provisionSettings.recruiting_zeitraum_monate ?? 12);
+            setValue('recruitingMindEh', provisionSettings.recruiting_mind_eh || '');
+            setValue('recruitingMindTage', provisionSettings.recruiting_mind_tage || '');
+
             // Quality
             setValue('qualityFaktor', provisionSettings.quality_faktor ?? 0.5);
             setValue('qualityEhDurchschnitt', provisionSettings.quality_eh_durchschnitt ?? 50);
@@ -1062,12 +1108,22 @@
             if (!profileUserId) return true;
 
             // Entweder/Oder Logik für Empfehlung
-            const mindEh = document.getElementById('empfehlungMindEh')?.value;
-            const mindTage = document.getElementById('empfehlungMindTage')?.value;
+            const empfMindEh = document.getElementById('empfehlungMindEh')?.value;
+            const empfMindTage = document.getElementById('empfehlungMindTage')?.value;
 
             // Wenn beide gefüllt, Warnung
-            if (mindEh && mindTage) {
+            if (empfMindEh && empfMindTage) {
                 showToast('Empfehlung: Bitte nur Mind. EH ODER Mind. Tage ausfüllen', 'warning');
+                return false;
+            }
+
+            // Entweder/Oder Logik für Recruiting
+            const recruMindEh = document.getElementById('recruitingMindEh')?.value;
+            const recruMindTage = document.getElementById('recruitingMindTage')?.value;
+
+            // Wenn beide gefüllt, Warnung
+            if (recruMindEh && recruMindTage) {
+                showToast('Recruiting: Bitte nur Mind. EH ODER Mind. Tage ausfüllen', 'warning');
                 return false;
             }
 
@@ -1086,8 +1142,14 @@
                 // Empfehlung
                 empfehlung_faktor: parseFloat(document.getElementById('empfehlungFaktor').value) || 0.5,
                 empfehlung_zeitraum_monate: parseInt(document.getElementById('empfehlungZeitraum').value) || 12,
-                empfehlung_mind_eh: mindEh ? parseInt(mindEh) : null,
-                empfehlung_mind_tage: mindTage ? parseInt(mindTage) : null,
+                empfehlung_mind_eh: empfMindEh ? parseInt(empfMindEh) : null,
+                empfehlung_mind_tage: empfMindTage ? parseInt(empfMindTage) : null,
+
+                // Recruiting
+                recruiting_faktor: parseFloat(document.getElementById('recruitingFaktor').value) || 0.5,
+                recruiting_zeitraum_monate: parseInt(document.getElementById('recruitingZeitraum').value) || 12,
+                recruiting_mind_eh: recruMindEh ? parseInt(recruMindEh) : null,
+                recruiting_mind_tage: recruMindTage ? parseInt(recruMindTage) : null,
 
                 // Quality
                 quality_faktor: parseFloat(document.getElementById('qualityFaktor').value) || 0.5,
