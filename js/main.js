@@ -2404,6 +2404,10 @@ const CalendarModal = (function() {
     }
 
     function apply() {
+        // Einzeltag: Wenn nur Start gesetzt, als Ende übernehmen
+        if (calendarStartDate && !calendarEndDate) {
+            calendarEndDate = new Date(calendarStartDate);
+        }
         if (calendarStartDate && calendarEndDate) {
             const from = formatGermanDate(calendarStartDate);
             const to = formatGermanDate(calendarEndDate);
