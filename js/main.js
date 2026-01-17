@@ -12365,6 +12365,7 @@ async function updateAbrechnungStatus(invoiceId, status, scheduledAt = null) {
 
     if (scheduledAt) {
         updateData.scheduled_send_at = scheduledAt;
+        updateData.status = 'geplant';
     }
 
     const { data, error } = await supabase
