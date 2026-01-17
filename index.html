@@ -489,11 +489,12 @@
 
                     let nextNum = 1;
                     if (lastProfile?.personalnummer) {
-                        const match = lastProfile.personalnummer.match(/\d{4}$/);
-                        if (match) nextNum = parseInt(match[0]) + 1;
+                        const match = lastProfile.personalnummer.match(/RB\d{2}-\d{2}-(\d{4})/);
+                        if (match) nextNum = parseInt(match[1]) + 1;
                     }
 
-                    const personalnummer = `RB${year}-${month}-${String(nextNum).padStart(4, '0')}`;
+                    const suffix = nextNum <= 100 ? ' #100' : '';
+                    const personalnummer = `RB${year}-${month}-${String(nextNum).padStart(4, '0')}${suffix}`;
 
                     // user_profiles anlegen
                     await window.supabaseClient
