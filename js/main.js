@@ -11497,11 +11497,12 @@ function berechneNetto(vorschuss, abzuegeUnterkunft = 0, abzuegeSonderposten = 0
 /**
  * Berechnet Anwesenheitskosten pro Woche basierend auf Anwesenheitstagen
  * @param {number} anwesenheitstage - Anzahl der Anwesenheitstage in der Woche (0-7)
+ * @param {boolean} istPlatinumPrime - Ob der User Platinum Prime Mitglied ist
  * @returns {number} Wochenkosten in EUR
  */
-function berechneAnwesenheitskosten(anwesenheitstage) {
+function berechneAnwesenheitskosten(anwesenheitstage, istPlatinumPrime = false) {
     if (anwesenheitstage >= 4) {
-        return 200;
+        return istPlatinumPrime ? 175 : 200;
     }
     return anwesenheitstage * 30;
 }
@@ -11536,11 +11537,6 @@ async function erstelleAnwesenheitsAbzug(userId, kw, year) {
             totalDays += days.filter(d => d === true).length;
         });
 
-        // Kosten berechnen
-        const kosten = berechneAnwesenheitskosten(totalDays);
-
-        if (kosten <= 0) return null;
-
         // Prüfen ob bereits ein Eintrag für diese KW existiert
         const kwStart = getMontagDerKW(kw, year);
         const kwEnd = new Date(kwStart);
@@ -11559,6 +11555,30 @@ async function erstelleAnwesenheitsAbzug(userId, kw, year) {
             return existing[0];
         }
 
+        // Platinum Prime Status prüfen
+        let istPlatinumPrime = false;
+        const { data: userProfile } = await supabase
+            .from('user_profiles')
+            .select('platinum_prime_start, platinum_prime_end')
+            .eq('user_id', userId)
+            .single();
+
+        if (userProfile?.platinum_prime_start && userProfile?.platinum_prime_end) {
+            const kwStartStr = kwStart.toISOString().split('T')[0];
+            istPlatinumPrime = kwStartStr >= userProfile.platinum_prime_start &&
+                              kwStartStr <= userProfile.platinum_prime_end;
+        }
+
+        // Kosten berechnen (mit PPM-Rabatt wenn aktiv)
+        const kosten = berechneAnwesenheitskosten(totalDays, istPlatinumPrime);
+
+        if (kosten <= 0) return null;
+
+        // Beschreibung mit PPM-Hinweis
+        const beschreibung = istPlatinumPrime && totalDays >= 4
+            ? `Unterkunft KW ${kw}/${year} (${totalDays} Tage, PPM)`
+            : `Unterkunft KW ${kw}/${year} (${totalDays} Tage)`;
+
         // Neuen Euro-Ledger-Eintrag erstellen
         const { data: created, error: createError } = await supabase
             .from('euro_ledger')
@@ -11567,7 +11587,7 @@ async function erstelleAnwesenheitsAbzug(userId, kw, year) {
                 kategorie: 'unterkunft',
                 typ: 'abzug',
                 betrag: -kosten, // Negativ = Abzug
-                beschreibung: `Anwesenheitskosten KW ${kw}/${year} (${totalDays} Tage)`,
+                beschreibung: beschreibung,
                 kw: kw,
                 year: year,
                 referenz_datum: kwStart.toISOString().split('T')[0]

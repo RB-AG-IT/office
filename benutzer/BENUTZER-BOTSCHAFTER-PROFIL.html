@@ -468,6 +468,28 @@
 
             <hr class="trennlinie">
 
+            <!-- Platinum Prime Mitglied -->
+            <div class="abschnitt--card">
+                <div class="zeile">
+                    <div class="text-ueberschrift-abschnitt">Platinum Prime Mitglied</div>
+                </div>
+                <div class="zeile">
+                    <span class="text-klein">Reduzierte Unterkunftskosten (175 EUR statt 200 EUR bei 4+ Anwesenheitstagen)</span>
+                </div>
+                <div class="zeile">
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Gültig von</label>
+                        <input type="date" class="eingabefeld" id="platinumPrimeStart">
+                    </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Gültig bis</label>
+                        <input type="date" class="eingabefeld" id="platinumPrimeEnd">
+                    </div>
+                </div>
+            </div>
+
+            <hr class="trennlinie">
+
             <!-- Empfehlung & Recruiting -->
             <div class="abschnitt--card">
                 <div class="zeile">
@@ -971,6 +993,10 @@
 
             setValue('advancePercent', userProfile.advance_rate || 70);
             setValue('stornoPercent', userProfile.reserve_rate || 30);
+
+            // Platinum Prime Mitglied
+            setValue('platinumPrimeStart', userProfile.platinum_prime_start);
+            setValue('platinumPrimeEnd', userProfile.platinum_prime_end);
 
             // Fotos laden
             if (userProfile.photo_intern_url) {
@@ -1741,6 +1767,9 @@
                     ranking_enabled: document.getElementById('isGhost').checked ? false : document.getElementById('participateRanking').checked,
                     advance_rate: parseInt(document.getElementById('advancePercent').value) || 70,
                     reserve_rate: parseInt(document.getElementById('stornoPercent').value) || 30,
+                    // Platinum Prime Mitglied
+                    platinum_prime_start: document.getElementById('platinumPrimeStart').value || null,
+                    platinum_prime_end: document.getElementById('platinumPrimeEnd').value || null,
                     updated_at: new Date().toISOString()
                 };
 
