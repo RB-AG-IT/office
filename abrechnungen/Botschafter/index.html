@@ -1715,12 +1715,13 @@
         const { b, calc, zeitraum, invoiceNumber } = data;
         const html = generateInvoiceHTML(b, calc, zeitraum, invoiceNumber);
 
+        // HTML in temporäres Element einfügen
         const container = document.createElement('div');
+        container.innerHTML = html;
         container.style.position = 'absolute';
         container.style.left = '-9999px';
         container.style.top = '0';
         document.body.appendChild(container);
-        container.innerHTML = html;
 
         const opt = {
             margin: 0,
@@ -1731,7 +1732,7 @@
         };
 
         try {
-            const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
+            const pdfBlob = await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).outputPdf('blob');
             document.body.removeChild(container);
             return pdfBlob;
         } catch (err) {
@@ -1778,12 +1779,13 @@
         // HTML generieren
         const html = generateInvoiceHTML(b, calc, zeitraum, invoiceNumber);
 
+        // HTML in temporäres Element einfügen
         const container = document.createElement('div');
+        container.innerHTML = html;
         container.style.position = 'absolute';
         container.style.left = '-9999px';
         container.style.top = '0';
         document.body.appendChild(container);
-        container.innerHTML = html;
 
         // PDF generieren
         const opt = {
@@ -1795,7 +1797,7 @@
         };
 
         try {
-            await html2pdf().set(opt).from(container).save();
+            await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).save();
         } catch (err) {
             console.error('PDF-Fehler:', err);
             document.body.removeChild(container);
