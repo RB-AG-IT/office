@@ -896,10 +896,22 @@
             return;
         }
         abrechnungWorkflowStep = 1;
+
+        // Letzte vollständige KW berechnen (Montag bis Sonntag)
+        const heute = new Date();
+        const tagDerWoche = heute.getDay(); // 0=So, 1=Mo, ...
+        const tageZumLetztenSonntag = tagDerWoche === 0 ? 7 : tagDerWoche;
+        const letzterSonntag = new Date(heute);
+        letzterSonntag.setDate(heute.getDate() - tageZumLetztenSonntag);
+        letzterSonntag.setHours(23, 59, 59, 999);
+        const letzterMontag = new Date(letzterSonntag);
+        letzterMontag.setDate(letzterSonntag.getDate() - 6);
+        letzterMontag.setHours(0, 0, 0, 0);
+
         abrechnungWorkflowData = {
             botschafter: selectedBotschafter.map(id => botschafterData.find(b => b.id === id)),
             typ: 'vorschuss',
-            zeitraum: { von: new Date(), bis: new Date() },
+            zeitraum: { von: letzterMontag, bis: letzterSonntag },
             scheduledAt: null,
             aktion: 'erstellen',
             selectedProvisionen: provisionsArten.map(p => p.id) // Alle standardmäßig aktiviert
