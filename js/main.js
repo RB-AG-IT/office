@@ -11984,6 +11984,21 @@ async function erstelleAbrechnung(data) {
         }
     };
 
+    // Idempotenz-Prüfung: Existiert bereits eine Abrechnung für diesen Zeitraum?
+    const { data: existing } = await supabase
+        .from('invoices')
+        .select('id')
+        .eq('user_id', data.userId)
+        .eq('invoice_type', data.invoice_type)
+        .eq('kw_start', rpcInput.kw_start)
+        .eq('kw_end', rpcInput.kw_end)
+        .eq('year', data.year)
+        .maybeSingle();
+
+    if (existing) {
+        throw new Error('Abrechnung für diesen Zeitraum existiert bereits');
+    }
+
     // Transaktionssichere RPC-Funktion aufrufen
     const { data: result, error } = await supabase
         .rpc('create_invoice_transaction', { input_data: rpcInput });
