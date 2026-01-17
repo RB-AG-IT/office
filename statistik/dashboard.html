@@ -660,9 +660,34 @@
                 const tlRecords = records.filter(r => r.teamchef_id === personId);
                 const qRecords = records.filter(r => r.quality_id === personId);
 
-                // TODO: Recruiting/Empfehlung Records müssen noch über user_recruitments geladen werden
-                const rRecords = []; // Placeholder
-                const eRecords = []; // Placeholder
+                // Recruiting/Empfehlung: Records der rekrutierten/empfohlenen Personen laden
+                let rRecords = [];
+                let eRecords = [];
+
+                // user_recruitments laden
+                const { data: recruitments } = await supabase
+                    .from('user_recruitments')
+                    .select('user_id, recruitment_type')
+                    .eq('recruited_by_id', personId);
+
+                if (recruitments && recruitments.length > 0) {
+                    const recruitingUserIds = recruitments
+                        .filter(r => r.recruitment_type === 'recruiting')
+                        .map(r => r.user_id);
+                    const empfehlungUserIds = recruitments
+                        .filter(r => r.recruitment_type === 'empfehlung')
+                        .map(r => r.user_id);
+
+                    // Records der rekrutierten Personen (werber_id IN recruitingUserIds)
+                    if (recruitingUserIds.length > 0) {
+                        rRecords = records.filter(r => recruitingUserIds.includes(r.werber_id));
+                    }
+
+                    // Records der empfohlenen Personen (werber_id IN empfehlungUserIds)
+                    if (empfehlungUserIds.length > 0) {
+                        eRecords = records.filter(r => empfehlungUserIds.includes(r.werber_id));
+                    }
+                }
 
                 calculatedUebersichtRows = [
                     { ...calcStats(werbenRecords, 'Netto Mitglieder Werben'), children: createChildren(werbenRecords) },
