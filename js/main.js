@@ -6812,12 +6812,11 @@ async function loescheRecord(recordId) {
     const supabase = window.supabase || (window.parent && window.parent.supabaseClient);
     if (!supabase) throw new Error('Supabase nicht verfügbar');
 
-    // 1. Alle offenen Ledger-Einträge für diesen Record holen
+    // 1. Alle Ledger-Einträge für diesen Record holen (auch bereits abgerechnete)
     const { data: ledgerEntries, error: ledgerError } = await supabase
         .from('provisions_ledger')
         .select('*')
-        .eq('record_id', recordId)
-        .is('invoice_id', null);  // Nur offene (noch nicht abgerechnete)
+        .eq('record_id', recordId);
 
     if (ledgerError) throw ledgerError;
 
