@@ -538,7 +538,7 @@
                 // Records laden mit Zeitraum-Filter (nach Aufnahmedatum = start_date)
                 let query = supabase
                     .from('records')
-                    .select('id, record_type, record_status, yearly_amount, amount, interval, birth_date, email, contact_email, phone_mobile, contact_phone, werber_id, teamchef_id, quality_id, start_date, kw, year')
+                    .select('id, record_type, record_status, yearly_amount, increase_amount, old_amount, amount, interval, birth_date, email, contact_email, phone_mobile, contact_phone, werber_id, teamchef_id, quality_id, start_date, kw, year')
                     .is('deleted_at', null);
 
                 if (periodStartDate) {
@@ -561,7 +561,13 @@
                     const nmg = aktiv.filter(r => r.record_type === 'neumitglied');
                     const erh = aktiv.filter(r => r.record_type === 'erhoehung');
 
-                    const totalJE = aktiv.reduce((sum, r) => sum + (parseFloat(r.yearly_amount) || 0), 0);
+                    // JE/EH Berechnung: NMG = yearly_amount, ERH = increase_amount
+                    const totalJE = aktiv.reduce((sum, r) => {
+                        if (r.record_type === 'erhoehung') {
+                            return sum + (parseFloat(r.increase_amount) || 0);
+                        }
+                        return sum + (parseFloat(r.yearly_amount) || 0);
+                    }, 0);
                     const einheiten = Math.round(totalJE / 12 * 100) / 100;
 
                     // Stornoquoten
@@ -615,7 +621,10 @@
 
                     if (aktiv.length > 0) {
                         aktiv.forEach(r => {
-                            const recordJE = parseFloat(r.yearly_amount) || 0;
+                            // NMG = yearly_amount, ERH = increase_amount
+                            const recordJE = r.record_type === 'erhoehung'
+                                ? (parseFloat(r.increase_amount) || 0)
+                                : (parseFloat(r.yearly_amount) || 0);
                             const recordEH = recordJE / 12;
                             const faktorForRecord = getFaktorForDate(r.start_date);
                             totalProvision += recordEH * faktorForRecord;
@@ -1166,7 +1175,7 @@
                         if (recs.length > bestMgTag.count) {
                             bestMgTag = { count: recs.length, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
                         }
-                        const eh = recs.reduce((sum, r) => sum + (parseFloat(r.yearly_amount) || 0), 0) / 12;
+                        const eh = recs.reduce((sum, r) => sum + ((r.record_type === 'erhoehung' ? parseFloat(r.increase_amount) : parseFloat(r.yearly_amount)) || 0), 0) / 12;
                         if (eh > bestEhTag.eh) {
                             bestEhTag = { eh: Math.round(eh * 100) / 100, date: day, campaign: campaignMap[recs[0]?.campaign_id] };
                         }
@@ -1190,7 +1199,7 @@
                         if (recs.length > bestMgWoche.count) {
                             bestMgWoche = { count: recs.length, week: week, campaign: campaignMap[recs[0]?.campaign_id] };
                         }
-                        const ehWoche = recs.reduce((sum, r) => sum + (parseFloat(r.yearly_amount) || 0), 0) / 12;
+                        const ehWoche = recs.reduce((sum, r) => sum + ((r.record_type === 'erhoehung' ? parseFloat(r.increase_amount) : parseFloat(r.yearly_amount)) || 0), 0) / 12;
                         if (ehWoche > bestEhWoche.eh) {
                             bestEhWoche = { eh: Math.round(ehWoche * 100) / 100, week: week, campaign: campaignMap[recs[0]?.campaign_id] };
                         }
@@ -1303,7 +1312,7 @@
                             return recDate >= startDate && recDate <= endDate;
                         });
 
-                        const totalEH = userRecords.reduce((sum, r) => sum + ((parseFloat(r.yearly_amount) || 0) / 12), 0);
+                        const totalEH = userRecords.reduce((sum, r) => sum + ((r.record_type === 'erhoehung' ? parseFloat(r.increase_amount) : parseFloat(r.yearly_amount)) || 0) / 12, 0);
                         return totalEH >= 100;
                     }
 
