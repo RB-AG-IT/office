@@ -12311,6 +12311,7 @@ async function fuegeAbzugHinzu(data) {
         user_id: data.userId,
         kategorie: data.type, // 'unterkunft' | 'sonderposten' | 'sonstiges'
         typ: data.buchungArt || 'abzug', // 'abzug' | 'zubuchung' | 'korrektur'
+        quelle: data.von || 'vorschuss', // 'vorschuss' | 'stornorucklage'
         betrag: istZubuchung ? Math.abs(data.betrag) : -Math.abs(data.betrag),
         beschreibung: data.beschreibung,
         referenz_datum: data.gueltig_ab || new Date().toISOString().split('T')[0]
@@ -12511,13 +12512,17 @@ async function ladeWerberStatistiken(options = {}) {
         // 6. Euro-Ledger laden (offene Buchungen)
         const { data: euroLedgerData } = await supabase
             .from('euro_ledger')
-            .select('user_id, kategorie, betrag')
+            .select('user_id, kategorie, quelle, betrag')
             .is('invoice_id', null);
 
         const abzuegeMap = {};
         (euroLedgerData || []).forEach(e => {
             if (!abzuegeMap[e.user_id]) {
                 abzuegeMap[e.user_id] = {
+                    // Nach Quelle getrennt
+                    vorschuss: { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 },
+                    stornorucklage: { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 },
+                    // Gesamt (für Abwärtskompatibilität)
                     unterkunft: 0,
                     sonderposten: 0,
                     zubuchungUnterkunft: 0,
@@ -12525,18 +12530,24 @@ async function ladeWerberStatistiken(options = {}) {
                 };
             }
             const betrag = parseFloat(e.betrag) || 0;
+            const quelle = e.quelle || 'vorschuss';
+            const quelleObj = abzuegeMap[e.user_id][quelle];
 
             // Im euro_ledger: Negativ = Abzug, Positiv = Zubuchung
             if (e.kategorie === 'unterkunft') {
                 if (betrag >= 0) {
+                    quelleObj.zubuchungUnterkunft += betrag;
                     abzuegeMap[e.user_id].zubuchungUnterkunft += betrag;
                 } else {
+                    quelleObj.unterkunft += Math.abs(betrag);
                     abzuegeMap[e.user_id].unterkunft += Math.abs(betrag);
                 }
             } else {
                 if (betrag >= 0) {
+                    quelleObj.zubuchungSonderposten += betrag;
                     abzuegeMap[e.user_id].zubuchungSonderposten += betrag;
                 } else {
+                    quelleObj.sonderposten += Math.abs(betrag);
                     abzuegeMap[e.user_id].sonderposten += Math.abs(betrag);
                 }
             }
@@ -12741,10 +12752,15 @@ async function ladeWerberStatistiken(options = {}) {
                 offenerVorschuss: Math.round(aufteilung.vorschuss * 100) / 100,
                 offeneStornorucklage: stornorucklage.auszahlbar || 0,
                 stornorucklageGesperrt: stornorucklage.gesperrt || 0,
+                // Abzüge/Zubuchungen Gesamt
                 abzuegeUnterkunft: abzuege.unterkunft,
                 abzuegeSonderposten: abzuege.sonderposten,
                 zubuchungenUnterkunft: abzuege.zubuchungUnterkunft,
                 zubuchungenSonderposten: abzuege.zubuchungSonderposten,
+                // Abzüge/Zubuchungen nach Quelle (Vorschuss)
+                abzuegeVorschuss: abzuege.vorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 },
+                // Abzüge/Zubuchungen nach Quelle (Stornorücklage)
+                abzuegeStornorucklage: abzuege.stornorucklage || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 },
                 nettoAuszahlung: Math.round(netto * 100) / 100,
                 vorschussAnteil: vorschussAnteil,
 

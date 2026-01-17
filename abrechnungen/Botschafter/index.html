@@ -280,9 +280,11 @@
         { id: 'einheiten', label: 'Einheiten', visible: true, class: 'col-s text-right' },
         { id: 'vorschussAnteil', label: 'Vorschuss %', visible: true, class: 'col-s text-right' },
         { id: 'offenerVorschuss', label: 'Offener Vorschuss', visible: true, class: 'col-m text-right' },
+        { id: 'abzuegeVorschuss', label: 'Abz. Vorschuss', visible: true, class: 'col-m text-right' },
         { id: 'offeneStornorucklage', label: 'Stornorücklage', visible: true, class: 'col-m text-right' },
-        { id: 'abzuegeUnterkunft', label: 'Abz. Unterkunft', visible: false, class: 'col-m text-right' },
-        { id: 'abzuegeSonderposten', label: 'Abz. Sonderposten', visible: false, class: 'col-m text-right' },
+        { id: 'abzuegeStornorucklage', label: 'Abz. Stornorückl.', visible: true, class: 'col-m text-right' },
+        { id: 'abzuegeUnterkunft', label: 'Abz. Unterkunft (Ges.)', visible: false, class: 'col-m text-right' },
+        { id: 'abzuegeSonderposten', label: 'Abz. Sonderp. (Ges.)', visible: false, class: 'col-m text-right' },
         { id: 'nettoAuszahlung', label: 'Netto', visible: true, class: 'col-m text-right' },
         { id: 'letzteAbrechnung', label: 'Letzte Abr.', visible: true, class: 'col-m text-left' },
         { id: 'email', label: 'E-Mail', visible: false, class: 'col-xl text-left' }
@@ -516,6 +518,18 @@
                     case 'nettoAuszahlung':
                         html = formatEuro(value);
                         break;
+                    case 'abzuegeVorschuss':
+                        // Summe aus Vorschuss-Abzügen (Unterkunft + Sonderposten)
+                        const abzV = b.abzuegeVorschuss || { unterkunft: 0, sonderposten: 0 };
+                        const summeVorschuss = abzV.unterkunft + abzV.sonderposten;
+                        html = summeVorschuss > 0 ? `- ${formatEuro(summeVorschuss)}` : '-';
+                        break;
+                    case 'abzuegeStornorucklage':
+                        // Summe aus Stornorücklage-Abzügen (Unterkunft + Sonderposten)
+                        const abzS = b.abzuegeStornorucklage || { unterkunft: 0, sonderposten: 0 };
+                        const summeStorno = abzS.unterkunft + abzS.sonderposten;
+                        html = summeStorno > 0 ? `- ${formatEuro(summeStorno)}` : '-';
+                        break;
                     default:
                         html = value || '-';
                 }
@@ -532,7 +546,15 @@
             offenerVorschuss: filtered.reduce((s, b) => s + b.offenerVorschuss, 0),
             offeneStornorucklage: filtered.reduce((s, b) => s + b.offeneStornorucklage, 0),
             nettoAuszahlung: filtered.reduce((s, b) => s + b.nettoAuszahlung, 0),
-            einheiten: filtered.reduce((s, b) => s + b.einheiten, 0)
+            einheiten: filtered.reduce((s, b) => s + b.einheiten, 0),
+            abzuegeVorschuss: filtered.reduce((s, b) => {
+                const abz = b.abzuegeVorschuss || { unterkunft: 0, sonderposten: 0 };
+                return s + abz.unterkunft + abz.sonderposten;
+            }, 0),
+            abzuegeStornorucklage: filtered.reduce((s, b) => {
+                const abz = b.abzuegeStornorucklage || { unterkunft: 0, sonderposten: 0 };
+                return s + abz.unterkunft + abz.sonderposten;
+            }, 0)
         };
 
         let footHtml = `<tr class="totals-row">
@@ -545,6 +567,8 @@
             else if (col.id === 'einheiten') html = totals.einheiten.toFixed(2);
             else if (col.id === 'offenerVorschuss') html = formatEuro(totals.offenerVorschuss);
             else if (col.id === 'offeneStornorucklage') html = formatEuro(totals.offeneStornorucklage);
+            else if (col.id === 'abzuegeVorschuss') html = totals.abzuegeVorschuss > 0 ? `- ${formatEuro(totals.abzuegeVorschuss)}` : '-';
+            else if (col.id === 'abzuegeStornorucklage') html = totals.abzuegeStornorucklage > 0 ? `- ${formatEuro(totals.abzuegeStornorucklage)}` : '-';
             else if (col.id === 'nettoAuszahlung') html = formatEuro(totals.nettoAuszahlung);
 
             footHtml += `<td class="${col.class}">${html}</td>`;
