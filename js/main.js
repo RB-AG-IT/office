@@ -11873,8 +11873,9 @@ function berechneEmpfehlungsProvision(empfehler, empfohlenerEh, empfehlungsDatum
 
 /**
  * Lädt Stornorücklagen-Übersicht für einen Botschafter
+ * Nutzt View stornorucklage_uebersicht (berechnet aus provisions_ledger)
  * @param {string} userId - Botschafter UUID
- * @returns {Promise<object>} { gesperrt, auszahlbar, ausgezahlt, details }
+ * @returns {Promise<object>} { gesperrt, auszahlbar, ausgezahlt, details } - Werte in Einheiten (EH)
  */
 async function ladeStornorucklagen(userId) {
     const supabase = window.parent?.supabaseClient || window.supabaseClient;
@@ -11882,7 +11883,7 @@ async function ladeStornorucklagen(userId) {
 
     try {
         const { data, error } = await supabase
-            .from('stornorucklage_tracking')
+            .from('stornorucklage_uebersicht')
             .select('*')
             .eq('user_id', userId)
             .order('year', { ascending: false })
@@ -11890,22 +11891,20 @@ async function ladeStornorucklagen(userId) {
 
         if (error) throw error;
 
-        // Status-Update prüfen (gesperrt -> auszahlbar)
-        const heute = new Date();
+        // Nach Status gruppieren (View berechnet Status bereits)
         let gesperrt = 0;
         let auszahlbar = 0;
         let ausgezahlt = 0;
 
         (data || []).forEach(item => {
-            const verbleibend = (item.original_betrag || 0) - (item.stornos_verrechnet || 0);
-            const sperrfristEnde = new Date(item.sperrfrist_bis);
+            const einheiten = parseFloat(item.netto_einheiten) || 0;
 
             if (item.status === 'ausgezahlt') {
-                ausgezahlt += item.ausgezahlt_betrag || 0;
-            } else if (heute >= sperrfristEnde) {
-                auszahlbar += verbleibend;
+                ausgezahlt += einheiten;
+            } else if (item.status === 'auszahlbar') {
+                auszahlbar += einheiten;
             } else {
-                gesperrt += verbleibend;
+                gesperrt += einheiten;
             }
         });
 
