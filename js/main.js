@@ -13207,7 +13207,7 @@ async function generateAndUploadPdf(invoiceId) {
         .select(`
             *,
             users!inner(name, email),
-            user_profiles(street, house_number, postal_code, city, iban, account_holder)
+            user_profiles(street, house_number, postal_code, city, iban, account_holder, personalnummer, phone)
         `)
         .eq('id', invoiceId)
         .single();
@@ -13240,7 +13240,10 @@ async function generateAndUploadPdf(invoiceId) {
         abzuegeSonderposten: parseFloat(invoice.abzuege_sonderposten) || 0,
         netto: parseFloat(invoice.netto_auszahlung) || 0,
         iban: profile.iban,
-        kontoinhaber: profile.account_holder || invoice.users.name
+        kontoinhaber: profile.account_holder || invoice.users.name,
+        personalnummer: profile.personalnummer || '',
+        telefon: profile.phone || '',
+        email: invoice.users.email || ''
     };
 
     // PDF generieren
