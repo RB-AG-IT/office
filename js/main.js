@@ -11910,7 +11910,7 @@ async function ladeAbrechnungsdaten(userId, zeitraum) {
             .from('user_roles')
             .select('role_name, factor, is_active, valid_from, valid_until, assigned_at')
             .eq('user_id', userId)
-            .eq('role_type', 'main');
+            .eq('role_type', 'career');
 
         if (roleError && roleError.code !== 'PGRST116') {
             console.error('Fehler beim Laden der Rollen:', roleError);
@@ -12435,7 +12435,7 @@ async function ladeWerberStatistiken(options = {}) {
         const { data: careerData } = await supabase
             .from('user_roles')
             .select('user_id, role_name, factor, is_active, valid_from, valid_until, assigned_at')
-            .eq('role_type', 'main');
+            .eq('role_type', 'career');
 
         // Einträge pro User gruppieren
         const careerEntriesByUser = {};
