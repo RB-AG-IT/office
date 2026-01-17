@@ -11451,37 +11451,36 @@ async function erstelleAnwesenheitsAbzug(userId, kw, year) {
 
         if (kosten <= 0) return null;
 
-        // Prüfen ob bereits ein Abzug für diese KW existiert
+        // Prüfen ob bereits ein Eintrag für diese KW existiert
         const kwStart = getMontagDerKW(kw, year);
         const kwEnd = new Date(kwStart);
         kwEnd.setDate(kwEnd.getDate() + 6);
 
         const { data: existing } = await supabase
-            .from('abzuege')
+            .from('euro_ledger')
             .select('id')
             .eq('user_id', userId)
-            .eq('abzug_type', 'unterkunft')
-            .gte('gueltig_ab', kwStart.toISOString().split('T')[0])
-            .lte('gueltig_ab', kwEnd.toISOString().split('T')[0])
-            .like('beschreibung', `%KW ${kw}%`);
+            .eq('kategorie', 'unterkunft')
+            .eq('kw', kw)
+            .eq('year', year);
 
         if (existing && existing.length > 0) {
-            // Abzug existiert bereits
+            // Eintrag existiert bereits
             return existing[0];
         }
 
-        // Neuen Abzug erstellen
+        // Neuen Euro-Ledger-Eintrag erstellen
         const { data: created, error: createError } = await supabase
-            .from('abzuege')
+            .from('euro_ledger')
             .insert({
                 user_id: userId,
-                abzug_type: 'unterkunft',
-                abzug_von: 'vorschuss',
+                kategorie: 'unterkunft',
+                typ: 'abzug',
+                betrag: -kosten, // Negativ = Abzug
                 beschreibung: `Anwesenheitskosten KW ${kw}/${year} (${totalDays} Tage)`,
-                betrag: kosten,
-                gueltig_ab: kwStart.toISOString().split('T')[0],
-                gueltig_bis: kwEnd.toISOString().split('T')[0],
-                verrechnet: false
+                kw: kw,
+                year: year,
+                referenz_datum: kwStart.toISOString().split('T')[0]
             })
             .select()
             .single();
@@ -11826,15 +11825,15 @@ async function ladeAbrechnungsdaten(userId, zeitraum) {
         // 4. Anwesenheitsabzüge für den Zeitraum erstellen (falls noch nicht vorhanden)
         await erstelleAnwesenheitsAbzuegeFuerZeitraum(userId, zeitraum);
 
-        // 5. Offene Abzüge laden (inkl. neu erstellte Anwesenheitsabzüge)
-        const { data: abzuege, error: abzuegeError } = await supabase
-            .from('abzuege')
+        // 5. Offene Euro-Ledger-Einträge laden (inkl. neu erstellte Anwesenheitsabzüge)
+        const { data: euroLedger, error: euroLedgerError } = await supabase
+            .from('euro_ledger')
             .select('*')
             .eq('user_id', userId)
-            .eq('verrechnet', false);
+            .is('invoice_id', null);
 
-        if (abzuegeError && abzuegeError.code !== 'PGRST116') {
-            console.error('Fehler beim Laden der Abzüge:', abzuegeError);
+        if (euroLedgerError && euroLedgerError.code !== 'PGRST116') {
+            console.error('Fehler beim Laden der Euro-Ledger-Einträge:', euroLedgerError);
         }
 
         // 6. Einheiten berechnen
@@ -11851,26 +11850,26 @@ async function ladeAbrechnungsdaten(userId, zeitraum) {
         const vorschussAnteil = profile?.advance_rate || 75;
         const aufteilung = berechneAufteilung(brutto, vorschussAnteil);
 
-        // 9. Abzüge und Zubuchungen summieren
+        // 9. Abzüge und Zubuchungen aus Euro-Ledger summieren
+        // Im euro_ledger: Negativ = Abzug, Positiv = Zubuchung
         let abzuegeUnterkunft = 0;
         let abzuegeSonderposten = 0;
         let zubuchungenUnterkunft = 0;
         let zubuchungenSonderposten = 0;
-        (abzuege || []).filter(a => a.abzug_von === 'vorschuss').forEach(a => {
-            const betrag = parseFloat(a.betrag) || 0;
-            const istZubuchung = a.buchung_art === 'zubuchung';
+        (euroLedger || []).forEach(e => {
+            const betrag = parseFloat(e.betrag) || 0;
 
-            if (a.abzug_type === 'unterkunft') {
-                if (istZubuchung) {
+            if (e.kategorie === 'unterkunft') {
+                if (betrag >= 0) {
                     zubuchungenUnterkunft += betrag;
                 } else {
-                    abzuegeUnterkunft += betrag;
+                    abzuegeUnterkunft += Math.abs(betrag);
                 }
             } else {
-                if (istZubuchung) {
+                if (betrag >= 0) {
                     zubuchungenSonderposten += betrag;
                 } else {
-                    abzuegeSonderposten += betrag;
+                    abzuegeSonderposten += Math.abs(betrag);
                 }
             }
         });
@@ -11897,7 +11896,7 @@ async function ladeAbrechnungsdaten(userId, zeitraum) {
             zubuchungenSonderposten,
             netto,
             records: records || [],
-            abzuege: abzuege || []
+            euroLedger: euroLedger || []
         };
     } catch (error) {
         console.error('Fehler in ladeAbrechnungsdaten:', error);
@@ -12129,6 +12128,17 @@ async function erstelleAbrechnung(data) {
         console.error('Fehler beim Verknüpfen der Ledger-Einträge:', ledgerUpdateError);
     }
 
+    // ========== Euro-Ledger-Einträge mit Invoice verknüpfen ==========
+    const { error: euroLedgerError } = await supabase
+        .from('euro_ledger')
+        .update({ invoice_id: created.id })
+        .eq('user_id', data.userId)
+        .is('invoice_id', null);
+
+    if (euroLedgerError) {
+        console.error('Fehler beim Verknüpfen der Euro-Ledger-Einträge:', euroLedgerError);
+    }
+
     // ========== Invoice Items (für Abzüge) ==========
     const items = [];
 
@@ -12202,27 +12212,26 @@ async function erstelleAbrechnung(data) {
 }
 
 /**
- * Fügt einen Abzug oder eine Zubuchung hinzu
- * @param {object} data - { userId, type, von, beschreibung, betrag, buchungArt }
+ * Fügt einen Abzug oder eine Zubuchung hinzu (Euro-Ledger)
+ * @param {object} data - { userId, type, beschreibung, betrag, buchungArt }
  * @returns {Promise<object>} Erstellte Buchung
  */
 async function fuegeAbzugHinzu(data) {
     const supabase = window.parent?.supabaseClient || window.supabaseClient;
     if (!supabase) throw new Error('Supabase Client nicht verfügbar');
 
+    const istZubuchung = data.buchungArt === 'zubuchung';
     const buchung = {
         user_id: data.userId,
-        abzug_type: data.type, // 'unterkunft' | 'sonderposten'
-        abzug_von: data.von,   // 'vorschuss' | 'stornorucklage'
+        kategorie: data.type, // 'unterkunft' | 'sonderposten' | 'sonstiges'
+        typ: data.buchungArt || 'abzug', // 'abzug' | 'zubuchung' | 'korrektur'
+        betrag: istZubuchung ? Math.abs(data.betrag) : -Math.abs(data.betrag),
         beschreibung: data.beschreibung,
-        betrag: data.betrag,
-        buchung_art: data.buchungArt || 'abzug', // 'abzug' | 'zubuchung'
-        gueltig_ab: data.gueltig_ab || new Date().toISOString().split('T')[0],
-        verrechnet: false
+        referenz_datum: data.gueltig_ab || new Date().toISOString().split('T')[0]
     };
 
     const { data: created, error } = await supabase
-        .from('abzuege')
+        .from('euro_ledger')
         .insert(buchung)
         .select()
         .single();
@@ -12407,36 +12416,36 @@ async function ladeWerberStatistiken(options = {}) {
             }
         });
 
-        // 6. Abzüge und Zubuchungen laden
-        const { data: abzuegeData } = await supabase
-            .from('abzuege')
-            .select('user_id, abzug_type, betrag, buchung_art')
-            .eq('verrechnet', false);
+        // 6. Euro-Ledger laden (offene Buchungen)
+        const { data: euroLedgerData } = await supabase
+            .from('euro_ledger')
+            .select('user_id, kategorie, betrag')
+            .is('invoice_id', null);
 
         const abzuegeMap = {};
-        (abzuegeData || []).forEach(a => {
-            if (!abzuegeMap[a.user_id]) {
-                abzuegeMap[a.user_id] = {
+        (euroLedgerData || []).forEach(e => {
+            if (!abzuegeMap[e.user_id]) {
+                abzuegeMap[e.user_id] = {
                     unterkunft: 0,
                     sonderposten: 0,
                     zubuchungUnterkunft: 0,
                     zubuchungSonderposten: 0
                 };
             }
-            const betrag = parseFloat(a.betrag) || 0;
-            const istZubuchung = a.buchung_art === 'zubuchung';
+            const betrag = parseFloat(e.betrag) || 0;
 
-            if (a.abzug_type === 'unterkunft') {
-                if (istZubuchung) {
-                    abzuegeMap[a.user_id].zubuchungUnterkunft += betrag;
+            // Im euro_ledger: Negativ = Abzug, Positiv = Zubuchung
+            if (e.kategorie === 'unterkunft') {
+                if (betrag >= 0) {
+                    abzuegeMap[e.user_id].zubuchungUnterkunft += betrag;
                 } else {
-                    abzuegeMap[a.user_id].unterkunft += betrag;
+                    abzuegeMap[e.user_id].unterkunft += Math.abs(betrag);
                 }
             } else {
-                if (istZubuchung) {
-                    abzuegeMap[a.user_id].zubuchungSonderposten += betrag;
+                if (betrag >= 0) {
+                    abzuegeMap[e.user_id].zubuchungSonderposten += betrag;
                 } else {
-                    abzuegeMap[a.user_id].sonderposten += betrag;
+                    abzuegeMap[e.user_id].sonderposten += Math.abs(betrag);
                 }
             }
         });
