@@ -11700,36 +11700,6 @@ function getAktuelleKarriereStufe(careerEntries, referenceDate = null) {
 window.getAktuelleKarriereStufe = getAktuelleKarriereStufe;
 
 /**
- * Berechnet das Halbjahr aus einem Datum
- * @param {Date|string} datum - Datum
- * @returns {object} { halbjahr: 1|2, year: number }
- */
-function getHalbjahr(datum) {
-    const d = new Date(datum);
-    const month = d.getMonth(); // 0-11
-    return {
-        halbjahr: month < 6 ? 1 : 2,
-        year: d.getFullYear()
-    };
-}
-
-/**
- * Berechnet das Sperrfrist-Ende (2 Jahre nach Halbjahr-Ende)
- * @param {number} halbjahr - 1 oder 2
- * @param {number} jahr - Jahr
- * @returns {Date} Sperrfrist-Ende
- */
-function berechneSperrfristEnde(halbjahr, jahr) {
-    // H1 (Jan-Jun) -> Sperrfrist endet 01.07 + 2 Jahre
-    // H2 (Jul-Dez) -> Sperrfrist endet 01.01 + 2 Jahre + 1 (nächstes Jahr)
-    if (halbjahr === 1) {
-        return new Date(jahr + 2, 6, 1); // 1. Juli + 2 Jahre
-    } else {
-        return new Date(jahr + 3, 0, 1); // 1. Januar + 3 Jahre
-    }
-}
-
-/**
  * Formatiert einen Betrag als Euro-String
  * @param {number} betrag - Betrag in EUR
  * @returns {string} Formatierter String z.B. "1.234,56 €"
@@ -11960,20 +11930,6 @@ async function erstelleAbrechnung(data) {
     const supabase = window.parent?.supabaseClient || window.supabaseClient;
     if (!supabase) throw new Error('Supabase Client nicht verfügbar');
 
-    // Bestehende Rechnungen für Nummern-Generierung laden
-    const { data: existingInvoices } = await supabase
-        .from('invoices')
-        .select('invoice_number')
-        .eq('year', data.year);
-
-    // Monat aus Zeitraum-Ende ermitteln
-    const monat = new Date(data.zeitraum.bis).getMonth() + 1;
-
-    // Kategorie (Standard: 'all', kann über data.kategorie übergeben werden)
-    const kategorie = data.kategorie || 'all';
-
-    // Rechnungsnummer wird erst bei Freigabe vergeben (nicht bei Entwurf)
-
     // Provisions-Beträge aus data.provisionen (Ledger) oder Fallback auf Gesamt
     const provisionen = data.provisionen || {
         werben: data.brutto,
@@ -11982,35 +11938,34 @@ async function erstelleAbrechnung(data) {
         empfehlung: 0,
         recruiting: 0
     };
-    // Recruiting hinzufügen falls nicht vorhanden
     if (!provisionen.recruiting) provisionen.recruiting = 0;
 
-    // Gesamt-Provisionen berechnen (inkl. recruiting)
+    // Gesamt-Provisionen berechnen
     const gesamtProvision = provisionen.werben + provisionen.teamleitung + provisionen.quality + provisionen.empfehlung + provisionen.recruiting;
     const gesamtVorschuss = gesamtProvision * (data.vorschussAnteil / 100);
     const gesamtStornorucklage = gesamtProvision - gesamtVorschuss;
 
-    const invoice = {
-        user_id: data.userId,
-        invoice_number: null,  // Wird erst bei Freigabe vergeben
+    // Input für RPC-Funktion vorbereiten
+    const rpcInput = {
+        userId: data.userId,
         invoice_type: data.invoice_type,
-        period_start: data.zeitraum.von,
-        period_end: data.zeitraum.bis,
+        zeitraum: data.zeitraum,
         kw_start: getKW(new Date(data.zeitraum.von)),
         kw_end: getKW(new Date(data.zeitraum.bis)),
         year: data.year,
-        brutto_provision: gesamtProvision,
-        vorschuss_betrag: data.vorschuss,
-        stornorucklage_betrag: data.stornorucklage,
-        abzuege_unterkunft: data.abzuegeUnterkunft,
-        abzuege_sonderposten: data.abzuegeSonderposten,
-        netto_auszahlung: data.netto,
-        // Neue Felder für Ledger-Summen
-        gesamt_provision: gesamtProvision,
-        gesamt_vorschuss: gesamtVorschuss,
-        gesamt_stornorucklage: gesamtStornorucklage,
+        brutto: gesamtProvision,
+        vorschuss: data.vorschuss,
+        stornorucklage: data.stornorucklage,
+        vorschussAnteil: data.vorschussAnteil,
+        abzuegeUnterkunft: data.abzuegeUnterkunft || 0,
+        abzuegeSonderposten: data.abzuegeSonderposten || 0,
+        netto: data.netto,
+        gesamtProvision: gesamtProvision,
+        gesamtVorschuss: gesamtVorschuss,
+        gesamtStornorucklage: gesamtStornorucklage,
+        provisionen: provisionen,
+        scheduled_send_at: data.scheduled_send_at || null,
         calculation_data: {
-            // Snapshot der Botschafter-Daten bei Erstellung (unveränderlich)
             name: data.name,
             email: data.email || '',
             telefon: data.telefon || '',
@@ -12025,190 +11980,16 @@ async function erstelleAbrechnung(data) {
             provisionen: provisionen,
             einheiten_pro_kategorie: data.einheitenProKategorie || {},
             provision_settings: data.provisionSettings || {},
-            // Abzüge/Zubuchungen aus euro_ledger (Vorschuss-Quelle)
             abzuege_vorschuss: data.abzuegeVorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 }
-        },
-        status: 'entwurf',
-        scheduled_send_at: data.scheduled_send_at || null
+        }
     };
 
-    const { data: created, error } = await supabase
-        .from('invoices')
-        .insert(invoice)
-        .select()
-        .single();
+    // Transaktionssichere RPC-Funktion aufrufen
+    const { data: result, error } = await supabase
+        .rpc('create_invoice_transaction', { input_data: rpcInput });
 
     if (error) throw error;
-
-    // ========== Invoice Positions (für Abrechnungsdetails) ==========
-    const positions = [];
-
-    // 1. Werbe-Provision
-    if (provisionen.werben > 0) {
-        const werbenVorschuss = provisionen.werben * (data.vorschussAnteil / 100);
-        const werbenStorno = provisionen.werben - werbenVorschuss;
-
-        positions.push({
-            invoice_id: created.id,
-            typ: 'werben',
-            provision: provisionen.werben,
-            vorschuss_anteil: data.vorschussAnteil,
-            vorschuss: werbenVorschuss,
-            stornorucklage: werbenStorno
-        });
-    }
-
-    // 2. TC-Provision (Teamleitung)
-    if (provisionen.teamleitung > 0) {
-        const tcVorschuss = provisionen.teamleitung * (data.vorschussAnteil / 100);
-        const tcStorno = provisionen.teamleitung - tcVorschuss;
-
-        positions.push({
-            invoice_id: created.id,
-            typ: 'teamleitung',
-            provision: provisionen.teamleitung,
-            vorschuss_anteil: data.vorschussAnteil,
-            vorschuss: tcVorschuss,
-            stornorucklage: tcStorno
-        });
-    }
-
-    // 3. Quality-Provision
-    if (provisionen.quality > 0) {
-        const qualityVorschuss = provisionen.quality * (data.vorschussAnteil / 100);
-        const qualityStorno = provisionen.quality - qualityVorschuss;
-
-        positions.push({
-            invoice_id: created.id,
-            typ: 'quality',
-            provision: provisionen.quality,
-            vorschuss_anteil: data.vorschussAnteil,
-            vorschuss: qualityVorschuss,
-            stornorucklage: qualityStorno
-        });
-    }
-
-    // 4. Empfehlungs-Provision
-    if (provisionen.empfehlung > 0) {
-        const empfehlungVorschuss = provisionen.empfehlung * (data.vorschussAnteil / 100);
-        const empfehlungStorno = provisionen.empfehlung - empfehlungVorschuss;
-
-        positions.push({
-            invoice_id: created.id,
-            typ: 'empfehlung',
-            provision: provisionen.empfehlung,
-            vorschuss_anteil: data.vorschussAnteil,
-            vorschuss: empfehlungVorschuss,
-            stornorucklage: empfehlungStorno
-        });
-    }
-
-    // Invoice Positions speichern
-    if (positions.length > 0) {
-        const { error: posError } = await supabase
-            .from('invoice_positions')
-            .insert(positions);
-
-        if (posError) console.error('Fehler beim Erstellen der Positions:', posError);
-    }
-
-    // ========== Ledger-Einträge mit Invoice verknüpfen ==========
-    // Alle offenen EH im Zeitraum werden dieser Abrechnung zugeordnet
-    const { error: ledgerUpdateError } = await supabase
-        .from('provisions_ledger')
-        .update({ invoice_id: created.id })
-        .eq('user_id', data.userId)
-        .is('invoice_id', null)
-        .gte('referenz_datum', data.zeitraum.von)
-        .lte('referenz_datum', data.zeitraum.bis);
-
-    if (ledgerUpdateError) {
-        console.error('Fehler beim Verknüpfen der Ledger-Einträge:', ledgerUpdateError);
-    }
-
-    // ========== Euro-Ledger-Einträge mit Invoice verknüpfen ==========
-    const { error: euroLedgerError } = await supabase
-        .from('euro_ledger')
-        .update({ invoice_id: created.id })
-        .eq('user_id', data.userId)
-        .is('invoice_id', null)
-        .gte('referenz_datum', data.zeitraum.von)
-        .lte('referenz_datum', data.zeitraum.bis);
-
-    if (euroLedgerError) {
-        console.error('Fehler beim Verknüpfen der Euro-Ledger-Einträge:', euroLedgerError);
-    }
-
-    // ========== Invoice Items (für Abzüge) ==========
-    const items = [];
-
-    // Stornorücklage Einbehalt
-    if (data.stornorucklage > 0) {
-        items.push({
-            invoice_id: created.id,
-            position_type: 'stornorucklage_einbehalt',
-            description: `Stornorücklage (${100 - data.vorschussAnteil}%)`,
-            quantity: 1,
-            unit_price: data.stornorucklage,
-            amount: -data.stornorucklage
-        });
-    }
-
-    // Unterkunft
-    if (data.abzuegeUnterkunft > 0) {
-        items.push({
-            invoice_id: created.id,
-            position_type: 'unterkunft',
-            description: 'Unterkunftskosten',
-            quantity: 1,
-            unit_price: data.abzuegeUnterkunft,
-            amount: -data.abzuegeUnterkunft
-        });
-    }
-
-    // Sonderposten
-    if (data.abzuegeSonderposten > 0) {
-        items.push({
-            invoice_id: created.id,
-            position_type: 'sonderposten',
-            description: 'Sonderposten',
-            quantity: 1,
-            unit_price: data.abzuegeSonderposten,
-            amount: -data.abzuegeSonderposten
-        });
-    }
-
-    if (items.length > 0) {
-        const { error: itemsError } = await supabase
-            .from('invoice_items')
-            .insert(items);
-
-        if (itemsError) console.error('Fehler beim Erstellen der Items:', itemsError);
-    }
-
-    // Stornorücklage Tracking aktualisieren
-    if (gesamtStornorucklage > 0 && data.invoice_type === 'vorschuss') {
-        const hj = getHalbjahr(data.zeitraum.bis);
-        const sperrfristEnde = berechneSperrfristEnde(hj.halbjahr, hj.year);
-
-        const { error: trackingError } = await supabase
-            .from('stornorucklage_tracking')
-            .upsert({
-                user_id: data.userId,
-                halbjahr: hj.halbjahr,
-                year: hj.year,
-                original_betrag: gesamtStornorucklage,
-                sperrfrist_bis: sperrfristEnde.toISOString().split('T')[0],
-                status: 'gesperrt'
-            }, {
-                onConflict: 'user_id,halbjahr,year',
-                ignoreDuplicates: false
-            });
-
-        if (trackingError) console.error('Fehler beim Stornorücklage-Tracking:', trackingError);
-    }
-
-    return created;
+    return result;
 }
 
 /**
@@ -12736,8 +12517,6 @@ window.berechneNetto = berechneNetto;
 window.berechneAnwesenheitskosten = berechneAnwesenheitskosten;
 window.erstelleAnwesenheitsAbzug = erstelleAnwesenheitsAbzug;
 window.erstelleAnwesenheitsAbzuegeFuerZeitraum = erstelleAnwesenheitsAbzuegeFuerZeitraum;
-window.getHalbjahr = getHalbjahr;
-window.berechneSperrfristEnde = berechneSperrfristEnde;
 window.formatEuro = formatEuro;
 window.parseEuro = parseEuro;
 window.generateInvoiceNumber = generateInvoiceNumber;
