@@ -12388,7 +12388,7 @@ async function ladeWerberStatistiken(options = {}) {
         // 2. User Profiles laden (Profilbilder, Vorschuss-Anteil, Adresse)
         const { data: profilesData } = await supabase
             .from('user_profiles')
-            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city, personalnummer');
+            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city, personalnummer, iban, account_holder');
 
         const profilesMap = {};
         (profilesData || []).forEach(p => {
@@ -12727,6 +12727,10 @@ async function ladeWerberStatistiken(options = {}) {
 
                 // Personalnummer (aus DB)
                 personalnummer: profile.personalnummer || '',
+
+                // Bankdaten (aus DB)
+                iban: profile.iban || '',
+                kontoinhaber: profile.account_holder || '',
 
                 // Karriere
                 karrierestufe: career.stufe,
