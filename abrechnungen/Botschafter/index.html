@@ -107,8 +107,8 @@
                 <div class="zeile">
                     <!-- Filter -->
                     <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
-                        <button class="btn btn-sm active" data-abrfilter="geplant" onclick="setAbrechnungenFilter('geplant')">Geplant</button>
-                        <button class="btn btn-sm" data-abrfilter="archiv" onclick="setAbrechnungenFilter('archiv')">Archiv</button>
+                        <button class="btn btn-sm active" data-abrfilter="entwurf" onclick="setAbrechnungenFilter('entwurf')">Entwurf</button>
+                        <button class="btn btn-sm" data-abrfilter="abrechnungen" onclick="setAbrechnungenFilter('abrechnungen')">Abrechnungen</button>
                     </div>
                     <div class="anzeigenfeld anzeigenfeld--divider"></div>
                     <!-- Auswahl-Aktionen -->
@@ -258,7 +258,7 @@
     let selectedBotschafter = [];
     let selectedGeplant = [];
     let abrechnungFilter = 'all';
-    let abrechnungenFilter = 'geplant';
+    let abrechnungenFilter = 'entwurf';
     let abrechnungWorkflowStep = 1;
     let abrechnungWorkflowData = {};
     let createdInvoiceIds = [];
@@ -393,26 +393,16 @@
     }
 
     function applyAbrechnungenFilter() {
-        const now = new Date();
-
         switch (abrechnungenFilter) {
-            case 'geplant':
-                // Geplant: Entwürfe ODER (freigegeben mit Datum in der Zukunft)
-                geplantData = allAbrechnungenData.filter(inv => {
-                    if (inv.status === 'entwurf') return true;
-                    if (inv.status === 'freigegeben' && inv.scheduled_send_at) {
-                        return new Date(inv.scheduled_send_at) > now;
-                    }
-                    return false;
-                });
+            case 'entwurf':
+                // Nur Entwürfe
+                geplantData = allAbrechnungenData.filter(inv => inv.status === 'entwurf');
                 break;
-            case 'archiv':
-                // Archiv: Freigegeben UND (kein Datum ODER Datum in der Vergangenheit)
-                geplantData = allAbrechnungenData.filter(inv => {
-                    if (inv.status !== 'freigegeben') return false;
-                    if (!inv.scheduled_send_at) return true;
-                    return new Date(inv.scheduled_send_at) <= now;
-                });
+            case 'abrechnungen':
+                // Alle freigegebenen: offen, geplant, bezahlt, storniert
+                geplantData = allAbrechnungenData.filter(inv =>
+                    ['offen', 'geplant', 'bezahlt', 'storniert'].includes(inv.status)
+                );
                 break;
             default:
                 geplantData = allAbrechnungenData;
@@ -587,7 +577,7 @@
         // Body
         if (geplantData.length === 0) {
             const colCount = geplantColumnsConfig.filter(c => c.visible).length + 3;
-            const emptyText = abrechnungenFilter === 'archiv' ? 'Keine archivierten Abrechnungen' : 'Keine geplanten Abrechnungen';
+            const emptyText = abrechnungenFilter === 'entwurf' ? 'Keine Entwürfe vorhanden' : 'Keine Abrechnungen vorhanden';
             tbody.innerHTML = `<tr class="empty-row"><td colspan="${colCount}"><div class="empty-state-cell">${emptyText}</div></td></tr>`;
             tfoot.innerHTML = '';
             return;
@@ -621,11 +611,22 @@
                             <div class="dropdown-item" onclick="closeAllDropdowns(); freigebenAbrechnung('${inv.id}')">
                                 <span class="icon icon--check"></span>
                                 Freigeben
-                            </div>` : ''}
-                            <div class="dropdown-item" onclick="closeAllDropdowns(); loeschenAbrechnung('${inv.id}')">
+                            </div>
+                            <div class="dropdown-item" onclick="closeAllDropdowns(); loeschenAbrechnungUI('${inv.id}')">
                                 <span class="icon icon--schliessen"></span>
                                 Löschen
-                            </div>
+                            </div>` : ''}
+                            ${['offen', 'geplant', 'bezahlt'].includes(inv.status) ? `
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-label">Status ändern</div>
+                            ${inv.status !== 'offen' ? `<div class="dropdown-item" onclick="closeAllDropdowns(); setAbrechnungStatusUI('${inv.id}', 'offen')">Offen</div>` : ''}
+                            ${inv.status !== 'geplant' ? `<div class="dropdown-item" onclick="closeAllDropdowns(); setAbrechnungStatusUI('${inv.id}', 'geplant')">Geplant</div>` : ''}
+                            ${inv.status !== 'bezahlt' ? `<div class="dropdown-item" onclick="closeAllDropdowns(); setAbrechnungStatusUI('${inv.id}', 'bezahlt')">Bezahlt</div>` : ''}
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item dropdown-item--danger" onclick="closeAllDropdowns(); stornierenAbrechnungUI('${inv.id}')">
+                                <span class="icon icon--schliessen"></span>
+                                Stornieren
+                            </div>` : ''}
                         </div>
                     </div>
                 </td>`;
@@ -655,9 +656,21 @@
                         html = formatEuro(inv.netto_auszahlung);
                         break;
                     case 'status':
-                        const statusLabel = inv.status === 'entwurf' ? 'Entwurf' : 'Freigegeben';
-                        const statusClass = inv.status === 'entwurf' ? 'warning' : 'success';
-                        html = `<span class="pill pill--${statusClass}">${statusLabel}</span>`;
+                        const statusLabels = {
+                            entwurf: 'Entwurf',
+                            offen: 'Offen',
+                            geplant: 'Geplant',
+                            bezahlt: 'Bezahlt',
+                            storniert: 'Storniert'
+                        };
+                        const statusClasses = {
+                            entwurf: 'warning',
+                            offen: 'info',
+                            geplant: 'default',
+                            bezahlt: 'success',
+                            storniert: 'error'
+                        };
+                        html = `<span class="pill pill--${statusClasses[inv.status] || 'default'}">${statusLabels[inv.status] || inv.status}</span>`;
                         break;
                     case 'scheduledAt':
                         html = inv.scheduled_send_at ? formattedDate : '-';
@@ -765,7 +778,7 @@
         }
         try {
             for (const id of selectedGeplant) {
-                await updateAbrechnungStatus(id, 'freigegeben');
+                await updateAbrechnungStatus(id, 'offen');
             }
             showToast(`${selectedGeplant.length} Abrechnung(en) freigegeben`, 'success');
             selectedGeplant = [];
@@ -785,15 +798,9 @@
         }
         if (!confirm(`${selectedGeplant.length} Abrechnung(en) wirklich löschen?`)) return;
 
-        const supabase = window.parent?.supabaseClient || window.supabaseClient;
-        if (!supabase) {
-            showToast('Supabase nicht verfügbar', 'error');
-            return;
-        }
-
         try {
             for (const id of selectedGeplant) {
-                await supabase.from('invoices').delete().eq('id', id);
+                await loescheAbrechnung(id);
             }
             showToast(`${selectedGeplant.length} Abrechnung(en) gelöscht`, 'success');
             selectedGeplant = [];
@@ -802,7 +809,7 @@
             updateGeplantSelectionUI();
         } catch (error) {
             console.error('Fehler:', error);
-            showToast('Fehler beim Löschen', 'error');
+            showToast('Fehler beim Löschen: ' + error.message, 'error');
         }
     }
 
@@ -1897,7 +1904,7 @@
     // ========== ABRECHNUNGS-AKTIONEN ==========
     async function freigebenAbrechnung(invoiceId) {
         try {
-            await updateAbrechnungStatus(invoiceId, 'freigegeben');
+            await updateAbrechnungStatus(invoiceId, 'offen');
             showToast('Abrechnung freigegeben', 'success');
             await loadGeplantData();
             renderGeplantTable();
@@ -1907,29 +1914,44 @@
         }
     }
 
-    async function loeschenAbrechnung(invoiceId) {
+    async function loeschenAbrechnungUI(invoiceId) {
         if (!confirm('Abrechnung wirklich löschen?')) return;
 
-        const supabase = window.parent?.supabaseClient || window.supabaseClient;
-        if (!supabase) {
-            showToast('Supabase nicht verfügbar', 'error');
-            return;
-        }
-
         try {
-            const { error } = await supabase
-                .from('invoices')
-                .delete()
-                .eq('id', invoiceId);
-
-            if (error) throw error;
-
+            await loescheAbrechnung(invoiceId);
             showToast('Abrechnung gelöscht', 'success');
             await loadGeplantData();
             renderGeplantTable();
         } catch (error) {
             console.error('Fehler:', error);
-            showToast('Fehler beim Löschen', 'error');
+            showToast('Fehler beim Löschen: ' + error.message, 'error');
+        }
+    }
+
+    async function setAbrechnungStatusUI(invoiceId, status) {
+        try {
+            await updateAbrechnungStatus(invoiceId, status);
+            const statusLabels = { offen: 'Offen', geplant: 'Geplant', bezahlt: 'Bezahlt' };
+            showToast(`Status auf "${statusLabels[status]}" gesetzt`, 'success');
+            await loadGeplantData();
+            renderGeplantTable();
+        } catch (error) {
+            console.error('Fehler:', error);
+            showToast('Fehler beim Status-Update', 'error');
+        }
+    }
+
+    async function stornierenAbrechnungUI(invoiceId) {
+        if (!confirm('Abrechnung wirklich stornieren? Dies erstellt Gegenbuchungen.')) return;
+
+        try {
+            await storniereAbrechnung(invoiceId);
+            showToast('Abrechnung storniert', 'success');
+            await loadGeplantData();
+            renderGeplantTable();
+        } catch (error) {
+            console.error('Fehler:', error);
+            showToast('Fehler beim Stornieren: ' + error.message, 'error');
         }
     }
 

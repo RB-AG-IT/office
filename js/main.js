@@ -12340,9 +12340,12 @@ async function updateAbrechnungStatus(invoiceId, status, scheduledAt = null) {
 
     const updateData = { status };
 
-    if (status === 'freigegeben' && scheduledAt) {
-        updateData.scheduled_send_at = scheduledAt;
+    if (status === 'offen') {
         updateData.approved_at = new Date().toISOString();
+    }
+
+    if (scheduledAt) {
+        updateData.scheduled_send_at = scheduledAt;
     }
 
     const { data, error } = await supabase
@@ -13281,6 +13284,116 @@ async function markAsBezahlt(invoiceId) {
     return data;
 }
 
+/**
+ * Löscht eine Abrechnung im Status 'entwurf'
+ * Gibt Ledger-Einträge frei (invoice_id = NULL)
+ * @param {string} invoiceId - Invoice UUID
+ * @returns {Promise<boolean>} - Erfolg
+ */
+async function loescheAbrechnung(invoiceId) {
+    const supabase = window.parent?.supabaseClient || window.supabaseClient;
+    if (!supabase) throw new Error('Supabase nicht verfügbar');
+
+    // 1. Prüfen ob Status = entwurf
+    const { data: invoice, error: fetchError } = await supabase
+        .from('invoices')
+        .select('status')
+        .eq('id', invoiceId)
+        .single();
+
+    if (fetchError) throw fetchError;
+    if (invoice.status !== 'entwurf') {
+        throw new Error('Nur Entwürfe können gelöscht werden');
+    }
+
+    // 2. Ledger-Einträge freigeben (invoice_id = NULL)
+    await supabase
+        .from('provisions_ledger')
+        .update({ invoice_id: null })
+        .eq('invoice_id', invoiceId);
+
+    await supabase
+        .from('euro_ledger')
+        .update({ invoice_id: null })
+        .eq('invoice_id', invoiceId);
+
+    // 3. Invoice löschen
+    const { error: deleteError } = await supabase
+        .from('invoices')
+        .delete()
+        .eq('id', invoiceId);
+
+    if (deleteError) throw deleteError;
+    return true;
+}
+
+/**
+ * Storniert eine Abrechnung (offen oder bezahlt)
+ * Erstellt Gegenbuchungen in Ledgern
+ * @param {string} invoiceId - Invoice UUID
+ * @returns {Promise<object>} - Aktualisierte Invoice
+ */
+async function storniereAbrechnung(invoiceId) {
+    const supabase = window.parent?.supabaseClient || window.supabaseClient;
+    if (!supabase) throw new Error('Supabase nicht verfügbar');
+
+    // 1. Prüfen ob Status = offen oder bezahlt
+    const { data: invoice, error: fetchError } = await supabase
+        .from('invoices')
+        .select('status')
+        .eq('id', invoiceId)
+        .single();
+
+    if (fetchError) throw fetchError;
+    if (!['offen', 'bezahlt'].includes(invoice.status)) {
+        throw new Error('Nur offene oder bezahlte Abrechnungen können storniert werden');
+    }
+
+    // 2. Provisions-Ledger Gegenbuchungen
+    const { data: provEntries } = await supabase
+        .from('provisions_ledger')
+        .select('*')
+        .eq('invoice_id', invoiceId);
+
+    for (const entry of (provEntries || [])) {
+        await supabase.from('provisions_ledger').insert({
+            user_id: entry.user_id,
+            record_id: entry.record_id,
+            einheiten: -entry.einheiten,
+            entry_type: 'storno',
+            description: `Storno zu Invoice ${invoiceId}`,
+            invoice_id: null
+        });
+    }
+
+    // 3. Euro-Ledger Gegenbuchungen
+    const { data: euroEntries } = await supabase
+        .from('euro_ledger')
+        .select('*')
+        .eq('invoice_id', invoiceId);
+
+    for (const entry of (euroEntries || [])) {
+        await supabase.from('euro_ledger').insert({
+            user_id: entry.user_id,
+            amount: -entry.amount,
+            entry_type: 'storno',
+            description: `Storno zu Invoice ${invoiceId}`,
+            invoice_id: null
+        });
+    }
+
+    // 4. Status → storniert
+    const { data, error } = await supabase
+        .from('invoices')
+        .update({ status: 'storniert' })
+        .eq('id', invoiceId)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
 // Global verfügbar machen
 window.generateAbrechnungPDF = generateAbrechnungPDF;
 window.uploadPdfToStorage = uploadPdfToStorage;
@@ -13295,6 +13408,8 @@ window.getFaelligeAbrechnungen = getFaelligeAbrechnungen;
 window.updateScheduledSendTime = updateScheduledSendTime;
 window.cancelScheduledAbrechnung = cancelScheduledAbrechnung;
 window.markAsBezahlt = markAsBezahlt;
+window.loescheAbrechnung = loescheAbrechnung;
+window.storniereAbrechnung = storniereAbrechnung;
 
 console.log('%c Abrechnungs-Modul geladen ', 'background: #8b5cf6; color: white; padding: 4px 8px; border-radius: 4px;');
 console.log('%c E-Mail-Modul geladen ', 'background: #22c55e; color: white; padding: 4px 8px; border-radius: 4px;');

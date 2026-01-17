@@ -95,6 +95,11 @@
                         <input type="tel" class="eingabefeld" id="phone" placeholder="+49 123 456789">
                         <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
+                    <div class="eingabefeld-gruppe">
+                        <label class="eingabefeld-beschriftung-oben">Personalnummer</label>
+                        <input type="text" class="eingabefeld" id="personalnummer" placeholder="RB24-12-0001" readonly>
+                        <span class="eingabefeld-beschriftung-unten">Automatisch vergeben</span>
+                    </div>
                 </div>
                 <div class="zeile">
                     <div class="eingabefeld-gruppe">
@@ -865,7 +870,7 @@
             // Header
             document.getElementById('profileName').textContent =
                 `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() || userData.name || userData.email;
-            document.getElementById('employeeId').textContent = profileUserId.substring(0, 8);
+            document.getElementById('employeeId').textContent = userProfile.personalnummer || profileUserId.substring(0, 8);
             document.getElementById('createdDate').textContent = userData.created_at
                 ? new Date(userData.created_at).toLocaleDateString('de-DE')
                 : '-';
@@ -875,6 +880,7 @@
             setValue('lastName', userProfile.last_name);
             setValue('email', userData.email);
             setValue('phone', userProfile.phone);
+            setValue('personalnummer', userProfile.personalnummer);
 
             // Kleidergröße
             if (userProfile.clothing_size) {
@@ -1646,6 +1652,7 @@
                     first_name: document.getElementById('firstName').value,
                     last_name: document.getElementById('lastName').value,
                     phone: document.getElementById('phone').value,
+                    personalnummer: document.getElementById('personalnummer').value,
                     clothing_size: clothingSize || null, // NULL statt leerer String
                     street: document.getElementById('street').value,
                     house_number: document.getElementById('houseNumber').value,
