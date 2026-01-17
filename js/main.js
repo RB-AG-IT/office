@@ -12106,6 +12106,10 @@ async function erstelleAbrechnung(data) {
         calculation_data: {
             // Snapshot der Botschafter-Daten bei Erstellung (unveränderlich)
             name: data.name,
+            email: data.email || '',
+            telefon: data.telefon || '',
+            iban: data.iban || '',
+            kontoinhaber: data.kontoinhaber || '',
             adresse: data.adresse || {},
             personalnummer: data.personalnummer || '-',
             einheiten: data.einheiten,
@@ -12114,7 +12118,9 @@ async function erstelleAbrechnung(data) {
             vorschuss_anteil: data.vorschussAnteil,
             provisionen: provisionen,
             einheiten_pro_kategorie: data.einheitenProKategorie || {},
-            provision_settings: data.provisionSettings || {}
+            provision_settings: data.provisionSettings || {},
+            // Abzüge/Zubuchungen aus euro_ledger (Vorschuss-Quelle)
+            abzuege_vorschuss: data.abzuegeVorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 }
         },
         status: 'entwurf',
         scheduled_send_at: data.scheduled_send_at || null

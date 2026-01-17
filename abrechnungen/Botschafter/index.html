@@ -1025,7 +1025,12 @@
                 const bruttoGesamt = bruttoWerben + tcProvision + qualityProvision + empfehlungProvision + recruitingProvision;
                 const stornorucklage = bruttoGesamt * (1 - b.vorschussAnteil / 100);
                 const vorschuss = bruttoGesamt - stornorucklage;
-                const netto = vorschuss - b.abzuegeUnterkunft - b.abzuegeSonderposten;
+
+                // Abzüge/Zubuchungen aus euro_ledger (nur Vorschuss-Quelle)
+                const abzV = b.abzuegeVorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 };
+                const totalAbzuege = abzV.unterkunft + abzV.sonderposten;
+                const totalZubuchungen = abzV.zubuchungUnterkunft + abzV.zubuchungSonderposten;
+                const netto = vorschuss - totalAbzuege + totalZubuchungen;
 
                 // Für spätere Speicherung merken
                 b._berechnungen = {
@@ -1037,7 +1042,9 @@
                     bruttoGesamt,
                     stornorucklage,
                     vorschuss,
-                    netto
+                    netto,
+                    // Abzüge/Zubuchungen (Vorschuss)
+                    abzuegeVorschuss: abzV
                 };
 
                 return `
@@ -1088,15 +1095,25 @@
                                 <span>Vorschuss <span class="text-klein">(${b.vorschussAnteil}%)</span></span>
                                 <span>${formatEuro(vorschuss)}</span>
                             </div>
-                            ${b.abzuegeUnterkunft > 0 ? `
+                            ${abzV.unterkunft > 0 ? `
                             <div class="abrechnung-card__row abrechnung-card__row--negative">
                                 <span>Abzug Unterkunft</span>
-                                <span>- ${formatEuro(b.abzuegeUnterkunft)}</span>
+                                <span>- ${formatEuro(abzV.unterkunft)}</span>
                             </div>` : ''}
-                            ${b.abzuegeSonderposten > 0 ? `
+                            ${abzV.sonderposten > 0 ? `
                             <div class="abrechnung-card__row abrechnung-card__row--negative">
                                 <span>Abzug Sonderposten</span>
-                                <span>- ${formatEuro(b.abzuegeSonderposten)}</span>
+                                <span>- ${formatEuro(abzV.sonderposten)}</span>
+                            </div>` : ''}
+                            ${abzV.zubuchungUnterkunft > 0 ? `
+                            <div class="abrechnung-card__row abrechnung-card__row--positive">
+                                <span>Zubuchung Unterkunft</span>
+                                <span>+ ${formatEuro(abzV.zubuchungUnterkunft)}</span>
+                            </div>` : ''}
+                            ${abzV.zubuchungSonderposten > 0 ? `
+                            <div class="abrechnung-card__row abrechnung-card__row--positive">
+                                <span>Zubuchung Sonderposten</span>
+                                <span>+ ${formatEuro(abzV.zubuchungSonderposten)}</span>
                             </div>` : ''}
                             <div class="abrechnung-card__row abrechnung-card__row--total">
                                 <span>AUSZAHLUNG</span>
@@ -1378,6 +1395,40 @@
         // Gesamtprovision berechnen (Summe aller Provisionsarten)
         const gesamtProvision = (calc.bruttoWerben || 0) + (calc.tcProvision || 0) + (calc.qualityProvision || 0) + (calc.empfehlungProvision || 0) + (calc.recruitingProvision || 0);
 
+        // Abzüge/Zubuchungen aus euro_ledger (Vorschuss-Quelle)
+        const abzV = calc.abzuegeVorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 };
+
+        // Verrechnungen (Abzüge) HTML generieren
+        let verrechnungenHtml = '';
+        let totalAbzuege = 0;
+
+        if (abzV.unterkunft > 0) {
+            verrechnungenHtml += generateAbzugCard('Unterkunft', abzV.unterkunft);
+            totalAbzuege += abzV.unterkunft;
+        }
+        if (abzV.sonderposten > 0) {
+            verrechnungenHtml += generateAbzugCard('Sonderposten', abzV.sonderposten);
+            totalAbzuege += abzV.sonderposten;
+        }
+
+        // Zubuchungen HTML generieren
+        let zubuchungenHtml = '';
+        let totalZubuchungen = 0;
+
+        if (abzV.zubuchungUnterkunft > 0) {
+            zubuchungenHtml += generateZubuchungCard('Unterkunft', abzV.zubuchungUnterkunft);
+            totalZubuchungen += abzV.zubuchungUnterkunft;
+        }
+        if (abzV.zubuchungSonderposten > 0) {
+            zubuchungenHtml += generateZubuchungCard('Sonderposten', abzV.zubuchungSonderposten);
+            totalZubuchungen += abzV.zubuchungSonderposten;
+        }
+
+        // Vorschuss berechnen (z.B. 75% der Gesamtprovision)
+        const vorschussBetrag = gesamtProvision * (vorschussAnteil / 100);
+        // Auszahlung berechnen: Vorschuss - Abzüge + Zubuchungen
+        const auszahlungsBetrag = vorschussBetrag - totalAbzuege + totalZubuchungen;
+
         return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -1607,6 +1658,35 @@
             min-width: 100px;
             text-align: right;
         }
+        .position-amount--positive { color: #16a34a; }
+        .position-card--zubuchung { border-left-color: #22c55e; }
+        .section-header--zubuchung { color: #16a34a; border-bottom-color: #bbf7d0; }
+
+        /* === ABZÜGE (dezent) === */
+        .abzuege-section { padding: 4px 0; }
+        .abzug-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 14px;
+            color: var(--text-light);
+            font-size: 12px;
+        }
+        .abzug-label { font-weight: 500; }
+        .abzug-betrag { font-weight: 600; }
+
+        /* === ZUBUCHUNGEN (grün) === */
+        .zubuchungen-section { padding: 4px 0; }
+        .zubuchung-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 14px;
+            font-size: 12px;
+            color: #16a34a;
+        }
+        .zubuchung-label { font-weight: 500; }
+        .zubuchung-betrag { font-weight: 600; }
 
         /* === GESAMTPROVISION === */
         .total-provision {
@@ -1731,9 +1811,21 @@
             <div class="total-provision-label">Gesamtprovision</div>
             <div class="total-provision-amount">${formatEuro(gesamtProvision)}</div>
         </div>
+        <div class="total-provision">
+            <div class="total-provision-label">Vorschuss (${vorschussAnteil}%)</div>
+            <div class="total-provision-amount">${formatEuro(vorschussBetrag)}</div>
+        </div>
+        ${verrechnungenHtml ? `
+        <div class="abzuege-section">
+            ${verrechnungenHtml}
+        </div>` : ''}
+        ${zubuchungenHtml ? `
+        <div class="zubuchungen-section">
+            ${zubuchungenHtml}
+        </div>` : ''}
         <div class="total-section">
-            <div class="total-label">Auszahlungsbetrag <strong>(Vorschuss ${vorschussAnteil}%)</strong></div>
-            <div class="total-amount">${formatEuro(gesamtProvision * (vorschussAnteil / 100))}</div>
+            <div class="total-label">Auszahlungsbetrag</div>
+            <div class="total-amount">${formatEuro(auszahlungsBetrag)}</div>
         </div>
         <div class="footer">
             <span>${b.name}</span>
@@ -1766,6 +1858,26 @@
                 <div class="position-details">
                     <div class="position-amount">${formatEuro(netto)}</div>
                 </div>
+            </div>
+        `;
+    }
+
+    // Abzug Card HTML generieren (dezent)
+    function generateAbzugCard(name, betrag) {
+        return `
+            <div class="abzug-row">
+                <span class="abzug-label">${name}</span>
+                <span class="abzug-betrag">- ${formatEuro(betrag)}</span>
+            </div>
+        `;
+    }
+
+    // Zubuchung Card HTML generieren (grün)
+    function generateZubuchungCard(name, betrag) {
+        return `
+            <div class="zubuchung-row">
+                <span class="zubuchung-label">${name}</span>
+                <span class="zubuchung-betrag">+ ${formatEuro(betrag)}</span>
             </div>
         `;
     }
@@ -1925,8 +2037,8 @@
                     brutto: calc.bruttoGesamt,
                     vorschuss: calc.vorschuss,
                     stornorucklage: calc.stornorucklage,
-                    abzuegeUnterkunft: b.abzuegeUnterkunft || 0,
-                    abzuegeSonderposten: b.abzuegeSonderposten || 0,
+                    // Abzüge/Zubuchungen aus euro_ledger (Vorschuss-Quelle)
+                    abzuegeVorschuss: calc.abzuegeVorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 },
                     netto: calc.netto,
                     einheiten: b.einheiten,
                     faktor: b.faktor,
@@ -2001,7 +2113,9 @@
                 qualityProvision: calcData.provisionen?.quality || 0,
                 empfehlungProvision: calcData.provisionen?.empfehlung || 0,
                 recruitingProvision: calcData.provisionen?.recruiting || 0,
-                netto: inv.netto_auszahlung || 0
+                netto: inv.netto_auszahlung || 0,
+                // Abzüge/Zubuchungen aus euro_ledger (Vorschuss-Quelle)
+                abzuegeVorschuss: calcData.abzuege_vorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 }
             };
 
             const zeitraum = {
@@ -2137,7 +2251,9 @@
                 qualityProvision: calcData.provisionen?.quality || 0,
                 empfehlungProvision: calcData.provisionen?.empfehlung || 0,
                 recruitingProvision: calcData.provisionen?.recruiting || 0,
-                netto: inv.netto_auszahlung || 0
+                netto: inv.netto_auszahlung || 0,
+                // Abzüge/Zubuchungen aus euro_ledger (Vorschuss-Quelle)
+                abzuegeVorschuss: calcData.abzuege_vorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 }
             };
 
             const zeitraum = {
