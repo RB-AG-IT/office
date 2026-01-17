@@ -1243,6 +1243,117 @@
                     return query;
                 }
 
+                // Recruiting/Empfehlung spezifische Achievements berechnen
+                async function buildRecruitmentSpecificAchievements(type, allRecords) {
+                    const typeNamePlural = type === 'recruiting' ? 'Recruitings' : 'Empfehlungen';
+
+                    // user_recruitments laden
+                    const { data: recruitments } = await supabase
+                        .from('user_recruitments')
+                        .select('user_id, recruitment_date')
+                        .eq('recruited_by_id', personId)
+                        .eq('recruitment_type', type)
+                        .order('recruitment_date', { ascending: true });
+
+                    if (!recruitments || recruitments.length === 0) {
+                        return {};
+                    }
+
+                    // 1. recruitings_monat: Meiste Recruitings pro Monat
+                    const byMonth = {};
+                    recruitments.forEach(r => {
+                        if (!r.recruitment_date) return;
+                        const date = new Date(r.recruitment_date);
+                        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                        const monthLabel = `${['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'][date.getMonth()]} ${date.getFullYear()}`;
+                        if (!byMonth[monthKey]) byMonth[monthKey] = { count: 0, label: monthLabel };
+                        byMonth[monthKey].count++;
+                    });
+                    let bestMonth = { count: 0, label: null };
+                    Object.values(byMonth).forEach(m => {
+                        if (m.count > bestMonth.count) bestMonth = m;
+                    });
+
+                    // 2. recruitings_quartal: Meiste Recruitings pro Quartal
+                    const byQuarter = {};
+                    recruitments.forEach(r => {
+                        if (!r.recruitment_date) return;
+                        const date = new Date(r.recruitment_date);
+                        const q = Math.floor(date.getMonth() / 3) + 1;
+                        const quarterKey = `${date.getFullYear()}-Q${q}`;
+                        const quarterLabel = `Q${q}/${date.getFullYear()}`;
+                        if (!byQuarter[quarterKey]) byQuarter[quarterKey] = { count: 0, label: quarterLabel };
+                        byQuarter[quarterKey].count++;
+                    });
+                    let bestQuarter = { count: 0, label: null };
+                    Object.values(byQuarter).forEach(q => {
+                        if (q.count > bestQuarter.count) bestQuarter = q;
+                    });
+
+                    // 3. recruitings_serie: Längste Serie erfolgreicher Recruitings (100 EH in erster Woche)
+                    function isSuccessfulRecruit(userId, recruitmentDate) {
+                        if (!recruitmentDate) return false;
+                        const startDate = new Date(recruitmentDate);
+                        const endDate = new Date(startDate);
+                        endDate.setDate(endDate.getDate() + 7);
+
+                        const userRecords = (allRecords || []).filter(r => {
+                            if (r.werber_id !== userId) return false;
+                            const recDate = new Date(r.start_date);
+                            return recDate >= startDate && recDate <= endDate;
+                        });
+
+                        const totalEH = userRecords.reduce((sum, r) => sum + ((parseFloat(r.yearly_amount) || 0) / 12), 0);
+                        return totalEH >= 100;
+                    }
+
+                    let maxSerie = 0;
+                    let currentSerie = 0;
+                    recruitments.forEach(r => {
+                        if (isSuccessfulRecruit(r.user_id, r.recruitment_date)) {
+                            currentSerie++;
+                            if (currentSerie > maxSerie) maxSerie = currentSerie;
+                        } else {
+                            currentSerie = 0;
+                        }
+                    });
+
+                    // 4. recruiting_stufe: Tiefste Ebene im Baum
+                    async function getMaxDepth(userId, currentDepth = 1) {
+                        const { data: subRecruits } = await supabase
+                            .from('user_recruitments')
+                            .select('user_id')
+                            .eq('recruited_by_id', userId)
+                            .eq('recruitment_type', type);
+
+                        if (!subRecruits || subRecruits.length === 0) {
+                            return currentDepth;
+                        }
+
+                        let maxSubDepth = currentDepth;
+                        for (const sub of subRecruits) {
+                            const subDepth = await getMaxDepth(sub.user_id, currentDepth + 1);
+                            if (subDepth > maxSubDepth) maxSubDepth = subDepth;
+                        }
+                        return maxSubDepth;
+                    }
+
+                    let maxDepth = 0;
+                    if (recruitments.length > 0) {
+                        maxDepth = await getMaxDepth(personId, 0);
+                    }
+
+                    const keyPrefix = type === 'recruiting' ? 'recruitings' : 'empfehlungen';
+                    const stufenKey = type === 'recruiting' ? 'recruiting_stufe' : 'empfehlung_stufe';
+
+                    return {
+                        [`${keyPrefix}_monat`]: bestMonth.count > 0 ? { score: `${bestMonth.count} ${typeNamePlural}`, datum: bestMonth.label, kampagne: '-', active: true } : null,
+                        [`${keyPrefix}_quartal`]: bestQuarter.count > 0 ? { score: `${bestQuarter.count} ${typeNamePlural}`, datum: bestQuarter.label, kampagne: '-', active: true } : null,
+                        [`${keyPrefix}_serie`]: maxSerie > 0 ? { score: `${maxSerie} ${typeNamePlural}`, datum: '-', kampagne: '-', active: true } : null,
+                        [stufenKey]: maxDepth > 0 ? { score: `Stufe ${maxDepth}`, datum: '-', kampagne: '-', active: true } : null
+                    };
+                }
+
                 if (personType === 'werber') {
                     const { data: werberRecords } = await buildAchievementQuery('werber_id', personId);
                     const { data: tlRecords } = await buildAchievementQuery('teamchef_id', personId);
@@ -1251,8 +1362,53 @@
                     achievementsData = buildAchievements(werberRecords);
                     tlAchievementsData = buildAchievements(tlRecords);
                     qAchievementsData = buildAchievements(qRecords);
-                    rAchievementsData = {}; // TODO: Recruiting-spezifische Achievements
-                    eAchievementsData = {}; // TODO: Empfehlungs-spezifische Achievements
+
+                    // Recruiting/Empfehlung: Records der rekrutierten Personen laden
+                    const { data: recruitments } = await supabase
+                        .from('user_recruitments')
+                        .select('user_id, recruitment_type')
+                        .eq('recruited_by_id', personId);
+
+                    let rRecords = [];
+                    let eRecords = [];
+
+                    if (recruitments && recruitments.length > 0) {
+                        const recruitingUserIds = recruitments
+                            .filter(r => r.recruitment_type === 'recruiting')
+                            .map(r => r.user_id);
+                        const empfehlungUserIds = recruitments
+                            .filter(r => r.recruitment_type === 'empfehlung')
+                            .map(r => r.user_id);
+
+                        // Records für Recruiting-Achievements
+                        if (recruitingUserIds.length > 0) {
+                            const { data: recRecords } = await supabase
+                                .from('records')
+                                .select('id, campaign_id, yearly_amount, record_status, start_date, kw, year, record_type, increase_amount, werber_id')
+                                .in('werber_id', recruitingUserIds)
+                                .is('deleted_at', null);
+                            rRecords = recRecords || [];
+                        }
+
+                        // Records für Empfehlungs-Achievements
+                        if (empfehlungUserIds.length > 0) {
+                            const { data: empRecords } = await supabase
+                                .from('records')
+                                .select('id, campaign_id, yearly_amount, record_status, start_date, kw, year, record_type, increase_amount, werber_id')
+                                .in('werber_id', empfehlungUserIds)
+                                .is('deleted_at', null);
+                            eRecords = empRecords || [];
+                        }
+                    }
+
+                    // Standard-Achievements aus Records + spezifische Recruiting-Achievements
+                    const rBaseAchievements = buildAchievements(rRecords);
+                    const rSpecificAchievements = await buildRecruitmentSpecificAchievements('recruiting', rRecords);
+                    rAchievementsData = { ...rBaseAchievements, ...rSpecificAchievements };
+
+                    const eBaseAchievements = buildAchievements(eRecords);
+                    const eSpecificAchievements = await buildRecruitmentSpecificAchievements('empfehlung', eRecords);
+                    eAchievementsData = { ...eBaseAchievements, ...eSpecificAchievements };
 
                 } else if (personType === 'kunde') {
                     const { data: records } = await buildAchievementQuery('customer_id', personId);
