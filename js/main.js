@@ -12874,9 +12874,35 @@ async function generateAbrechnungPDF(data) {
     // ========== ABRECHNUNGSZEITRAUM ==========
     doc.setFontSize(10);
     doc.setTextColor(...secondaryColor);
-    const periodText = data.invoice_type === 'vorschuss'
-        ? `Vorschuss-Abrechnung für KW ${data.kw_start}${data.kw_end !== data.kw_start ? '-' + data.kw_end : ''} / ${data.year}`
-        : `Stornorücklage-Auszahlung H${data.halbjahr} / ${data.year}`;
+
+    // Hilfsfunktion: Montag einer KW berechnen
+    const getMondayOfWeek = (week, year) => {
+        const jan4 = new Date(year, 0, 4);
+        const dayOfWeek = jan4.getDay() || 7;
+        const monday = new Date(jan4);
+        monday.setDate(jan4.getDate() - dayOfWeek + 1 + (week - 1) * 7);
+        return monday;
+    };
+
+    // Hilfsfunktion: Datum formatieren (TT.MM.)
+    const formatShortDate = (date) => {
+        return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.`;
+    };
+
+    let periodText;
+    if (data.invoice_type === 'vorschuss') {
+        const kwStart = parseInt(data.kw_start);
+        const kwEnd = parseInt(data.kw_end);
+        const monday = getMondayOfWeek(kwStart, data.year);
+        const sunday = getMondayOfWeek(kwEnd, data.year);
+        sunday.setDate(sunday.getDate() + 6);
+
+        const kwText = kwStart === kwEnd ? `KW ${kwStart}` : `KW ${kwStart}-${kwEnd}`;
+        const dateRange = `(${formatShortDate(monday)} - ${formatShortDate(sunday)}${data.year})`;
+        periodText = `Vorschuss-Abrechnung für ${kwText} ${dateRange}`;
+    } else {
+        periodText = `Stornorücklage-Auszahlung H${data.halbjahr} / ${data.year}`;
+    }
     doc.text(periodText, margin, 82);
 
     doc.setTextColor(...primaryColor);

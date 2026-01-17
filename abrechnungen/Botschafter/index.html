@@ -1352,6 +1352,9 @@
             positionsHtml += generatePositionCard('recruiting', 'Recruiting', ehKat.recruiting, recruitingFaktor, brutto, vorschussAnteil, calc.recruitingProvision);
         }
 
+        // Gesamtprovision berechnen (Summe aller Provisionsarten)
+        const gesamtProvision = (calc.bruttoWerben || 0) + (calc.tcProvision || 0) + (calc.qualityProvision || 0) + (calc.empfehlungProvision || 0) + (calc.recruitingProvision || 0);
+
         return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -1509,7 +1512,7 @@
         .positions-section {
             display: flex;
             flex-direction: column;
-            padding: 8px 0;
+            padding: 8px 0 40px 0;
         }
         .section-header {
             font-size: 14px;
@@ -1552,15 +1555,37 @@
         .position-icon.abzug { background: linear-gradient(135deg, #ef4444, #dc2626); }
         .position-icon.gutschrift { background: linear-gradient(135deg, #22c55e, #16a34a); }
         .position-name { font-size: 15px; font-weight: 600; color: var(--text-dark); }
+        .position-calc { color: var(--text-light); font-size: 11px; font-weight: 600; margin-left: 12px; }
         .position-details { display: flex; align-items: center; gap: 20px; }
-        .position-calc { text-align: right; color: var(--text-light); font-size: 11px; font-weight: 600; }
-        .position-calc span { color: var(--text-dark); font-weight: 700; }
         .position-amount {
             font-size: 22px;
             font-weight: 800;
             color: var(--navy-dark);
             min-width: 100px;
             text-align: right;
+        }
+
+        /* === GESAMTPROVISION === */
+        .total-provision {
+            background: var(--champagne);
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--navy);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(26, 26, 46, 0.08);
+        }
+        .total-provision-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--navy-dark);
+        }
+        .total-provision-amount {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--navy-dark);
         }
 
         /* === TOTAL (Premium Gold) === */
@@ -1661,9 +1686,13 @@
             <div class="section-header">Provisionsübersicht</div>
             ${positionsHtml}
         </div>
+        <div class="total-provision">
+            <div class="total-provision-label">Gesamtprovision</div>
+            <div class="total-provision-amount">${formatEuro(gesamtProvision)}</div>
+        </div>
         <div class="total-section">
-            <div class="total-label">Auszahlungsbetrag</div>
-            <div class="total-amount">${formatEuro(calc.netto)}</div>
+            <div class="total-label">Auszahlungsbetrag <strong>(Vorschuss ${vorschussAnteil}%)</strong></div>
+            <div class="total-amount">${formatEuro(gesamtProvision * (vorschussAnteil / 100))}</div>
         </div>
         <div class="footer">
             <span>${b.name}</span>
@@ -1691,9 +1720,9 @@
                 <div class="position-info">
                     <div class="position-icon ${type}">${icons[type]}</div>
                     <div class="position-name">${name}</div>
+                    <div class="position-calc">${Number(eh).toFixed(2)} EH × ${Number(faktor).toFixed(2)}</div>
                 </div>
                 <div class="position-details">
-                    <div class="position-calc">${Number(eh).toFixed(2)} EH × ${Number(faktor).toFixed(2)} × ${vorschussAnteil}%</div>
                     <div class="position-amount">${formatEuro(netto)}</div>
                 </div>
             </div>
