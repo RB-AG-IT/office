@@ -11495,6 +11495,27 @@ function berechneNetto(vorschuss, abzuegeUnterkunft = 0, abzuegeSonderposten = 0
 }
 
 /**
+ * Berechnet den Montag einer gegebenen Kalenderwoche (ISO 8601)
+ * @param {number} kw - Kalenderwoche (1-53)
+ * @param {number} year - Jahr
+ * @returns {Date} Montag der KW
+ */
+function getMontagDerKW(kw, year) {
+    // ISO 8601: KW 1 ist die Woche mit dem ersten Donnerstag des Jahres
+    const jan4 = new Date(year, 0, 4); // 4. Januar ist immer in KW 1
+    const dayOfWeek = jan4.getDay() || 7; // Sonntag = 7 statt 0
+    const montagKW1 = new Date(jan4);
+    montagKW1.setDate(jan4.getDate() - dayOfWeek + 1); // Zurück zum Montag
+
+    // Montag der gewünschten KW berechnen
+    const montag = new Date(montagKW1);
+    montag.setDate(montagKW1.getDate() + (kw - 1) * 7);
+    montag.setHours(0, 0, 0, 0);
+
+    return montag;
+}
+
+/**
  * Berechnet Anwesenheitskosten pro Woche basierend auf Anwesenheitstagen
  * @param {number} anwesenheitstage - Anzahl der Anwesenheitstage in der Woche (0-7)
  * @param {boolean} istPlatinumPrime - Ob der User Platinum Prime Mitglied ist
