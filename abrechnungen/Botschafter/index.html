@@ -1781,8 +1781,8 @@
 
     // ========== ZENTRALE PDF-GENERIERUNG ==========
 
-    // PDF als Blob generieren (für Upload)
-    async function generatePDFBlob(data) {
+    // Zentrale PDF-Funktion: output = 'blob' (für Upload) oder 'download' (direkter Download)
+    async function generatePDF(data, output = 'blob') {
         const { b, calc, zeitraum, invoiceNumber } = data;
         const html = generateInvoiceHTML(b, calc, zeitraum, invoiceNumber);
 
@@ -1803,9 +1803,17 @@
         };
 
         try {
-            const pdfBlob = await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).outputPdf('blob');
-            document.body.removeChild(container);
-            return pdfBlob;
+            const pdfInstance = html2pdf().set(opt).from(container.querySelector('.invoice-container') || container);
+
+            if (output === 'download') {
+                await pdfInstance.save();
+                document.body.removeChild(container);
+                return null;
+            } else {
+                const pdfBlob = await pdfInstance.outputPdf('blob');
+                document.body.removeChild(container);
+                return pdfBlob;
+            }
         } catch (err) {
             document.body.removeChild(container);
             throw err;
@@ -1841,41 +1849,6 @@
             .eq('id', invoiceId);
 
         if (error) throw error;
-    }
-
-    async function generateAndDownloadPDF(data) {
-        // data enthält: b, calc, zeitraum, invoiceNumber
-        const { b, calc, zeitraum, invoiceNumber } = data;
-
-        // HTML generieren
-        const html = generateInvoiceHTML(b, calc, zeitraum, invoiceNumber);
-
-        // HTML in temporäres Element einfügen
-        const container = document.createElement('div');
-        container.innerHTML = html;
-        container.style.position = 'absolute';
-        container.style.left = '-9999px';
-        container.style.top = '0';
-        document.body.appendChild(container);
-
-        // PDF generieren
-        const opt = {
-            margin: 0,
-            filename: `Abrechnung_${b.name.replace(/\s+/g, '_')}_${invoiceNumber}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 6, useCORS: true, backgroundColor: '#ffffff' },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        try {
-            await html2pdf().set(opt).from(container.querySelector('.invoice-container') || container).save();
-        } catch (err) {
-            console.error('PDF-Fehler:', err);
-            document.body.removeChild(container);
-            throw err;
-        }
-
-        document.body.removeChild(container);
     }
 
     async function downloadCreatedInvoices() {
@@ -2037,7 +2010,7 @@
             };
 
             // 4. PDF generieren mit korrekter Nummer
-            const pdfBlob = await generatePDFBlob({
+            const pdfBlob = await generatePDF({
                 b: b,
                 calc: calc,
                 zeitraum: zeitraum,
@@ -2175,12 +2148,12 @@
             try {
                 // Bei Entwürfen "ENTWURF" als Platzhalter verwenden
                 const invoiceNumber = inv.invoice_number || 'ENTWURF';
-                await generateAndDownloadPDF({
+                await generatePDF({
                     b: b,
                     calc: calc,
                     zeitraum: zeitraum,
                     invoiceNumber: invoiceNumber
-                });
+                }, 'download');
                 showToast('PDF heruntergeladen', 'success');
             } catch (err) {
                 console.error('PDF-Fehler:', err);
