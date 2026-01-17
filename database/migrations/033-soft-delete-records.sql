@@ -13,4 +13,4 @@ DROP CONSTRAINT IF EXISTS provisions_ledger_typ_check;
 
 ALTER TABLE public.provisions_ledger
 ADD CONSTRAINT provisions_ledger_typ_check
-CHECK (typ IN ('provision', 'korrektur', 'loeschung'));
+CHECK (typ IN ('provision', 'korrektur', 'storno', 'loeschung'));
