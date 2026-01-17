@@ -777,13 +777,13 @@
             return;
         }
         try {
+            showToast(`Freigabe von ${selectedGeplant.length} Abrechnung(en)...`, 'info');
             for (const id of selectedGeplant) {
-                await updateAbrechnungStatus(id, 'offen');
+                // Nutzt freigebenAbrechnung für PDF-Generierung
+                await freigebenAbrechnung(id);
             }
             showToast(`${selectedGeplant.length} Abrechnung(en) freigegeben`, 'success');
             selectedGeplant = [];
-            await loadGeplantData();
-            renderGeplantTable();
             updateGeplantSelectionUI();
         } catch (error) {
             console.error('Fehler:', error);
@@ -1876,16 +1876,7 @@
                     scheduled_send_at: abrechnungWorkflowData.scheduledAt?.toISOString() || null
                 });
 
-                // PDF generieren und in Storage speichern
-                const pdfBlob = await generatePDFBlob({
-                    b: b,
-                    calc: calc,
-                    zeitraum: abrechnungWorkflowData.zeitraum,
-                    invoiceNumber: created.invoice_number
-                });
-
-                const pdfPath = await uploadPDFToStorage(pdfBlob, created.invoice_number, year, 'botschafter');
-                await updateInvoicePdfPath(created.id, pdfPath);
+                // PDF wird erst bei Freigabe generiert (mit korrekter Nummer)
                 createdInvoiceIds.push(created.id);
             }
 
@@ -1903,14 +1894,72 @@
 
     // ========== ABRECHNUNGS-AKTIONEN ==========
     async function freigebenAbrechnung(invoiceId) {
+        const supabase = window.parent?.supabaseClient || window.supabaseClient;
+        if (!supabase) {
+            showToast('Supabase nicht verfügbar', 'error');
+            return;
+        }
+
         try {
-            await updateAbrechnungStatus(invoiceId, 'offen');
+            // 1. Status auf 'offen' setzen (vergibt Rechnungsnummer)
+            const updatedInvoice = await updateAbrechnungStatus(invoiceId, 'offen');
+
+            // 2. Invoice mit allen Daten laden für PDF-Generierung
+            const { data: inv, error: loadError } = await supabase
+                .from('invoices')
+                .select('*, users!inner(name)')
+                .eq('id', invoiceId)
+                .single();
+
+            if (loadError) throw loadError;
+
+            const calcData = inv.calculation_data || {};
+
+            // 3. PDF-Daten vorbereiten
+            const b = {
+                name: calcData.name || inv.users?.name || 'Unbekannt',
+                adresse: calcData.adresse || {},
+                karrierestufe: calcData.karrierestufe || '',
+                createdAt: inv.created_at,
+                userIndex: 1,
+                vorschussAnteil: calcData.vorschuss_anteil || 75,
+                einheitenProKategorie: calcData.einheiten_pro_kategorie || {},
+                provisionSettings: calcData.provision_settings || {},
+                faktor: calcData.faktor || 1.0
+            };
+
+            const calc = {
+                bruttoWerben: calcData.provisionen?.werben || 0,
+                tcProvision: calcData.provisionen?.teamleitung || 0,
+                qualityProvision: calcData.provisionen?.quality || 0,
+                empfehlungProvision: calcData.provisionen?.empfehlung || 0,
+                recruitingProvision: calcData.provisionen?.recruiting || 0,
+                netto: inv.netto_auszahlung || 0
+            };
+
+            const zeitraum = {
+                von: new Date(inv.period_start),
+                bis: new Date(inv.period_end)
+            };
+
+            // 4. PDF generieren mit korrekter Nummer
+            const pdfBlob = await generatePDFBlob({
+                b: b,
+                calc: calc,
+                zeitraum: zeitraum,
+                invoiceNumber: inv.invoice_number
+            });
+
+            // 5. PDF in Bucket speichern
+            const pdfPath = await uploadPDFToStorage(pdfBlob, inv.invoice_number, inv.year, 'botschafter');
+            await updateInvoicePdfPath(inv.id, pdfPath);
+
             showToast('Abrechnung freigegeben', 'success');
             await loadGeplantData();
             renderGeplantTable();
         } catch (error) {
             console.error('Fehler:', error);
-            showToast('Fehler beim Freigeben', 'error');
+            showToast('Fehler beim Freigeben: ' + error.message, 'error');
         }
     }
 
@@ -2025,11 +2074,13 @@
             };
 
             try {
+                // Bei Entwürfen "ENTWURF" als Platzhalter verwenden
+                const invoiceNumber = inv.invoice_number || 'ENTWURF';
                 await generateAndDownloadPDF({
                     b: b,
                     calc: calc,
                     zeitraum: zeitraum,
-                    invoiceNumber: inv.invoice_number
+                    invoiceNumber: invoiceNumber
                 });
                 showToast('PDF heruntergeladen', 'success');
             } catch (err) {
