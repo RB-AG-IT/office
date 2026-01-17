@@ -14,6 +14,16 @@ Nach jeder Änderung: `git add` → `git commit` → `git push`
 - Backend: Supabase
 - Supabase Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzgwNzYxNSwiZXhwIjoyMDc5MzgzNjE1fQ.54kSk9ZSUdQt6LKYWkblqgR6Sjev80W80qkNHYEbPgk
 
+### Supabase Daten laden
+**WICHTIG:** Vor dem Laden von Daten aus Supabase immer zuerst prüfen:
+1. Welche Spalten existieren in der Tabelle?
+2. Wie heißen die Felder genau?
+
+Prüfen via curl:
+```bash
+curl -s "https://lgztglycqtiwcmiydxnm.supabase.co/rest/v1/TABELLE?select=*&limit=1" -H "apikey: [KEY]"
+```
+
 ## Projekt Struktur
 
 - Kunden (zur Zuordnung)
