@@ -277,7 +277,10 @@ $$;
 -- 4. VIEW FÜR STORNORÜCKLAGE-ÜBERSICHT
 -- ============================================
 
-CREATE OR REPLACE VIEW stornorucklage_uebersicht AS
+-- Alte View löschen (hat andere Spaltenstruktur)
+DROP VIEW IF EXISTS stornorucklage_uebersicht;
+
+CREATE VIEW stornorucklage_uebersicht AS
 SELECT
     p.user_id,
     CASE WHEN EXTRACT(MONTH FROM p.referenz_datum) <= 6 THEN 1 ELSE 2 END AS halbjahr,
