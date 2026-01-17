@@ -1268,14 +1268,54 @@
                     return;
                 }
 
+                // Ledger-Daten laden für MG/EH pro empfohlene/rekrutierte Person
+                const { data: ledgerRecruiting } = await supabase
+                    .from('provisions_ledger')
+                    .select('einheiten, record_id, records(werber_id)')
+                    .eq('user_id', personId)
+                    .eq('kategorie', 'recruiting')
+                    .eq('typ', 'provision');
+
+                const { data: ledgerEmpfehlung } = await supabase
+                    .from('provisions_ledger')
+                    .select('einheiten, record_id, records(werber_id)')
+                    .eq('user_id', personId)
+                    .eq('kategorie', 'empfehlung')
+                    .eq('typ', 'provision');
+
+                // Gruppiere Ledger-Daten nach werber_id
+                function groupByWerber(ledgerData) {
+                    const grouped = {};
+                    (ledgerData || []).forEach(entry => {
+                        const werberId = entry.records?.werber_id;
+                        if (!werberId) return;
+                        if (!grouped[werberId]) {
+                            grouped[werberId] = { mg: new Set(), eh: 0 };
+                        }
+                        grouped[werberId].mg.add(entry.record_id);
+                        grouped[werberId].eh += entry.einheiten || 0;
+                    });
+                    // Set zu Anzahl konvertieren
+                    Object.keys(grouped).forEach(id => {
+                        grouped[id].mg = grouped[id].mg.size;
+                        grouped[id].eh = Math.round(grouped[id].eh * 100) / 100;
+                    });
+                    return grouped;
+                }
+
+                const recruitingStats = groupByWerber(ledgerRecruiting);
+                const empfehlungStats = groupByWerber(ledgerEmpfehlung);
+
                 // Rekursive Funktion um Baum aufzubauen
-                async function buildTree(userId, type) {
+                async function buildTree(userId, type, stats) {
                     const children = (recruitments || [])
                         .filter(r => r.recruited_by_id === userId && r.recruitment_type === type)
                         .map(r => ({
                             id: r.user_id,
                             name: userMap[r.user_id] || 'Unbekannt',
                             date: r.recruitment_date ? new Date(r.recruitment_date).toLocaleDateString('de-DE') : null,
+                            mg: stats[r.user_id]?.mg || 0,
+                            eh: stats[r.user_id]?.eh || 0,
                             children: []
                         }));
 
@@ -1302,13 +1342,13 @@
                 recruitingTreeData = {
                     name: personName || userMap[personId] || 'Unbekannt',
                     date: null,
-                    children: await buildTree(personId, 'recruiting')
+                    children: await buildTree(personId, 'recruiting', recruitingStats)
                 };
 
                 empfehlungTreeData = {
                     name: personName || userMap[personId] || 'Unbekannt',
                     date: null,
-                    children: await buildTree(personId, 'empfehlung')
+                    children: await buildTree(personId, 'empfehlung', empfehlungStats)
                 };
 
             } catch (error) {
