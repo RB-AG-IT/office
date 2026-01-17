@@ -13214,7 +13214,7 @@ async function generateAndUploadPdf(invoiceId) {
 
     if (error) throw error;
 
-    const profile = invoice.user_profiles?.[0] || {};
+    const profile = invoice.user_profiles || {};
     const calcData = invoice.calculation_data || {};
 
     // PDF-Daten vorbereiten
