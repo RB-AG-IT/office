@@ -13009,8 +13009,8 @@ async function storniereAbrechnung(invoiceId) {
             user_id: entry.user_id,
             record_id: entry.record_id,
             einheiten: -entry.einheiten,
-            entry_type: 'storno',
-            description: `Storno zu Invoice ${invoiceId}`,
+            typ: 'storno',
+            beschreibung: `Storno zu Invoice ${invoiceId}`,
             invoice_id: null
         });
     }
