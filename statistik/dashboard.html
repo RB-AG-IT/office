@@ -537,7 +537,8 @@
                 // Records laden mit Zeitraum-Filter (nach Aufnahmedatum = start_date)
                 let query = supabase
                     .from('records')
-                    .select('id, record_type, record_status, yearly_amount, amount, interval, birth_date, email, contact_email, phone_mobile, contact_phone, werber_id, teamchef_id, quality_id, start_date, kw, year');
+                    .select('id, record_type, record_status, yearly_amount, amount, interval, birth_date, email, contact_email, phone_mobile, contact_phone, werber_id, teamchef_id, quality_id, start_date, kw, year')
+                    .is('deleted_at', null);
 
                 if (periodStartDate) {
                     const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;
@@ -691,6 +692,7 @@
                         .from('records')
                         .select('record_type, yearly_amount, record_status, start_date')
                         .eq('record_status', 'aktiv')
+                        .is('deleted_at', null)
                         .eq(roleField, roleId);
 
                     if (periodStartDate) {
@@ -926,6 +928,7 @@
                     let query = supabase
                         .from('records')
                         .select('campaign_id, yearly_amount, record_status, start_date')
+                        .is('deleted_at', null)
                         .eq(roleField, roleId);
 
                     if (periodStartDate) {
@@ -1201,6 +1204,7 @@
                     let query = supabase
                         .from('records')
                         .select('id, campaign_id, yearly_amount, record_status, start_date, kw, year, record_type, increase_amount')
+                        .is('deleted_at', null)
                         .eq(roleField, roleId);
 
                     if (periodStartDate) {

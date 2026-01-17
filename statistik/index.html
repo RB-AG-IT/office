@@ -532,7 +532,8 @@
             // Records laden für Statistiken (mit Zeitraum-Filter nach Aufnahmedatum = start_date)
             let recordsQuery = supabase
                 .from('records')
-                .select('customer_id, campaign_area_id, yearly_amount, record_status, start_date');
+                .select('customer_id, campaign_area_id, yearly_amount, record_status, start_date')
+                .is('deleted_at', null);
 
             if (periodStartDate) {
                 const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;
@@ -691,7 +692,8 @@
             // Records laden für Statistiken (mit Zeitraum-Filter nach Aufnahmedatum = start_date)
             let recordsQuery = supabase
                 .from('records')
-                .select('campaign_id, campaign_area_id, yearly_amount, record_status, start_date');
+                .select('campaign_id, campaign_area_id, yearly_amount, record_status, start_date')
+                .is('deleted_at', null);
 
             if (periodStartDate) {
                 const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;

@@ -6801,6 +6801,61 @@ function handleDropdownAction(action, dropdownMenu) {
     }
 }
 
+// ========== SOFT-DELETE MIT GEGENBUCHUNG ==========
+
+/**
+ * Löscht einen Record (Soft-Delete) und erstellt Gegenbuchungen
+ * @param {string} recordId - Record UUID
+ * @returns {Promise<boolean>} Erfolg
+ */
+async function loescheRecord(recordId) {
+    const supabase = window.supabase || (window.parent && window.parent.supabaseClient);
+    if (!supabase) throw new Error('Supabase nicht verfügbar');
+
+    // 1. Alle offenen Ledger-Einträge für diesen Record holen
+    const { data: ledgerEntries, error: ledgerError } = await supabase
+        .from('provisions_ledger')
+        .select('*')
+        .eq('record_id', recordId)
+        .is('invoice_id', null);  // Nur offene (noch nicht abgerechnete)
+
+    if (ledgerError) throw ledgerError;
+
+    // 2. Gegenbuchungen erstellen (negative EH)
+    if (ledgerEntries && ledgerEntries.length > 0) {
+        const gegenbuchungen = ledgerEntries.map(entry => ({
+            user_id: entry.user_id,
+            record_id: entry.record_id,
+            kategorie: entry.kategorie,
+            typ: 'loeschung',
+            einheiten: -entry.einheiten,  // Negativ!
+            kw: entry.kw,
+            year: entry.year,
+            referenz_datum: new Date().toISOString().split('T')[0],
+            beschreibung: `Löschung: ${entry.beschreibung || ''}`,
+            campaign_id: entry.campaign_id,
+            campaign_area_id: entry.campaign_area_id,
+            customer_id: entry.customer_id
+        }));
+
+        const { error: insertError } = await supabase
+            .from('provisions_ledger')
+            .insert(gegenbuchungen);
+
+        if (insertError) throw insertError;
+    }
+
+    // 3. Record soft-deleten
+    const { error: updateError } = await supabase
+        .from('records')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', recordId);
+
+    if (updateError) throw updateError;
+
+    return true;
+}
+
 // ========== TABLE ACTIONS (UNIFIED) ==========
 
 /**
@@ -6872,15 +6927,9 @@ async function tableAction(action, type, singleRecord = null) {
 
             if (confirmed) {
                 try {
-                    // Aus Supabase löschen
-                    const supabase = window.supabase || (window.parent && window.parent.supabaseClient);
-                    if (supabase) {
-                        const { error } = await supabase
-                            .from('records')
-                            .delete()
-                            .in('id', ids);
-
-                        if (error) throw error;
+                    // Soft-Delete mit Gegenbuchung für jeden Record
+                    for (const id of ids) {
+                        await loescheRecord(id);
                     }
 
                     // Aus lokalem Array entfernen
@@ -11816,7 +11865,8 @@ async function ladeAbrechnungsdaten(userId, zeitraum) {
             .eq('werber_id', userId)
             .gte('start_date', zeitraum.von.toISOString())
             .lte('start_date', zeitraum.bis.toISOString())
-            .eq('record_status', 'aktiv');
+            .eq('record_status', 'aktiv')
+            .is('deleted_at', null);
 
         if (recordsError) {
             console.error('Fehler beim Laden der Records:', recordsError);
@@ -12343,7 +12393,8 @@ async function ladeWerberStatistiken(options = {}) {
         // 4. Records laden (für Statistik: total, aktiv, storno, nettoJE)
         let recordsQuery = supabase
             .from('records')
-            .select('werber_id, yearly_amount, record_status, start_date, record_type, old_amount');
+            .select('werber_id, yearly_amount, record_status, start_date, record_type, old_amount')
+            .is('deleted_at', null);
 
         if (startDate) {
             const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
