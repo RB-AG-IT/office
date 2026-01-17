@@ -12062,13 +12062,7 @@ async function erstelleAbrechnung(data) {
     // Kategorie (Standard: 'all', kann über data.kategorie übergeben werden)
     const kategorie = data.kategorie || 'all';
 
-    const invoiceNumber = generateInvoiceNumber(
-        data.invoice_type,
-        data.year,
-        monat,
-        kategorie,
-        existingInvoices || []
-    );
+    // Rechnungsnummer wird erst bei Freigabe vergeben (nicht bei Entwurf)
 
     // Provisions-Beträge aus data.provisionen (Ledger) oder Fallback auf Gesamt
     const provisionen = data.provisionen || {
@@ -12088,7 +12082,7 @@ async function erstelleAbrechnung(data) {
 
     const invoice = {
         user_id: data.userId,
-        invoice_number: invoiceNumber,
+        invoice_number: null,  // Wird erst bei Freigabe vergeben
         invoice_type: data.invoice_type,
         period_start: data.zeitraum.von,
         period_end: data.zeitraum.bis,
@@ -12342,6 +12336,31 @@ async function updateAbrechnungStatus(invoiceId, status, scheduledAt = null) {
 
     if (status === 'offen') {
         updateData.approved_at = new Date().toISOString();
+
+        // Rechnungsnummer vergeben falls noch keine vorhanden
+        const { data: invoice } = await supabase
+            .from('invoices')
+            .select('invoice_number, invoice_type, year, period_start')
+            .eq('id', invoiceId)
+            .single();
+
+        if (!invoice.invoice_number) {
+            // Existierende Rechnungen für Nummern-Generierung laden
+            const { data: existing } = await supabase
+                .from('invoices')
+                .select('invoice_number')
+                .eq('year', invoice.year)
+                .not('invoice_number', 'is', null);
+
+            const monat = new Date(invoice.period_start).getMonth() + 1;
+            updateData.invoice_number = generateInvoiceNumber(
+                invoice.invoice_type,
+                invoice.year,
+                monat,
+                'all',
+                existing || []
+            );
+        }
     }
 
     if (scheduledAt) {
