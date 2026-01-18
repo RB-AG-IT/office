@@ -1524,6 +1524,7 @@ async function toggleAttendance(campaignId, kw, memberId, dayIndex) {
     }
 
     // In Supabase speichern
+    let saveSuccess = false;
     try {
         const dayColumn = `day_${dayIndex}`;
 
@@ -1538,6 +1539,8 @@ async function toggleAttendance(campaignId, kw, memberId, dayIndex) {
             if (updateError) {
                 console.error('Fehler beim Update der Anwesenheit:', updateError);
                 showToast('Fehler beim Speichern', 'error');
+            } else {
+                saveSuccess = true;
             }
         } else {
             // Insert
@@ -1568,7 +1571,14 @@ async function toggleAttendance(campaignId, kw, memberId, dayIndex) {
             } else if (newRecord) {
                 console.log('Anwesenheit gespeichert:', newRecord);
                 data.id = newRecord.id;
+                saveSuccess = true;
             }
+        }
+
+        // Unterkunftsabzug automatisch aktualisieren
+        if (saveSuccess && window.parent?.erstelleAnwesenheitsAbzug) {
+            const year = new Date().getFullYear();
+            await window.parent.erstelleAnwesenheitsAbzug(memberId, campaignId, kw, year);
         }
     } catch (error) {
         console.error('Fehler beim Speichern der Anwesenheit:', error);

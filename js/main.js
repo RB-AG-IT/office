@@ -6847,6 +6847,7 @@ function handleDropdownAction(action, dropdownMenu) {
 
 /**
  * Löscht einen Record (Soft-Delete) und erstellt Gegenbuchungen
+ * Verwendet RPC-Funktion für transaktionssichere Ausführung
  * @param {string} recordId - Record UUID
  * @returns {Promise<boolean>} Erfolg
  */
@@ -6854,45 +6855,11 @@ async function loescheRecord(recordId) {
     const supabase = window.supabase || (window.parent && window.parent.supabaseClient);
     if (!supabase) throw new Error('Supabase nicht verfügbar');
 
-    // 1. Alle Ledger-Einträge für diesen Record holen (auch bereits abgerechnete)
-    const { data: ledgerEntries, error: ledgerError } = await supabase
-        .from('provisions_ledger')
-        .select('*')
-        .eq('record_id', recordId);
+    const { data, error } = await supabase.rpc('loesche_record_transaction', {
+        p_record_id: recordId
+    });
 
-    if (ledgerError) throw ledgerError;
-
-    // 2. Gegenbuchungen erstellen (negative EH)
-    if (ledgerEntries && ledgerEntries.length > 0) {
-        const gegenbuchungen = ledgerEntries.map(entry => ({
-            user_id: entry.user_id,
-            record_id: entry.record_id,
-            kategorie: entry.kategorie,
-            typ: 'loeschung',
-            einheiten: -entry.einheiten,  // Negativ!
-            kw: entry.kw,
-            year: entry.year,
-            referenz_datum: new Date().toISOString().split('T')[0],
-            beschreibung: `Löschung: ${entry.beschreibung || ''}`,
-            campaign_id: entry.campaign_id,
-            campaign_area_id: entry.campaign_area_id,
-            customer_id: entry.customer_id
-        }));
-
-        const { error: insertError } = await supabase
-            .from('provisions_ledger')
-            .insert(gegenbuchungen);
-
-        if (insertError) throw insertError;
-    }
-
-    // 3. Record soft-deleten
-    const { error: updateError } = await supabase
-        .from('records')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', recordId);
-
-    if (updateError) throw updateError;
+    if (error) throw error;
 
     return true;
 }
@@ -11535,45 +11502,65 @@ function berechneAnwesenheitskosten(anwesenheitstage, istPlatinumPrime = false) 
  * @param {number} year - Jahr
  * @returns {Promise<object|null>} Erstellter Abzug oder null
  */
-async function erstelleAnwesenheitsAbzug(userId, kw, year) {
+async function erstelleAnwesenheitsAbzug(userId, campaignId, kw, year) {
     const supabase = window.parent?.supabaseClient || window.supabaseClient;
     if (!supabase) return null;
 
     try {
-        // Anwesenheit für diese KW laden
+        // Anwesenheit NUR für diese Kampagne laden
         const { data: attendance, error: attError } = await supabase
             .from('campaign_attendance')
-            .select('day_0, day_1, day_2, day_3, day_4, day_5, day_6, campaign_id')
+            .select('day_0, day_1, day_2, day_3, day_4, day_5, day_6')
             .eq('user_id', userId)
-            .eq('kw', kw);
+            .eq('campaign_id', campaignId)
+            .eq('kw', kw)
+            .single();
 
-        if (attError || !attendance || attendance.length === 0) {
-            return null;
+        // Anwesenheitstage zählen
+        let totalDays = 0;
+        if (attendance && !attError) {
+            const days = [attendance.day_0, attendance.day_1, attendance.day_2,
+                         attendance.day_3, attendance.day_4, attendance.day_5, attendance.day_6];
+            totalDays = days.filter(d => d === true).length;
         }
 
-        // Anwesenheitstage zählen (über alle Campaigns in dieser KW)
-        let totalDays = 0;
-        attendance.forEach(row => {
-            const days = [row.day_0, row.day_1, row.day_2, row.day_3, row.day_4, row.day_5, row.day_6];
-            totalDays += days.filter(d => d === true).length;
-        });
-
-        // Prüfen ob bereits ein Eintrag für diese KW existiert
         const kwStart = getMontagDerKW(kw, year);
-        const kwEnd = new Date(kwStart);
-        kwEnd.setDate(kwEnd.getDate() + 6);
 
+        // Prüfen ob bereits ein Eintrag für diese Kampagne/KW existiert
         const { data: existing } = await supabase
             .from('euro_ledger')
-            .select('id')
+            .select('id, betrag, invoice_id_vorschuss')
             .eq('user_id', userId)
+            .eq('campaign_id', campaignId)
             .eq('kategorie', 'unterkunft')
             .eq('kw', kw)
-            .eq('year', year);
+            .eq('year', year)
+            .is('typ', 'abzug')
+            .maybeSingle();
 
-        if (existing && existing.length > 0) {
-            // Eintrag existiert bereits
-            return existing[0];
+        // Bereits abgerechnet = unveränderbar, Korrektur erstellen
+        const bereitsAbgerechnet = existing?.invoice_id_vorschuss != null;
+
+        // Keine Tage = Eintrag löschen falls vorhanden und nicht abgerechnet
+        if (totalDays === 0) {
+            if (existing && !bereitsAbgerechnet) {
+                await supabase.from('euro_ledger').delete().eq('id', existing.id);
+            } else if (existing && bereitsAbgerechnet) {
+                // Korrektur-Buchung: Betrag zurückbuchen
+                await supabase.from('euro_ledger').insert({
+                    user_id: userId,
+                    campaign_id: campaignId,
+                    kategorie: 'unterkunft',
+                    typ: 'korrektur',
+                    betrag: -existing.betrag, // Gegenbuchung (positiv)
+                    beschreibung: `Korrektur: Unterkunft KW ${kw}/${year} (0 Tage)`,
+                    kw: kw,
+                    year: year,
+                    quelle: 'vorschuss',
+                    referenz_datum: new Date().toISOString().split('T')[0]
+                });
+            }
+            return null;
         }
 
         // Platinum Prime Status prüfen
@@ -11590,27 +11577,77 @@ async function erstelleAnwesenheitsAbzug(userId, kw, year) {
                               kwStartStr <= userProfile.platinum_prime_end;
         }
 
-        // Kosten berechnen (mit PPM-Rabatt wenn aktiv)
+        // Kosten berechnen
         const kosten = berechneAnwesenheitskosten(totalDays, istPlatinumPrime);
 
-        if (kosten <= 0) return null;
-
-        // Beschreibung mit PPM-Hinweis
+        // Beschreibung
         const beschreibung = istPlatinumPrime && totalDays >= 4
             ? `Unterkunft KW ${kw}/${year} (${totalDays} Tage, PPM)`
             : `Unterkunft KW ${kw}/${year} (${totalDays} Tage)`;
 
-        // Neuen Euro-Ledger-Eintrag erstellen
+        if (existing) {
+            // Update wenn sich Betrag geändert hat
+            if (existing.betrag !== -kosten) {
+                if (bereitsAbgerechnet) {
+                    // Korrektur-Buchung mit Differenz erstellen
+                    const differenz = (-kosten) - existing.betrag; // Neue Kosten - Alte Kosten
+                    const { data: korrektur, error: korrekturError } = await supabase
+                        .from('euro_ledger')
+                        .insert({
+                            user_id: userId,
+                            campaign_id: campaignId,
+                            kategorie: 'unterkunft',
+                            typ: 'korrektur',
+                            betrag: differenz,
+                            beschreibung: `Korrektur: ${beschreibung}`,
+                            kw: kw,
+                            year: year,
+                            quelle: 'vorschuss',
+                            referenz_datum: new Date().toISOString().split('T')[0]
+                        })
+                        .select()
+                        .single();
+
+                    if (korrekturError) {
+                        console.error('Fehler beim Erstellen der Korrektur:', korrekturError);
+                        return null;
+                    }
+                    return korrektur;
+                } else {
+                    // Normales Update (noch nicht abgerechnet)
+                    const { data: updated, error: updateError } = await supabase
+                        .from('euro_ledger')
+                        .update({
+                            betrag: -kosten,
+                            beschreibung: beschreibung
+                        })
+                        .eq('id', existing.id)
+                        .select()
+                        .single();
+
+                    if (updateError) {
+                        console.error('Fehler beim Update des Anwesenheitsabzugs:', updateError);
+                        return null;
+                    }
+                    return updated;
+                }
+            }
+            return existing;
+        }
+
+        // Neuen Eintrag erstellen
         const { data: created, error: createError } = await supabase
             .from('euro_ledger')
             .insert({
                 user_id: userId,
+                campaign_id: campaignId,
                 kategorie: 'unterkunft',
                 typ: 'abzug',
-                betrag: -kosten, // Negativ = Abzug
+                betrag: -kosten,
                 beschreibung: beschreibung,
                 kw: kw,
                 year: year,
+                quelle: 'vorschuss',
                 referenz_datum: kwStart.toISOString().split('T')[0]
             })
             .select()
@@ -11629,19 +11666,38 @@ async function erstelleAnwesenheitsAbzug(userId, kw, year) {
 }
 
 /**
- * Erstellt Anwesenheitsabzüge für alle KWs eines Zeitraums
+ * Erstellt Anwesenheitsabzüge für alle Kampagnen/KWs eines Zeitraums
  * @param {string} userId - User UUID
  * @param {object} zeitraum - { von: Date, bis: Date }
  * @returns {Promise<Array>} Erstellte Abzüge
  */
 async function erstelleAnwesenheitsAbzuegeFuerZeitraum(userId, zeitraum) {
+    const supabase = window.parent?.supabaseClient || window.supabaseClient;
+    if (!supabase) return [];
+
     const erstellteAbzuege = [];
     const startKw = getKW(zeitraum.von);
     const endKw = getKW(zeitraum.bis);
     const year = zeitraum.von.getFullYear();
 
-    for (let kw = startKw; kw <= endKw; kw++) {
-        const abzug = await erstelleAnwesenheitsAbzug(userId, kw, year);
+    // Alle Anwesenheiten für diesen User im Zeitraum laden
+    const { data: attendances } = await supabase
+        .from('campaign_attendance')
+        .select('campaign_id, kw')
+        .eq('user_id', userId)
+        .gte('kw', startKw)
+        .lte('kw', endKw);
+
+    if (!attendances) return [];
+
+    // Unique Kampagne/KW-Kombinationen
+    const processed = new Set();
+    for (const att of attendances) {
+        const key = `${att.campaign_id}-${att.kw}`;
+        if (processed.has(key)) continue;
+        processed.add(key);
+
+        const abzug = await erstelleAnwesenheitsAbzug(userId, att.campaign_id, att.kw, year);
         if (abzug) {
             erstellteAbzuege.push(abzug);
         }
