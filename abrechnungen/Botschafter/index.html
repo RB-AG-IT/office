@@ -2093,7 +2093,7 @@
             // 2. Invoice mit allen Daten laden für PDF-Generierung
             const { data: inv, error: loadError } = await supabase
                 .from('invoices')
-                .select('*, users!inner(name)')
+                .select('*, users!invoices_user_id_fkey(name)')
                 .eq('id', invoiceId)
                 .single();
 
