@@ -12406,19 +12406,19 @@ async function ladeWerberStatistiken(options = {}) {
     const { startDate, endDate } = options;
 
     try {
-        // 1. Alle Werber laden (inkl. created_at für Personalnummer, is_vat_liable für USt)
+        // 1. Alle Werber laden (inkl. created_at für Personalnummer)
         const { data: users, error: usersError } = await supabase
             .from('users')
-            .select('id, name, email, avatar_url, created_at, is_vat_liable')
+            .select('id, name, email, avatar_url, created_at')
             .eq('role', 'werber')
             .order('created_at', { ascending: true });
 
         if (usersError) throw usersError;
 
-        // 2. User Profiles laden (Profilbilder, Vorschuss-Anteil, Adresse)
+        // 2. User Profiles laden (Profilbilder, Vorschuss-Anteil, Adresse, USt-Pflicht)
         const { data: profilesData } = await supabase
             .from('user_profiles')
-            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city, personalnummer, iban, account_holder, phone');
+            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city, personalnummer, iban, account_holder, phone, is_vat_liable');
 
         const profilesMap = {};
         (profilesData || []).forEach(p => {
@@ -12836,8 +12836,8 @@ async function ladeWerberStatistiken(options = {}) {
                 letzteAbrechnung: lastInvoice?.invoice_number || '-',
                 letzteAbrechnungDatum: lastInvoice?.created_at,
 
-                // Umsatzsteuer-Pflicht
-                isVatLiable: user.is_vat_liable || false,
+                // Umsatzsteuer-Pflicht (aus user_profiles)
+                isVatLiable: profile.is_vat_liable || false,
 
                 status: 'aktiv'
             };
