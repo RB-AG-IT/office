@@ -13098,7 +13098,7 @@ async function loescheAbrechnung(invoiceId) {
 
 /**
  * Storniert eine Abrechnung (offen oder bezahlt)
- * Erstellt Gegenbuchungen in Ledgern mit invoice_id der stornierten Rechnung
+ * Gibt Ledger-Einträge frei (invoice_id → NULL)
  * @param {string} invoiceId - Invoice UUID
  * @returns {Promise<object>} - Aktualisierte Invoice
  */
@@ -13122,70 +13122,18 @@ async function storniereAbrechnung(invoiceId) {
         ? 'invoice_id_stornorucklage'
         : 'invoice_id_vorschuss';
 
-    // 2. Provisions-Ledger: Einträge laden, Gegenbuchungen erstellen, Original freigeben
-    const { data: provEntries } = await supabase
+    // 2. Provisions-Ledger: invoice_id freigeben (keine Gegenbuchungen!)
+    await supabase
         .from('provisions_ledger')
-        .select('*')
+        .update({ [invoiceIdField]: null })
         .eq(invoiceIdField, invoiceId);
 
-    if (provEntries && provEntries.length > 0) {
-        // Gegenbuchungen erstellen (mit invoice_id der stornierten Rechnung)
-        const gegenbuchungen = provEntries.map(entry => ({
-            user_id: entry.user_id,
-            record_id: entry.record_id,
-            kategorie: entry.kategorie,
-            typ: 'storno',
-            einheiten: -entry.einheiten,
-            kw: entry.kw,
-            year: entry.year,
-            referenz_datum: new Date().toISOString().split('T')[0],
-            beschreibung: `Storno zu Invoice ${invoiceId}`,
-            campaign_id: entry.campaign_id,
-            campaign_area_id: entry.campaign_area_id,
-            customer_id: entry.customer_id,
-            [invoiceIdField]: invoiceId
-        }));
-
-        await supabase.from('provisions_ledger').insert(gegenbuchungen);
-
-        // Original-Einträge freigeben (invoice_id → null)
-        await supabase
-            .from('provisions_ledger')
-            .update({ [invoiceIdField]: null })
-            .eq(invoiceIdField, invoiceId)
-            .neq('typ', 'storno');
-    }
-
-    // 3. Euro-Ledger (nur bei Vorschuss)
+    // 3. Euro-Ledger: invoice_id freigeben (nur bei Vorschuss)
     if (invoice.invoice_type !== 'stornorucklage') {
-        const { data: euroEntries } = await supabase
+        await supabase
             .from('euro_ledger')
-            .select('*')
+            .update({ invoice_id_vorschuss: null })
             .eq('invoice_id_vorschuss', invoiceId);
-
-        if (euroEntries && euroEntries.length > 0) {
-            // Gegenbuchungen erstellen
-            const euroGegenbuchungen = euroEntries.map(entry => ({
-                user_id: entry.user_id,
-                kategorie: entry.kategorie,
-                betrag: -entry.betrag,
-                kw: entry.kw,
-                year: entry.year,
-                referenz_datum: new Date().toISOString().split('T')[0],
-                beschreibung: `Storno zu Invoice ${invoiceId}`,
-                campaign_id: entry.campaign_id,
-                quelle: entry.quelle,
-                invoice_id_vorschuss: invoiceId
-            }));
-
-            await supabase.from('euro_ledger').insert(euroGegenbuchungen);
-
-            // Original-Einträge freigeben
-            await supabase
-                .from('euro_ledger')
-                .update({ invoice_id_vorschuss: null })
-                .eq('invoice_id_vorschuss', invoiceId);
-        }
     }
 
     // 4. Status → storniert
