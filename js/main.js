@@ -1710,11 +1710,13 @@ async function confirmStorno() {
         }
 
         // Gegenbuchungen im Ledger erstellen (für alle Records)
+        // NUR für Provisionen/Korrekturen - NICHT für bereits existierende Stornos!
         for (const recordId of recordIds) {
             const { data: ledgerEntries, error: ledgerError } = await supabase
                 .from('provisions_ledger')
                 .select('*')
-                .eq('record_id', recordId);
+                .eq('record_id', recordId)
+                .in('typ', ['provision', 'korrektur']);
 
             if (ledgerError) {
                 console.error('Fehler beim Laden der Ledger-Einträge:', ledgerError);
