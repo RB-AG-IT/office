@@ -1470,7 +1470,8 @@ async function loadAttendanceFromSupabase(campaignId) {
                     id: n.id,
                     timestamp: new Date(n.created_at).toLocaleString('de-DE'),
                     text: n.note_text
-                }))
+                })),
+                keineUnterkunft: record.keine_unterkunft || false
             };
         });
     } catch (error) {
@@ -1505,7 +1506,8 @@ function initAttendance(campaignId, kw, memberId) {
     if (!attendanceData[campaignId][kw][memberId]) {
         attendanceData[campaignId][kw][memberId] = {
             days: [true, true, true, true, true, true, true], // Standard: alle anwesend
-            notes: []
+            notes: [],
+            keineUnterkunft: false
         };
     }
     return attendanceData[campaignId][kw][memberId];
@@ -1582,6 +1584,73 @@ async function toggleAttendance(campaignId, kw, memberId, dayIndex) {
         }
     } catch (error) {
         console.error('Fehler beim Speichern der Anwesenheit:', error);
+        showToast('Fehler beim Speichern', 'error');
+    }
+}
+
+// Keine Unterkunftskosten togglen
+async function toggleKeineUnterkunft(campaignId, kw, memberId) {
+    const data = initAttendance(campaignId, kw, memberId);
+    data.keineUnterkunft = !data.keineUnterkunft;
+
+    // UI aktualisieren
+    const btn = document.querySelector(`[data-unterkunft="${campaignId}-${kw}-${memberId}"]`);
+    if (btn) {
+        btn.classList.toggle('active', data.keineUnterkunft);
+        btn.title = data.keineUnterkunft ? 'Keine Unterkunftskosten (aktiv)' : 'Unterkunftskosten deaktivieren';
+    }
+
+    // In Supabase speichern
+    try {
+        if (data.id) {
+            // Update
+            const { error } = await supabase
+                .from('campaign_attendance')
+                .update({ keine_unterkunft: data.keineUnterkunft })
+                .eq('id', data.id);
+
+            if (error) {
+                console.error('Fehler beim Update:', error);
+                showToast('Fehler beim Speichern', 'error');
+                return;
+            }
+        } else {
+            // Insert
+            const insertData = {
+                campaign_id: campaignId,
+                user_id: memberId,
+                kw: kw,
+                day_0: data.days[0],
+                day_1: data.days[1],
+                day_2: data.days[2],
+                day_3: data.days[3],
+                day_4: data.days[4],
+                day_5: data.days[5],
+                day_6: data.days[6],
+                keine_unterkunft: data.keineUnterkunft
+            };
+
+            const { data: newRecord, error } = await supabase
+                .from('campaign_attendance')
+                .upsert(insertData, { onConflict: 'campaign_id,user_id,kw' })
+                .select()
+                .single();
+
+            if (error) {
+                console.error('Fehler beim Insert:', error);
+                showToast('Fehler beim Speichern', 'error');
+                return;
+            }
+            data.id = newRecord.id;
+        }
+
+        // Unterkunftsabzug neu berechnen
+        if (window.parent?.erstelleAnwesenheitsAbzug) {
+            const year = new Date().getFullYear();
+            await window.parent.erstelleAnwesenheitsAbzug(memberId, campaignId, kw, year);
+        }
+    } catch (error) {
+        console.error('Fehler beim Speichern:', error);
         showToast('Fehler beim Speichern', 'error');
     }
 }
@@ -1748,6 +1817,14 @@ function renderAttendanceTracker(campaignId, kw, memberId, memberName) {
                 title="Notizen ${hasNotes ? '(' + data.notes.length + ')' : ''}"
             >
                 <span class="icon icon--stift"></span>
+            </button>
+            <button
+                class="btn btn-sm btn-notes ${data.keineUnterkunft ? 'active' : ''}"
+                data-unterkunft="${campaignId}-${kw}-${memberId}"
+                onclick="toggleKeineUnterkunft('${campaignId}', ${kw}, '${memberId}')"
+                title="${data.keineUnterkunft ? 'Keine Unterkunftskosten (aktiv)' : 'Unterkunftskosten deaktivieren'}"
+            >
+                <span class="icon icon--haus"></span>
             </button>
         </div>
     `;

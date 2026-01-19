@@ -11502,15 +11502,29 @@ function berechneAnwesenheitskosten(anwesenheitstage, istPlatinumPrime = false) 
  * @param {number} year - Jahr
  * @returns {Promise<object|null>} Erstellter Abzug oder null
  */
+// Lock-Map um Race Conditions zu verhindern
+const anwesenheitsAbzugLocks = new Map();
+
 async function erstelleAnwesenheitsAbzug(userId, campaignId, kw, year) {
     const supabase = window.parent?.supabaseClient || window.supabaseClient;
     if (!supabase) return null;
+
+    // Lock-Key für diese Kombination
+    const lockKey = `${userId}-${campaignId}-${kw}-${year}`;
+
+    // Warten falls bereits ein Aufruf läuft
+    while (anwesenheitsAbzugLocks.has(lockKey)) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+    // Lock setzen
+    anwesenheitsAbzugLocks.set(lockKey, true);
 
     try {
         // Anwesenheit NUR für diese Kampagne laden
         const { data: attendance, error: attError } = await supabase
             .from('campaign_attendance')
-            .select('day_0, day_1, day_2, day_3, day_4, day_5, day_6')
+            .select('day_0, day_1, day_2, day_3, day_4, day_5, day_6, keine_unterkunft')
             .eq('user_id', userId)
             .eq('campaign_id', campaignId)
             .eq('kw', kw)
@@ -11526,8 +11540,8 @@ async function erstelleAnwesenheitsAbzug(userId, campaignId, kw, year) {
 
         const kwStart = getMontagDerKW(kw, year);
 
-        // Prüfen ob bereits ein Eintrag für diese Kampagne/KW existiert
-        const { data: existing } = await supabase
+        // Prüfen ob bereits ein Eintrag für diese Kampagne/KW existiert (ALLE finden, nicht nur einen)
+        const { data: existingEntries } = await supabase
             .from('euro_ledger')
             .select('id, betrag, invoice_id_vorschuss')
             .eq('user_id', userId)
@@ -11535,14 +11549,24 @@ async function erstelleAnwesenheitsAbzug(userId, campaignId, kw, year) {
             .eq('kategorie', 'unterkunft')
             .eq('kw', kw)
             .eq('year', year)
-            .is('typ', 'abzug')
-            .maybeSingle();
+            .eq('typ', 'abzug');
+
+        // Ersten Eintrag als "existing" verwenden
+        const existing = existingEntries && existingEntries.length > 0 ? existingEntries[0] : null;
+
+        // Duplikate warnen und ignorieren
+        if (existingEntries && existingEntries.length > 1) {
+            console.warn(`WARNUNG: ${existingEntries.length} Duplikate gefunden für User ${userId}, KW ${kw}/${year}`);
+        }
 
         // Bereits abgerechnet = unveränderbar, Korrektur erstellen
         const bereitsAbgerechnet = existing?.invoice_id_vorschuss != null;
 
-        // Keine Tage = Eintrag löschen falls vorhanden und nicht abgerechnet
-        if (totalDays === 0) {
+        // Prüfen ob keine Unterkunftskosten berechnet werden sollen
+        const keineUnterkunft = attendance?.keine_unterkunft === true;
+
+        // Keine Tage oder keine Unterkunftskosten = Eintrag löschen falls vorhanden und nicht abgerechnet
+        if (totalDays === 0 || keineUnterkunft) {
             if (existing && !bereitsAbgerechnet) {
                 await supabase.from('euro_ledger').delete().eq('id', existing.id);
             } else if (existing && bereitsAbgerechnet) {
@@ -11553,7 +11577,7 @@ async function erstelleAnwesenheitsAbzug(userId, campaignId, kw, year) {
                     kategorie: 'unterkunft',
                     typ: 'korrektur',
                     betrag: -existing.betrag, // Gegenbuchung (positiv)
-                    beschreibung: `Korrektur: Unterkunft KW ${kw}/${year} (0 Tage)`,
+                    beschreibung: `Korrektur: Unterkunft KW ${kw}/${year} (${keineUnterkunft ? 'keine Unterkunftskosten' : '0 Tage'})`,
                     kw: kw,
                     year: year,
                     quelle: 'vorschuss',
@@ -11662,6 +11686,9 @@ async function erstelleAnwesenheitsAbzug(userId, campaignId, kw, year) {
     } catch (error) {
         console.error('Fehler in erstelleAnwesenheitsAbzug:', error);
         return null;
+    } finally {
+        // Lock entfernen
+        anwesenheitsAbzugLocks.delete(lockKey);
     }
 }
 
@@ -12815,6 +12842,12 @@ async function loescheAbrechnung(invoiceId) {
         .delete()
         .eq('invoice_id', invoiceId);
 
+    // 3b. Invoice Positions löschen
+    await supabase
+        .from('invoice_positions')
+        .delete()
+        .eq('invoice_id', invoiceId);
+
     // 4. Invoice löschen
     const { error: deleteError } = await supabase
         .from('invoices')
@@ -12838,7 +12871,7 @@ async function storniereAbrechnung(invoiceId) {
     // 1. Prüfen ob Status = offen oder bezahlt
     const { data: invoice, error: fetchError } = await supabase
         .from('invoices')
-        .select('status')
+        .select('status, invoice_type')
         .eq('id', invoiceId)
         .single();
 
@@ -12847,58 +12880,26 @@ async function storniereAbrechnung(invoiceId) {
         throw new Error('Nur offene oder bezahlte Abrechnungen können storniert werden');
     }
 
-    // 2. Provisions-Ledger Gegenbuchungen (je nach invoice_type)
-    const invoiceIdField = invoice.invoice_type === 'stornorucklage'
-        ? 'invoice_id_stornorucklage'
-        : 'invoice_id_vorschuss';
+    // 2. Ledger-Einträge freigeben (invoice_id → null)
+    // Keine Gegenbuchungen - nur IDs entfernen, damit EH wieder abrechnbar sind
+    if (invoice.invoice_type === 'stornorucklage') {
+        await supabase
+            .from('provisions_ledger')
+            .update({ invoice_id_stornorucklage: null })
+            .eq('invoice_id_stornorucklage', invoiceId);
+    } else {
+        await supabase
+            .from('provisions_ledger')
+            .update({ invoice_id_vorschuss: null })
+            .eq('invoice_id_vorschuss', invoiceId);
 
-    const { data: provEntries } = await supabase
-        .from('provisions_ledger')
-        .select('*')
-        .eq(invoiceIdField, invoiceId);
-
-    for (const entry of (provEntries || [])) {
-        await supabase.from('provisions_ledger').insert({
-            user_id: entry.user_id,
-            record_id: entry.record_id,
-            einheiten: -entry.einheiten,
-            typ: 'storno',
-            kategorie: entry.kategorie,
-            kw: entry.kw,
-            year: entry.year,
-            referenz_datum: entry.referenz_datum,
-            campaign_id: entry.campaign_id,
-            campaign_area_id: entry.campaign_area_id,
-            customer_id: entry.customer_id,
-            beschreibung: `Storno zu Invoice ${invoiceId}`,
-            invoice_id_vorschuss: null,
-            invoice_id_stornorucklage: null
-        });
+        await supabase
+            .from('euro_ledger')
+            .update({ invoice_id_vorschuss: null })
+            .eq('invoice_id_vorschuss', invoiceId);
     }
 
-    // 3. Euro-Ledger Gegenbuchungen
-    const { data: euroEntries } = await supabase
-        .from('euro_ledger')
-        .select('*')
-        .eq('invoice_id_vorschuss', invoiceId);
-
-    for (const entry of (euroEntries || [])) {
-        await supabase.from('euro_ledger').insert({
-            user_id: entry.user_id,
-            betrag: -entry.betrag,
-            typ: 'korrektur',
-            kategorie: entry.kategorie,
-            quelle: entry.quelle,
-            kw: entry.kw,
-            year: entry.year,
-            referenz_datum: entry.referenz_datum,
-            beschreibung: `Storno zu Invoice ${invoiceId}`,
-            invoice_id_vorschuss: null,
-            invoice_id_stornorucklage: null
-        });
-    }
-
-    // 4. Status → storniert
+    // 3. Status → storniert
     const { data, error } = await supabase
         .from('invoices')
         .update({ status: 'storniert' })
