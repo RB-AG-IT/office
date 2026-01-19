@@ -6886,24 +6886,236 @@ function getSelectedRecords(type) {
 }
 
 /**
+ * Sendet Willkommensmail an einen Record
+ * @param {Object} record - Der Record mit allen Daten
+ * @returns {Promise<boolean>} - true wenn erfolgreich, false sonst
+ */
+async function sendWelcomeEmail(record) {
+    const supabase = window.parent?.supabaseClient || window.supabaseClient;
+    if (!supabase) {
+        console.error('Supabase nicht verfügbar');
+        return false;
+    }
+
+    // Prüfen ob E-Mail vorhanden
+    if (!record.email) {
+        console.warn('Keine E-Mail-Adresse vorhanden für:', record.name);
+        return false;
+    }
+
+    try {
+        // E-Mail-Vorlage aus Supabase laden
+        const { data: vorlage, error: vorlageError } = await supabase
+            .from('email_vorlagen')
+            .select('betreff, inhalt')
+            .eq('vorlage_typ', 'willkommen')
+            .eq('aktiv', true)
+            .single();
+
+        if (vorlageError || !vorlage) {
+            console.warn('Keine E-Mail-Vorlage gefunden');
+            return false;
+        }
+
+        // Intervall-Bezeichnung
+        const intervallMap = {
+            'monthly': 'Monat',
+            'quarterly': 'Quartal',
+            'halfyearly': 'Halbjahr',
+            'yearly': 'Jahr'
+        };
+        const intervallText = intervallMap[record.interval] || record.interval || '';
+
+        // Hilfsfunktionen
+        const maskIban = (iban) => {
+            if (!iban) return '';
+            const clean = iban.replace(/\s/g, '');
+            if (clean.length < 6) return iban;
+            return clean.substring(0, 4) + ' **** **** **** ' + clean.substring(clean.length - 2);
+        };
+
+        // Adresse zusammenbauen
+        const adresse = [
+            record.street && record.houseNumber ? `${record.street} ${record.houseNumber}` : record.street,
+            record.zipCode && record.city ? `${record.zipCode} ${record.city}` : record.city
+        ].filter(Boolean).join(', ');
+
+        // Telefon (mobil bevorzugt)
+        const telefon = record.phoneMobile || record.phoneFixed || '';
+
+        // WG/Kunden-Daten laden
+        let websiteLink = '';
+        let datenschutzLink = '';
+        let ansprechpartnerName = '';
+        let ansprechpartnerTelefon = '';
+        let ansprechpartnerEmail = '';
+        let anschriftOv = '';
+        let senderName = 'DRK Mitgliederwerbung';
+
+        const campaignAreaId = record._raw?.campaign_area_id;
+        if (campaignAreaId) {
+            // campaign_areas laden um customer_area_id zu bekommen
+            const { data: campaignArea } = await supabase
+                .from('campaign_areas')
+                .select('customer_area_id, name')
+                .eq('id', campaignAreaId)
+                .single();
+
+            if (campaignArea?.name) {
+                senderName = campaignArea.name;
+            }
+
+            const customerAreaId = campaignArea?.customer_area_id;
+            if (customerAreaId) {
+                // customer_areas laden (WG-Daten)
+                const { data: areaData } = await supabase
+                    .from('customer_areas')
+                    .select('website, privacy_policy, customer_id, street, house_number, postal_code, city, name')
+                    .eq('id', customerAreaId)
+                    .single();
+
+                if (areaData) {
+                    if (areaData.name) senderName = areaData.name;
+                    websiteLink = areaData.website || '';
+                    datenschutzLink = areaData.privacy_policy || '';
+
+                    // WG-Anschrift zusammenbauen
+                    if (areaData.street || areaData.city) {
+                        const strasseHnr = [areaData.street, areaData.house_number].filter(Boolean).join(' ');
+                        const plzOrt = [areaData.postal_code, areaData.city].filter(Boolean).join(' ');
+                        anschriftOv = [strasseHnr, plzOrt].filter(Boolean).join(', ');
+                    }
+
+                    // WG-Ansprechpartner laden
+                    const { data: areaContacts } = await supabase
+                        .from('customer_area_contacts')
+                        .select('first_name, last_name, phone, email')
+                        .eq('area_id', customerAreaId)
+                        .limit(1);
+
+                    if (areaContacts && areaContacts.length > 0) {
+                        const contact = areaContacts[0];
+                        ansprechpartnerName = [contact.first_name, contact.last_name].filter(Boolean).join(' ');
+                        ansprechpartnerTelefon = contact.phone || '';
+                        ansprechpartnerEmail = contact.email || '';
+                    }
+
+                    // Fallback: Kunden-Daten
+                    const customerId = areaData.customer_id;
+                    if (customerId && (!websiteLink || !datenschutzLink || !ansprechpartnerName || !anschriftOv)) {
+                        const { data: customerData } = await supabase
+                            .from('customers')
+                            .select('website, privacy_policy, street, house_number, postal_code, city, name')
+                            .eq('id', customerId)
+                            .single();
+
+                        if (customerData) {
+                            if (!websiteLink) websiteLink = customerData.website || '';
+                            if (!datenschutzLink) datenschutzLink = customerData.privacy_policy || '';
+                            if (!anschriftOv && (customerData.street || customerData.city)) {
+                                const strasseHnr = [customerData.street, customerData.house_number].filter(Boolean).join(' ');
+                                const plzOrt = [customerData.postal_code, customerData.city].filter(Boolean).join(' ');
+                                anschriftOv = [strasseHnr, plzOrt].filter(Boolean).join(', ');
+                            }
+                        }
+
+                        // Kunden-Ansprechpartner als Fallback
+                        if (!ansprechpartnerName) {
+                            const { data: customerContacts } = await supabase
+                                .from('customer_contacts')
+                                .select('first_name, last_name, phone, email')
+                                .eq('customer_id', customerId)
+                                .limit(1);
+
+                            if (customerContacts && customerContacts.length > 0) {
+                                const contact = customerContacts[0];
+                                ansprechpartnerName = [contact.first_name, contact.last_name].filter(Boolean).join(' ');
+                                ansprechpartnerTelefon = contact.phone || '';
+                                ansprechpartnerEmail = contact.email || '';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Platzhalter ersetzen
+        let emailBody = vorlage.inhalt
+            .replace(/\{\{anrede\}\}/g, record.salutation || '')
+            .replace(/\{\{vorname\}\}/g, record.firstName || '')
+            .replace(/\{\{nachname\}\}/g, record.lastName || '')
+            .replace(/\{\{email\}\}/g, record.email || '')
+            .replace(/\{\{telefon\}\}/g, telefon)
+            .replace(/\{\{geburtsdatum\}\}/g, record.birthDate || '')
+            .replace(/\{\{adresse\}\}/g, adresse)
+            .replace(/\{\{kontoinhaber\}\}/g, record.accountHolder || '')
+            .replace(/\{\{iban_maskiert\}\}/g, maskIban(record.iban))
+            .replace(/\{\{betrag\}\}/g, record.intervalAmount || '')
+            .replace(/\{\{intervall\}\}/g, intervallText)
+            .replace(/\{\{werbegebiet_name\}\}/g, senderName)
+            .replace(/\{\{ansprechpartner_name\}\}/g, ansprechpartnerName)
+            .replace(/\{\{ansprechpartner_telefon\}\}/g, ansprechpartnerTelefon)
+            .replace(/\{\{ansprechpartner_email\}\}/g, ansprechpartnerEmail)
+            .replace(/\{\{website_link\}\}/g, websiteLink)
+            .replace(/\{\{datenschutz_link\}\}/g, datenschutzLink)
+            .replace(/\{\{anschrift_ov\}\}/g, anschriftOv);
+
+        let emailSubject = vorlage.betreff
+            .replace(/\{\{anrede\}\}/g, record.salutation || '')
+            .replace(/\{\{vorname\}\}/g, record.firstName || '')
+            .replace(/\{\{nachname\}\}/g, record.lastName || '');
+
+        // E-Mail über Edge Function senden
+        const response = await fetch('https://lgztglycqtiwcmiydxnm.supabase.co/functions/v1/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0'
+            },
+            body: JSON.stringify({
+                to: record.email,
+                subject: emailSubject,
+                body: emailBody,
+                senderName: senderName
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            console.log('Willkommensmail erfolgreich gesendet an:', record.email);
+            return true;
+        } else {
+            console.error('E-Mail-Versand fehlgeschlagen:', result.error);
+            return false;
+        }
+    } catch (err) {
+        console.error('Fehler beim E-Mail-Versand:', err);
+        return false;
+    }
+}
+
+/**
  * Unified Table Action Handler
  * @param {string} action - Aktion ('mail', 'pdf', 'storno', 'delete')
  * @param {string} type - Tabellentyp ('records' oder 'bestand')
  * @param {Object} [singleRecord] - Optional: Einzelner Record für Single-Actions
  */
 async function tableAction(action, type, singleRecord = null) {
-    let names, ids;
+    let names, ids, records;
 
     if (singleRecord) {
         // Single Action
         names = [singleRecord.name];
         ids = [singleRecord.id];
+        records = [singleRecord];
     } else {
         // Bulk Action
         const selected = getSelectedRecords(type);
         if (selected.ids.length === 0) return;
         names = selected.names;
         ids = selected.ids;
+        records = selected.records;
     }
 
     const isSingle = names.length === 1;
@@ -6911,8 +7123,32 @@ async function tableAction(action, type, singleRecord = null) {
 
     switch (action) {
         case 'mail':
-            console.log(`E-Mail senden an: ${nameList}`);
-            showToast(isSingle ? 'E-Mail gesendet' : `${ids.length} E-Mails gesendet`, 'success');
+            // Records mit E-Mail filtern
+            const recordsWithEmail = records.filter(r => r.email);
+            if (recordsWithEmail.length === 0) {
+                showToast('Keine E-Mail-Adresse vorhanden', 'warning');
+                break;
+            }
+
+            // Mails senden
+            let successCount = 0;
+            let failCount = 0;
+            for (const record of recordsWithEmail) {
+                const success = await sendWelcomeEmail(record);
+                if (success) {
+                    successCount++;
+                } else {
+                    failCount++;
+                }
+            }
+
+            // Toast nur bei Erfolg
+            if (successCount > 0) {
+                showToast(successCount === 1 ? 'E-Mail gesendet' : `${successCount} E-Mails gesendet`, 'success');
+            }
+            if (failCount > 0) {
+                showToast(failCount === 1 ? 'E-Mail fehlgeschlagen' : `${failCount} E-Mails fehlgeschlagen`, 'error');
+            }
             break;
 
         case 'pdf':
