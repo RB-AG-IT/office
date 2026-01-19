@@ -1036,6 +1036,12 @@
                 const totalZubuchungen = abzV.zubuchungUnterkunft + abzV.zubuchungSonderposten;
                 const netto = vorschuss - totalAbzuege + totalZubuchungen;
 
+                // USt-Berechnung wenn User USt-pflichtig
+                const isVatLiable = b.isVatLiable || false;
+                const vatRate = isVatLiable ? 19 : 0;
+                const vatAmount = isVatLiable ? netto * 0.19 : 0;
+                const bruttoAuszahlung = netto + vatAmount;
+
                 // Für spätere Speicherung merken
                 b._berechnungen = {
                     bruttoWerben,
@@ -1048,7 +1054,12 @@
                     vorschuss,
                     netto,
                     // Abzüge/Zubuchungen (Vorschuss)
-                    abzuegeVorschuss: abzV
+                    abzuegeVorschuss: abzV,
+                    // USt
+                    isVatLiable,
+                    vatRate,
+                    vatAmount,
+                    bruttoAuszahlung
                 };
 
                 return `
@@ -1056,9 +1067,9 @@
                         <div class="abrechnung-card__header" onclick="toggleAbrechnungCard(${idx})">
                             <div>
                                 <div class="abrechnung-card__name">${b.name}</div>
-                                <div class="abrechnung-card__meta">${b.karrierestufe} (Faktor ${b.faktor.toFixed(2)})</div>
+                                <div class="abrechnung-card__meta">${b.karrierestufe} (Faktor ${b.faktor.toFixed(2)})${isVatLiable ? ' · USt-pflichtig' : ''}</div>
                             </div>
-                            <div class="abrechnung-card__amount">${formatEuro(netto)}</div>
+                            <div class="abrechnung-card__amount">${formatEuro(bruttoAuszahlung)}</div>
                         </div>
                         <div class="abrechnung-card__body">
                             ${selectedProv.includes('werben') ? `
@@ -1119,9 +1130,18 @@
                                 <span>Zubuchung Sonderposten</span>
                                 <span>+ ${formatEuro(abzV.zubuchungSonderposten)}</span>
                             </div>` : ''}
+                            ${isVatLiable ? `
+                            <div class="abrechnung-card__row">
+                                <span>Nettobetrag</span>
+                                <span>${formatEuro(netto)}</span>
+                            </div>
+                            <div class="abrechnung-card__row abrechnung-card__row--positive">
+                                <span>zzgl. 19% USt</span>
+                                <span>+ ${formatEuro(vatAmount)}</span>
+                            </div>` : ''}
                             <div class="abrechnung-card__row abrechnung-card__row--total">
                                 <span>AUSZAHLUNG</span>
-                                <input type="number" class="abrechnung-card__input" value="${netto.toFixed(2)}" data-user="${b.id}" step="0.01">
+                                <input type="number" class="abrechnung-card__input" value="${bruttoAuszahlung.toFixed(2)}" data-user="${b.id}" step="0.01">
                             </div>
                         </div>
                     </div>
@@ -1438,8 +1458,14 @@
 
         // Vorschuss berechnen (z.B. 75% der Gesamtprovision)
         const vorschussBetrag = gesamtProvision * (vorschussAnteil / 100);
-        // Auszahlung berechnen: Vorschuss - Abzüge + Zubuchungen
-        const auszahlungsBetrag = vorschussBetrag - totalAbzuege + totalZubuchungen;
+        // Netto-Auszahlung berechnen: Vorschuss - Abzüge + Zubuchungen
+        const nettoAuszahlung = vorschussBetrag - totalAbzuege + totalZubuchungen;
+
+        // USt-Berechnung (aus calc wenn vorhanden, sonst aus b)
+        const isVatLiable = calc.isVatLiable || b.isVatLiable || false;
+        const vatRate = isVatLiable ? 19 : 0;
+        const vatAmount = isVatLiable ? nettoAuszahlung * 0.19 : 0;
+        const auszahlungsBetrag = nettoAuszahlung + vatAmount;
 
         return `<!DOCTYPE html>
 <html lang="de">
@@ -1700,6 +1726,23 @@
         .zubuchung-label { font-weight: 500; }
         .zubuchung-betrag { font-weight: 600; }
 
+        /* === UST-BERECHNUNG === */
+        .vat-section {
+            padding: 8px 0;
+            border-top: 1px dashed #d1d5db;
+            margin-top: 8px;
+        }
+        .vat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 14px;
+            font-size: 13px;
+            color: var(--text-dark);
+        }
+        .vat-label { font-weight: 500; }
+        .vat-amount { font-weight: 600; }
+
         /* === GESAMTPROVISION === */
         .total-provision {
             background: var(--champagne);
@@ -1834,6 +1877,17 @@
         ${zubuchungenHtml ? `
         <div class="zubuchungen-section">
             ${zubuchungenHtml}
+        </div>` : ''}
+        ${isVatLiable ? `
+        <div class="vat-section">
+            <div class="vat-row">
+                <span class="vat-label">Nettobetrag</span>
+                <span class="vat-amount">${formatEuro(nettoAuszahlung)}</span>
+            </div>
+            <div class="vat-row">
+                <span class="vat-label">zzgl. 19% USt</span>
+                <span class="vat-amount">+ ${formatEuro(vatAmount)}</span>
+            </div>
         </div>` : ''}
         <div class="total-section">
             <div class="total-label">Auszahlungsbetrag</div>
@@ -2059,7 +2113,9 @@
                     einheitenProKategorie: b.einheitenProKategorie || {},
                     provisionSettings: b.provisionSettings || {},
                     kategorie: kategorie,
-                    scheduled_send_at: abrechnungWorkflowData.scheduledAt?.toISOString() || null
+                    scheduled_send_at: abrechnungWorkflowData.scheduledAt?.toISOString() || null,
+                    // USt-Pflicht
+                    isVatLiable: calc.isVatLiable || b.isVatLiable || false
                 });
 
                 // PDF wird erst bei Freigabe generiert (mit korrekter Nummer)
@@ -2116,7 +2172,8 @@
                 vorschussAnteil: calcData.vorschuss_anteil || 75,
                 einheitenProKategorie: calcData.einheiten_pro_kategorie || {},
                 provisionSettings: calcData.provision_settings || {},
-                faktor: calcData.faktor || 1.0
+                faktor: calcData.faktor || 1.0,
+                isVatLiable: calcData.is_vat_liable || inv.is_vat_liable || false
             };
 
             const calc = {
@@ -2127,7 +2184,11 @@
                 recruitingProvision: calcData.provisionen?.recruiting || 0,
                 netto: inv.netto_auszahlung || 0,
                 // Abzüge/Zubuchungen aus euro_ledger (Vorschuss-Quelle)
-                abzuegeVorschuss: calcData.abzuege_vorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 }
+                abzuegeVorschuss: calcData.abzuege_vorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 },
+                // USt-Info
+                isVatLiable: calcData.is_vat_liable || inv.is_vat_liable || false,
+                vatRate: calcData.vat_rate || inv.vat_rate || 0,
+                vatAmount: calcData.vat_amount || inv.vat_amount || 0
             };
 
             const zeitraum = {
@@ -2254,7 +2315,8 @@
                 vorschussAnteil: calcData.vorschuss_anteil || 75,
                 einheitenProKategorie: calcData.einheiten_pro_kategorie || {},
                 provisionSettings: calcData.provision_settings || {},
-                faktor: calcData.faktor || 1.0
+                faktor: calcData.faktor || 1.0,
+                isVatLiable: calcData.is_vat_liable || inv.is_vat_liable || false
             };
 
             const calc = {
@@ -2265,7 +2327,11 @@
                 recruitingProvision: calcData.provisionen?.recruiting || 0,
                 netto: inv.netto_auszahlung || 0,
                 // Abzüge/Zubuchungen aus euro_ledger (Vorschuss-Quelle)
-                abzuegeVorschuss: calcData.abzuege_vorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 }
+                abzuegeVorschuss: calcData.abzuege_vorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 },
+                // USt-Info
+                isVatLiable: calcData.is_vat_liable || inv.is_vat_liable || false,
+                vatRate: calcData.vat_rate || inv.vat_rate || 0,
+                vatAmount: calcData.vat_amount || inv.vat_amount || 0
             };
 
             const zeitraum = {

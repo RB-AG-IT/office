@@ -12265,6 +12265,12 @@ async function erstelleAbrechnung(data) {
     const gesamtVorschuss = gesamtProvision * (data.vorschussAnteil / 100);
     const gesamtStornorucklage = gesamtProvision - gesamtVorschuss;
 
+    // USt-Berechnung
+    const isVatLiable = data.isVatLiable || false;
+    const vatRate = isVatLiable ? 19 : 0;
+    const vatAmount = isVatLiable ? data.netto * 0.19 : 0;
+    const totalPayout = data.netto + vatAmount;
+
     // Input für RPC-Funktion vorbereiten
     const rpcInput = {
         userId: data.userId,
@@ -12285,6 +12291,11 @@ async function erstelleAbrechnung(data) {
         gesamtStornorucklage: gesamtStornorucklage,
         provisionen: provisionen,
         scheduled_send_at: data.scheduled_send_at || null,
+        // USt-Felder
+        is_vat_liable: isVatLiable,
+        vat_rate: vatRate,
+        vat_amount: vatAmount,
+        total_payout: totalPayout,
         calculation_data: {
             name: data.name,
             email: data.email || '',
@@ -12300,7 +12311,11 @@ async function erstelleAbrechnung(data) {
             provisionen: provisionen,
             einheiten_pro_kategorie: data.einheitenProKategorie || {},
             provision_settings: data.provisionSettings || {},
-            abzuege_vorschuss: data.abzuegeVorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 }
+            abzuege_vorschuss: data.abzuegeVorschuss || { unterkunft: 0, sonderposten: 0, zubuchungUnterkunft: 0, zubuchungSonderposten: 0 },
+            // USt-Info
+            is_vat_liable: isVatLiable,
+            vat_rate: vatRate,
+            vat_amount: vatAmount
         }
     };
 
@@ -12391,10 +12406,10 @@ async function ladeWerberStatistiken(options = {}) {
     const { startDate, endDate } = options;
 
     try {
-        // 1. Alle Werber laden (inkl. created_at für Personalnummer)
+        // 1. Alle Werber laden (inkl. created_at für Personalnummer, is_vat_liable für USt)
         const { data: users, error: usersError } = await supabase
             .from('users')
-            .select('id, name, email, avatar_url, created_at')
+            .select('id, name, email, avatar_url, created_at, is_vat_liable')
             .eq('role', 'werber')
             .order('created_at', { ascending: true });
 
@@ -12820,6 +12835,10 @@ async function ladeWerberStatistiken(options = {}) {
                 // Letzte Abrechnung
                 letzteAbrechnung: lastInvoice?.invoice_number || '-',
                 letzteAbrechnungDatum: lastInvoice?.created_at,
+
+                // Umsatzsteuer-Pflicht
+                isVatLiable: user.is_vat_liable || false,
+
                 status: 'aktiv'
             };
         });
