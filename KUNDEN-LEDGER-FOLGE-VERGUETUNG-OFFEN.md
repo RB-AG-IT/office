@@ -24,6 +24,7 @@
 13. [Zeitliche Abläufe](#13-zeitliche-abläufe)
 14. [Datenbank-Schema](#14-datenbank-schema)
 15. [Implementierungsschritte](#15-implementierungsschritte)
+16. [Frontend: DRK Abrechnungsseite](#16-frontend-drk-abrechnungsseite)
 
 ---
 
@@ -1204,6 +1205,168 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 ---
 
+## 16. Frontend: DRK Abrechnungsseite
+
+### 16.1 Seitenstruktur (Tabs)
+
+| Tab | Inhalt | Badge |
+|-----|--------|-------|
+| **Kunden** | Übersicht aller Kunden mit offener Provision | Anzahl Kunden |
+| **Rechnungen** | Liste aller erstellten Rechnungen | Anzahl offen |
+| **Fällig** | Anstehende Abrechnungen (automatisch berechnet) | Anzahl fällig |
+
+### 16.2 Tab: Kunden (erweitern)
+
+Bestehende Tabelle bleibt, Zeilen-Dropdown erweitern:
+
+- Bearbeiten (→ Kundenprofil)
+- E-Mail senden
+- ---
+- Abrechnung erstellen
+- Rechnungen anzeigen (→ Tab Rechnungen gefiltert)
+
+### 16.3 Tab: Rechnungen (neu)
+
+**Filter:** Status | Typ | Kunde | Jahr
+
+**Spalten:** Rechnungsnr. | Kunde | Typ | Brutto | Status | Datum
+
+**Zeilen-Dropdown:**
+- Details anzeigen
+- PDF Download
+- E-Mail senden
+- ---
+- Zahlung erfassen
+- ---
+- Stornieren
+
+**Auswahl-Aktionen (Mehrfachselektion):**
+- E-Mail senden (Sammelversand)
+- PDF Download (ZIP)
+- Export
+
+### 16.4 Tab: Fällig (neu)
+
+**Spalten:** Kunde | Kampagne | Typ | Fällig seit | Betrag (ca.)
+
+**Logik:**
+- EA: X Wochen nach letztem Einsatztag
+- 1JA-4JA: 12 Monate nach vorheriger Abrechnung
+
+**Auswahl-Aktion:** Abrechnung erstellen
+
+### 16.5 Modal: Abrechnung erstellen
+
+**Schritt 1: Auswahl**
+- Kunde (Dropdown)
+- Kampagne (Dropdown)
+- Abrechnungstyp (ZA/EA/1JA...)
+- Zeitraum (von/bis)
+- Vertragsnummer (aus Kundenprofil)
+- Einsatzgebiete (Checkboxen, mit MG-Anzahl)
+
+**Schritt 2: Vorschau**
+
+Je nach Kundenprofil-Einstellung (Zusammen/Getrennt):
+
+**Zusammen:** Eine Rechnung mit allen Einsatzgebieten als Posten
+
+```
+SONDIERUNGSKONDITIONEN
+Pos │ Einsatzgebiet    │ MG  │ JE      │ %  │ Betrag
+A1  │ OV Musterstadt   │ 35  │ 4.200 € │ 80 │ 3.360 €
+A2  │ OV Neustadt      │ 20  │ 2.400 € │ 80 │ 1.920 €
+A3  │ OV Altstadt      │ 15  │ 1.800 € │ 80 │ 1.440 €
+...
+Summe Sondierung:                      │ 6.720 €
+
+REGULARKONDITIONEN
+Pos │ Einsatzgebiet    │ MG  │ JE      │ %  │ Betrag
+B1  │ OV Musterstadt   │ 12  │ 1.440 € │ 60 │   864 €
+B2  │ OV Neustadt      │  8  │   960 € │ 60 │   576 €
+...
+Summe Regular:                         │ 1.440 €
+
+Zwischensumme:                         │ 8.160 €
+Stornopuffer (10%):                    │  -816 €
+Netto:                                 │ 7.344 €
+USt (19%):                             │ 1.395 €
+BRUTTO:                                │ 8.739 €
+```
+
+**Getrennt:** Mehrere Rechnungen (eine pro Einsatzgebiet)
+
+**Buttons:** Zurück | Als Entwurf | Erstellen
+
+### 16.6 Modal: Rechnung Details
+
+**Kopfbereich:**
+- Status (mit Dropdown zum Ändern)
+- Kunde, Kampagne, Typ, Zeitraum, Vertrag
+
+**Positionen:**
+- Tabelle mit Einsatzgebieten + Sondierung/Regular
+- Summen (Zwischensumme, Stornopuffer, Netto, USt, Brutto)
+
+**Zahlungen:**
+- Liste der erfassten Zahlungen
+- Button "Zahlung erfassen"
+- Offener Betrag
+
+**Buttons:** PDF Download | E-Mail senden | Bearbeiten | Stornieren
+
+### 16.7 Modal: Zahlung erfassen
+
+- Rechnung (readonly)
+- Offener Betrag (readonly)
+- Betrag Brutto (Input + Button "Vollständig")
+- Datum
+- Notiz (optional)
+- Vorschau: Netto/USt/Brutto Aufschlüsselung
+
+### 16.8 Status-Workflow
+
+```
+entwurf → offen → geplant → bezahlt
+                     ↓
+                 storniert
+```
+
+| Status | Bedeutung |
+|--------|-----------|
+| entwurf | In Bearbeitung, bearbeitbar |
+| offen | Freigegeben, Rechnungsnummer vergeben |
+| geplant | Versand geplant/erfolgt |
+| bezahlt | Vollständig bezahlt |
+| storniert | Rechnung storniert |
+
+### 16.9 Kundenprofil-Einstellung
+
+Im Tab "Einstellungen" des Kundenprofils:
+
+```
+Rechnungsstellung:
+○ Zusammen - Alle Werbegebiete auf einer Rechnung
+● Getrennt - Pro Werbegebiet eine separate Rechnung
+```
+
+### 16.10 Toolbar (Shell)
+
+| Position | Elemente |
+|----------|----------|
+| Links | Filter: Kunde, Kampagne, Jahr |
+| Mitte | Suchfeld |
+| Rechts | Export, + Neue Abrechnung |
+
+### 16.11 Kundenprofil: Rechnungshistorie
+
+Im Kundenprofil wird der Abschnitt "Rechnungen" als **read-only Liste** angezeigt:
+- Zeigt alle Rechnungen des Kunden
+- Link zur DRK Abrechnungsseite für Details/Bearbeitung
+- Keine Erstellung möglich (nur über DRK Abrechnungsseite)
+
+---
+
 ## Anhang: Beispiel-Workflow
 
 ### Szenario
@@ -1262,9 +1425,10 @@ VJ4 + VJ5: Keine Vergütung (0% Sätze)
 | 1.2 | 20.01.2026 | Ergänzt: Rechnungsnummern-Format, PDF-Layout, Rechnungsstatus, Zahlungstracking, Rechnungsversand |
 | 1.3 | 20.01.2026 | Ergänzt: Datenbank-Schema (invoice_payments, campaign_zubuchungen, customers/invoices Erweiterung), Sonderfälle 11.4-11.7 (Storno EA-VJ2, negative Beträge, 0€-Rechnung, manuelles Stornieren), Kunden-ID Generierung, Vertragsnummer, Stornopuffer individuell einstellbar, Schatzmeister Label |
 | 1.4 | 20.01.2026 | Ergänzt: Sonderfälle 11.8-11.10 (Storno vor 1. Abrechnung, mehrfache Erhöhungen, Beitragssenkung), Qualitätsbonus Grenzfall-Klarstellung |
+| 1.5 | 20.01.2026 | Ergänzt: Abschnitt 16 Frontend DRK Abrechnungsseite (Tabs, Modals, Rechnungserstellung, Zahlungserfassung, Status-Workflow, Kundenprofil-Einstellung Zusammen/Getrennt) |
 
 ---
 
 *Erstellt: 20.01.2026*
 *Aktualisiert: 20.01.2026*
-*Version: 1.4*
+*Version: 1.5*
