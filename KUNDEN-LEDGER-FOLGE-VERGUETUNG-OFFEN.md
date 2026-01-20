@@ -972,19 +972,19 @@ CREATE TABLE qualitaetsbonus_berechnungen (
 ```sql
 CREATE TABLE absicherungsfristen (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    zahlungsart TEXT NOT NULL UNIQUE CHECK (zahlungsart IN ('monthly', 'quarterly', 'biannual', 'annual')),
+    zahlungsart TEXT NOT NULL UNIQUE CHECK (zahlungsart IN ('Monatlich', 'Vierteljährlich', 'Halbjährlich', 'Jährlich')),
     monate_vj_1_2 INTEGER NOT NULL,
     monate_vj_3 INTEGER NOT NULL,
     monate_vj_4 INTEGER NOT NULL,
     monate_vj_5 INTEGER NOT NULL
 );
 
--- Feste Daten einfügen
+-- Feste Daten einfügen (deutsche Werte passend zu records.interval)
 INSERT INTO absicherungsfristen (zahlungsart, monate_vj_1_2, monate_vj_3, monate_vj_4, monate_vj_5) VALUES
-('monthly', 13, 25, 37, 49),
-('quarterly', 27, 39, 51, 63),
-('biannual', 30, 42, 54, 66),
-('annual', 24, 36, 48, 60);
+('Monatlich', 13, 25, 37, 49),
+('Vierteljährlich', 27, 39, 51, 63),
+('Halbjährlich', 30, 42, 54, 66),
+('Jährlich', 24, 36, 48, 60);
 ```
 
 ### 14.4 Erweiterung: `campaign_areas`
