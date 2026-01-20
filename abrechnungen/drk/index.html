@@ -412,61 +412,190 @@
 
     <!-- Seiten-spezifische Daten und Initialisierung -->
     <script>
-        // ========== TEST DATA ==========
-        const testRecordsData = [
-            { id: 1, name: 'DRK KV Frankfurt', kundenId: 'DRK-001', rechnungsnummer: 'RE-2025-0001', auftragsnummer: 'A-2025-001', offeneProv1Jahr: '1.250,00 €', stornopufferProzent: '10%', stornopufferSumme: '125,00 €', offeneProv2Jahr: '800,00 €', offeneProv3Jahr: '600,00 €', offeneProv4Jahr: '400,00 €', offeneProv5Jahr: '200,00 €', provisionGesamt: '3.250,00 €', mitglieder: 125, jahreseuros: '15.000,00 €' },
-            { id: 2, name: 'DRK KV Darmstadt', kundenId: 'DRK-002', rechnungsnummer: 'RE-2025-0002', auftragsnummer: 'A-2025-002', offeneProv1Jahr: '980,00 €', stornopufferProzent: '10%', stornopufferSumme: '98,00 €', offeneProv2Jahr: '650,00 €', offeneProv3Jahr: '450,00 €', offeneProv4Jahr: '300,00 €', offeneProv5Jahr: '150,00 €', provisionGesamt: '2.530,00 €', mitglieder: 98, jahreseuros: '11.760,00 €' },
-            { id: 3, name: 'DRK KV Wiesbaden', kundenId: 'DRK-003', rechnungsnummer: 'RE-2025-0003', auftragsnummer: 'A-2025-003', offeneProv1Jahr: '1.540,00 €', stornopufferProzent: '12%', stornopufferSumme: '184,80 €', offeneProv2Jahr: '920,00 €', offeneProv3Jahr: '720,00 €', offeneProv4Jahr: '480,00 €', offeneProv5Jahr: '240,00 €', provisionGesamt: '3.900,00 €', mitglieder: 154, jahreseuros: '18.480,00 €' },
-            { id: 4, name: 'DRK KV Offenbach', kundenId: 'DRK-004', rechnungsnummer: 'RE-2025-0004', auftragsnummer: 'A-2025-004', offeneProv1Jahr: '720,00 €', stornopufferProzent: '10%', stornopufferSumme: '72,00 €', offeneProv2Jahr: '480,00 €', offeneProv3Jahr: '360,00 €', offeneProv4Jahr: '240,00 €', offeneProv5Jahr: '120,00 €', provisionGesamt: '1.920,00 €', mitglieder: 72, jahreseuros: '8.640,00 €' },
-            { id: 5, name: 'DRK KV Kassel', kundenId: 'DRK-005', rechnungsnummer: 'RE-2025-0005', auftragsnummer: 'A-2025-005', offeneProv1Jahr: '1.890,00 €', stornopufferProzent: '15%', stornopufferSumme: '283,50 €', offeneProv2Jahr: '1.100,00 €', offeneProv3Jahr: '850,00 €', offeneProv4Jahr: '600,00 €', offeneProv5Jahr: '350,00 €', provisionGesamt: '4.790,00 €', mitglieder: 189, jahreseuros: '22.680,00 €' },
-            { id: 6, name: 'DRK KV Gießen', kundenId: 'DRK-006', rechnungsnummer: 'RE-2025-0006', auftragsnummer: 'A-2025-006', offeneProv1Jahr: '560,00 €', stornopufferProzent: '10%', stornopufferSumme: '56,00 €', offeneProv2Jahr: '380,00 €', offeneProv3Jahr: '280,00 €', offeneProv4Jahr: '180,00 €', offeneProv5Jahr: '90,00 €', provisionGesamt: '1.490,00 €', mitglieder: 56, jahreseuros: '6.720,00 €' },
-            { id: 7, name: 'DRK KV Fulda', kundenId: 'DRK-007', rechnungsnummer: 'RE-2025-0007', auftragsnummer: 'A-2025-007', offeneProv1Jahr: '830,00 €', stornopufferProzent: '10%', stornopufferSumme: '83,00 €', offeneProv2Jahr: '550,00 €', offeneProv3Jahr: '420,00 €', offeneProv4Jahr: '280,00 €', offeneProv5Jahr: '140,00 €', provisionGesamt: '2.220,00 €', mitglieder: 83, jahreseuros: '9.960,00 €' },
-            { id: 8, name: 'DRK KV Marburg', kundenId: 'DRK-008', rechnungsnummer: 'RE-2025-0008', auftragsnummer: 'A-2025-008', offeneProv1Jahr: '1.120,00 €', stornopufferProzent: '12%', stornopufferSumme: '134,40 €', offeneProv2Jahr: '740,00 €', offeneProv3Jahr: '560,00 €', offeneProv4Jahr: '380,00 €', offeneProv5Jahr: '190,00 €', provisionGesamt: '2.990,00 €', mitglieder: 112, jahreseuros: '13.440,00 €' },
-        ];
+        // ========== DATEN (werden aus DB geladen) ==========
+        let drkKundenData = [];
+        let drkRechnungenData = [];
+        let drkFaelligData = [];
 
-        // Test-Daten für Rechnungen
-        const testRechnungenData = [
-            { id: 'r1', rechnungsnummer: '26-OV-001-ZA-00001', kunde: 'DRK KV Frankfurt', typ: 'ZA', brutto: '5.708,00 €', status: 'bezahlt', datum: '15.01.2026' },
-            { id: 'r2', rechnungsnummer: '26-OV-002-ZA-00002', kunde: 'DRK KV Darmstadt', typ: 'ZA', brutto: '3.245,00 €', status: 'offen', datum: '18.01.2026' },
-            { id: 'r3', rechnungsnummer: '26-KV-003-EA-00003', kunde: 'DRK KV Wiesbaden', typ: 'EA', brutto: '8.920,00 €', status: 'geplant', datum: '20.01.2026' },
-            { id: 'r4', rechnungsnummer: '26-OV-004-1JA-00004', kunde: 'DRK KV Offenbach', typ: '1JA', brutto: '4.560,00 €', status: 'entwurf', datum: '20.01.2026' },
-        ];
+        const testBestandData = []; // Nicht verwendet für DRK
+        const testHistoryData = {}; // Nicht verwendet für DRK
 
-        // Test-Daten für Fällige Abrechnungen
-        const testFaelligData = [
-            { id: 'f1', kunde: 'DRK KV Kassel', kampagne: 'Frühjahr 2025', typ: 'EA', faelligSeit: '10.01.2026', betragCa: '6.200,00 €' },
-            { id: 'f2', kunde: 'DRK KV Gießen', kampagne: 'Herbst 2024', typ: '1JA', faelligSeit: '05.01.2026', betragCa: '3.800,00 €' },
-            { id: 'f3', kunde: 'DRK KV Fulda', kampagne: 'Sommer 2024', typ: '2JA', faelligSeit: '01.01.2026', betragCa: '2.100,00 €' },
-        ];
-
-        const testHistoryData = {
-            1: [
-                { type: 'neumitglied', date: '10.12.2025', title: 'Mitglied geworden', detail: 'Beitrag: 10,00 € monatlich' },
-            ],
-            101: [
-                { type: 'neumitglied', date: '15.03.2023', title: 'Mitglied geworden', detail: 'Beitrag: 3,00 € monatlich' },
-                { type: 'erhoehung', date: '10.12.2025', title: 'Beitrag erhöht', detail: 'Von 3,00 € auf 10,00 € monatlich' },
-            ],
-            201: [
-                { type: 'neumitglied', date: '15.03.2019', title: 'Mitglied geworden', detail: 'Beitrag: 5,00 € monatlich' },
-                { type: 'erhoehung', date: '01.01.2021', title: 'Beitrag erhöht', detail: 'Von 5,00 € auf 8,00 € monatlich' },
-                { type: 'aenderung', date: '15.06.2022', title: 'Adresse geändert', detail: 'Neue Adresse: Musterstr. 12' },
-                { type: 'erhoehung', date: '01.01.2024', title: 'Beitrag erhöht', detail: 'Von 8,00 € auf 10,00 € monatlich' },
-            ],
-            4: [
-                { type: 'neumitglied', date: '07.12.2025', title: 'Mitglied geworden', detail: 'Beitrag: 10,00 € monatlich' },
-                { type: 'storno', date: '09.12.2025', title: 'Storniert', detail: 'Grund: Widerruf' },
-            ],
-        };
-
-        // Kontext-Daten (würde normalerweise von URL-Parameter oder API kommen)
+        // Kontext-Daten
         const contextData = {
-            type: 'kunde',  // 'werber', 'kunde', 'werbegebiet', 'kampagne'
-            name: 'DRK KV Ludwigshafen'
+            type: 'kunde',
+            name: 'DRK Abrechnungen'
         };
+
+        // ========== DB LADE-FUNKTIONEN ==========
+
+        // Tab "Kunden": Lädt Kunden mit aggregierten Entitlements
+        async function loadDrkKundenFromDB() {
+            try {
+                // 1. Kunden laden
+                const kundenRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/customers?select=id,full_name,name,kd_id&order=full_name`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const kunden = await kundenRes.json();
+                if (!Array.isArray(kunden)) throw new Error('Keine Kunden gefunden');
+
+                // 2. Entitlements laden (status = faellig oder ausstehend)
+                const entRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/record_entitlements?select=customer_id,verguetungsjahr,jahreseuros,status&status=in.(faellig,ausstehend)`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const entitlements = await entRes.json();
+
+                // 3. Records zählen pro Kunde (aktiv)
+                const recRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/records?select=customer_id,yearly_amount&record_status=eq.aktiv&deleted_at=is.null`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const records = await recRes.json();
+
+                // 4. Aggregieren
+                const kundenMap = {};
+                kunden.forEach(k => {
+                    kundenMap[k.id] = {
+                        id: k.id,
+                        name: k.full_name || k.name,
+                        kundenId: k.kd_id || '-',
+                        vj1: 0, vj2: 0, vj3: 0, vj4: 0, vj5: 0,
+                        mitglieder: 0,
+                        jahreseuros: 0
+                    };
+                });
+
+                // Entitlements aggregieren
+                if (Array.isArray(entitlements)) {
+                    entitlements.forEach(e => {
+                        if (kundenMap[e.customer_id]) {
+                            const vj = `vj${e.verguetungsjahr}`;
+                            kundenMap[e.customer_id][vj] += parseFloat(e.jahreseuros) || 0;
+                        }
+                    });
+                }
+
+                // Records aggregieren
+                if (Array.isArray(records)) {
+                    records.forEach(r => {
+                        if (kundenMap[r.customer_id]) {
+                            kundenMap[r.customer_id].mitglieder++;
+                            kundenMap[r.customer_id].jahreseuros += parseFloat(r.yearly_amount) || 0;
+                        }
+                    });
+                }
+
+                // Format für Tabelle
+                const formatEuro = (v) => v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+                drkKundenData = Object.values(kundenMap)
+                    .filter(k => k.mitglieder > 0 || k.vj1 > 0 || k.vj2 > 0)
+                    .map(k => ({
+                        id: k.id,
+                        name: k.name,
+                        kundenId: k.kundenId,
+                        rechnungsnummer: '-',
+                        auftragsnummer: '-',
+                        offeneProv1Jahr: formatEuro(k.vj1),
+                        stornopufferProzent: '10%',
+                        stornopufferSumme: formatEuro(k.vj1 * 0.1),
+                        offeneProv2Jahr: formatEuro(k.vj2),
+                        offeneProv3Jahr: formatEuro(k.vj3),
+                        offeneProv4Jahr: formatEuro(k.vj4),
+                        offeneProv5Jahr: formatEuro(k.vj5),
+                        provisionGesamt: formatEuro(k.vj1 + k.vj2 + k.vj3 + k.vj4 + k.vj5),
+                        mitglieder: k.mitglieder,
+                        jahreseuros: formatEuro(k.jahreseuros)
+                    }));
+
+            } catch (err) {
+                console.error('Fehler beim Laden der DRK-Kunden:', err);
+                drkKundenData = [];
+            }
+        }
+
+        // Tab "Rechnungen": Lädt DRK-Rechnungen (wo customer_id gesetzt ist)
+        async function loadDrkRechnungenFromDB() {
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/invoices?select=id,invoice_number,customer_id,customers(full_name,name),abrechnungstyp,total_payout,status,created_at&customer_id=not.is.null&order=created_at.desc`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const rechnungen = await res.json();
+
+                const formatEuro = (v) => (parseFloat(v) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+                const formatDate = (d) => d ? new Date(d).toLocaleDateString('de-DE') : '-';
+
+                drkRechnungenData = Array.isArray(rechnungen) ? rechnungen.map(r => ({
+                    id: r.id,
+                    rechnungsnummer: r.invoice_number || '-',
+                    kunde: r.customers?.full_name || r.customers?.name || '-',
+                    typ: r.abrechnungstyp || '-',
+                    brutto: formatEuro(r.total_payout),
+                    status: r.status || 'entwurf',
+                    datum: formatDate(r.created_at)
+                })) : [];
+
+            } catch (err) {
+                console.error('Fehler beim Laden der DRK-Rechnungen:', err);
+                drkRechnungenData = [];
+            }
+        }
+
+        // Tab "Fällig": Lädt fällige Entitlements
+        async function loadDrkFaelligFromDB() {
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/record_entitlements?select=id,customer_id,customers(full_name,name),campaign_id,campaigns(name,year),verguetungsjahr,jahreseuros,faellig_ab&status=eq.faellig&order=faellig_ab`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const faellig = await res.json();
+
+                const formatEuro = (v) => (parseFloat(v) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+                const formatDate = (d) => d ? new Date(d).toLocaleDateString('de-DE') : '-';
+                const vjToTyp = { 1: 'EA', 2: '1JA', 3: '2JA', 4: '3JA', 5: '4JA' };
+
+                // Gruppieren nach Kunde + Kampagne + VJ
+                const grouped = {};
+                if (Array.isArray(faellig)) {
+                    faellig.forEach(f => {
+                        const key = `${f.customer_id}-${f.campaign_id}-${f.verguetungsjahr}`;
+                        if (!grouped[key]) {
+                            grouped[key] = {
+                                id: key,
+                                kunde: f.customers?.full_name || f.customers?.name || '-',
+                                kampagne: f.campaigns?.name ? `${f.campaigns.name}${f.campaigns.year ? ' (' + f.campaigns.year + ')' : ''}` : '-',
+                                typ: vjToTyp[f.verguetungsjahr] || 'ZA',
+                                faelligSeit: f.faellig_ab,
+                                betragCa: 0,
+                                count: 0
+                            };
+                        }
+                        grouped[key].betragCa += parseFloat(f.jahreseuros) || 0;
+                        grouped[key].count++;
+                        if (f.faellig_ab && (!grouped[key].faelligSeit || f.faellig_ab < grouped[key].faelligSeit)) {
+                            grouped[key].faelligSeit = f.faellig_ab;
+                        }
+                    });
+                }
+
+                drkFaelligData = Object.values(grouped).map(g => ({
+                    id: g.id,
+                    kunde: g.kunde,
+                    kampagne: g.kampagne,
+                    typ: g.typ,
+                    faelligSeit: formatDate(g.faelligSeit),
+                    betragCa: formatEuro(g.betragCa)
+                }));
+
+            } catch (err) {
+                console.error('Fehler beim Laden der fälligen Abrechnungen:', err);
+                drkFaelligData = [];
+            }
+        }
 
         // ========== INIT ==========
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Tabs initialisieren
             initTabs('.kw-tab', '.kw-tab-content');
 
@@ -476,18 +605,25 @@
             // Abrechnungs-eigene Render-Funktion (überschreibt die aus main.js)
             window.renderRecordsTable = renderAbrechnungenTable;
 
-            // Datensätze-System initialisieren mit Test-Daten
+            // Daten aus DB laden (parallel)
+            await Promise.all([
+                loadDrkKundenFromDB(),
+                loadDrkRechnungenFromDB(),
+                loadDrkFaelligFromDB()
+            ]);
+
+            // Datensätze-System initialisieren mit echten Daten
             initDatensaetze({
-                recordsData: testRecordsData,
+                recordsData: drkKundenData,
                 bestandData: testBestandData,
                 historyData: testHistoryData,
                 contextData: contextData
             });
 
             // Tab-Badges aktualisieren
-            document.getElementById('recordsBadge').textContent = testRecordsData.length;
-            document.getElementById('rechnungenBadge').textContent = testRechnungenData.filter(r => r.status === 'offen').length;
-            document.getElementById('faelligBadge').textContent = testFaelligData.length;
+            document.getElementById('recordsBadge').textContent = drkKundenData.length;
+            document.getElementById('rechnungenBadge').textContent = drkRechnungenData.filter(r => r.status === 'offen').length;
+            document.getElementById('faelligBadge').textContent = drkFaelligData.length;
 
             // Neue Tabs rendern
             renderRechnungenTable();
@@ -773,7 +909,7 @@
             const statusFilter = document.getElementById('filterRechnungStatus')?.value || 'all';
             const typFilter = document.getElementById('filterRechnungTyp')?.value || 'all';
 
-            let filtered = testRechnungenData;
+            let filtered = drkRechnungenData;
             if (statusFilter !== 'all') filtered = filtered.filter(r => r.status === statusFilter);
             if (typFilter !== 'all') filtered = filtered.filter(r => r.typ === typFilter);
 
@@ -917,7 +1053,7 @@
             </tr>`;
 
             // Body
-            tbody.innerHTML = testFaelligData.map(f => `<tr data-id="${f.id}">
+            tbody.innerHTML = drkFaelligData.map(f => `<tr data-id="${f.id}">
                 <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onchange="updateFaelligSelection()"></td>
                 <td class="col-name text-left">${f.kunde}</td>
                 <td class="col-m text-left">${f.kampagne}</td>
