@@ -1283,9 +1283,9 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 - [x] **8.3.3** Getrennt: Mehrere Rechnungen generieren (20.01.2026)
 
 #### 8.4 Speichern
-- [x] **8.4.1** Button "Als Entwurf": Status = entwurf (Placeholder) (20.01.2026)
-- [x] **8.4.2** Button "Erstellen": Status = offen (Placeholder) (20.01.2026)
-- [ ] **8.4.3** RPC: `create_drk_invoice()` Funktion
+- [x] **8.4.1** Button "Als Entwurf": Status = entwurf (20.01.2026)
+- [x] **8.4.2** Button "Erstellen": Status = offen (20.01.2026)
+- [x] **8.4.3** RPC: `create_drk_invoice()` Funktion (20.01.2026)
 
 ---
 

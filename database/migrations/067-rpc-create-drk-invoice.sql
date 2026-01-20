@@ -98,7 +98,7 @@ BEGIN
                     status = 'abgerechnet',
                     abgerechnet_am = NOW()::DATE,
                     ist_sondierung = true,
-                    basis_satz = (v_record->>'provisionsSatz')::INTEGER
+                    basis_satz = (v_record->>'satz')::INTEGER
                 WHERE customer_id = v_kunde_id
                   AND campaign_area_id = (v_record->>'gebietId')::UUID
                   AND verguetungsjahr = CASE
@@ -168,7 +168,7 @@ BEGIN
                     status = 'abgerechnet',
                     abgerechnet_am = NOW()::DATE,
                     ist_sondierung = false,
-                    basis_satz = (v_record->>'provisionsSatz')::INTEGER
+                    basis_satz = (v_record->>'satz')::INTEGER
                 WHERE customer_id = v_kunde_id
                   AND campaign_area_id = (v_record->>'gebietId')::UUID
                   AND verguetungsjahr = CASE
@@ -183,7 +183,7 @@ BEGIN
             END LOOP;
         END IF;
 
-    -- Fall 2: Getrennt - Eine Rechnung pro Einsatzgebiet
+    -- Fall 2: Getrennt - Eine Rechnung pro Einsatzgebiet (enthält Sondierung + Regular)
     ELSE
         FOR v_rechnung IN SELECT * FROM jsonb_array_elements(input_data->'rechnungen')
         LOOP
@@ -207,13 +207,13 @@ BEGIN
             ) VALUES (
                 v_kunde_id,
                 v_kampagne_id,
-                (v_rechnung->>'gebietId')::UUID,
+                (v_rechnung->'gebiet'->>'id')::UUID,
                 v_status,
                 v_typ,
                 v_empfaenger_typ,
                 v_kunden_nr,
                 v_vertrag,
-                (v_rechnung->>'istSondierung')::BOOLEAN,
+                NULL,  -- Bei getrennt: NULL (enthält beides)
                 v_zeitraum_von,
                 v_zeitraum_bis,
                 (v_rechnung->>'netto')::NUMERIC,
@@ -221,18 +221,20 @@ BEGIN
                 (v_rechnung->>'ust')::NUMERIC,
                 (v_rechnung->>'brutto')::NUMERIC,
                 jsonb_build_object(
-                    'gebiet', v_rechnung->>'gebietName',
-                    'mg', v_rechnung->'mg',
-                    'jahreseuros', v_rechnung->'jahreseuros',
-                    'satz', v_rechnung->'satz',
+                    'gebiet', v_rechnung->'gebiet'->>'name',
+                    'mgSond', v_rechnung->'mgSond',
+                    'mgReg', v_rechnung->'mgReg',
+                    'mgTotal', v_rechnung->'mgTotal',
+                    'sondBetrag', v_rechnung->'sondBetrag',
+                    'regBetrag', v_rechnung->'regBetrag',
+                    'zwischensumme', v_rechnung->'zwischensumme',
                     'stornopuffer', v_rechnung->'stornopuffer'
                 )
             ) RETURNING id INTO v_new_invoice_id;
 
             v_created_invoices := v_created_invoices || jsonb_build_object(
                 'id', v_new_invoice_id,
-                'gebiet', v_rechnung->>'gebietName',
-                'istSondierung', v_rechnung->>'istSondierung'
+                'gebiet', v_rechnung->'gebiet'->>'name'
             );
 
             -- Entitlements für dieses Gebiet aktualisieren
@@ -240,11 +242,9 @@ BEGIN
             SET
                 invoice_id = v_new_invoice_id,
                 status = 'abgerechnet',
-                abgerechnet_am = NOW()::DATE,
-                ist_sondierung = (v_rechnung->>'istSondierung')::BOOLEAN,
-                basis_satz = (v_rechnung->>'satz')::INTEGER
+                abgerechnet_am = NOW()::DATE
             WHERE customer_id = v_kunde_id
-              AND campaign_area_id = (v_rechnung->>'gebietId')::UUID
+              AND campaign_area_id = (v_rechnung->'gebiet'->>'id')::UUID
               AND verguetungsjahr = CASE
                   WHEN v_typ IN ('ZA', 'EA') THEN 1
                   WHEN v_typ = '1JA' THEN 2
