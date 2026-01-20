@@ -431,6 +431,13 @@ Rechnung: 1.000€ Brutto
 
 Die ersten X Mitglieder eines Einsatzgebiets werden zu besseren Konditionen (Sondierung) abgerechnet, danach zu Regular-Konditionen.
 
+### Sondierung aktivieren/deaktivieren
+
+Sondierung kann pro Werbegebiet komplett **deaktiviert** werden:
+- Im **Kampagnen-Modal** → Tab "Provision" → Toggle "Sondierungskonditionen aktiv"
+- Bei deaktivierter Sondierung werden **alle MG als Regular** abgerechnet
+- Das Sondierungslimit wird auf 0 gesetzt
+
 ### Wichtig: Bestimmung bei Abrechnung
 
 Die Zuordnung Sondierung/Regular wird **NICHT** bei Record-Erstellung festgelegt, sondern **bei der Abrechnung**!
@@ -438,14 +445,17 @@ Die Zuordnung Sondierung/Regular wird **NICHT** bei Record-Erstellung festgelegt
 ### Logik bei Abrechnung
 
 ```
-1. Alle MG für Abrechnungszeitraum sammeln
-2. Nach Jahresbeitrag sortieren (aufsteigend = kleinste zuerst)
-3. Sondierungslimit prüfen (z.B. erste 100 MG oder X% der Einwohner)
-4. Aufteilung:
+1. Prüfen: Ist Sondierung aktiv? (provision_sondierung.aktiv)
+   - Wenn NEIN: Alle MG → Regular-Liste, Sondierungslimit = 0
+   - Wenn JA: Weiter mit Schritt 2
+2. Alle MG für Abrechnungszeitraum sammeln
+3. Nach Jahresbeitrag sortieren (aufsteigend = kleinste zuerst)
+4. Sondierungslimit prüfen (z.B. erste 100 MG oder X% der Einwohner)
+5. Aufteilung:
    - MG mit kleinstem Beitrag → Sondierungsliste
    - Restliche MG → Regular-Liste
-5. Beide Listen nach Familienname sortieren
-6. Zwei separate Abrechnungen erstellen
+6. Beide Listen nach Familienname sortieren
+7. Zwei separate Abrechnungen erstellen
 ```
 
 ### Warum kleinste Beiträge zu Sondierung?
@@ -459,10 +469,13 @@ Bei Sondierung gibt es höhere Prozentsätze. Kleine Beiträge zu Sondierung bed
 In `campaign_areas.provision_sondierung`:
 ```json
 {
+  "aktiv": true,        // true = Sondierung aktiv, false = deaktiviert
   "limit": 100,
-  "limitType": "mg"  // oder "prozent" (der Einwohner)
+  "limitType": "mg"     // oder "prozent" (der Einwohner)
 }
 ```
+
+**Hinweis:** Bei `aktiv: false` werden die Sondierungssätze (j1-j5) ignoriert und alle MG mit Regular-Sätzen abgerechnet.
 
 ---
 
@@ -1665,9 +1678,10 @@ VJ4 + VJ5: Keine Vergütung (0% Sätze)
 | 1.4 | 20.01.2026 | Ergänzt: Sonderfälle 11.8-11.10 (Storno vor 1. Abrechnung, mehrfache Erhöhungen, Beitragssenkung), Qualitätsbonus Grenzfall-Klarstellung |
 | 1.5 | 20.01.2026 | Ergänzt: Abschnitt 16 Frontend DRK Abrechnungsseite (Tabs, Modals, Rechnungserstellung, Zahlungserfassung, Status-Workflow, Kundenprofil-Einstellung Zusammen/Getrennt) |
 | 1.6 | 20.01.2026 | Ergänzt: Löschen von Entwürfen (Abschnitt 11.7 + 16.3) |
+| 1.7 | 20.01.2026 | Ergänzt: Sondierung aktiv/inaktiv Toggle (Abschnitt 6) |
 
 ---
 
 *Erstellt: 20.01.2026*
 *Aktualisiert: 20.01.2026*
-*Version: 1.5*
+*Version: 1.7*
