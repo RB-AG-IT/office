@@ -1217,7 +1217,7 @@
         function openRechnungDetails(id) { openRechnungDetailModal(id); }
         function downloadRechnungPdf(id) { openRechnungDetailModal(id); /* TODO: direkt PDF in Phase 12 */ }
         function sendRechnungEmail(id) { openRechnungDetailModal(id); /* TODO: direkt Email in Phase 13 */ }
-        function erfasseZahlung(id) { openRechnungDetailModal(id); /* TODO: direkt Zahlung in Phase 10 */ }
+        async function erfasseZahlung(id) { await openZahlungModalDirekt(id); }
         async function storniereRechnung(id) {
             if (!confirm('Rechnung wirklich stornieren?')) return;
             try {
@@ -2276,6 +2276,57 @@
         // ========== ZAHLUNG MODAL ==========
         let currentZahlungRechnung = null; // Speichert aktuelle Rechnungsdaten für Zahlung
 
+        // Direkt aus Dropdown aufrufen (lädt Daten selbst)
+        async function openZahlungModalDirekt(rechnungId) {
+            try {
+                // Rechnung aus DB laden
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/invoices?select=*,customers(name)&id=eq.${rechnungId}`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const data = await res.json();
+                if (!data || data.length === 0) return;
+                const rechnung = data[0];
+
+                // Zahlungen laden um offenen Betrag zu berechnen
+                const zahlRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/invoice_payments?select=betrag_brutto&invoice_id=eq.${rechnungId}`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const zahlungen = await zahlRes.json();
+                const bezahlt = (zahlungen || []).reduce((sum, z) => sum + (parseFloat(z.betrag_brutto) || 0), 0);
+
+                const brutto = parseFloat(rechnung.total_payout) || 0;
+                const offen = brutto - bezahlt;
+
+                currentZahlungRechnung = {
+                    id: rechnungId,
+                    rechnungsnummer: rechnung.invoice_number || '-',
+                    brutto: brutto,
+                    offen: offen,
+                    bezahlt: bezahlt
+                };
+
+                // Modal befüllen
+                document.getElementById('zahlungRechnungsnr').textContent = currentZahlungRechnung.rechnungsnummer;
+                document.getElementById('zahlungRechnungsbetrag').textContent = formatCurrency(currentZahlungRechnung.brutto);
+                document.getElementById('zahlungBereitsBezahlt').textContent = formatCurrency(currentZahlungRechnung.bezahlt);
+                document.getElementById('zahlungOffen').textContent = formatCurrency(currentZahlungRechnung.offen);
+
+                // Inputs zurücksetzen
+                document.getElementById('zahlungBetrag').value = '';
+                document.getElementById('zahlungDatum').value = new Date().toISOString().split('T')[0];
+                document.getElementById('zahlungNotiz').value = '';
+                updateZahlungVorschau();
+
+                document.getElementById('zahlungModal').classList.add('active');
+            } catch (err) {
+                console.error('Fehler beim Laden der Rechnung:', err);
+                alert('Fehler: ' + err.message);
+            }
+        }
+
+        // Aus Detail-Modal aufrufen (nutzt bereits geladene Daten)
         function openZahlungModal() {
             if (!currentRechnungId) return;
 
@@ -2398,10 +2449,14 @@
 
                 closeZahlungModal();
 
-                // Daten neu laden und Detail-Modal aktualisieren
+                // Daten neu laden
                 await loadDrkRechnungenFromDB();
                 renderRechnungenTable();
-                await loadRechnungDetails(currentRechnungId);
+
+                // Detail-Modal aktualisieren (falls offen)
+                if (currentRechnungId) {
+                    await loadRechnungDetails(currentRechnungId);
+                }
 
             } catch (err) {
                 console.error('Fehler beim Speichern der Zahlung:', err);
