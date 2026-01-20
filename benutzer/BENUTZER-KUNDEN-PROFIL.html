@@ -253,7 +253,7 @@
                                 <span class="icon icon--plus document-upload-icon"></span>
                                 <span class="document-upload-text">Rahmenvertrag hochladen</span>
                             </div>
-                            <input type="file" id="rahmenvertragInput" accept=".pdf" hidden multiple>
+                            <input type="file" id="rahmenvertragInput" accept=".pdf" hidden>
                             <div class="document-file-list" id="rahmenvertragList"></div>
                         </div>
                     </div>
@@ -381,10 +381,10 @@
             stateId: 'customerBundesland'
         });
 
-        // Document Uploads
-        initDocumentUpload('avvInput', 'avvBox', 'avvList');
-        initDocumentUpload('rahmenvertragInput', 'rahmenvertragBox', 'rahmenvertragList');
-        initDocumentUpload('sondervertragInput', 'sondervertragBox', 'sondervertragList');
+        // Document Uploads mit Vertragsnummer-Unterstützung
+        initCustomerContractUpload('rahmenvertragInput', 'rahmenvertragBox', 'rahmenvertragList', 'rahmenvertrag');
+        initCustomerContractUpload('avvInput', 'avvBox', 'avvList', 'avv');
+        initCustomerContractUpload('sondervertragInput', 'sondervertragBox', 'sondervertragList', 'sondervertrag');
 
         // Rechnungen werden in loadCustomer() geladen
 
@@ -673,6 +673,157 @@
         let areaContactPersons = [];
 
         // ================================================================
+        // KUNDENVERTRÄGE UPLOAD
+        // ================================================================
+
+        // Speicher für hochgeladene Verträge pro Typ
+        const customerContractFiles = {
+            rahmenvertrag: [],
+            avv: [],
+            sondervertrag: []
+        };
+
+        function initCustomerContractUpload(inputId, boxId, listId, contractType) {
+            const input = document.getElementById(inputId);
+            const box = document.getElementById(boxId);
+            const list = document.getElementById(listId);
+
+            if (!input || !box || !list) return;
+
+            const files = customerContractFiles[contractType];
+
+            function renderFileList() {
+                if (files.length === 0) {
+                    list.innerHTML = '';
+                    return;
+                }
+
+                list.innerHTML = files.map((file, index) => `
+                    <div class="document-file-row" style="flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 200px;">
+                            <svg class="document-file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span class="document-file-name" title="${file.name}" style="flex: 1; min-width: 0;">${file.name}</span>
+                        </div>
+                        ${contractType === 'rahmenvertrag' ? `
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="text" class="eingabefeld" placeholder="Vertragsnummer"
+                                   value="${file.vertragsnummer || ''}"
+                                   data-index="${index}"
+                                   data-field="vertragsnummer"
+                                   style="width: 140px; padding: 4px 8px; font-size: 13px;">
+                        </div>
+                        ` : ''}
+                        <div class="document-file-actions" style="flex-shrink: 0;">
+                            ${file.url ? `
+                            <button type="button" class="btn btn-sm btn-icon" data-action="download" data-index="${index}" title="Herunterladen">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                            </button>
+                            ` : ''}
+                            <button type="button" class="btn btn-sm btn-icon btn-danger" data-action="delete" data-index="${index}" title="Löschen">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Vertragsnummer-Input Handler
+                list.querySelectorAll('[data-field="vertragsnummer"]').forEach(inp => {
+                    inp.addEventListener('change', (e) => {
+                        const idx = parseInt(inp.dataset.index);
+                        files[idx].vertragsnummer = inp.value;
+                    });
+                });
+
+                // Download-Handler
+                list.querySelectorAll('[data-action="download"]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.dataset.index);
+                        const fileData = files[index];
+                        if (fileData.file) {
+                            const url = URL.createObjectURL(fileData.file);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = fileData.name;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                        } else if (fileData.url) {
+                            window.open(fileData.url, '_blank');
+                        }
+                    });
+                });
+
+                // Delete-Handler
+                list.querySelectorAll('[data-action="delete"]').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.dataset.index);
+                        const file = files[index];
+                        const confirmed = await showConfirm(
+                            'Datei löschen',
+                            `Möchtest du "${file.name}" wirklich löschen?`,
+                            'warning'
+                        );
+                        if (confirmed) {
+                            // Falls DB-Eintrag vorhanden, auch dort löschen
+                            if (file.id) {
+                                await supabase.from('customer_contracts').delete().eq('id', file.id);
+                            }
+                            files.splice(index, 1);
+                            renderFileList();
+                            showToast('Datei gelöscht', 'success');
+                        }
+                    });
+                });
+            }
+
+            // Click auf Box öffnet File-Dialog
+            box.addEventListener('click', () => input.click());
+
+            // File-Change Handler
+            input.addEventListener('change', function() {
+                if (!this.files || this.files.length === 0) return;
+
+                Array.from(this.files).forEach(file => {
+                    files.push({
+                        name: file.name,
+                        file: file,
+                        isNew: true,
+                        vertragsnummer: ''
+                    });
+                });
+
+                renderFileList();
+                this.value = '';
+            });
+
+            // Expose render function for loading existing contracts
+            window['renderContracts_' + contractType] = function(existingContracts) {
+                files.length = 0;
+                existingContracts.forEach(c => {
+                    files.push({
+                        id: c.id,
+                        name: c.name || 'Vertrag',
+                        url: c.file_url,
+                        vertragsnummer: c.vertragsnummer || ''
+                    });
+                });
+                renderFileList();
+            };
+
+            // Expose files for saving
+            window['getContractFiles_' + contractType] = () => files;
+        }
+
+        // ================================================================
         // SUPABASE LADEN
         // ================================================================
 
@@ -753,6 +904,10 @@
                         rahmenvertrag: contracts.filter(c => c.contract_type === 'rahmenvertrag'),
                         sondervertrag: contracts.filter(c => c.contract_type === 'sondervertrag')
                     };
+                    // Verträge in Upload-Listen rendern
+                    if (window.renderContracts_rahmenvertrag) window.renderContracts_rahmenvertrag(currentCustomer.contracts.rahmenvertrag);
+                    if (window.renderContracts_avv) window.renderContracts_avv(currentCustomer.contracts.avv);
+                    if (window.renderContracts_sondervertrag) window.renderContracts_sondervertrag(currentCustomer.contracts.sondervertrag);
                 }
 
                 // Rechnungen laden
@@ -1510,6 +1665,9 @@
                 // Einsatzgebiete speichern
                 await saveAreas(savedCustomerId);
 
+                // Verträge speichern
+                await saveContracts(savedCustomerId);
+
                 showToast('Kunde erfolgreich gespeichert', 'success');
 
                 // Bei neuem Kunden: URL aktualisieren
@@ -1712,6 +1870,59 @@
                 .insert(contactsToInsert);
 
             if (error) throw error;
+        }
+
+        // Verträge speichern
+        async function saveContracts(custId) {
+            const contractTypes = ['rahmenvertrag', 'avv', 'sondervertrag'];
+
+            for (const type of contractTypes) {
+                const getFiles = window['getContractFiles_' + type];
+                if (!getFiles) continue;
+
+                const files = getFiles();
+
+                for (const file of files) {
+                    if (file.isNew && file.file) {
+                        // Neue Datei hochladen
+                        const fileName = `${custId}/${type}/${Date.now()}_${file.file.name}`;
+                        const { data: uploadData, error: uploadError } = await supabase.storage
+                            .from('customer-contracts')
+                            .upload(fileName, file.file);
+
+                        if (uploadError) {
+                            console.error('Upload-Fehler:', uploadError);
+                            continue;
+                        }
+
+                        // Public URL generieren
+                        const { data: urlData } = supabase.storage
+                            .from('customer-contracts')
+                            .getPublicUrl(fileName);
+
+                        // In DB speichern
+                        const { error: insertError } = await supabase
+                            .from('customer_contracts')
+                            .insert({
+                                customer_id: custId,
+                                contract_type: type,
+                                name: file.name,
+                                file_url: urlData.publicUrl,
+                                vertragsnummer: file.vertragsnummer || null
+                            });
+
+                        if (insertError) {
+                            console.error('DB-Fehler:', insertError);
+                        }
+                    } else if (file.id) {
+                        // Bestehender Vertrag - Vertragsnummer aktualisieren
+                        await supabase
+                            .from('customer_contracts')
+                            .update({ vertragsnummer: file.vertragsnummer || null })
+                            .eq('id', file.id);
+                    }
+                }
+            }
         }
 
         // ================================================================

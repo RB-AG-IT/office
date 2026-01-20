@@ -955,40 +955,89 @@
         let abrechnungCurrentStep = 1;
         let abrechnungData = {};
 
-        // Test-Daten für Kunden (später aus DB)
-        const testKundenData = [
-            { id: 'k1', name: 'DRK KV Frankfurt', kundenId: 'A025-001', empfaengerTyp: 'KV' },
-            { id: 'k2', name: 'DRK KV Darmstadt', kundenId: 'A025-002', empfaengerTyp: 'KV' },
-            { id: 'k3', name: 'DRK OV Musterstadt', kundenId: 'A025-003', empfaengerTyp: 'OV' },
-        ];
+        // Dynamisch geladene Kunden und Kampagnen
+        let kundenData = [];
+        let kampagnenData = {};
+        let vertraegeData = {};
 
-        // Test-Daten für Kampagnen (später aus DB)
-        const testKampagnenData = {
-            'k1': [
-                { id: 'kamp1', name: 'Frühjahr 2025', vertrag: '025/RV/00412' },
-                { id: 'kamp2', name: 'Herbst 2025', vertrag: '025/RV/00413' },
-            ],
-            'k2': [
-                { id: 'kamp3', name: 'Sommer 2025', vertrag: '025/RV/00420' },
-            ],
-            'k3': [
-                { id: 'kamp4', name: 'Winter 2024', vertrag: '024/RV/00380' },
-            ],
-        };
+        // Kunden aus Supabase laden
+        async function loadKundenFromDB() {
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/customers?select=id,name,full_name,kd_id,empfaenger_typ&order=name`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                if (!response.ok) throw new Error('Fehler beim Laden der Kunden');
+                const kunden = await response.json();
+                kundenData = kunden.map(k => ({
+                    id: k.id,
+                    name: k.full_name || k.name,
+                    kundenId: k.kd_id || '-',
+                    empfaengerTyp: k.empfaenger_typ || 'KV'
+                }));
+            } catch (err) {
+                console.error('Fehler beim Laden der Kunden:', err);
+                kundenData = [];
+            }
+        }
+
+        // Kampagnen für einen Kunden laden
+        async function loadKampagnenFromDB(customerId) {
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/campaigns?customer_id=eq.${customerId}&select=id,name,year,status&order=start_date.desc`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                if (!response.ok) throw new Error('Fehler beim Laden der Kampagnen');
+                const kampagnen = await response.json();
+                kampagnenData[customerId] = kampagnen.map(k => ({
+                    id: k.id,
+                    name: k.name + (k.year ? ` (${k.year})` : ''),
+                    status: k.status
+                }));
+            } catch (err) {
+                console.error('Fehler beim Laden der Kampagnen:', err);
+                kampagnenData[customerId] = [];
+            }
+        }
+
+        // Verträge (Rahmenverträge) für einen Kunden laden
+        async function loadVertraegeFromDB(customerId) {
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/customer_contracts?customer_id=eq.${customerId}&contract_type=eq.rahmenvertrag&select=id,name,vertragsnummer&order=upload_date.desc`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                if (!response.ok) throw new Error('Fehler beim Laden der Verträge');
+                const vertraege = await response.json();
+                vertraegeData[customerId] = vertraege.map(v => ({
+                    id: v.id,
+                    name: v.name || 'Rahmenvertrag',
+                    vertragsnummer: v.vertragsnummer || '-'
+                }));
+            } catch (err) {
+                console.error('Fehler beim Laden der Verträge:', err);
+                vertraegeData[customerId] = [];
+            }
+        }
 
         // Cache für geladene Einsatzgebiete (campaign_areas)
         let cachedCampaignAreas = {};
         // Cache für geladene Records
         let cachedRecords = [];
 
-        function openAbrechnungModal(recordId = null) {
+        async function openAbrechnungModal(recordId = null) {
             abrechnungCurrentStep = 1;
             abrechnungData = {};
 
-            // Kunden laden
+            // Kunden laden aus Supabase
             const kundeSelect = document.getElementById('abrKunde');
+            kundeSelect.innerHTML = '<option value="">Lade Kunden...</option>';
+
+            await loadKundenFromDB();
+
             kundeSelect.innerHTML = '<option value="">Bitte auswählen...</option>' +
-                testKundenData.map(k => `<option value="${k.id}">${k.name} (${k.kundenId})</option>`).join('');
+                kundenData.map(k => `<option value="${k.id}">${k.name} (${k.kundenId})</option>`).join('');
 
             // Reset andere Felder
             document.getElementById('abrKampagne').innerHTML = '<option value="">Erst Kunde wählen...</option>';
@@ -1016,7 +1065,7 @@
             document.getElementById('abrechnungModal').classList.remove('active');
         }
 
-        function loadKampagnenForKunde() {
+        async function loadKampagnenForKunde() {
             const kundeId = document.getElementById('abrKunde').value;
             const kampagneSelect = document.getElementById('abrKampagne');
             const vertragSelect = document.getElementById('abrVertrag');
@@ -1032,19 +1081,29 @@
             }
 
             // Kunde-Info anzeigen
-            const kunde = testKundenData.find(k => k.id === kundeId);
+            const kunde = kundenData.find(k => k.id === kundeId);
             document.getElementById('abrKundeInfo').textContent = kunde ? `Typ: ${kunde.empfaengerTyp}` : '';
 
-            // Kampagnen laden
-            const kampagnen = testKampagnenData[kundeId] || [];
-            kampagneSelect.innerHTML = '<option value="">Bitte auswählen...</option>' +
-                kampagnen.map(k => `<option value="${k.id}" data-vertrag="${k.vertrag}">${k.name}</option>`).join('');
-            kampagneSelect.disabled = false;
+            // Kampagnen und Verträge parallel laden
+            kampagneSelect.innerHTML = '<option value="">Lade...</option>';
+            vertragSelect.innerHTML = '<option value="">Lade...</option>';
 
-            // Verträge laden
+            await Promise.all([
+                loadKampagnenFromDB(kundeId),
+                loadVertraegeFromDB(kundeId)
+            ]);
+
+            // Kampagnen anzeigen
+            const kampagnen = kampagnenData[kundeId] || [];
+            kampagneSelect.innerHTML = '<option value="">Bitte auswählen...</option>' +
+                kampagnen.map(k => `<option value="${k.id}">${k.name}</option>`).join('');
+            kampagneSelect.disabled = kampagnen.length === 0;
+
+            // Verträge anzeigen
+            const vertraege = vertraegeData[kundeId] || [];
             vertragSelect.innerHTML = '<option value="">Bitte auswählen...</option>' +
-                kampagnen.map(k => `<option value="${k.vertrag}">${k.vertrag}</option>`).join('');
-            vertragSelect.disabled = false;
+                vertraege.map(v => `<option value="${v.vertragsnummer}">${v.vertragsnummer} (${v.name})</option>`).join('');
+            vertragSelect.disabled = vertraege.length === 0;
 
             document.getElementById('abrEinsatzgebiete').innerHTML = '<div class="text-klein text-secondary">Erst Kampagne wählen...</div>';
         }
@@ -1056,13 +1115,6 @@
             if (!kampagneId) {
                 container.innerHTML = '<div class="text-klein text-secondary">Erst Kampagne wählen...</div>';
                 return;
-            }
-
-            // Vertrag automatisch setzen
-            const kampagneOption = document.querySelector(`#abrKampagne option[value="${kampagneId}"]`);
-            if (kampagneOption) {
-                const vertrag = kampagneOption.dataset.vertrag;
-                document.getElementById('abrVertrag').value = vertrag;
             }
 
             container.innerHTML = '<div class="text-klein text-secondary">Lade Einsatzgebiete...</div>';
