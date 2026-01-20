@@ -6639,6 +6639,10 @@ function toggleDropdown(btn, type, id) {
     if (event) event.stopPropagation();
 
     const menu = btn.nextElementSibling;
+    if (!menu || !menu.classList.contains('dropdown-menu')) {
+        console.warn('Dropdown menu not found for button', btn);
+        return;
+    }
     const wasOpen = activeDropdownMenu === menu && menu.classList.contains('open');
 
     closeAllDropdowns();
