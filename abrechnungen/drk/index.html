@@ -1931,13 +1931,18 @@
                 // Nach yearly_amount ASC sortieren (kleinste zuerst → Sondierung)
                 gebietRecords.sort((a, b) => (a.yearly_amount || 0) - (b.yearly_amount || 0));
 
-                // Sondierungslimit berechnen
+                // Sondierungslimit berechnen (nur wenn Sondierung aktiv)
                 const limitConfig = gebiet.provisionSondierung || { limit: 100, limitType: 'mg' };
-                let sondierungLimit = limitConfig.limit || 100;
+                let sondierungLimit = 0;
 
-                if (limitConfig.limitType === 'prozent' && gebiet.einwohnerzahl > 0) {
-                    // Prozent der Einwohnerzahl
-                    sondierungLimit = Math.floor(gebiet.einwohnerzahl * (limitConfig.limit / 100));
+                // Nur wenn Sondierung aktiv ist, Limit berechnen
+                if (limitConfig.aktiv !== false) {
+                    sondierungLimit = limitConfig.limit || 100;
+
+                    if (limitConfig.limitType === 'prozent' && gebiet.einwohnerzahl > 0) {
+                        // Prozent der Einwohnerzahl
+                        sondierungLimit = Math.floor(gebiet.einwohnerzahl * (limitConfig.limit / 100));
+                    }
                 }
 
                 // Aufteilung: erste X → Sondierung, Rest → Regular
@@ -2175,10 +2180,15 @@
 
                 gebietRecords.sort((a, b) => (a.yearly_amount || 0) - (b.yearly_amount || 0));
 
+                // Sondierungslimit berechnen (nur wenn Sondierung aktiv)
                 const limitConfig = gebiet.provisionSondierung || { limit: 100, limitType: 'mg' };
-                let sondierungLimit = limitConfig.limit || 100;
-                if (limitConfig.limitType === 'prozent' && gebiet.einwohnerzahl > 0) {
-                    sondierungLimit = Math.floor(gebiet.einwohnerzahl * (limitConfig.limit / 100));
+                let sondierungLimit = 0;
+
+                if (limitConfig.aktiv !== false) {
+                    sondierungLimit = limitConfig.limit || 100;
+                    if (limitConfig.limitType === 'prozent' && gebiet.einwohnerzahl > 0) {
+                        sondierungLimit = Math.floor(gebiet.einwohnerzahl * (limitConfig.limit / 100));
+                    }
                 }
 
                 const sondierungRecords = gebietRecords.slice(0, sondierungLimit);

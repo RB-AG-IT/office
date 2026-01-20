@@ -2774,6 +2774,9 @@ function openWgConfig(wgId) {
     renderKwPills(wg);
 
     // Sondierung
+    const sondAktiv = wg.sondierung.aktiv !== false; // Default true für Rückwärtskompatibilität
+    document.getElementById('wgSondierung').checked = sondAktiv;
+    document.getElementById('sondierungSection').style.display = sondAktiv ? 'block' : 'none';
     document.getElementById('sondJ1').value = wg.sondierung.j1;
     document.getElementById('sondJ2').value = wg.sondierung.j2;
     document.getElementById('sondJ3').value = wg.sondierung.j3;
@@ -3472,6 +3475,7 @@ async function saveWgConfig() {
 
     // Sondierung
     wg.sondierung = {
+        aktiv: document.getElementById('wgSondierung').checked,
         j1: parseInt(document.getElementById('sondJ1').value) || 0,
         j2: parseInt(document.getElementById('sondJ2').value) || 0,
         j3: parseInt(document.getElementById('sondJ3').value) || 0,
