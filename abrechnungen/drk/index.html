@@ -753,10 +753,13 @@
                 const grouped = {};
                 if (Array.isArray(faellig)) {
                     faellig.forEach(f => {
-                        const key = `${f.customer_id}-${f.campaign_id}-${f.verguetungsjahr}`;
+                        const key = `${f.customer_id}|${f.campaign_id}|${f.verguetungsjahr}`;
                         if (!grouped[key]) {
                             grouped[key] = {
                                 id: key,
+                                customerId: f.customer_id,
+                                campaignId: f.campaign_id,
+                                vj: f.verguetungsjahr,
                                 kunde: f.customers?.full_name || f.customers?.name || '-',
                                 kampagne: f.campaigns?.name ? `${f.campaigns.name}${f.campaigns.year ? ' (' + f.campaigns.year + ')' : ''}` : '-',
                                 typ: vjToTyp[f.verguetungsjahr] || 'ZA',
@@ -773,20 +776,17 @@
                     });
                 }
 
-                drkFaelligData = Object.values(grouped).map(g => {
-                    const idParts = g.id.split('-');
-                    return {
-                        id: g.id,
-                        customerId: idParts[0],
-                        campaignId: idParts[1],
-                        vj: parseInt(idParts[2]),
-                        kunde: g.kunde,
-                        kampagne: g.kampagne,
-                        typ: g.typ,
-                        faelligSeit: formatDate(g.faelligSeit),
-                        betragCa: formatEuro(g.betragCa)
-                    };
-                });
+                drkFaelligData = Object.values(grouped).map(g => ({
+                    id: g.id,
+                    customerId: g.customerId,
+                    campaignId: g.campaignId,
+                    vj: g.vj,
+                    kunde: g.kunde,
+                    kampagne: g.kampagne,
+                    typ: g.typ,
+                    faelligSeit: formatDate(g.faelligSeit),
+                    betragCa: formatEuro(g.betragCa)
+                }));
 
             } catch (err) {
                 console.error('Fehler beim Laden der fälligen Abrechnungen:', err);
