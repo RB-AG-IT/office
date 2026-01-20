@@ -1152,56 +1152,260 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 ## 15. Implementierungsschritte
 
-### Phase 1: Datenbank-Schema
+> **WICHTIG:** Vor jedem Schritt Kontext/Abhängigkeiten prüfen, nach Ausführung Double-Check ob es funktioniert, dann abhaken `[x]` mit Datum.
 
-1. [ ] Migration erstellen: `record_entitlements` Tabelle
-2. [ ] Migration erstellen: `qualitaetsbonus_berechnungen` Tabelle
-3. [ ] Migration erstellen: `absicherungsfristen` Tabelle + Daten
-4. [ ] Migration erstellen: `campaign_areas` erweitern
-5. [ ] Migration erstellen: `customer_billing_ledger` erweitern
+---
 
-### Phase 2: Trigger anpassen
+### Phase 1: Datenbank-Grundlagen (Fundament)
 
-1. [ ] `handle_record_insert()`: 5 Ansprüche erstellen (Status: ausstehend)
-2. [ ] `handle_record_update()`: Bei Storno → Ansprüche stornieren
-3. [ ] Absicherungs-Datum bei Ansprüchen automatisch berechnen
+#### 1.1 Neue Tabellen erstellen
+- [ ] **1.1.1** Migration: `absicherungsfristen` Tabelle + Konstanten einfügen
+- [ ] **1.1.2** Migration: `record_entitlements` Tabelle (Ansprüche pro Record × VJ)
+- [ ] **1.1.3** Migration: `qualitaetsbonus_berechnungen` Tabelle
+- [ ] **1.1.4** Migration: `invoice_payments` Tabelle (Zahlungshistorie)
+- [ ] **1.1.5** Migration: `campaign_zubuchungen` Tabelle
 
-### Phase 3: Abrechnungslogik (Frontend/Backend)
+#### 1.2 Bestehende Tabellen erweitern
+- [ ] **1.2.1** Migration: `customers` erweitern (empfaenger_typ, kunden_nr_ziffern)
+- [ ] **1.2.2** Migration: `campaign_areas` erweitern (qualitaetsbonus_datum, einwohnerzahl, stornopuffer)
+- [ ] **1.2.3** Migration: `customer_billing_ledger` erweitern (verguetungsjahr, entitlement_id)
+- [ ] **1.2.4** Migration: `invoices` erweitern für DRK (customer_id, campaign_id, abrechnungstyp, etc.)
 
-1. [ ] Zwischenabrechnung erstellen:
-   - MG nach Beitrag sortieren
-   - Sondierung/Regular aufteilen
-   - Stornopuffer berechnen
-   - Ansprüche als "abgerechnet" markieren
+#### 1.3 Indizes und Constraints
+- [ ] **1.3.1** Indizes für `record_entitlements` anlegen
+- [ ] **1.3.2** Indizes für `invoice_payments` anlegen
+- [ ] **1.3.3** Indizes für erweiterte `invoices` Spalten anlegen
 
-2. [ ] Endabrechnung erstellen:
-   - Stornopuffer auflösen
-   - Stornos verrechnen
-   - Ohne Qualitätsbonus
+---
 
-3. [ ] Jahresabrechnung VJ2:
-   - Qualitätsbonus berechnen
-   - Rückwirkende Korrektur VJ1
-   - Stornos verrechnen
+### Phase 2: Kunden-ID Generierung
 
-4. [ ] Jahresabrechnung VJ3-5:
-   - Mit Qualitätsbonus
-   - Stornos verrechnen
+- [ ] **2.1** SQL-Funktion: `generate_customer_id()` erstellen
+- [ ] **2.2** Trigger: Automatische Kunden-ID bei INSERT in `customers`
+- [ ] **2.3** Frontend Kundenprofil: Kunden-ID Feld anzeigen (readonly)
 
-### Phase 4: Storno-Handling
+---
 
-1. [ ] Bei Storno prüfen: Welche VJ sind abgesichert?
-2. [ ] Nicht abgesicherte VJ: Status → storniert
-3. [ ] Bereits abgerechnete VJ: Gegenbuchung oder Teilvergütung
-4. [ ] Abgesicherte VJ: Keine Rückforderung
+### Phase 3: Record-Entitlements (Ansprüche)
 
-### Phase 5: UI-Erweiterungen
+#### 3.1 Trigger für automatische Anspruchserstellung
+- [ ] **3.1.1** Funktion: `create_record_entitlements()` - erstellt 5 VJ-Ansprüche
+- [ ] **3.1.2** Trigger: Bei Record INSERT → 5 Ansprüche erstellen
+- [ ] **3.1.3** Funktion: Absicherungsdatum berechnen (basierend auf Zahlungsart)
+- [ ] **3.1.4** Funktion: Fälligkeitsdatum berechnen (VJ2 = VJ1 + 12 Monate)
 
-1. [ ] Kampagnen-Modal: Absicherungsfristen anzeigen (read-only)
-2. [ ] Kampagnen-Modal: Qualitätsbonus-Datum Feld
-3. [ ] Abrechnungsseite DRK: Vergütungsjahr-Filter
-4. [ ] Abrechnungsseite DRK: Qualitätsbonus-Status anzeigen
-5. [ ] Record-Detail: Ansprüche (VJ 1-5) mit Status anzeigen
+#### 3.2 Storno-Handling
+- [ ] **3.2.1** Funktion: `handle_record_storno()` - Ansprüche stornieren
+- [ ] **3.2.2** Trigger: Bei Record UPDATE (status → storno) → Ansprüche aktualisieren
+- [ ] **3.2.3** Logik: Abgesicherte VJ behalten, nicht abgesicherte stornieren
+
+---
+
+### Phase 4: Rechnungsnummern-Generierung
+
+- [ ] **4.1** SQL-Funktion: `generate_invoice_number()` erstellen
+- [ ] **4.2** Format: `[JJ]-[Empfänger]-[KundenNr]-[Typ]-[Nummer]`
+- [ ] **4.3** Trigger: Automatische Nummer bei Status → offen
+
+---
+
+### Phase 5: Frontend - DRK Abrechnungsseite Grundstruktur
+
+#### 5.1 Tab-Struktur
+- [ ] **5.1.1** HTML: Tab "Rechnungen" hinzufügen
+- [ ] **5.1.2** HTML: Tab "Fällig" hinzufügen
+- [ ] **5.1.3** JS: Tab-Initialisierung mit Badges
+
+#### 5.2 Tab Kunden (erweitern)
+- [ ] **5.2.1** Dropdown erweitern: "Abrechnung erstellen"
+- [ ] **5.2.2** Dropdown erweitern: "Rechnungen anzeigen"
+
+---
+
+### Phase 6: Frontend - Tab Rechnungen
+
+#### 6.1 Tabelle
+- [ ] **6.1.1** HTML: Rechnungen-Tabelle Struktur
+- [ ] **6.1.2** JS: Spalten-Konfiguration (Rechnungsnr, Kunde, Typ, Brutto, Status, Datum)
+- [ ] **6.1.3** JS: Render-Funktion für Rechnungen
+- [ ] **6.1.4** CSS: Status-Badges (entwurf, offen, geplant, bezahlt, storniert)
+
+#### 6.2 Filter
+- [ ] **6.2.1** HTML: Filter-Dropdowns (Status, Typ, Kunde, Jahr)
+- [ ] **6.2.2** JS: Filter-Logik implementieren
+
+#### 6.3 Zeilen-Dropdown
+- [ ] **6.3.1** Details anzeigen
+- [ ] **6.3.2** PDF Download
+- [ ] **6.3.3** E-Mail senden
+- [ ] **6.3.4** Zahlung erfassen
+- [ ] **6.3.5** Stornieren
+
+#### 6.4 Auswahl-Aktionen
+- [ ] **6.4.1** Mehrfachselektion aktivieren
+- [ ] **6.4.2** Sammel-E-Mail
+- [ ] **6.4.3** Sammel-PDF (ZIP)
+- [ ] **6.4.4** Export (CSV/Excel)
+
+---
+
+### Phase 7: Frontend - Tab Fällig
+
+- [ ] **7.1** HTML: Fällig-Tabelle Struktur
+- [ ] **7.2** JS: Fällige Abrechnungen berechnen (EA nach X Wochen, VJ nach 12 Monaten)
+- [ ] **7.3** JS: Render-Funktion
+- [ ] **7.4** Auswahl-Aktion: "Abrechnung erstellen" für ausgewählte
+
+---
+
+### Phase 8: Frontend - Modal Abrechnung erstellen
+
+#### 8.1 Schritt 1: Auswahl
+- [ ] **8.1.1** HTML: Modal-Struktur
+- [ ] **8.1.2** Dropdown: Kunde laden
+- [ ] **8.1.3** Dropdown: Kampagnen des Kunden laden
+- [ ] **8.1.4** Dropdown: Abrechnungstyp (ZA/EA/1JA-4JA)
+- [ ] **8.1.5** Datepicker: Zeitraum von/bis
+- [ ] **8.1.6** Dropdown: Vertragsnummer aus Kundenprofil
+- [ ] **8.1.7** Checkboxen: Einsatzgebiete mit MG-Anzahl
+
+#### 8.2 Schritt 2: Vorschau
+- [ ] **8.2.1** JS: MG nach Sondierung/Regular aufteilen
+- [ ] **8.2.2** JS: Sondierungslimit prüfen (kumulativ)
+- [ ] **8.2.3** JS: Positionen pro Einsatzgebiet berechnen
+- [ ] **8.2.4** HTML: Vorschau-Tabelle rendern
+- [ ] **8.2.5** JS: Stornopuffer berechnen (bei ZA)
+- [ ] **8.2.6** JS: Summen berechnen (Netto, USt, Brutto)
+
+#### 8.3 Kundenprofil-Einstellung beachten
+- [ ] **8.3.1** Prüfen: Zusammen oder Getrennt?
+- [ ] **8.3.2** Zusammen: Eine Rechnung, alle Einsatzgebiete als Posten
+- [ ] **8.3.3** Getrennt: Mehrere Rechnungen generieren
+
+#### 8.4 Speichern
+- [ ] **8.4.1** Button "Als Entwurf": Status = entwurf
+- [ ] **8.4.2** Button "Erstellen": Status = offen, Rechnungsnummer vergeben
+- [ ] **8.4.3** RPC: `create_drk_invoice()` Funktion
+
+---
+
+### Phase 9: Frontend - Modal Rechnung Details
+
+- [ ] **9.1** HTML: Modal-Struktur
+- [ ] **9.2** JS: Rechnung laden und anzeigen
+- [ ] **9.3** Status-Dropdown zum Ändern
+- [ ] **9.4** Positionen-Tabelle
+- [ ] **9.5** Zahlungen-Liste
+- [ ] **9.6** Button: Zahlung erfassen
+- [ ] **9.7** Button: PDF Download
+- [ ] **9.8** Button: E-Mail senden
+- [ ] **9.9** Button: Stornieren (mit Bestätigung)
+
+---
+
+### Phase 10: Frontend - Modal Zahlung erfassen
+
+- [ ] **10.1** HTML: Modal-Struktur
+- [ ] **10.2** Input: Betrag Brutto + Button "Vollständig"
+- [ ] **10.3** Datepicker: Zahlungsdatum
+- [ ] **10.4** Input: Notiz (optional)
+- [ ] **10.5** Vorschau: Netto/USt/Brutto Aufschlüsselung
+- [ ] **10.6** JS: Zahlung in `invoice_payments` speichern
+- [ ] **10.7** JS: Rechnungsstatus aktualisieren (wenn vollständig → bezahlt)
+
+---
+
+### Phase 11: Backend - Abrechnungslogik
+
+#### 11.1 Zwischenabrechnung
+- [ ] **11.1.1** RPC: MG für Zeitraum laden
+- [ ] **11.1.2** RPC: Nach Jahresbeitrag sortieren (kleinste → Sondierung)
+- [ ] **11.1.3** RPC: Sondierungslimit anwenden
+- [ ] **11.1.4** RPC: Stornopuffer berechnen
+- [ ] **11.1.5** RPC: Entitlements als abgerechnet markieren
+
+#### 11.2 Endabrechnung
+- [ ] **11.2.1** RPC: Stornopuffer auflösen
+- [ ] **11.2.2** RPC: Stornos seit letzter ZA verrechnen
+- [ ] **11.2.3** RPC: Restliche MG abrechnen
+
+#### 11.3 Jahresabrechnung VJ2
+- [ ] **11.3.1** RPC: Qualitätsbonus berechnen (Stornoquote)
+- [ ] **11.3.2** RPC: Bonus in `qualitaetsbonus_berechnungen` speichern
+- [ ] **11.3.3** RPC: Rückwirkende VJ1-Korrektur berechnen
+- [ ] **11.3.4** RPC: VJ2 mit Bonus abrechnen
+
+#### 11.4 Jahresabrechnung VJ3-5
+- [ ] **11.4.1** RPC: Mit Qualitätsbonus abrechnen
+- [ ] **11.4.2** RPC: Stornos verrechnen
+
+---
+
+### Phase 12: PDF-Generierung
+
+- [ ] **12.1** Lib einbinden (jsPDF oder Backend)
+- [ ] **12.2** Template: Rechnungs-PDF Layout (wie in Abschnitt 5.8)
+- [ ] **12.3** Funktion: Positionen formatieren
+- [ ] **12.4** Funktion: PDF generieren und Download
+
+---
+
+### Phase 13: E-Mail-Versand
+
+- [ ] **13.1** Supabase Edge Function: `send_invoice_email`
+- [ ] **13.2** Empfänger: Schatzmeister aus Ansprechpartner
+- [ ] **13.3** Template: E-Mail Text
+- [ ] **13.4** Anhang: PDF
+- [ ] **13.5** Frontend: Button "E-Mail senden"
+
+---
+
+### Phase 14: Kundenprofil Anpassungen
+
+#### 14.1 Rechnungshistorie (read-only)
+- [ ] **14.1.1** Rechnungen des Kunden laden
+- [ ] **14.1.2** Liste rendern (Rechnungsnr, Datum, Betrag, Status)
+- [ ] **14.1.3** Link zur DRK Abrechnungsseite
+
+#### 14.2 Einstellungen
+- [ ] **14.2.1** Toggle "Zusammen/Getrennt" in DB speichern
+- [ ] **14.2.2** Empfängertyp aus DB laden (aus Kundentyp ableiten)
+
+---
+
+### Phase 15: Zubuchungen
+
+- [ ] **15.1** Kampagnen-Modal: Zubuchungen-Abschnitt
+- [ ] **15.2** Eingabe: Typ, Bezeichnung, Betrag
+- [ ] **15.3** Speichern in `campaign_zubuchungen`
+- [ ] **15.4** Abrechnungs-Modal: Zubuchungen anzeigen und hinzufügen
+
+---
+
+### Phase 16: Qualitätsbonus-Konfiguration
+
+- [ ] **16.1** Kampagnen-Modal: Qualitätsbonus-Regeln bearbeiten
+- [ ] **16.2** Eingabe: Stornoquote-Schwellen und Bonus-PP
+- [ ] **16.3** Optional: Festes Qualitätsbonus-Datum
+
+---
+
+### Phase 17: Testing & Validierung
+
+- [ ] **17.1** Test: Kunden-ID Generierung
+- [ ] **17.2** Test: Record-Entitlements bei neuem Record
+- [ ] **17.3** Test: Storno-Handling
+- [ ] **17.4** Test: Zwischenabrechnung erstellen
+- [ ] **17.5** Test: Endabrechnung mit Stornopuffer-Auflösung
+- [ ] **17.6** Test: VJ2 mit Qualitätsbonus
+- [ ] **17.7** Test: Zusammen vs. Getrennt Rechnungen
+- [ ] **17.8** Test: Zahlungserfassung und Status-Update
+- [ ] **17.9** Test: PDF-Generierung
+- [ ] **17.10** Test: E-Mail-Versand
+
+---
+
+**Gesamt: 17 Phasen, ~100 Einzelschritte**
 
 ---
 
