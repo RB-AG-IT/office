@@ -2356,7 +2356,14 @@
                 };
 
                 // Je nach Rechnungsart unterschiedliche Daten
-                if (abrechnungData.rechnungsart === 'zusammen') {
+                // Prüfe ob Positionen gesetzt sind (statt rechnungsart), da bei 1 Gebiet immer zusammen-Logik verwendet wird
+                const hatPositionen = (abrechnungData.sondierungPositionen && abrechnungData.sondierungPositionen.length > 0) ||
+                                      (abrechnungData.regularPositionen && abrechnungData.regularPositionen.length > 0);
+                const hatRechnungen = abrechnungData.rechnungen && abrechnungData.rechnungen.length > 0;
+
+                if (hatPositionen || !hatRechnungen) {
+                    // Zusammen-Format: Positionen einzeln
+                    rpcData.rechnungsart = 'zusammen';
                     rpcData.sondierungPositionen = abrechnungData.sondierungPositionen || [];
                     rpcData.regularPositionen = abrechnungData.regularPositionen || [];
                     rpcData.zubuchungen = abrechnungData.zubuchungen || [];
@@ -2367,6 +2374,8 @@
                     rpcData.ust = abrechnungData.ust;
                     rpcData.brutto = abrechnungData.brutto;
                 } else {
+                    // Getrennt-Format: Array von Rechnungen
+                    rpcData.rechnungsart = 'getrennt';
                     rpcData.rechnungen = abrechnungData.rechnungen || [];
                 }
 
