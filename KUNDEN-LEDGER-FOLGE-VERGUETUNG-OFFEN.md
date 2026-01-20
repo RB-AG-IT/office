@@ -1270,11 +1270,11 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 - [x] **8.1.7** Checkboxen: Einsatzgebiete mit MG-Anzahl (20.01.2026)
 
 #### 8.2 Schritt 2: Vorschau
-- [x] **8.2.1** JS: MG nach Sondierung/Regular aufteilen (Placeholder 30/70%) (20.01.2026)
-- [x] **8.2.2** JS: Sondierungslimit prüfen (Placeholder) (20.01.2026)
+- [x] **8.2.1** JS: MG nach Sondierung/Regular aufteilen (yearly_amount ASC, dann last_name) (20.01.2026)
+- [x] **8.2.2** JS: Sondierungslimit aus campaign_areas (MG oder % Einwohner) (20.01.2026)
 - [x] **8.2.3** JS: Positionen pro Einsatzgebiet berechnen (20.01.2026)
 - [x] **8.2.4** HTML: Vorschau-Tabelle rendern (20.01.2026)
-- [x] **8.2.5** JS: Stornopuffer berechnen (bei ZA) (20.01.2026)
+- [x] **8.2.5** JS: Stornopuffer aus campaign_areas (bei ZA) (20.01.2026)
 - [x] **8.2.6** JS: Summen berechnen (Netto, USt, Brutto) (20.01.2026)
 
 #### 8.3 Kundenprofil-Einstellung beachten

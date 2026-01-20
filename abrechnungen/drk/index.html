@@ -976,24 +976,10 @@
             ],
         };
 
-        // Test-Daten für Einsatzgebiete (später aus DB)
-        const testEinsatzgebieteData = {
-            'kamp1': [
-                { id: 'eg1', name: 'OV Musterstadt', mg: 45, je: 5400 },
-                { id: 'eg2', name: 'OV Neustadt', mg: 32, je: 3840 },
-                { id: 'eg3', name: 'OV Altstadt', mg: 28, je: 3360 },
-            ],
-            'kamp2': [
-                { id: 'eg4', name: 'OV Weststadt', mg: 55, je: 6600 },
-            ],
-            'kamp3': [
-                { id: 'eg5', name: 'OV Südstadt', mg: 40, je: 4800 },
-                { id: 'eg6', name: 'OV Nordstadt', mg: 25, je: 3000 },
-            ],
-            'kamp4': [
-                { id: 'eg7', name: 'OV Musterstadt', mg: 60, je: 7200 },
-            ],
-        };
+        // Cache für geladene Einsatzgebiete (campaign_areas)
+        let cachedCampaignAreas = {};
+        // Cache für geladene Records
+        let cachedRecords = [];
 
         function openAbrechnungModal(recordId = null) {
             abrechnungCurrentStep = 1;
@@ -1063,7 +1049,7 @@
             document.getElementById('abrEinsatzgebiete').innerHTML = '<div class="text-klein text-secondary">Erst Kampagne wählen...</div>';
         }
 
-        function loadEinsatzgebiete() {
+        async function loadEinsatzgebiete() {
             const kampagneId = document.getElementById('abrKampagne').value;
             const container = document.getElementById('abrEinsatzgebiete');
 
@@ -1079,39 +1065,58 @@
                 document.getElementById('abrVertrag').value = vertrag;
             }
 
-            // Einsatzgebiete laden
-            const gebiete = testEinsatzgebieteData[kampagneId] || [];
-            if (gebiete.length === 0) {
-                container.innerHTML = '<div class="text-klein text-secondary">Keine Einsatzgebiete gefunden</div>';
-                return;
+            container.innerHTML = '<div class="text-klein text-secondary">Lade Einsatzgebiete...</div>';
+
+            try {
+                // Campaign_areas aus Supabase laden
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/campaign_areas?campaign_id=eq.${kampagneId}&select=id,name,provision_sondierung,provision_regular,einwohnerzahl,stornopuffer`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+
+                if (!response.ok) throw new Error('Fehler beim Laden der Einsatzgebiete');
+
+                const gebiete = await response.json();
+                cachedCampaignAreas[kampagneId] = gebiete;
+
+                if (gebiete.length === 0) {
+                    container.innerHTML = '<div class="text-klein text-secondary">Keine Einsatzgebiete gefunden</div>';
+                    return;
+                }
+
+                // Checkboxen rendern (MG/JE wird bei Vorschau aus Records berechnet)
+                container.innerHTML = gebiete.map(g => `
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="${g.id}"
+                            data-name="${g.name}"
+                            data-provision-sondierung='${JSON.stringify(g.provision_sondierung || {j1:80,j2:50,j3:30,j4:0,j5:0,limit:100,limitType:"mg"})}'
+                            data-provision-regular='${JSON.stringify(g.provision_regular || {j1:60,j2:40,j3:20,j4:0,j5:0})}'
+                            data-einwohnerzahl="${g.einwohnerzahl || 0}"
+                            data-stornopuffer="${g.stornopuffer || 10}"
+                            checked>
+                        <span class="checkbox-label">${g.name}</span>
+                        <span class="checkbox-info text-klein" id="gebietInfo_${g.id}">Lade MG...</span>
+                    </label>
+                `).join('');
+
+                // Event-Listener für Checkboxen
+                container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.addEventListener('change', updateEinsatzgebieteInfo);
+                });
+
+                // MG/JE Info initial leer (wird bei Zeitraum-Änderung aktualisiert)
+                updateEinsatzgebieteInfo();
+
+            } catch (error) {
+                console.error('Fehler:', error);
+                container.innerHTML = '<div class="text-klein text-error">Fehler beim Laden der Einsatzgebiete</div>';
             }
-
-            container.innerHTML = gebiete.map(g => `
-                <label class="checkbox-item">
-                    <input type="checkbox" value="${g.id}" data-mg="${g.mg}" data-je="${g.je}" checked>
-                    <span class="checkbox-label">${g.name}</span>
-                    <span class="checkbox-info text-klein">${g.mg} MG | ${g.je.toLocaleString('de-DE')} € JE</span>
-                </label>
-            `).join('');
-
-            updateEinsatzgebieteInfo();
-
-            // Event-Listener für Checkboxen
-            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                cb.addEventListener('change', updateEinsatzgebieteInfo);
-            });
         }
 
         function updateEinsatzgebieteInfo() {
             const checkboxes = document.querySelectorAll('#abrEinsatzgebiete input[type="checkbox"]:checked');
-            let totalMg = 0;
-            let totalJe = 0;
-            checkboxes.forEach(cb => {
-                totalMg += parseInt(cb.dataset.mg) || 0;
-                totalJe += parseInt(cb.dataset.je) || 0;
-            });
             document.getElementById('abrEinsatzgebieteInfo').textContent =
-                `Ausgewählt: ${checkboxes.length} Gebiete | ${totalMg} MG | ${totalJe.toLocaleString('de-DE')} € JE`;
+                `Ausgewählt: ${checkboxes.length} Gebiete (MG/JE wird bei Vorschau berechnet)`;
         }
 
         function updateStornopufferVisibility() {
@@ -1143,7 +1148,7 @@
                 step === 1 ? 'Schritt 1: Auswahl' : 'Schritt 2: Vorschau';
         }
 
-        function abrechnungWeiter() {
+        async function abrechnungWeiter() {
             // Validierung
             if (!document.getElementById('abrKunde').value) {
                 alert('Bitte Kunde auswählen');
@@ -1160,29 +1165,67 @@
                 return;
             }
 
-            // Daten sammeln
-            abrechnungData = {
-                kundeId: document.getElementById('abrKunde').value,
-                kundeName: document.getElementById('abrKunde').options[document.getElementById('abrKunde').selectedIndex].text,
-                kampagneId: document.getElementById('abrKampagne').value,
-                kampagneName: document.getElementById('abrKampagne').options[document.getElementById('abrKampagne').selectedIndex].text,
-                typ: document.getElementById('abrTyp').value,
-                vertrag: document.getElementById('abrVertrag').value,
-                zeitraumVon: document.getElementById('abrZeitraumVon').value,
-                zeitraumBis: document.getElementById('abrZeitraumBis').value,
-                einsatzgebiete: Array.from(selectedGebiete).map(cb => ({
-                    id: cb.value,
-                    name: cb.parentElement.querySelector('.checkbox-label').textContent,
-                    mg: parseInt(cb.dataset.mg),
-                    je: parseInt(cb.dataset.je)
-                }))
-            };
+            const zeitraumVon = document.getElementById('abrZeitraumVon').value;
+            const zeitraumBis = document.getElementById('abrZeitraumBis').value;
 
-            // Vorschau generieren
-            generateVorschau();
+            if (!zeitraumVon || !zeitraumBis) {
+                alert('Bitte Zeitraum auswählen');
+                return;
+            }
 
-            // Schritt 2 anzeigen
-            showAbrechnungStep(2);
+            // Gebiete-IDs für Query sammeln
+            const gebietIds = Array.from(selectedGebiete).map(cb => cb.value);
+
+            // Button deaktivieren während Laden
+            const weiterBtn = document.getElementById('abrBtnWeiter');
+            weiterBtn.disabled = true;
+            weiterBtn.textContent = 'Lade Records...';
+
+            try {
+                // Records für Zeitraum und Gebiete laden
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/records?campaign_area_id=in.(${gebietIds.join(',')})&start_date=gte.${zeitraumVon}&start_date=lte.${zeitraumBis}&status=eq.aktiv&select=id,campaign_area_id,yearly_amount,last_name,first_name,start_date`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+
+                if (!response.ok) throw new Error('Fehler beim Laden der Records');
+
+                cachedRecords = await response.json();
+
+                // Daten sammeln inkl. provision_sondierung etc.
+                abrechnungData = {
+                    kundeId: document.getElementById('abrKunde').value,
+                    kundeName: document.getElementById('abrKunde').options[document.getElementById('abrKunde').selectedIndex].text,
+                    kampagneId: document.getElementById('abrKampagne').value,
+                    kampagneName: document.getElementById('abrKampagne').options[document.getElementById('abrKampagne').selectedIndex].text,
+                    typ: document.getElementById('abrTyp').value,
+                    vertrag: document.getElementById('abrVertrag').value,
+                    zeitraumVon: zeitraumVon,
+                    zeitraumBis: zeitraumBis,
+                    einsatzgebiete: Array.from(selectedGebiete).map(cb => ({
+                        id: cb.value,
+                        name: cb.dataset.name,
+                        provisionSondierung: JSON.parse(cb.dataset.provisionSondierung),
+                        provisionRegular: JSON.parse(cb.dataset.provisionRegular),
+                        einwohnerzahl: parseInt(cb.dataset.einwohnerzahl) || 0,
+                        stornopuffer: parseInt(cb.dataset.stornopuffer) || 10
+                    })),
+                    records: cachedRecords
+                };
+
+                // Vorschau generieren
+                generateVorschau();
+
+                // Schritt 2 anzeigen
+                showAbrechnungStep(2);
+
+            } catch (error) {
+                console.error('Fehler:', error);
+                alert('Fehler beim Laden der Records: ' + error.message);
+            } finally {
+                weiterBtn.disabled = false;
+                weiterBtn.textContent = 'Weiter';
+            }
         }
 
         function abrechnungZurueck() {
@@ -1192,16 +1235,85 @@
         function generateVorschau() {
             const typ = abrechnungData.typ;
             const gebiete = abrechnungData.einsatzgebiete;
-            const stornopufferProzent = typ === 'ZA' ? 10 : 0;
+            const records = abrechnungData.records || [];
 
-            // Provisionsätze (Test - später aus campaign_areas)
-            const satzSondierung = typ === 'ZA' || typ === 'EA' ? 80 : (typ === '1JA' ? 50 : (typ === '2JA' ? 30 : 0));
-            const satzRegular = typ === 'ZA' || typ === 'EA' ? 60 : (typ === '1JA' ? 40 : (typ === '2JA' ? 20 : 0));
+            // Vergütungsjahr bestimmen (j1 für ZA/EA, j2 für 1JA, etc.)
+            const vjKey = typ === 'ZA' || typ === 'EA' ? 'j1' :
+                          typ === '1JA' ? 'j2' :
+                          typ === '2JA' ? 'j3' :
+                          typ === '3JA' ? 'j4' : 'j5';
 
-            // Summary
-            const totalMg = gebiete.reduce((sum, g) => sum + g.mg, 0);
-            const totalJe = gebiete.reduce((sum, g) => sum + g.je, 0);
+            // Sondierung/Regular Listen pro Gebiet erstellen
+            const sondierungPositionen = [];
+            const regularPositionen = [];
 
+            gebiete.forEach(gebiet => {
+                // Records für dieses Gebiet filtern
+                let gebietRecords = records.filter(r => r.campaign_area_id === gebiet.id);
+
+                // Nach yearly_amount ASC sortieren (kleinste zuerst → Sondierung)
+                gebietRecords.sort((a, b) => (a.yearly_amount || 0) - (b.yearly_amount || 0));
+
+                // Sondierungslimit berechnen
+                const limitConfig = gebiet.provisionSondierung || { limit: 100, limitType: 'mg' };
+                let sondierungLimit = limitConfig.limit || 100;
+
+                if (limitConfig.limitType === 'prozent' && gebiet.einwohnerzahl > 0) {
+                    // Prozent der Einwohnerzahl
+                    sondierungLimit = Math.floor(gebiet.einwohnerzahl * (limitConfig.limit / 100));
+                }
+
+                // Aufteilung: erste X → Sondierung, Rest → Regular
+                const sondierungRecords = gebietRecords.slice(0, sondierungLimit);
+                const regularRecords = gebietRecords.slice(sondierungLimit);
+
+                // Nach Familienname sortieren
+                sondierungRecords.sort((a, b) => (a.last_name || '').localeCompare(b.last_name || ''));
+                regularRecords.sort((a, b) => (a.last_name || '').localeCompare(b.last_name || ''));
+
+                // Provisionsätze aus campaign_area
+                const satzSondierung = gebiet.provisionSondierung?.[vjKey] || 0;
+                const satzRegular = gebiet.provisionRegular?.[vjKey] || 0;
+
+                // Aggregierte Position für Sondierung
+                if (sondierungRecords.length > 0) {
+                    const sondJe = sondierungRecords.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
+                    sondierungPositionen.push({
+                        gebietId: gebiet.id,
+                        gebietName: gebiet.name,
+                        mg: sondierungRecords.length,
+                        je: sondJe,
+                        satz: satzSondierung,
+                        betrag: sondJe * satzSondierung / 100,
+                        records: sondierungRecords
+                    });
+                }
+
+                // Aggregierte Position für Regular
+                if (regularRecords.length > 0) {
+                    const regJe = regularRecords.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
+                    regularPositionen.push({
+                        gebietId: gebiet.id,
+                        gebietName: gebiet.name,
+                        mg: regularRecords.length,
+                        je: regJe,
+                        satz: satzRegular,
+                        betrag: regJe * satzRegular / 100,
+                        records: regularRecords
+                    });
+                }
+            });
+
+            // Stornopuffer (nur bei ZA)
+            const stornopufferProzent = typ === 'ZA' ? (gebiete[0]?.stornopuffer || 10) : 0;
+
+            // Gesamtsummen
+            const totalMg = records.length;
+            const totalJe = records.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
+            const sondMg = sondierungPositionen.reduce((sum, p) => sum + p.mg, 0);
+            const regMg = regularPositionen.reduce((sum, p) => sum + p.mg, 0);
+
+            // Summary rendern
             document.getElementById('vorschauSummary').innerHTML = `
                 <div class="vorschau-header">
                     <div class="vorschau-info">
@@ -1223,7 +1335,7 @@
                     </div>
                     <div class="vorschau-stat">
                         <span class="text-klein">Gesamt MG</span>
-                        <span class="text-normal--fett">${totalMg}</span>
+                        <span class="text-normal--fett">${totalMg} (${sondMg} Sond. / ${regMg} Reg.)</span>
                     </div>
                     <div class="vorschau-stat">
                         <span class="text-klein">Gesamt JE</span>
@@ -1237,39 +1349,44 @@
             let posNr = 1;
             let zwischensumme = 0;
 
-            // Sondierung (erste 20% der MG pro Gebiet als Test)
-            rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Sonderkonditionen (${satzSondierung}%)</td></tr>`);
-            gebiete.forEach(g => {
-                const sondMg = Math.ceil(g.mg * 0.3); // 30% als Sondierung (Test)
-                const sondJe = Math.ceil(g.je * 0.3);
-                const betrag = sondJe * satzSondierung / 100;
-                zwischensumme += betrag;
-                rows.push(`<tr>
-                    <td>A${posNr++}</td>
-                    <td>${g.name}</td>
-                    <td class="text-right">${sondMg}</td>
-                    <td class="text-right">${sondJe.toLocaleString('de-DE')}</td>
-                    <td class="text-center">${satzSondierung}</td>
-                    <td class="text-right">${betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
-                </tr>`);
-            });
+            // Sondierung
+            if (sondierungPositionen.length > 0) {
+                const sondSatz = sondierungPositionen[0]?.satz || 0;
+                rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Sonderkonditionen (${sondSatz}%)</td></tr>`);
+                sondierungPositionen.forEach(pos => {
+                    zwischensumme += pos.betrag;
+                    rows.push(`<tr>
+                        <td>A${posNr++}</td>
+                        <td>${pos.gebietName}</td>
+                        <td class="text-right">${pos.mg}</td>
+                        <td class="text-right">${pos.je.toLocaleString('de-DE')}</td>
+                        <td class="text-center">${pos.satz}</td>
+                        <td class="text-right">${pos.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                    </tr>`);
+                });
+            }
 
             // Regular
-            rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Regularkonditionen (${satzRegular}%)</td></tr>`);
-            gebiete.forEach(g => {
-                const regMg = Math.floor(g.mg * 0.7); // 70% als Regular (Test)
-                const regJe = Math.floor(g.je * 0.7);
-                const betrag = regJe * satzRegular / 100;
-                zwischensumme += betrag;
-                rows.push(`<tr>
-                    <td>B${posNr++}</td>
-                    <td>${g.name}</td>
-                    <td class="text-right">${regMg}</td>
-                    <td class="text-right">${regJe.toLocaleString('de-DE')}</td>
-                    <td class="text-center">${satzRegular}</td>
-                    <td class="text-right">${betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
-                </tr>`);
-            });
+            if (regularPositionen.length > 0) {
+                const regSatz = regularPositionen[0]?.satz || 0;
+                rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Regularkonditionen (${regSatz}%)</td></tr>`);
+                regularPositionen.forEach(pos => {
+                    zwischensumme += pos.betrag;
+                    rows.push(`<tr>
+                        <td>B${posNr++}</td>
+                        <td>${pos.gebietName}</td>
+                        <td class="text-right">${pos.mg}</td>
+                        <td class="text-right">${pos.je.toLocaleString('de-DE')}</td>
+                        <td class="text-center">${pos.satz}</td>
+                        <td class="text-right">${pos.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                    </tr>`);
+                });
+            }
+
+            // Falls keine Records
+            if (rows.length === 0) {
+                rows.push(`<tr><td colspan="6" class="text-center text-secondary">Keine Datensätze im gewählten Zeitraum</td></tr>`);
+            }
 
             document.getElementById('vorschauTableBody').innerHTML = rows.join('');
 
@@ -1307,8 +1424,11 @@
             document.getElementById('vorschauTableFoot').innerHTML = footerRows.join('');
 
             // Daten für Speichern merken
+            abrechnungData.sondierungPositionen = sondierungPositionen;
+            abrechnungData.regularPositionen = regularPositionen;
             abrechnungData.zwischensumme = zwischensumme;
             abrechnungData.stornopuffer = stornopuffer;
+            abrechnungData.stornopufferProzent = stornopufferProzent;
             abrechnungData.netto = netto;
             abrechnungData.ust = ust;
             abrechnungData.brutto = brutto;
