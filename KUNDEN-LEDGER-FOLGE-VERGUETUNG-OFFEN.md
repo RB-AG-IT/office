@@ -1305,13 +1305,13 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 ### Phase 10: Frontend - Modal Zahlung erfassen
 
-- [ ] **10.1** HTML: Modal-Struktur
-- [ ] **10.2** Input: Betrag Brutto + Button "Vollständig"
-- [ ] **10.3** Datepicker: Zahlungsdatum
-- [ ] **10.4** Input: Notiz (optional)
-- [ ] **10.5** Vorschau: Netto/USt/Brutto Aufschlüsselung
-- [ ] **10.6** JS: Zahlung in `invoice_payments` speichern
-- [ ] **10.7** JS: Rechnungsstatus aktualisieren (wenn vollständig → bezahlt)
+- [x] **10.1** HTML: Modal-Struktur (20.01.2026)
+- [x] **10.2** Input: Betrag Brutto + Button "Vollständig" (20.01.2026)
+- [x] **10.3** Datepicker: Zahlungsdatum (20.01.2026)
+- [x] **10.4** Input: Notiz (optional) (20.01.2026)
+- [x] **10.5** Vorschau: Netto/USt/Brutto Aufschlüsselung (20.01.2026)
+- [x] **10.6** JS: Zahlung in `invoice_payments` speichern (20.01.2026)
+- [x] **10.7** JS: Rechnungsstatus aktualisieren (wenn vollständig → bezahlt) (20.01.2026)
 
 ---
 
