@@ -1291,15 +1291,15 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 ### Phase 9: Frontend - Modal Rechnung Details
 
-- [ ] **9.1** HTML: Modal-Struktur
-- [ ] **9.2** JS: Rechnung laden und anzeigen
-- [ ] **9.3** Status-Dropdown zum Ändern
-- [ ] **9.4** Positionen-Tabelle
-- [ ] **9.5** Zahlungen-Liste
-- [ ] **9.6** Button: Zahlung erfassen
-- [ ] **9.7** Button: PDF Download
-- [ ] **9.8** Button: E-Mail senden
-- [ ] **9.9** Button: Stornieren (mit Bestätigung)
+- [x] **9.1** HTML: Modal-Struktur (20.01.2026)
+- [x] **9.2** JS: Rechnung laden und anzeigen (20.01.2026)
+- [x] **9.3** Status-Dropdown zum Ändern (20.01.2026)
+- [x] **9.4** Positionen-Tabelle (20.01.2026)
+- [x] **9.5** Zahlungen-Liste (20.01.2026)
+- [x] **9.6** Button: Zahlung erfassen (Placeholder) (20.01.2026)
+- [x] **9.7** Button: PDF Download (Placeholder) (20.01.2026)
+- [x] **9.8** Button: E-Mail senden (Placeholder) (20.01.2026)
+- [x] **9.9** Button: Stornieren (mit Bestätigung) (20.01.2026)
 
 ---
 
