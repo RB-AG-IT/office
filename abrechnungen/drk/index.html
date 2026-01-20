@@ -519,9 +519,9 @@
     </div>
     <div class="modal-footer">
         <div style="display: flex; gap: 0.5rem;">
-            <button class="btn btn-secondary" onclick="downloadRechnungPdf()">PDF</button>
-            <button class="btn btn-secondary" onclick="sendRechnungEmail()">E-Mail</button>
-            <button class="btn btn-danger" onclick="storniereRechnung()">Stornieren</button>
+            <button class="btn btn-secondary" onclick="downloadRechnungPdfModal()">PDF</button>
+            <button class="btn btn-secondary" onclick="sendRechnungEmailModal()">E-Mail</button>
+            <button class="btn btn-danger" onclick="storniereRechnungModal()">Stornieren</button>
         </div>
         <button class="btn btn-primary" onclick="closeRechnungDetailModal()">Schließen</button>
     </div>
@@ -1143,14 +1143,41 @@
             alert('Rechnungen für Record: ' + recordId + '\n(Filter wird in Phase 6 implementiert)');
         }
 
-        // Placeholder-Funktionen für Rechnungen
+        // Verbindung Dropdown → Modal
         function openRechnungDetails(id) { openRechnungDetailModal(id); }
-        function downloadRechnungPdf(id) { console.log('PDF:', id); alert('PDF Download für ' + id); }
-        function sendRechnungEmail(id) { console.log('Email:', id); alert('E-Mail senden für ' + id); }
-        function erfasseZahlung(id) { console.log('Zahlung:', id); alert('Zahlung erfassen für ' + id); }
-        function storniereRechnung(id) { console.log('Storno:', id); alert('Stornieren: ' + id); }
-        function sendMailRechnungen() { alert('Sammel-E-Mail'); }
-        function downloadPdfZip() { alert('PDF ZIP Download'); }
+        function downloadRechnungPdf(id) { openRechnungDetailModal(id); /* TODO: direkt PDF in Phase 12 */ }
+        function sendRechnungEmail(id) { openRechnungDetailModal(id); /* TODO: direkt Email in Phase 13 */ }
+        function erfasseZahlung(id) { openRechnungDetailModal(id); /* TODO: direkt Zahlung in Phase 10 */ }
+        async function storniereRechnung(id) {
+            if (!confirm('Rechnung wirklich stornieren?')) return;
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/invoices?id=eq.${id}`,
+                    {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({ status: 'storniert' })
+                    }
+                );
+                if (res.ok) {
+                    alert('Rechnung storniert');
+                    await loadDrkRechnungenFromDB();
+                    renderRechnungenTable();
+                } else {
+                    throw new Error('Stornierung fehlgeschlagen');
+                }
+            } catch (err) {
+                console.error('Fehler beim Stornieren:', err);
+                alert('Fehler: ' + err.message);
+            }
+        }
+        function sendMailRechnungen() { alert('Sammel-E-Mail - Phase 13'); }
+        function downloadPdfZip() { alert('PDF ZIP Download - Phase 12'); }
 
         // ========== FÄLLIG TAB ==========
         function renderFaelligTable() {
@@ -2176,49 +2203,26 @@
             }
         }
 
+        // Modal-Button Funktionen (rufen Dropdown-Funktionen mit currentRechnungId auf)
         function openZahlungModal() {
+            if (!currentRechnungId) return;
             alert('Zahlung erfassen - wird in Phase 10 implementiert');
         }
 
-        function downloadRechnungPdf() {
+        function downloadRechnungPdfModal() {
+            if (!currentRechnungId) return;
             alert('PDF Download - wird in Phase 12 implementiert');
         }
 
-        function sendRechnungEmail() {
+        function sendRechnungEmailModal() {
+            if (!currentRechnungId) return;
             alert('E-Mail senden - wird in Phase 13 implementiert');
         }
 
-        async function storniereRechnung() {
+        async function storniereRechnungModal() {
             if (!currentRechnungId) return;
-            if (!confirm('Rechnung wirklich stornieren?')) return;
-
-            try {
-                const res = await fetch(
-                    `${SUPABASE_URL}/rest/v1/invoices?id=eq.${currentRechnungId}`,
-                    {
-                        method: 'PATCH',
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({ status: 'storniert' })
-                    }
-                );
-
-                if (res.ok) {
-                    alert('Rechnung storniert');
-                    closeRechnungDetailModal();
-                    await loadDrkRechnungenFromDB();
-                    renderRechnungenTable();
-                } else {
-                    throw new Error('Stornierung fehlgeschlagen');
-                }
-            } catch (err) {
-                console.error('Fehler beim Stornieren:', err);
-                alert('Fehler: ' + err.message);
-            }
+            await storniereRechnung(currentRechnungId);
+            closeRechnungDetailModal();
         }
     </script>
 </body>
