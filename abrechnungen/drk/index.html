@@ -437,6 +437,19 @@
                                     PDF Download
                                 </div>
                                 <div class="dropdown-divider"></div>
+                                <div class="dropdown-item" onclick="handleDropdownAction('createInvoice', this.parentElement)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    Abrechnung erstellen
+                                </div>
+                                <div class="dropdown-item" onclick="handleDropdownAction('showInvoices', this.parentElement)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
+                                    Rechnungen anzeigen
+                                </div>
+                                <div class="dropdown-divider"></div>
                                 <div class="dropdown-item warning" onclick="handleDropdownAction('storno', this.parentElement)">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
@@ -629,6 +642,46 @@
             const count = checkboxes.length;
             document.getElementById('rechnungenSelectedCount').textContent = count;
             document.getElementById('rechnungenSelectionGroup').classList.toggle('anzeigenfeld--hidden', count === 0);
+        }
+
+        // ========== DRK-SPEZIFISCHE DROPDOWN-AKTIONEN ==========
+        // Überschreibt handleDropdownAction für DRK-spezifische Aktionen
+        const originalHandleDropdownAction = window.handleDropdownAction;
+        window.handleDropdownAction = function(action, dropdownMenu) {
+            const type = dropdownMenu.dataset.type;
+            const id = dropdownMenu.dataset.id;
+            closeAllDropdowns();
+
+            // DRK-spezifische Aktionen
+            if (action === 'createInvoice') {
+                openCreateInvoiceModal(id);
+                return;
+            }
+            if (action === 'showInvoices') {
+                showInvoicesForRecord(id);
+                return;
+            }
+
+            // Standard-Aktionen an original weiterleiten
+            if (originalHandleDropdownAction) {
+                originalHandleDropdownAction(action, dropdownMenu);
+            }
+        };
+
+        // Abrechnung erstellen für Record
+        function openCreateInvoiceModal(recordId) {
+            console.log('Abrechnung erstellen für Record:', recordId);
+            // TODO: Modal öffnen mit vorausgewähltem Record
+            alert('Abrechnung erstellen für Record: ' + recordId + '\n(Modal wird in Phase 8 implementiert)');
+        }
+
+        // Rechnungen für Record anzeigen (wechselt zu Tab Rechnungen mit Filter)
+        function showInvoicesForRecord(recordId) {
+            console.log('Rechnungen anzeigen für Record:', recordId);
+            // Zum Rechnungen-Tab wechseln
+            document.querySelector('[data-tab="rechnungen"]').click();
+            // TODO: Filter auf diesen Record setzen
+            alert('Rechnungen für Record: ' + recordId + '\n(Filter wird in Phase 6 implementiert)');
         }
 
         // Placeholder-Funktionen für Rechnungen

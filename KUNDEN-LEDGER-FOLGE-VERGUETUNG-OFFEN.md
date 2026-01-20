@@ -1182,7 +1182,7 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 - [x] **2.1** SQL-Funktion: `generate_customer_id()` erstellen (20.01.2026)
 - [x] **2.2** Trigger: Automatische Kunden-ID bei INSERT in `customers` (20.01.2026)
-- [ ] **2.3** Frontend Kundenprofil: Kunden-ID Feld anzeigen (readonly)
+- [x] **2.3** Frontend Kundenprofil: Kunden-ID Feld anzeigen (20.01.2026)
 
 ---
 
@@ -1217,35 +1217,35 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 - [x] **5.1.3** JS: Tab-Initialisierung mit Badges (20.01.2026)
 
 #### 5.2 Tab Kunden (erweitern)
-- [ ] **5.2.1** Dropdown erweitern: "Abrechnung erstellen"
-- [ ] **5.2.2** Dropdown erweitern: "Rechnungen anzeigen"
+- [x] **5.2.1** Dropdown erweitern: "Abrechnung erstellen" (20.01.2026)
+- [x] **5.2.2** Dropdown erweitern: "Rechnungen anzeigen" (20.01.2026)
 
 ---
 
 ### Phase 6: Frontend - Tab Rechnungen
 
 #### 6.1 Tabelle
-- [ ] **6.1.1** HTML: Rechnungen-Tabelle Struktur
-- [ ] **6.1.2** JS: Spalten-Konfiguration (Rechnungsnr, Kunde, Typ, Brutto, Status, Datum)
-- [ ] **6.1.3** JS: Render-Funktion für Rechnungen
-- [ ] **6.1.4** CSS: Status-Badges (entwurf, offen, geplant, bezahlt, storniert)
+- [x] **6.1.1** HTML: Rechnungen-Tabelle Struktur (20.01.2026)
+- [x] **6.1.2** JS: Spalten-Konfiguration (Rechnungsnr, Kunde, Typ, Brutto, Status, Datum) (20.01.2026)
+- [x] **6.1.3** JS: Render-Funktion für Rechnungen (20.01.2026)
+- [x] **6.1.4** CSS: Status-Badges (entwurf, offen, geplant, bezahlt, storniert) (20.01.2026)
 
 #### 6.2 Filter
-- [ ] **6.2.1** HTML: Filter-Dropdowns (Status, Typ, Kunde, Jahr)
-- [ ] **6.2.2** JS: Filter-Logik implementieren
+- [x] **6.2.1** HTML: Filter-Dropdowns (Status, Typ) (20.01.2026)
+- [x] **6.2.2** JS: Filter-Logik implementieren (20.01.2026)
 
 #### 6.3 Zeilen-Dropdown
-- [ ] **6.3.1** Details anzeigen
-- [ ] **6.3.2** PDF Download
-- [ ] **6.3.3** E-Mail senden
-- [ ] **6.3.4** Zahlung erfassen
-- [ ] **6.3.5** Stornieren
+- [x] **6.3.1** Details anzeigen (Placeholder) (20.01.2026)
+- [x] **6.3.2** PDF Download (Placeholder) (20.01.2026)
+- [x] **6.3.3** E-Mail senden (Placeholder) (20.01.2026)
+- [x] **6.3.4** Zahlung erfassen (Placeholder) (20.01.2026)
+- [x] **6.3.5** Stornieren (Placeholder) (20.01.2026)
 
 #### 6.4 Auswahl-Aktionen
-- [ ] **6.4.1** Mehrfachselektion aktivieren
-- [ ] **6.4.2** Sammel-E-Mail
-- [ ] **6.4.3** Sammel-PDF (ZIP)
-- [ ] **6.4.4** Export (CSV/Excel)
+- [x] **6.4.1** Mehrfachselektion aktivieren (20.01.2026)
+- [x] **6.4.2** Sammel-E-Mail (Placeholder) (20.01.2026)
+- [x] **6.4.3** Sammel-PDF (ZIP) (Placeholder) (20.01.2026)
+- [x] **6.4.4** Export (CSV/Excel) (Placeholder) (20.01.2026)
 
 ---
 
