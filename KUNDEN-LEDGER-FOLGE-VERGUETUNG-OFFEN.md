@@ -1144,9 +1144,9 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 **Quelle:** Kundenprofil-Seite (Vertragsauswahl pro Kampagne)
 
-**TODO:** Feld muss noch beim Upload ergänzt werden:
-- [ ] Backend: Speicherung in DB
-- [ ] Frontend: Eingabefeld im Kundenprofil
+**ERLEDIGT:** (20.01.2026)
+- [x] Backend: Speicherung in DB (Migration 066)
+- [x] Frontend: Eingabefeld im Kundenprofil (Rahmenverträge)
 
 ---
 
@@ -1278,9 +1278,9 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 - [x] **8.2.6** JS: Summen berechnen (Netto, USt, Brutto) (20.01.2026)
 
 #### 8.3 Kundenprofil-Einstellung beachten
-- [ ] **8.3.1** Prüfen: Zusammen oder Getrennt?
-- [ ] **8.3.2** Zusammen: Eine Rechnung, alle Einsatzgebiete als Posten
-- [ ] **8.3.3** Getrennt: Mehrere Rechnungen generieren
+- [x] **8.3.1** Prüfen: Zusammen oder Getrennt? (20.01.2026)
+- [x] **8.3.2** Zusammen: Eine Rechnung, alle Einsatzgebiete als Posten (20.01.2026)
+- [x] **8.3.3** Getrennt: Mehrere Rechnungen generieren (20.01.2026)
 
 #### 8.4 Speichern
 - [x] **8.4.1** Button "Als Entwurf": Status = entwurf (Placeholder) (20.01.2026)
@@ -1368,8 +1368,8 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 - [ ] **14.1.3** Link zur DRK Abrechnungsseite
 
 #### 14.2 Einstellungen
-- [ ] **14.2.1** Toggle "Zusammen/Getrennt" in DB speichern
-- [ ] **14.2.2** Empfängertyp aus DB laden (aus Kundentyp ableiten)
+- [x] **14.2.1** Toggle "Zusammen/Getrennt" in DB speichern (Migration 057)
+- [x] **14.2.2** Empfängertyp aus DB laden (20.01.2026)
 
 ---
 
