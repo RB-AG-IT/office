@@ -40,8 +40,9 @@
         </div>
         <!-- Lokale Tabs (per Klick navigierbar) -->
         <div class="page-header-tabs" id="datensaetzeSubTabs">
-            <div class="kw-tab active" data-tab="records">Übersicht <span class="tab-badge" id="recordsBadge">32</span></div>
-            <div class="kw-tab" data-tab="bestand">TEST <span class="tab-badge" id="bestandBadge">142</span></div>
+            <div class="kw-tab active" data-tab="records">Kunden <span class="tab-badge" id="recordsBadge">0</span></div>
+            <div class="kw-tab" data-tab="rechnungen">Rechnungen <span class="tab-badge" id="rechnungenBadge">0</span></div>
+            <div class="kw-tab" data-tab="faellig">Fällig <span class="tab-badge" id="faelligBadge">0</span></div>
         </div>
     </div>
 
@@ -103,54 +104,97 @@
                 </div>
             </div>
 
-            <!-- BESTANDSMITGLIEDER TAB -->
-            <div class="kw-tab-content" id="tab-bestand">
+            <!-- RECHNUNGEN TAB -->
+            <div class="kw-tab-content" id="tab-rechnungen">
                 <div class="table-wrap">
                     <div class="zeile">
-                        <!-- Anzeigenfeld 1: Auswahl-Aktionen (erscheint bei Selektion) -->
-                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden anzeigenfeld--min-height" id="bestandSelectionGroup">
-                            <span class="btn btn-sm" id="bestandSelectionBtn">
+                        <!-- Filter -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
+                            <select class="btn btn-sm" id="filterRechnungStatus" onchange="filterRechnungen()">
+                                <option value="all">Alle Status</option>
+                                <option value="entwurf">Entwurf</option>
+                                <option value="offen">Offen</option>
+                                <option value="geplant">Geplant</option>
+                                <option value="bezahlt">Bezahlt</option>
+                                <option value="storniert">Storniert</option>
+                            </select>
+                            <select class="btn btn-sm" id="filterRechnungTyp" onchange="filterRechnungen()">
+                                <option value="all">Alle Typen</option>
+                                <option value="ZA">Zwischenabrechnung</option>
+                                <option value="EA">Endabrechnung</option>
+                                <option value="1JA">1. Jahresabrechnung</option>
+                                <option value="2JA">2. Jahresabrechnung</option>
+                                <option value="3JA">3. Jahresabrechnung</option>
+                                <option value="4JA">4. Jahresabrechnung</option>
+                            </select>
+                        </div>
+                        <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                        <!-- Auswahl-Aktionen -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="rechnungenSelectionGroup">
+                            <span class="btn btn-sm" id="rechnungenSelectionBtn">
                                 <span class="icon icon--clipboard"></span>
-                                Ausgewählt: <span id="bestandSelectedCount">0</span>
+                                Ausgewählt: <span id="rechnungenSelectedCount">0</span>
                             </span>
-                            <button class="btn btn-sm" onclick="sendMail('bestand')">
+                            <button class="btn btn-sm" onclick="sendMailRechnungen()">
                                 <span class="icon icon--email"></span>
                                 E-Mail
                             </button>
-                            <button class="btn btn-sm" onclick="createAbrechnung('bestand')">
+                            <button class="btn btn-sm" onclick="downloadPdfZip()">
                                 <span class="icon icon--dokument"></span>
-                                Abrechnung erstellen
+                                PDF (ZIP)
                             </button>
                         </div>
-                        <!-- Spacer -->
                         <div class="anzeigenfeld anzeigenfeld--spacer"></div>
-                        <!-- Anzeigenfeld 2: Spalten & Audit (rechts) -->
+                        <!-- Rechts -->
                         <div class="anzeigenfeld anzeigenfeld--auto">
-                            <button class="btn btn-sm" onclick="openColumnsModal('bestand')">
+                            <button class="btn btn-sm" onclick="openColumnsModal('rechnungen')">
                                 <span class="icon icon--spalten"></span>
                                 Spalten
-                            </button>
-                            <button class="btn btn-sm" onclick="openAuditModal('bestand', 'default')">
-                                <span class="icon icon--uhr"></span>
-                                Audit
                             </button>
                         </div>
                     </div>
                     <div class="table-container">
-                        <table class="table table--compact" id="bestandTable">
-                            <thead id="bestandTableHead">
+                        <table class="table table--compact" id="rechnungenTable">
+                            <thead id="rechnungenTableHead">
                                 <!-- Wird dynamisch gerendert -->
                             </thead>
-                            <tbody id="bestandTableBody">
+                            <tbody id="rechnungenTableBody">
                                 <!-- Wird dynamisch gerendert -->
                             </tbody>
-                            <tfoot id="bestandTableFoot">
-                                <!-- Wird dynamisch gerendert -->
-                            </tfoot>
                         </table>
                     </div>
                 </div>
-        </div>
+            </div>
+
+            <!-- FÄLLIG TAB -->
+            <div class="kw-tab-content" id="tab-faellig">
+                <div class="table-wrap">
+                    <div class="zeile">
+                        <!-- Auswahl-Aktionen -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden anzeigenfeld--min-height" id="faelligSelectionGroup">
+                            <span class="btn btn-sm" id="faelligSelectionBtn">
+                                <span class="icon icon--clipboard"></span>
+                                Ausgewählt: <span id="faelligSelectedCount">0</span>
+                            </span>
+                            <button class="btn btn-sm btn-primary" onclick="createAbrechnungFromFaellig()">
+                                <span class="icon icon--dokument"></span>
+                                Abrechnung erstellen
+                            </button>
+                        </div>
+                        <div class="anzeigenfeld anzeigenfeld--spacer"></div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table--compact" id="faelligTable">
+                            <thead id="faelligTableHead">
+                                <!-- Wird dynamisch gerendert -->
+                            </thead>
+                            <tbody id="faelligTableBody">
+                                <!-- Wird dynamisch gerendert -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
     </div><!-- Ende page-content -->
 </div><!-- Ende page-container -->
 
@@ -174,11 +218,19 @@
             { id: 8, name: 'DRK KV Marburg', kundenId: 'DRK-008', rechnungsnummer: 'RE-2025-0008', auftragsnummer: 'A-2025-008', offeneProv1Jahr: '1.120,00 €', stornopufferProzent: '12%', stornopufferSumme: '134,40 €', offeneProv2Jahr: '740,00 €', offeneProv3Jahr: '560,00 €', offeneProv4Jahr: '380,00 €', offeneProv5Jahr: '190,00 €', provisionGesamt: '2.990,00 €', mitglieder: 112, jahreseuros: '13.440,00 €' },
         ];
 
-        const testBestandData = [
-            { id: 201, name: 'Herbert Fischer', memberNr: 'MG-2019-0042', seit: '15.03.2019', je: '120,00 €', email: 'h.fischer@email.de', status: 'aktiv' },
-            { id: 202, name: 'Ursula Meier', memberNr: 'MG-2018-0187', seit: '22.08.2018', je: '60,00 €', email: 'u.meier@email.de', status: 'aktiv' },
-            { id: 203, name: 'Wolfgang Braun', memberNr: 'MG-2020-0023', seit: '04.01.2020', je: '180,00 €', email: 'w.braun@email.de', status: 'aktiv' },
-            { id: 204, name: 'Ingrid Schulz', memberNr: 'MG-2017-0312', seit: '11.11.2017', je: '120,00 €', email: 'i.schulz@email.de', status: 'inaktiv' },
+        // Test-Daten für Rechnungen
+        const testRechnungenData = [
+            { id: 'r1', rechnungsnummer: '26-OV-001-ZA-00001', kunde: 'DRK KV Frankfurt', typ: 'ZA', brutto: '5.708,00 €', status: 'bezahlt', datum: '15.01.2026' },
+            { id: 'r2', rechnungsnummer: '26-OV-002-ZA-00002', kunde: 'DRK KV Darmstadt', typ: 'ZA', brutto: '3.245,00 €', status: 'offen', datum: '18.01.2026' },
+            { id: 'r3', rechnungsnummer: '26-KV-003-EA-00003', kunde: 'DRK KV Wiesbaden', typ: 'EA', brutto: '8.920,00 €', status: 'geplant', datum: '20.01.2026' },
+            { id: 'r4', rechnungsnummer: '26-OV-004-1JA-00004', kunde: 'DRK KV Offenbach', typ: '1JA', brutto: '4.560,00 €', status: 'entwurf', datum: '20.01.2026' },
+        ];
+
+        // Test-Daten für Fällige Abrechnungen
+        const testFaelligData = [
+            { id: 'f1', kunde: 'DRK KV Kassel', kampagne: 'Frühjahr 2025', typ: 'EA', faelligSeit: '10.01.2026', betragCa: '6.200,00 €' },
+            { id: 'f2', kunde: 'DRK KV Gießen', kampagne: 'Herbst 2024', typ: '1JA', faelligSeit: '05.01.2026', betragCa: '3.800,00 €' },
+            { id: 'f3', kunde: 'DRK KV Fulda', kampagne: 'Sommer 2024', typ: '2JA', faelligSeit: '01.01.2026', betragCa: '2.100,00 €' },
         ];
 
         const testHistoryData = {
@@ -228,7 +280,12 @@
 
             // Tab-Badges aktualisieren
             document.getElementById('recordsBadge').textContent = testRecordsData.length;
-            document.getElementById('bestandBadge').textContent = testBestandData.length;
+            document.getElementById('rechnungenBadge').textContent = testRechnungenData.filter(r => r.status === 'offen').length;
+            document.getElementById('faelligBadge').textContent = testFaelligData.length;
+
+            // Neue Tabs rendern
+            renderRechnungenTable();
+            renderFaelligTable();
 
             // Register toolbar config with shell (Import/Export for data tables)
             registerToolbarConfig();
@@ -486,6 +543,153 @@
                 }
             }
         });
+
+        // ========== RECHNUNGEN TAB ==========
+        function renderRechnungenTable() {
+            const thead = document.getElementById('rechnungenTableHead');
+            const tbody = document.getElementById('rechnungenTableBody');
+            if (!thead || !tbody) return;
+
+            // Filter anwenden
+            const statusFilter = document.getElementById('filterRechnungStatus')?.value || 'all';
+            const typFilter = document.getElementById('filterRechnungTyp')?.value || 'all';
+
+            let filtered = testRechnungenData;
+            if (statusFilter !== 'all') filtered = filtered.filter(r => r.status === statusFilter);
+            if (typFilter !== 'all') filtered = filtered.filter(r => r.typ === typFilter);
+
+            // Header
+            thead.innerHTML = `<tr>
+                <th class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="toggleSelectAllRechnungen(this)"></th>
+                <th class="action-cell"></th>
+                <th class="col-m text-left">Rechnungsnr.</th>
+                <th class="col-name text-left">Kunde</th>
+                <th class="col-s text-center">Typ</th>
+                <th class="col-m text-right">Brutto</th>
+                <th class="col-s text-center">Status</th>
+                <th class="col-s text-left">Datum</th>
+                <th class="col-spacer"></th>
+            </tr>`;
+
+            // Body
+            tbody.innerHTML = filtered.map(r => {
+                const statusClass = {
+                    'entwurf': 'badge--neutral',
+                    'offen': 'badge--warning',
+                    'geplant': 'badge--info',
+                    'bezahlt': 'badge--success',
+                    'storniert': 'badge--danger'
+                }[r.status] || '';
+
+                return `<tr data-id="${r.id}">
+                    <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onchange="updateRechnungenSelection()"></td>
+                    <td class="action-cell">
+                        <div class="dropdown">
+                            <button class="dropdown-btn" onclick="toggleDropdown(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" onclick="openRechnungDetails('${r.id}')">Details anzeigen</div>
+                                <div class="dropdown-item" onclick="downloadRechnungPdf('${r.id}')">PDF Download</div>
+                                <div class="dropdown-item" onclick="sendRechnungEmail('${r.id}')">E-Mail senden</div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item" onclick="erfasseZahlung('${r.id}')">Zahlung erfassen</div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item warning" onclick="storniereRechnung('${r.id}')">Stornieren</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="col-m text-left">${r.rechnungsnummer}</td>
+                    <td class="col-name text-left">${r.kunde}</td>
+                    <td class="col-s text-center"><span class="badge badge--small">${r.typ}</span></td>
+                    <td class="col-m text-right">${r.brutto}</td>
+                    <td class="col-s text-center"><span class="badge badge--small ${statusClass}">${r.status}</span></td>
+                    <td class="col-s text-left">${r.datum}</td>
+                    <td class="col-spacer"></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function filterRechnungen() {
+            renderRechnungenTable();
+        }
+
+        function toggleSelectAllRechnungen(checkbox) {
+            const checkboxes = document.querySelectorAll('#rechnungenTableBody .row-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updateRechnungenSelection();
+        }
+
+        function updateRechnungenSelection() {
+            const checkboxes = document.querySelectorAll('#rechnungenTableBody .row-checkbox:checked');
+            const count = checkboxes.length;
+            document.getElementById('rechnungenSelectedCount').textContent = count;
+            document.getElementById('rechnungenSelectionGroup').classList.toggle('anzeigenfeld--hidden', count === 0);
+        }
+
+        // Placeholder-Funktionen für Rechnungen
+        function openRechnungDetails(id) { console.log('Details:', id); alert('Details für ' + id); }
+        function downloadRechnungPdf(id) { console.log('PDF:', id); alert('PDF Download für ' + id); }
+        function sendRechnungEmail(id) { console.log('Email:', id); alert('E-Mail senden für ' + id); }
+        function erfasseZahlung(id) { console.log('Zahlung:', id); alert('Zahlung erfassen für ' + id); }
+        function storniereRechnung(id) { console.log('Storno:', id); alert('Stornieren: ' + id); }
+        function sendMailRechnungen() { alert('Sammel-E-Mail'); }
+        function downloadPdfZip() { alert('PDF ZIP Download'); }
+
+        // ========== FÄLLIG TAB ==========
+        function renderFaelligTable() {
+            const thead = document.getElementById('faelligTableHead');
+            const tbody = document.getElementById('faelligTableBody');
+            if (!thead || !tbody) return;
+
+            // Header
+            thead.innerHTML = `<tr>
+                <th class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="toggleSelectAllFaellig(this)"></th>
+                <th class="col-name text-left">Kunde</th>
+                <th class="col-m text-left">Kampagne</th>
+                <th class="col-s text-center">Typ</th>
+                <th class="col-s text-left">Fällig seit</th>
+                <th class="col-m text-right">Betrag (ca.)</th>
+                <th class="col-spacer"></th>
+            </tr>`;
+
+            // Body
+            tbody.innerHTML = testFaelligData.map(f => `<tr data-id="${f.id}">
+                <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onchange="updateFaelligSelection()"></td>
+                <td class="col-name text-left">${f.kunde}</td>
+                <td class="col-m text-left">${f.kampagne}</td>
+                <td class="col-s text-center"><span class="badge badge--small badge--warning">${f.typ}</span></td>
+                <td class="col-s text-left">${f.faelligSeit}</td>
+                <td class="col-m text-right">${f.betragCa}</td>
+                <td class="col-spacer"></td>
+            </tr>`).join('');
+        }
+
+        function toggleSelectAllFaellig(checkbox) {
+            const checkboxes = document.querySelectorAll('#faelligTableBody .row-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updateFaelligSelection();
+        }
+
+        function updateFaelligSelection() {
+            const checkboxes = document.querySelectorAll('#faelligTableBody .row-checkbox:checked');
+            const count = checkboxes.length;
+            document.getElementById('faelligSelectedCount').textContent = count;
+            document.getElementById('faelligSelectionGroup').classList.toggle('anzeigenfeld--hidden', count === 0);
+        }
+
+        function createAbrechnungFromFaellig() {
+            const selected = document.querySelectorAll('#faelligTableBody .row-checkbox:checked');
+            if (selected.length === 0) {
+                alert('Bitte mindestens einen Eintrag auswählen');
+                return;
+            }
+            alert('Abrechnung erstellen für ' + selected.length + ' Einträge');
+        }
     </script>
 </body>
 </html>

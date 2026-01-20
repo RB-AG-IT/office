@@ -1159,29 +1159,29 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 ### Phase 1: Datenbank-Grundlagen (Fundament)
 
 #### 1.1 Neue Tabellen erstellen
-- [ ] **1.1.1** Migration: `absicherungsfristen` Tabelle + Konstanten einfügen
-- [ ] **1.1.2** Migration: `record_entitlements` Tabelle (Ansprüche pro Record × VJ)
-- [ ] **1.1.3** Migration: `qualitaetsbonus_berechnungen` Tabelle
-- [ ] **1.1.4** Migration: `invoice_payments` Tabelle (Zahlungshistorie)
-- [ ] **1.1.5** Migration: `campaign_zubuchungen` Tabelle
+- [x] **1.1.1** Migration: `absicherungsfristen` Tabelle + Konstanten einfügen (20.01.2026)
+- [x] **1.1.2** Migration: `record_entitlements` Tabelle (Ansprüche pro Record × VJ) (20.01.2026)
+- [x] **1.1.3** Migration: `qualitaetsbonus_berechnungen` Tabelle (20.01.2026)
+- [x] **1.1.4** Migration: `invoice_payments` Tabelle (Zahlungshistorie) (20.01.2026)
+- [x] **1.1.5** Migration: `campaign_zubuchungen` Tabelle (20.01.2026)
 
 #### 1.2 Bestehende Tabellen erweitern
-- [ ] **1.2.1** Migration: `customers` erweitern (empfaenger_typ, kunden_nr_ziffern)
-- [ ] **1.2.2** Migration: `campaign_areas` erweitern (qualitaetsbonus_datum, einwohnerzahl, stornopuffer)
-- [ ] **1.2.3** Migration: `customer_billing_ledger` erweitern (verguetungsjahr, entitlement_id)
-- [ ] **1.2.4** Migration: `invoices` erweitern für DRK (customer_id, campaign_id, abrechnungstyp, etc.)
+- [x] **1.2.1** Migration: `customers` erweitern (empfaenger_typ, kunden_nr_ziffern) (20.01.2026)
+- [x] **1.2.2** Migration: `campaign_areas` erweitern (qualitaetsbonus_datum, einwohnerzahl, stornopuffer) (20.01.2026)
+- [x] **1.2.3** Migration: `customer_billing_ledger` erweitern (verguetungsjahr, entitlement_id) (20.01.2026)
+- [x] **1.2.4** Migration: `invoices` erweitern für DRK (customer_id, campaign_id, abrechnungstyp, etc.) (20.01.2026)
 
 #### 1.3 Indizes und Constraints
-- [ ] **1.3.1** Indizes für `record_entitlements` anlegen
-- [ ] **1.3.2** Indizes für `invoice_payments` anlegen
-- [ ] **1.3.3** Indizes für erweiterte `invoices` Spalten anlegen
+- [x] **1.3.1** Indizes für `record_entitlements` anlegen (20.01.2026)
+- [x] **1.3.2** Indizes für `invoice_payments` anlegen (20.01.2026)
+- [x] **1.3.3** Indizes für erweiterte `invoices` Spalten anlegen (20.01.2026)
 
 ---
 
 ### Phase 2: Kunden-ID Generierung
 
-- [ ] **2.1** SQL-Funktion: `generate_customer_id()` erstellen
-- [ ] **2.2** Trigger: Automatische Kunden-ID bei INSERT in `customers`
+- [x] **2.1** SQL-Funktion: `generate_customer_id()` erstellen (20.01.2026)
+- [x] **2.2** Trigger: Automatische Kunden-ID bei INSERT in `customers` (20.01.2026)
 - [ ] **2.3** Frontend Kundenprofil: Kunden-ID Feld anzeigen (readonly)
 
 ---
@@ -1189,32 +1189,32 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 ### Phase 3: Record-Entitlements (Ansprüche)
 
 #### 3.1 Trigger für automatische Anspruchserstellung
-- [ ] **3.1.1** Funktion: `create_record_entitlements()` - erstellt 5 VJ-Ansprüche
-- [ ] **3.1.2** Trigger: Bei Record INSERT → 5 Ansprüche erstellen
-- [ ] **3.1.3** Funktion: Absicherungsdatum berechnen (basierend auf Zahlungsart)
-- [ ] **3.1.4** Funktion: Fälligkeitsdatum berechnen (VJ2 = VJ1 + 12 Monate)
+- [x] **3.1.1** Funktion: `create_record_entitlements()` - erstellt 5 VJ-Ansprüche (20.01.2026)
+- [x] **3.1.2** Trigger: Bei Record INSERT → 5 Ansprüche erstellen (20.01.2026)
+- [x] **3.1.3** Funktion: Absicherungsdatum berechnen (basierend auf Zahlungsart) (20.01.2026)
+- [x] **3.1.4** Funktion: Fälligkeitsdatum berechnen (VJ2 = VJ1 + 12 Monate) (20.01.2026)
 
 #### 3.2 Storno-Handling
-- [ ] **3.2.1** Funktion: `handle_record_storno()` - Ansprüche stornieren
-- [ ] **3.2.2** Trigger: Bei Record UPDATE (status → storno) → Ansprüche aktualisieren
-- [ ] **3.2.3** Logik: Abgesicherte VJ behalten, nicht abgesicherte stornieren
+- [x] **3.2.1** Funktion: `handle_record_storno()` - Ansprüche stornieren (20.01.2026)
+- [x] **3.2.2** Trigger: Bei Record UPDATE (status → storno) → Ansprüche aktualisieren (20.01.2026)
+- [x] **3.2.3** Logik: Abgesicherte VJ behalten, nicht abgesicherte stornieren (20.01.2026)
 
 ---
 
 ### Phase 4: Rechnungsnummern-Generierung
 
-- [ ] **4.1** SQL-Funktion: `generate_invoice_number()` erstellen
-- [ ] **4.2** Format: `[JJ]-[Empfänger]-[KundenNr]-[Typ]-[Nummer]`
-- [ ] **4.3** Trigger: Automatische Nummer bei Status → offen
+- [x] **4.1** SQL-Funktion: `generate_invoice_number()` erstellen (20.01.2026)
+- [x] **4.2** Format: `[JJ]-[Empfänger]-[KundenNr]-[Typ]-[Nummer]` (20.01.2026)
+- [x] **4.3** Trigger: Automatische Nummer bei Status → offen (20.01.2026)
 
 ---
 
 ### Phase 5: Frontend - DRK Abrechnungsseite Grundstruktur
 
 #### 5.1 Tab-Struktur
-- [ ] **5.1.1** HTML: Tab "Rechnungen" hinzufügen
-- [ ] **5.1.2** HTML: Tab "Fällig" hinzufügen
-- [ ] **5.1.3** JS: Tab-Initialisierung mit Badges
+- [x] **5.1.1** HTML: Tab "Rechnungen" hinzufügen (20.01.2026)
+- [x] **5.1.2** HTML: Tab "Fällig" hinzufügen (20.01.2026)
+- [x] **5.1.3** JS: Tab-Initialisierung mit Badges (20.01.2026)
 
 #### 5.2 Tab Kunden (erweitern)
 - [ ] **5.2.1** Dropdown erweitern: "Abrechnung erstellen"
@@ -1390,22 +1390,31 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 ---
 
-### Phase 17: Testing & Validierung
+### Phase 17: RLS (Row Level Security)
 
-- [ ] **17.1** Test: Kunden-ID Generierung
-- [ ] **17.2** Test: Record-Entitlements bei neuem Record
-- [ ] **17.3** Test: Storno-Handling
-- [ ] **17.4** Test: Zwischenabrechnung erstellen
-- [ ] **17.5** Test: Endabrechnung mit Stornopuffer-Auflösung
-- [ ] **17.6** Test: VJ2 mit Qualitätsbonus
-- [ ] **17.7** Test: Zusammen vs. Getrennt Rechnungen
-- [ ] **17.8** Test: Zahlungserfassung und Status-Update
-- [ ] **17.9** Test: PDF-Generierung
-- [ ] **17.10** Test: E-Mail-Versand
+- [ ] **17.0.1** RLS für alle neuen Tabellen aktivieren
+- [ ] **17.0.2** Policies definieren (authenticated, service_role)
+
+> **HINWEIS:** RLS wird erst ganz am Schluss aktiviert, nicht bei den einzelnen Migrationen.
 
 ---
 
-**Gesamt: 17 Phasen, ~100 Einzelschritte**
+### Phase 18: Testing & Validierung
+
+- [ ] **18.1** Test: Kunden-ID Generierung
+- [ ] **18.2** Test: Record-Entitlements bei neuem Record
+- [ ] **18.3** Test: Storno-Handling
+- [ ] **18.4** Test: Zwischenabrechnung erstellen
+- [ ] **18.5** Test: Endabrechnung mit Stornopuffer-Auflösung
+- [ ] **18.6** Test: VJ2 mit Qualitätsbonus
+- [ ] **18.7** Test: Zusammen vs. Getrennt Rechnungen
+- [ ] **18.8** Test: Zahlungserfassung und Status-Update
+- [ ] **18.9** Test: PDF-Generierung
+- [ ] **18.10** Test: E-Mail-Versand
+
+---
+
+**Gesamt: 18 Phasen, ~100 Einzelschritte**
 
 ---
 
