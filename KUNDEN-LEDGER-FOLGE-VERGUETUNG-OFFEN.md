@@ -497,6 +497,8 @@ Beispiel:
 
 **PP = Prozentpunkte**, werden auf den Provisionssatz addiert.
 
+**Grenzfall:** Bei exakt 8,00% Stornoquote wird der Bonus gewährt (≤ bedeutet "kleiner oder gleich").
+
 ### Anwendung
 
 - **Rückwirkend VJ 1:** Differenz wird mit VJ 2 verrechnet
@@ -739,6 +741,42 @@ Beispiel ohne Teilvergütung:
 ### 11.7 Rechnung manuell stornieren
 
 Eine Rechnung kann nur **manuell** storniert werden (Button "Stornieren"). Es gibt keine automatische Stornierung.
+
+### 11.8 Storno vor erster Abrechnung
+
+Wenn ein MG storniert wird, **bevor** überhaupt eine Zwischenabrechnung erstellt wurde:
+
+- **Nichts passiert** - MG wird einfach nicht abgerechnet
+- Keine Gutschrift, keine Verrechnung
+
+### 11.9 Mehrfache Erhöhungen
+
+Wenn ein MG seinen Beitrag mehrfach erhöht:
+
+- **Immer nur der Erhöhungsbetrag** (Differenz zum vorherigen Beitrag)
+- Jede Erhöhung startet KEINEN neuen 5-Jahres-Zyklus
+
+```
+Beispiel:
+- Start: 60€
+- Erhöhung 1: 60€ → 90€ → Differenz 30€ für Provision
+- Erhöhung 2: 90€ → 120€ → Differenz 30€ für Provision
+```
+
+### 11.10 Beitragssenkung
+
+Wenn ein MG seinen Beitrag senkt:
+
+- **Gleiches Prinzip wie Erhöhung:** Differenzbetrag wird verwendet
+- Differenz ist negativ → führt zu Gutschrift
+- Falls bereits abgerechnet → Gutschrift auf nächste Rechnung
+
+```
+Beispiel:
+- VJ1 abgerechnet mit 120€ × 80% = 96€
+- MG senkt auf 80€ (Differenz: -40€)
+- VJ2: Gutschrift für bereits abgerechneten Betrag
+```
 
 ---
 
@@ -1223,9 +1261,10 @@ VJ4 + VJ5: Keine Vergütung (0% Sätze)
 | 1.1 | 20.01.2026 | Ergänzt: Datensatz-Typen (Erhöhungen), Rechnungsaufbau & Workflow, Sonderfälle, Zubuchungen, Einwohnerzahl-Speicherung |
 | 1.2 | 20.01.2026 | Ergänzt: Rechnungsnummern-Format, PDF-Layout, Rechnungsstatus, Zahlungstracking, Rechnungsversand |
 | 1.3 | 20.01.2026 | Ergänzt: Datenbank-Schema (invoice_payments, campaign_zubuchungen, customers/invoices Erweiterung), Sonderfälle 11.4-11.7 (Storno EA-VJ2, negative Beträge, 0€-Rechnung, manuelles Stornieren), Kunden-ID Generierung, Vertragsnummer, Stornopuffer individuell einstellbar, Schatzmeister Label |
+| 1.4 | 20.01.2026 | Ergänzt: Sonderfälle 11.8-11.10 (Storno vor 1. Abrechnung, mehrfache Erhöhungen, Beitragssenkung), Qualitätsbonus Grenzfall-Klarstellung |
 
 ---
 
 *Erstellt: 20.01.2026*
 *Aktualisiert: 20.01.2026*
-*Version: 1.3*
+*Version: 1.4*
