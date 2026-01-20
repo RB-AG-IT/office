@@ -1,6 +1,7 @@
 # Kunden-Ledger: Folgevergütung & Abrechnungssystem
 
 **Erstellt:** 20.01.2026
+**Aktualisiert:** 20.01.2026
 **Status:** Konzept abgeschlossen, Implementierung ausstehend
 **Ziel:** Vollständiges Abrechnungssystem für DRK-Kunden mit 5-jähriger Folgevergütung
 
@@ -10,15 +11,19 @@
 
 1. [Überblick](#1-überblick)
 2. [Vergütungsmodell](#2-vergütungsmodell)
-3. [Abrechnungstypen](#3-abrechnungstypen)
-4. [Sondierung vs. Regular](#4-sondierung-vs-regular)
-5. [Qualitätsbonus](#5-qualitätsbonus)
-6. [Absicherungsfristen](#6-absicherungsfristen)
-7. [Stornopuffer](#7-stornopuffer)
-8. [Teilvergütung bei Storno](#8-teilvergütung-bei-storno)
-9. [Zeitliche Abläufe](#9-zeitliche-abläufe)
-10. [Datenbank-Schema](#10-datenbank-schema)
-11. [Implementierungsschritte](#11-implementierungsschritte)
+3. [Datensatz-Typen](#3-datensatz-typen)
+4. [Abrechnungstypen](#4-abrechnungstypen)
+5. [Rechnungsaufbau & Workflow](#5-rechnungsaufbau--workflow)
+6. [Sondierung vs. Regular](#6-sondierung-vs-regular)
+7. [Qualitätsbonus](#7-qualitätsbonus)
+8. [Absicherungsfristen](#8-absicherungsfristen)
+9. [Stornopuffer](#9-stornopuffer)
+10. [Teilvergütung bei Storno](#10-teilvergütung-bei-storno)
+11. [Sonderfälle](#11-sonderfälle)
+12. [Zubuchungen](#12-zubuchungen)
+13. [Zeitliche Abläufe](#13-zeitliche-abläufe)
+14. [Datenbank-Schema](#14-datenbank-schema)
+15. [Implementierungsschritte](#15-implementierungsschritte)
 
 ---
 
@@ -48,7 +53,7 @@ Ein Abrechnungssystem für die Vergütung von Mitgliederwerbung gegenüber DRK-K
 
 ### Grundprinzip
 
-Ein Record (Neumitglied) erzeugt Vergütungsansprüche über 5 Jahre:
+Ein Record erzeugt Vergütungsansprüche über 5 Jahre:
 
 | Vergütungsjahr | Bezeichnung | Beispiel-Satz (Sondierung) | Beispiel-Satz (Regular) |
 |----------------|-------------|----------------------------|-------------------------|
@@ -84,16 +89,51 @@ Die Provisionssätze werden in `campaign_areas` gespeichert:
 
 ---
 
-## 3. Abrechnungstypen
+## 3. Datensatz-Typen
 
-### 3.1 Zwischenabrechnungen (VJ 1)
+### 3.1 Neumitglieder
+
+Neu geworbene Mitglieder. Das 5-Jahres-Modell gilt vollständig.
+
+**Berechnungsgrundlage:** Voller Jahresbeitrag (yearly_amount)
+
+```
+Beispiel:
+Jahresbeitrag: 120 €
+VJ1: 120 € × 80% = 96 €
+```
+
+### 3.2 Erhöhungen
+
+Bestehende Mitglieder, die ihren Beitrag erhöhen. Das 5-Jahres-Modell gilt auch hier.
+
+**Berechnungsgrundlage:** Nur der Erhöhungsbetrag (nicht der volle neue Beitrag!)
+
+```
+Beispiel:
+Alter Beitrag: 60 €
+Neuer Beitrag: 120 €
+Erhöhungsbetrag: 60 €
+
+VJ1: 60 € × 80% = 48 €
+```
+
+### 3.3 Neuträge
+
+Wie Neumitglieder behandelt. Berechnungsgrundlage ist der volle Jahresbeitrag.
+
+---
+
+## 4. Abrechnungstypen
+
+### 4.1 Zwischenabrechnungen (VJ 1)
 
 - **Anzahl:** 3-4 Stück während der Kampagne
 - **Zeitpunkt:** Während des Einsatzes (z.B. wöchentlich)
 - **Inhalt:** Neu geworbene Mitglieder seit letzter Abrechnung
 - **Besonderheit:** 10% Stornopuffer wird zurückgehalten
 
-### 3.2 Endabrechnung (VJ 1)
+### 4.2 Endabrechnung (VJ 1)
 
 - **Anzahl:** 1 pro Einsatzgebiet
 - **Zeitpunkt:** XX Wochen nach letztem Einsatztag (einstellbar: `endabr_wochen`)
@@ -103,7 +143,7 @@ Die Provisionssätze werden in `campaign_areas` gespeichert:
   - Verrechnung aller Stornos seit Zwischenabrechnungen
 - **Besonderheit:** Noch OHNE Qualitätsbonus
 
-### 3.3 Jahresabrechnungen (VJ 2-5)
+### 4.3 Jahresabrechnungen (VJ 2-5)
 
 - **Zeitpunkt:** 12 Monate nach vorheriger Abrechnung
 - **Inhalt:**
@@ -113,7 +153,278 @@ Die Provisionssätze werden in `campaign_areas` gespeichert:
 
 ---
 
-## 4. Sondierung vs. Regular
+## 5. Rechnungsaufbau & Workflow
+
+### 5.1 Grundprinzipien
+
+- **Separate Rechnungen:** Sondierung und Regular werden IMMER als separate Rechnungen erstellt
+- **Pro Kampagne:** Jede Kampagne wird separat abgerechnet (keine Zusammenfassung mehrerer Kampagnen)
+- **Manueller Zeitraum:** Der Abrechnungszeitraum wird manuell gewählt (typisch wöchentlich oder monatlich)
+- **USt:** Immer 19% Umsatzsteuer
+
+### 5.2 Rechnungsnummern
+
+**Format:** `[JJ]-[Empfänger]-[KundenNr]-[Typ]-[Nummer]`
+
+```
+Beispiel Kunden-ID: A025-023
+→ KundenNr: 023
+
+026-OV-023-ZA-00422  → Zwischenabrechnung
+026-KV-023-EA-00423  → Endabrechnung
+026-OV-015-1JA-00424 → 1. Jahresabrechnung (anderer Kunde)
+```
+
+**Komponenten:**
+
+| Teil | Bedeutung | Quelle |
+|------|-----------|--------|
+| 026 | Jahr (2026) | Automatisch |
+| OV/KV/LV | Empfängertyp | Kundenprofil |
+| 023 | Kunden-Nr (3 Ziffern aus Kunden-ID) | Kundenprofil |
+| ZA/EA/1JA/2JA/3JA/4JA | Abrechnungstyp | Automatisch |
+| 00422 | Fortlaufende Nummer (global) | Automatisch |
+
+**Abrechnungstypen:**
+- ZA = Zwischenabrechnung
+- EA = Endabrechnung (VJ1)
+- 1JA = 1. Jahresabrechnung (VJ2)
+- 2JA = 2. Jahresabrechnung (VJ3)
+- 3JA = 3. Jahresabrechnung (VJ4)
+- 4JA = 4. Jahresabrechnung (VJ5)
+
+**Empfängertypen:**
+- OV = Ortsverein
+- KV = Kreisverband
+- LV = Landesverband
+
+### 5.3 MG-Gruppierung nach Kalenderwoche
+
+Mitglieder werden **pro Kalenderwoche (KW) gruppiert** dargestellt:
+
+```
+POSITIONEN:
+  KW 12: 25 MG | 3.000 JE | 80% | 2.400€
+  KW 13: 30 MG | 3.600 JE | 80% | 2.880€
+  KW 14: 20 MG | 2.400 JE | 80% | 1.920€
+```
+
+### 5.4 Sondierungslimit über KWs
+
+Das Sondierungslimit wird **kumulativ über alle KWs** gezählt:
+
+```
+Beispiel (Limit: 100 MG Sondierung):
+
+KW 12: 60 MG → alle Sondierung (60/100)
+KW 13: 50 MG → 40 Sondierung + 10 Regular (100/100 erreicht)
+KW 14: 30 MG → alle Regular
+
+Rechnungen KW 13:
+  - 1x Sondierung (40 MG)
+  - 1x Regular (10 MG)
+```
+
+### 5.5 Rechnungsaufbau Zwischenabrechnung
+
+```
+┌─────────────────────────────────────────────────────┐
+│ POSITIONEN (pro KW):                                │
+│   KW 12: 25 MG | 3.000 JE | 80% | 2.400€           │
+│   KW 13: 30 MG | 3.600 JE | 80% | 2.880€           │
+├─────────────────────────────────────────────────────┤
+│ ABZÜGE STORNOS (nicht abgerechnet):                 │
+│   5 Stornos | -400€                                 │
+├─────────────────────────────────────────────────────┤
+│ ZUBUCHUNGEN:                                        │
+│   KFZ-Pauschale | 300€                              │
+│   Ausweise | 150€                                   │
+├─────────────────────────────────────────────────────┤
+│ NETTO:                          5.330€              │
+│ Stornopuffer 10%:                -533€              │
+│ ZWISCHENSUMME:                  4.797€              │
+│ UST (19%):                        911€              │
+│ BRUTTO:                         5.708€              │
+└─────────────────────────────────────────────────────┘
+```
+
+### 5.6 Rechnungsaufbau Endabrechnung (VJ1)
+
+Die Endabrechnung ist eine **Gesamtauflistung** mit Verrechnung:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ GESAMT:                                             │
+│   140 MG | 16.800 JE | 80% | 13.440€               │
+├─────────────────────────────────────────────────────┤
+│ ABZÜGE STORNOS:                                     │
+│   12 Stornos | -960€                                │
+├─────────────────────────────────────────────────────┤
+│ ABZÜGE BEREITS BEZAHLT:                             │
+│   Zwischenabr. 1 (KW12-13): -4.752€                │
+│   Zwischenabr. 2 (KW14-15): -3.420€                │
+├─────────────────────────────────────────────────────┤
+│ ZUBUCHUNGEN:                                        │
+│   (falls vorhanden)                                 │
+├─────────────────────────────────────────────────────┤
+│ NETTO:                          4.308€              │
+│ (KEIN Stornopuffer bei Endabrechnung!)             │
+│ UST (19%):                        818€              │
+│ BRUTTO:                         5.126€              │
+└─────────────────────────────────────────────────────┘
+```
+
+**Wichtig:** Bei der Endabrechnung wird KEIN Stornopuffer einbehalten.
+
+### 5.7 Rechnungsaufbau Jahresabrechnung (VJ2+)
+
+```
+┌─────────────────────────────────────────────────────┐
+│ GESAMT VJ2:                                         │
+│   128 MG (aktiv) | 15.360 JE | 50% | 7.680€        │
+├─────────────────────────────────────────────────────┤
+│ QUALITÄTSBONUS VJ1 (Nachzahlung):                   │
+│   128 MG | +10 PP | +1.536€                        │
+├─────────────────────────────────────────────────────┤
+│ ABZÜGE STORNOS (Gutschrift):                        │
+│   8 Stornos | -640€ (bereits abgerechneter Betrag) │
+├─────────────────────────────────────────────────────┤
+│ NETTO:                          8.576€              │
+│ UST (19%):                      1.629€              │
+│ BRUTTO:                        10.205€              │
+└─────────────────────────────────────────────────────┘
+```
+
+**Wichtig bei Stornos in VJ2+:**
+- Storno-Gutschrift = **bereits abgerechneter Betrag aus VJ1**
+- NICHT der aktuelle VJ-Satz!
+
+```
+Beispiel:
+- MG Müller in VJ1 abgerechnet: 120€ × 80% = 96€
+- Storno vor VJ2
+- Gutschrift auf VJ2-Rechnung: -96€ (nicht VJ2-Betrag!)
+```
+
+### 5.8 Rechnungs-PDF Layout
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [LOGO]                           RHODENBURG GmbH            │
+│                                  QP-Qualitätspartner der    │
+│                                  Gemeinwohl & Sozialwirtsch.│
+│ Absender-Zeile (klein)           Adresse Verwaltung         │
+│                                  Poststelle                 │
+│ Herr / Frau / Firma              Telefon/Fax               │
+│ [EMPFÄNGER]                      www / E-Mail              │
+│ z.Hd. [Ansprechpartner]                                    │
+│ [Adresse]                                                   │
+├─────────────────────────────────────────────────────────────┤
+│ Rechnung                         Ansprechpartner:           │
+│                                  [Name/Abteilung]           │
+│ Bezeichnung  : Zwischenrechnung  E-Mail: buchhaltung@...   │
+│ Datum        : 31.07.2025                                  │
+│ Nummer       : 025-OV-031-ZR-A00384                        │
+│ Bank         : DE53 1001 8000 0480 9659 32 (BIC: ...)      │
+│ KD-ID: A025-031 | Vertr.-Nr.: 025/RV/00412                 │
+│ E-Mail: drk-ov-beispiel@web.de                             │
+│ *sofortige Fälligkeit (sofern vertraglich nicht anders)    │
+├─────────────────────────────────────────────────────────────┤
+│ Pos │ Beschreibung           │ Anz MG │ JE EUR │ % │Gesamt │
+│─────┼────────────────────────┼────────┼────────┼───┼───────│
+│ A1  │ Neumitglieder          │ 51     │ 4.329  │79 │3.419  │
+│     │ (Sonderkonditionen)    │        │        │   │       │
+│ A2  │ Neumitglieder          │ 04     │ 960    │89 │ 854   │
+│     │ (Regular)              │        │        │   │       │
+│ A3  │ Erhöhungen             │ 06     │ 402    │89 │ 357   │
+│     │ (Differenzbetrag)      │        │        │   │       │
+├─────────────────────────────────────────────────────────────┤
+│                              Zwischensumme EUR    4.632,09  │
+├─────────────────────────────────────────────────────────────┤
+│ B1  │ Stornopuffer -10%      │        │        │   │-463,21│
+│     │ (vertragliche Vereinb.)│        │        │   │       │
+├─────────────────────────────────────────────────────────────┤
+│                              Gesamtsumme EUR      4.168,88  │
+│                              Gesetzl. USt (19%)     792,09  │
+│                              RECHNUNGSBETRAG      4.960,97  │
+├─────────────────────────────────────────────────────────────┤
+│ [LOGO] [QP-Siegel]  Firmendaten | Registergericht |         │
+│                     Geschäftsführer | Website     Seite: X  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**PDF-Elemente:**
+
+| Element | Inhalt | Quelle |
+|---------|--------|--------|
+| Logo | Rhodenburg Logo | Statisch |
+| Absender | Firmenname, Adressen, Kontakt | Statisch |
+| Empfänger | Kundenname, z.Hd., Adresse | Kundenprofil |
+| Rechnungsdaten | Bezeichnung, Datum, Nummer, Bank | System |
+| KD-ID | Kunden-ID | Kundenprofil |
+| Vertr.-Nr. | Vertragsnummer | Kampagne/Vertrag |
+| Positionen | MG gruppiert nach Typ | Abrechnungsdaten |
+| Abzüge | Stornopuffer, Stornos | Berechnet |
+| Summen | Netto, USt, Brutto | Berechnet |
+| Footer | Firmendaten, Registergericht, GF | Statisch |
+
+### 5.9 Rechnungsstatus
+
+```
+entwurf → offen → geplant → bezahlt
+                     ↓
+                 storniert
+```
+
+| Status | Bedeutung | Aktion |
+|--------|-----------|--------|
+| entwurf | In Bearbeitung | Bearbeiten möglich |
+| offen | Freigegeben, Rechnungsnummer vergeben | Versand möglich |
+| geplant | Versand geplant/erfolgt | Warten auf Zahlung |
+| bezahlt | Vollständig bezahlt | Abgeschlossen |
+| storniert | Rechnung storniert | Gutschrift erstellen |
+
+**Hinweis:** Bei Teilzahlung bleibt Status "offen" bis vollständig bezahlt.
+
+### 5.10 Zahlungstracking
+
+**Manuelle Erfassung:** Zahlungen werden manuell über ein Pop-up erfasst.
+
+**Eingabefelder:**
+- Bezahlter Betrag (Netto)
+- USt
+- Brutto
+- Datum
+
+**Mehrere Zahlungen möglich:**
+
+```
+Rechnung: 1.000€ Brutto
+├── Zahlung 1: 400€ (01.02.2026)
+├── Zahlung 2: 300€ (15.02.2026)
+├── Zahlung 3: 300€ (28.02.2026)
+└── Status: bezahlt (100%)
+```
+
+**Zahlungshistorie:** Pro Rechnung werden alle Zahlungseingänge mit Datum und Betrag gespeichert.
+
+### 5.11 Rechnungsversand
+
+**Versandoptionen:**
+- E-Mail automatisch (bei geplanter Abrechnung)
+- E-Mail manuell (Button "Jetzt senden")
+- PDF-Download (zum selbst versenden/archivieren)
+
+**E-Mail-Empfänger:**
+- Ansprechpartner **"Schatzmeister (Rechnungsstellung)"** im Kundenprofil
+- Bestehendes Feld "Schatzmeister", Label visuell um "(Rechnungsstellung)" ergänzen
+- **Ohne Eintrag ist E-Mail-Versand nicht möglich!**
+
+**Mahnwesen:** Nicht automatisch. Später: Manuelle Vorlage mit Versandfunktion.
+
+---
+
+## 6. Sondierung vs. Regular
 
 ### Konzept
 
@@ -154,7 +465,7 @@ In `campaign_areas.provision_sondierung`:
 
 ---
 
-## 5. Qualitätsbonus
+## 7. Qualitätsbonus
 
 ### Konzept
 
@@ -220,7 +531,7 @@ In `campaign_areas`:
 
 ---
 
-## 6. Absicherungsfristen
+## 8. Absicherungsfristen
 
 ### Konzept
 
@@ -271,7 +582,7 @@ Wenn ein MG storniert wird, nachdem das VJ abgesichert ist:
 
 ---
 
-## 7. Stornopuffer
+## 9. Stornopuffer
 
 ### Konzept
 
@@ -299,16 +610,18 @@ Endabrechnung:
 
 ### Konfiguration
 
+**Individuell pro Kampagne/Einsatzgebiet** einstellbar im Kampagnen-Modal.
+
 In `campaign_areas`:
 ```json
 {
-  "stornopuffer": 10  // Prozent
+  "stornopuffer": 10  // Prozent (individuell einstellbar, Standard: 10%)
 }
 ```
 
 ---
 
-## 8. Teilvergütung bei Storno
+## 10. Teilvergütung bei Storno
 
 ### Konzept
 
@@ -335,9 +648,128 @@ In `campaign_areas`:
 }
 ```
 
+### Gültigkeit
+
+**Wichtig:** Teilvergütung ist nur relevant BIS zur Absicherung!
+
+```
+Monat 1-12:  Storno → Teilvergütung möglich (falls aktiviert)
+Monat 13+:   VJ 1+2 abgesichert → keine Rückforderung mehr
+Monat 25+:   VJ 3 abgesichert → etc.
+```
+
+Sobald ein Abrechnungsintervall (Absicherungsfrist) erreicht ist, gibt es keine Rückforderung mehr für die abgesicherten VJ.
+
 ---
 
-## 9. Zeitliche Abläufe
+## 11. Sonderfälle
+
+### 11.1 Beitragsänderung während Laufzeit
+
+Wenn ein MG seinen Jahresbeitrag ändert (erhöht oder senkt):
+
+- **Berechnungsgrundlage:** Der NEUE Betrag gilt ab Änderung
+- **Rückwirkend:** Falls nötig, müssen bereits abgerechnete VJ korrigiert werden
+
+```
+Beispiel:
+- VJ1 abgerechnet mit 120€ × 80% = 96€
+- MG erhöht auf 180€
+- VJ2 wird mit 180€ berechnet: 180€ × 50% = 90€
+- Falls Qualitätsbonus rückwirkend: Korrektur auf Basis 180€
+```
+
+### 11.2 Reaktivierung nach Storno
+
+Wenn ein storniertes MG wieder aktiviert wird:
+
+- **Ursprüngliche Ansprüche:** Werden wieder aktiviert (nicht neu von vorne)
+- **Differenzberechnung:** Bereits als Gutschrift verrechnete Beträge müssen ausgeglichen werden
+
+```
+Beispiel:
+- MG storniert nach VJ1 (96€ als Gutschrift verrechnet)
+- MG wird reaktiviert
+- Bei nächster Abrechnung: +96€ Zubuchung (Ausgleich der Gutschrift)
+- VJ2-5 werden normal weiter abgerechnet
+```
+
+### 11.3 Storno nach Rechnungsstellung, vor Zahlung
+
+Wenn eine Rechnung bereits erstellt wurde, aber noch nicht bezahlt:
+
+- **Rechnung bleibt bestehen** (wird NICHT storniert/gelöscht)
+- **Gutschrift auf nächste Rechnung**
+
+```
+Beispiel:
+- Rechnung 1: 1.000€ (noch offen)
+- MG Müller storniert (war mit 96€ auf Rechnung)
+- Rechnung 2: Gutschrift -96€ für Storno Müller
+```
+
+### 11.4 Storno zwischen Endabrechnung und VJ2
+
+Wenn ein MG nach der Endabrechnung (VJ1) aber vor der 2. Jahresabrechnung (VJ2) storniert:
+
+- **Verrechnung mit VJ2-Rechnung**
+- **Mit Teilvergütung:** Nur teilweise Rückforderung (je nach Einstellung)
+- **Ohne Teilvergütung:** Vollständige Rückforderung des VJ1-Betrags
+
+```
+Beispiel mit Teilvergütung (50%):
+- VJ1 abgerechnet: 96€
+- Storno nach 10 Monaten
+- Rückforderung: 96€ × 50% = 48€ (auf VJ2-Rechnung)
+
+Beispiel ohne Teilvergütung:
+- VJ1 abgerechnet: 96€
+- Storno nach 10 Monaten
+- Rückforderung: 96€ vollständig (auf VJ2-Rechnung)
+```
+
+### 11.5 Negative Rechnungsbeträge
+
+**Ja, möglich.** Wenn Storno-Gutschriften die Positionen übersteigen, kann eine Rechnung negativ werden.
+
+### 11.6 0€-Rechnung
+
+**Wird NICHT erstellt.** Wenn der Nettobetrag nach allen Verrechnungen 0€ beträgt, wird keine Rechnung generiert.
+
+### 11.7 Rechnung manuell stornieren
+
+Eine Rechnung kann nur **manuell** storniert werden (Button "Stornieren"). Es gibt keine automatische Stornierung.
+
+---
+
+## 12. Zubuchungen
+
+### Konzept
+
+Zusatzkosten die pro Kampagne/Werbegebiet manuell eingetragen werden können.
+
+### Beispiele
+
+- **KFZ:** Fahrzeugkosten
+- **Kleidung:** Arbeitskleidung
+- **Ausweise:** Mitarbeiterausweise
+
+### Konfiguration
+
+Einstellbar im **Kampagnen-Modal** pro Werbegebiet/Kampagne. Die Beträge werden individuell eingetragen.
+
+### Darstellung auf Rechnung
+
+```
+ZUBUCHUNGEN:
+  KFZ-Pauschale | 500€
+  Ausweise (10 Stk) | 150€
+  Kleidung | 200€
+```
+
+---
+
+## 13. Zeitliche Abläufe
 
 ### Gesamtübersicht
 
@@ -388,9 +820,18 @@ JAHRESRATE VJ 5 (letzte)
 
 ---
 
-## 10. Datenbank-Schema
+## 14. Datenbank-Schema
 
-### 10.1 Neue Tabelle: `record_entitlements`
+### 14.0 Übersicht Datenbank-Erweiterungen
+
+| Bereich | Lösung |
+|---------|--------|
+| DRK-Rechnungen | Bestehende `invoices` Tabelle erweitern |
+| Zahlungshistorie | Neue Tabelle `invoice_payments` |
+| Zubuchungen | Neue Tabelle `campaign_zubuchungen` |
+| Kunden-Daten | `customers` Tabelle erweitern |
+
+### 14.1 Neue Tabelle: `record_entitlements`
 
 Speichert Ansprüche pro Record × Vergütungsjahr.
 
@@ -456,7 +897,7 @@ CREATE INDEX idx_entitlements_faellig ON record_entitlements(faellig_ab);
 CREATE INDEX idx_entitlements_invoice ON record_entitlements(invoice_id);
 ```
 
-### 10.2 Neue Tabelle: `qualitaetsbonus_berechnungen`
+### 14.2 Neue Tabelle: `qualitaetsbonus_berechnungen`
 
 Tracking der Qualitätsbonus-Berechnungen pro Einsatzgebiet.
 
@@ -487,7 +928,7 @@ CREATE TABLE qualitaetsbonus_berechnungen (
 );
 ```
 
-### 10.3 Neue Tabelle: `absicherungsfristen` (Konstanten)
+### 14.3 Neue Tabelle: `absicherungsfristen` (Konstanten)
 
 ```sql
 CREATE TABLE absicherungsfristen (
@@ -507,7 +948,7 @@ INSERT INTO absicherungsfristen (zahlungsart, monate_vj_1_2, monate_vj_3, monate
 ('annual', 24, 36, 48, 60);
 ```
 
-### 10.4 Erweiterung: `campaign_areas`
+### 14.4 Erweiterung: `campaign_areas`
 
 ```sql
 ALTER TABLE campaign_areas ADD COLUMN IF NOT EXISTS qualitaetsbonus_datum DATE;
@@ -517,7 +958,20 @@ COMMENT ON COLUMN campaign_areas.qualitaetsbonus_datum IS
 'Datum für Qualitätsbonus-Berechnung. NULL = Standard bei VJ2-Abrechnung.';
 ```
 
-### 10.5 Erweiterung: `customer_billing_ledger`
+### 14.5 Erweiterung: `campaign_areas` - Einwohnerzahl
+
+Die Einwohnerzahl für das Sondierungslimit (bei `limitType: "prozent"`) wird in `campaign_areas` gespeichert.
+
+```sql
+ALTER TABLE campaign_areas ADD COLUMN IF NOT EXISTS einwohnerzahl INTEGER;
+
+COMMENT ON COLUMN campaign_areas.einwohnerzahl IS
+'Einwohnerzahl des Einsatzgebiets für Sondierungslimit-Berechnung (bei limitType=prozent).';
+```
+
+Die Eingabe erfolgt auf der **Kundenprofil-Seite** pro Einsatzgebiet.
+
+### 14.6 Erweiterung: `customer_billing_ledger`
 
 ```sql
 ALTER TABLE customer_billing_ledger
@@ -530,9 +984,134 @@ CREATE INDEX IF NOT EXISTS idx_billing_ledger_vj ON customer_billing_ledger(verg
 CREATE INDEX IF NOT EXISTS idx_billing_ledger_entitlement ON customer_billing_ledger(entitlement_id);
 ```
 
+### 14.7 Neue Tabelle: `invoice_payments`
+
+Speichert Zahlungseingänge für Teilzahlungen.
+
+```sql
+CREATE TABLE invoice_payments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Referenz
+    invoice_id UUID NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+
+    -- Beträge
+    betrag_netto DECIMAL(10,2) NOT NULL,
+    betrag_ust DECIMAL(10,2) NOT NULL,
+    betrag_brutto DECIMAL(10,2) NOT NULL,
+
+    -- Zeitpunkt
+    zahlungsdatum DATE NOT NULL,
+
+    -- Audit
+    created_at TIMESTAMPTZ DEFAULT now(),
+    created_by UUID REFERENCES auth.users(id)
+);
+
+CREATE INDEX idx_invoice_payments_invoice ON invoice_payments(invoice_id);
+CREATE INDEX idx_invoice_payments_datum ON invoice_payments(zahlungsdatum);
+```
+
+### 14.8 Neue Tabelle: `campaign_zubuchungen`
+
+Speichert Zubuchungen (KFZ, Kleidung, Ausweise) pro Kampagne/Werbegebiet.
+
+```sql
+CREATE TABLE campaign_zubuchungen (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Referenzen
+    campaign_id UUID NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+    campaign_area_id UUID REFERENCES campaign_areas(id) ON DELETE CASCADE,
+
+    -- Daten
+    typ TEXT NOT NULL CHECK (typ IN ('kfz', 'kleidung', 'ausweise', 'sonstiges')),
+    bezeichnung TEXT,
+    betrag DECIMAL(10,2) NOT NULL,
+
+    -- Abrechnung
+    invoice_id UUID REFERENCES invoices(id) ON DELETE SET NULL,
+    abgerechnet_am DATE,
+
+    -- Audit
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX idx_zubuchungen_campaign ON campaign_zubuchungen(campaign_id);
+CREATE INDEX idx_zubuchungen_area ON campaign_zubuchungen(campaign_area_id);
+CREATE INDEX idx_zubuchungen_invoice ON campaign_zubuchungen(invoice_id);
+```
+
+### 14.9 Erweiterung: `customers`
+
+```sql
+ALTER TABLE customers
+ADD COLUMN IF NOT EXISTS empfaenger_typ TEXT CHECK (empfaenger_typ IN ('OV', 'KV', 'LV')),
+ADD COLUMN IF NOT EXISTS kunden_nr_ziffern CHAR(3);
+
+COMMENT ON COLUMN customers.empfaenger_typ IS
+'Empfängertyp für Rechnungsnummer: OV=Ortsverein, KV=Kreisverband, LV=Landesverband';
+
+COMMENT ON COLUMN customers.kunden_nr_ziffern IS
+'3-stellige Nummer aus Kunden-ID für Rechnungsnummer (z.B. "023" aus A025-023)';
+```
+
+### 14.10 Erweiterung: `invoices` (für DRK-Rechnungen)
+
+```sql
+ALTER TABLE invoices
+ADD COLUMN IF NOT EXISTS customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
+ADD COLUMN IF NOT EXISTS campaign_id UUID REFERENCES campaigns(id) ON DELETE SET NULL,
+ADD COLUMN IF NOT EXISTS campaign_area_id UUID REFERENCES campaign_areas(id) ON DELETE SET NULL,
+ADD COLUMN IF NOT EXISTS empfaenger_typ TEXT CHECK (empfaenger_typ IN ('OV', 'KV', 'LV')),
+ADD COLUMN IF NOT EXISTS kunden_nr CHAR(3),
+ADD COLUMN IF NOT EXISTS abrechnungstyp TEXT CHECK (abrechnungstyp IN ('ZA', 'EA', '1JA', '2JA', '3JA', '4JA')),
+ADD COLUMN IF NOT EXISTS fortlaufende_nr INTEGER,
+ADD COLUMN IF NOT EXISTS vertragsnummer TEXT,
+ADD COLUMN IF NOT EXISTS ist_sondierung BOOLEAN;
+
+CREATE INDEX IF NOT EXISTS idx_invoices_customer ON invoices(customer_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_campaign ON invoices(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_area ON invoices(campaign_area_id);
+```
+
+### 14.11 Kunden-ID Generierung
+
+**Format:** `A[JJ]-[NNN]`
+
+| Teil | Bedeutung | Beispiel |
+|------|-----------|----------|
+| A | Prefix (konstant) | A |
+| JJ | Kalenderjahr (2-stellig) | 025 (für 2025) |
+| NNN | Fortlaufende Nummer (3-stellig) | 023 |
+
+**Beispiel:** `A025-023` = 23. Kunde im Jahr 2025
+
+**Generierung:**
+- Automatisch bei Kundenanlage
+- Fortlaufende Nummer pro Jahr
+- Neue Nummer bei Jahreswechsel beginnt bei 001
+
+```sql
+-- Generierung der nächsten Kunden-ID
+SELECT 'A' || TO_CHAR(NOW(), 'YY') || '-' ||
+       LPAD((COALESCE(MAX(CAST(SUBSTRING(kunden_id FROM 6 FOR 3) AS INTEGER)), 0) + 1)::TEXT, 3, '0')
+FROM customers
+WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
+```
+
+### 14.12 Vertragsnummer
+
+**Quelle:** Kundenprofil-Seite (Vertragsauswahl pro Kampagne)
+
+**TODO:** Feld muss noch beim Upload ergänzt werden:
+- [ ] Backend: Speicherung in DB
+- [ ] Frontend: Eingabefeld im Kundenprofil
+
 ---
 
-## 11. Implementierungsschritte
+## 15. Implementierungsschritte
 
 ### Phase 1: Datenbank-Schema
 
@@ -636,5 +1215,17 @@ VJ4 + VJ5: Keine Vergütung (0% Sätze)
 
 ---
 
+## Änderungshistorie
+
+| Version | Datum | Änderungen |
+|---------|-------|------------|
+| 1.0 | 20.01.2026 | Initiale Version |
+| 1.1 | 20.01.2026 | Ergänzt: Datensatz-Typen (Erhöhungen), Rechnungsaufbau & Workflow, Sonderfälle, Zubuchungen, Einwohnerzahl-Speicherung |
+| 1.2 | 20.01.2026 | Ergänzt: Rechnungsnummern-Format, PDF-Layout, Rechnungsstatus, Zahlungstracking, Rechnungsversand |
+| 1.3 | 20.01.2026 | Ergänzt: Datenbank-Schema (invoice_payments, campaign_zubuchungen, customers/invoices Erweiterung), Sonderfälle 11.4-11.7 (Storno EA-VJ2, negative Beträge, 0€-Rechnung, manuelles Stornieren), Kunden-ID Generierung, Vertragsnummer, Stornopuffer individuell einstellbar, Schatzmeister Label |
+
+---
+
 *Erstellt: 20.01.2026*
-*Version: 1.0*
+*Aktualisiert: 20.01.2026*
+*Version: 1.3*
