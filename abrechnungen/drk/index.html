@@ -141,11 +141,7 @@
                 <div class="table-wrap">
                     <div class="zeile">
                         <!-- Anzeigenfeld 1: Filter -->
-                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height">
-                            <button class="btn btn-sm active" data-filter="all" onclick="setFilter('all')">Alle</button>
-                            <button class="btn btn-sm" data-filter="offenerVorschuss" onclick="setFilter('offenerVorschuss')">Offener Vorschuss</button>
-                        </div>
-                        <div class="anzeigenfeld anzeigenfeld--divider"></div>
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height"></div>
                         <!-- Anzeigenfeld 2: Auswahl-Aktionen (erscheint bei Selektion) -->
                         <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="recordsSelectionGroup">
                             <span class="btn btn-sm" id="recordsSelectionBtn">
@@ -842,12 +838,6 @@
             let filtered;
             if (currentFilter === 'all') {
                 filtered = recordsData;
-            } else if (currentFilter === 'offenerVorschuss') {
-                // Zeigt Einträge mit offenem Vorschuss (Wert > 0)
-                filtered = recordsData.filter(d => {
-                    const val = parseFloat(String(d.offenerVorschuss || '0').replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-                    return val > 0;
-                });
             } else {
                 filtered = recordsData.filter(d => d.typ === currentFilter);
             }
