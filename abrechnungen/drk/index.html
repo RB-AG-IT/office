@@ -1544,20 +1544,31 @@
             }
         }
 
-        // Kampagnen für einen Kunden laden
+        // Kampagnen für einen Kunden laden (über customer_areas → campaign_areas → campaigns)
         async function loadKampagnenFromDB(customerId) {
             try {
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/campaigns?customer_id=eq.${customerId}&select=id,name,year,status&order=start_date.desc`,
+                    `${SUPABASE_URL}/rest/v1/customer_areas?customer_id=eq.${customerId}&select=campaign_areas(campaign_id,campaigns(id,name,year,status))`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 if (!response.ok) throw new Error('Fehler beim Laden der Kampagnen');
-                const kampagnen = await response.json();
-                kampagnenData[customerId] = kampagnen.map(k => ({
-                    id: k.id,
-                    name: k.name + (k.year ? ` (${k.year})` : ''),
-                    status: k.status
-                }));
+                const areas = await response.json();
+
+                // Kampagnen aus verschachtelter Struktur extrahieren (eindeutig)
+                const kampagnenMap = new Map();
+                areas.forEach(area => {
+                    (area.campaign_areas || []).forEach(ca => {
+                        if (ca.campaigns && !kampagnenMap.has(ca.campaigns.id)) {
+                            kampagnenMap.set(ca.campaigns.id, {
+                                id: ca.campaigns.id,
+                                name: ca.campaigns.name + (ca.campaigns.year ? ` (${ca.campaigns.year})` : ''),
+                                status: ca.campaigns.status
+                            });
+                        }
+                    });
+                });
+
+                kampagnenData[customerId] = Array.from(kampagnenMap.values());
             } catch (err) {
                 console.error('Fehler beim Laden der Kampagnen:', err);
                 kampagnenData[customerId] = [];
