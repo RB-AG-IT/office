@@ -739,9 +739,11 @@ Beispiel ohne Teilvergütung:
 
 **Wird NICHT erstellt.** Wenn der Nettobetrag nach allen Verrechnungen 0€ beträgt, wird keine Rechnung generiert.
 
-### 11.7 Rechnung manuell stornieren
+### 11.7 Rechnung stornieren oder löschen
 
-Eine Rechnung kann nur **manuell** storniert werden (Button "Stornieren"). Es gibt keine automatische Stornierung.
+**Stornieren:** Eine Rechnung kann nur **manuell** storniert werden (Button "Stornieren"). Es gibt keine automatische Stornierung. Stornierte Rechnungen bleiben für die Nachvollziehbarkeit erhalten.
+
+**Löschen:** Nur Rechnungen mit Status `entwurf` können gelöscht werden. Das Löschen entfernt die Rechnung vollständig aus der Datenbank. Rechnungen mit anderem Status (offen, geplant, bezahlt, storniert) können nicht gelöscht werden.
 
 ### 11.8 Storno vor erster Abrechnung
 
@@ -1473,7 +1475,8 @@ Bestehende Tabelle bleibt, Zeilen-Dropdown erweitern:
 - ---
 - Zahlung erfassen
 - ---
-- Stornieren
+- Löschen (nur bei Status `entwurf`)
+- Stornieren (nur bei Status != `entwurf`)
 
 **Auswahl-Aktionen (Mehrfachselektion):**
 - E-Mail senden (Sammelversand)
@@ -1661,6 +1664,7 @@ VJ4 + VJ5: Keine Vergütung (0% Sätze)
 | 1.3 | 20.01.2026 | Ergänzt: Datenbank-Schema (invoice_payments, campaign_zubuchungen, customers/invoices Erweiterung), Sonderfälle 11.4-11.7 (Storno EA-VJ2, negative Beträge, 0€-Rechnung, manuelles Stornieren), Kunden-ID Generierung, Vertragsnummer, Stornopuffer individuell einstellbar, Schatzmeister Label |
 | 1.4 | 20.01.2026 | Ergänzt: Sonderfälle 11.8-11.10 (Storno vor 1. Abrechnung, mehrfache Erhöhungen, Beitragssenkung), Qualitätsbonus Grenzfall-Klarstellung |
 | 1.5 | 20.01.2026 | Ergänzt: Abschnitt 16 Frontend DRK Abrechnungsseite (Tabs, Modals, Rechnungserstellung, Zahlungserfassung, Status-Workflow, Kundenprofil-Einstellung Zusammen/Getrennt) |
+| 1.6 | 20.01.2026 | Ergänzt: Löschen von Entwürfen (Abschnitt 11.7 + 16.3) |
 
 ---
 
