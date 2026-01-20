@@ -1406,9 +1406,9 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 ### Phase 16: Qualitätsbonus-Konfiguration
 
-- [ ] **16.1** Kampagnen-Modal: Qualitätsbonus-Regeln bearbeiten
-- [ ] **16.2** Eingabe: Stornoquote-Schwellen und Bonus-PP
-- [ ] **16.3** Optional: Festes Qualitätsbonus-Datum
+- [x] **16.1** Kampagnen-Modal: Qualitätsbonus-Regeln bearbeiten (20.01.2026)
+- [x] **16.2** Eingabe: Stornoquote-Schwellen und Bonus-PP (20.01.2026)
+- [x] **16.3** Optional: Festes Qualitätsbonus-Datum (20.01.2026)
 
 ---
 

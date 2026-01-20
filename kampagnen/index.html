@@ -543,6 +543,13 @@
                                     <div class="zeile">
                                         <span class="text-klein text-sekundaer" id="qualiMaxDisplay">Max. Bonus: +10 PP</span>
                                     </div>
+                                    <div class="zeile" style="margin-top: 12px;">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                            <label class="eingabefeld-beschriftung-oben">Berechnungsdatum</label>
+                                            <input type="date" class="eingabefeld" id="wgQualitaetsbonusDatum">
+                                            <span class="text-klein text-sekundaer">Leer = Standard (bei VJ2-Abrechnung)</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1411,6 +1418,7 @@ async function loadCampaignsFromSupabase() {
                 provision_sondierung: area.provision_sondierung,
                 provision_regular: area.provision_regular,
                 qualitaetsbonus: area.qualitaetsbonus,
+                qualitaetsbonus_datum: area.qualitaetsbonus_datum,
                 teilverguetung: area.teilverguetung,
                 teilv_prozent: area.teilv_prozent,
                 stornopuffer: area.stornopuffer,
@@ -2648,6 +2656,7 @@ async function addWgToCampaign(wgId) {
                     { storno: 8, pp: 1 }
                 ]
             },
+            qualitaetsbonus_datum: null,
             teilverguetung: false,
             teilvProzent: 50,
             stornopuffer: 10,
@@ -2798,6 +2807,7 @@ function openWgConfig(wgId) {
     document.getElementById('qualiPP4').value = qbRegeln[3]?.pp || 1;
     document.getElementById('qualiRulesSection').style.display = qbAktiv ? 'block' : 'none';
     updateQualiMaxBonus();
+    document.getElementById('wgQualitaetsbonusDatum').value = wg.qualitaetsbonus_datum || '';
 
     // Teilvergütung
     document.getElementById('wgTeilverguetung').checked = wg.teilverguetung;
@@ -3490,6 +3500,8 @@ async function saveWgConfig() {
             { storno: parseInt(document.getElementById('qualiStorno4').value) || 8, pp: parseInt(document.getElementById('qualiPP4').value) || 1 }
         ]
     };
+    const qbDatumVal = document.getElementById('wgQualitaetsbonusDatum').value;
+    wg.qualitaetsbonus_datum = qbDatumVal || null;
 
     // Teilvergütung
     wg.teilverguetung = document.getElementById('wgTeilverguetung').checked;
@@ -3565,6 +3577,7 @@ async function saveWgConfig() {
                 provision_sondierung: wg.sondierung,
                 provision_regular: wg.regular,
                 qualitaetsbonus: wg.qualitaetsbonus,
+                qualitaetsbonus_datum: wg.qualitaetsbonus_datum,
                 teilverguetung: wg.teilverguetung,
                 teilv_prozent: wg.teilvProzent,
                 stornopuffer: wg.stornopuffer,
