@@ -2370,6 +2370,9 @@
                     rpcData.rechnungen = abrechnungData.rechnungen || [];
                 }
 
+                // Debug: Zeige was gesendet wird
+                console.log('RPC Data:', JSON.stringify(rpcData, null, 2));
+
                 // RPC aufrufen
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/create_drk_invoice`, {
                     method: 'POST',
@@ -2384,7 +2387,11 @@
                 const result = await res.json();
 
                 if (result.success) {
-                    const count = result.count || 1;
+                    const count = result.count ?? 0;
+                    if (count === 0) {
+                        alert('Keine Rechnungen erstellt - keine Positionen vorhanden.\n\nMögliche Ursachen:\n- Keine Records im gewählten Zeitraum\n- Alle Records bereits abgerechnet');
+                        return;
+                    }
                     const statusText = status === 'entwurf' ? 'als Entwurf gespeichert' : 'erstellt';
                     alert(`${count} Rechnung(en) ${statusText}`);
                     closeAbrechnungModal();
