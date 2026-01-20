@@ -53,7 +53,7 @@ serve(async (req) => {
       .from("invoices")
       .select(`
         *,
-        customers!customer_id (
+        customers (
           id,
           name,
           kunden_id
