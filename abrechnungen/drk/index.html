@@ -1656,7 +1656,7 @@
             try {
                 // Campaign_areas aus Supabase laden
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/campaign_areas?campaign_id=eq.${kampagneId}&select=id,name,provision_sondierung,provision_regular,einwohnerzahl,stornopuffer`,
+                    `${SUPABASE_URL}/rest/v1/campaign_areas?campaign_id=eq.${kampagneId}&select=id,name,provision_sondierung,provision_regular,einwohnerzahl,stornopuffer,kosten`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
 
@@ -1679,6 +1679,7 @@
                             data-provision-regular='${JSON.stringify(g.provision_regular || {j1:60,j2:40,j3:20,j4:0,j5:0})}'
                             data-einwohnerzahl="${g.einwohnerzahl || 0}"
                             data-stornopuffer="${g.stornopuffer || 10}"
+                            data-kosten='${JSON.stringify(g.kosten || {})}'
                             checked>
                         <span class="checkbox-label">${g.name}</span>
                         <span class="checkbox-info text-klein" id="gebietInfo_${g.id}">Lade MG...</span>
@@ -1794,7 +1795,8 @@
                         provisionSondierung: JSON.parse(cb.dataset.provisionSondierung),
                         provisionRegular: JSON.parse(cb.dataset.provisionRegular),
                         einwohnerzahl: parseInt(cb.dataset.einwohnerzahl) || 0,
-                        stornopuffer: parseInt(cb.dataset.stornopuffer) || 10
+                        stornopuffer: parseInt(cb.dataset.stornopuffer) || 10,
+                        kosten: JSON.parse(cb.dataset.kosten || '{}')
                     })),
                     records: cachedRecords
                 };
@@ -1976,6 +1978,48 @@
                 });
             }
 
+            // Zubuchungen aus Kostenübernahmen sammeln
+            const zubuchungen = [];
+            const kostenTypLabels = {
+                kfz: 'KFZ-Pauschale',
+                unterkunft: 'Unterkunft',
+                verpflegung: 'Verpflegung',
+                kleidung: 'Kleidung',
+                ausweise: 'Ausweise'
+            };
+
+            gebiete.forEach(gebiet => {
+                const kosten = gebiet.kosten || {};
+                Object.keys(kosten).forEach(typ => {
+                    const k = kosten[typ];
+                    if (k && k.aktiv && parseFloat(k.betrag) > 0) {
+                        const label = k.art === 'frei' && k.artFrei ? k.artFrei : kostenTypLabels[typ] || typ;
+                        zubuchungen.push({
+                            gebietName: gebiet.name,
+                            typ: typ,
+                            bezeichnung: label,
+                            betrag: parseFloat(k.betrag) || 0
+                        });
+                    }
+                });
+            });
+
+            // Zubuchungen zur Tabelle hinzufügen
+            if (zubuchungen.length > 0) {
+                rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Zubuchungen</td></tr>`);
+                zubuchungen.forEach(z => {
+                    zwischensumme += z.betrag;
+                    rows.push(`<tr>
+                        <td>Z${posNr++}</td>
+                        <td>${z.bezeichnung} (${z.gebietName})</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-right">${z.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                    </tr>`);
+                });
+            }
+
             // Falls keine Records
             if (rows.length === 0) {
                 rows.push(`<tr><td colspan="6" class="text-center text-secondary">Keine Datensätze im gewählten Zeitraum</td></tr>`);
@@ -2019,6 +2063,7 @@
             // Daten für Speichern merken
             abrechnungData.sondierungPositionen = sondierungPositionen;
             abrechnungData.regularPositionen = regularPositionen;
+            abrechnungData.zubuchungen = zubuchungen;
             abrechnungData.zwischensumme = zwischensumme;
             abrechnungData.stornopuffer = stornopuffer;
             abrechnungData.stornopufferProzent = stornopufferProzent;
@@ -2065,7 +2110,31 @@
                 const regJe = regularRecords.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
                 const sondBetrag = sondJe * satzSondierung / 100;
                 const regBetrag = regJe * satzRegular / 100;
-                const zwischensumme = sondBetrag + regBetrag;
+
+                // Zubuchungen für dieses Gebiet
+                const kostenTypLabels = {
+                    kfz: 'KFZ-Pauschale',
+                    unterkunft: 'Unterkunft',
+                    verpflegung: 'Verpflegung',
+                    kleidung: 'Kleidung',
+                    ausweise: 'Ausweise'
+                };
+                const gebietZubuchungen = [];
+                const kosten = gebiet.kosten || {};
+                Object.keys(kosten).forEach(typ => {
+                    const k = kosten[typ];
+                    if (k && k.aktiv && parseFloat(k.betrag) > 0) {
+                        const label = k.art === 'frei' && k.artFrei ? k.artFrei : kostenTypLabels[typ] || typ;
+                        gebietZubuchungen.push({
+                            typ: typ,
+                            bezeichnung: label,
+                            betrag: parseFloat(k.betrag) || 0
+                        });
+                    }
+                });
+                const zubuchungenBetrag = gebietZubuchungen.reduce((sum, z) => sum + z.betrag, 0);
+
+                const zwischensumme = sondBetrag + regBetrag + zubuchungenBetrag;
                 const stornopuffer = zwischensumme * stornopufferProzent / 100;
                 const netto = zwischensumme - stornopuffer;
                 const ust = netto * 0.19;
@@ -2080,6 +2149,8 @@
                     mgTotal: gebietRecords.length,
                     sondBetrag,
                     regBetrag,
+                    zubuchungen: gebietZubuchungen,
+                    zubuchungenBetrag,
                     zwischensumme,
                     stornopuffer,
                     stornopufferProzent,
@@ -2196,6 +2267,7 @@
                 if (abrechnungData.rechnungsart === 'zusammen') {
                     rpcData.sondierungPositionen = abrechnungData.sondierungPositionen || [];
                     rpcData.regularPositionen = abrechnungData.regularPositionen || [];
+                    rpcData.zubuchungen = abrechnungData.zubuchungen || [];
                     rpcData.zwischensumme = abrechnungData.zwischensumme;
                     rpcData.stornopuffer = abrechnungData.stornopuffer;
                     rpcData.stornopufferProzent = abrechnungData.stornopufferProzent;

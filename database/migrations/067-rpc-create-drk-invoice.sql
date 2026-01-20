@@ -78,6 +78,7 @@ BEGIN
                 (input_data->>'brutto')::NUMERIC,
                 jsonb_build_object(
                     'positionen', input_data->'sondierungPositionen',
+                    'zubuchungen', COALESCE(input_data->'zubuchungen', '[]'::JSONB),
                     'stornopuffer', input_data->'stornopuffer',
                     'stornopufferProzent', input_data->'stornopufferProzent',
                     'zwischensumme', input_data->'zwischensumme'
@@ -148,6 +149,7 @@ BEGIN
                 (input_data->>'brutto')::NUMERIC,
                 jsonb_build_object(
                     'positionen', input_data->'regularPositionen',
+                    'zubuchungen', COALESCE(input_data->'zubuchungen', '[]'::JSONB),
                     'stornopuffer', input_data->'stornopuffer',
                     'stornopufferProzent', input_data->'stornopufferProzent',
                     'zwischensumme', input_data->'zwischensumme'
@@ -227,6 +229,8 @@ BEGIN
                     'mgTotal', v_rechnung->'mgTotal',
                     'sondBetrag', v_rechnung->'sondBetrag',
                     'regBetrag', v_rechnung->'regBetrag',
+                    'zubuchungen', COALESCE(v_rechnung->'zubuchungen', '[]'::JSONB),
+                    'zubuchungenBetrag', v_rechnung->'zubuchungenBetrag',
                     'zwischensumme', v_rechnung->'zwischensumme',
                     'stornopuffer', v_rechnung->'stornopuffer'
                 )

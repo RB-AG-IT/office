@@ -781,21 +781,37 @@ Beispiel:
 
 ---
 
-## 12. Zubuchungen
+## 12. Zubuchungen und Abzüge
 
 ### Konzept
 
+Es gibt nur zwei Arten von Anpassungen auf der Rechnung:
+
+1. **Zubuchungen** = Positionen die zur Rechnung ADDIERT werden (DRK zahlt uns mehr)
+2. **Abzüge/Verrechnungen** = Positionen die von der Rechnung ABGEZOGEN werden (Stornopuffer, Stornos)
+
+### Zubuchungen
+
 Zusatzkosten die pro Kampagne/Werbegebiet manuell eingetragen werden können.
 
-### Beispiele
-
+**Typen:**
 - **KFZ:** Fahrzeugkosten
+- **Unterkunft:** Unterkunftskosten
+- **Verpflegung:** Verpflegungskosten
 - **Kleidung:** Arbeitskleidung
 - **Ausweise:** Mitarbeiterausweise
 
 ### Konfiguration
 
-Einstellbar im **Kampagnen-Modal** pro Werbegebiet/Kampagne. Die Beträge werden individuell eingetragen.
+Einstellbar im **Kampagnen-Modal** unter "Kostenübernahmen DRK Verband" pro Werbegebiet.
+
+**Felder pro Zubuchungstyp:**
+- Aktiv (Toggle)
+- Kostenart (Aufwand oder Frei eintragbar)
+- Betrag
+- Zeitraum (pro Tag/Woche/Monat/einmalig)
+
+**Speicherung:** `campaign_areas.kosten` (JSONB)
 
 ### Darstellung auf Rechnung
 
@@ -805,6 +821,12 @@ ZUBUCHUNGEN:
   Ausweise (10 Stk) | 150€
   Kleidung | 200€
 ```
+
+### Abzüge
+
+Werden automatisch berechnet:
+- **Stornopuffer** (nur bei ZA): Prozentsatz der Zwischensumme
+- **Stornos**: Verrechnung bei Endabrechnung
 
 ---
 
@@ -1375,10 +1397,10 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 ### Phase 15: Zubuchungen
 
-- [ ] **15.1** Kampagnen-Modal: Zubuchungen-Abschnitt
-- [ ] **15.2** Eingabe: Typ, Bezeichnung, Betrag
-- [ ] **15.3** Speichern in `campaign_zubuchungen`
-- [ ] **15.4** Abrechnungs-Modal: Zubuchungen anzeigen und hinzufügen
+- [x] **15.1** Kampagnen-Modal: Zubuchungen-Abschnitt (= "Kostenübernahmen DRK Verband") (bereits implementiert)
+- [x] **15.2** Eingabe: Typ, Bezeichnung, Betrag (bereits implementiert)
+- [x] **15.3** Speichern in `campaign_areas.kosten` (JSONB) (bereits implementiert)
+- [x] **15.4** Abrechnungs-Modal: Zubuchungen in Vorschau anzeigen (20.01.2026)
 
 ---
 
