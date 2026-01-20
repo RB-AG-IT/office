@@ -1318,26 +1318,26 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 ### Phase 11: Backend - Abrechnungslogik
 
 #### 11.1 Zwischenabrechnung
-- [ ] **11.1.1** RPC: MG für Zeitraum laden
-- [ ] **11.1.2** RPC: Nach Jahresbeitrag sortieren (kleinste → Sondierung)
-- [ ] **11.1.3** RPC: Sondierungslimit anwenden
-- [ ] **11.1.4** RPC: Stornopuffer berechnen
-- [ ] **11.1.5** RPC: Entitlements als abgerechnet markieren
+- [x] **11.1.1** RPC: MG für Zeitraum laden (Frontend Phase 8.2) (20.01.2026)
+- [x] **11.1.2** RPC: Nach Jahresbeitrag sortieren (kleinste → Sondierung) (Frontend Phase 8.2) (20.01.2026)
+- [x] **11.1.3** RPC: Sondierungslimit anwenden (Frontend Phase 8.2) (20.01.2026)
+- [x] **11.1.4** RPC: Stornopuffer berechnen (Frontend Phase 8.2) (20.01.2026)
+- [x] **11.1.5** RPC: Entitlements als abgerechnet markieren (Migration 067) (20.01.2026)
 
 #### 11.2 Endabrechnung
-- [ ] **11.2.1** RPC: Stornopuffer auflösen
-- [ ] **11.2.2** RPC: Stornos seit letzter ZA verrechnen
-- [ ] **11.2.3** RPC: Restliche MG abrechnen
+- [x] **11.2.1** RPC: Stornopuffer auflösen (Migration 068: calculate_ea_data) (20.01.2026)
+- [x] **11.2.2** RPC: Stornos seit letzter ZA verrechnen (Migration 068) (20.01.2026)
+- [x] **11.2.3** RPC: Restliche MG abrechnen (Migration 068) (20.01.2026)
 
 #### 11.3 Jahresabrechnung VJ2
-- [ ] **11.3.1** RPC: Qualitätsbonus berechnen (Stornoquote)
-- [ ] **11.3.2** RPC: Bonus in `qualitaetsbonus_berechnungen` speichern
-- [ ] **11.3.3** RPC: Rückwirkende VJ1-Korrektur berechnen
-- [ ] **11.3.4** RPC: VJ2 mit Bonus abrechnen
+- [x] **11.3.1** RPC: Qualitätsbonus berechnen (Stornoquote) (Migration 069: calculate_vj2_data) (20.01.2026)
+- [x] **11.3.2** RPC: Bonus in `qualitaetsbonus_berechnungen` speichern (Migration 069: save_qualitaetsbonus) (20.01.2026)
+- [x] **11.3.3** RPC: Rückwirkende VJ1-Korrektur berechnen (Migration 069) (20.01.2026)
+- [x] **11.3.4** RPC: VJ2 mit Bonus abrechnen (Migration 069) (20.01.2026)
 
 #### 11.4 Jahresabrechnung VJ3-5
-- [ ] **11.4.1** RPC: Mit Qualitätsbonus abrechnen
-- [ ] **11.4.2** RPC: Stornos verrechnen
+- [x] **11.4.1** RPC: Mit Qualitätsbonus abrechnen (Migration 070: calculate_vj_data) (20.01.2026)
+- [x] **11.4.2** RPC: Stornos verrechnen (Migration 070) (20.01.2026)
 
 ---
 
