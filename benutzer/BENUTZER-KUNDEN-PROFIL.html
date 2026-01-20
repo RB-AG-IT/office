@@ -291,8 +291,11 @@
 
             <!-- Rechnungen -->
             <div class="abschnitt--card">
-                <div class="zeile zeile--header">
+                <div class="zeile zeile--header" style="justify-content: space-between;">
                     <div class="text-ueberschrift-abschnitt">Rechnungen</div>
+                    <a href="../abrechnungen/drk/" class="btn btn-secondary btn-sm" id="linkDrkAbrechnungen" style="display: none;">
+                        Alle Rechnungen anzeigen
+                    </a>
                 </div>
                 <div class="zeile zeile--center">
                     <div class="history-timeline" id="customerInvoicesList" style="width: 100%;">
@@ -304,6 +307,9 @@
                     <span class="icon icon--dokument-liste"></span>
                         <div class="text-ueberschrift-abschnitt">Keine Rechnungen</div>
                         <div class="text-normal">Noch keine Rechnungen vorhanden</div>
+                        <a href="../abrechnungen/drk/" class="btn btn-secondary btn-sm" style="margin-top: var(--spacing-sm);">
+                            Zur DRK Abrechnungsseite
+                        </a>
                     </div>
                 </div>
             </div>
@@ -912,22 +918,18 @@
                     if (window.renderContracts_sondervertrag) window.renderContracts_sondervertrag(currentCustomer.contracts.sondervertrag);
                 }
 
-                // Rechnungen laden
+                // DRK-Rechnungen laden (aus invoices Tabelle)
                 const { data: invoices } = await supabase
-                    .from('customer_invoices')
-                    .select('*')
+                    .from('invoices')
+                    .select('id, invoice_number, abrechnungstyp, total_payout, status, created_at')
                     .eq('customer_id', id)
-                    .order('invoice_date', { ascending: false });
+                    .order('created_at', { ascending: false });
 
-                if (invoices) {
-                    const formattedInvoices = invoices.map(inv => ({
-                        id: inv.id,
-                        name: inv.invoice_number,
-                        date: inv.invoice_date ? new Date(inv.invoice_date).toLocaleDateString('de-DE') : '-',
-                        amount: inv.amount || 0,
-                        status: inv.status || 'pending'
-                    }));
-                    renderInvoiceHistory('customerInvoicesList', 'noInvoicesMessage', formattedInvoices);
+                if (invoices && invoices.length > 0) {
+                    renderDrkInvoiceHistory(invoices);
+                } else {
+                    document.getElementById('customerInvoicesList').innerHTML = '';
+                    document.getElementById('noInvoicesMessage').style.display = 'flex';
                 }
 
                 // Formular befüllen
@@ -970,6 +972,63 @@
                 isKreisverbandsgebiet: area.is_kreisverbandsgebiet || false,
                 contactPersons: area.contactPersons || []
             }));
+        }
+
+        // DRK-Rechnungen rendern
+        function renderDrkInvoiceHistory(invoices) {
+            const listEl = document.getElementById('customerInvoicesList');
+            const emptyEl = document.getElementById('noInvoicesMessage');
+            const linkBtn = document.getElementById('linkDrkAbrechnungen');
+
+            if (!invoices || invoices.length === 0) {
+                listEl.innerHTML = '';
+                emptyEl.style.display = 'flex';
+                linkBtn.style.display = 'none';
+                return;
+            }
+
+            emptyEl.style.display = 'none';
+            linkBtn.style.display = 'inline-flex';
+
+            // Status-Mapping für Anzeige und Farben
+            const statusMap = {
+                'entwurf': { label: 'Entwurf', class: 'neutral' },
+                'offen': { label: 'Offen', class: 'aenderung' },
+                'geplant': { label: 'Versendet', class: 'aenderung' },
+                'bezahlt': { label: 'Bezahlt', class: 'neumitglied' },
+                'storniert': { label: 'Storniert', class: 'storno' }
+            };
+
+            // Abrechnungstyp-Mapping
+            const typMap = {
+                'ZA': 'Zwischenabrechnung',
+                'EA': 'Endabrechnung',
+                '1JA': '1. Jahresabrechnung',
+                '2JA': '2. Jahresabrechnung',
+                '3JA': '3. Jahresabrechnung',
+                '4JA': '4. Jahresabrechnung'
+            };
+
+            // Formatierung
+            const formatCurrency = (val) => (parseFloat(val) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+            const formatDate = (d) => d ? new Date(d).toLocaleDateString('de-DE') : '-';
+
+            // HTML generieren
+            listEl.innerHTML = invoices.map(inv => {
+                const status = statusMap[inv.status] || { label: inv.status, class: 'neutral' };
+                const typ = typMap[inv.abrechnungstyp] || inv.abrechnungstyp || '-';
+                const betrag = formatCurrency(inv.total_payout);
+                const datum = formatDate(inv.created_at);
+                const nummer = inv.invoice_number || 'Entwurf';
+
+                return `
+                    <div class="history-item ${status.class}">
+                        <div class="history-item-title">${nummer}</div>
+                        <div class="history-item-meta">${typ} • ${datum} • ${betrag}</div>
+                        <span class="badge badge--${status.class}">${status.label}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Formular mit Kundendaten befüllen

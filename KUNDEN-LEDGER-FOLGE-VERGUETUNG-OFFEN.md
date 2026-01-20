@@ -1363,9 +1363,9 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 ### Phase 14: Kundenprofil Anpassungen
 
 #### 14.1 Rechnungshistorie (read-only)
-- [ ] **14.1.1** Rechnungen des Kunden laden
-- [ ] **14.1.2** Liste rendern (Rechnungsnr, Datum, Betrag, Status)
-- [ ] **14.1.3** Link zur DRK Abrechnungsseite
+- [x] **14.1.1** Rechnungen des Kunden laden (20.01.2026)
+- [x] **14.1.2** Liste rendern (Rechnungsnr, Datum, Betrag, Status) (20.01.2026)
+- [x] **14.1.3** Link zur DRK Abrechnungsseite (20.01.2026)
 
 #### 14.2 Einstellungen
 - [x] **14.2.1** Toggle "Zusammen/Getrennt" in DB speichern (Migration 057)
