@@ -992,11 +992,11 @@
 
             // Status-Mapping für Anzeige und Farben
             const statusMap = {
-                'entwurf': { label: 'Entwurf', class: 'neutral' },
-                'offen': { label: 'Offen', class: 'aenderung' },
-                'geplant': { label: 'Versendet', class: 'aenderung' },
-                'bezahlt': { label: 'Bezahlt', class: 'neumitglied' },
-                'storniert': { label: 'Storniert', class: 'storno' }
+                'entwurf': { label: 'Entwurf', dotClass: '', badgeClass: '' },
+                'offen': { label: 'Offen', dotClass: 'aenderung', badgeClass: 'badge-warning' },
+                'geplant': { label: 'Versendet', dotClass: 'aenderung', badgeClass: 'badge-info' },
+                'bezahlt': { label: 'Bezahlt', dotClass: 'neumitglied', badgeClass: 'badge-success' },
+                'storniert': { label: 'Storniert', dotClass: 'storno', badgeClass: 'badge-error' }
             };
 
             // Abrechnungstyp-Mapping
@@ -1015,17 +1015,19 @@
 
             // HTML generieren
             listEl.innerHTML = invoices.map(inv => {
-                const status = statusMap[inv.status] || { label: inv.status, class: 'neutral' };
+                const status = statusMap[inv.status] || { label: inv.status, dotClass: '', badgeClass: '' };
                 const typ = typMap[inv.abrechnungstyp] || inv.abrechnungstyp || '-';
                 const betrag = formatCurrency(inv.total_payout);
                 const datum = formatDate(inv.created_at);
                 const nummer = inv.invoice_number || 'Entwurf';
 
                 return `
-                    <div class="history-item ${status.class}">
-                        <div class="history-item-title">${nummer}</div>
-                        <div class="history-item-meta">${typ} • ${datum} • ${betrag}</div>
-                        <span class="badge badge--${status.class}">${status.label}</span>
+                    <div class="history-item ${status.dotClass}">
+                        <div class="history-item-dot"></div>
+                        <div class="history-item-content">
+                            <div class="history-item-title">${nummer} <span class="badge ${status.badgeClass}">${status.label}</span></div>
+                            <div class="history-item-meta">${typ} • ${datum} • ${betrag}</div>
+                        </div>
                     </div>
                 `;
             }).join('');
