@@ -1235,7 +1235,57 @@
                 alert('Fehler: ' + err.message);
             }
         }
-        function sendRechnungEmail(id) { openRechnungDetailModal(id); /* TODO: direkt Email in Phase 13 */ }
+        async function sendRechnungEmail(id) {
+            try {
+                // Bestätigung
+                if (!confirm('Rechnung per E-Mail an den Schatzmeister senden?')) return;
+
+                // Rechnung laden
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/invoices?select=*,customers:customer_id(*)&id=eq.${id}`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const data = await res.json();
+                if (!data || data.length === 0) {
+                    alert('Rechnung nicht gefunden');
+                    return;
+                }
+                const rechnung = data[0];
+
+                // PDF als Base64 generieren
+                const pdfBase64 = await generateDrkPDF(rechnung, 'base64');
+                const filename = `Rechnung_${rechnung.invoice_number || 'Entwurf'}.pdf`;
+
+                // Edge Function aufrufen
+                const response = await fetch(
+                    `${SUPABASE_URL}/functions/v1/send-drk-invoice-email`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        },
+                        body: JSON.stringify({
+                            invoice_id: id,
+                            pdf_base64: pdfBase64,
+                            pdf_filename: filename
+                        })
+                    }
+                );
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`E-Mail erfolgreich gesendet an: ${result.recipient}`);
+                    await loadRechnungen();
+                } else {
+                    alert('Fehler: ' + (result.error || 'Unbekannter Fehler'));
+                }
+            } catch (err) {
+                console.error('Fehler beim E-Mail-Versand:', err);
+                alert('Fehler beim E-Mail-Versand: ' + err.message);
+            }
+        }
         async function erfasseZahlung(id) { await openZahlungModalDirekt(id); }
         async function storniereRechnung(id) {
             if (!confirm('Rechnung wirklich stornieren?')) return;
@@ -1265,7 +1315,78 @@
                 alert('Fehler: ' + err.message);
             }
         }
-        function sendMailRechnungen() { alert('Sammel-E-Mail - Phase 13'); }
+        async function sendMailRechnungen() {
+            const checkboxes = document.querySelectorAll('#rechnungenTableBody .row-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Bitte mindestens eine Rechnung auswählen');
+                return;
+            }
+
+            const ids = Array.from(checkboxes).map(cb => cb.closest('tr').dataset.id);
+
+            if (!confirm(`${ids.length} Rechnung(en) per E-Mail senden?`)) return;
+
+            let success = 0;
+            let failed = 0;
+            const errors = [];
+
+            for (const id of ids) {
+                try {
+                    // Rechnung laden
+                    const res = await fetch(
+                        `${SUPABASE_URL}/rest/v1/invoices?select=*,customers:customer_id(*)&id=eq.${id}`,
+                        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                    );
+                    const data = await res.json();
+                    if (!data || data.length === 0) {
+                        failed++;
+                        errors.push(`ID ${id}: Nicht gefunden`);
+                        continue;
+                    }
+                    const rechnung = data[0];
+
+                    // PDF als Base64 generieren
+                    const pdfBase64 = await generateDrkPDF(rechnung, 'base64');
+                    const filename = `Rechnung_${rechnung.invoice_number || 'Entwurf'}.pdf`;
+
+                    // Edge Function aufrufen
+                    const response = await fetch(
+                        `${SUPABASE_URL}/functions/v1/send-drk-invoice-email`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${SUPABASE_KEY}`
+                            },
+                            body: JSON.stringify({
+                                invoice_id: id,
+                                pdf_base64: pdfBase64,
+                                pdf_filename: filename
+                            })
+                        }
+                    );
+
+                    const result = await response.json();
+                    if (result.success) {
+                        success++;
+                    } else {
+                        failed++;
+                        errors.push(`${rechnung.invoice_number || id}: ${result.error}`);
+                    }
+                } catch (err) {
+                    failed++;
+                    errors.push(`ID ${id}: ${err.message}`);
+                }
+            }
+
+            // Zusammenfassung
+            let msg = `${success} von ${ids.length} E-Mails gesendet.`;
+            if (errors.length > 0) {
+                msg += `\n\nFehler:\n${errors.join('\n')}`;
+            }
+            alert(msg);
+            await loadRechnungen();
+        }
         async function downloadPdfZip() {
             // Ausgewählte Rechnungen holen
             const checkboxes = document.querySelectorAll('#rechnungenTableBody .row-checkbox:checked');
@@ -2980,6 +3101,19 @@
                 if (output === 'blob') {
                     const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
                     return pdfBlob;
+                } else if (output === 'base64') {
+                    // Für E-Mail-Anhang: Base64-String zurückgeben
+                    const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            // Data URL: "data:application/pdf;base64,XXXX"
+                            const base64 = reader.result.split(',')[1];
+                            resolve(base64);
+                        };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(pdfBlob);
+                    });
                 } else {
                     await html2pdf().set(opt).from(element).save();
                 }
@@ -3011,9 +3145,60 @@
             }
         }
 
-        function sendRechnungEmailModal() {
-            if (!currentRechnungId) return;
-            alert('E-Mail senden - wird in Phase 13 implementiert');
+        async function sendRechnungEmailModal() {
+            if (!currentRechnungId || !currentRechnungData) return;
+
+            try {
+                // Bestätigung
+                if (!confirm('Rechnung per E-Mail an den Schatzmeister senden?')) return;
+
+                // Kundendaten nachladen falls nicht vollständig
+                if (!currentRechnungData.customers?.adresse) {
+                    const res = await fetch(
+                        `${SUPABASE_URL}/rest/v1/customers?select=*&id=eq.${currentRechnungData.customer_id}`,
+                        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                    );
+                    const kundenData = await res.json();
+                    if (kundenData && kundenData.length > 0) {
+                        currentRechnungData.customers = kundenData[0];
+                    }
+                }
+
+                // PDF als Base64 generieren
+                const pdfBase64 = await generateDrkPDF(currentRechnungData, 'base64');
+                const filename = `Rechnung_${currentRechnungData.invoice_number || 'Entwurf'}.pdf`;
+
+                // Edge Function aufrufen
+                const response = await fetch(
+                    `${SUPABASE_URL}/functions/v1/send-drk-invoice-email`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        },
+                        body: JSON.stringify({
+                            invoice_id: currentRechnungId,
+                            pdf_base64: pdfBase64,
+                            pdf_filename: filename
+                        })
+                    }
+                );
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`E-Mail erfolgreich gesendet an: ${result.recipient}`);
+                    // Rechnung neu laden
+                    await loadRechnungDetails(currentRechnungId);
+                    await loadRechnungen();
+                } else {
+                    alert('Fehler: ' + (result.error || 'Unbekannter Fehler'));
+                }
+            } catch (err) {
+                console.error('Fehler beim E-Mail-Versand:', err);
+                alert('Fehler beim E-Mail-Versand: ' + err.message);
+            }
         }
 
         async function storniereRechnungModal() {

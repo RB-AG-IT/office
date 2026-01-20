@@ -1352,11 +1352,11 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 ### Phase 13: E-Mail-Versand
 
-- [ ] **13.1** Supabase Edge Function: `send_invoice_email`
-- [ ] **13.2** Empfänger: Schatzmeister aus Ansprechpartner
-- [ ] **13.3** Template: E-Mail Text
-- [ ] **13.4** Anhang: PDF
-- [ ] **13.5** Frontend: Button "E-Mail senden"
+- [x] **13.1** Supabase Edge Function: `send-drk-invoice-email` (20.01.2026)
+- [x] **13.2** Empfänger: Schatzmeister aus Ansprechpartner (20.01.2026)
+- [x] **13.3** Template: E-Mail Text (HTML + Plain) (20.01.2026)
+- [x] **13.4** Anhang: PDF (Base64 vom Frontend) (20.01.2026)
+- [x] **13.5** Frontend: Button "E-Mail senden" + Sammel-E-Mail (20.01.2026)
 
 ---
 
