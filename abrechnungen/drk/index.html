@@ -354,12 +354,12 @@
             <div class="zeile">
                 <div class="eingabefeld-gruppe">
                     <label class="eingabefeld-beschriftung-oben">Zeitraum von</label>
-                    <input type="date" class="eingabefeld" id="abrZeitraumVon">
+                    <input type="date" class="eingabefeld" id="abrZeitraumVon" onclick="openAbrZeitraumCalendar(event)">
                     <span class="eingabefeld-beschriftung-unten"></span>
                 </div>
                 <div class="eingabefeld-gruppe">
                     <label class="eingabefeld-beschriftung-oben">Zeitraum bis</label>
-                    <input type="date" class="eingabefeld" id="abrZeitraumBis">
+                    <input type="date" class="eingabefeld" id="abrZeitraumBis" onclick="openAbrZeitraumCalendar(event)">
                     <span class="eingabefeld-beschriftung-unten"></span>
                 </div>
             </div>
@@ -1599,6 +1599,20 @@
         let cachedCampaignAreas = {};
         // Cache für geladene Records
         let cachedRecords = [];
+
+        // Kalender-Modal für Zeitraum-Auswahl öffnen
+        function openAbrZeitraumCalendar(event) {
+            event.preventDefault();
+            CalendarModal.open((fromDE, toDE, displayText) => {
+                // Deutsches Format "DD.MM.YYYY" in ISO "YYYY-MM-DD" konvertieren
+                const fromParts = fromDE.split('.');
+                const toParts = toDE.split('.');
+                const fromISO = `${fromParts[2]}-${fromParts[1]}-${fromParts[0]}`;
+                const toISO = `${toParts[2]}-${toParts[1]}-${toParts[0]}`;
+                document.getElementById('abrZeitraumVon').value = fromISO;
+                document.getElementById('abrZeitraumBis').value = toISO;
+            });
+        }
 
         async function openAbrechnungModal(faelligEintrag = null) {
             abrechnungCurrentStep = 1;
