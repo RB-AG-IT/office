@@ -1769,18 +1769,91 @@
             return d.toLocaleDateString('de-DE');
         }
 
-        function saveAbrechnungEntwurf() {
-            console.log('Speichere als Entwurf:', abrechnungData);
-            alert('Abrechnung als Entwurf gespeichert\n(RPC-Funktion wird in Phase 11 implementiert)');
-            closeAbrechnungModal();
-            // TODO: RPC aufrufen mit status = 'entwurf'
+        async function saveAbrechnungEntwurf() {
+            await saveAbrechnung('entwurf');
         }
 
-        function saveAbrechnungErstellen() {
-            console.log('Erstelle Abrechnung:', abrechnungData);
-            alert('Abrechnung erstellt\n(RPC-Funktion wird in Phase 11 implementiert)');
-            closeAbrechnungModal();
-            // TODO: RPC aufrufen mit status = 'offen', Rechnungsnummer generieren
+        async function saveAbrechnungErstellen() {
+            await saveAbrechnung('offen');
+        }
+
+        async function saveAbrechnung(status) {
+            const btn = status === 'entwurf'
+                ? document.getElementById('abrBtnEntwurf')
+                : document.getElementById('abrBtnErstellen');
+
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Speichert...';
+
+            try {
+                // Daten für RPC vorbereiten
+                const rpcData = {
+                    kundeId: abrechnungData.kundeId,
+                    kampagneId: abrechnungData.kampagneId,
+                    typ: abrechnungData.typ,
+                    zeitraumVon: abrechnungData.zeitraumVon,
+                    zeitraumBis: abrechnungData.zeitraumBis,
+                    vertrag: abrechnungData.vertrag,
+                    rechnungsart: abrechnungData.rechnungsart,
+                    status: status
+                };
+
+                // Je nach Rechnungsart unterschiedliche Daten
+                if (abrechnungData.rechnungsart === 'zusammen') {
+                    rpcData.sondierungPositionen = abrechnungData.sondierungPositionen || [];
+                    rpcData.regularPositionen = abrechnungData.regularPositionen || [];
+                    rpcData.zwischensumme = abrechnungData.zwischensumme;
+                    rpcData.stornopuffer = abrechnungData.stornopuffer;
+                    rpcData.stornopufferProzent = abrechnungData.stornopufferProzent;
+                    rpcData.netto = abrechnungData.netto;
+                    rpcData.ust = abrechnungData.ust;
+                    rpcData.brutto = abrechnungData.brutto;
+                } else {
+                    rpcData.rechnungen = abrechnungData.rechnungen || [];
+                }
+
+                // RPC aufrufen
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/create_drk_invoice`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ input_data: rpcData })
+                });
+
+                const result = await res.json();
+
+                if (result.success) {
+                    const count = result.count || 1;
+                    const statusText = status === 'entwurf' ? 'als Entwurf gespeichert' : 'erstellt';
+                    alert(`${count} Rechnung(en) ${statusText}`);
+                    closeAbrechnungModal();
+
+                    // Tabellen neu laden
+                    await Promise.all([
+                        loadDrkRechnungenFromDB(),
+                        loadDrkFaelligFromDB()
+                    ]);
+                    renderRechnungenTable();
+                    renderFaelligTable();
+
+                    // Badges aktualisieren
+                    document.getElementById('rechnungenBadge').textContent =
+                        drkRechnungenData.filter(r => r.status === 'offen').length;
+                    document.getElementById('faelligBadge').textContent = drkFaelligData.length;
+                } else {
+                    throw new Error(result.error || 'Unbekannter Fehler');
+                }
+            } catch (err) {
+                console.error('Fehler beim Speichern:', err);
+                alert('Fehler: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
         }
 
         // Update: openCreateInvoiceModal verweist auf das neue Modal
