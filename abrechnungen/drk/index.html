@@ -24,6 +24,88 @@
         .dropdown-divider:has(+ .dropdown-item.warning) {
             display: none;
         }
+
+        /* Abrechnung Modal Styles */
+        .checkbox-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: var(--bg-primary);
+            border-radius: var(--radius-xs);
+            cursor: pointer;
+        }
+        .checkbox-item:hover {
+            background: var(--bg-hover);
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent-color);
+        }
+        .checkbox-label {
+            flex: 1;
+            font-size: var(--text-normal);
+        }
+        .checkbox-info {
+            color: var(--text-secondary);
+        }
+
+        /* Vorschau Styles */
+        .vorschau-summary {
+            margin-bottom: var(--spacing-md);
+        }
+        .vorschau-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-sm);
+        }
+        .vorschau-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .vorschau-stats {
+            display: flex;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+        }
+        .vorschau-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .vorschau-table-container {
+            overflow-x: auto;
+        }
+        .table-section-header td {
+            background: var(--bg-secondary);
+            padding-top: var(--spacing-md) !important;
+        }
+        .table-sum-row td {
+            border-top: 1px solid var(--border-color);
+            padding-top: var(--spacing-sm) !important;
+        }
+        .table-total-row td {
+            background: var(--bg-secondary);
+            font-size: var(--text-normal);
+        }
+        .text-error {
+            color: var(--error);
+        }
     </style>
 </head>
 <body class="datensaetze-page">
@@ -203,6 +285,130 @@
 
     <!-- Alle Modals werden durch ModalTemplates.init() erstellt -->
     <!-- Verfügbar: storno, columns, edit, import, export -->
+
+<!-- Abrechnung erstellen Modal -->
+<div class="modal modal-l" id="abrechnungModal">
+    <div class="page-container page-container--modal">
+        <!-- Modal Header -->
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Abrechnung erstellen</span>
+                    <span class="text-klein" id="abrechnungModalSubtitle">Schritt 1: Auswahl</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn btn-icon" onclick="closeAbrechnungModal()">
+                        <span class="icon icon--schliessen"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="page-header-tabs">
+                <div class="kw-tab active" data-tab="auswahl" id="tabAuswahl">1. Auswahl</div>
+                <div class="kw-tab" data-tab="vorschau" id="tabVorschau">2. Vorschau</div>
+            </div>
+        </div>
+
+        <!-- Schritt 1: Auswahl -->
+        <div class="page-content page-content--modal" id="abrechnungStep1">
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Kunde</label>
+                    <select class="eingabefeld" id="abrKunde" onchange="loadKampagnenForKunde()">
+                        <option value="">Bitte auswählen...</option>
+                    </select>
+                    <span class="eingabefeld-beschriftung-unten" id="abrKundeInfo"></span>
+                </div>
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Kampagne</label>
+                    <select class="eingabefeld" id="abrKampagne" onchange="loadEinsatzgebiete()" disabled>
+                        <option value="">Erst Kunde wählen...</option>
+                    </select>
+                    <span class="eingabefeld-beschriftung-unten" id="abrKampagneInfo"></span>
+                </div>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Abrechnungstyp</label>
+                    <select class="eingabefeld" id="abrTyp" onchange="updateStornopufferVisibility()">
+                        <option value="ZA">Zwischenabrechnung (ZA)</option>
+                        <option value="EA">Endabrechnung (EA)</option>
+                        <option value="1JA">1. Jahresabrechnung (VJ2)</option>
+                        <option value="2JA">2. Jahresabrechnung (VJ3)</option>
+                        <option value="3JA">3. Jahresabrechnung (VJ4)</option>
+                        <option value="4JA">4. Jahresabrechnung (VJ5)</option>
+                    </select>
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Vertragsnummer</label>
+                    <select class="eingabefeld" id="abrVertrag" disabled>
+                        <option value="">Erst Kunde wählen...</option>
+                    </select>
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Zeitraum von</label>
+                    <input type="date" class="eingabefeld" id="abrZeitraumVon">
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Zeitraum bis</label>
+                    <input type="date" class="eingabefeld" id="abrZeitraumBis">
+                    <span class="eingabefeld-beschriftung-unten"></span>
+                </div>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Einsatzgebiete</label>
+                    <div class="checkbox-list" id="abrEinsatzgebiete">
+                        <div class="text-klein text-secondary">Erst Kampagne wählen...</div>
+                    </div>
+                    <span class="eingabefeld-beschriftung-unten" id="abrEinsatzgebieteInfo"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schritt 2: Vorschau -->
+        <div class="page-content page-content--modal" id="abrechnungStep2" style="display: none;">
+            <div class="vorschau-summary" id="vorschauSummary">
+                <!-- Wird dynamisch gefüllt -->
+            </div>
+            <div class="vorschau-table-container">
+                <table class="table table--compact" id="vorschauTable">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Position</th>
+                            <th class="text-left">Beschreibung</th>
+                            <th class="text-right">MG</th>
+                            <th class="text-right">JE (€)</th>
+                            <th class="text-center">%</th>
+                            <th class="text-right">Betrag (€)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vorschauTableBody">
+                        <!-- Wird dynamisch gefüllt -->
+                    </tbody>
+                    <tfoot id="vorschauTableFoot">
+                        <!-- Wird dynamisch gefüllt -->
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="page-footer">
+            <button class="btn btn-secondary" id="abrBtnZurueck" onclick="abrechnungZurueck()" style="display: none;">Zurück</button>
+            <div class="anzeigenfeld--spacer"></div>
+            <button class="btn btn-secondary" onclick="closeAbrechnungModal()">Abbrechen</button>
+            <button class="btn btn-primary" id="abrBtnWeiter" onclick="abrechnungWeiter()">Weiter</button>
+            <button class="btn btn-secondary" id="abrBtnEntwurf" onclick="saveAbrechnungEntwurf()" style="display: none;">Als Entwurf</button>
+            <button class="btn btn-primary" id="abrBtnErstellen" onclick="saveAbrechnungErstellen()" style="display: none;">Erstellen</button>
+        </div>
+    </div>
+</div>
 
     <!-- Seiten-spezifische Daten und Initialisierung -->
     <script>
@@ -741,7 +947,396 @@
                 alert('Bitte mindestens einen Eintrag auswählen');
                 return;
             }
-            alert('Abrechnung erstellen für ' + selected.length + ' Einträge');
+            // Modal öffnen mit vorausgewählten Daten
+            openAbrechnungModal();
+        }
+
+        // ========== ABRECHNUNG MODAL ==========
+        let abrechnungCurrentStep = 1;
+        let abrechnungData = {};
+
+        // Test-Daten für Kunden (später aus DB)
+        const testKundenData = [
+            { id: 'k1', name: 'DRK KV Frankfurt', kundenId: 'A025-001', empfaengerTyp: 'KV' },
+            { id: 'k2', name: 'DRK KV Darmstadt', kundenId: 'A025-002', empfaengerTyp: 'KV' },
+            { id: 'k3', name: 'DRK OV Musterstadt', kundenId: 'A025-003', empfaengerTyp: 'OV' },
+        ];
+
+        // Test-Daten für Kampagnen (später aus DB)
+        const testKampagnenData = {
+            'k1': [
+                { id: 'kamp1', name: 'Frühjahr 2025', vertrag: '025/RV/00412' },
+                { id: 'kamp2', name: 'Herbst 2025', vertrag: '025/RV/00413' },
+            ],
+            'k2': [
+                { id: 'kamp3', name: 'Sommer 2025', vertrag: '025/RV/00420' },
+            ],
+            'k3': [
+                { id: 'kamp4', name: 'Winter 2024', vertrag: '024/RV/00380' },
+            ],
+        };
+
+        // Test-Daten für Einsatzgebiete (später aus DB)
+        const testEinsatzgebieteData = {
+            'kamp1': [
+                { id: 'eg1', name: 'OV Musterstadt', mg: 45, je: 5400 },
+                { id: 'eg2', name: 'OV Neustadt', mg: 32, je: 3840 },
+                { id: 'eg3', name: 'OV Altstadt', mg: 28, je: 3360 },
+            ],
+            'kamp2': [
+                { id: 'eg4', name: 'OV Weststadt', mg: 55, je: 6600 },
+            ],
+            'kamp3': [
+                { id: 'eg5', name: 'OV Südstadt', mg: 40, je: 4800 },
+                { id: 'eg6', name: 'OV Nordstadt', mg: 25, je: 3000 },
+            ],
+            'kamp4': [
+                { id: 'eg7', name: 'OV Musterstadt', mg: 60, je: 7200 },
+            ],
+        };
+
+        function openAbrechnungModal(recordId = null) {
+            abrechnungCurrentStep = 1;
+            abrechnungData = {};
+
+            // Kunden laden
+            const kundeSelect = document.getElementById('abrKunde');
+            kundeSelect.innerHTML = '<option value="">Bitte auswählen...</option>' +
+                testKundenData.map(k => `<option value="${k.id}">${k.name} (${k.kundenId})</option>`).join('');
+
+            // Reset andere Felder
+            document.getElementById('abrKampagne').innerHTML = '<option value="">Erst Kunde wählen...</option>';
+            document.getElementById('abrKampagne').disabled = true;
+            document.getElementById('abrVertrag').innerHTML = '<option value="">Erst Kunde wählen...</option>';
+            document.getElementById('abrVertrag').disabled = true;
+            document.getElementById('abrEinsatzgebiete').innerHTML = '<div class="text-klein text-secondary">Erst Kampagne wählen...</div>';
+            document.getElementById('abrKundeInfo').textContent = '';
+
+            // Zeitraum vorbelegen (letzter Monat)
+            const heute = new Date();
+            const letzterMonatStart = new Date(heute.getFullYear(), heute.getMonth() - 1, 1);
+            const letzterMonatEnde = new Date(heute.getFullYear(), heute.getMonth(), 0);
+            document.getElementById('abrZeitraumVon').value = letzterMonatStart.toISOString().split('T')[0];
+            document.getElementById('abrZeitraumBis').value = letzterMonatEnde.toISOString().split('T')[0];
+
+            // UI zurücksetzen
+            showAbrechnungStep(1);
+
+            // Modal öffnen
+            document.getElementById('abrechnungModal').classList.add('active');
+        }
+
+        function closeAbrechnungModal() {
+            document.getElementById('abrechnungModal').classList.remove('active');
+        }
+
+        function loadKampagnenForKunde() {
+            const kundeId = document.getElementById('abrKunde').value;
+            const kampagneSelect = document.getElementById('abrKampagne');
+            const vertragSelect = document.getElementById('abrVertrag');
+
+            if (!kundeId) {
+                kampagneSelect.innerHTML = '<option value="">Erst Kunde wählen...</option>';
+                kampagneSelect.disabled = true;
+                vertragSelect.innerHTML = '<option value="">Erst Kunde wählen...</option>';
+                vertragSelect.disabled = true;
+                document.getElementById('abrKundeInfo').textContent = '';
+                document.getElementById('abrEinsatzgebiete').innerHTML = '<div class="text-klein text-secondary">Erst Kampagne wählen...</div>';
+                return;
+            }
+
+            // Kunde-Info anzeigen
+            const kunde = testKundenData.find(k => k.id === kundeId);
+            document.getElementById('abrKundeInfo').textContent = kunde ? `Typ: ${kunde.empfaengerTyp}` : '';
+
+            // Kampagnen laden
+            const kampagnen = testKampagnenData[kundeId] || [];
+            kampagneSelect.innerHTML = '<option value="">Bitte auswählen...</option>' +
+                kampagnen.map(k => `<option value="${k.id}" data-vertrag="${k.vertrag}">${k.name}</option>`).join('');
+            kampagneSelect.disabled = false;
+
+            // Verträge laden
+            vertragSelect.innerHTML = '<option value="">Bitte auswählen...</option>' +
+                kampagnen.map(k => `<option value="${k.vertrag}">${k.vertrag}</option>`).join('');
+            vertragSelect.disabled = false;
+
+            document.getElementById('abrEinsatzgebiete').innerHTML = '<div class="text-klein text-secondary">Erst Kampagne wählen...</div>';
+        }
+
+        function loadEinsatzgebiete() {
+            const kampagneId = document.getElementById('abrKampagne').value;
+            const container = document.getElementById('abrEinsatzgebiete');
+
+            if (!kampagneId) {
+                container.innerHTML = '<div class="text-klein text-secondary">Erst Kampagne wählen...</div>';
+                return;
+            }
+
+            // Vertrag automatisch setzen
+            const kampagneOption = document.querySelector(`#abrKampagne option[value="${kampagneId}"]`);
+            if (kampagneOption) {
+                const vertrag = kampagneOption.dataset.vertrag;
+                document.getElementById('abrVertrag').value = vertrag;
+            }
+
+            // Einsatzgebiete laden
+            const gebiete = testEinsatzgebieteData[kampagneId] || [];
+            if (gebiete.length === 0) {
+                container.innerHTML = '<div class="text-klein text-secondary">Keine Einsatzgebiete gefunden</div>';
+                return;
+            }
+
+            container.innerHTML = gebiete.map(g => `
+                <label class="checkbox-item">
+                    <input type="checkbox" value="${g.id}" data-mg="${g.mg}" data-je="${g.je}" checked>
+                    <span class="checkbox-label">${g.name}</span>
+                    <span class="checkbox-info text-klein">${g.mg} MG | ${g.je.toLocaleString('de-DE')} € JE</span>
+                </label>
+            `).join('');
+
+            updateEinsatzgebieteInfo();
+
+            // Event-Listener für Checkboxen
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.addEventListener('change', updateEinsatzgebieteInfo);
+            });
+        }
+
+        function updateEinsatzgebieteInfo() {
+            const checkboxes = document.querySelectorAll('#abrEinsatzgebiete input[type="checkbox"]:checked');
+            let totalMg = 0;
+            let totalJe = 0;
+            checkboxes.forEach(cb => {
+                totalMg += parseInt(cb.dataset.mg) || 0;
+                totalJe += parseInt(cb.dataset.je) || 0;
+            });
+            document.getElementById('abrEinsatzgebieteInfo').textContent =
+                `Ausgewählt: ${checkboxes.length} Gebiete | ${totalMg} MG | ${totalJe.toLocaleString('de-DE')} € JE`;
+        }
+
+        function updateStornopufferVisibility() {
+            const typ = document.getElementById('abrTyp').value;
+            // Stornopuffer nur bei ZA
+            const showStornopuffer = (typ === 'ZA');
+            // Kann später für UI-Anpassungen genutzt werden
+        }
+
+        function showAbrechnungStep(step) {
+            abrechnungCurrentStep = step;
+
+            // Tabs aktualisieren
+            document.getElementById('tabAuswahl').classList.toggle('active', step === 1);
+            document.getElementById('tabVorschau').classList.toggle('active', step === 2);
+
+            // Inhalt anzeigen
+            document.getElementById('abrechnungStep1').style.display = step === 1 ? 'block' : 'none';
+            document.getElementById('abrechnungStep2').style.display = step === 2 ? 'block' : 'none';
+
+            // Buttons aktualisieren
+            document.getElementById('abrBtnZurueck').style.display = step === 2 ? 'inline-flex' : 'none';
+            document.getElementById('abrBtnWeiter').style.display = step === 1 ? 'inline-flex' : 'none';
+            document.getElementById('abrBtnEntwurf').style.display = step === 2 ? 'inline-flex' : 'none';
+            document.getElementById('abrBtnErstellen').style.display = step === 2 ? 'inline-flex' : 'none';
+
+            // Subtitle aktualisieren
+            document.getElementById('abrechnungModalSubtitle').textContent =
+                step === 1 ? 'Schritt 1: Auswahl' : 'Schritt 2: Vorschau';
+        }
+
+        function abrechnungWeiter() {
+            // Validierung
+            if (!document.getElementById('abrKunde').value) {
+                alert('Bitte Kunde auswählen');
+                return;
+            }
+            if (!document.getElementById('abrKampagne').value) {
+                alert('Bitte Kampagne auswählen');
+                return;
+            }
+
+            const selectedGebiete = document.querySelectorAll('#abrEinsatzgebiete input[type="checkbox"]:checked');
+            if (selectedGebiete.length === 0) {
+                alert('Bitte mindestens ein Einsatzgebiet auswählen');
+                return;
+            }
+
+            // Daten sammeln
+            abrechnungData = {
+                kundeId: document.getElementById('abrKunde').value,
+                kundeName: document.getElementById('abrKunde').options[document.getElementById('abrKunde').selectedIndex].text,
+                kampagneId: document.getElementById('abrKampagne').value,
+                kampagneName: document.getElementById('abrKampagne').options[document.getElementById('abrKampagne').selectedIndex].text,
+                typ: document.getElementById('abrTyp').value,
+                vertrag: document.getElementById('abrVertrag').value,
+                zeitraumVon: document.getElementById('abrZeitraumVon').value,
+                zeitraumBis: document.getElementById('abrZeitraumBis').value,
+                einsatzgebiete: Array.from(selectedGebiete).map(cb => ({
+                    id: cb.value,
+                    name: cb.parentElement.querySelector('.checkbox-label').textContent,
+                    mg: parseInt(cb.dataset.mg),
+                    je: parseInt(cb.dataset.je)
+                }))
+            };
+
+            // Vorschau generieren
+            generateVorschau();
+
+            // Schritt 2 anzeigen
+            showAbrechnungStep(2);
+        }
+
+        function abrechnungZurueck() {
+            showAbrechnungStep(1);
+        }
+
+        function generateVorschau() {
+            const typ = abrechnungData.typ;
+            const gebiete = abrechnungData.einsatzgebiete;
+            const stornopufferProzent = typ === 'ZA' ? 10 : 0;
+
+            // Provisionsätze (Test - später aus campaign_areas)
+            const satzSondierung = typ === 'ZA' || typ === 'EA' ? 80 : (typ === '1JA' ? 50 : (typ === '2JA' ? 30 : 0));
+            const satzRegular = typ === 'ZA' || typ === 'EA' ? 60 : (typ === '1JA' ? 40 : (typ === '2JA' ? 20 : 0));
+
+            // Summary
+            const totalMg = gebiete.reduce((sum, g) => sum + g.mg, 0);
+            const totalJe = gebiete.reduce((sum, g) => sum + g.je, 0);
+
+            document.getElementById('vorschauSummary').innerHTML = `
+                <div class="vorschau-header">
+                    <div class="vorschau-info">
+                        <span class="text-normal--fett">${abrechnungData.kundeName}</span>
+                        <span class="text-klein">${abrechnungData.kampagneName} | ${abrechnungData.vertrag}</span>
+                    </div>
+                    <div class="vorschau-badge">
+                        <span class="badge badge--small badge--warning">${typ}</span>
+                    </div>
+                </div>
+                <div class="vorschau-stats">
+                    <div class="vorschau-stat">
+                        <span class="text-klein">Zeitraum</span>
+                        <span class="text-normal--fett">${formatDate(abrechnungData.zeitraumVon)} - ${formatDate(abrechnungData.zeitraumBis)}</span>
+                    </div>
+                    <div class="vorschau-stat">
+                        <span class="text-klein">Einsatzgebiete</span>
+                        <span class="text-normal--fett">${gebiete.length}</span>
+                    </div>
+                    <div class="vorschau-stat">
+                        <span class="text-klein">Gesamt MG</span>
+                        <span class="text-normal--fett">${totalMg}</span>
+                    </div>
+                    <div class="vorschau-stat">
+                        <span class="text-klein">Gesamt JE</span>
+                        <span class="text-normal--fett">${totalJe.toLocaleString('de-DE')} €</span>
+                    </div>
+                </div>
+            `;
+
+            // Tabelle generieren
+            let rows = [];
+            let posNr = 1;
+            let zwischensumme = 0;
+
+            // Sondierung (erste 20% der MG pro Gebiet als Test)
+            rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Sonderkonditionen (${satzSondierung}%)</td></tr>`);
+            gebiete.forEach(g => {
+                const sondMg = Math.ceil(g.mg * 0.3); // 30% als Sondierung (Test)
+                const sondJe = Math.ceil(g.je * 0.3);
+                const betrag = sondJe * satzSondierung / 100;
+                zwischensumme += betrag;
+                rows.push(`<tr>
+                    <td>A${posNr++}</td>
+                    <td>${g.name}</td>
+                    <td class="text-right">${sondMg}</td>
+                    <td class="text-right">${sondJe.toLocaleString('de-DE')}</td>
+                    <td class="text-center">${satzSondierung}</td>
+                    <td class="text-right">${betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                </tr>`);
+            });
+
+            // Regular
+            rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Regularkonditionen (${satzRegular}%)</td></tr>`);
+            gebiete.forEach(g => {
+                const regMg = Math.floor(g.mg * 0.7); // 70% als Regular (Test)
+                const regJe = Math.floor(g.je * 0.7);
+                const betrag = regJe * satzRegular / 100;
+                zwischensumme += betrag;
+                rows.push(`<tr>
+                    <td>B${posNr++}</td>
+                    <td>${g.name}</td>
+                    <td class="text-right">${regMg}</td>
+                    <td class="text-right">${regJe.toLocaleString('de-DE')}</td>
+                    <td class="text-center">${satzRegular}</td>
+                    <td class="text-right">${betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                </tr>`);
+            });
+
+            document.getElementById('vorschauTableBody').innerHTML = rows.join('');
+
+            // Footer mit Summen
+            const stornopuffer = zwischensumme * stornopufferProzent / 100;
+            const netto = zwischensumme - stornopuffer;
+            const ust = netto * 0.19;
+            const brutto = netto + ust;
+
+            let footerRows = [`<tr class="table-sum-row">
+                <td colspan="5" class="text-right text-normal--fett">Zwischensumme</td>
+                <td class="text-right text-normal--fett">${zwischensumme.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+            </tr>`];
+
+            if (stornopufferProzent > 0) {
+                footerRows.push(`<tr>
+                    <td colspan="5" class="text-right">Stornopuffer (${stornopufferProzent}%)</td>
+                    <td class="text-right text-error">-${stornopuffer.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                </tr>`);
+            }
+
+            footerRows.push(`<tr>
+                <td colspan="5" class="text-right text-normal--fett">Netto</td>
+                <td class="text-right text-normal--fett">${netto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+            </tr>`);
+            footerRows.push(`<tr>
+                <td colspan="5" class="text-right">USt (19%)</td>
+                <td class="text-right">${ust.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+            </tr>`);
+            footerRows.push(`<tr class="table-total-row">
+                <td colspan="5" class="text-right text-normal--fett">Brutto</td>
+                <td class="text-right text-normal--fett">${brutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+            </tr>`);
+
+            document.getElementById('vorschauTableFoot').innerHTML = footerRows.join('');
+
+            // Daten für Speichern merken
+            abrechnungData.zwischensumme = zwischensumme;
+            abrechnungData.stornopuffer = stornopuffer;
+            abrechnungData.netto = netto;
+            abrechnungData.ust = ust;
+            abrechnungData.brutto = brutto;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('de-DE');
+        }
+
+        function saveAbrechnungEntwurf() {
+            console.log('Speichere als Entwurf:', abrechnungData);
+            alert('Abrechnung als Entwurf gespeichert\n(RPC-Funktion wird in Phase 11 implementiert)');
+            closeAbrechnungModal();
+            // TODO: RPC aufrufen mit status = 'entwurf'
+        }
+
+        function saveAbrechnungErstellen() {
+            console.log('Erstelle Abrechnung:', abrechnungData);
+            alert('Abrechnung erstellt\n(RPC-Funktion wird in Phase 11 implementiert)');
+            closeAbrechnungModal();
+            // TODO: RPC aufrufen mit status = 'offen', Rechnungsnummer generieren
+        }
+
+        // Update: openCreateInvoiceModal verweist auf das neue Modal
+        function openCreateInvoiceModal(recordId) {
+            openAbrechnungModal(recordId);
         }
     </script>
 </body>
