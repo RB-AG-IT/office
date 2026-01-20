@@ -964,7 +964,7 @@
         async function loadKundenFromDB() {
             try {
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/customers?select=id,name,full_name,kd_id,empfaenger_typ&order=name`,
+                    `${SUPABASE_URL}/rest/v1/customers?select=id,name,full_name,kd_id,empfaenger_typ,rechnungsart&order=name`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 if (!response.ok) throw new Error('Fehler beim Laden der Kunden');
@@ -973,7 +973,8 @@
                     id: k.id,
                     name: k.full_name || k.name,
                     kundenId: k.kd_id || '-',
-                    empfaengerTyp: k.empfaenger_typ || 'KV'
+                    empfaengerTyp: k.empfaenger_typ || 'KV',
+                    rechnungsart: k.rechnungsart || 'zusammen'
                 }));
             } catch (err) {
                 console.error('Fehler beim Laden der Kunden:', err);
@@ -1080,9 +1081,13 @@
                 return;
             }
 
-            // Kunde-Info anzeigen
+            // Kunde-Info anzeigen (inkl. Rechnungsart)
             const kunde = kundenData.find(k => k.id === kundeId);
-            document.getElementById('abrKundeInfo').textContent = kunde ? `Typ: ${kunde.empfaengerTyp}` : '';
+            const rechnungsartLabel = kunde?.rechnungsart === 'getrennt' ? 'Getrennt' : 'Zusammen';
+            document.getElementById('abrKundeInfo').textContent = kunde ? `Typ: ${kunde.empfaengerTyp} | Rechnung: ${rechnungsartLabel}` : '';
+
+            // Rechnungsart für spätere Verwendung speichern
+            abrechnungData.rechnungsart = kunde?.rechnungsart || 'zusammen';
 
             // Kampagnen und Verträge parallel laden
             kampagneSelect.innerHTML = '<option value="">Lade...</option>';
@@ -1288,6 +1293,13 @@
             const typ = abrechnungData.typ;
             const gebiete = abrechnungData.einsatzgebiete;
             const records = abrechnungData.records || [];
+            const rechnungsart = abrechnungData.rechnungsart || 'zusammen';
+
+            // Bei "getrennt": Separate Rechnungen pro Einsatzgebiet
+            if (rechnungsart === 'getrennt' && gebiete.length > 1) {
+                generateVorschauGetrennt();
+                return;
+            }
 
             // Vergütungsjahr bestimmen (j1 für ZA/EA, j2 für 1JA, etc.)
             const vjKey = typ === 'ZA' || typ === 'EA' ? 'j1' :
@@ -1484,6 +1496,135 @@
             abrechnungData.netto = netto;
             abrechnungData.ust = ust;
             abrechnungData.brutto = brutto;
+        }
+
+        // Vorschau für getrennte Rechnungen (eine pro Einsatzgebiet)
+        function generateVorschauGetrennt() {
+            const typ = abrechnungData.typ;
+            const gebiete = abrechnungData.einsatzgebiete;
+            const records = abrechnungData.records || [];
+
+            const vjKey = typ === 'ZA' || typ === 'EA' ? 'j1' :
+                          typ === '1JA' ? 'j2' :
+                          typ === '2JA' ? 'j3' :
+                          typ === '3JA' ? 'j4' : 'j5';
+
+            // Rechnungen pro Gebiet berechnen
+            const rechnungen = [];
+            let gesamtBrutto = 0;
+
+            gebiete.forEach(gebiet => {
+                const gebietRecords = records.filter(r => r.campaign_area_id === gebiet.id);
+                if (gebietRecords.length === 0) return;
+
+                gebietRecords.sort((a, b) => (a.yearly_amount || 0) - (b.yearly_amount || 0));
+
+                const limitConfig = gebiet.provisionSondierung || { limit: 100, limitType: 'mg' };
+                let sondierungLimit = limitConfig.limit || 100;
+                if (limitConfig.limitType === 'prozent' && gebiet.einwohnerzahl > 0) {
+                    sondierungLimit = Math.floor(gebiet.einwohnerzahl * (limitConfig.limit / 100));
+                }
+
+                const sondierungRecords = gebietRecords.slice(0, sondierungLimit);
+                const regularRecords = gebietRecords.slice(sondierungLimit);
+
+                const satzSondierung = gebiet.provisionSondierung?.[vjKey] || 0;
+                const satzRegular = gebiet.provisionRegular?.[vjKey] || 0;
+                const stornopufferProzent = typ === 'ZA' ? (gebiet.stornopuffer || 10) : 0;
+
+                const sondJe = sondierungRecords.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
+                const regJe = regularRecords.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
+                const sondBetrag = sondJe * satzSondierung / 100;
+                const regBetrag = regJe * satzRegular / 100;
+                const zwischensumme = sondBetrag + regBetrag;
+                const stornopuffer = zwischensumme * stornopufferProzent / 100;
+                const netto = zwischensumme - stornopuffer;
+                const ust = netto * 0.19;
+                const brutto = netto + ust;
+
+                gesamtBrutto += brutto;
+
+                rechnungen.push({
+                    gebiet: gebiet,
+                    mgSond: sondierungRecords.length,
+                    mgReg: regularRecords.length,
+                    mgTotal: gebietRecords.length,
+                    sondBetrag,
+                    regBetrag,
+                    zwischensumme,
+                    stornopuffer,
+                    stornopufferProzent,
+                    netto,
+                    ust,
+                    brutto,
+                    records: gebietRecords
+                });
+            });
+
+            // Summary mit Hinweis auf getrennte Rechnungen
+            document.getElementById('vorschauSummary').innerHTML = `
+                <div class="vorschau-header">
+                    <div class="vorschau-info">
+                        <span class="text-normal--fett">${abrechnungData.kundeName}</span>
+                        <span class="text-klein">${abrechnungData.kampagneName} | ${abrechnungData.vertrag}</span>
+                    </div>
+                    <div class="vorschau-badge">
+                        <span class="badge badge--small badge--warning">${typ}</span>
+                        <span class="badge badge--small badge--info">Getrennt: ${rechnungen.length} Rechnungen</span>
+                    </div>
+                </div>
+                <div class="vorschau-stats">
+                    <div class="vorschau-stat">
+                        <span class="text-klein">Zeitraum</span>
+                        <span class="text-normal--fett">${formatDate(abrechnungData.zeitraumVon)} - ${formatDate(abrechnungData.zeitraumBis)}</span>
+                    </div>
+                    <div class="vorschau-stat">
+                        <span class="text-klein">Rechnungen</span>
+                        <span class="text-normal--fett">${rechnungen.length}</span>
+                    </div>
+                    <div class="vorschau-stat">
+                        <span class="text-klein">Gesamt MG</span>
+                        <span class="text-normal--fett">${records.length}</span>
+                    </div>
+                    <div class="vorschau-stat">
+                        <span class="text-klein">Gesamt Brutto</span>
+                        <span class="text-normal--fett">${gesamtBrutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</span>
+                    </div>
+                </div>
+            `;
+
+            // Tabelle: Liste der einzelnen Rechnungen
+            let rows = [];
+            rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Einzelne Rechnungen</td></tr>`);
+
+            rechnungen.forEach((r, idx) => {
+                rows.push(`<tr>
+                    <td>${idx + 1}</td>
+                    <td>${r.gebiet.name}</td>
+                    <td class="text-right">${r.mgTotal} (${r.mgSond}/${r.mgReg})</td>
+                    <td class="text-right">${r.zwischensumme.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                    <td class="text-right">${r.stornopufferProzent > 0 ? '-' + r.stornopuffer.toLocaleString('de-DE', {minimumFractionDigits: 2}) : '-'}</td>
+                    <td class="text-right text-normal--fett">${r.brutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                </tr>`);
+            });
+
+            if (rechnungen.length === 0) {
+                rows.push(`<tr><td colspan="6" class="text-center text-secondary">Keine Datensätze im gewählten Zeitraum</td></tr>`);
+            }
+
+            document.getElementById('vorschauTableBody').innerHTML = rows.join('');
+
+            // Footer mit Gesamtsumme
+            document.getElementById('vorschauTableFoot').innerHTML = `
+                <tr class="table-total-row">
+                    <td colspan="5" class="text-right text-normal--fett">Gesamt (${rechnungen.length} Rechnungen)</td>
+                    <td class="text-right text-normal--fett">${gesamtBrutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                </tr>
+            `;
+
+            // Daten für Speichern
+            abrechnungData.rechnungen = rechnungen;
+            abrechnungData.gesamtBrutto = gesamtBrutto;
         }
 
         function formatDate(dateStr) {
