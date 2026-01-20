@@ -1343,10 +1343,10 @@ WHERE kunden_id LIKE 'A' || TO_CHAR(NOW(), 'YY') || '-%';
 
 ### Phase 12: PDF-Generierung
 
-- [ ] **12.1** Lib einbinden (jsPDF oder Backend)
-- [ ] **12.2** Template: Rechnungs-PDF Layout (wie in Abschnitt 5.8)
-- [ ] **12.3** Funktion: Positionen formatieren
-- [ ] **12.4** Funktion: PDF generieren und Download
+- [x] **12.1** Lib einbinden (jsPDF, html2pdf.js) (20.01.2026)
+- [x] **12.2** Template: Rechnungs-PDF Layout (wie in Abschnitt 5.8) (20.01.2026)
+- [x] **12.3** Funktion: Positionen formatieren (20.01.2026)
+- [x] **12.4** Funktion: PDF generieren und Download (20.01.2026)
 
 ---
 
