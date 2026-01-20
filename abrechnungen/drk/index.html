@@ -257,8 +257,10 @@
             <div class="kw-tab-content" id="tab-faellig">
                 <div class="table-wrap">
                     <div class="zeile">
+                        <!-- Platzhalter für min-height -->
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--min-height"></div>
                         <!-- Auswahl-Aktionen -->
-                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden anzeigenfeld--min-height" id="faelligSelectionGroup">
+                        <div class="anzeigenfeld anzeigenfeld--auto anzeigenfeld--hidden" id="faelligSelectionGroup">
                             <span class="btn btn-sm" id="faelligSelectionBtn">
                                 <span class="icon icon--clipboard"></span>
                                 Ausgewählt: <span id="faelligSelectedCount">0</span>
@@ -775,14 +777,20 @@
                     });
                 }
 
-                drkFaelligData = Object.values(grouped).map(g => ({
-                    id: g.id,
-                    kunde: g.kunde,
-                    kampagne: g.kampagne,
-                    typ: g.typ,
-                    faelligSeit: formatDate(g.faelligSeit),
-                    betragCa: formatEuro(g.betragCa)
-                }));
+                drkFaelligData = Object.values(grouped).map(g => {
+                    const idParts = g.id.split('-');
+                    return {
+                        id: g.id,
+                        customerId: idParts[0],
+                        campaignId: idParts[1],
+                        vj: parseInt(idParts[2]),
+                        kunde: g.kunde,
+                        kampagne: g.kampagne,
+                        typ: g.typ,
+                        faelligSeit: formatDate(g.faelligSeit),
+                        betragCa: formatEuro(g.betragCa)
+                    };
+                });
 
             } catch (err) {
                 console.error('Fehler beim Laden der fälligen Abrechnungen:', err);
@@ -1437,6 +1445,7 @@
             // Header
             thead.innerHTML = `<tr>
                 <th class="checkbox-cell"><input type="checkbox" class="row-checkbox" onclick="toggleSelectAllFaellig(this)"></th>
+                <th class="action-cell"></th>
                 <th class="col-name text-left">Kunde</th>
                 <th class="col-m text-left">Kampagne</th>
                 <th class="col-s text-center">Typ</th>
@@ -1448,6 +1457,20 @@
             // Body
             tbody.innerHTML = drkFaelligData.map(f => `<tr data-id="${f.id}">
                 <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" onchange="updateFaelligSelection()"></td>
+                <td class="action-cell">
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item" onclick="openAbrechnungFromFaellig('${f.id}')">Abrechnung erstellen</div>
+                        </div>
+                    </div>
+                </td>
                 <td class="col-name text-left">${f.kunde}</td>
                 <td class="col-m text-left">${f.kampagne}</td>
                 <td class="col-s text-center"><span class="badge badge--small badge--warning">${f.typ}</span></td>
@@ -1468,6 +1491,17 @@
             const count = checkboxes.length;
             document.getElementById('faelligSelectedCount').textContent = count;
             document.getElementById('faelligSelectionGroup').classList.toggle('anzeigenfeld--hidden', count === 0);
+        }
+
+        function openAbrechnungFromFaellig(faelligId) {
+            // Fällig-Eintrag finden
+            const faelligEintrag = drkFaelligData.find(f => f.id === faelligId);
+            if (!faelligEintrag) {
+                alert('Eintrag nicht gefunden');
+                return;
+            }
+            // Modal öffnen mit vorausgewählten Daten
+            openAbrechnungModal(faelligEintrag);
         }
 
         function createAbrechnungFromFaellig() {
@@ -1556,7 +1590,7 @@
         // Cache für geladene Records
         let cachedRecords = [];
 
-        async function openAbrechnungModal(recordId = null) {
+        async function openAbrechnungModal(faelligEintrag = null) {
             abrechnungCurrentStep = 1;
             abrechnungData = {};
 
@@ -1589,6 +1623,23 @@
 
             // Modal öffnen
             document.getElementById('abrechnungModal').classList.add('active');
+
+            // Falls Fällig-Eintrag übergeben wurde, Felder vorausfüllen
+            if (faelligEintrag && faelligEintrag.customerId) {
+                kundeSelect.value = faelligEintrag.customerId;
+                await loadKampagnenForKunde();
+
+                // Kampagne vorauswählen
+                if (faelligEintrag.campaignId) {
+                    document.getElementById('abrKampagne').value = faelligEintrag.campaignId;
+                    await loadEinsatzgebieteForKampagne();
+                }
+
+                // Abrechnungstyp vorauswählen
+                if (faelligEintrag.typ) {
+                    document.getElementById('abrTyp').value = faelligEintrag.typ;
+                }
+            }
         }
 
         function closeAbrechnungModal() {
