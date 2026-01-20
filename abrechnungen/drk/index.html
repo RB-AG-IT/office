@@ -1651,9 +1651,12 @@
             // Modal öffnen
             document.getElementById('abrechnungModal').classList.add('active');
 
-            // Falls Fällig-Eintrag übergeben wurde, Felder vorausfüllen
+            // Falls Eintrag übergeben wurde, Felder vorausfüllen
             if (faelligEintrag && faelligEintrag.customerId) {
+                console.log('Vorauswahl Kunde:', faelligEintrag.customerId);
+                console.log('Verfügbare Optionen:', Array.from(kundeSelect.options).map(o => o.value));
                 kundeSelect.value = faelligEintrag.customerId;
+                console.log('Gesetzter Wert:', kundeSelect.value);
                 await loadKampagnenForKunde();
 
                 // Kampagne vorauswählen
