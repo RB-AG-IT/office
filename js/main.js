@@ -12418,7 +12418,7 @@ async function ladeWerberStatistiken(options = {}) {
         // 2. User Profiles laden (Profilbilder, Vorschuss-Anteil, Adresse, USt-Pflicht)
         const { data: profilesData } = await supabase
             .from('user_profiles')
-            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city, personalnummer, iban, account_holder, phone, is_vat_liable');
+            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city, personalnummer, iban, account_holder, phone, is_vat_liable, vat_valid_from, vat_valid_until');
 
         const profilesMap = {};
         (profilesData || []).forEach(p => {
@@ -12836,8 +12836,16 @@ async function ladeWerberStatistiken(options = {}) {
                 letzteAbrechnung: lastInvoice?.invoice_number || '-',
                 letzteAbrechnungDatum: lastInvoice?.created_at,
 
-                // Umsatzsteuer-Pflicht (aus user_profiles)
-                isVatLiable: profile.is_vat_liable || false,
+                // Umsatzsteuer-Pflicht (aus user_profiles, mit Zeitraum-Prüfung)
+                isVatLiable: (() => {
+                    if (!profile.is_vat_liable) return false;
+                    const checkDate = endDate || new Date().toISOString().split('T')[0];
+                    if (profile.vat_valid_from && checkDate < profile.vat_valid_from) return false;
+                    if (profile.vat_valid_until && checkDate > profile.vat_valid_until) return false;
+                    return true;
+                })(),
+                vatValidFrom: profile.vat_valid_from || null,
+                vatValidUntil: profile.vat_valid_until || null,
 
                 status: 'aktiv'
             };

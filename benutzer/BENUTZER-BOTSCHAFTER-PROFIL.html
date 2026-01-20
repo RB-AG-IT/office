@@ -266,6 +266,18 @@
                             <span class="eingabefeld-beschriftung-unten"></span>
                         </div>
                     </div>
+                    <div class="zeile" id="vatPeriodRow" style="display: none;">
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">USt gültig ab</label>
+                            <input type="date" class="eingabefeld" id="vatValidFrom">
+                            <span class="eingabefeld-beschriftung-unten"></span>
+                        </div>
+                        <div class="eingabefeld-gruppe">
+                            <label class="eingabefeld-beschriftung-oben">USt gültig bis</label>
+                            <input type="date" class="eingabefeld" id="vatValidUntil" placeholder="Leer = unbegrenzt">
+                            <span class="eingabefeld-beschriftung-unten">Leer = unbegrenzt gültig</span>
+                        </div>
+                    </div>
                     <div class="zeile">
                         <div class="eingabefeld-gruppe">
                             <label class="eingabefeld-beschriftung-oben">Steuernummer</label>
@@ -977,6 +989,8 @@
             setValue('taxNumber', userProfile.tax_number);
             setValue('vatNumber', userProfile.vat_id);
             setChecked('vatLiable', userProfile.is_vat_liable);
+            setValue('vatValidFrom', userProfile.vat_valid_from);
+            setValue('vatValidUntil', userProfile.vat_valid_until);
 
             // Einstellungen
             setValue('gameTag', userProfile.game_tag);
@@ -1220,6 +1234,7 @@
             document.getElementById('vatLiableLabel').textContent = vat
                 ? 'Ja - Umsatzsteuerpflichtig'
                 : 'Nein - Kleinunternehmer (§19 UStG)';
+            document.getElementById('vatPeriodRow').style.display = vat ? '' : 'none';
         }
 
         // ================================================================
@@ -1760,6 +1775,8 @@
                     tax_number: document.getElementById('taxNumber').value,
                     vat_id: document.getElementById('vatNumber').value,
                     is_vat_liable: document.getElementById('vatLiable').checked,
+                    vat_valid_from: document.getElementById('vatValidFrom').value || null,
+                    vat_valid_until: document.getElementById('vatValidUntil').value || null,
                     game_tag: document.getElementById('gameTag').value,
                     ghost_mode: document.getElementById('isGhost').checked,
                     can_see_others: document.getElementById('canSeeOthers').checked,
