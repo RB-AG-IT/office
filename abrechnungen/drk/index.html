@@ -408,6 +408,123 @@
             <button class="btn btn-primary" id="abrBtnErstellen" onclick="saveAbrechnungErstellen()" style="display: none;">Erstellen</button>
         </div>
     </div>
+    </div>
+</div>
+
+<!-- Modal: Rechnung Details -->
+<div class="modal modal-l" id="rechnungDetailModal">
+    <div class="modal-header">
+        <h2>Rechnung Details</h2>
+        <button class="modal-close" onclick="closeRechnungDetailModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <!-- Kopfbereich -->
+        <div class="detail-header" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+            <div>
+                <div class="text-klein text-grau">Rechnungsnummer</div>
+                <div class="text-normal--fett" id="detailRechnungsnummer">-</div>
+            </div>
+            <div>
+                <div class="text-klein text-grau">Status</div>
+                <select id="detailStatus" class="input-field" style="width: auto; min-width: 150px;" onchange="updateRechnungStatus()">
+                    <option value="entwurf">Entwurf</option>
+                    <option value="offen">Offen</option>
+                    <option value="geplant">Geplant</option>
+                    <option value="bezahlt">Bezahlt</option>
+                    <option value="storniert">Storniert</option>
+                </select>
+            </div>
+            <div>
+                <div class="text-klein text-grau">Kunde</div>
+                <div class="text-normal" id="detailKunde">-</div>
+            </div>
+            <div>
+                <div class="text-klein text-grau">Kampagne</div>
+                <div class="text-normal" id="detailKampagne">-</div>
+            </div>
+            <div>
+                <div class="text-klein text-grau">Abrechnungstyp</div>
+                <div class="text-normal" id="detailTyp">-</div>
+            </div>
+            <div>
+                <div class="text-klein text-grau">Zeitraum</div>
+                <div class="text-normal" id="detailZeitraum">-</div>
+            </div>
+            <div>
+                <div class="text-klein text-grau">Vertragsnummer</div>
+                <div class="text-normal" id="detailVertrag">-</div>
+            </div>
+            <div>
+                <div class="text-klein text-grau">Erstellt am</div>
+                <div class="text-normal" id="detailErstellt">-</div>
+            </div>
+        </div>
+
+        <!-- Positionen -->
+        <div class="detail-section" style="margin-bottom: 1.5rem;">
+            <h3 class="text-normal--fett" style="margin-bottom: 0.5rem;">Positionen</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Beschreibung</th>
+                        <th class="text-right">MG</th>
+                        <th class="text-right">JE</th>
+                        <th class="text-right">Satz</th>
+                        <th class="text-right">Betrag</th>
+                    </tr>
+                </thead>
+                <tbody id="detailPositionen">
+                    <tr><td colspan="5" class="text-grau">Keine Positionen</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Summen -->
+        <div class="detail-summen" style="display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; max-width: 300px; margin-left: auto; margin-bottom: 1.5rem;">
+            <span class="text-normal">Zwischensumme:</span>
+            <span class="text-normal text-right" id="detailZwischensumme">0,00 €</span>
+            <span class="text-normal" id="detailStornopufferLabel" style="display: none;">Stornopuffer:</span>
+            <span class="text-normal text-right" id="detailStornopuffer" style="display: none;">0,00 €</span>
+            <span class="text-normal">Netto:</span>
+            <span class="text-normal text-right" id="detailNetto">0,00 €</span>
+            <span class="text-normal">USt (19%):</span>
+            <span class="text-normal text-right" id="detailUst">0,00 €</span>
+            <span class="text-normal--fett">Brutto:</span>
+            <span class="text-normal--fett text-right" id="detailBrutto">0,00 €</span>
+        </div>
+
+        <!-- Zahlungen -->
+        <div class="detail-section" style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <h3 class="text-normal--fett">Zahlungen</h3>
+                <button class="btn btn-small btn-secondary" onclick="openZahlungModal()">+ Zahlung erfassen</button>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th class="text-right">Betrag</th>
+                        <th>Notiz</th>
+                    </tr>
+                </thead>
+                <tbody id="detailZahlungen">
+                    <tr><td colspan="3" class="text-grau">Keine Zahlungen</td></tr>
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                <span class="text-normal">Offen:</span>
+                <span class="text-normal--fett" id="detailOffen">0,00 €</span>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary" onclick="downloadRechnungPdf()">PDF</button>
+            <button class="btn btn-secondary" onclick="sendRechnungEmail()">E-Mail</button>
+            <button class="btn btn-danger" onclick="storniereRechnung()">Stornieren</button>
+        </div>
+        <button class="btn btn-primary" onclick="closeRechnungDetailModal()">Schließen</button>
+    </div>
 </div>
 
     <!-- Seiten-spezifische Daten und Initialisierung -->
@@ -1027,7 +1144,7 @@
         }
 
         // Placeholder-Funktionen für Rechnungen
-        function openRechnungDetails(id) { console.log('Details:', id); alert('Details für ' + id); }
+        function openRechnungDetails(id) { openRechnungDetailModal(id); }
         function downloadRechnungPdf(id) { console.log('PDF:', id); alert('PDF Download für ' + id); }
         function sendRechnungEmail(id) { console.log('Email:', id); alert('E-Mail senden für ' + id); }
         function erfasseZahlung(id) { console.log('Zahlung:', id); alert('Zahlung erfassen für ' + id); }
@@ -1859,6 +1976,249 @@
         // Update: openCreateInvoiceModal verweist auf das neue Modal
         function openCreateInvoiceModal(recordId) {
             openAbrechnungModal(recordId);
+        }
+
+        // ========== RECHNUNG DETAIL MODAL ==========
+        let currentRechnungId = null;
+        let currentRechnungData = null;
+
+        async function openRechnungDetailModal(rechnungId) {
+            currentRechnungId = rechnungId;
+            document.getElementById('rechnungDetailModal').classList.add('active');
+            await loadRechnungDetails(rechnungId);
+        }
+
+        function closeRechnungDetailModal() {
+            document.getElementById('rechnungDetailModal').classList.remove('active');
+            currentRechnungId = null;
+            currentRechnungData = null;
+        }
+
+        async function loadRechnungDetails(rechnungId) {
+            try {
+                // Rechnung mit Kunde und Kampagne laden
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/invoices?select=*,customers(full_name,name),campaigns(name)&id=eq.${rechnungId}`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const data = await res.json();
+                if (!data || data.length === 0) throw new Error('Rechnung nicht gefunden');
+
+                currentRechnungData = data[0];
+                const r = currentRechnungData;
+
+                // Kopfbereich füllen
+                document.getElementById('detailRechnungsnummer').textContent = r.invoice_number || '(Entwurf)';
+                document.getElementById('detailStatus').value = r.status || 'entwurf';
+                document.getElementById('detailKunde').textContent = r.customers?.full_name || r.customers?.name || '-';
+                document.getElementById('detailKampagne').textContent = r.campaigns?.name || '-';
+                document.getElementById('detailTyp').textContent = formatAbrechnungstyp(r.abrechnungstyp, r.ist_sondierung);
+                document.getElementById('detailZeitraum').textContent = formatDate(r.period_start) + ' - ' + formatDate(r.period_end);
+                document.getElementById('detailVertrag').textContent = r.vertragsnummer || '-';
+                document.getElementById('detailErstellt').textContent = formatDate(r.created_at);
+
+                // Positionen aus calculation_data
+                renderDetailPositionen(r.calculation_data);
+
+                // Summen
+                const netto = parseFloat(r.netto_auszahlung) || 0;
+                const ust = parseFloat(r.vat_amount) || 0;
+                const brutto = parseFloat(r.total_payout) || 0;
+                const zwischensumme = r.calculation_data?.zwischensumme || netto;
+                const stornopuffer = r.calculation_data?.stornopuffer || 0;
+
+                document.getElementById('detailZwischensumme').textContent = formatEuro(zwischensumme);
+                if (stornopuffer > 0) {
+                    document.getElementById('detailStornopufferLabel').style.display = '';
+                    document.getElementById('detailStornopuffer').style.display = '';
+                    document.getElementById('detailStornopuffer').textContent = '-' + formatEuro(stornopuffer);
+                } else {
+                    document.getElementById('detailStornopufferLabel').style.display = 'none';
+                    document.getElementById('detailStornopuffer').style.display = 'none';
+                }
+                document.getElementById('detailNetto').textContent = formatEuro(netto);
+                document.getElementById('detailUst').textContent = formatEuro(ust);
+                document.getElementById('detailBrutto').textContent = formatEuro(brutto);
+
+                // Zahlungen laden
+                await loadRechnungZahlungen(rechnungId, brutto);
+
+            } catch (err) {
+                console.error('Fehler beim Laden der Rechnung:', err);
+                alert('Fehler: ' + err.message);
+            }
+        }
+
+        function formatAbrechnungstyp(typ, istSondierung) {
+            const typMap = { 'ZA': 'Zwischenabrechnung', 'EA': 'Endabrechnung', '1JA': '1. Jahresabrechnung', '2JA': '2. Jahresabrechnung', '3JA': '3. Jahresabrechnung', '4JA': '4. Jahresabrechnung' };
+            let text = typMap[typ] || typ || '-';
+            if (istSondierung === true) text += ' (Sondierung)';
+            else if (istSondierung === false) text += ' (Regular)';
+            return text;
+        }
+
+        function formatEuro(val) {
+            return (parseFloat(val) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+        }
+
+        function renderDetailPositionen(calcData) {
+            const tbody = document.getElementById('detailPositionen');
+            if (!calcData) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-grau">Keine Positionsdaten</td></tr>';
+                return;
+            }
+
+            let html = '';
+
+            // Fall 1: Zusammen (positionen Array)
+            if (calcData.positionen && Array.isArray(calcData.positionen)) {
+                calcData.positionen.forEach(p => {
+                    html += `<tr>
+                        <td>${p.gebietName || '-'}</td>
+                        <td class="text-right">${p.mg || 0}</td>
+                        <td class="text-right">${formatEuro(p.je)}</td>
+                        <td class="text-right">${p.satz || 0}%</td>
+                        <td class="text-right">${formatEuro(p.betrag)}</td>
+                    </tr>`;
+                });
+            }
+            // Fall 2: Getrennt (einzelnes Gebiet)
+            else if (calcData.gebiet) {
+                if (calcData.mgSond > 0) {
+                    html += `<tr>
+                        <td>${calcData.gebiet} (Sondierung)</td>
+                        <td class="text-right">${calcData.mgSond}</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">${formatEuro(calcData.sondBetrag)}</td>
+                    </tr>`;
+                }
+                if (calcData.mgReg > 0) {
+                    html += `<tr>
+                        <td>${calcData.gebiet} (Regular)</td>
+                        <td class="text-right">${calcData.mgReg}</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">${formatEuro(calcData.regBetrag)}</td>
+                    </tr>`;
+                }
+            }
+
+            tbody.innerHTML = html || '<tr><td colspan="5" class="text-grau">Keine Positionen</td></tr>';
+        }
+
+        async function loadRechnungZahlungen(rechnungId, brutto) {
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/invoice_payments?select=*&invoice_id=eq.${rechnungId}&order=zahlungsdatum`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const zahlungen = await res.json();
+
+                const tbody = document.getElementById('detailZahlungen');
+                let gezahlt = 0;
+
+                if (!zahlungen || zahlungen.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-grau">Keine Zahlungen</td></tr>';
+                } else {
+                    tbody.innerHTML = zahlungen.map(z => {
+                        gezahlt += parseFloat(z.betrag_brutto) || 0;
+                        return `<tr>
+                            <td>${formatDate(z.zahlungsdatum)}</td>
+                            <td class="text-right">${formatEuro(z.betrag_brutto)}</td>
+                            <td>${z.notiz || '-'}</td>
+                        </tr>`;
+                    }).join('');
+                }
+
+                const offen = brutto - gezahlt;
+                document.getElementById('detailOffen').textContent = formatEuro(offen);
+                document.getElementById('detailOffen').style.color = offen > 0 ? 'var(--rot)' : 'var(--gruen)';
+
+            } catch (err) {
+                console.error('Fehler beim Laden der Zahlungen:', err);
+            }
+        }
+
+        async function updateRechnungStatus() {
+            if (!currentRechnungId) return;
+            const newStatus = document.getElementById('detailStatus').value;
+
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/invoices?id=eq.${currentRechnungId}`,
+                    {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    }
+                );
+
+                if (res.ok) {
+                    // Rechnungsnummer neu laden (wird bei "offen" generiert)
+                    await loadRechnungDetails(currentRechnungId);
+                    // Tabelle aktualisieren
+                    await loadDrkRechnungenFromDB();
+                    renderRechnungenTable();
+                    document.getElementById('rechnungenBadge').textContent =
+                        drkRechnungenData.filter(r => r.status === 'offen').length;
+                } else {
+                    throw new Error('Status konnte nicht geändert werden');
+                }
+            } catch (err) {
+                console.error('Fehler beim Ändern des Status:', err);
+                alert('Fehler: ' + err.message);
+            }
+        }
+
+        function openZahlungModal() {
+            alert('Zahlung erfassen - wird in Phase 10 implementiert');
+        }
+
+        function downloadRechnungPdf() {
+            alert('PDF Download - wird in Phase 12 implementiert');
+        }
+
+        function sendRechnungEmail() {
+            alert('E-Mail senden - wird in Phase 13 implementiert');
+        }
+
+        async function storniereRechnung() {
+            if (!currentRechnungId) return;
+            if (!confirm('Rechnung wirklich stornieren?')) return;
+
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/invoices?id=eq.${currentRechnungId}`,
+                    {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({ status: 'storniert' })
+                    }
+                );
+
+                if (res.ok) {
+                    alert('Rechnung storniert');
+                    closeRechnungDetailModal();
+                    await loadDrkRechnungenFromDB();
+                    renderRechnungenTable();
+                } else {
+                    throw new Error('Stornierung fehlgeschlagen');
+                }
+            } catch (err) {
+                console.error('Fehler beim Stornieren:', err);
+                alert('Fehler: ' + err.message);
+            }
         }
     </script>
 </body>
