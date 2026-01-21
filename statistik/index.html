@@ -529,102 +529,45 @@
             // Einsatztage pro Kunde werden global in loadEinsatztage() berechnet
             // über: campaign_attendance -> campaign -> campaign_areas -> customer_areas -> customer
 
-            // Records laden für Statistiken (mit Zeitraum-Filter nach Aufnahmedatum = start_date)
-            let recordsQuery = supabase
-                .from('records')
-                .select('customer_id, campaign_area_id, yearly_amount, old_amount, record_type, record_status, start_date')
-                .is('deleted_at', null)
-                .range(0, 9999);
+            // Statistiken via RPC laden (serverseitige Berechnung)
+            const startStr = periodStartDate ? `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}` : null;
+            const endStr = periodEndDate ? `${periodEndDate.getFullYear()}-${String(periodEndDate.getMonth() + 1).padStart(2, '0')}-${String(periodEndDate.getDate()).padStart(2, '0')}` : null;
 
-            if (periodStartDate) {
-                const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;
-                recordsQuery = recordsQuery.gte('start_date', startStr);
-            }
-            if (periodEndDate) {
-                const endStr = `${periodEndDate.getFullYear()}-${String(periodEndDate.getMonth() + 1).padStart(2, '0')}-${String(periodEndDate.getDate()).padStart(2, '0')}`;
-                recordsQuery = recordsQuery.lte('start_date', endStr + 'T23:59:59');
+            // Kunden-Statistiken
+            const { data: kundenStats, error: kundenStatsError } = await supabase
+                .rpc('get_record_statistics', { p_group_by: 'customer', p_start_date: startStr, p_end_date: endStr });
+
+            if (kundenStatsError) {
+                console.error('Fehler beim Laden der Kunden-Statistiken:', kundenStatsError);
             }
 
-            const { data: records, error: recordsError } = await recordsQuery;
+            // Gebiete-Statistiken (customer_area)
+            const { data: gebieteStats, error: gebieteStatsError } = await supabase
+                .rpc('get_record_statistics', { p_group_by: 'customer_area', p_start_date: startStr, p_end_date: endStr });
 
-            if (recordsError) {
-                console.error('Fehler beim Laden der Records:', recordsError);
-                return;
+            if (gebieteStatsError) {
+                console.error('Fehler beim Laden der Gebiete-Statistiken:', gebieteStatsError);
             }
 
-            // Campaign Areas laden für Zuordnung zu Customer Areas
-            const { data: campaignAreas, error: caError } = await supabase
-                .from('campaign_areas')
-                .select('id, customer_area_id');
-
-            if (caError) {
-                console.error('Fehler beim Laden der Campaign Areas:', caError);
-            }
-
-            // Map campaign_area_id -> customer_area_id
-            const campaignAreaToCustomerArea = {};
-            (campaignAreas || []).forEach(ca => {
-                if (ca.customer_area_id) {
-                    campaignAreaToCustomerArea[ca.id] = ca.customer_area_id;
-                }
-            });
-
-            // Map customer_area_id -> customer_id
-            const customerAreaToCustomer = {};
-            (areas || []).forEach(area => {
-                if (area.customer_id) {
-                    customerAreaToCustomer[area.id] = area.customer_id;
-                }
-            });
-
-            // Statistiken pro Kunde berechnen (über campaign_area_id -> customer_area_id -> customer_id)
+            // Stats in Maps umwandeln
             const kundenStatsMap = {};
-            records.forEach(r => {
-                // customer_id ermitteln: direkt oder über Kette
-                let customerId = r.customer_id;
-                if (!customerId && r.campaign_area_id) {
-                    const customerAreaId = campaignAreaToCustomerArea[r.campaign_area_id];
-                    if (customerAreaId) {
-                        customerId = customerAreaToCustomer[customerAreaId];
-                    }
-                }
-                if (!customerId) return;
-
-                if (!kundenStatsMap[customerId]) {
-                    kundenStatsMap[customerId] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
-                }
-                kundenStatsMap[customerId].total++;
-                if (r.record_status === 'aktiv') {
-                    kundenStatsMap[customerId].aktiv++;
-                    // NMG: Jahresbeitrag, ERH: Erhöhungsbetrag (Differenz)
-                    const isERH = r.record_type === 'erhoehung' || r.record_type === 'ERH';
-                    const nettoValue = isERH ? ((r.yearly_amount || 0) - (r.old_amount || 0)) : (r.yearly_amount || 0);
-                    kundenStatsMap[customerId].nettoJE += nettoValue;
-                } else if (r.record_status === 'storno') {
-                    kundenStatsMap[customerId].storno++;
-                }
+            (kundenStats || []).forEach(s => {
+                kundenStatsMap[s.group_id] = {
+                    aktiv: Number(s.aktiv),
+                    storno: Number(s.storno),
+                    total: Number(s.aktiv) + Number(s.storno),
+                    nettoJE: Number(s.netto_je)
+                };
             });
 
-            // Statistiken pro Gebiet berechnen (über campaign_area_id)
             const gebieteStatsMap = {};
-            records.forEach(r => {
-                if (!r.campaign_area_id) return;
-                const customerAreaId = campaignAreaToCustomerArea[r.campaign_area_id];
-                if (!customerAreaId) return;
-
-                if (!gebieteStatsMap[customerAreaId]) {
-                    gebieteStatsMap[customerAreaId] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
-                }
-                gebieteStatsMap[customerAreaId].total++;
-                if (r.record_status === 'aktiv') {
-                    gebieteStatsMap[customerAreaId].aktiv++;
-                    // NMG: Jahresbeitrag, ERH: Erhöhungsbetrag (Differenz)
-                    const isERH = r.record_type === 'erhoehung' || r.record_type === 'ERH';
-                    const nettoValue = isERH ? ((r.yearly_amount || 0) - (r.old_amount || 0)) : (r.yearly_amount || 0);
-                    gebieteStatsMap[customerAreaId].nettoJE += nettoValue;
-                } else if (r.record_status === 'storno') {
-                    gebieteStatsMap[customerAreaId].storno++;
-                }
+            (gebieteStats || []).forEach(s => {
+                gebieteStatsMap[s.group_id] = {
+                    aktiv: Number(s.aktiv),
+                    storno: Number(s.storno),
+                    total: Number(s.aktiv) + Number(s.storno),
+                    nettoJE: Number(s.netto_je)
+                };
             });
 
             // Kunden-Daten zusammenbauen
@@ -688,65 +631,45 @@
                 console.error('Fehler beim Laden der Werbegebiete:', wgError);
             }
 
-            // Records laden für Statistiken (mit Zeitraum-Filter nach Aufnahmedatum = start_date)
-            let recordsQuery = supabase
-                .from('records')
-                .select('campaign_id, campaign_area_id, yearly_amount, old_amount, record_type, record_status, start_date')
-                .is('deleted_at', null)
-                .range(0, 9999);
+            // Statistiken via RPC laden (serverseitige Berechnung)
+            const startStr = periodStartDate ? `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}` : null;
+            const endStr = periodEndDate ? `${periodEndDate.getFullYear()}-${String(periodEndDate.getMonth() + 1).padStart(2, '0')}-${String(periodEndDate.getDate()).padStart(2, '0')}` : null;
 
-            if (periodStartDate) {
-                const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;
-                recordsQuery = recordsQuery.gte('start_date', startStr);
-            }
-            if (periodEndDate) {
-                const endStr = `${periodEndDate.getFullYear()}-${String(periodEndDate.getMonth() + 1).padStart(2, '0')}-${String(periodEndDate.getDate()).padStart(2, '0')}`;
-                recordsQuery = recordsQuery.lte('start_date', endStr + 'T23:59:59');
+            // Kampagnen-Statistiken
+            const { data: kampagnenStats, error: kampagnenStatsError } = await supabase
+                .rpc('get_record_statistics', { p_group_by: 'campaign', p_start_date: startStr, p_end_date: endStr });
+
+            if (kampagnenStatsError) {
+                console.error('Fehler beim Laden der Kampagnen-Statistiken:', kampagnenStatsError);
             }
 
-            const { data: records, error: recordsError } = await recordsQuery;
+            // Werbegebiete-Statistiken (campaign_area)
+            const { data: wgStats, error: wgStatsError } = await supabase
+                .rpc('get_record_statistics', { p_group_by: 'campaign_area', p_start_date: startStr, p_end_date: endStr });
 
-            if (recordsError) {
-                console.error('Fehler beim Laden der Records:', recordsError);
-                return;
+            if (wgStatsError) {
+                console.error('Fehler beim Laden der Werbegebiete-Statistiken:', wgStatsError);
             }
 
-            // Statistiken pro Kampagne berechnen
+            // Stats in Maps umwandeln
             const kampagnenStatsMap = {};
-            records.forEach(r => {
-                if (!r.campaign_id) return;
-                if (!kampagnenStatsMap[r.campaign_id]) {
-                    kampagnenStatsMap[r.campaign_id] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
-                }
-                kampagnenStatsMap[r.campaign_id].total++;
-                if (r.record_status === 'aktiv') {
-                    kampagnenStatsMap[r.campaign_id].aktiv++;
-                    // NMG: Jahresbeitrag, ERH: Erhöhungsbetrag (Differenz)
-                    const isERH = r.record_type === 'erhoehung' || r.record_type === 'ERH';
-                    const nettoValue = isERH ? ((r.yearly_amount || 0) - (r.old_amount || 0)) : (r.yearly_amount || 0);
-                    kampagnenStatsMap[r.campaign_id].nettoJE += nettoValue;
-                } else if (r.record_status === 'storno') {
-                    kampagnenStatsMap[r.campaign_id].storno++;
-                }
+            (kampagnenStats || []).forEach(s => {
+                kampagnenStatsMap[s.group_id] = {
+                    aktiv: Number(s.aktiv),
+                    storno: Number(s.storno),
+                    total: Number(s.aktiv) + Number(s.storno),
+                    nettoJE: Number(s.netto_je)
+                };
             });
 
-            // Statistiken pro Werbegebiet berechnen
             const werbegebietStatsMap = {};
-            records.forEach(r => {
-                if (!r.campaign_area_id) return;
-                if (!werbegebietStatsMap[r.campaign_area_id]) {
-                    werbegebietStatsMap[r.campaign_area_id] = { total: 0, aktiv: 0, storno: 0, nettoJE: 0 };
-                }
-                werbegebietStatsMap[r.campaign_area_id].total++;
-                if (r.record_status === 'aktiv') {
-                    werbegebietStatsMap[r.campaign_area_id].aktiv++;
-                    // NMG: Jahresbeitrag, ERH: Erhöhungsbetrag (Differenz)
-                    const isERH = r.record_type === 'erhoehung' || r.record_type === 'ERH';
-                    const nettoValue = isERH ? ((r.yearly_amount || 0) - (r.old_amount || 0)) : (r.yearly_amount || 0);
-                    werbegebietStatsMap[r.campaign_area_id].nettoJE += nettoValue;
-                } else if (r.record_status === 'storno') {
-                    werbegebietStatsMap[r.campaign_area_id].storno++;
-                }
+            (wgStats || []).forEach(s => {
+                werbegebietStatsMap[s.group_id] = {
+                    aktiv: Number(s.aktiv),
+                    storno: Number(s.storno),
+                    total: Number(s.aktiv) + Number(s.storno),
+                    nettoJE: Number(s.netto_je)
+                };
             });
 
             // Werbegebiete nach Kampagne gruppieren
