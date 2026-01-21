@@ -342,7 +342,7 @@
         }
 
         try {
-            // Alle Abrechnungen laden (nicht nur geplante)
+            // Alle Botschafter-Abrechnungen laden (nicht DRK-Kundenrechnungen)
             const { data, error } = await supabase
                 .from('invoices')
                 .select(`
@@ -354,6 +354,7 @@
                         user_roles!user_roles_user_id_fkey(role_name, role_type)
                     )
                 `)
+                .not('user_id', 'is', null)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
