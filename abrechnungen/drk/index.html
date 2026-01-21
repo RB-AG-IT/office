@@ -1881,12 +1881,16 @@
                 cachedRecords = await response.json();
 
                 // Daten sammeln inkl. provision_sondierung etc.
+                const abrTyp = document.getElementById('abrTyp').value;
+                const kundeId = document.getElementById('abrKunde').value;
+                const kampagneId = document.getElementById('abrKampagne').value;
+
                 abrechnungData = {
-                    kundeId: document.getElementById('abrKunde').value,
+                    kundeId: kundeId,
                     kundeName: document.getElementById('abrKunde').options[document.getElementById('abrKunde').selectedIndex].text,
-                    kampagneId: document.getElementById('abrKampagne').value,
+                    kampagneId: kampagneId,
                     kampagneName: document.getElementById('abrKampagne').options[document.getElementById('abrKampagne').selectedIndex].text,
-                    typ: document.getElementById('abrTyp').value,
+                    typ: abrTyp,
                     vertrag: document.getElementById('abrVertrag').value,
                     zeitraumVon: zeitraumVon,
                     zeitraumBis: zeitraumBis,
@@ -1899,8 +1903,20 @@
                         stornopuffer: parseInt(cb.dataset.stornopuffer) || 10,
                         kosten: JSON.parse(cb.dataset.kosten || '{}')
                     })),
-                    records: cachedRecords
+                    records: cachedRecords,
+                    bereitsAbgerechnet: []
                 };
+
+                // Bei EA: Bereits bezahlte ZAs laden
+                if (abrTyp === 'EA') {
+                    const zaResponse = await fetch(
+                        `${SUPABASE_URL}/rest/v1/invoices?customer_id=eq.${kundeId}&campaign_id=eq.${kampagneId}&abrechnungstyp=eq.ZA&status=neq.storniert&select=id,invoice_number,netto_auszahlung,period_start,period_end,campaign_area_id`,
+                        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                    );
+                    if (zaResponse.ok) {
+                        abrechnungData.bereitsAbgerechnet = await zaResponse.json();
+                    }
+                }
 
                 // Vorschau generieren
                 generateVorschau();
@@ -2135,7 +2151,21 @@
 
             // Footer mit Summen
             const stornopuffer = zwischensumme * stornopufferProzent / 100;
-            const netto = zwischensumme - stornopuffer;
+
+            // Bei EA: Bereits bezahlte ZAs abziehen
+            let bereitsAbgerechnetSumme = 0;
+            if (typ === 'EA' && abrechnungData.bereitsAbgerechnet && abrechnungData.bereitsAbgerechnet.length > 0) {
+                // Nur ZAs für die ausgewählten Gebiete
+                const gebietIds = gebiete.map(g => g.id);
+                abrechnungData.bereitsAbgerechnet.forEach(za => {
+                    if (!za.campaign_area_id || gebietIds.includes(za.campaign_area_id)) {
+                        bereitsAbgerechnetSumme += (za.netto_auszahlung || 0);
+                    }
+                });
+            }
+            abrechnungData.bereitsAbgerechnetSumme = bereitsAbgerechnetSumme;
+
+            const netto = zwischensumme - stornopuffer - bereitsAbgerechnetSumme;
             const ust = netto * 0.19;
             const brutto = netto + ust;
 
@@ -2149,6 +2179,24 @@
                     <td colspan="5" class="text-right">Stornopuffer (${stornopufferProzent}%)</td>
                     <td class="text-right text-error">-${stornopuffer.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
                 </tr>`);
+            }
+
+            // Bei EA: Bereits bezahlte ZAs anzeigen
+            if (typ === 'EA' && bereitsAbgerechnetSumme > 0) {
+                const gebietIds = gebiete.map(g => g.id);
+                const relevanteZAs = abrechnungData.bereitsAbgerechnet.filter(za =>
+                    !za.campaign_area_id || gebietIds.includes(za.campaign_area_id)
+                );
+                footerRows.push(`<tr class="table-section-header">
+                    <td colspan="6" class="text-normal--fett" style="padding-top: 12px;">Abzüge bereits bezahlt</td>
+                </tr>`);
+                relevanteZAs.forEach(za => {
+                    const periode = `${formatDate(za.period_start)} - ${formatDate(za.period_end)}`;
+                    footerRows.push(`<tr>
+                        <td colspan="5" class="text-right">${za.invoice_number} (${periode})</td>
+                        <td class="text-right text-error">-${(za.netto_auszahlung || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                    </tr>`);
+                });
             }
 
             footerRows.push(`<tr>
@@ -2247,7 +2295,18 @@
 
                 const zwischensumme = sondBetrag + regBetrag + zubuchungenBetrag;
                 const stornopuffer = zwischensumme * stornopufferProzent / 100;
-                const netto = zwischensumme - stornopuffer;
+
+                // Bei EA: Bereits bezahlte ZAs für dieses Gebiet abziehen
+                let bereitsAbgerechnetSumme = 0;
+                let bereitsAbgerechnetZAs = [];
+                if (typ === 'EA' && abrechnungData.bereitsAbgerechnet && abrechnungData.bereitsAbgerechnet.length > 0) {
+                    bereitsAbgerechnetZAs = abrechnungData.bereitsAbgerechnet.filter(za =>
+                        za.campaign_area_id === gebiet.id
+                    );
+                    bereitsAbgerechnetSumme = bereitsAbgerechnetZAs.reduce((sum, za) => sum + (za.netto_auszahlung || 0), 0);
+                }
+
+                const netto = zwischensumme - stornopuffer - bereitsAbgerechnetSumme;
                 const ust = netto * 0.19;
                 const brutto = netto + ust;
 
@@ -2265,6 +2324,8 @@
                     zwischensumme,
                     stornopuffer,
                     stornopufferProzent,
+                    bereitsAbgerechnetZAs,
+                    bereitsAbgerechnetSumme,
                     netto,
                     ust,
                     brutto,
@@ -2317,6 +2378,16 @@
                     <td class="text-right">${r.stornopufferProzent > 0 ? '-' + r.stornopuffer.toLocaleString('de-DE', {minimumFractionDigits: 2}) : '-'}</td>
                     <td class="text-right text-normal--fett">${r.brutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
                 </tr>`);
+                // Bei EA: ZA-Abzüge pro Gebiet anzeigen
+                if (typ === 'EA' && r.bereitsAbgerechnetZAs && r.bereitsAbgerechnetZAs.length > 0) {
+                    r.bereitsAbgerechnetZAs.forEach(za => {
+                        rows.push(`<tr class="text-klein" style="background: #fef3c7;">
+                            <td></td>
+                            <td colspan="4" class="text-right">↳ Abzug: ${za.invoice_number}</td>
+                            <td class="text-right text-error">-${(za.netto_auszahlung || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                        </tr>`);
+                    });
+                }
             });
 
             if (rechnungen.length === 0) {
@@ -2389,6 +2460,8 @@
                     rpcData.zwischensumme = abrechnungData.zwischensumme;
                     rpcData.stornopuffer = abrechnungData.stornopuffer;
                     rpcData.stornopufferProzent = abrechnungData.stornopufferProzent;
+                    rpcData.bereitsAbgerechnet = abrechnungData.bereitsAbgerechnet || [];
+                    rpcData.bereitsAbgerechnetSumme = abrechnungData.bereitsAbgerechnetSumme || 0;
                     rpcData.netto = abrechnungData.netto;
                     rpcData.ust = abrechnungData.ust;
                     rpcData.brutto = abrechnungData.brutto;
