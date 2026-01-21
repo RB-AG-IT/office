@@ -710,43 +710,41 @@ Beispiel:
 - VJ2-5 werden normal weiter abgerechnet
 ```
 
-### 11.3 Storno nach Rechnungsstellung, vor Zahlung
+### 11.3 Rechnung stornieren
 
-Wenn eine Rechnung bereits erstellt wurde, aber noch nicht bezahlt:
+Wenn eine Rechnung storniert wird:
 
-- **Rechnung bleibt bestehen** (wird NICHT storniert/gelöscht)
-- **Gutschrift auf nächste Rechnung**
+- **Rechnung bleibt erhalten** (für Nachvollziehbarkeit)
+- **Entitlements werden zurückgesetzt** auf `faellig` (Trigger 073)
+- **Erscheinen wieder im Tab "Fällig"** und können neu abgerechnet werden
 
 ```
 Beispiel:
-- Rechnung 1: 1.000€ (noch offen)
-- MG Müller storniert (war mit 96€ auf Rechnung)
-- Rechnung 2: Gutschrift -96€ für Storno Müller
+- Rechnung 1 erstellt mit 10 MG
+- Rechnung 1 wird storniert
+- Die 10 MG erscheinen wieder als "fällig"
+- Rechnung 2 kann erstellt werden (enthält die 10 MG erneut)
 ```
 
-### 11.4 Storno zwischen Endabrechnung und VJ2
+### 11.4 Mitglied kündigt nach Abrechnung
 
-Wenn ein MG nach der Endabrechnung (VJ1) aber vor der 2. Jahresabrechnung (VJ2) storniert:
+Wenn ein MG nach der Abrechnung storniert wird:
 
-- **Verrechnung mit VJ2-Rechnung**
-- **Mit Teilvergütung:** Nur teilweise Rückforderung (je nach Einstellung)
-- **Ohne Teilvergütung:** Vollständige Rückforderung des VJ1-Betrags
+- **Entitlement bleibt `abgerechnet`** (wurde ja bereits abgerechnet)
+- **Zukünftige VJ werden `storniert`** (durch Trigger 063)
+- **Keine automatische Gutschrift** - falls nötig, Rechnung manuell stornieren
 
 ```
-Beispiel mit Teilvergütung (50%):
+Beispiel:
 - VJ1 abgerechnet: 96€
-- Storno nach 10 Monaten
-- Rückforderung: 96€ × 50% = 48€ (auf VJ2-Rechnung)
-
-Beispiel ohne Teilvergütung:
-- VJ1 abgerechnet: 96€
-- Storno nach 10 Monaten
-- Rückforderung: 96€ vollständig (auf VJ2-Rechnung)
+- MG kündigt nach 10 Monaten
+- VJ1 bleibt abgerechnet (keine Rückforderung)
+- VJ2-5 werden storniert (nicht mehr abrechnbar)
 ```
 
 ### 11.5 Negative Rechnungsbeträge
 
-**Ja, möglich.** Wenn Storno-Gutschriften die Positionen übersteigen, kann eine Rechnung negativ werden.
+**Nein.** Durch die vereinfachte Logik (Storno = Reset auf fällig) gibt es keine Gutschriften und somit keine negativen Rechnungsbeträge.
 
 ### 11.6 0€-Rechnung
 
@@ -754,9 +752,11 @@ Beispiel ohne Teilvergütung:
 
 ### 11.7 Rechnung stornieren oder löschen
 
-**Stornieren:** Eine Rechnung kann nur **manuell** storniert werden (Button "Stornieren"). Es gibt keine automatische Stornierung. Stornierte Rechnungen bleiben für die Nachvollziehbarkeit erhalten.
+**Stornieren:** Eine Rechnung kann nur **manuell** storniert werden (Button "Stornieren"). Stornierte Rechnungen bleiben für die Nachvollziehbarkeit erhalten. Die verknüpften Entitlements werden automatisch auf `faellig` zurückgesetzt (Trigger 073) und erscheinen wieder im Tab "Fällig".
 
-**Löschen:** Nur Rechnungen mit Status `entwurf` können gelöscht werden. Das Löschen entfernt die Rechnung vollständig aus der Datenbank. Rechnungen mit anderem Status (offen, geplant, bezahlt, storniert) können nicht gelöscht werden.
+**Löschen:** Nur Rechnungen mit Status `entwurf` können gelöscht werden. Das Löschen entfernt die Rechnung vollständig aus der Datenbank. Die verknüpften Entitlements werden automatisch auf `faellig` zurückgesetzt (Trigger 072). Rechnungen mit anderem Status (offen, geplant, bezahlt, storniert) können nicht gelöscht werden.
+
+**Kernprinzip:** Das System weiß immer, welche Buchungen abgerechnet wurden (`status = 'abgerechnet'`) und welche noch offen sind (`status = 'faellig'`).
 
 ### 11.8 Storno vor erster Abrechnung
 
@@ -1691,9 +1691,10 @@ VJ4 + VJ5: Keine Vergütung (0% Sätze)
 | 1.6 | 20.01.2026 | Ergänzt: Löschen von Entwürfen (Abschnitt 11.7 + 16.3) |
 | 1.7 | 20.01.2026 | Ergänzt: Sondierung aktiv/inaktiv Toggle (Abschnitt 6) |
 | 1.8 | 21.01.2026 | Ergänzt: invoices.user_id nullable für DRK-Rechnungen (Abschnitt 14.10, Migration 071) |
+| 1.9 | 21.01.2026 | Vereinfacht: Storno-/Lösch-Logik (Abschnitt 11.3-11.5, 11.7). Entitlements werden bei Storno/Löschung auf `faellig` zurückgesetzt (Trigger 072, 073). Keine Gutschrift-Logik mehr. |
 
 ---
 
 *Erstellt: 20.01.2026*
 *Aktualisiert: 21.01.2026*
-*Version: 1.8*
+*Version: 1.9*
