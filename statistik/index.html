@@ -533,7 +533,8 @@
             let recordsQuery = supabase
                 .from('records')
                 .select('customer_id, campaign_area_id, yearly_amount, old_amount, record_type, record_status, start_date')
-                .is('deleted_at', null);
+                .is('deleted_at', null)
+                .range(0, 9999);
 
             if (periodStartDate) {
                 const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;
@@ -691,7 +692,8 @@
             let recordsQuery = supabase
                 .from('records')
                 .select('campaign_id, campaign_area_id, yearly_amount, old_amount, record_type, record_status, start_date')
-                .is('deleted_at', null);
+                .is('deleted_at', null)
+                .range(0, 9999);
 
             if (periodStartDate) {
                 const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;
