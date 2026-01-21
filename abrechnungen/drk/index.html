@@ -416,182 +416,204 @@
 
 <!-- Modal: Rechnung Details -->
 <div class="modal modal-l" id="rechnungDetailModal">
-    <div class="modal-header">
-        <h2>Rechnung Details</h2>
-        <button class="modal-close" onclick="closeRechnungDetailModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-        <!-- Kopfbereich -->
-        <div class="detail-header" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
-            <div>
-                <div class="text-klein text-grau">Rechnungsnummer</div>
-                <div class="text-normal--fett" id="detailRechnungsnummer">-</div>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Status</div>
-                <select id="detailStatus" class="input-field" style="width: auto; min-width: 150px;" onchange="updateRechnungStatus()">
-                    <option value="entwurf">Entwurf</option>
-                    <option value="offen">Offen</option>
-                    <option value="geplant">Geplant</option>
-                    <option value="bezahlt">Bezahlt</option>
-                    <option value="storniert">Storniert</option>
-                </select>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Kunde</div>
-                <div class="text-normal" id="detailKunde">-</div>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Kampagne</div>
-                <div class="text-normal" id="detailKampagne">-</div>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Abrechnungstyp</div>
-                <div class="text-normal" id="detailTyp">-</div>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Zeitraum</div>
-                <div class="text-normal" id="detailZeitraum">-</div>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Vertragsnummer</div>
-                <div class="text-normal" id="detailVertrag">-</div>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Erstellt am</div>
-                <div class="text-normal" id="detailErstellt">-</div>
+    <div class="page-container page-container--modal">
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Rechnung Details</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn btn-icon" onclick="closeRechnungDetailModal()">
+                        <span class="icon icon--schliessen"></span>
+                    </button>
+                </div>
             </div>
         </div>
+        <div class="page-content">
+            <!-- Kopfbereich -->
+            <div class="detail-header" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                <div>
+                    <div class="text-klein text-secondary">Rechnungsnummer</div>
+                    <div class="text-normal--fett" id="detailRechnungsnummer">-</div>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Status</div>
+                    <select id="detailStatus" class="eingabefeld" style="width: auto; min-width: 150px;" onchange="updateRechnungStatus()">
+                        <option value="entwurf">Entwurf</option>
+                        <option value="offen">Offen</option>
+                        <option value="geplant">Geplant</option>
+                        <option value="bezahlt">Bezahlt</option>
+                        <option value="storniert">Storniert</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Kunde</div>
+                    <div class="text-normal" id="detailKunde">-</div>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Kampagne</div>
+                    <div class="text-normal" id="detailKampagne">-</div>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Abrechnungstyp</div>
+                    <div class="text-normal" id="detailTyp">-</div>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Zeitraum</div>
+                    <div class="text-normal" id="detailZeitraum">-</div>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Vertragsnummer</div>
+                    <div class="text-normal" id="detailVertrag">-</div>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Erstellt am</div>
+                    <div class="text-normal" id="detailErstellt">-</div>
+                </div>
+            </div>
 
-        <!-- Positionen -->
-        <div class="detail-section" style="margin-bottom: 1.5rem;">
-            <h3 class="text-normal--fett" style="margin-bottom: 0.5rem;">Positionen</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Beschreibung</th>
-                        <th class="text-right">MG</th>
-                        <th class="text-right">JE</th>
-                        <th class="text-right">Satz</th>
-                        <th class="text-right">Betrag</th>
-                    </tr>
-                </thead>
-                <tbody id="detailPositionen">
-                    <tr><td colspan="5" class="text-grau">Keine Positionen</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Summen -->
-        <div class="detail-summen" style="display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; max-width: 300px; margin-left: auto; margin-bottom: 1.5rem;">
-            <span class="text-normal">Zwischensumme:</span>
-            <span class="text-normal text-right" id="detailZwischensumme">0,00 €</span>
-            <span class="text-normal" id="detailStornopufferLabel" style="display: none;">Stornopuffer:</span>
-            <span class="text-normal text-right" id="detailStornopuffer" style="display: none;">0,00 €</span>
-            <span class="text-normal">Netto:</span>
-            <span class="text-normal text-right" id="detailNetto">0,00 €</span>
-            <span class="text-normal">USt (19%):</span>
-            <span class="text-normal text-right" id="detailUst">0,00 €</span>
-            <span class="text-normal--fett">Brutto:</span>
-            <span class="text-normal--fett text-right" id="detailBrutto">0,00 €</span>
-        </div>
-
-        <!-- Zahlungen -->
-        <div class="detail-section" style="margin-bottom: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h3 class="text-normal--fett">Zahlungen</h3>
-                <button class="btn btn-small btn-secondary" onclick="openZahlungModal()">+ Zahlung erfassen</button>
+            <!-- Positionen -->
+            <div class="detail-section" style="margin-bottom: 1.5rem;">
+                <h3 class="text-normal--fett" style="margin-bottom: 0.5rem;">Positionen</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Beschreibung</th>
+                            <th class="text-right">MG</th>
+                            <th class="text-right">JE</th>
+                            <th class="text-right">Satz</th>
+                            <th class="text-right">Betrag</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailPositionen">
+                        <tr><td colspan="5" class="text-secondary">Keine Positionen</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Datum</th>
-                        <th class="text-right">Betrag</th>
-                        <th>Notiz</th>
-                    </tr>
-                </thead>
-                <tbody id="detailZahlungen">
-                    <tr><td colspan="3" class="text-grau">Keine Zahlungen</td></tr>
-                </tbody>
-            </table>
-            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
-                <span class="text-normal">Offen:</span>
-                <span class="text-normal--fett" id="detailOffen">0,00 €</span>
+
+            <!-- Summen -->
+            <div class="detail-summen" style="display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; max-width: 300px; margin-left: auto; margin-bottom: 1.5rem;">
+                <span class="text-normal">Zwischensumme:</span>
+                <span class="text-normal text-right" id="detailZwischensumme">0,00 €</span>
+                <span class="text-normal" id="detailStornopufferLabel" style="display: none;">Stornopuffer:</span>
+                <span class="text-normal text-right" id="detailStornopuffer" style="display: none;">0,00 €</span>
+                <span class="text-normal">Netto:</span>
+                <span class="text-normal text-right" id="detailNetto">0,00 €</span>
+                <span class="text-normal">USt (19%):</span>
+                <span class="text-normal text-right" id="detailUst">0,00 €</span>
+                <span class="text-normal--fett">Brutto:</span>
+                <span class="text-normal--fett text-right" id="detailBrutto">0,00 €</span>
+            </div>
+
+            <!-- Zahlungen -->
+            <div class="detail-section" style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h3 class="text-normal--fett">Zahlungen</h3>
+                    <button class="btn btn-sm btn-secondary" onclick="openZahlungModal()">+ Zahlung erfassen</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th class="text-right">Betrag</th>
+                            <th>Notiz</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailZahlungen">
+                        <tr><td colspan="3" class="text-secondary">Keine Zahlungen</td></tr>
+                    </tbody>
+                </table>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
+                    <span class="text-normal">Offen:</span>
+                    <span class="text-normal--fett" id="detailOffen">0,00 €</span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="modal-footer">
-        <div style="display: flex; gap: 0.5rem;">
-            <button class="btn btn-secondary" onclick="downloadRechnungPdfModal()">PDF</button>
-            <button class="btn btn-secondary" onclick="sendRechnungEmailModal()">E-Mail</button>
-            <button class="btn btn-danger" onclick="storniereRechnungModal()">Stornieren</button>
+        <div class="page-footer">
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary" onclick="downloadRechnungPdfModal()">PDF</button>
+                <button class="btn btn-secondary" onclick="sendRechnungEmailModal()">E-Mail</button>
+                <button class="btn btn-danger" onclick="storniereRechnungModal()">Stornieren</button>
+            </div>
+            <button class="btn btn-primary" onclick="closeRechnungDetailModal()">Schließen</button>
         </div>
-        <button class="btn btn-primary" onclick="closeRechnungDetailModal()">Schließen</button>
     </div>
 </div>
 
 <!-- Modal: Zahlung erfassen -->
 <div class="modal modal-s" id="zahlungModal">
-    <div class="modal-header">
-        <h2>Zahlung erfassen</h2>
-        <button class="modal-close" onclick="closeZahlungModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-        <!-- Rechnungsinfo -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
-            <div>
-                <div class="text-klein text-grau">Rechnung</div>
-                <div class="text-normal--fett" id="zahlungRechnungsnr">-</div>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Rechnungsbetrag</div>
-                <div class="text-normal" id="zahlungRechnungsbetrag">0,00 €</div>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Bereits bezahlt</div>
-                <div class="text-normal" id="zahlungBereitsBezahlt">0,00 €</div>
-            </div>
-            <div>
-                <div class="text-klein text-grau">Offen</div>
-                <div class="text-normal--fett" id="zahlungOffen">0,00 €</div>
+    <div class="page-container page-container--modal">
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Zahlung erfassen</span>
+                </div>
+                <div class="page-header-mitte"></div>
+                <div class="page-header-rechts">
+                    <button class="btn btn-icon" onclick="closeZahlungModal()">
+                        <span class="icon icon--schliessen"></span>
+                    </button>
+                </div>
             </div>
         </div>
+        <div class="page-content">
+            <!-- Rechnungsinfo -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                <div>
+                    <div class="text-klein text-secondary">Rechnung</div>
+                    <div class="text-normal--fett" id="zahlungRechnungsnr">-</div>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Rechnungsbetrag</div>
+                    <div class="text-normal" id="zahlungRechnungsbetrag">0,00 €</div>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Bereits bezahlt</div>
+                    <div class="text-normal" id="zahlungBereitsBezahlt">0,00 €</div>
+                </div>
+                <div>
+                    <div class="text-klein text-secondary">Offen</div>
+                    <div class="text-normal--fett" id="zahlungOffen">0,00 €</div>
+                </div>
+            </div>
 
-        <!-- Eingabe -->
-        <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="text-klein text-grau">Betrag (Brutto)</label>
-            <div style="display: flex; gap: 0.5rem;">
-                <input type="number" step="0.01" min="0" class="input-field" id="zahlungBetrag" placeholder="0,00" oninput="updateZahlungVorschau()">
-                <button class="btn btn-small btn-secondary" onclick="setZahlungVollstaendig()">Vollständig</button>
+            <!-- Eingabe -->
+            <div class="eingabefeld-gruppe" style="margin-bottom: 1rem;">
+                <label class="eingabefeld-beschriftung-oben">Betrag (Brutto)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="number" step="0.01" min="0" class="eingabefeld" id="zahlungBetrag" placeholder="0,00" oninput="updateZahlungVorschau()">
+                    <button class="btn btn-sm btn-secondary" onclick="setZahlungVollstaendig()">Vollständig</button>
+                </div>
+            </div>
+
+            <div class="eingabefeld-gruppe" style="margin-bottom: 1rem;">
+                <label class="eingabefeld-beschriftung-oben">Zahlungsdatum</label>
+                <input type="date" class="eingabefeld" id="zahlungDatum">
+            </div>
+
+            <div class="eingabefeld-gruppe" style="margin-bottom: 1.5rem;">
+                <label class="eingabefeld-beschriftung-oben">Notiz (optional)</label>
+                <input type="text" class="eingabefeld" id="zahlungNotiz" placeholder="z.B. Überweisung, Verwendungszweck...">
+            </div>
+
+            <!-- Vorschau Aufschlüsselung -->
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 4px;">
+                <div class="text-klein text-secondary" style="margin-bottom: 0.5rem;">Aufschlüsselung</div>
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 0.25rem;">
+                    <span class="text-normal">Netto:</span>
+                    <span class="text-normal text-right" id="zahlungVorschauNetto">0,00 €</span>
+                    <span class="text-normal">USt (19%):</span>
+                    <span class="text-normal text-right" id="zahlungVorschauUst">0,00 €</span>
+                    <span class="text-normal--fett">Brutto:</span>
+                    <span class="text-normal--fett text-right" id="zahlungVorschauBrutto">0,00 €</span>
+                </div>
             </div>
         </div>
-
-        <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="text-klein text-grau">Zahlungsdatum</label>
-            <input type="date" class="input-field" id="zahlungDatum">
+        <div class="page-footer">
+            <button class="btn btn-secondary" onclick="closeZahlungModal()">Abbrechen</button>
+            <button class="btn btn-primary" onclick="saveZahlung()">Zahlung speichern</button>
         </div>
-
-        <div class="form-group" style="margin-bottom: 1.5rem;">
-            <label class="text-klein text-grau">Notiz (optional)</label>
-            <input type="text" class="input-field" id="zahlungNotiz" placeholder="z.B. Überweisung, Verwendungszweck...">
-        </div>
-
-        <!-- Vorschau Aufschlüsselung -->
-        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 4px;">
-            <div class="text-klein text-grau" style="margin-bottom: 0.5rem;">Aufschlüsselung</div>
-            <div style="display: grid; grid-template-columns: 1fr auto; gap: 0.25rem;">
-                <span class="text-normal">Netto:</span>
-                <span class="text-normal text-right" id="zahlungVorschauNetto">0,00 €</span>
-                <span class="text-normal">USt (19%):</span>
-                <span class="text-normal text-right" id="zahlungVorschauUst">0,00 €</span>
-                <span class="text-normal--fett">Brutto:</span>
-                <span class="text-normal--fett text-right" id="zahlungVorschauBrutto">0,00 €</span>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeZahlungModal()">Abbrechen</button>
-        <button class="btn btn-primary" onclick="saveZahlung()">Zahlung speichern</button>
     </div>
 </div>
 
