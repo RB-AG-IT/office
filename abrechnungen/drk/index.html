@@ -1225,8 +1225,9 @@
         }
 
         // Verbindung Dropdown → Modal
-        function openRechnungDetails(id) { openRechnungDetailModal(id); }
+        function openRechnungDetails(id) { closeAllDropdowns(); openRechnungDetailModal(id); }
         async function downloadRechnungPdf(id) {
+            closeAllDropdowns();
             try {
                 // Rechnung mit Kunde laden
                 const res = await fetch(
@@ -1242,6 +1243,7 @@
             }
         }
         async function sendRechnungEmail(id) {
+            closeAllDropdowns();
             try {
                 // Bestätigung
                 if (!confirm('Rechnung per E-Mail an den Schatzmeister senden?')) return;
@@ -1292,8 +1294,9 @@
                 alert('Fehler beim E-Mail-Versand: ' + err.message);
             }
         }
-        async function erfasseZahlung(id) { await openZahlungModalDirekt(id); }
+        async function erfasseZahlung(id) { closeAllDropdowns(); await openZahlungModalDirekt(id); }
         async function storniereRechnung(id) {
+            closeAllDropdowns();
             if (!confirm('Rechnung wirklich stornieren?')) return;
             try {
                 const res = await fetch(
@@ -1323,6 +1326,7 @@
         }
 
         async function deleteRechnung(id) {
+            closeAllDropdowns();
             if (!confirm('Entwurf wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) return;
             try {
                 const res = await fetch(
