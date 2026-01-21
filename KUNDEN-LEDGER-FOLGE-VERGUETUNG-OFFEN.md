@@ -1135,7 +1135,18 @@ COMMENT ON COLUMN customers.kunden_nr_ziffern IS
 
 ### 14.10 Erweiterung: `invoices` (für DRK-Rechnungen)
 
+**Wichtig:** Die `invoices` Tabelle wird für zwei Rechnungstypen verwendet:
+
+| Rechnungstyp | user_id | customer_id |
+|--------------|---------|-------------|
+| Botschafter (Vorschuss, Endabr.) | ✓ gesetzt | NULL |
+| DRK-Kunde (ZA, EA, JA) | NULL | ✓ gesetzt |
+
 ```sql
+-- user_id nullable machen für DRK-Rechnungen (Migration 071)
+ALTER TABLE invoices ALTER COLUMN user_id DROP NOT NULL;
+
+-- Neue Spalten für DRK-Rechnungen
 ALTER TABLE invoices
 ADD COLUMN IF NOT EXISTS customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
 ADD COLUMN IF NOT EXISTS campaign_id UUID REFERENCES campaigns(id) ON DELETE SET NULL,
@@ -1679,9 +1690,10 @@ VJ4 + VJ5: Keine Vergütung (0% Sätze)
 | 1.5 | 20.01.2026 | Ergänzt: Abschnitt 16 Frontend DRK Abrechnungsseite (Tabs, Modals, Rechnungserstellung, Zahlungserfassung, Status-Workflow, Kundenprofil-Einstellung Zusammen/Getrennt) |
 | 1.6 | 20.01.2026 | Ergänzt: Löschen von Entwürfen (Abschnitt 11.7 + 16.3) |
 | 1.7 | 20.01.2026 | Ergänzt: Sondierung aktiv/inaktiv Toggle (Abschnitt 6) |
+| 1.8 | 21.01.2026 | Ergänzt: invoices.user_id nullable für DRK-Rechnungen (Abschnitt 14.10, Migration 071) |
 
 ---
 
 *Erstellt: 20.01.2026*
-*Aktualisiert: 20.01.2026*
-*Version: 1.7*
+*Aktualisiert: 21.01.2026*
+*Version: 1.8*
