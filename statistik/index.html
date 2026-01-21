@@ -659,13 +659,11 @@
                 };
             });
 
-            // Bei aktivem Datumsfilter: Nur Kunden mit Einsatztagen im Zeitraum anzeigen
-            if (periodStartDate || periodEndDate) {
-                kundenData = kundenData.filter(k => k.einsatztage > 0);
-                // Gebiete auch filtern (nur von sichtbaren Kunden)
-                const visibleKundenIds = new Set(kundenData.map(k => k.id));
-                gebieteData = gebieteData.filter(g => visibleKundenIds.has(g.kundeId));
-            }
+            // Nur Kunden mit Records anzeigen
+            kundenData = kundenData.filter(k => k.records > 0);
+            // Gebiete auch filtern (nur von sichtbaren Kunden)
+            const visibleKundenIds = new Set(kundenData.map(k => k.id));
+            gebieteData = gebieteData.filter(g => visibleKundenIds.has(g.kundeId));
         }
 
         // Kampagnen laden
