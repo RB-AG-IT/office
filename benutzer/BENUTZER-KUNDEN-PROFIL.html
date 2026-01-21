@@ -1930,6 +1930,19 @@
             if (error) throw error;
         }
 
+        // Dateinamen bereinigen (Umlaute und Sonderzeichen entfernen)
+        function sanitizeFileName(name) {
+            return name
+                .replace(/Ä/g, 'Ae')
+                .replace(/Ö/g, 'Oe')
+                .replace(/Ü/g, 'Ue')
+                .replace(/ä/g, 'ae')
+                .replace(/ö/g, 'oe')
+                .replace(/ü/g, 'ue')
+                .replace(/ß/g, 'ss')
+                .replace(/[^a-zA-Z0-9._-]/g, '_');
+        }
+
         // Verträge speichern
         async function saveContracts(custId) {
             const contractTypes = ['rahmenvertrag', 'avv', 'sondervertrag'];
@@ -1942,15 +1955,15 @@
 
                 for (const file of files) {
                     if (file.isNew && file.file) {
-                        // Neue Datei hochladen
-                        const fileName = `${custId}/${type}/${Date.now()}_${file.file.name}`;
+                        // Neue Datei hochladen - Dateiname bereinigen
+                        const sanitizedName = sanitizeFileName(file.file.name);
+                        const fileName = `${custId}/${type}/${Date.now()}_${sanitizedName}`;
                         const { data: uploadData, error: uploadError } = await supabase.storage
                             .from('customer-contracts')
                             .upload(fileName, file.file);
 
                         if (uploadError) {
-                            console.error('Upload-Fehler:', uploadError);
-                            continue;
+                            throw new Error(`Upload-Fehler für "${file.name}": ${uploadError.message}`);
                         }
 
                         // Public URL generieren
@@ -1970,14 +1983,18 @@
                             });
 
                         if (insertError) {
-                            console.error('DB-Fehler:', insertError);
+                            throw new Error(`DB-Fehler für "${file.name}": ${insertError.message}`);
                         }
                     } else if (file.id) {
                         // Bestehender Vertrag - Vertragsnummer aktualisieren
-                        await supabase
+                        const { error: updateError } = await supabase
                             .from('customer_contracts')
                             .update({ vertragsnummer: file.vertragsnummer || null })
                             .eq('id', file.id);
+
+                        if (updateError) {
+                            throw new Error(`Update-Fehler für Vertrag: ${updateError.message}`);
+                        }
                     }
                 }
             }
