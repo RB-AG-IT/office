@@ -2844,9 +2844,14 @@
 
         // ========== PDF-GENERIERUNG ==========
 
-        function generateDrkInvoiceHTML(rechnung) {
+        function generateDrkInvoiceHTML(rechnung, schatzmeister = null) {
             const r = rechnung;
             const calcData = r.calculation_data || {};
+
+            // Ansprechpartner (Schatzmeister)
+            const ansprechpartner = schatzmeister
+                ? `z.Hd. ${schatzmeister.first_name || ''} ${schatzmeister.last_name || ''}`.trim()
+                : '';
 
             // Datum formatieren
             const today = new Date();
@@ -3186,6 +3191,7 @@
                 <div class="sender-line">Rhodenburg GmbH (Poststelle der Verwaltung) PF 41 01 47 I 40576 Düsseldorf</div>
                 <div class="recipient">
                     <div class="recipient-name">${kundenName}</div>
+                    ${ansprechpartner ? `${ansprechpartner}<br>` : ''}
                     ${kundenStrasse ? `${kundenStrasse}<br>` : ''}
                     ${kundenOrt ? `${kundenOrt}<br>` : ''}
                     ${kundenEmail ? `<br>E-Mail: ${kundenEmail}` : ''}
@@ -3272,7 +3278,24 @@
         }
 
         async function generateDrkPDF(rechnung, output = 'download') {
-            const html = generateDrkInvoiceHTML(rechnung);
+            // Schatzmeister (Ansprechpartner) laden
+            let schatzmeister = null;
+            if (rechnung.customer_id) {
+                try {
+                    const contactRes = await fetch(
+                        `${SUPABASE_URL}/rest/v1/customer_contacts?customer_id=eq.${rechnung.customer_id}&role=eq.schatzmeister&limit=1`,
+                        { headers: { 'apikey': SUPABASE_KEY } }
+                    );
+                    const contacts = await contactRes.json();
+                    if (contacts && contacts.length > 0) {
+                        schatzmeister = contacts[0];
+                    }
+                } catch (e) {
+                    console.warn('Schatzmeister konnte nicht geladen werden:', e);
+                }
+            }
+
+            const html = generateDrkInvoiceHTML(rechnung, schatzmeister);
 
             const opt = {
                 margin: 0,
