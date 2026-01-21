@@ -776,13 +776,26 @@
                             'warning'
                         );
                         if (confirmed) {
-                            // Falls DB-Eintrag vorhanden, auch dort löschen
-                            if (file.id) {
-                                await supabase.from('customer_contracts').delete().eq('id', file.id);
+                            try {
+                                // Falls DB-Eintrag vorhanden, Storage und DB löschen
+                                if (file.id && file.url) {
+                                    // Storage-Pfad aus URL extrahieren
+                                    const urlParts = file.url.split('/customer-contracts/');
+                                    if (urlParts[1]) {
+                                        const storagePath = decodeURIComponent(urlParts[1]);
+                                        await supabase.storage.from('customer-contracts').remove([storagePath]);
+                                    }
+                                }
+                                if (file.id) {
+                                    await supabase.from('customer_contracts').delete().eq('id', file.id);
+                                }
+                                files.splice(index, 1);
+                                renderFileList();
+                                showToast('Datei gelöscht', 'success');
+                            } catch (err) {
+                                console.error('Fehler beim Löschen:', err);
+                                showToast('Fehler beim Löschen: ' + err.message, 'error');
                             }
-                            files.splice(index, 1);
-                            renderFileList();
-                            showToast('Datei gelöscht', 'success');
                         }
                     });
                 });
