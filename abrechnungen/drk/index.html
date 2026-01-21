@@ -3021,18 +3021,23 @@
             font-family: 'Inter', sans-serif;
             margin-top: 5mm;
         }
-        .contact-box {
-            font-family: 'Inter', sans-serif;
+        .invoice-section {
+            display: flex;
+            justify-content: space-between;
             background: #f8f9fa;
-            padding: 4mm;
+            padding: 5mm;
             border-radius: 3mm;
-            margin-top: 4mm;
+            margin-bottom: 5mm;
+            font-family: 'Inter', sans-serif;
+        }
+        .invoice-right {
+            text-align: right;
             font-size: 8pt;
             color: #4b5563;
             line-height: 1.5;
             font-weight: 300;
         }
-        .contact-box strong {
+        .invoice-right strong {
             font-weight: 600;
             color: #1a1a2e;
         }
@@ -3239,20 +3244,6 @@
                     </div>
                 </div>
 
-                <!-- Rechnungskopf -->
-                <div class="invoice-left">
-                    <div class="invoice-title">Rechnung</div>
-                    <div class="invoice-details">
-                        <strong>Bezeichnung:</strong> ${bezeichnung}<br>
-                        <strong>Rechnungsdatum:</strong> ${rechnungsDatum}<br>
-                        <strong>Rechnungsnummer:</strong> ${r.invoice_number || '(Entwurf)'}<br>
-                        <strong>Bankverbindung:</strong> DE53 1001 8000 0480 9659 32<br>
-                        (BIC: FNOMDEB2XXX)<br>
-                        <br>
-                        <span style="font-weight: 300;">KD-ID: ${kundenId} I Vertr.-Nr.: ${r.vertragsnummer || '-'}</span><br>
-                        <span style="font-weight: 300;">E-Mail: ${kundenEmail || '-'}</span>
-                    </div>
-                </div>
             </div>
             <div class="right-column">
                 <div class="company-details">
@@ -3265,18 +3256,35 @@
                     Postfach 410147<br>
                     40576 Düsseldorf
                 </div>
-                <div class="contact-box">
-                    Telefon: 0211 / 300 49 359<br>
-                    Telefax: 0211 / 97 08 202<br>
+            </div>
+        </div>
+
+        <!-- Rechnungskopf mit grauem Hintergrund -->
+        <div class="invoice-section">
+            <div class="invoice-left">
+                <div class="invoice-title">Rechnung</div>
+                <div class="invoice-details">
+                    <strong>Bezeichnung:</strong> ${bezeichnung}<br>
+                    <strong>Rechnungsdatum:</strong> ${rechnungsDatum}<br>
+                    <strong>Rechnungsnummer:</strong> ${r.invoice_number || '(Entwurf)'}<br>
+                    <strong>Bankverbindung:</strong> DE53 1001 8000 0480 9659 32<br>
+                    (BIC: FNOMDEB2XXX)<br>
                     <br>
-                    www.rhodenburg.de<br>
-                    info@rhodenburg.de<br>
-                    <br>
-                    <strong>Ansprechpartner:</strong><br>
-                    <br>
-                    <strong>Buchhaltung</strong><br>
-                    E-Mail: buchhaltung@rhodenburg.de
+                    <span style="font-weight: 300;">KD-ID: ${kundenId} I Vertr.-Nr.: ${r.vertragsnummer || '-'}</span><br>
+                    <span style="font-weight: 300;">E-Mail: ${kundenEmail || '-'}</span>
                 </div>
+            </div>
+            <div class="invoice-right">
+                Telefon: 0211 / 300 49 359<br>
+                Telefax: 0211 / 97 08 202<br>
+                <br>
+                www.rhodenburg.de<br>
+                info@rhodenburg.de<br>
+                <br>
+                <strong>Ansprechpartner:</strong><br>
+                <br>
+                <strong>Buchhaltung</strong><br>
+                E-Mail: buchhaltung@rhodenburg.de
             </div>
         </div>
 
