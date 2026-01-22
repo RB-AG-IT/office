@@ -3033,6 +3033,24 @@
                     </tr>`;
             }
 
+            // EA-Abzüge (bereits gezahlte ZAs)
+            let zaAbzuegeHtml = '';
+            if (r.abrechnungstyp === 'EA' && calcData.bereitsAbgerechnet && calcData.bereitsAbgerechnet.length > 0) {
+                let posNrB = 1;
+                calcData.bereitsAbgerechnet.forEach(za => {
+                    zaAbzuegeHtml += `
+                        <tr class="abzug-row">
+                            <td class="pos-nr">B${posNrB}</td>
+                            <td class="pos-beschreibung">Abzug ${za.invoice_number || 'ZA'}<br><span class="pos-sub">${za.period_start || ''} - ${za.period_end || ''}</span></td>
+                            <td class="pos-right"></td>
+                            <td class="pos-right"></td>
+                            <td class="pos-right"></td>
+                            <td class="pos-right text-red">-${formatPdfEuro(za.netto_auszahlung || 0)}</td>
+                        </tr>`;
+                    posNrB++;
+                });
+            }
+
             return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -3396,6 +3414,7 @@
             <tbody>
                 ${positionenHtml}
                 ${stornopufferHtml}
+                ${zaAbzuegeHtml}
             </tbody>
         </table>
 
