@@ -3063,11 +3063,12 @@
             }
             if (r.abrechnungstyp === 'EA' && zaAbzuege.length > 0) {
                 let posNrB = 1;
+                const formatDatum = (d) => d ? new Date(d).toLocaleDateString('de-DE') : '';
                 zaAbzuege.forEach(za => {
                     zaAbzuegeHtml += `
                         <tr class="abzug-row">
                             <td class="pos-nr">B${posNrB}</td>
-                            <td class="pos-beschreibung">Abzug ${za.invoice_number || 'ZA'}<br><span class="pos-sub">${za.period_start || ''} - ${za.period_end || ''}</span></td>
+                            <td class="pos-beschreibung">Abzug ${za.invoice_number || 'ZA'}<br><span class="pos-sub">${formatDatum(za.period_start)} - ${formatDatum(za.period_end)}</span></td>
                             <td class="pos-right"></td>
                             <td class="pos-right"></td>
                             <td class="pos-right"></td>
