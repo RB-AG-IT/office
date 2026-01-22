@@ -2091,7 +2091,7 @@
                         <td class="text-right">${pos.mg}</td>
                         <td class="text-right">${pos.je.toLocaleString('de-DE')}</td>
                         <td class="text-center">${pos.satz}</td>
-                        <td class="text-right">${pos.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">${pos.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                     </tr>`);
                 });
             }
@@ -2108,7 +2108,7 @@
                         <td class="text-right">${pos.mg}</td>
                         <td class="text-right">${pos.je.toLocaleString('de-DE')}</td>
                         <td class="text-center">${pos.satz}</td>
-                        <td class="text-right">${pos.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">${pos.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                     </tr>`);
                 });
             }
@@ -2150,7 +2150,7 @@
                         <td class="text-right">-</td>
                         <td class="text-right">-</td>
                         <td class="text-center">-</td>
-                        <td class="text-right">${z.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">${z.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                     </tr>`);
                 });
             }
@@ -2184,13 +2184,13 @@
 
             let footerRows = [`<tr class="table-sum-row">
                 <td colspan="5" class="text-right text-normal--fett">Zwischensumme</td>
-                <td class="text-right text-normal--fett">${zwischensumme.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                <td class="text-right text-normal--fett">${zwischensumme.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
             </tr>`];
 
             if (stornopufferProzent > 0) {
                 footerRows.push(`<tr>
                     <td colspan="5" class="text-right">Stornopuffer (${stornopufferProzent}%)</td>
-                    <td class="text-right text-error">-${stornopuffer.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                    <td class="text-right text-error">-${stornopuffer.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
                 </tr>`);
             }
 
@@ -2207,22 +2207,22 @@
                     const periode = `${formatDate(za.period_start)} - ${formatDate(za.period_end)}`;
                     footerRows.push(`<tr>
                         <td colspan="5" class="text-right">${za.invoice_number} (${periode})</td>
-                        <td class="text-right text-error">-${(za.netto_auszahlung || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                        <td class="text-right text-error">-${(za.netto_auszahlung || 0).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
                     </tr>`);
                 });
             }
 
             footerRows.push(`<tr>
                 <td colspan="5" class="text-right text-normal--fett">Netto</td>
-                <td class="text-right text-normal--fett">${netto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                <td class="text-right text-normal--fett">${netto.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
             </tr>`);
             footerRows.push(`<tr>
                 <td colspan="5" class="text-right">USt (19%)</td>
-                <td class="text-right">${ust.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                <td class="text-right">${ust.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
             </tr>`);
             footerRows.push(`<tr class="table-total-row">
                 <td colspan="5" class="text-right text-normal--fett">Brutto</td>
-                <td class="text-right text-normal--fett">${brutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                <td class="text-right text-normal--fett">${brutto.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
             </tr>`);
 
             document.getElementById('vorschauTableFoot').innerHTML = footerRows.join('');
@@ -2373,7 +2373,7 @@
                     </div>
                     <div class="vorschau-stat">
                         <span class="text-klein">Gesamt Brutto</span>
-                        <span class="text-normal--fett">${gesamtBrutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</span>
+                        <span class="text-normal--fett">${gesamtBrutto.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</span>
                     </div>
                 </div>
             `;
@@ -2387,9 +2387,9 @@
                     <td>${idx + 1}</td>
                     <td>${r.gebiet.name}</td>
                     <td class="text-right">${r.mgTotal} (${r.mgSond}/${r.mgReg})</td>
-                    <td class="text-right">${r.zwischensumme.toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
-                    <td class="text-right">${r.stornopufferProzent > 0 ? '-' + r.stornopuffer.toLocaleString('de-DE', {minimumFractionDigits: 2}) : '-'}</td>
-                    <td class="text-right text-normal--fett">${r.brutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                    <td class="text-right">${r.zwischensumme.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="text-right">${r.stornopufferProzent > 0 ? '-' + r.stornopuffer.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-'}</td>
+                    <td class="text-right text-normal--fett">${r.brutto.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
                 </tr>`);
                 // Bei EA: ZA-Abzüge pro Gebiet anzeigen
                 if (typ === 'EA' && r.bereitsAbgerechnetZAs && r.bereitsAbgerechnetZAs.length > 0) {
@@ -2397,7 +2397,7 @@
                         rows.push(`<tr class="text-klein" style="background: #fef3c7;">
                             <td></td>
                             <td colspan="4" class="text-right">↳ Abzug: ${za.invoice_number}</td>
-                            <td class="text-right text-error">-${(za.netto_auszahlung || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                            <td class="text-right text-error">-${(za.netto_auszahlung || 0).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
                         </tr>`);
                     });
                 }
@@ -2413,7 +2413,7 @@
             document.getElementById('vorschauTableFoot').innerHTML = `
                 <tr class="table-total-row">
                     <td colspan="5" class="text-right text-normal--fett">Gesamt (${rechnungen.length} Rechnungen)</td>
-                    <td class="text-right text-normal--fett">${gesamtBrutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                    <td class="text-right text-normal--fett">${gesamtBrutto.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
                 </tr>
             `;
 
