@@ -1709,45 +1709,7 @@ async function confirmStorno() {
             return;
         }
 
-        // Gegenbuchungen im Ledger erstellen (für alle Records)
-        // NUR für Provisionen/Korrekturen - NICHT für bereits existierende Stornos!
-        for (const recordId of recordIds) {
-            const { data: ledgerEntries, error: ledgerError } = await supabase
-                .from('provisions_ledger')
-                .select('*')
-                .eq('record_id', recordId)
-                .in('typ', ['provision', 'korrektur']);
-
-            if (ledgerError) {
-                console.error('Fehler beim Laden der Ledger-Einträge:', ledgerError);
-                continue;
-            }
-
-            if (ledgerEntries && ledgerEntries.length > 0) {
-                const gegenbuchungen = ledgerEntries.map(entry => ({
-                    user_id: entry.user_id,
-                    record_id: entry.record_id,
-                    kategorie: entry.kategorie,
-                    typ: 'storno',
-                    einheiten: -entry.einheiten,
-                    kw: entry.kw,
-                    year: entry.year,
-                    referenz_datum: datum,
-                    beschreibung: `Storno: ${grund}`,
-                    campaign_id: entry.campaign_id,
-                    campaign_area_id: entry.campaign_area_id,
-                    customer_id: entry.customer_id
-                }));
-
-                const { error: insertError } = await supabase
-                    .from('provisions_ledger')
-                    .insert(gegenbuchungen);
-
-                if (insertError) {
-                    console.error('Fehler beim Erstellen der Gegenbuchungen:', insertError);
-                }
-            }
-        }
+        // Gegenbuchungen werden automatisch durch DB-Trigger erstellt (022-ledger-triggers.sql)
 
         // Lokale Daten aktualisieren (falls recordsData verfügbar)
         if (typeof recordsData !== 'undefined') {
