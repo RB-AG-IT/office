@@ -12384,7 +12384,7 @@ async function ladeWerberStatistiken(options = {}) {
         // 2. User Profiles laden (Profilbilder, Vorschuss-Anteil, Adresse, USt-Pflicht)
         const { data: profilesData } = await supabase
             .from('user_profiles')
-            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city, personalnummer, iban, account_holder, phone, is_vat_liable, vat_valid_from, vat_valid_until');
+            .select('user_id, photo_intern_url, advance_rate, reserve_rate, street, house_number, postal_code, city, personalnummer, iban, account_holder, phone, is_vat_liable, vat_valid_from, vat_valid_until, tax_id');
 
         const profilesMap = {};
         (profilesData || []).forEach(p => {
@@ -12723,6 +12723,9 @@ async function ladeWerberStatistiken(options = {}) {
 
                 // Personalnummer (aus DB)
                 personalnummer: profile.personalnummer || '',
+
+                // Steuer-ID (aus DB)
+                taxId: profile.tax_id || '',
 
                 // Bankdaten (aus DB)
                 iban: profile.iban || '',
