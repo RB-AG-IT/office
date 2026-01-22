@@ -3078,6 +3078,10 @@
                 });
             }
 
+            // Prüfen ob Abzüge vorhanden sind
+            const hasAbzuege = stornopufferHtml || zaAbzuegeHtml;
+            const totalPages = hasAbzuege ? 2 : 1;
+
             return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -3098,10 +3102,15 @@
 
         .invoice-page {
             width: 210mm;
-            min-height: 296mm;
+            height: 296mm;
             padding: 15mm 20mm;
             background: #fff;
             position: relative;
+            page-break-after: always;
+            overflow: hidden;
+        }
+        .invoice-page:last-child {
+            page-break-after: auto;
         }
 
         /* Header */
@@ -3445,6 +3454,59 @@
                     <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
                     <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(zwischensumme)}</td>
                 </tr>
+                ${!hasAbzuege ? '' : ''}
+            </tbody>
+        </table>
+
+        ${!hasAbzuege ? `
+        <!-- Summen (keine Abzüge) -->
+        <div class="totals-section">
+            <div class="total-row highlight">
+                <span>Netto EUR</span>
+                <span>${formatPdfEuro(netto)}</span>
+            </div>
+            <div class="total-row">
+                <span>Gesetzl. USt (19%)</span>
+                <span>${formatPdfEuro(ust)}</span>
+            </div>
+            <div class="total-row final">
+                <span>RECHNUNGSBETRAG</span>
+                <span>${formatPdfEuro(brutto)}</span>
+            </div>
+        </div>
+        ` : ''}
+
+        <!-- Footer Seite 1 -->
+        <div class="footer" style="display: flex; align-items: center; gap: 5mm; font-size: 5pt; line-height: 1.4; color: #000;">
+            <img src="${LOGO_RHODENBURG}" alt="Rhodenburg" style="height: 12mm; margin-left: -10mm;">
+            <img src="${LOGO_QP}" alt="QP" style="height: 12mm;">
+            <div style="text-align: justify; flex: 1;">
+                Rhodenburg GmbH QP-Qualitätspartner der Gemeinwohl und Sozialwirtschaft I Büro Düsseldorf: Schloss Garath, Garather Schlossallee 19, 40595 Düsseldorf I Büro Krefeld: Oberstraße 3, 47829 Krefeld I Sitz: Düsseldorf I AG Düsseldorf I Geschäftsführer: Herr Julien Azemi I Die Gesellschaft verfügt über einen nicht obligatorischen Aufsichtsrat als Kontrollgremium I www.rhodenburg.de I info@rhodenburg.de
+            </div>
+        </div>
+        <div style="position: absolute; bottom: 8mm; right: 15mm; font-size: 6pt;">Seite 1 von ${totalPages}</div>
+    </div>
+
+    ${hasAbzuege ? `
+    <!-- SEITE 2: Abzüge -->
+    <div class="invoice-page">
+        <!-- Tabelle mit Abzügen -->
+        <table class="positions-table" style="margin-top: 10mm;">
+            <thead>
+                <tr>
+                    <th>Pos</th>
+                    <th>Beschreibung</th>
+                    <th>Anz MG</th>
+                    <th>JE EUR</th>
+                    <th>%</th>
+                    <th>Gesamt</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="subtotal-row">
+                    <td colspan="5" style="text-align: right; font-weight: 600;">Übertrag Zwischensumme</td>
+                    <td style="text-align: right; font-weight: 600;">${formatPdfEuro(zwischensumme)}</td>
+                </tr>
                 ${stornopufferHtml}
                 ${zaAbzuegeHtml}
             </tbody>
@@ -3466,7 +3528,7 @@
             </div>
         </div>
 
-        <!-- Footer -->
+        <!-- Footer Seite 2 -->
         <div class="footer" style="display: flex; align-items: center; gap: 5mm; font-size: 5pt; line-height: 1.4; color: #000;">
             <img src="${LOGO_RHODENBURG}" alt="Rhodenburg" style="height: 12mm; margin-left: -10mm;">
             <img src="${LOGO_QP}" alt="QP" style="height: 12mm;">
@@ -3474,8 +3536,9 @@
                 Rhodenburg GmbH QP-Qualitätspartner der Gemeinwohl und Sozialwirtschaft I Büro Düsseldorf: Schloss Garath, Garather Schlossallee 19, 40595 Düsseldorf I Büro Krefeld: Oberstraße 3, 47829 Krefeld I Sitz: Düsseldorf I AG Düsseldorf I Geschäftsführer: Herr Julien Azemi I Die Gesellschaft verfügt über einen nicht obligatorischen Aufsichtsrat als Kontrollgremium I www.rhodenburg.de I info@rhodenburg.de
             </div>
         </div>
-        <div style="position: absolute; bottom: 8mm; right: 15mm; font-size: 6pt;">Seite: 1</div>
+        <div style="position: absolute; bottom: 8mm; right: 15mm; font-size: 6pt;">Seite 2 von ${totalPages}</div>
     </div>
+    ` : ''}
 </body>
 </html>`;
         }
