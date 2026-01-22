@@ -3076,20 +3076,31 @@
                 });
             }
 
-            // Seitenaufteilung berechnen (max 3 Positionen pro Seite)
-            const ITEMS_PER_PAGE = 3;
+            // Seitenaufteilung berechnen
+            const ITEMS_PAGE_1 = 3;   // Seite 1 hat Header → wenig Platz
+            const ITEMS_PAGE_REST = 10; // Folgeseiten ohne Header → viel Platz
             const hasAbzuege = bPositionen.length > 0;
 
-            // Seite 1: A-Positionen (max 3) + Zwischensumme wenn alle A passen
-            // Weitere Seiten: Restliche A + Zwischensumme, dann B + Summenblock
-            const aPage1 = aPositionen.slice(0, ITEMS_PER_PAGE);
-            const aRest = aPositionen.slice(ITEMS_PER_PAGE);
-            const showZwischensummeOnPage1 = aRest.length === 0;
+            // Seite 1: A-Positionen (max 3)
+            const aPage1 = aPositionen.slice(0, ITEMS_PAGE_1);
+            const aRest = aPositionen.slice(ITEMS_PAGE_1);
+            const showZwischensummeOnPage1 = aRest.length === 0 && !hasAbzuege;
+
+            // Alle restlichen Positionen (A-Rest + B) für Folgeseiten
+            const restPositionen = [...aRest];
+            if (aRest.length > 0 || hasAbzuege) {
+                // Zwischensumme als Marker einfügen nach letzter A-Position
+                if (aRest.length > 0) {
+                    restPositionen.push('ZWISCHENSUMME');
+                }
+                restPositionen.push(...bPositionen);
+            }
 
             // Berechne Gesamtseitenzahl
             let totalPages = 1;
-            if (aRest.length > 0) totalPages += Math.ceil(aRest.length / ITEMS_PER_PAGE);
-            if (hasAbzuege) totalPages += Math.ceil(bPositionen.length / ITEMS_PER_PAGE);
+            if (restPositionen.length > 0) {
+                totalPages += Math.ceil(restPositionen.length / ITEMS_PAGE_REST);
+            }
 
             return `<!DOCTYPE html>
 <html lang="de">
@@ -3496,14 +3507,45 @@
     </div>
 
     ${(() => {
-        // Dynamische Folgeseiten generieren
+        // Folgeseiten nur wenn nötig (restPositionen enthält alles was nicht auf Seite 1 passt)
+        if (restPositionen.length === 0) return '';
+
         let pages = '';
         let currentPage = 2;
+        let needsZwischensumme = aRest.length > 0; // Zwischensumme wenn A-Rest vorhanden
+        let shownZwischensumme = false;
+        let isFirstBPosition = true;
 
-        // Restliche A-Positionen (falls mehr als 3)
-        for (let i = 0; i < aRest.length; i += ITEMS_PER_PAGE) {
-            const chunk = aRest.slice(i, i + ITEMS_PER_PAGE);
-            const isLastAPage = i + ITEMS_PER_PAGE >= aRest.length;
+        // Alle Positionen in Chunks von ITEMS_PAGE_REST aufteilen
+        for (let i = 0; i < restPositionen.length; i += ITEMS_PAGE_REST) {
+            const chunk = restPositionen.slice(i, i + ITEMS_PAGE_REST);
+            const isLastPage = i + ITEMS_PAGE_REST >= restPositionen.length;
+
+            // Zeilen für diese Seite generieren
+            let rowsHtml = '';
+            chunk.forEach(item => {
+                if (item === 'ZWISCHENSUMME') {
+                    rowsHtml += `
+                <tr class="subtotal-row">
+                    <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
+                    <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(zwischensumme)}</td>
+                </tr>`;
+                    shownZwischensumme = true;
+                } else if (item.includes('class="abzug-row"') && isFirstBPosition && !shownZwischensumme) {
+                    // Übertrag vor erstem Abzug (wenn Zwischensumme nicht gezeigt wurde)
+                    rowsHtml += `
+                <tr class="subtotal-row">
+                    <td colspan="5" style="text-align: right; font-weight: 600;">Übertrag Zwischensumme</td>
+                    <td style="text-align: right; font-weight: 600;">${formatPdfEuro(zwischensumme)}</td>
+                </tr>`;
+                    rowsHtml += item;
+                    isFirstBPosition = false;
+                } else {
+                    if (item.includes('class="abzug-row"')) isFirstBPosition = false;
+                    rowsHtml += item;
+                }
+            });
+
             pages += `
     <div class="invoice-page">
         <table class="positions-table" style="margin-top: 10mm;">
@@ -3518,55 +3560,10 @@
                 </tr>
             </thead>
             <tbody>
-                ${chunk.join('')}
-                ${isLastAPage ? `
-                <tr class="subtotal-row">
-                    <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
-                    <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(zwischensumme)}</td>
-                </tr>` : ''}
+                ${rowsHtml}
             </tbody>
         </table>
-        <div class="footer" style="display: flex; align-items: center; gap: 5mm; font-size: 5pt; line-height: 1.4; color: #000;">
-            <img src="${LOGO_RHODENBURG}" alt="Rhodenburg" style="height: 12mm; margin-left: -10mm;">
-            <img src="${LOGO_QP}" alt="QP" style="height: 12mm;">
-            <div style="text-align: justify; flex: 1;">
-                Rhodenburg GmbH QP-Qualitätspartner der Gemeinwohl und Sozialwirtschaft I Büro Düsseldorf: Schloss Garath, Garather Schlossallee 19, 40595 Düsseldorf I Büro Krefeld: Oberstraße 3, 47829 Krefeld I Sitz: Düsseldorf I AG Düsseldorf I Geschäftsführer: Herr Julien Azemi I Die Gesellschaft verfügt über einen nicht obligatorischen Aufsichtsrat als Kontrollgremium I www.rhodenburg.de I info@rhodenburg.de
-            </div>
-        </div>
-        <div style="position: absolute; bottom: 8mm; right: 15mm; font-size: 6pt;">Seite ${currentPage} von ${totalPages}</div>
-    </div>`;
-            currentPage++;
-        }
-
-        // B-Positionen (Abzüge) auf Folgeseiten
-        if (hasAbzuege) {
-            for (let i = 0; i < bPositionen.length; i += ITEMS_PER_PAGE) {
-                const chunk = bPositionen.slice(i, i + ITEMS_PER_PAGE);
-                const isLastBPage = i + ITEMS_PER_PAGE >= bPositionen.length;
-                const showUebertrag = i === 0; // Nur auf erster B-Seite
-                pages += `
-    <div class="invoice-page">
-        <table class="positions-table" style="margin-top: 10mm;">
-            <thead>
-                <tr>
-                    <th>Pos</th>
-                    <th>Beschreibung</th>
-                    <th>Anz MG</th>
-                    <th>JE EUR</th>
-                    <th>%</th>
-                    <th>Gesamt</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${showUebertrag ? `
-                <tr class="subtotal-row">
-                    <td colspan="5" style="text-align: right; font-weight: 600;">Übertrag Zwischensumme</td>
-                    <td style="text-align: right; font-weight: 600;">${formatPdfEuro(zwischensumme)}</td>
-                </tr>` : ''}
-                ${chunk.join('')}
-            </tbody>
-        </table>
-        ${isLastBPage ? `
+        ${isLastPage ? `
         <div class="totals-section">
             <div class="total-row highlight">
                 <span>Netto EUR</span>
@@ -3590,8 +3587,7 @@
         </div>
         <div style="position: absolute; bottom: 8mm; right: 15mm; font-size: 6pt;">Seite ${currentPage} von ${totalPages}</div>
     </div>`;
-                currentPage++;
-            }
+            currentPage++;
         }
 
         return pages;
