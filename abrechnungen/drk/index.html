@@ -3084,15 +3084,14 @@
             // Seite 1: A-Positionen (max 3)
             const aPage1 = aPositionen.slice(0, ITEMS_PAGE_1);
             const aRest = aPositionen.slice(ITEMS_PAGE_1);
-            const showZwischensummeOnPage1 = aRest.length === 0 && !hasAbzuege;
+            const allOnPage1 = aRest.length === 0; // Max 3 A-Positionen → alles auf Seite 1
 
             // Alle restlichen Positionen (A-Rest + B) für Folgeseiten
+            // NUR wenn mehr als 3 A-Positionen
             const restPositionen = [...aRest];
-            if (aRest.length > 0 || hasAbzuege) {
+            if (aRest.length > 0) {
                 // Zwischensumme als Marker einfügen nach letzter A-Position
-                if (aRest.length > 0) {
-                    restPositionen.push('ZWISCHENSUMME');
-                }
+                restPositionen.push('ZWISCHENSUMME');
                 restPositionen.push(...bPositionen);
             }
 
@@ -3470,15 +3469,16 @@
             </thead>
             <tbody>
                 ${aPage1.join('')}
-                ${showZwischensummeOnPage1 ? `
+                ${allOnPage1 ? `
                 <tr class="subtotal-row">
                     <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
                     <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(zwischensumme)}</td>
-                </tr>` : ''}
+                </tr>
+                ${bPositionen.join('')}` : ''}
             </tbody>
         </table>
 
-        ${showZwischensummeOnPage1 && !hasAbzuege ? `
+        ${allOnPage1 ? `
         <!-- Summenblock (alles auf einer Seite) -->
         <div class="totals-section">
             <div class="total-row highlight">
