@@ -3034,10 +3034,12 @@
             }
 
             // EA-Abzüge (bereits gezahlte ZAs)
+            // Bei "Zusammen": bereitsAbgerechnet, bei "Getrennt": bereitsAbgerechnetZAs
             let zaAbzuegeHtml = '';
-            if (r.abrechnungstyp === 'EA' && calcData.bereitsAbgerechnet && calcData.bereitsAbgerechnet.length > 0) {
+            const zaAbzuege = calcData.bereitsAbgerechnet || calcData.bereitsAbgerechnetZAs || [];
+            if (r.abrechnungstyp === 'EA' && zaAbzuege.length > 0) {
                 let posNrB = 1;
-                calcData.bereitsAbgerechnet.forEach(za => {
+                zaAbzuege.forEach(za => {
                     zaAbzuegeHtml += `
                         <tr class="abzug-row">
                             <td class="pos-nr">B${posNrB}</td>
