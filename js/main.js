@@ -12270,6 +12270,7 @@ async function erstelleAbrechnung(data) {
             kontoinhaber: data.kontoinhaber || '',
             adresse: data.adresse || {},
             personalnummer: data.personalnummer || '-',
+            taxId: data.taxId || '',
             einheiten: data.einheiten,
             faktor: data.faktor,
             karrierestufe: data.karrierestufe,
