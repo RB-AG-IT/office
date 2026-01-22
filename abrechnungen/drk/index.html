@@ -657,7 +657,7 @@
 
                 // 3. Records zählen pro Kunde (aktiv)
                 const recRes = await fetch(
-                    `${SUPABASE_URL}/rest/v1/records?select=customer_id,yearly_amount&record_status=eq.aktiv&deleted_at=is.null`,
+                    `${SUPABASE_URL}/rest/v1/records?select=customer_id,yearly_amount,old_amount,record_type&record_status=eq.aktiv&deleted_at=is.null`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 const records = await recRes.json();
@@ -690,7 +690,11 @@
                     records.forEach(r => {
                         if (kundenMap[r.customer_id]) {
                             kundenMap[r.customer_id].mitglieder++;
-                            kundenMap[r.customer_id].jahreseuros += parseFloat(r.yearly_amount) || 0;
+                            // Bei Erhöhungen nur Differenz (yearly_amount - old_amount)
+                            const je = r.record_type === 'erhoehung' && r.old_amount
+                                ? (parseFloat(r.yearly_amount) || 0) - (parseFloat(r.old_amount) || 0)
+                                : parseFloat(r.yearly_amount) || 0;
+                            kundenMap[r.customer_id].jahreseuros += je;
                         }
                     });
                 }
@@ -1872,7 +1876,7 @@
             try {
                 // Records für Zeitraum und Gebiete laden
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/records?campaign_area_id=in.(${gebietIds.join(',')})&start_date=gte.${zeitraumVon}&start_date=lte.${zeitraumBis}&record_status=eq.aktiv&select=id,campaign_area_id,yearly_amount,last_name,first_name,start_date`,
+                    `${SUPABASE_URL}/rest/v1/records?campaign_area_id=in.(${gebietIds.join(',')})&start_date=gte.${zeitraumVon}&start_date=lte.${zeitraumBis}&record_status=eq.aktiv&select=id,campaign_area_id,yearly_amount,old_amount,record_type,last_name,first_name,start_date`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
 
@@ -1937,6 +1941,15 @@
             showAbrechnungStep(1);
         }
 
+        // Hilfsfunktion: Jahreseuros für Record berechnen
+        // Bei Erhöhungen nur die Differenz (yearly_amount - old_amount)
+        function getRecordJe(r) {
+            if (r.record_type === 'erhoehung' && r.old_amount) {
+                return (r.yearly_amount || 0) - (r.old_amount || 0);
+            }
+            return r.yearly_amount || 0;
+        }
+
         function generateVorschau() {
             const typ = abrechnungData.typ;
             const gebiete = abrechnungData.einsatzgebiete;
@@ -1964,7 +1977,7 @@
                 let gebietRecords = records.filter(r => r.campaign_area_id === gebiet.id);
 
                 // Nach yearly_amount ASC sortieren (kleinste zuerst → Sondierung)
-                gebietRecords.sort((a, b) => (a.yearly_amount || 0) - (b.yearly_amount || 0));
+                gebietRecords.sort((a, b) => getRecordJe(a) - getRecordJe(b));
 
                 // Sondierungslimit berechnen (nur wenn Sondierung aktiv)
                 const limitConfig = gebiet.provisionSondierung || { limit: 100, limitType: 'mg' };
@@ -1994,7 +2007,7 @@
 
                 // Aggregierte Position für Sondierung
                 if (sondierungRecords.length > 0) {
-                    const sondJe = sondierungRecords.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
+                    const sondJe = sondierungRecords.reduce((sum, r) => sum + getRecordJe(r), 0);
                     sondierungPositionen.push({
                         gebietId: gebiet.id,
                         gebietName: gebiet.name,
@@ -2008,7 +2021,7 @@
 
                 // Aggregierte Position für Regular
                 if (regularRecords.length > 0) {
-                    const regJe = regularRecords.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
+                    const regJe = regularRecords.reduce((sum, r) => sum + getRecordJe(r), 0);
                     regularPositionen.push({
                         gebietId: gebiet.id,
                         gebietName: gebiet.name,
@@ -2026,7 +2039,7 @@
 
             // Gesamtsummen
             const totalMg = records.length;
-            const totalJe = records.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
+            const totalJe = records.reduce((sum, r) => sum + getRecordJe(r), 0);
             const sondMg = sondierungPositionen.reduce((sum, p) => sum + p.mg, 0);
             const regMg = regularPositionen.reduce((sum, p) => sum + p.mg, 0);
 
@@ -2245,7 +2258,7 @@
                 const gebietRecords = records.filter(r => r.campaign_area_id === gebiet.id);
                 if (gebietRecords.length === 0) return;
 
-                gebietRecords.sort((a, b) => (a.yearly_amount || 0) - (b.yearly_amount || 0));
+                gebietRecords.sort((a, b) => getRecordJe(a) - getRecordJe(b));
 
                 // Sondierungslimit berechnen (nur wenn Sondierung aktiv)
                 const limitConfig = gebiet.provisionSondierung || { limit: 100, limitType: 'mg' };
@@ -2265,8 +2278,8 @@
                 const satzRegular = gebiet.provisionRegular?.[vjKey] || 0;
                 const stornopufferProzent = typ === 'ZA' ? (gebiet.stornopuffer || 10) : 0;
 
-                const sondJe = sondierungRecords.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
-                const regJe = regularRecords.reduce((sum, r) => sum + (r.yearly_amount || 0), 0);
+                const sondJe = sondierungRecords.reduce((sum, r) => sum + getRecordJe(r), 0);
+                const regJe = regularRecords.reduce((sum, r) => sum + getRecordJe(r), 0);
                 const sondBetrag = sondJe * satzSondierung / 100;
                 const regBetrag = regJe * satzRegular / 100;
 
