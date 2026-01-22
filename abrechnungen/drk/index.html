@@ -3034,13 +3034,12 @@
             }
 
             // EA-Abzüge (bereits gezahlte ZAs)
-            // Bei "Zusammen": bereitsAbgerechnet, bei "Getrennt": bereitsAbgerechnetZAs
+            // Bei "Getrennt" (campaign_area_id vorhanden): bereitsAbgerechnetZAs ist bereits gefiltert
+            // Bei "Zusammen": bereitsAbgerechnet verwenden
             let zaAbzuegeHtml = '';
-            let zaAbzuege = calcData.bereitsAbgerechnet || calcData.bereitsAbgerechnetZAs || [];
-            // Bei getrennten Rechnungen: nur ZAs für dieses Einsatzgebiet
-            if (r.campaign_area_id) {
-                zaAbzuege = zaAbzuege.filter(za => !za.campaign_area_id || za.campaign_area_id === r.campaign_area_id);
-            }
+            let zaAbzuege = r.campaign_area_id
+                ? (calcData.bereitsAbgerechnetZAs || [])  // Getrennt: bereits gefiltert
+                : (calcData.bereitsAbgerechnet || []);    // Zusammen: alle
             if (r.abrechnungstyp === 'EA' && zaAbzuege.length > 0) {
                 let posNrB = 1;
                 zaAbzuege.forEach(za => {
