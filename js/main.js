@@ -12572,7 +12572,7 @@ async function ladeWerberStatistiken(options = {}) {
             }
         }
 
-        // 9. Einsatztage laden (mit Zeitraum-Filter)
+        // 9. Einsatztage laden (mit präzisem Zeitraum-Filter)
         // ISO-Woche aus Datum berechnen
         function getIsoWeek(date) {
             const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -12581,11 +12581,27 @@ async function ladeWerberStatistiken(options = {}) {
             return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         }
 
+        // Datum aus KW + dayIndex berechnen (dayIndex: 0=Mo, 6=So)
+        function getDateFromKwAndDay(year, kw, dayIndex) {
+            // Erster Donnerstag des Jahres finden
+            const jan4 = new Date(Date.UTC(year, 0, 4));
+            const dayOfWeek = jan4.getUTCDay() || 7; // 1=Mo, 7=So
+            const firstMonday = new Date(jan4);
+            firstMonday.setUTCDate(jan4.getUTCDate() - dayOfWeek + 1);
+            // Zum gewünschten Tag navigieren
+            const targetDate = new Date(firstMonday);
+            targetDate.setUTCDate(firstMonday.getUTCDate() + (kw - 1) * 7 + dayIndex);
+            return targetDate;
+        }
+
+        // Jahr aus Zeitraum ermitteln (für KW-Berechnung)
+        const filterYear = endDate ? endDate.getFullYear() : (startDate ? startDate.getFullYear() : new Date().getFullYear());
+
         let attendanceQuery = supabase
             .from('campaign_attendance')
             .select('user_id, kw, day_0, day_1, day_2, day_3, day_4, day_5, day_6');
 
-        // KW-Filter wenn Zeitraum angegeben
+        // Grober KW-Filter wenn Zeitraum angegeben (Performance)
         if (startDate) {
             const startKw = getIsoWeek(startDate);
             attendanceQuery = attendanceQuery.gte('kw', startKw);
@@ -12597,27 +12613,42 @@ async function ladeWerberStatistiken(options = {}) {
 
         const { data: attendance } = await attendanceQuery;
 
-        // Aktuelle KW und Wochentag berechnen (0=Mo, 6=So)
+        // Heute für "nicht in der Zukunft" Prüfung
         const today = new Date();
-        const currentKw = getIsoWeek(today);
-        const currentDayOfWeek = (today.getDay() + 6) % 7;
+        today.setHours(23, 59, 59, 999);
+
+        // Zeitraum-Grenzen als Timestamps für Vergleich
+        const filterStart = startDate ? new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0).getTime() : null;
+        const filterEnd = endDate ? new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59).getTime() : null;
+        const todayTime = today.getTime();
 
         const einsatztageMap = {};
         (attendance || []).forEach(row => {
             const days = [row.day_0, row.day_1, row.day_2, row.day_3, row.day_4, row.day_5, row.day_6];
 
-            // Für aktuelle KW: nur Tage bis heute zählen
-            let countDays;
-            if (row.kw === currentKw) {
-                countDays = days.slice(0, currentDayOfWeek + 1).filter(d => d === true).length;
-            } else {
-                countDays = days.filter(d => d === true).length;
-            }
+            let countDays = 0;
+            days.forEach((isActive, dayIndex) => {
+                if (!isActive) return;
 
-            if (!einsatztageMap[row.user_id]) {
-                einsatztageMap[row.user_id] = 0;
+                // Konkretes Datum für diesen Tag berechnen
+                const dayDate = getDateFromKwAndDay(filterYear, row.kw, dayIndex);
+                const dayTime = dayDate.getTime();
+
+                // Prüfen: im Zeitraum UND nicht in der Zukunft
+                const inRange = (!filterStart || dayTime >= filterStart) && (!filterEnd || dayTime <= filterEnd);
+                const notFuture = dayTime <= todayTime;
+
+                if (inRange && notFuture) {
+                    countDays++;
+                }
+            });
+
+            if (countDays > 0) {
+                if (!einsatztageMap[row.user_id]) {
+                    einsatztageMap[row.user_id] = 0;
+                }
+                einsatztageMap[row.user_id] += countDays;
             }
-            einsatztageMap[row.user_id] += countDays;
         });
 
         // 10. TC- und Quality-Zuordnungen laden (campaign_assignments)

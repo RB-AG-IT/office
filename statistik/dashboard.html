@@ -910,13 +910,24 @@
 
                 // Hilfsfunktion: Einsätze für eine Rolle berechnen
                 function buildEinsaetze(attendance, records) {
-                    // Aktuelle KW und Wochentag berechnen (0=Mo, 6=So)
+                    // Datum aus KW + dayIndex berechnen (dayIndex: 0=Mo, 6=So)
+                    function getDateFromKwAndDay(year, kw, dayIndex) {
+                        const jan4 = new Date(Date.UTC(year, 0, 4));
+                        const dayOfWeek = jan4.getUTCDay() || 7;
+                        const firstMonday = new Date(jan4);
+                        firstMonday.setUTCDate(jan4.getUTCDate() - dayOfWeek + 1);
+                        const targetDate = new Date(firstMonday);
+                        targetDate.setUTCDate(firstMonday.getUTCDate() + (kw - 1) * 7 + dayIndex);
+                        return targetDate;
+                    }
+
+                    // Heute und Zeitraum-Grenzen
                     const today = new Date();
-                    const d = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
-                    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-                    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-                    const currentKw = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-                    const currentDayOfWeek = (today.getDay() + 6) % 7;
+                    today.setHours(23, 59, 59, 999);
+                    const todayTime = today.getTime();
+                    const filterStart = periodStartDate ? new Date(periodStartDate.getFullYear(), periodStartDate.getMonth(), periodStartDate.getDate(), 0, 0, 0).getTime() : null;
+                    const filterEnd = periodEndDate ? new Date(periodEndDate.getFullYear(), periodEndDate.getMonth(), periodEndDate.getDate(), 23, 59, 59).getTime() : null;
+                    const filterYear = periodEndDate ? periodEndDate.getFullYear() : (periodStartDate ? periodStartDate.getFullYear() : new Date().getFullYear());
 
                     const einsatzMap = {};
                     (attendance || []).forEach(a => {
@@ -927,14 +938,27 @@
                         if (a.kw < einsatzMap[a.campaign_id].minKw) einsatzMap[a.campaign_id].minKw = a.kw;
                         if (a.kw > einsatzMap[a.campaign_id].maxKw) einsatzMap[a.campaign_id].maxKw = a.kw;
 
-                        // Für aktuelle KW: nur Tage bis heute zählen
+                        // Kampagnen-Jahr ermitteln
+                        const campaign = campaignMap[a.campaign_id] || {};
+                        const cYear = campaign.year || filterYear;
+
+                        // Jeden Tag einzeln prüfen
                         const allDays = [a.day_0, a.day_1, a.day_2, a.day_3, a.day_4, a.day_5, a.day_6];
-                        let countDays;
-                        if (a.kw === currentKw) {
-                            countDays = allDays.slice(0, currentDayOfWeek + 1).filter(d => d).length;
-                        } else {
-                            countDays = allDays.filter(d => d).length;
-                        }
+                        let countDays = 0;
+                        allDays.forEach((isActive, dayIndex) => {
+                            if (!isActive) return;
+
+                            const dayDate = getDateFromKwAndDay(cYear, a.kw, dayIndex);
+                            const dayTime = dayDate.getTime();
+
+                            // Prüfen: im Zeitraum UND nicht in der Zukunft
+                            const inRange = (!filterStart || dayTime >= filterStart) && (!filterEnd || dayTime <= filterEnd);
+                            const notFuture = dayTime <= todayTime;
+
+                            if (inRange && notFuture) {
+                                countDays++;
+                            }
+                        });
                         einsatzMap[a.campaign_id].tage += countDays;
                     });
 
