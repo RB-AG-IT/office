@@ -911,17 +911,6 @@
                 // Hilfsfunktion: Einsätze für eine Rolle berechnen
                 function buildEinsaetze(attendance, records) {
                     const einsatzMap = {};
-
-                    // Aktuelle KW und Wochentag berechnen (0=Mo, 6=So)
-                    const now = new Date();
-                    const currentYear = now.getFullYear();
-                    const jan4 = new Date(currentYear, 0, 4);
-                    const dayOfWeek = jan4.getDay() || 7;
-                    const firstMonday = new Date(jan4);
-                    firstMonday.setDate(jan4.getDate() - dayOfWeek + 1);
-                    const currentKw = Math.ceil(((now - firstMonday) / (1000 * 60 * 60 * 24) + 1) / 7);
-                    const currentDayOfWeek = (now.getDay() + 6) % 7; // 0=Mo, 6=So
-
                     (attendance || []).forEach(a => {
                         if (!einsatzMap[a.campaign_id]) {
                             einsatzMap[a.campaign_id] = { kws: new Set(), tage: 0, minKw: Infinity, maxKw: -Infinity };
@@ -929,19 +918,7 @@
                         einsatzMap[a.campaign_id].kws.add(a.kw);
                         if (a.kw < einsatzMap[a.campaign_id].minKw) einsatzMap[a.campaign_id].minKw = a.kw;
                         if (a.kw > einsatzMap[a.campaign_id].maxKw) einsatzMap[a.campaign_id].maxKw = a.kw;
-
-                        // Tage zählen - für aktuelle KW nur bis heute
-                        const allDays = [a.day_0, a.day_1, a.day_2, a.day_3, a.day_4, a.day_5, a.day_6];
-                        let days = 0;
-                        if (a.kw === currentKw) {
-                            // Aktuelle KW: nur Tage bis heute zählen
-                            for (let i = 0; i <= currentDayOfWeek; i++) {
-                                if (allDays[i]) days++;
-                            }
-                        } else {
-                            // Vergangene KW: alle Tage zählen
-                            days = allDays.filter(d => d).length;
-                        }
+                        const days = [a.day_0, a.day_1, a.day_2, a.day_3, a.day_4, a.day_5, a.day_6].filter(d => d).length;
                         einsatzMap[a.campaign_id].tage += days;
                     });
 
