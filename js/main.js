@@ -12628,7 +12628,8 @@ async function ladeWerberStatistiken(options = {}) {
 
             let countDays = 0;
             days.forEach((isActive, dayIndex) => {
-                if (!isActive) return;
+                // Sonntag (day_6) nie zählen
+                if (!isActive || dayIndex === 6) return;
 
                 // Konkretes Datum für diesen Tag berechnen
                 const dayDate = getDateFromKwAndDay(filterYear, row.kw, dayIndex);
