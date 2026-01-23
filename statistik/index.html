@@ -446,7 +446,19 @@
                 }
 
                 const days = [row.day_0, row.day_1, row.day_2, row.day_3, row.day_4, row.day_5, row.day_6];
-                const countDays = days.filter(d => d === true).length;
+
+                // Aktuelle KW und Wochentag berechnen (0=Mo, 6=So)
+                const today = new Date();
+                const currentKw = getKwFromDate(today);
+                const currentDayOfWeek = (today.getDay() + 6) % 7;
+
+                // Für aktuelle KW: nur Tage bis heute zählen
+                let countDays;
+                if (row.kw === currentKw) {
+                    countDays = days.slice(0, currentDayOfWeek + 1).filter(d => d === true).length;
+                } else {
+                    countDays = days.filter(d => d === true).length;
+                }
 
                 // Pro User (Werber-Tage summiert)
                 if (!einsatztageMap[row.user_id]) {
@@ -460,9 +472,10 @@
                         uniqueDaysByKampagne[row.campaign_id] = new Set();
                     }
 
-                    // Jeden aktiven Tag als einzigartigen Kalendertag markieren
+                    // Jeden aktiven Tag als einzigartigen Kalendertag markieren (nur bis heute für aktuelle KW)
+                    const maxDayIndex = row.kw === currentKw ? currentDayOfWeek : 6;
                     days.forEach((isActive, dayIndex) => {
-                        if (isActive) {
+                        if (isActive && dayIndex <= maxDayIndex) {
                             const dayKey = `${row.kw}_${dayIndex}`;
                             uniqueDaysByKampagne[row.campaign_id].add(dayKey);
 

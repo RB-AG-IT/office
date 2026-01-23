@@ -12572,15 +12572,48 @@ async function ladeWerberStatistiken(options = {}) {
             }
         }
 
-        // 9. Einsatztage laden
-        const { data: attendance } = await supabase
+        // 9. Einsatztage laden (mit Zeitraum-Filter)
+        // ISO-Woche aus Datum berechnen
+        function getIsoWeek(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        let attendanceQuery = supabase
             .from('campaign_attendance')
-            .select('user_id, day_0, day_1, day_2, day_3, day_4, day_5, day_6');
+            .select('user_id, kw, day_0, day_1, day_2, day_3, day_4, day_5, day_6');
+
+        // KW-Filter wenn Zeitraum angegeben
+        if (startDate) {
+            const startKw = getIsoWeek(startDate);
+            attendanceQuery = attendanceQuery.gte('kw', startKw);
+        }
+        if (endDate) {
+            const endKw = getIsoWeek(endDate);
+            attendanceQuery = attendanceQuery.lte('kw', endKw);
+        }
+
+        const { data: attendance } = await attendanceQuery;
+
+        // Aktuelle KW und Wochentag berechnen (0=Mo, 6=So)
+        const today = new Date();
+        const currentKw = getIsoWeek(today);
+        const currentDayOfWeek = (today.getDay() + 6) % 7;
 
         const einsatztageMap = {};
         (attendance || []).forEach(row => {
             const days = [row.day_0, row.day_1, row.day_2, row.day_3, row.day_4, row.day_5, row.day_6];
-            const countDays = days.filter(d => d === true).length;
+
+            // Für aktuelle KW: nur Tage bis heute zählen
+            let countDays;
+            if (row.kw === currentKw) {
+                countDays = days.slice(0, currentDayOfWeek + 1).filter(d => d === true).length;
+            } else {
+                countDays = days.filter(d => d === true).length;
+            }
+
             if (!einsatztageMap[row.user_id]) {
                 einsatztageMap[row.user_id] = 0;
             }

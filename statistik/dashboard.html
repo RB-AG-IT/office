@@ -910,6 +910,14 @@
 
                 // Hilfsfunktion: Einsätze für eine Rolle berechnen
                 function buildEinsaetze(attendance, records) {
+                    // Aktuelle KW und Wochentag berechnen (0=Mo, 6=So)
+                    const today = new Date();
+                    const d = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+                    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                    const currentKw = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                    const currentDayOfWeek = (today.getDay() + 6) % 7;
+
                     const einsatzMap = {};
                     (attendance || []).forEach(a => {
                         if (!einsatzMap[a.campaign_id]) {
@@ -918,8 +926,16 @@
                         einsatzMap[a.campaign_id].kws.add(a.kw);
                         if (a.kw < einsatzMap[a.campaign_id].minKw) einsatzMap[a.campaign_id].minKw = a.kw;
                         if (a.kw > einsatzMap[a.campaign_id].maxKw) einsatzMap[a.campaign_id].maxKw = a.kw;
-                        const days = [a.day_0, a.day_1, a.day_2, a.day_3, a.day_4, a.day_5, a.day_6].filter(d => d).length;
-                        einsatzMap[a.campaign_id].tage += days;
+
+                        // Für aktuelle KW: nur Tage bis heute zählen
+                        const allDays = [a.day_0, a.day_1, a.day_2, a.day_3, a.day_4, a.day_5, a.day_6];
+                        let countDays;
+                        if (a.kw === currentKw) {
+                            countDays = allDays.slice(0, currentDayOfWeek + 1).filter(d => d).length;
+                        } else {
+                            countDays = allDays.filter(d => d).length;
+                        }
+                        einsatzMap[a.campaign_id].tage += countDays;
                     });
 
                     const recordStats = {};
