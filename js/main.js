@@ -958,10 +958,10 @@ const ModalTemplates = {
                                     <div class="eingabefeld-gruppe">
                                         <label class="eingabefeld-beschriftung-oben">Intervall</label>
                                         <select class="eingabefeld" id="editIntervall">
-                                            <option value="monatlich">Monatlich</option>
-                                            <option value="vierteljaehrlich">Vierteljährlich</option>
-                                            <option value="halbjaehrlich">Halbjährlich</option>
-                                            <option value="jaehrlich">Jährlich</option>
+                                            <option value="monthly">Monatlich</option>
+                                            <option value="quarterly">Vierteljährlich</option>
+                                            <option value="halfyearly">Halbjährlich</option>
+                                            <option value="yearly">Jährlich</option>
                                         </select>
                                         <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
@@ -7983,21 +7983,22 @@ function openEditModal(type, id) {
 
     const intervallEl = document.getElementById('editIntervall');
     if (intervallEl) {
-        // Intervall-Mapping
+        // Intervall-Mapping (alle Varianten auf englisch)
         const intervalMap = {
-            'monatlich': 'monatlich',
-            'monthly': 'monatlich',
-            'vierteljährlich': 'vierteljaehrlich',
-            'vierteljaehrlich': 'vierteljaehrlich',
-            'quarterly': 'vierteljaehrlich',
-            'halbjährlich': 'halbjaehrlich',
-            'halbjaehrlich': 'halbjaehrlich',
-            'half-yearly': 'halbjaehrlich',
-            'jährlich': 'jaehrlich',
-            'jaehrlich': 'jaehrlich',
-            'yearly': 'jaehrlich'
+            'monatlich': 'monthly',
+            'monthly': 'monthly',
+            'vierteljährlich': 'quarterly',
+            'vierteljaehrlich': 'quarterly',
+            'quarterly': 'quarterly',
+            'halbjährlich': 'halfyearly',
+            'halbjaehrlich': 'halfyearly',
+            'half-yearly': 'halfyearly',
+            'halfyearly': 'halfyearly',
+            'jährlich': 'yearly',
+            'jaehrlich': 'yearly',
+            'yearly': 'yearly'
         };
-        intervallEl.value = intervalMap[record.interval?.toLowerCase()] || 'monatlich';
+        intervallEl.value = intervalMap[record.interval?.toLowerCase()] || 'monthly';
     }
 
     const jeEl = document.getElementById('editJE');
@@ -8098,14 +8099,14 @@ async function saveEditModal() {
 
     // Beitrag und Intervall
     const beitrag = parseFloat(document.getElementById('editBeitrag')?.value) || 0;
-    const intervall = document.getElementById('editIntervall')?.value || 'monatlich';
+    const intervall = document.getElementById('editIntervall')?.value || 'monthly';
 
     // Intervall-Multiplikator für Jahresbeitrag
     const intervallMultiplier = {
-        'monatlich': 12,
-        'vierteljaehrlich': 4,
-        'halbjaehrlich': 2,
-        'jaehrlich': 1
+        'monthly': 12,
+        'quarterly': 4,
+        'halfyearly': 2,
+        'yearly': 1
     };
     const yearlyAmount = beitrag * (intervallMultiplier[intervall] || 12);
 
