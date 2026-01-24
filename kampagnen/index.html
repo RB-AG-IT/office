@@ -1864,6 +1864,14 @@ function renderCampaigns() {
         });
     }
 
+    // Sortieren: neueste oben (Jahr absteigend, dann KW absteigend)
+    filteredCampaigns = [...filteredCampaigns].sort((a, b) => {
+        const yearA = a.year || new Date().getFullYear();
+        const yearB = b.year || new Date().getFullYear();
+        if (yearB !== yearA) return yearB - yearA;
+        return b.kwFrom - a.kwFrom;
+    });
+
     if (filteredCampaigns.length === 0) {
         grid.style.display = 'none';
         emptyState.style.display = 'block';
