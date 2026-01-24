@@ -1252,6 +1252,9 @@ let employees = [];
 // Campaign storage (wird aus Supabase geladen)
 let campaigns = [];
 
+// Status-Filter für Shell-Dropdown ('', 'active', 'planned', 'inactive')
+let currentStatusFilter = '';
+
 let editingCampaignId = null;
 
 // ============================================
@@ -1851,6 +1854,15 @@ function renderCampaigns() {
     const emptyState = document.getElementById('emptyState');
 
     let filteredCampaigns = campaigns;
+
+    // Nach Status filtern wenn Filter aktiv
+    if (currentStatusFilter) {
+        filteredCampaigns = campaigns.filter(campaign => {
+            const year = campaign.year || new Date().getFullYear();
+            const status = getCampaignStatus(campaign.kwFrom, campaign.kwTo, year);
+            return status === currentStatusFilter;
+        });
+    }
 
     if (filteredCampaigns.length === 0) {
         grid.style.display = 'none';
@@ -5962,6 +5974,10 @@ function searchCampaigns(query) {
 initShellListener({
     onSearch: searchCampaigns,
     onSearchSelect: (id) => highlightTableRow(id),
+    onNavFilter: (value) => {
+        currentStatusFilter = value;
+        renderCampaigns();
+    },
     toolbarActions: {
         add: openCampaignModal
     }
