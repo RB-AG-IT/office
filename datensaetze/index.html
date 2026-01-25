@@ -368,7 +368,8 @@
             let query = supabase
                 .from('bestandsmitglieder')
                 .select('*')
-                .order('last_name', { ascending: true });
+                .order('last_name', { ascending: true })
+                .range(0, 9999);
 
             const { data, error } = await query;
 
@@ -610,7 +611,8 @@
                 .from('records')
                 .select('*')
                 .is('deleted_at', null)
-                .order('start_date', { ascending: false });
+                .order('start_date', { ascending: false })
+                .range(0, 9999);
 
             // Filter nach Kontext-Typ
             if (context.id) {
