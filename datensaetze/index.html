@@ -998,17 +998,32 @@
                 allRecordsData = [...recordsData];
             }
 
-            if (dateFrom && dateTo) {
-                const start = new Date(dateFrom);
-                const end = new Date(dateTo);
+            // Deutsches Datum (DD.MM.YYYY) zu Date-Objekt parsen
+            const parseGerman = (str) => {
+                if (!str) return null;
+                const parts = str.split('.');
+                if (parts.length !== 3) return null;
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1;
+                const year = parseInt(parts[2], 10);
+                return new Date(year, month, day);
+            };
 
-                recordsData = allRecordsData.filter(record => {
-                    const rawDate = record._raw ? record._raw.start_date : null;
-                    const recordDate = rawDate ? new Date(rawDate) : null;
-                    if (!recordDate) return false;
-                    const recordDay = new Date(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate());
-                    return recordDay >= start && recordDay <= end;
-                });
+            if (dateFrom && dateTo) {
+                const start = parseGerman(dateFrom);
+                const end = parseGerman(dateTo);
+
+                if (start && end) {
+                    recordsData = allRecordsData.filter(record => {
+                        const rawDate = record._raw ? record._raw.start_date : null;
+                        const recordDate = rawDate ? new Date(rawDate) : null;
+                        if (!recordDate) return false;
+                        const recordDay = new Date(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate());
+                        return recordDay >= start && recordDay <= end;
+                    });
+                } else {
+                    recordsData = [...allRecordsData];
+                }
             } else {
                 recordsData = [...allRecordsData];
             }
