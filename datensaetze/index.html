@@ -365,20 +365,37 @@
 
         // Bestandsmitglieder laden
         async function loadBestandsmitglieder() {
-            let query = supabase
-                .from('bestandsmitglieder')
-                .select('*')
-                .order('last_name', { ascending: true });
+            // Pagination: Alle Daten in 1000er-Blöcken laden (Supabase-Limit)
+            const PAGE_SIZE = 1000;
+            let allData = [];
+            let from = 0;
+            let hasMore = true;
 
-            const { data, error } = await query;
+            while (hasMore) {
+                let query = supabase
+                    .from('bestandsmitglieder')
+                    .select('*')
+                    .order('last_name', { ascending: true })
+                    .range(from, from + PAGE_SIZE - 1);
 
-            if (error) {
-                console.error('Fehler beim Laden der Bestandsmitglieder:', error);
-                return;
+                const { data, error } = await query;
+
+                if (error) {
+                    console.error('Fehler beim Laden der Bestandsmitglieder:', error);
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    allData = allData.concat(data);
+                    from += PAGE_SIZE;
+                    hasMore = data.length === PAGE_SIZE;
+                } else {
+                    hasMore = false;
+                }
             }
 
             // Alle Daten speichern (für Filter)
-            allBestandData = (data || []).map(b => transformBestandsmitglied(b));
+            allBestandData = allData.map(b => transformBestandsmitglied(b));
             bestandData = [...allBestandData];
 
             // Filter-Dropdown aktualisieren (nur Gebiete mit Bestandsmitgliedern)
@@ -605,58 +622,75 @@
         async function loadRecords() {
             const context = getContextData();
 
-            // Query aufbauen (sortiert nach Aufnahmedatum = start_date)
-            let query = supabase
-                .from('records')
-                .select('*')
-                .is('deleted_at', null)
-                .order('start_date', { ascending: false });
+            // Pagination: Alle Daten in 1000er-Blöcken laden (Supabase-Limit)
+            const PAGE_SIZE = 1000;
+            let allData = [];
+            let from = 0;
+            let hasMore = true;
 
-            // Filter nach Kontext-Typ
-            if (context.id) {
-                switch (context.type) {
-                    case 'werber':
-                        query = query.eq('werber_id', context.id);
-                        break;
-                    case 'kunde':
-                        query = query.eq('customer_id', context.id);
-                        break;
-                    case 'gebiet':
-                        query = query.eq('campaign_area_id', context.id);
-                        break;
-                    case 'customer_area':
-                        // Suche über campaign_areas die zu dieser customer_area gehören
-                        const campaignAreaIds = await getCampaignAreaIdsForCustomerArea(context.id);
-                        if (campaignAreaIds.length > 0) {
-                            query = query.in('campaign_area_id', campaignAreaIds);
-                        } else {
-                            // Keine campaign_areas gefunden - leere Ergebnisse
-                            query = query.eq('campaign_area_id', 'no-match-placeholder');
-                        }
-                        break;
-                    case 'kampagne':
-                        query = query.eq('campaign_id', context.id);
-                        break;
-                    case 'kampagne_gebiet':
-                        // Spezialfall: Kombination aus Kampagne und Gebiet
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const kampagneId = urlParams.get('kampagneId');
-                        const gebietId = urlParams.get('gebietId');
-                        if (kampagneId) query = query.eq('campaign_id', kampagneId);
-                        if (gebietId) query = query.eq('campaign_area_id', gebietId);
-                        break;
+            while (hasMore) {
+                // Query aufbauen (sortiert nach Aufnahmedatum = start_date)
+                let query = supabase
+                    .from('records')
+                    .select('*')
+                    .is('deleted_at', null)
+                    .order('start_date', { ascending: false })
+                    .range(from, from + PAGE_SIZE - 1);
+
+                // Filter nach Kontext-Typ
+                if (context.id) {
+                    switch (context.type) {
+                        case 'werber':
+                            query = query.eq('werber_id', context.id);
+                            break;
+                        case 'kunde':
+                            query = query.eq('customer_id', context.id);
+                            break;
+                        case 'gebiet':
+                            query = query.eq('campaign_area_id', context.id);
+                            break;
+                        case 'customer_area':
+                            // Suche über campaign_areas die zu dieser customer_area gehören
+                            const campaignAreaIds = await getCampaignAreaIdsForCustomerArea(context.id);
+                            if (campaignAreaIds.length > 0) {
+                                query = query.in('campaign_area_id', campaignAreaIds);
+                            } else {
+                                // Keine campaign_areas gefunden - leere Ergebnisse
+                                query = query.eq('campaign_area_id', 'no-match-placeholder');
+                            }
+                            break;
+                        case 'kampagne':
+                            query = query.eq('campaign_id', context.id);
+                            break;
+                        case 'kampagne_gebiet':
+                            // Spezialfall: Kombination aus Kampagne und Gebiet
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const kampagneId = urlParams.get('kampagneId');
+                            const gebietId = urlParams.get('gebietId');
+                            if (kampagneId) query = query.eq('campaign_id', kampagneId);
+                            if (gebietId) query = query.eq('campaign_area_id', gebietId);
+                            break;
+                    }
+                }
+
+                const { data, error } = await query;
+
+                if (error) {
+                    console.error('Fehler beim Laden der Records:', error);
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    allData = allData.concat(data);
+                    from += PAGE_SIZE;
+                    hasMore = data.length === PAGE_SIZE;
+                } else {
+                    hasMore = false;
                 }
             }
 
-            const { data, error } = await query;
-
-            if (error) {
-                console.error('Fehler beim Laden der Records:', error);
-                return;
-            }
-
             // Records transformieren ins Frontend-Format
-            recordsData = (data || []).map(r => transformRecord(r));
+            recordsData = allData.map(r => transformRecord(r));
         }
 
         // Einzelnen Record transformieren (neue einheitliche IDs)
