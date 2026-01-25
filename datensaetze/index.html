@@ -871,6 +871,11 @@
             if (e.data && e.data.type === 'periodFilter') {
                 handlePeriodFilter(e.data.value);
             }
+
+            // Custom Datumsbereich (von Shell-Kalender)
+            if (e.data && e.data.type === 'customDateRangeApplied') {
+                handleCustomDateFilter(e.data.dateFrom, e.data.dateTo);
+            }
         });
 
         // Schnellsuche Handler
@@ -983,6 +988,36 @@
             }
 
             return { start, end };
+        }
+
+        function handleCustomDateFilter(dateFrom, dateTo) {
+            currentPeriod = 'custom';
+
+            // Original-Daten sichern beim ersten Aufruf
+            if (allRecordsData.length === 0 && recordsData.length > 0) {
+                allRecordsData = [...recordsData];
+            }
+
+            if (dateFrom && dateTo) {
+                const start = new Date(dateFrom);
+                const end = new Date(dateTo);
+
+                recordsData = allRecordsData.filter(record => {
+                    const rawDate = record._raw ? record._raw.start_date : null;
+                    const recordDate = rawDate ? new Date(rawDate) : null;
+                    if (!recordDate) return false;
+                    const recordDay = new Date(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate());
+                    return recordDay >= start && recordDay <= end;
+                });
+            } else {
+                recordsData = [...allRecordsData];
+            }
+
+            if (typeof renderRecordsTable === 'function') {
+                renderRecordsTable();
+            }
+
+            document.getElementById('recordsBadge').textContent = recordsData.length;
         }
 
         function handlePeriodFilter(period) {
