@@ -46,7 +46,7 @@ serve(async (req) => {
       to: to,
       subject: subject,
       content: body,
-      html: body.replace(/\n/g, "<br>"),
+      html: `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body style="font-family: Arial, sans-serif;">${body.replace(/\n/g, "<br>")}</body></html>`,
     });
 
     await client.close();
