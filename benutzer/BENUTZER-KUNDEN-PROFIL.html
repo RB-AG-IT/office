@@ -1255,7 +1255,7 @@
 
         function updateAreaNamePreview() {
             const org = document.getElementById('organisation').value || 'DRK';
-            const typPrefix = currentAreaType === 'ortsverein' ? 'Ortsverein' : 'KV';
+            const typPrefix = currentAreaType === 'ortsverein' ? 'Ortsverein' : currentAreaType === 'stadtverband' ? 'Stadtverband' : 'Kreisverband';
             const vereinsname = document.getElementById('areaVereinsname').value || '...';
             const rechtsform = document.getElementById('nameSuffix').value || '';
 
@@ -1418,11 +1418,11 @@
             }
 
             // Vereinstyp aus currentAreaType ableiten
-            const vereinstyp = currentAreaType === 'ortsverein' ? 'OV' : 'KV';
+            const vereinstyp = currentAreaType === 'ortsverein' ? 'OV' : currentAreaType === 'stadtverband' ? 'SV' : 'KV';
 
-            // Vollständigen Namen zusammensetzen (z.B. "DRK KV Ludwigshafen e.V.")
+            // Vollständigen Namen zusammensetzen (z.B. "DRK Kreisverband Ludwigshafen e.V.")
             const org = document.getElementById('organisation').value || 'DRK';
-            const typPrefix = vereinstyp === 'OV' ? 'Ortsverein' : 'KV';
+            const typPrefix = currentAreaType === 'ortsverein' ? 'Ortsverein' : currentAreaType === 'stadtverband' ? 'Stadtverband' : 'Kreisverband';
             const rechtsform = document.getElementById('nameSuffix').value || '';
             const name = `${org} ${typPrefix} ${vereinsname}${rechtsform ? ' ' + rechtsform : ''}`;
 
