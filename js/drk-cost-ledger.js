@@ -77,7 +77,7 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
         const zeitraum = normalizeZeitraum(config.zeitraum);
 
         // Einheiten berechnen (async wegen "einmalig + person" Prüfung)
-        const einheiten = await berechneEinheitenFuerKW(
+        const { einheiten, neueWerberIds } = await berechneEinheitenFuerKW(
             pro, zeitraum, gebietAttendance, kw,
             customerId, campaignId, campaignAreaId, kostenart
         );
@@ -86,7 +86,7 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
         await aktualisiereLedgerEintrag(
             supabase, customerId, campaignId, campaignAreaId,
             kostenart, pro, zeitraum, config.betrag, config.artFrei || kostenart,
-            sollBetrag, einheiten, kw, year, gebietAttendance
+            sollBetrag, einheiten, kw, year, neueWerberIds
         );
     }
 
@@ -98,7 +98,7 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
             const pro = normalizePro(sp.pro, 'sonderposten');
             const zeitraum = normalizeZeitraum(sp.zeitraum || 'einmalig');
 
-            const einheiten = await berechneEinheitenFuerKW(
+            const { einheiten, neueWerberIds } = await berechneEinheitenFuerKW(
                 pro, zeitraum, gebietAttendance, kw,
                 customerId, campaignId, campaignAreaId, `sonderposten_${sp.name}`
             );
@@ -107,7 +107,7 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
             await aktualisiereLedgerEintrag(
                 supabase, customerId, campaignId, campaignAreaId,
                 `sonderposten_${sp.name}`, pro, zeitraum, sp.summe, sp.name,
-                sollBetrag, einheiten, kw, year, gebietAttendance
+                sollBetrag, einheiten, kw, year, neueWerberIds
             );
         }
     }
@@ -140,7 +140,7 @@ function normalizeZeitraum(zeitraum) {
 async function aktualisiereLedgerEintrag(
     supabase, customerId, campaignId, campaignAreaId,
     kostenart, pro, zeitraum, einzelbetrag, bezeichnung,
-    sollBetrag, einheiten, kw, year, gebietAttendance
+    sollBetrag, einheiten, kw, year, neueWerberIds
 ) {
     // Bestehenden Ledger-Eintrag prüfen
     const { data: existing } = await supabase
@@ -177,16 +177,11 @@ async function aktualisiereLedgerEintrag(
                 kw: kw,
                 year: year,
                 bezeichnung: bezeichnung,
-                beschreibung: `Korrektur: 0 Einheiten`
+                beschreibung: 'Korrektur: 0 Einheiten'
             });
         }
     } else if (!existing) {
         // Neuer Eintrag
-        // Bei "einmalig + person": Werber-IDs im beschreibung-Feld speichern
-        const werberIdsStr = (zeitraum === 'einmalig' && pro === 'person')
-            ? 'werber_ids:' + [...new Set(gebietAttendance.map(a => a.user_id))].join(',')
-            : null;
-
         await supabase.from('drk_cost_ledger').insert({
             customer_id: customerId,
             campaign_id: campaignId,
@@ -200,9 +195,22 @@ async function aktualisiereLedgerEintrag(
             einzelbetrag: parseFloat(einzelbetrag),
             kw: kw,
             year: year,
-            bezeichnung: bezeichnung,
-            beschreibung: werberIdsStr
+            bezeichnung: bezeichnung
         });
+
+        // Bei "einmalig + person": Tracking-Einträge für neue Werber erstellen
+        if (zeitraum === 'einmalig' && pro === 'person' && neueWerberIds && neueWerberIds.length > 0) {
+            const trackingEntries = neueWerberIds.map(userId => ({
+                customer_id: customerId,
+                campaign_id: campaignId,
+                campaign_area_id: campaignAreaId,
+                user_id: userId,
+                kostenart: kostenart
+            }));
+            await supabase.from('drk_cost_person_tracking').upsert(trackingEntries, {
+                onConflict: 'customer_id,campaign_id,campaign_area_id,user_id,kostenart'
+            });
+        }
     } else if (Math.abs(existing.betrag - sollBetrag) > 0.001) {
         // Betrag hat sich geändert
         if (!bereitsAbgerechnet) {
@@ -230,17 +238,31 @@ async function aktualisiereLedgerEintrag(
                 beschreibung: `Korrektur: ${existing.betrag} → ${sollBetrag}`
             });
         }
+
+        // Bei "einmalig + person": Auch bei Update neue Werber tracken
+        if (zeitraum === 'einmalig' && pro === 'person' && neueWerberIds && neueWerberIds.length > 0) {
+            const trackingEntries = neueWerberIds.map(userId => ({
+                customer_id: customerId,
+                campaign_id: campaignId,
+                campaign_area_id: campaignAreaId,
+                user_id: userId,
+                kostenart: kostenart
+            }));
+            await supabase.from('drk_cost_person_tracking').upsert(trackingEntries, {
+                onConflict: 'customer_id,campaign_id,campaign_area_id,user_id,kostenart'
+            });
+        }
     }
 }
 
 /**
  * Berechnet Einheiten für eine KW basierend auf pro/zeitraum
- * Bei "einmalig + person": Prüft gegen Ledger welche Werber bereits gebucht
+ * Bei "einmalig + person": Prüft gegen drk_cost_person_tracking Tabelle
  *
- * @returns {Promise<number>} Anzahl der Einheiten
+ * @returns {Promise<{einheiten: number, neueWerberIds: string[]}>}
  */
 async function berechneEinheitenFuerKW(pro, zeitraum, attendance, kw, customerId, campaignId, campaignAreaId, kostenart) {
-    if (!attendance || attendance.length === 0) return 0;
+    if (!attendance || attendance.length === 0) return { einheiten: 0, neueWerberIds: [] };
 
     // Tage zählen (ohne Sonntag = day_6)
     const tage = new Set();
@@ -261,15 +283,15 @@ async function berechneEinheitenFuerKW(pro, zeitraum, attendance, kw, customerId
     const personen = werberIds.size;
 
     if (zeitraum === 'tag') {
-        return pro === 'team' ? teamTage : personenTage;
+        return { einheiten: pro === 'team' ? teamTage : personenTage, neueWerberIds: [] };
     }
     if (zeitraum === 'woche') {
         // 1 Woche wenn mind. 1 Tag aktiv
-        return teamTage > 0 ? (pro === 'team' ? 1 : personen) : 0;
+        return { einheiten: teamTage > 0 ? (pro === 'team' ? 1 : personen) : 0, neueWerberIds: [] };
     }
     if (zeitraum === 'abschnitt') {
         // Abschnitt = 3 Wochen, pro KW anteilig 1/3
-        return teamTage > 0 ? (pro === 'team' ? 1/3 : personen/3) : 0;
+        return { einheiten: teamTage > 0 ? (pro === 'team' ? 1/3 : personen/3) : 0, neueWerberIds: [] };
     }
     if (zeitraum === 'einmalig') {
         const supabase = window.supabaseClient;
@@ -286,41 +308,33 @@ async function berechneEinheitenFuerKW(pro, zeitraum, attendance, kw, customerId
                 .eq('typ', 'buchung')
                 .limit(1);
 
-            return (existing && existing.length > 0) ? 0 : 1;
+            return { einheiten: (existing && existing.length > 0) ? 0 : 1, neueWerberIds: [] };
         } else {
-            // Person einmalig: Nur NEUE Werber zählen
-            // Bereits gebuchte Werber aus beschreibung-Feld laden
-            const { data: existingEntries } = await supabase
-                .from('drk_cost_ledger')
-                .select('beschreibung')
+            // Person einmalig: Prüfen gegen drk_cost_person_tracking Tabelle
+            const { data: trackedWerber } = await supabase
+                .from('drk_cost_person_tracking')
+                .select('user_id')
                 .eq('customer_id', customerId)
                 .eq('campaign_id', campaignId)
                 .eq('campaign_area_id', campaignAreaId)
-                .eq('kostenart', kostenart)
-                .eq('zeitraum', 'einmalig')
-                .eq('typ', 'buchung');
+                .eq('kostenart', kostenart);
 
-            // Alle bereits gebuchten Werber-IDs sammeln
-            const bereitsGebucht = new Set();
-            existingEntries?.forEach(e => {
-                if (e.beschreibung?.startsWith('werber_ids:')) {
-                    e.beschreibung.replace('werber_ids:', '').split(',').forEach(id => {
-                        if (id) bereitsGebucht.add(id);
-                    });
+            // Bereits getrackte Werber-IDs
+            const bereitsGebucht = new Set((trackedWerber || []).map(t => t.user_id));
+
+            // Nur neue Werber zählen
+            const neueWerberIds = [];
+            werberIds.forEach(id => {
+                if (!bereitsGebucht.has(id)) {
+                    neueWerberIds.push(id);
                 }
             });
 
-            // Nur neue Werber zählen
-            let neueWerber = 0;
-            werberIds.forEach(id => {
-                if (!bereitsGebucht.has(id)) neueWerber++;
-            });
-
-            return neueWerber;
+            return { einheiten: neueWerberIds.length, neueWerberIds };
         }
     }
 
-    return 0;
+    return { einheiten: 0, neueWerberIds: [] };
 }
 
 // Export für globale Nutzung
