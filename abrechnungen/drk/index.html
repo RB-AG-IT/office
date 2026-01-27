@@ -1987,9 +1987,10 @@
                 if (limitConfig.aktiv !== false) {
                     sondierungLimit = limitConfig.limit || 100;
 
-                    if (limitConfig.limitType === 'prozent' && gebiet.einwohner > 0) {
+                    const effEinwohner = limitConfig.einwohner || gebiet.einwohner || 0;
+                    if (limitConfig.limitType === 'prozent' && effEinwohner > 0) {
                         // Prozent der Einwohnerzahl
-                        sondierungLimit = Math.floor(gebiet.einwohner * (limitConfig.limit / 100));
+                        sondierungLimit = Math.floor(effEinwohner * (limitConfig.limit / 100));
                     }
                 }
 
@@ -2266,8 +2267,9 @@
 
                 if (limitConfig.aktiv !== false) {
                     sondierungLimit = limitConfig.limit || 100;
-                    if (limitConfig.limitType === 'prozent' && gebiet.einwohner > 0) {
-                        sondierungLimit = Math.floor(gebiet.einwohner * (limitConfig.limit / 100));
+                    const effEinwohner = limitConfig.einwohner || gebiet.einwohner || 0;
+                    if (limitConfig.limitType === 'prozent' && effEinwohner > 0) {
+                        sondierungLimit = Math.floor(effEinwohner * (limitConfig.limit / 100));
                     }
                 }
 

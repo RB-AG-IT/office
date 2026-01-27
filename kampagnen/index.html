@@ -405,6 +405,10 @@
                                                 <option value="prozent">% Bevölkerung</option>
                                             </select>
                                         </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                            <label class="eingabefeld-beschriftung-oben">Einwohner</label>
+                                            <input type="number" class="eingabefeld" id="sondEinwohner" placeholder="Auto" min="0" onchange="updateSondLimitCalc()">
+                                        </div>
                                         <div class="eingabefeld-gruppe">
                                             <label class="eingabefeld-beschriftung-oben">&nbsp;</label>
                                             <span class="text-klein text-sekundaer" id="sondLimitCalc"></span>
@@ -2150,7 +2154,7 @@ function initCampaignWerbegebiete(campaign) {
     // Einsatzgebiete in campaignWerbegebiete Format konvertieren
     einsatzgebiete.forEach(eg => {
         // Sondierung aus DB oder Defaults
-        const sondierung = eg.provision_sondierung || { j1: 80, j2: 50, j3: 30, j4: 0, j5: 0, limit: 100, limitType: 'mg' };
+        const sondierung = eg.provision_sondierung || { j1: 80, j2: 50, j3: 30, j4: 0, j5: 0, limit: 100, limitType: 'mg', einwohner: null };
 
         // Regular aus DB oder Defaults
         const regular = eg.provision_regular || { j1: 60, j2: 40, j3: 20, j4: 0, j5: 0 };
@@ -2507,7 +2511,7 @@ async function loadKundenForSelect() {
     try {
         const { data: customers, error } = await supabase
             .from('customers')
-            .select('id, name, organisation, name_prefix, name_suffix')
+            .select('id, name, organisation, name_prefix, name_suffix, einwohner')
             .order('name', { ascending: true });
 
         if (error) throw error;
@@ -2665,7 +2669,7 @@ async function addWgToCampaign(wgId) {
             kunde: selectedWgKunde,
             kundeName: getKundeName(selectedWgKunde),
             kws: [], // Standardmäßig keine KWs aktiviert
-            sondierung: { j1: 80, j2: 50, j3: 30, j4: 0, j5: 0, limit: 100, limitType: 'mg' },
+            sondierung: { j1: 80, j2: 50, j3: 30, j4: 0, j5: 0, limit: 100, limitType: 'mg', einwohner: null },
             regular: { j1: 60, j2: 40, j3: 20, j4: 0, j5: 0 },
             qualitaetsbonus: {
                 aktiv: true,
@@ -2804,6 +2808,20 @@ function openWgConfig(wgId) {
     document.getElementById('sondJ5').value = wg.sondierung.j5;
     document.getElementById('sondLimit').value = wg.sondierung.limit;
     document.getElementById('sondLimitType').value = wg.sondierung.limitType;
+
+    // Einwohner-Feld
+    const sondEinwohnerEl = document.getElementById('sondEinwohner');
+    if (wg.sondierung.einwohner > 0) {
+        sondEinwohnerEl.value = wg.sondierung.einwohner;
+    } else {
+        sondEinwohnerEl.value = '';
+    }
+    // Placeholder mit Fallback
+    const fallback = getEinwohnerFallbackInfo(wg);
+    sondEinwohnerEl.placeholder = fallback.value > 0
+        ? `${fallback.value.toLocaleString('de-DE')} (${fallback.source})`
+        : 'Keine Daten';
+
     updateSondLimitCalc();
 
     // Regular
@@ -2975,6 +2993,33 @@ function updateQualiMaxBonus() {
     document.getElementById('qualiMaxDisplay').innerHTML = `<span>Max. Bonus: +${maxBonus} PP</span>`;
 }
 
+// Effektive Einwohner mit Fallback berechnen
+function getEffektiveEinwohner(wg) {
+    // 1. Sondierung-Override
+    if (wg?.sondierung?.einwohner > 0) return wg.sondierung.einwohner;
+
+    // 2. WG-Einwohner (aus customer_areas)
+    if (wg?.einwohner > 0) return wg.einwohner;
+
+    // 3. Kunden-Einwohner
+    const kunde = kundenListe.find(k => k.id === wg?.kunde);
+    if (kunde?.einwohner > 0) return kunde.einwohner;
+
+    return 0;
+}
+
+// Fallback-Quelle ermitteln (für Placeholder)
+function getEinwohnerFallbackInfo(wg) {
+    if (wg?.einwohner > 0) {
+        return { value: wg.einwohner, source: 'WG' };
+    }
+    const kunde = kundenListe.find(k => k.id === wg?.kunde);
+    if (kunde?.einwohner > 0) {
+        return { value: kunde.einwohner, source: 'Kunde' };
+    }
+    return { value: 0, source: null };
+}
+
 // Sond-Limit Berechnung aktualisieren
 function updateSondLimitCalc() {
     const limitType = document.getElementById('sondLimitType').value;
@@ -2982,9 +3027,12 @@ function updateSondLimitCalc() {
     const calcEl = document.getElementById('sondLimitCalc');
 
     if (limitType === 'prozent') {
-        // Bevölkerung vom aktuellen WG holen
         const wg = campaignWerbegebiete.find(w => w.id === activeWgConfig);
-        const bevolkerung = wg?.einwohner || 0;
+
+        // Einwohner aus Feld oder Fallback
+        const eingabe = parseInt(document.getElementById('sondEinwohner').value);
+        const bevolkerung = eingabe > 0 ? eingabe : getEffektiveEinwohner(wg);
+
         if (bevolkerung > 0) {
             const mg = Math.round(bevolkerung * limitValue / 100);
             calcEl.textContent = `= ${mg.toLocaleString('de-DE')} MG`;
@@ -3494,6 +3542,9 @@ async function saveWgConfig() {
     if (!wg) return;
 
     // Sondierung
+    const sondEinwohnerInput = parseInt(document.getElementById('sondEinwohner').value);
+    const effektiveEinwohner = sondEinwohnerInput > 0 ? sondEinwohnerInput : getEffektiveEinwohner(wg);
+
     wg.sondierung = {
         aktiv: document.getElementById('wgSondierung').checked,
         j1: parseInt(document.getElementById('sondJ1').value) || 0,
@@ -3502,7 +3553,8 @@ async function saveWgConfig() {
         j4: parseInt(document.getElementById('sondJ4').value) || 0,
         j5: parseInt(document.getElementById('sondJ5').value) || 0,
         limit: parseInt(document.getElementById('sondLimit').value) || 100,
-        limitType: document.getElementById('sondLimitType').value
+        limitType: document.getElementById('sondLimitType').value,
+        einwohner: effektiveEinwohner
     };
 
     // Regular
