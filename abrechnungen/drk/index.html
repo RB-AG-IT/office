@@ -1098,6 +1098,12 @@
                                     </svg>
                                     Rechnungen anzeigen
                                 </div>
+                                <div class="dropdown-item" onclick="handleDropdownAction('kostenHistorie', this.parentElement)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Kosten-Historie
+                                </div>
                             </div>
                         </div>
                     </td>
@@ -1298,6 +1304,10 @@
             }
             if (action === 'showInvoices') {
                 showInvoicesForRecord(id);
+                return;
+            }
+            if (action === 'kostenHistorie') {
+                openKostenHistorieForKunde(id);
                 return;
             }
 
@@ -3048,6 +3058,70 @@
 
         function closeKostenHistorieModal() {
             document.getElementById('kostenHistorieModal').classList.remove('active');
+        }
+
+        // Kosten-Historie für einen Kunden (alle Ledger-Einträge)
+        async function openKostenHistorieForKunde(customerId) {
+            closeAllDropdowns();
+
+            // Kundeninfo für Header laden
+            const kunde = drkKundenData.find(k => k.id === customerId);
+            document.getElementById('kostenHistorieRechnungsnr').textContent =
+                kunde ? kunde.name : 'Kunde';
+
+            // Modal öffnen
+            document.getElementById('kostenHistorieModal').classList.add('active');
+
+            // Alle Ledger-Einträge für diesen Kunden laden
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/drk_cost_ledger?customer_id=eq.${customerId}&select=*,campaign_areas(name)&order=year.desc,kw.desc,kostenart.asc`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }
+                );
+                const ledgerData = await res.json();
+
+                if (!ledgerData || ledgerData.length === 0) {
+                    document.getElementById('kostenHistorieTableBody').innerHTML =
+                        '<tr><td colspan="6" class="text-center text-klein">Keine Kosten-Buchungen für diesen Kunden</td></tr>';
+                    document.getElementById('kostenHistorieTableFoot').innerHTML = '';
+                    return;
+                }
+
+                // Tabelle rendern
+                let summe = 0;
+                const rows = ledgerData.map(e => {
+                    summe += parseFloat(e.betrag) || 0;
+                    const typBadge = e.typ === 'buchung' ? 'badge--success'
+                                   : e.typ === 'storno' ? 'badge--danger'
+                                   : 'badge--warning';
+                    const status = e.invoice_id ? 'abgerechnet' : 'offen';
+                    const statusBadge = e.invoice_id ? 'badge--secondary' : 'badge--primary';
+                    return `<tr>
+                        <td class="col-s text-left">KW ${e.kw}/${e.year}</td>
+                        <td class="col-s text-center"><span class="badge badge--small ${typBadge}">${e.typ}</span></td>
+                        <td class="col-name text-left">${e.bezeichnung || e.kostenart || '-'}</td>
+                        <td class="col-m text-left">${e.campaign_areas?.name || '-'}</td>
+                        <td class="col-s text-right">${e.einheiten || 1}</td>
+                        <td class="col-m text-right">${formatCurrency(e.betrag)}</td>
+                    </tr>`;
+                }).join('');
+
+                document.getElementById('kostenHistorieTableBody').innerHTML = rows;
+                document.getElementById('kostenHistorieTableFoot').innerHTML = `
+                    <tr class="table-sum-row">
+                        <td colspan="5" class="text-right text-normal--fett">Gesamt</td>
+                        <td class="text-right text-normal--fett">${formatCurrency(summe)}</td>
+                    </tr>`;
+            } catch (err) {
+                console.error('Fehler beim Laden der Kosten-Historie:', err);
+                document.getElementById('kostenHistorieTableBody').innerHTML =
+                    '<tr><td colspan="6" class="text-center text-error">Fehler beim Laden</td></tr>';
+            }
         }
 
         function setZahlungVollstaendig() {
