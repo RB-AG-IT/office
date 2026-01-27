@@ -17,13 +17,4 @@ CREATE INDEX idx_drk_cost_person_tracking_area ON drk_cost_person_tracking(campa
 CREATE INDEX idx_drk_cost_person_tracking_user ON drk_cost_person_tracking(user_id);
 CREATE INDEX idx_drk_cost_person_tracking_lookup ON drk_cost_person_tracking(customer_id, campaign_id, campaign_area_id, kostenart);
 
--- RLS aktivieren
-ALTER TABLE drk_cost_person_tracking ENABLE ROW LEVEL SECURITY;
-
--- RLS Policy
-CREATE POLICY "Allow all for service_role" ON drk_cost_person_tracking
-    FOR ALL
-    USING (true)
-    WITH CHECK (true);
-
 COMMENT ON TABLE drk_cost_person_tracking IS 'Tracking welche Werber bereits einmalige Kosten erhalten haben';
