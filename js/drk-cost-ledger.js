@@ -14,7 +14,7 @@
  * @param {number} year - Jahr
  */
 async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaId, kw, year) {
-    const supabase = window.supabaseClient;
+    const supabase = window.supabaseClient || window.parent?.supabaseClient || window.supabase;
     if (!supabase) {
         console.error('supabaseClient nicht verfügbar');
         return;
@@ -294,7 +294,7 @@ async function berechneEinheitenFuerKW(pro, zeitraum, attendance, kw, customerId
         return { einheiten: teamTage > 0 ? (pro === 'team' ? 1/3 : personen/3) : 0, neueWerberIds: [] };
     }
     if (zeitraum === 'einmalig') {
-        const supabase = window.supabaseClient;
+        const supabase = window.supabaseClient || window.parent?.supabaseClient || window.supabase;
         if (pro === 'team') {
             // Team einmalig: Prüfen ob bereits ein Eintrag existiert (egal welche KW)
             const { data: existing } = await supabase
