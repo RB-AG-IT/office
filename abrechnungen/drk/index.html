@@ -1761,7 +1761,7 @@
             try {
                 // Campaign_areas aus Supabase laden
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/campaign_areas?campaign_id=eq.${kampagneId}&select=id,name,provision_sondierung,provision_regular,einwohnerzahl,stornopuffer,kosten`,
+                    `${SUPABASE_URL}/rest/v1/campaign_areas?campaign_id=eq.${kampagneId}&select=id,name,provision_sondierung,provision_regular,einwohner,stornopuffer,kosten`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
 
@@ -1782,7 +1782,7 @@
                             data-name="${g.name}"
                             data-provision-sondierung='${JSON.stringify(g.provision_sondierung || {j1:80,j2:50,j3:30,j4:0,j5:0,limit:100,limitType:"mg"})}'
                             data-provision-regular='${JSON.stringify(g.provision_regular || {j1:60,j2:40,j3:20,j4:0,j5:0})}'
-                            data-einwohnerzahl="${g.einwohnerzahl || 0}"
+                            data-einwohner="${g.einwohner || 0}"
                             data-stornopuffer="${g.stornopuffer || 10}"
                             data-kosten='${JSON.stringify(g.kosten || {})}'
                             checked>
@@ -1903,7 +1903,7 @@
                         name: cb.dataset.name,
                         provisionSondierung: JSON.parse(cb.dataset.provisionSondierung),
                         provisionRegular: JSON.parse(cb.dataset.provisionRegular),
-                        einwohnerzahl: parseInt(cb.dataset.einwohnerzahl) || 0,
+                        einwohner: parseInt(cb.dataset.einwohner) || 0,
                         stornopuffer: parseInt(cb.dataset.stornopuffer) || 10,
                         kosten: JSON.parse(cb.dataset.kosten || '{}')
                     })),
@@ -1987,9 +1987,9 @@
                 if (limitConfig.aktiv !== false) {
                     sondierungLimit = limitConfig.limit || 100;
 
-                    if (limitConfig.limitType === 'prozent' && gebiet.einwohnerzahl > 0) {
+                    if (limitConfig.limitType === 'prozent' && gebiet.einwohner > 0) {
                         // Prozent der Einwohnerzahl
-                        sondierungLimit = Math.floor(gebiet.einwohnerzahl * (limitConfig.limit / 100));
+                        sondierungLimit = Math.floor(gebiet.einwohner * (limitConfig.limit / 100));
                     }
                 }
 
@@ -2266,8 +2266,8 @@
 
                 if (limitConfig.aktiv !== false) {
                     sondierungLimit = limitConfig.limit || 100;
-                    if (limitConfig.limitType === 'prozent' && gebiet.einwohnerzahl > 0) {
-                        sondierungLimit = Math.floor(gebiet.einwohnerzahl * (limitConfig.limit / 100));
+                    if (limitConfig.limitType === 'prozent' && gebiet.einwohner > 0) {
+                        sondierungLimit = Math.floor(gebiet.einwohner * (limitConfig.limit / 100));
                     }
                 }
 
