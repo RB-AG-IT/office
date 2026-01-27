@@ -3821,18 +3821,19 @@ async function saveWgConfig() {
         showToast(`${wg.name} gespeichert`, 'success');
 
         // Ledger-Trigger: Für alle KWs mit Attendance die Kosten aktualisieren
-        if (typeof aktualisiereDrkKostenLedger === 'function') {
+        if (typeof aktualisiereDrkKostenLedger === 'function' && viewingCampaignId) {
             try {
+                const campaign = campaigns.find(c => c.id === viewingCampaignId);
                 const { data: attendanceKWs } = await supabase
                     .from('campaign_attendance')
                     .select('kw')
-                    .eq('campaign_id', currentCampaign.id);
+                    .eq('campaign_id', viewingCampaignId);
 
                 if (attendanceKWs && attendanceKWs.length > 0) {
                     const uniqueKWs = [...new Set(attendanceKWs.map(a => a.kw))];
-                    const year = currentCampaign.year || new Date().getFullYear();
+                    const year = campaign?.year || new Date().getFullYear();
                     for (const kw of uniqueKWs) {
-                        await aktualisiereDrkKostenLedger(wg.kunde, currentCampaign.id, wg.id, kw, year);
+                        await aktualisiereDrkKostenLedger(wg.kunde, viewingCampaignId, wg.id, kw, year);
                     }
                 }
             } catch (ledgerError) {
