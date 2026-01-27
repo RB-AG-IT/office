@@ -2772,13 +2772,13 @@ async function copyFormularLink(wgId) {
 }
 
 // WG Konfiguration öffnen und direkt bearbeitbar machen
-function openWgConfigEditable(wgId) {
-    openWgConfig(wgId);
+async function openWgConfigEditable(wgId) {
+    await openWgConfig(wgId);
     setWgConfigEditable(true);
 }
 
 // WG Konfiguration öffnen
-function openWgConfig(wgId) {
+async function openWgConfig(wgId) {
     const wg = campaignWerbegebiete.find(w => w.id === wgId);
     if (!wg) return;
 
@@ -2921,6 +2921,7 @@ function openWgConfig(wgId) {
     renderSonderposten();
 
     // Verträge laden
+    await loadVertraegeForKunde(wg.kunde);
     loadKundenVertraege(wg.kunde, wg.rahmenvertrag, wg.avv);
 
     // Liste aktualisieren für active state
@@ -3044,7 +3045,31 @@ function updateSondLimitCalc() {
     }
 }
 
-// Verträge des Kunden laden
+// Verträge aus Supabase für Kunde laden
+async function loadVertraegeForKunde(kundeId) {
+    if (!kundeId || kundenVertraege[kundeId]) return; // Bereits geladen oder kein Kunde
+
+    try {
+        const { data, error } = await supabase
+            .from('customer_contracts')
+            .select('*')
+            .eq('customer_id', kundeId);
+
+        if (error) throw error;
+
+        kundenVertraege[kundeId] = {
+            rahmenvertraege: (data || []).filter(c => c.contract_type === 'rahmenvertrag').map(c => c.vertragsnummer || c.name),
+            avv: (data || []).filter(c => c.contract_type === 'avv').map(c => c.name)
+        };
+
+        console.log(`Verträge für Kunde ${kundeId} geladen:`, kundenVertraege[kundeId]);
+    } catch (error) {
+        console.error('Fehler beim Laden der Verträge:', error);
+        kundenVertraege[kundeId] = { rahmenvertraege: [], avv: [] };
+    }
+}
+
+// Verträge des Kunden laden (in Dropdowns anzeigen)
 function loadKundenVertraege(kunde, selectedRahmenvertrag, selectedAvv) {
     const vertraege = kundenVertraege[kunde] || { rahmenvertraege: [], avv: [] };
 
