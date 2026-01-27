@@ -365,6 +365,16 @@
                     <span class="eingabefeld-beschriftung-unten" id="abrEinsatzgebieteInfo"></span>
                 </div>
             </div>
+            <!-- Kosten-Checkboxen (nur bei ZA sichtbar) -->
+            <div class="zeile" id="kostenAuswahlGruppe" style="display: none;">
+                <div class="eingabefeld-gruppe">
+                    <label class="eingabefeld-beschriftung-oben">Kostenübernahmen (aus Ledger)</label>
+                    <div class="checkbox-list" id="kostenCheckboxList">
+                        <div class="text-klein">Wird bei Vorschau geladen...</div>
+                    </div>
+                    <span class="eingabefeld-beschriftung-unten" id="kostenCheckboxInfo"></span>
+                </div>
+            </div>
         </div>
 
         <!-- Schritt 2: Vorschau -->
@@ -610,6 +620,49 @@
     </div>
 </div>
 
+<!-- Modal: Kosten-Historie -->
+<div class="modal modal-m" id="kostenHistorieModal">
+    <div class="page-container page-container--modal">
+        <div class="page-header">
+            <div class="page-header-row">
+                <div class="page-header-links">
+                    <span class="text-ueberschrift">Kosten-Historie</span>
+                </div>
+                <div class="page-header-mitte">
+                    <span class="text-klein" id="kostenHistorieRechnungsnr"></span>
+                </div>
+                <div class="page-header-rechts">
+                    <button class="btn btn-icon" onclick="closeKostenHistorieModal()">
+                        <span class="icon icon--schliessen"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="page-content page-content--modal">
+            <table class="table table--m">
+                <thead>
+                    <tr>
+                        <th class="col-s text-left">KW</th>
+                        <th class="col-s text-center">Typ</th>
+                        <th class="col-name text-left">Bezeichnung</th>
+                        <th class="col-m text-left">Gebiet</th>
+                        <th class="col-s text-right">Einh.</th>
+                        <th class="col-m text-right">Betrag</th>
+                    </tr>
+                </thead>
+                <tbody id="kostenHistorieTableBody">
+                    <tr><td colspan="6" class="text-center text-klein">Laden...</td></tr>
+                </tbody>
+                <tfoot id="kostenHistorieTableFoot">
+                </tfoot>
+            </table>
+        </div>
+        <div class="page-footer">
+            <button class="btn btn-secondary" onclick="closeKostenHistorieModal()">Schließen</button>
+        </div>
+    </div>
+</div>
+
     <!-- Seiten-spezifische Daten und Initialisierung -->
     <script>
         // ========== SUPABASE KONFIGURATION ==========
@@ -619,6 +672,38 @@
         // ========== HILFSFUNKTIONEN ==========
         function formatCurrency(val) {
             return (parseFloat(val) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+        }
+
+        // KW aus Datum berechnen (ISO 8601)
+        function getKW(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        // Offene Kosten aus drk_cost_ledger laden
+        async function ladeOffeneKosten(customerId, campaignId, zeitraumVon, zeitraumBis) {
+            const kwVon = getKW(new Date(zeitraumVon));
+            const kwBis = getKW(new Date(zeitraumBis));
+            const year = new Date(zeitraumVon).getFullYear();
+
+            // Alle offenen Ledger-Einträge (invoice_id = NULL) für Zeitraum laden
+            let url = `${SUPABASE_URL}/rest/v1/drk_cost_ledger?customer_id=eq.${customerId}&campaign_id=eq.${campaignId}&invoice_id=is.null&year=eq.${year}`;
+
+            // KW-Filter: Bei Jahreswechsel (kwVon > kwBis) OR-Logik
+            if (kwVon <= kwBis) {
+                url += `&kw=gte.${kwVon}&kw=lte.${kwBis}`;
+            } else {
+                // Jahreswechsel: or=(kw.gte.kwVon,kw.lte.kwBis)
+                url += `&or=(kw.gte.${kwVon},kw.lte.${kwBis})`;
+            }
+
+            const res = await fetch(url, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            return await res.json();
         }
 
         // ========== DATEN (werden aus DB geladen) ==========
@@ -662,7 +747,18 @@
                 );
                 const records = await recRes.json();
 
-                // 4. Aggregieren
+                // 4. Offene Kosten aus drk_cost_summary laden
+                const costRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/drk_cost_summary?select=customer_id,offene_kosten`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                const costSummary = await costRes.json();
+                const costMap = {};
+                if (Array.isArray(costSummary)) {
+                    costSummary.forEach(c => { costMap[c.customer_id] = parseFloat(c.offene_kosten) || 0; });
+                }
+
+                // 5. Aggregieren
                 const kundenMap = {};
                 kunden.forEach(k => {
                     kundenMap[k.id] = {
@@ -671,7 +767,8 @@
                         kundenId: k.kd_id || '-',
                         vj1: 0, vj2: 0, vj3: 0, vj4: 0, vj5: 0,
                         mitglieder: 0,
-                        jahreseuros: 0
+                        jahreseuros: 0,
+                        offeneKosten: costMap[k.id] || 0
                     };
                 });
 
@@ -717,6 +814,7 @@
                         offeneProv4Jahr: formatEuro(k.vj4),
                         offeneProv5Jahr: formatEuro(k.vj5),
                         provisionGesamt: formatEuro(k.vj1 + k.vj2 + k.vj3 + k.vj4 + k.vj5),
+                        offeneKosten: k.offeneKosten > 0 ? formatEuro(k.offeneKosten) : '-',
                         mitglieder: k.mitglieder,
                         jahreseuros: formatEuro(k.jahreseuros)
                     }));
@@ -875,6 +973,7 @@
                 { id: 'offeneProv4Jahr', visible: true },
                 { id: 'offeneProv5Jahr', visible: true },
                 { id: 'provisionGesamt', visible: true },
+                { id: 'offeneKosten', visible: true },
                 { id: 'mitglieder', visible: true },
                 { id: 'jahreseuros', visible: true }
             ];
@@ -893,6 +992,7 @@
                 offeneProv4Jahr: { class: 'col-m text-right', label: 'Offene Prov. 4. Jahr' },
                 offeneProv5Jahr: { class: 'col-m text-right', label: 'Offene Prov. 5. Jahr' },
                 provisionGesamt: { class: 'col-m text-right', label: 'Provision gesamt' },
+                offeneKosten: { class: 'col-m text-right', label: 'Offene Kosten' },
                 mitglieder: { class: 'col-s text-right', label: 'Mitglieder' },
                 jahreseuros: { class: 'col-m text-right', label: 'Jahreseuros' }
             };
@@ -943,6 +1043,7 @@
                     offeneProv4Jahr: { class: 'col-m text-right', html: d.offeneProv4Jahr || '-' },
                     offeneProv5Jahr: { class: 'col-m text-right', html: d.offeneProv5Jahr || '-' },
                     provisionGesamt: { class: 'col-m text-right', html: d.provisionGesamt || '-' },
+                    offeneKosten: { class: 'col-m text-right', html: d.offeneKosten || '-' },
                     mitglieder: { class: 'col-s text-right', html: d.mitglieder || '0' },
                     jahreseuros: { class: 'col-m text-right', html: d.jahreseuros || '-' }
                 };
@@ -1142,6 +1243,7 @@
                             </button>
                             <div class="dropdown-menu">
                                 <div class="dropdown-item" onclick="openRechnungDetails('${r.id}')">Details anzeigen</div>
+                                <div class="dropdown-item" onclick="openKostenHistorie('${r.id}')">Kosten-Historie</div>
                                 <div class="dropdown-item" onclick="downloadRechnungPdf('${r.id}')">PDF Download</div>
                                 <div class="dropdown-item" onclick="sendRechnungEmail('${r.id}')">E-Mail senden</div>
                                 <div class="dropdown-divider"></div>
@@ -1294,27 +1396,28 @@
         async function erfasseZahlung(id) { closeAllDropdowns(); await openZahlungModalDirekt(id); }
         async function storniereRechnung(id) {
             closeAllDropdowns();
-            if (!confirm('Rechnung wirklich stornieren?')) return;
+            if (!confirm('Rechnung wirklich stornieren?\n\nHinweis: Alle zugehörigen Kosten werden wieder als "offen" markiert.')) return;
             try {
+                // RPC aufrufen für Storno mit Ledger-Gegenbuchung
                 const res = await fetch(
-                    `${SUPABASE_URL}/rest/v1/invoices?id=eq.${id}`,
+                    `${SUPABASE_URL}/rest/v1/rpc/storno_drk_invoice`,
                     {
-                        method: 'PATCH',
+                        method: 'POST',
                         headers: {
                             'apikey': SUPABASE_KEY,
                             'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
+                            'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ status: 'storniert' })
+                        body: JSON.stringify({ p_invoice_id: id })
                     }
                 );
-                if (res.ok) {
-                    alert('Rechnung storniert');
+                const result = await res.json();
+                if (result.success) {
+                    alert(`Rechnung ${result.invoice_number || ''} storniert.\nKosten wurden als offen zurückgesetzt.`);
                     await loadDrkRechnungenFromDB();
                     renderRechnungenTable();
                 } else {
-                    throw new Error('Stornierung fehlgeschlagen');
+                    throw new Error(result.error || 'Stornierung fehlgeschlagen');
                 }
             } catch (err) {
                 console.error('Fehler beim Stornieren:', err);
@@ -1922,6 +2025,40 @@
                     }
                 }
 
+                // Offene Kosten aus Ledger laden
+                const offeneKosten = await ladeOffeneKosten(kundeId, kampagneId, zeitraumVon, zeitraumBis);
+                // Nach Gebiet filtern (nur ausgewählte Gebiete)
+                abrechnungData.ledgerKosten = (offeneKosten || []).filter(k =>
+                    gebietIds.includes(k.campaign_area_id)
+                );
+
+                // Bei ZA: Kosten-Checkboxen anzeigen
+                const kostenGruppe = document.getElementById('kostenAuswahlGruppe');
+                const kostenList = document.getElementById('kostenCheckboxList');
+                if (abrTyp === 'ZA' && abrechnungData.ledgerKosten.length > 0) {
+                    kostenGruppe.style.display = 'flex';
+                    kostenList.innerHTML = abrechnungData.ledgerKosten.map(k => {
+                        const gebiet = abrechnungData.einsatzgebiete.find(g => g.id === k.campaign_area_id);
+                        const gebietName = gebiet?.name || '';
+                        return `
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="${k.id}" checked
+                                    data-betrag="${k.betrag}"
+                                    data-bezeichnung="${k.bezeichnung || k.kostenart}"
+                                    data-gebiet="${gebietName}"
+                                    data-kostenart="${k.kostenart}"
+                                    data-einheiten="${k.einheiten || 1}"
+                                    data-einzelbetrag="${k.einzelbetrag || k.betrag}">
+                                <span class="checkbox-label">${k.bezeichnung || k.kostenart} (${gebietName})</span>
+                                <span class="checkbox-info text-klein">${formatCurrency(k.betrag)}</span>
+                            </label>`;
+                    }).join('');
+                    document.getElementById('kostenCheckboxInfo').textContent =
+                        `${abrechnungData.ledgerKosten.length} Kosten, Gesamt: ${formatCurrency(abrechnungData.ledgerKosten.reduce((sum, k) => sum + parseFloat(k.betrag), 0))}`;
+                } else {
+                    kostenGruppe.style.display = 'none';
+                }
+
                 // Vorschau generieren
                 generateVorschau();
 
@@ -2114,31 +2251,38 @@
                 });
             }
 
-            // Zubuchungen aus Kostenübernahmen sammeln
+            // Zubuchungen aus Ledger-Kosten (NEU: nicht mehr aus campaign_areas.kosten berechnen)
             const zubuchungen = [];
-            const kostenTypLabels = {
-                kfz: 'KFZ-Pauschale',
-                unterkunft: 'Unterkunft',
-                verpflegung: 'Verpflegung',
-                kleidung: 'Kleidung',
-                ausweise: 'Ausweise'
-            };
 
-            gebiete.forEach(gebiet => {
-                const kosten = gebiet.kosten || {};
-                Object.keys(kosten).forEach(typ => {
-                    const k = kosten[typ];
-                    if (k && k.aktiv && parseFloat(k.betrag) > 0) {
-                        const label = k.art === 'frei' && k.artFrei ? k.artFrei : kostenTypLabels[typ] || typ;
-                        zubuchungen.push({
-                            gebietName: gebiet.name,
-                            typ: typ,
-                            bezeichnung: label,
-                            betrag: parseFloat(k.betrag) || 0
-                        });
-                    }
+            if (typ === 'ZA') {
+                // Bei ZA: Nur die angehakten Checkboxen
+                const checkboxes = document.querySelectorAll('#kostenCheckboxList input[type="checkbox"]:checked');
+                checkboxes.forEach(cb => {
+                    zubuchungen.push({
+                        ledgerId: cb.value,
+                        gebietName: cb.dataset.gebiet || '',
+                        typ: cb.dataset.kostenart || '',
+                        bezeichnung: cb.dataset.bezeichnung || '',
+                        betrag: parseFloat(cb.dataset.betrag) || 0,
+                        einheiten: parseFloat(cb.dataset.einheiten) || 1,
+                        einzelbetrag: parseFloat(cb.dataset.einzelbetrag) || 0
+                    });
                 });
-            });
+            } else if (typ === 'EA' && abrechnungData.ledgerKosten) {
+                // Bei EA: Alle offenen Ledger-Kosten automatisch
+                abrechnungData.ledgerKosten.forEach(k => {
+                    const gebiet = gebiete.find(g => g.id === k.campaign_area_id);
+                    zubuchungen.push({
+                        ledgerId: k.id,
+                        gebietName: gebiet?.name || '',
+                        typ: k.kostenart || '',
+                        bezeichnung: k.bezeichnung || k.kostenart || '',
+                        betrag: parseFloat(k.betrag) || 0,
+                        einheiten: parseFloat(k.einheiten) || 1,
+                        einzelbetrag: parseFloat(k.einzelbetrag) || 0
+                    });
+                });
+            }
 
             // Zubuchungen zur Tabelle hinzufügen
             if (zubuchungen.length > 0) {
@@ -2285,27 +2429,38 @@
                 const sondBetrag = sondJe * satzSondierung / 100;
                 const regBetrag = regJe * satzRegular / 100;
 
-                // Zubuchungen für dieses Gebiet
-                const kostenTypLabels = {
-                    kfz: 'KFZ-Pauschale',
-                    unterkunft: 'Unterkunft',
-                    verpflegung: 'Verpflegung',
-                    kleidung: 'Kleidung',
-                    ausweise: 'Ausweise'
-                };
+                // Zubuchungen für dieses Gebiet aus Ledger
                 const gebietZubuchungen = [];
-                const kosten = gebiet.kosten || {};
-                Object.keys(kosten).forEach(typ => {
-                    const k = kosten[typ];
-                    if (k && k.aktiv && parseFloat(k.betrag) > 0) {
-                        const label = k.art === 'frei' && k.artFrei ? k.artFrei : kostenTypLabels[typ] || typ;
+                const gebietLedgerKosten = (abrechnungData.ledgerKosten || []).filter(k => k.campaign_area_id === gebiet.id);
+
+                if (typ === 'ZA') {
+                    // Bei ZA: Nur angehakte Checkboxen für dieses Gebiet
+                    const checkboxes = document.querySelectorAll('#kostenCheckboxList input[type="checkbox"]:checked');
+                    checkboxes.forEach(cb => {
+                        if (cb.dataset.gebiet === gebiet.name || gebietLedgerKosten.some(k => k.id === cb.value)) {
+                            gebietZubuchungen.push({
+                                ledgerId: cb.value,
+                                typ: cb.dataset.kostenart || '',
+                                bezeichnung: cb.dataset.bezeichnung || '',
+                                betrag: parseFloat(cb.dataset.betrag) || 0,
+                                einheiten: parseFloat(cb.dataset.einheiten) || 1,
+                                einzelbetrag: parseFloat(cb.dataset.einzelbetrag) || 0
+                            });
+                        }
+                    });
+                } else if (typ === 'EA') {
+                    // Bei EA: Alle offenen Ledger-Kosten für dieses Gebiet
+                    gebietLedgerKosten.forEach(k => {
                         gebietZubuchungen.push({
-                            typ: typ,
-                            bezeichnung: label,
-                            betrag: parseFloat(k.betrag) || 0
+                            ledgerId: k.id,
+                            typ: k.kostenart || '',
+                            bezeichnung: k.bezeichnung || k.kostenart || '',
+                            betrag: parseFloat(k.betrag) || 0,
+                            einheiten: parseFloat(k.einheiten) || 1,
+                            einzelbetrag: parseFloat(k.einzelbetrag) || 0
                         });
-                    }
-                });
+                    });
+                }
                 const zubuchungenBetrag = gebietZubuchungen.reduce((sum, z) => sum + z.betrag, 0);
 
                 const zwischensumme = sondBetrag + regBetrag + zubuchungenBetrag;
@@ -2827,6 +2982,72 @@
         function closeZahlungModal() {
             document.getElementById('zahlungModal').classList.remove('active');
             currentZahlungRechnung = null;
+        }
+
+        // ========== KOSTEN-HISTORIE MODAL ==========
+        async function openKostenHistorie(invoiceId) {
+            closeAllDropdowns();
+
+            // Rechnungsinfo für Header laden
+            const rechnung = drkRechnungenData.find(r => r.id === invoiceId);
+            document.getElementById('kostenHistorieRechnungsnr').textContent =
+                rechnung ? `Rechnung ${rechnung.rechnungsnummer}` : '';
+
+            // Modal öffnen
+            document.getElementById('kostenHistorieModal').classList.add('active');
+
+            // Ledger-Einträge laden
+            try {
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/drk_cost_ledger?invoice_id=eq.${invoiceId}&select=*,campaign_areas(name)&order=kw.asc,kostenart.asc`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }
+                );
+                const ledgerData = await res.json();
+
+                if (!ledgerData || ledgerData.length === 0) {
+                    document.getElementById('kostenHistorieTableBody').innerHTML =
+                        '<tr><td colspan="6" class="text-center text-klein">Keine Kosten-Buchungen für diese Rechnung</td></tr>';
+                    document.getElementById('kostenHistorieTableFoot').innerHTML = '';
+                    return;
+                }
+
+                // Tabelle rendern
+                let summe = 0;
+                const rows = ledgerData.map(e => {
+                    summe += parseFloat(e.betrag) || 0;
+                    const typBadge = e.typ === 'buchung' ? 'badge--success'
+                                   : e.typ === 'storno' ? 'badge--danger'
+                                   : 'badge--warning';
+                    return `<tr>
+                        <td class="col-s text-left">KW ${e.kw}</td>
+                        <td class="col-s text-center"><span class="badge badge--small ${typBadge}">${e.typ}</span></td>
+                        <td class="col-name text-left">${e.bezeichnung || e.kostenart || '-'}</td>
+                        <td class="col-m text-left">${e.campaign_areas?.name || '-'}</td>
+                        <td class="col-s text-right">${e.einheiten || 1}</td>
+                        <td class="col-m text-right">${formatCurrency(e.betrag)}</td>
+                    </tr>`;
+                }).join('');
+
+                document.getElementById('kostenHistorieTableBody').innerHTML = rows;
+                document.getElementById('kostenHistorieTableFoot').innerHTML = `
+                    <tr class="table-sum-row">
+                        <td colspan="5" class="text-right text-normal--fett">Gesamt</td>
+                        <td class="text-right text-normal--fett">${formatCurrency(summe)}</td>
+                    </tr>`;
+            } catch (err) {
+                console.error('Fehler beim Laden der Kosten-Historie:', err);
+                document.getElementById('kostenHistorieTableBody').innerHTML =
+                    '<tr><td colspan="6" class="text-center text-error">Fehler beim Laden</td></tr>';
+            }
+        }
+
+        function closeKostenHistorieModal() {
+            document.getElementById('kostenHistorieModal').classList.remove('active');
         }
 
         function setZahlungVollstaendig() {
