@@ -1985,7 +1985,7 @@
                             .getPublicUrl(fileName);
 
                         // In DB speichern
-                        const { error: insertError } = await supabase
+                        const { data: insertedData, error: insertError } = await supabase
                             .from('customer_contracts')
                             .insert({
                                 customer_id: custId,
@@ -1993,11 +1993,19 @@
                                 name: file.name,
                                 file_url: urlData.publicUrl,
                                 vertragsnummer: file.vertragsnummer || null
-                            });
+                            })
+                            .select('id')
+                            .single();
 
                         if (insertError) {
                             throw new Error(`DB-Fehler für "${file.name}": ${insertError.message}`);
                         }
+
+                        // File-Objekt aktualisieren (verhindert doppelten Upload)
+                        file.id = insertedData.id;
+                        file.url = urlData.publicUrl;
+                        file.isNew = false;
+                        delete file.file;
                     } else if (file.id) {
                         // Bestehender Vertrag - Vertragsnummer aktualisieren
                         const { error: updateError } = await supabase
