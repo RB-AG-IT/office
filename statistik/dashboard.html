@@ -532,13 +532,13 @@
         let weeklyChartData = null;
 
         async function calculatePersonStats() {
-            if (!personId || personType !== 'werber') return;
+            if (!personId) return;
 
             try {
                 // Records laden mit Zeitraum-Filter (nach Aufnahmedatum = start_date)
                 let query = supabase
                     .from('records')
-                    .select('id, record_type, record_status, yearly_amount, increase_amount, old_amount, amount, interval, birth_date, email, contact_email, phone_mobile, contact_phone, werber_id, teamchef_id, quality_id, start_date, kw, year')
+                    .select('id, record_type, record_status, yearly_amount, increase_amount, old_amount, amount, interval, birth_date, email, contact_email, phone_mobile, contact_phone, werber_id, teamchef_id, quality_id, customer_id, campaign_area_id, start_date, kw, year')
                     .is('deleted_at', null);
 
                 if (periodStartDate) {
@@ -550,7 +550,23 @@
                     query = query.lte('start_date', endStr + 'T23:59:59');
                 }
 
+                // Für Kunde/Gebiet: Filter direkt in Query
+                if (personType === 'kunde') {
+                    query = query.eq('customer_id', personId);
+                }
+
                 const { data: records, error } = await query;
+
+                // Für Gebiet: campaign_areas laden und Records filtern
+                let filteredRecords = records;
+                if (personType === 'gebiet') {
+                    const { data: campaignAreas } = await supabase
+                        .from('campaign_areas')
+                        .select('id')
+                        .eq('customer_area_id', personId);
+                    const campaignAreaIds = (campaignAreas || []).map(ca => ca.id);
+                    filteredRecords = (records || []).filter(r => campaignAreaIds.includes(r.campaign_area_id));
+                }
 
                 if (error) throw error;
 
@@ -664,6 +680,16 @@
                     ];
                 }
 
+                // Für Kunde/Gebiet: Einfache Stats aus gefilterten Records
+                if (personType === 'kunde' || personType === 'gebiet') {
+                    const relevantRecords = filteredRecords || [];
+                    calculatedUebersichtRows = [
+                        { ...calcStats(relevantRecords, 'Netto Mitglieder'), children: createChildren(relevantRecords) }
+                    ];
+                    return;
+                }
+
+                // Ab hier: Werber-spezifische Logik
                 // Records nach Rolle filtern
                 const werbenRecords = records.filter(r => r.werber_id === personId);
                 const tlRecords = records.filter(r => r.teamchef_id === personId);
@@ -870,6 +896,37 @@
                 } else if (personType === 'kampagne') {
                     const { data: records } = await buildQuery('campaign_id', personId);
                     weeklyChartData = buildChartData(records);
+
+                } else if (personType === 'gebiet') {
+                    // Für Gebiet: campaign_areas laden und Records über campaign_area_id filtern
+                    const { data: campaignAreas } = await supabase
+                        .from('campaign_areas')
+                        .select('id')
+                        .eq('customer_area_id', personId);
+                    const campaignAreaIds = (campaignAreas || []).map(ca => ca.id);
+
+                    if (campaignAreaIds.length > 0) {
+                        let query = supabase
+                            .from('records')
+                            .select('record_type, yearly_amount, record_status, start_date')
+                            .eq('record_status', 'aktiv')
+                            .in('campaign_area_id', campaignAreaIds)
+                            .is('deleted_at', null);
+
+                        if (periodStartDate) {
+                            const startStr = `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`;
+                            query = query.gte('start_date', startStr);
+                        }
+                        if (periodEndDate) {
+                            const endStr = `${periodEndDate.getFullYear()}-${String(periodEndDate.getMonth() + 1).padStart(2, '0')}-${String(periodEndDate.getDate()).padStart(2, '0')}`;
+                            query = query.lte('start_date', endStr + 'T23:59:59');
+                        }
+
+                        const { data: records } = await query;
+                        weeklyChartData = buildChartData(records);
+                    } else {
+                        weeklyChartData = buildChartData([]);
+                    }
                 }
 
             } catch (error) {
@@ -1048,6 +1105,34 @@
                     const { data: records } = await buildRecordQuery('customer_id', personId);
 
                     einsaetzeData = buildEinsaetze([], records);
+
+                } else if (personType === 'gebiet') {
+                    // Für Gebiet: campaign_areas laden und Records über campaign_area_id filtern
+                    const { data: campaignAreas } = await supabase
+                        .from('campaign_areas')
+                        .select('id')
+                        .eq('customer_area_id', personId);
+                    const campaignAreaIds = (campaignAreas || []).map(ca => ca.id);
+
+                    if (campaignAreaIds.length > 0) {
+                        let query = supabase
+                            .from('records')
+                            .select('id, record_type, record_status, yearly_amount, start_date')
+                            .in('campaign_area_id', campaignAreaIds)
+                            .is('deleted_at', null);
+
+                        if (periodStartDate) {
+                            query = query.gte('start_date', `${periodStartDate.getFullYear()}-${String(periodStartDate.getMonth() + 1).padStart(2, '0')}-${String(periodStartDate.getDate()).padStart(2, '0')}`);
+                        }
+                        if (periodEndDate) {
+                            query = query.lte('start_date', `${periodEndDate.getFullYear()}-${String(periodEndDate.getMonth() + 1).padStart(2, '0')}-${String(periodEndDate.getDate()).padStart(2, '0')}` + 'T23:59:59');
+                        }
+
+                        const { data: records } = await query;
+                        einsaetzeData = buildEinsaetze([], records);
+                    } else {
+                        einsaetzeData = [];
+                    }
                 }
 
             } catch (error) {
@@ -1467,6 +1552,25 @@
                 } else if (personType === 'kampagne') {
                     const { data: records } = await buildAchievementQuery('campaign_id', personId);
                     achievementsData = buildAchievements(records);
+
+                } else if (personType === 'gebiet') {
+                    // Für Gebiet: campaign_areas laden und Records über campaign_area_id filtern
+                    const { data: campaignAreas } = await supabase
+                        .from('campaign_areas')
+                        .select('id')
+                        .eq('customer_area_id', personId);
+                    const campaignAreaIds = (campaignAreas || []).map(ca => ca.id);
+
+                    if (campaignAreaIds.length > 0) {
+                        const { data: records } = await supabase
+                            .from('records')
+                            .select('id, campaign_id, yearly_amount, record_status, start_date, kw, year, record_type, increase_amount')
+                            .in('campaign_area_id', campaignAreaIds)
+                            .is('deleted_at', null);
+                        achievementsData = buildAchievements(records || []);
+                    } else {
+                        achievementsData = {};
+                    }
                 }
 
             } catch (error) {
@@ -1645,7 +1749,7 @@
                     el.style.display = 'none';
                 });
 
-                initStatsTable('kkStatsTableContainer');
+                initStatsTable('kkStatsTableContainer', { rows: calculatedUebersichtRows || [] });
                 initWochenverlaufChart('kkChart', weeklyChartData);
                 renderEinsatzTimeline('kkEinsatzTimeline', '01.01.2025', '31.03.2025', einsaetzeData);
                 renderAchievementGrid('kkAchievementGrid', kkAchievementTypes, achievementsData);
