@@ -4603,17 +4603,32 @@ async function saveWgConfig() {
         // Ledger-Trigger: Für alle KWs mit Attendance die Kosten aktualisieren
         if (typeof aktualisiereDrkKostenLedger === 'function' && viewingCampaignId) {
             try {
-                const campaign = campaigns.find(c => c.id === viewingCampaignId);
-                const { data: attendanceKWs } = await supabase
-                    .from('campaign_attendance')
-                    .select('kw')
-                    .eq('campaign_id', viewingCampaignId);
+                // Customer-ID ermitteln (Fallback auf DB-Abfrage falls wg.kunde nicht gesetzt)
+                let customerId = wg.kunde;
+                if (!customerId && wg.customer_area_id) {
+                    const { data: caData } = await supabase
+                        .from('customer_areas')
+                        .select('customer_id')
+                        .eq('id', wg.customer_area_id)
+                        .single();
+                    customerId = caData?.customer_id;
+                }
 
-                if (attendanceKWs && attendanceKWs.length > 0) {
-                    const uniqueKWs = [...new Set(attendanceKWs.map(a => a.kw))];
-                    const year = campaign?.year || new Date().getFullYear();
-                    for (const kw of uniqueKWs) {
-                        await aktualisiereDrkKostenLedger(wg.kunde, viewingCampaignId, wg.id, kw, year);
+                if (!customerId) {
+                    console.warn('Keine Customer-ID für WG gefunden, Ledger-Update übersprungen');
+                } else {
+                    const campaign = campaigns.find(c => c.id === viewingCampaignId);
+                    const { data: attendanceKWs } = await supabase
+                        .from('campaign_attendance')
+                        .select('kw')
+                        .eq('campaign_id', viewingCampaignId);
+
+                    if (attendanceKWs && attendanceKWs.length > 0) {
+                        const uniqueKWs = [...new Set(attendanceKWs.map(a => a.kw))];
+                        const year = campaign?.year || new Date().getFullYear();
+                        for (const kw of uniqueKWs) {
+                            await aktualisiereDrkKostenLedger(customerId, viewingCampaignId, wg.id, kw, year);
+                        }
                     }
                 }
             } catch (ledgerError) {
@@ -4880,17 +4895,22 @@ async function saveKundeConfig() {
         showToast(`${kundeConfigData.name} gespeichert`, 'success');
 
         // Ledger-Trigger: Für alle WGs dieses Kunden (die keine individuellen Kosten haben) den Ledger aktualisieren
-        if (typeof aktualisiereDrkKostenLedger === 'function' && viewingCampaignId) {
+        if (typeof aktualisiereDrkKostenLedger === 'function' && viewingCampaignId && activeKundeConfig) {
             try {
                 const campaign = campaigns.find(c => c.id === viewingCampaignId);
                 const year = campaign?.year || new Date().getFullYear();
 
-                // Alle WGs dieses Kunden holen (die individuelle_kosten = false haben)
-                const kundenWgs = campaignWerbegebiete.filter(wg =>
-                    wg.kunde === activeKundeConfig && !wg.individuelleKosten
-                );
+                // Alle WGs dieses Kunden holen (via customer_areas Verknüpfung, individuelle_kosten = false)
+                const { data: kundenWgsDb } = await supabase
+                    .from('campaign_areas')
+                    .select('id, customer_area_id, individuelle_kosten, customer_areas!inner(customer_id)')
+                    .eq('campaign_id', viewingCampaignId)
+                    .eq('customer_areas.customer_id', activeKundeConfig)
+                    .eq('individuelle_kosten', false);
 
-                if (kundenWgs.length > 0) {
+                const kundenWgIds = (kundenWgsDb || []).map(w => w.id);
+
+                if (kundenWgIds.length > 0) {
                     // Alle KWs mit Attendance für diese Kampagne holen
                     const { data: attendanceKWs } = await supabase
                         .from('campaign_attendance')
@@ -4901,9 +4921,9 @@ async function saveKundeConfig() {
                         const uniqueKWs = [...new Set(attendanceKWs.map(a => a.kw))];
 
                         // Für jedes WG und jede KW den Ledger aktualisieren
-                        for (const wg of kundenWgs) {
+                        for (const wgId of kundenWgIds) {
                             for (const kw of uniqueKWs) {
-                                await aktualisiereDrkKostenLedger(activeKundeConfig, viewingCampaignId, wg.id, kw, year);
+                                await aktualisiereDrkKostenLedger(activeKundeConfig, viewingCampaignId, wgId, kw, year);
                             }
                         }
                     }
