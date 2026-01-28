@@ -1268,6 +1268,7 @@
         }
 
         let currentPage = null;
+        let skipNextHashChange = false;
 
         // Page URLs mapping
         const pages = {
@@ -1434,6 +1435,12 @@
 
         // Handle browser back/forward buttons
         window.addEventListener('hashchange', function() {
+            // Skip wenn Flag gesetzt (z.B. durch navigateBack)
+            if (skipNextHashChange) {
+                skipNextHashChange = false;
+                return;
+            }
+
             const hash = window.location.hash.substring(1);
 
             if (hash && document.querySelector(`.sidebar [data-page="${hash}"]`)) {
@@ -1536,10 +1543,12 @@
             if (e.data && e.data.type === 'searchResults') {
                 showShellSearchResults(e.data);
             }
-            // Navigation request from iframe
+            // Navigation request from iframe (z.B. Statistik → Datensätze)
             if (e.data && e.data.type === 'navigate') {
-                const iframe = document.querySelector('#content-container iframe');
-                if (iframe) {
+                const container = document.getElementById('content-container');
+                const currentIframe = container.querySelector('iframe:not(.nav-overlay)');
+
+                if (currentIframe) {
                     const currentHash = window.location.hash.substring(1);
 
                     // Filter-Werte speichern (für Shell-Wiederherstellung bei Zurück)
@@ -1555,12 +1564,20 @@
                         periodLabel: periodText?.textContent || null
                     }));
 
+                    // Aktuellen iFrame verstecken (nicht entfernen)
+                    currentIframe.style.display = 'none';
+                    currentIframe.classList.add('nav-hidden');
+
+                    // Neuen iFrame für Zielseite erstellen
+                    const newIframe = document.createElement('iframe');
+                    newIframe.classList.add('nav-overlay');
                     if (currentHash && !e.data.url.includes('returnTo=')) {
                         const separator = e.data.url.includes('?') ? '&' : '?';
-                        iframe.src = e.data.url + separator + 'returnTo=' + currentHash;
+                        newIframe.src = e.data.url + separator + 'returnTo=' + currentHash;
                     } else {
-                        iframe.src = e.data.url;
+                        newIframe.src = e.data.url;
                     }
+                    container.appendChild(newIframe);
                 }
                 if (e.data.section) {
                     document.querySelectorAll('.nav-item').forEach(item => {
@@ -1575,11 +1592,17 @@
             if (e.data && e.data.type === 'navigateBack') {
                 const returnTo = e.data.returnTo;
                 const savedFilters = sessionStorage.getItem('shellNavigateBackFilters');
-                const iframe = document.querySelector('#content-container iframe');
+                const container = document.getElementById('content-container');
+                const overlayIframe = container.querySelector('iframe.nav-overlay');
+                const hiddenIframe = container.querySelector('iframe.nav-hidden');
 
-                if (iframe && iframe.contentWindow) {
-                    // Browser-History zurück (lädt Seite aus Cache, kein Neuladen)
-                    iframe.contentWindow.history.back();
+                if (overlayIframe && hiddenIframe) {
+                    // Overlay-iFrame entfernen
+                    overlayIframe.remove();
+
+                    // Ursprünglichen iFrame wieder anzeigen
+                    hiddenIframe.style.display = '';
+                    hiddenIframe.classList.remove('nav-hidden');
 
                     // Shell-Filter wiederherstellen
                     if (savedFilters) {
@@ -1604,6 +1627,7 @@
 
                     // Sidebar active state aktualisieren
                     if (returnTo && document.querySelector(`.sidebar [data-page="${returnTo}"]`)) {
+                        skipNextHashChange = true;
                         window.location.hash = returnTo;
                         document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
                         document.querySelector(`.sidebar [data-page="${returnTo}"]`).classList.add('active');
