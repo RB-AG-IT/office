@@ -2355,10 +2355,10 @@
                 // Zubuchungen gruppieren
                 const zubuchungenGruppiert = {};
                 zubuchungen.forEach(z => {
-                    const key = `${z.typ || z.bezeichnung}_${z.gebietName}`;
+                    const key = `${z.bezeichnung || z.typ}_${z.gebietName}`;
                     if (!zubuchungenGruppiert[key]) {
                         zubuchungenGruppiert[key] = {
-                            typ: z.typ || z.bezeichnung || 'Zubuchung',
+                            bezeichnung: z.bezeichnung || z.typ || 'Zubuchung',
                             gebietName: z.gebietName || '',
                             anzahl: 0,
                             gesamt: 0,
@@ -2387,7 +2387,7 @@
                     zwischensumme += g.gesamt;
                     rows.push(`<tr>
                         <td>C${posNrC++}</td>
-                        <td class="text-left">${g.typ} ${g.gebietName}</td>
+                        <td class="text-left">${g.bezeichnung} ${g.gebietName}</td>
                         <td class="text-right">${g.anzahl}</td>
                         <td class="text-right">${g.einzelpreis.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td class="text-center">+</td>
@@ -2914,10 +2914,10 @@
                 // Zubuchungen gruppieren
                 const zubuchungenGruppiert = {};
                 zubuchungen.forEach(z => {
-                    const key = `${z.typ || z.bezeichnung}_${z.gebietName}`;
+                    const key = `${z.bezeichnung || z.typ}_${z.gebietName}`;
                     if (!zubuchungenGruppiert[key]) {
                         zubuchungenGruppiert[key] = {
-                            typ: z.typ || z.bezeichnung || 'Zubuchung',
+                            bezeichnung: z.bezeichnung || z.typ || 'Zubuchung',
                             gebietName: z.gebietName || '',
                             anzahl: 0,
                             gesamt: 0,
@@ -2945,7 +2945,7 @@
                 Object.values(zubuchungenGruppiert).forEach(g => {
                     rows.push(`<tr>
                         <td>C${posNrC++}</td>
-                        <td class="text-left">${g.typ} ${g.gebietName}</td>
+                        <td class="text-left">${g.bezeichnung} ${g.gebietName}</td>
                         <td class="text-right">${g.anzahl}</td>
                         <td class="text-right">${(g.einzelpreis || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
                         <td class="text-center">+</td>
@@ -3498,10 +3498,10 @@
                 // Zubuchungen gruppieren
                 const zubuchungenGruppiert = {};
                 zubuchungen.forEach(z => {
-                    const key = `${z.typ || z.bezeichnung}_${z.gebietName}`;
+                    const key = `${z.bezeichnung || z.typ}_${z.gebietName}`;
                     if (!zubuchungenGruppiert[key]) {
                         zubuchungenGruppiert[key] = {
-                            typ: z.typ || z.bezeichnung || 'Zubuchung',
+                            bezeichnung: z.bezeichnung || z.typ || 'Zubuchung',
                             gebietName: z.gebietName || '',
                             anzahl: 0,
                             gesamt: 0,
@@ -3531,7 +3531,7 @@
                     cPositionen.push(`
                         <tr>
                             <td class="pos-nr">C${posNrC}</td>
-                            <td class="pos-beschreibung">${g.typ}<br><span class="pos-sub">${g.gebietName}</span></td>
+                            <td class="pos-beschreibung">${g.bezeichnung}<br><span class="pos-sub">${g.gebietName}</span></td>
                             <td class="pos-right">${g.anzahl}</td>
                             <td class="pos-right">${formatPdfEuro(g.einzelpreis)}</td>
                             <td class="pos-right">+</td>
