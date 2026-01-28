@@ -4879,6 +4879,40 @@ async function saveKundeConfig() {
 
         showToast(`${kundeConfigData.name} gespeichert`, 'success');
 
+        // Ledger-Trigger: Für alle WGs dieses Kunden (die keine individuellen Kosten haben) den Ledger aktualisieren
+        if (typeof aktualisiereDrkKostenLedger === 'function' && viewingCampaignId) {
+            try {
+                const campaign = campaigns.find(c => c.id === viewingCampaignId);
+                const year = campaign?.year || new Date().getFullYear();
+
+                // Alle WGs dieses Kunden holen (die individuelle_kosten = false haben)
+                const kundenWgs = campaignWerbegebiete.filter(wg =>
+                    wg.kunde === activeKundeConfig && !wg.individuelleKosten
+                );
+
+                if (kundenWgs.length > 0) {
+                    // Alle KWs mit Attendance für diese Kampagne holen
+                    const { data: attendanceKWs } = await supabase
+                        .from('campaign_attendance')
+                        .select('kw')
+                        .eq('campaign_id', viewingCampaignId);
+
+                    if (attendanceKWs && attendanceKWs.length > 0) {
+                        const uniqueKWs = [...new Set(attendanceKWs.map(a => a.kw))];
+
+                        // Für jedes WG und jede KW den Ledger aktualisieren
+                        for (const wg of kundenWgs) {
+                            for (const kw of uniqueKWs) {
+                                await aktualisiereDrkKostenLedger(activeKundeConfig, viewingCampaignId, wg.id, kw, year);
+                            }
+                        }
+                    }
+                }
+            } catch (ledgerError) {
+                console.error('Ledger-Aktualisierung fehlgeschlagen:', ledgerError);
+            }
+        }
+
     } catch (error) {
         console.error('Fehler beim Speichern der Kunden-Konfiguration:', error);
         showToast('Fehler beim Speichern: ' + error.message, 'error');
