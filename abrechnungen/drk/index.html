@@ -391,7 +391,7 @@
                             <th class="text-right">MG</th>
                             <th class="text-right">JE (€)</th>
                             <th class="text-center">%</th>
-                            <th class="text-right">Betrag (€)</th>
+                            <th class="text-right">Gesamt (€)</th>
                         </tr>
                     </thead>
                     <tbody id="vorschauTableBody">
@@ -486,7 +486,7 @@
                             <th class="text-right" style="width: 60px;">MG</th>
                             <th class="text-right" style="width: 70px;">JE (€)</th>
                             <th class="text-center" style="width: 50px;">%</th>
-                            <th class="text-right" style="width: 100px;">Betrag (€)</th>
+                            <th class="text-right" style="width: 100px;">Gesamt (€)</th>
                         </tr>
                     </thead>
                     <tbody id="detailTableBody">
@@ -2350,18 +2350,48 @@
                 });
             }
 
-            // Zubuchungen zur Tabelle hinzufügen
+            // Zubuchungen zur Tabelle hinzufügen (gruppiert nach Kostenart + WG)
             if (zubuchungen.length > 0) {
-                rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Zubuchungen</td></tr>`);
+                // Zubuchungen gruppieren
+                const zubuchungenGruppiert = {};
                 zubuchungen.forEach(z => {
-                    zwischensumme += z.betrag;
+                    const key = `${z.typ || z.bezeichnung}_${z.gebietName}`;
+                    if (!zubuchungenGruppiert[key]) {
+                        zubuchungenGruppiert[key] = {
+                            typ: z.typ || z.bezeichnung || 'Zubuchung',
+                            gebietName: z.gebietName || '',
+                            anzahl: 0,
+                            gesamt: 0,
+                            einzelpreis: z.einzelbetrag || 0
+                        };
+                    }
+                    zubuchungenGruppiert[key].anzahl += (z.einheiten || 1);
+                    zubuchungenGruppiert[key].gesamt += z.betrag;
+                    if (!zubuchungenGruppiert[key].einzelpreis && z.einzelbetrag) {
+                        zubuchungenGruppiert[key].einzelpreis = z.einzelbetrag;
+                    }
+                });
+
+                // Header für Zubuchungen mit eigenen Spalten
+                rows.push(`<tr class="table-section-header">
+                    <td class="text-normal--fett">Pos</td>
+                    <td class="text-normal--fett">Beschreibung</td>
+                    <td class="text-right text-normal--fett">Anz.</td>
+                    <td class="text-right text-normal--fett">Betrag (€)</td>
+                    <td class="text-center text-normal--fett">+/-</td>
+                    <td class="text-right text-normal--fett">Gesamt (€)</td>
+                </tr>`);
+
+                let posNrC = 1;
+                Object.values(zubuchungenGruppiert).forEach(g => {
+                    zwischensumme += g.gesamt;
                     rows.push(`<tr>
-                        <td>Z${posNr++}</td>
-                        <td>${z.bezeichnung} (${z.gebietName})</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-center">-</td>
-                        <td class="text-right">${z.betrag.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td>C${posNrC++}</td>
+                        <td>${g.typ} ${g.gebietName}</td>
+                        <td class="text-right">${g.anzahl}</td>
+                        <td class="text-right">${g.einzelpreis.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="text-center">+</td>
+                        <td class="text-right">${g.gesamt.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                     </tr>`);
                 });
             }
@@ -2878,18 +2908,48 @@
                 }
             }
 
-            // Zubuchungen (Kosten aus Ledger)
+            // Zubuchungen (Kosten aus Ledger) - gruppiert nach Kostenart + WG
             const zubuchungen = calcData.zubuchungen || [];
             if (zubuchungen.length > 0) {
-                rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Zubuchungen</td></tr>`);
+                // Zubuchungen gruppieren
+                const zubuchungenGruppiert = {};
                 zubuchungen.forEach(z => {
+                    const key = `${z.typ || z.bezeichnung}_${z.gebietName}`;
+                    if (!zubuchungenGruppiert[key]) {
+                        zubuchungenGruppiert[key] = {
+                            typ: z.typ || z.bezeichnung || 'Zubuchung',
+                            gebietName: z.gebietName || '',
+                            anzahl: 0,
+                            gesamt: 0,
+                            einzelpreis: z.einzelbetrag || 0
+                        };
+                    }
+                    zubuchungenGruppiert[key].anzahl += (z.einheiten || 1);
+                    zubuchungenGruppiert[key].gesamt += z.betrag;
+                    if (!zubuchungenGruppiert[key].einzelpreis && z.einzelbetrag) {
+                        zubuchungenGruppiert[key].einzelpreis = z.einzelbetrag;
+                    }
+                });
+
+                // Header für Zubuchungen mit eigenen Spalten
+                rows.push(`<tr class="table-section-header">
+                    <td class="text-normal--fett">Pos</td>
+                    <td class="text-normal--fett">Beschreibung</td>
+                    <td class="text-right text-normal--fett">Anz.</td>
+                    <td class="text-right text-normal--fett">Betrag (€)</td>
+                    <td class="text-center text-normal--fett">+/-</td>
+                    <td class="text-right text-normal--fett">Gesamt (€)</td>
+                </tr>`);
+
+                let posNrC = 1;
+                Object.values(zubuchungenGruppiert).forEach(g => {
                     rows.push(`<tr>
-                        <td>Z${posNr++}</td>
-                        <td>${z.bezeichnung || z.typ || '-'} (${z.gebietName || '-'})</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-center">-</td>
-                        <td class="text-right">${(z.betrag || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                        <td>C${posNrC++}</td>
+                        <td>${g.typ} ${g.gebietName}</td>
+                        <td class="text-right">${g.anzahl}</td>
+                        <td class="text-right">${(g.einzelpreis || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                        <td class="text-center">+</td>
+                        <td class="text-right">${(g.gesamt || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
                     </tr>`);
                 });
             }
@@ -3431,20 +3491,53 @@
                 }
             }
 
-            // Zubuchungen (Kosten aus Ledger) als A-Positionen
+            // C-Positionen: Zubuchungen (Kosten aus Ledger) - gruppiert nach Kostenart + WG
+            const cPositionen = [];
             const zubuchungen = calcData.zubuchungen || [];
             if (zubuchungen.length > 0) {
+                // Zubuchungen gruppieren
+                const zubuchungenGruppiert = {};
                 zubuchungen.forEach(z => {
-                    aPositionen.push(`
+                    const key = `${z.typ || z.bezeichnung}_${z.gebietName}`;
+                    if (!zubuchungenGruppiert[key]) {
+                        zubuchungenGruppiert[key] = {
+                            typ: z.typ || z.bezeichnung || 'Zubuchung',
+                            gebietName: z.gebietName || '',
+                            anzahl: 0,
+                            gesamt: 0,
+                            einzelpreis: z.einzelbetrag || 0
+                        };
+                    }
+                    zubuchungenGruppiert[key].anzahl += (z.einheiten || 1);
+                    zubuchungenGruppiert[key].gesamt += z.betrag;
+                    if (!zubuchungenGruppiert[key].einzelpreis && z.einzelbetrag) {
+                        zubuchungenGruppiert[key].einzelpreis = z.einzelbetrag;
+                    }
+                });
+
+                // Zubuchungen-Header
+                cPositionen.push(`
+                    <tr>
+                        <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt;">Pos</th>
+                        <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt;">Beschreibung</th>
+                        <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt; text-align: right;">Anz.</th>
+                        <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt; text-align: right;">Betrag (€)</th>
+                        <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt; text-align: right;">+/-</th>
+                        <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt; text-align: right;">Gesamt (€)</th>
+                    </tr>`);
+
+                let posNrC = 1;
+                Object.values(zubuchungenGruppiert).forEach(g => {
+                    cPositionen.push(`
                         <tr>
-                            <td class="pos-nr">A${posNr}</td>
-                            <td class="pos-beschreibung">${z.bezeichnung || z.typ || 'Zubuchung'}<br><span class="pos-sub">${z.gebietName || ''}</span></td>
-                            <td class="pos-right">-</td>
-                            <td class="pos-right">-</td>
-                            <td class="pos-right">-</td>
-                            <td class="pos-right">${formatPdfEuro(z.betrag)}</td>
+                            <td class="pos-nr">C${posNrC}</td>
+                            <td class="pos-beschreibung">${g.typ}<br><span class="pos-sub">${g.gebietName}</span></td>
+                            <td class="pos-right">${g.anzahl}</td>
+                            <td class="pos-right">${formatPdfEuro(g.einzelpreis)}</td>
+                            <td class="pos-right">+</td>
+                            <td class="pos-right">${formatPdfEuro(g.gesamt)}</td>
                         </tr>`);
-                    posNr++;
+                    posNrC++;
                 });
             }
 
@@ -3510,22 +3603,26 @@
             const ITEMS_PAGE_REST = 10; // Folgeseiten ohne Header → viel Platz
             const hasAbzuege = bPositionen.length > 0;
 
-            // Seite 1: Platz für max 3 Positionen (A + B zusammen)
-            const totalPositionen = aPositionen.length + bPositionen.length;
+            // Seite 1: Platz für max 3 Positionen (A + C + B zusammen)
+            const totalPositionen = aPositionen.length + cPositionen.length + bPositionen.length;
             const allOnPage1 = totalPositionen <= ITEMS_PAGE_1;
 
             // Seite 1: A-Positionen (max 3, oder alle wenn alles auf Seite 1 passt)
             const aPage1 = aPositionen.slice(0, ITEMS_PAGE_1);
             const aRest = aPositionen.slice(ITEMS_PAGE_1);
 
-            // Alle restlichen Positionen für Folgeseiten
+            // Alle restlichen Positionen für Folgeseiten (A-Rest, dann C, dann B)
             const restPositionen = [...aRest];
-            if (!allOnPage1 && aRest.length > 0) {
+            if (!allOnPage1 && (aRest.length > 0 || cPositionen.length > 0)) {
                 // Zwischensumme als Marker einfügen nach letzter A-Position
-                restPositionen.push('ZWISCHENSUMME');
+                if (aRest.length > 0) {
+                    restPositionen.push('ZWISCHENSUMME');
+                }
+                restPositionen.push(...cPositionen);
                 restPositionen.push(...bPositionen);
             } else if (!allOnPage1 && aRest.length === 0) {
-                // Nur B-Positionen auf Folgeseite (A passt auf Seite 1)
+                // C- und B-Positionen auf Folgeseite (A passt auf Seite 1)
+                restPositionen.push(...cPositionen);
                 restPositionen.push(...bPositionen);
             }
 
@@ -3903,6 +4000,7 @@
             <tbody>
                 ${aPage1.join('')}
                 ${allOnPage1 ? `
+                ${cPositionen.join('')}
                 <tr class="subtotal-row">
                     <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
                     <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(zwischensumme)}</td>
