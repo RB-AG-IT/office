@@ -441,9 +441,12 @@
             return { start, end };
         }
 
-        // Initial: "Dieses Jahr" setzen
+        // Initial: Zeitraum setzen (Gesamt für Kunde/Gebiet, Jahr für Werber)
         (function() {
-            const initial = calculatePeriodDates('year');
+            const isKundeOrGebiet = personType === 'kunde' || personType === 'gebiet';
+            const initialPeriod = isKundeOrGebiet ? 'all' : 'year';
+            currentPeriod = initialPeriod;
+            const initial = calculatePeriodDates(initialPeriod);
             periodStartDate = initial.start;
             periodEndDate = initial.end;
         })();
@@ -683,13 +686,9 @@
                 // Für Kunde/Gebiet: Einfache Stats aus gefilterten Records
                 if (personType === 'kunde' || personType === 'gebiet') {
                     const relevantRecords = filteredRecords || [];
-                    console.log('Dashboard Debug - personType:', personType, 'personId:', personId);
-                    console.log('Dashboard Debug - records from query:', records?.length || 0);
-                    console.log('Dashboard Debug - filteredRecords:', relevantRecords?.length || 0);
                     calculatedUebersichtRows = [
                         { ...calcStats(relevantRecords, 'Netto Mitglieder'), children: createChildren(relevantRecords) }
                     ];
-                    console.log('Dashboard Debug - calculatedUebersichtRows:', calculatedUebersichtRows);
                     return;
                 }
 
