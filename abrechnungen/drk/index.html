@@ -2848,7 +2848,7 @@
             jahresbeitrag: { label: 'Jahresbeitrag', field: 'yearly_amount', format: 'currency' },
             erhoehungsbeitrag: { label: 'Erhöhungsbeitrag', field: 'increase_amount', format: 'currency', erhOnly: true },
             beitrag: { label: 'Beitrag', field: 'amount', format: 'currency' },
-            intervall: { label: 'Intervall', field: 'interval' },
+            intervall: { label: 'Intervall', field: 'interval', format: 'interval' },
             zahlungsart: { label: 'Zahlungsart', field: 'payment_method' },
             spendenquittung: { label: 'Spendenquittung', field: 'donation_receipt', format: 'boolean' },
             anmerkungen: { label: 'Anmerkungen', field: 'notes' },
@@ -2935,6 +2935,16 @@
                             value = parseFloat(value).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                         } else if (col.format === 'boolean') {
                             value = value === true ? 'Ja' : (value === false ? 'Nein' : '');
+                        } else if (col.format === 'interval' && value) {
+                            const intervalMap = {
+                                'monthly': 'monatlich',
+                                'quarterly': 'vierteljährlich',
+                                'half-yearly': 'halbjährlich',
+                                'semi-annually': 'halbjährlich',
+                                'yearly': 'jährlich',
+                                'annually': 'jährlich'
+                            };
+                            value = intervalMap[value.toLowerCase()] || value;
                         }
 
                         // CSV-Escape
