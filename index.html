@@ -1540,8 +1540,30 @@
             if (e.data && e.data.type === 'navigate') {
                 const iframe = document.querySelector('#content-container iframe');
                 if (iframe) {
-                    // Store the return page before navigating
+                    // Store the current iframe URL + filter state before navigating
                     const currentHash = window.location.hash.substring(1);
+                    try {
+                        const currentIframeUrl = iframe.contentWindow.location.href;
+                        // Speichere URL relativ zum Office-Ordner
+                        const urlPath = currentIframeUrl.split('/Office/')[1] || currentIframeUrl;
+                        sessionStorage.setItem('shellNavigateBackUrl', urlPath);
+
+                        // Speichere aktuelle Filter-Werte
+                        const navText = document.getElementById('shellNavText');
+                        const periodText = document.getElementById('shellPeriodDropdownText');
+                        const activeNavOpt = document.querySelector('#shellNavMenu .toolbar-nav-option.active');
+                        const activePeriodOpt = document.querySelector('#shellPeriodDropdown .toolbar-nav-option.active');
+
+                        sessionStorage.setItem('shellNavigateBackFilters', JSON.stringify({
+                            navValue: activeNavOpt?.dataset.value || null,
+                            navLabel: navText?.textContent || null,
+                            periodValue: activePeriodOpt?.dataset.value || null,
+                            periodLabel: periodText?.textContent || null
+                        }));
+                    } catch (err) {
+                        // Cross-origin - kann URL nicht lesen
+                    }
+
                     if (currentHash && !e.data.url.includes('returnTo=')) {
                         // Add returnTo parameter so we know where to go back
                         const separator = e.data.url.includes('?') ? '&' : '?';
@@ -1563,7 +1585,69 @@
             // Back navigation request from iframe
             if (e.data && e.data.type === 'navigateBack') {
                 const returnTo = e.data.returnTo;
-                if (returnTo && document.querySelector(`.sidebar [data-page="${returnTo}"]`)) {
+                const savedUrl = sessionStorage.getItem('shellNavigateBackUrl');
+                const savedFilters = sessionStorage.getItem('shellNavigateBackFilters');
+
+                if (savedUrl) {
+                    // Gespeicherte URL wiederherstellen (ohne Neuladen der Shell)
+                    const iframe = document.querySelector('#content-container iframe');
+                    if (iframe) {
+                        let parsedFilters = null;
+
+                        // Filter-State wiederherstellen (in Shell)
+                        if (savedFilters) {
+                            try {
+                                parsedFilters = JSON.parse(savedFilters);
+
+                                // Nav-Filter wiederherstellen
+                                if (parsedFilters.navValue && parsedFilters.navLabel) {
+                                    const navText = document.getElementById('shellNavText');
+                                    if (navText) navText.textContent = parsedFilters.navLabel;
+                                    document.querySelectorAll('#shellNavMenu .toolbar-nav-option').forEach(opt => {
+                                        opt.classList.toggle('active', opt.dataset.value === parsedFilters.navValue);
+                                    });
+                                }
+
+                                // Period-Filter wiederherstellen
+                                if (parsedFilters.periodValue && parsedFilters.periodLabel) {
+                                    const periodText = document.getElementById('shellPeriodDropdownText');
+                                    if (periodText) periodText.textContent = parsedFilters.periodLabel;
+                                    document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                                        opt.classList.toggle('active', opt.dataset.value === parsedFilters.periodValue);
+                                    });
+                                }
+                            } catch (err) {}
+                        }
+
+                        // Nach dem Laden des iFrames die Filter-Werte senden
+                        iframe.onload = function() {
+                            if (parsedFilters && iframe.contentWindow) {
+                                // Nav-Filter an iFrame senden
+                                if (parsedFilters.navValue) {
+                                    iframe.contentWindow.postMessage({ type: 'navFilter', value: parsedFilters.navValue }, '*');
+                                }
+                                // Period-Filter an iFrame senden
+                                if (parsedFilters.periodValue) {
+                                    iframe.contentWindow.postMessage({ type: 'periodFilter', value: parsedFilters.periodValue }, '*');
+                                }
+                            }
+                        };
+
+                        iframe.src = savedUrl;
+
+                        // Sidebar active state aktualisieren
+                        if (returnTo && document.querySelector(`.sidebar [data-page="${returnTo}"]`)) {
+                            window.location.hash = returnTo;
+                            document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+                            document.querySelector(`.sidebar [data-page="${returnTo}"]`).classList.add('active');
+                        }
+                    }
+
+                    // Aufräumen
+                    sessionStorage.removeItem('shellNavigateBackUrl');
+                    sessionStorage.removeItem('shellNavigateBackFilters');
+                } else if (returnTo && document.querySelector(`.sidebar [data-page="${returnTo}"]`)) {
+                    // Fallback: Seite neu laden
                     window.location.hash = returnTo;
                     document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
                     document.querySelector(`.sidebar [data-page="${returnTo}"]`).classList.add('active');
