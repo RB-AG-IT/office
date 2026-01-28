@@ -2879,8 +2879,19 @@
                     query += `&start_date=lte.${r.period_end}T23:59:59`;
                 }
 
-                // WG-Filter falls vorhanden
-                if (r.campaign_area_id) {
+                // WG-Filter aus calculation_data extrahieren
+                const calcData = r.calculation_data;
+                const gebietIds = new Set();
+                if (calcData?.positionen) {
+                    calcData.positionen.forEach(p => {
+                        if (p.gebietId) gebietIds.add(p.gebietId);
+                    });
+                }
+
+                // WG-Filter anwenden
+                if (gebietIds.size > 0) {
+                    query += `&campaign_area_id=in.(${Array.from(gebietIds).join(',')})`;
+                } else if (r.campaign_area_id) {
                     query += `&campaign_area_id=eq.${r.campaign_area_id}`;
                 }
 
