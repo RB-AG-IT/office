@@ -208,7 +208,17 @@ async function aktualisiereLedgerEintrag(
         .eq('typ', 'buchung')
         .maybeSingle();
 
-    const bereitsAbgerechnet = existing?.invoice_id != null;
+    // Prüfen ob WIRKLICH abgerechnet (nicht nur Entwurf)
+    let bereitsAbgerechnet = false;
+    if (existing?.invoice_id) {
+        const { data: invoice } = await supabase
+            .from('invoices')
+            .select('status')
+            .eq('id', existing.invoice_id)
+            .maybeSingle();
+        // Nur bei echten Rechnungen (offen, bezahlt, etc.) - NICHT bei Entwurf
+        bereitsAbgerechnet = invoice && invoice.status !== 'entwurf';
+    }
 
     if (sollBetrag === 0) {
         // Keine Kosten → löschen oder Korrektur

@@ -1439,21 +1439,35 @@
             closeAllDropdowns();
             if (!confirm('Entwurf wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) return;
             try {
-                // 1. Alle Ledger-Einträge für diese Rechnung LÖSCHEN (nicht nur NULL setzen)
-                // Dadurch wird der Ledger beim nächsten Trigger sauber neu aufgebaut
-                await fetch(
-                    `${SUPABASE_URL}/rest/v1/drk_cost_ledger?invoice_id=eq.${id}`,
+                // 1. Erst alle Buchungen für diese Rechnung laden (um Kombinationen zu kennen)
+                const buchungenRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/drk_cost_ledger?invoice_id=eq.${id}&select=customer_id,campaign_id,campaign_area_id,kw,year,kostenart`,
                     {
-                        method: 'DELETE',
                         headers: {
                             'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Prefer': 'return=minimal'
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
                         }
                     }
                 );
+                const buchungen = await buchungenRes.json();
 
-                // 2. Rechnung löschen
+                // 2. Für jede Kombination: ALLE Einträge löschen (buchung + korrektur)
+                // Das verhindert verwaiste Korrekturen
+                for (const b of buchungen) {
+                    await fetch(
+                        `${SUPABASE_URL}/rest/v1/drk_cost_ledger?customer_id=eq.${b.customer_id}&campaign_id=eq.${b.campaign_id}&campaign_area_id=eq.${b.campaign_area_id}&kw=eq.${b.kw}&year=eq.${b.year}&kostenart=eq.${encodeURIComponent(b.kostenart)}`,
+                        {
+                            method: 'DELETE',
+                            headers: {
+                                'apikey': SUPABASE_KEY,
+                                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                                'Prefer': 'return=minimal'
+                            }
+                        }
+                    );
+                }
+
+                // 3. Rechnung löschen
                 const res = await fetch(
                     `${SUPABASE_URL}/rest/v1/invoices?id=eq.${id}&status=eq.entwurf`,
                     {
