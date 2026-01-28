@@ -115,10 +115,17 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
         }
 
         // Einheiten berechnen (async wegen "einmalig + person" Prüfung)
-        const { einheiten, neueWerberIds } = await berechneEinheitenFuerKW(
+        let { einheiten, neueWerberIds } = await berechneEinheitenFuerKW(
             pro, zeitraum, relevantAttendance, kw,
             customerId, campaignId, campaignAreaId, kostenart
         );
+
+        // Bei "pro: team" und Kunden-Kosten: Anteilige Aufteilung auf WGs
+        if (pro === 'team' && zeitraum === 'tag' && !area.individuelle_kosten && verteilung !== 'explizit') {
+            const anteil = berechneWgAnteil(attendance, assignments, campaignAreaId, kw);
+            einheiten = einheiten * anteil;
+        }
+
         const sollBetrag = einheiten * parseFloat(config.betrag);
 
         await aktualisiereLedgerEintrag(
@@ -151,10 +158,17 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
                 relevantAttendance = gebietAttendance;
             }
 
-            const { einheiten, neueWerberIds } = await berechneEinheitenFuerKW(
+            let { einheiten, neueWerberIds } = await berechneEinheitenFuerKW(
                 pro, zeitraum, relevantAttendance, kw,
                 customerId, campaignId, campaignAreaId, `sonderposten_${sp.name}`
             );
+
+            // Bei "pro: team" und Kunden-Kosten: Anteilige Aufteilung auf WGs
+            if (pro === 'team' && zeitraum === 'tag' && !area.individuelle_kosten && verteilung !== 'explizit') {
+                const anteil = berechneWgAnteil(attendance, assignments, campaignAreaId, kw);
+                einheiten = einheiten * anteil;
+            }
+
             const sollBetrag = einheiten * parseFloat(sp.summe);
 
             await aktualisiereLedgerEintrag(
@@ -164,6 +178,49 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
             );
         }
     }
+}
+
+/**
+ * Berechnet den Anteil eines WGs an Team-Kosten (nach Tagen)
+ * Anteil = WG-Tage / Summe aller WG-Tage
+ */
+function berechneWgAnteil(attendance, assignments, campaignAreaId, kw) {
+    if (!attendance || attendance.length === 0 || !assignments) return 0;
+
+    // Alle WG-IDs aus Assignments sammeln
+    const assignment = assignments.find(a => a.kw === kw);
+    if (!assignment?.campaign_assignment_werber) return 1;
+
+    // Tage pro WG zählen
+    const tageProWg = {};
+
+    attendance.forEach(a => {
+        // WG-Zuordnung finden
+        const werber = assignment.campaign_assignment_werber.find(w => w.werber_id === a.user_id);
+        if (!werber?.campaign_area_id) return;
+
+        const wgId = werber.campaign_area_id;
+        if (!tageProWg[wgId]) tageProWg[wgId] = new Set();
+
+        // Tage zählen (ohne Sonntag = day_6)
+        for (let day = 0; day <= 5; day++) {
+            if (a[`day_${day}`] === true) {
+                tageProWg[wgId].add(day);
+            }
+        }
+    });
+
+    // Summe aller WG-Tage
+    let gesamtWgTage = 0;
+    for (const wgId in tageProWg) {
+        gesamtWgTage += tageProWg[wgId].size;
+    }
+
+    if (gesamtWgTage === 0) return 0;
+
+    // Anteil dieses WGs
+    const wgTage = tageProWg[campaignAreaId]?.size || 0;
+    return wgTage / gesamtWgTage;
 }
 
 /**
