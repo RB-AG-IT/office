@@ -1592,51 +1592,39 @@
                     // Gespeicherte URL wiederherstellen (ohne Neuladen der Shell)
                     const iframe = document.querySelector('#content-container iframe');
                     if (iframe) {
-                        let parsedFilters = null;
-
-                        // Filter-State wiederherstellen (in Shell)
+                        // Filter als URL-Parameter anhängen
+                        let urlWithFilters = savedUrl;
                         if (savedFilters) {
                             try {
-                                parsedFilters = JSON.parse(savedFilters);
+                                const filters = JSON.parse(savedFilters);
+                                const params = new URLSearchParams();
+                                if (filters.navValue) params.set('nav', filters.navValue);
+                                if (filters.periodValue) params.set('period', filters.periodValue);
 
-                                // Nav-Filter wiederherstellen
-                                if (parsedFilters.navValue && parsedFilters.navLabel) {
-                                    const navText = document.getElementById('shellNavText');
-                                    if (navText) navText.textContent = parsedFilters.navLabel;
-                                    document.querySelectorAll('#shellNavMenu .toolbar-nav-option').forEach(opt => {
-                                        opt.classList.toggle('active', opt.dataset.value === parsedFilters.navValue);
-                                    });
+                                if (params.toString()) {
+                                    const separator = savedUrl.includes('?') ? '&' : '?';
+                                    urlWithFilters = savedUrl + separator + params.toString();
                                 }
 
-                                // Period-Filter wiederherstellen
-                                if (parsedFilters.periodValue && parsedFilters.periodLabel) {
+                                // Shell-Filter wiederherstellen
+                                if (filters.navValue && filters.navLabel) {
+                                    const navText = document.getElementById('shellNavText');
+                                    if (navText) navText.textContent = filters.navLabel;
+                                    document.querySelectorAll('#shellNavMenu .toolbar-nav-option').forEach(opt => {
+                                        opt.classList.toggle('active', opt.dataset.value === filters.navValue);
+                                    });
+                                }
+                                if (filters.periodValue && filters.periodLabel) {
                                     const periodText = document.getElementById('shellPeriodDropdownText');
-                                    if (periodText) periodText.textContent = parsedFilters.periodLabel;
+                                    if (periodText) periodText.textContent = filters.periodLabel;
                                     document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
-                                        opt.classList.toggle('active', opt.dataset.value === parsedFilters.periodValue);
+                                        opt.classList.toggle('active', opt.dataset.value === filters.periodValue);
                                     });
                                 }
                             } catch (err) {}
                         }
 
-                        // Nach dem Laden des iFrames die Filter-Werte senden
-                        iframe.onload = function() {
-                            // Kurze Verzögerung, damit die Seite vollständig initialisiert ist
-                            setTimeout(() => {
-                                if (parsedFilters && iframe.contentWindow) {
-                                    // Nav-Filter an iFrame senden
-                                    if (parsedFilters.navValue) {
-                                        iframe.contentWindow.postMessage({ type: 'navFilter', value: parsedFilters.navValue }, '*');
-                                    }
-                                    // Period-Filter an iFrame senden
-                                    if (parsedFilters.periodValue) {
-                                        iframe.contentWindow.postMessage({ type: 'periodFilter', value: parsedFilters.periodValue }, '*');
-                                    }
-                                }
-                            }, 100);
-                        };
-
-                        iframe.src = savedUrl;
+                        iframe.src = urlWithFilters;
 
                         // Sidebar active state aktualisieren
                         if (returnTo && document.querySelector(`.sidebar [data-page="${returnTo}"]`)) {

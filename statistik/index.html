@@ -829,16 +829,29 @@
 
         // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', async function() {
-            // Erst Daten aus Supabase laden
+            // URL-Parameter lesen (für Filter-Wiederherstellung bei Zurück-Navigation)
+            const urlParams = new URLSearchParams(window.location.search);
+            const navParam = urlParams.get('nav');
+            const periodParam = urlParams.get('period');
+
+            // Period-Filter anwenden falls vorhanden
+            if (periodParam) {
+                currentPeriod = periodParam;
+                const { start, end } = calculatePeriodDates(periodParam);
+                periodStartDate = start;
+                periodEndDate = end;
+            }
+
+            // Daten aus Supabase laden
             await loadAllData();
 
-            // Dann Tabellen rendern
+            // Tabellen rendern
             renderWerberTable();
             renderKundenGebieteTable();
             renderKampagnenTable();
 
-            // Initial: Nur ersten Tab anzeigen (Werber)
-            selectCategory('werber');
+            // Kategorie setzen (aus URL-Parameter oder Default 'werber')
+            selectCategory(navParam || 'werber');
 
             // Register toolbar config with shell (Import/Export for statistics)
             registerToolbarConfig();
