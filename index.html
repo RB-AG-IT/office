@@ -755,6 +755,13 @@
         // NAVIGATION
         // ================================================================
 
+        // Hilfsfunktion: Gibt den aktiven/sichtbaren iFrame zurück
+        function getActiveIframe() {
+            const container = document.getElementById('content-container');
+            // Overlay hat Priorität (ist der sichtbare bei Navigation)
+            return container.querySelector('iframe.nav-overlay') || container.querySelector('iframe:not(.nav-hidden)');
+        }
+
         // Sidebar Toggle
         document.getElementById('sidebarToggle').addEventListener('click', function() {
             const container = document.querySelector('.app-container');
@@ -1067,7 +1074,7 @@
             }
 
             // Forward other actions to iframe
-            const iframe = document.querySelector('#content-container iframe');
+            const iframe = getActiveIframe();
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({ type: 'toolbarAction', action: action }, '*');
             }
@@ -1109,7 +1116,7 @@
             }
 
             // Send message to iframe to filter
-            const iframe = document.querySelector('#content-container iframe');
+            const iframe = getActiveIframe();
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({ type: 'navFilter', value: value }, '*');
             }
@@ -1150,7 +1157,7 @@
             dropdown.classList.remove('open');
 
             // Send message to iframe
-            const iframe = document.querySelector('#content-container iframe');
+            const iframe = getActiveIframe();
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({ type: 'periodFilter', value: value }, '*');
             }
@@ -1476,7 +1483,7 @@
 
             // Debounce search
             searchTimeout = setTimeout(() => {
-                const iframe = document.querySelector('#content-container iframe');
+                const iframe = getActiveIframe();
                 if (iframe && iframe.contentWindow) {
                     iframe.contentWindow.postMessage({ type: 'searchQuery', query: query }, '*');
                 }
@@ -1488,7 +1495,7 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const query = e.target.value.trim();
-                const iframe = document.querySelector('#content-container iframe');
+                const iframe = getActiveIframe();
                 if (iframe && iframe.contentWindow) {
                     iframe.contentWindow.postMessage({ type: 'searchQuery', query: query }, '*');
                 }
@@ -1532,7 +1539,7 @@
             shellSearchInput.value = '';
 
             // Tell iframe to navigate to selected item
-            const iframe = document.querySelector('#content-container iframe');
+            const iframe = getActiveIframe();
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage({ type: 'searchSelect', id: id, name: name }, '*');
             }
@@ -1703,7 +1710,7 @@
                 if (customOption) customOption.textContent = dateRangeText;
 
                 // Send to iframe
-                const iframe = document.querySelector('#content-container iframe');
+                const iframe = getActiveIframe();
                 if (iframe && iframe.contentWindow) {
                     iframe.contentWindow.postMessage({
                         type: 'customDateRangeApplied',

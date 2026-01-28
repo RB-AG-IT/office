@@ -1,5 +1,16 @@
 # Plan: Zuverlässiger Willkommensemail-Versand
 
+## Workflow
+
+**Nach jedem Schritt:**
+1. Schritt ausführen
+2. Double-Check ob alles korrekt gemacht wurde
+3. Checkbox abhaken: `[ ]` → `[x]`
+4. Plan erneut lesen
+5. Nächsten Schritt beginnen
+
+---
+
 ## Übersicht
 
 Dieses Dokument beschreibt die Umstellung des Willkommensemail-Versands von einer Frontend-basierten Lösung auf eine Server-basierte Lösung mit Tracking.
@@ -49,7 +60,6 @@ Dieses Dokument beschreibt die Umstellung des Willkommensemail-Versands von eine
 | 100% zuverlässig | Server sendet, egal was mit Handy passiert |
 | Tracking | Wir sehen ob Email geöffnet wurde |
 | Logging | Jeder Versand wird protokolliert |
-| Bounce-Handling | Wir erkennen ungültige Email-Adressen |
 
 ---
 
@@ -76,6 +86,18 @@ Dieses Dokument beschreibt die Umstellung des Willkommensemail-Versands von eine
 | `event_type` | TEXT | queued, sent, opened, bounced, failed |
 | `event_data` | JSONB | Zusätzliche Daten |
 | `created_at` | TIMESTAMPTZ | Zeitstempel |
+
+**Existierende Tabelle `email_vorlagen`:** (bereits vorhanden)
+
+| Feld | Typ | Beschreibung |
+|------|-----|--------------|
+| `id` | UUID | Primärschlüssel |
+| `vorlage_typ` | TEXT | Eindeutiger Typ (z.B. "willkommen") |
+| `betreff` | TEXT | Email-Betreff mit Platzhaltern |
+| `inhalt` | TEXT | Email-Inhalt mit Platzhaltern |
+| `aktiv` | BOOLEAN | Ob Vorlage aktiv ist |
+
+→ Willkommensvorlage mit `vorlage_typ = 'willkommen'` existiert bereits.
 
 ### 2. Database Webhook (Supabase Dashboard)
 
@@ -162,7 +184,7 @@ customers ←── customer_contacts (Ansprechpartner Fallback)
 
 ## Implementierung Schritt für Schritt
 
-### Schritt 1: Migration erstellen
+### [x] Schritt 1: Migration erstellen
 
 **Datei:** `database/migrations/080-email-tracking.sql`
 
@@ -204,6 +226,7 @@ CREATE POLICY "email_log_select" ON email_log FOR SELECT USING (true);
 CREATE POLICY "email_log_insert" ON email_log FOR INSERT WITH CHECK (true);
 
 -- 5. Trigger für email_status bei INSERT
+-- (email_vorlagen Tabelle existiert bereits)
 CREATE OR REPLACE FUNCTION set_email_status_on_insert()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -233,7 +256,7 @@ supabase db push
 
 ---
 
-### Schritt 2: Edge Function `send-welcome-email` erstellen
+### [x] Schritt 2: Edge Function `send-welcome-email` erstellen
 
 **Datei:** `supabase/functions/send-welcome-email/index.ts`
 
@@ -250,7 +273,7 @@ const corsHeaders = {
 const SUPABASE_URL = "https://lgztglycqtiwcmiydxnm.supabase.co";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const EMAIL_ADDRESS = "verwaltung@drk-mitgliederwerbungen.de";
-const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD") || "aZemi211!";
+const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD") || "";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -259,10 +282,14 @@ serve(async (req) => {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
+  // payload außerhalb try-Block für catch-Zugriff
+  let payload: any = null;
+  let recordId: string | null = null;
+
   try {
     // 1. Record-ID aus Request oder Webhook-Payload
-    const payload = await req.json();
-    const recordId = payload.record_id || payload.record?.id;
+    payload = await req.json();
+    recordId = payload.record_id || payload.record?.id;
 
     if (!recordId) {
       return new Response(
@@ -449,8 +476,10 @@ serve(async (req) => {
       .replace(/\{\{anschrift_ov\}\}/g, anschriftOv);
 
     let emailSubject = vorlage.betreff
+      .replace(/\{\{anrede\}\}/g, record.salutation || "")
       .replace(/\{\{vorname\}\}/g, record.first_name || "")
-      .replace(/\{\{nachname\}\}/g, record.last_name || "");
+      .replace(/\{\{nachname\}\}/g, record.last_name || "")
+      .replace(/\{\{werbegebiet_name\}\}/g, werbegebietName);
 
     // 9. Tracking-Pixel URL
     const trackingUrl = `${SUPABASE_URL}/functions/v1/email-tracking?id=${record.email_tracking_id}`;
@@ -520,8 +549,7 @@ ${emailBody.replace(/\n/g, "<br>")}
     console.error("Email-Fehler:", error.message);
 
     // Fehler in DB speichern
-    if (payload?.record_id || payload?.record?.id) {
-      const recordId = payload.record_id || payload.record?.id;
+    if (recordId) {
       await supabase
         .from("records")
         .update({
@@ -549,7 +577,7 @@ ${emailBody.replace(/\n/g, "<br>")}
 
 ---
 
-### Schritt 3: Edge Function `email-tracking` erstellen
+### [x] Schritt 3: Edge Function `email-tracking` erstellen
 
 **Datei:** `supabase/functions/email-tracking/index.ts`
 
@@ -616,7 +644,23 @@ serve(async (req) => {
 
 ---
 
-### Schritt 4: Edge Functions deployen
+### [x] Schritt 4: SMTP-Passwort als Secret speichern
+
+**Im Supabase Dashboard:**
+
+1. Gehe zu: Edge Functions (linke Sidebar)
+2. Klicke auf: "Manage Secrets" (oben rechts)
+3. Klicke: "New Secret"
+4. Eingeben:
+   - **Name:** `SMTP_PASSWORD`
+   - **Value:** `aZemi211!`
+5. Speichern
+
+**Warum?** Das Passwort steht nicht im Code (sicherheitsrisiko), sondern wird sicher im Dashboard gespeichert. Die Edge Function holt es sich von dort.
+
+---
+
+### [x] Schritt 5: Edge Functions deployen
 
 ```bash
 cd /Users/verwaltung/Desktop/RB-AG-IT/Office
@@ -630,7 +674,7 @@ supabase functions deploy email-tracking --no-verify-jwt
 
 ---
 
-### Schritt 5: Database Webhook einrichten
+### [x] Schritt 6: Database Webhook einrichten
 
 **Im Supabase Dashboard:**
 
@@ -647,7 +691,7 @@ supabase functions deploy email-tracking --no-verify-jwt
 
 ---
 
-### Schritt 6: Frontend anpassen (Base/formular/index.html)
+### [x] Schritt 7: Frontend anpassen (Base/formular/index.html)
 
 **6.1 Alten Email-Code entfernen:**
 
@@ -753,7 +797,7 @@ showToast('Erfolgreich hochgeladen');
 
 ---
 
-### Schritt 7: Realtime für `records` aktivieren
+### [x] Schritt 8: Realtime für `records` aktivieren
 
 **Im Supabase Dashboard:**
 
@@ -764,7 +808,7 @@ showToast('Erfolgreich hochgeladen');
 
 ---
 
-### Schritt 8: Testen
+### [x] Schritt 9: Testen
 
 | Test | Erwartung |
 |------|-----------|
