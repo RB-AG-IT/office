@@ -3491,6 +3491,24 @@
                 }
             }
 
+            // Summe A berechnen
+            let summeA = 0;
+            if (calcData.positionen && Array.isArray(calcData.positionen)) {
+                summeA = calcData.positionen.reduce((sum, p) => sum + (p.betrag || 0), 0);
+            } else if (calcData.gebiet) {
+                summeA = (calcData.sondBetrag || 0) + (calcData.regBetrag || 0);
+                if (!calcData.sondBetrag && !calcData.regBetrag) summeA = calcData.betrag || 0;
+            }
+
+            // Zwischensumme A einfügen
+            if (aPositionen.length > 0) {
+                aPositionen.push(`
+                    <tr class="subtotal-row">
+                        <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
+                        <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(summeA)}</td>
+                    </tr>`);
+            }
+
             // B-Positionen: Zubuchungen (Kosten aus Ledger) - gruppiert nach Kostenart + WG
             const bPositionen = [];
             const zubuchungen = calcData.zubuchungen || [];
@@ -3539,6 +3557,16 @@
                         </tr>`);
                     posNrB++;
                 });
+
+                // Summe B berechnen
+                const summeB = Object.values(zubuchungenGruppiert).reduce((sum, g) => sum + g.gesamt, 0);
+
+                // Zwischensumme A+B einfügen
+                bPositionen.push(`
+                    <tr class="subtotal-row">
+                        <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
+                        <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(summeA + summeB)}</td>
+                    </tr>`);
             }
 
             // C-Positionen sammeln (Abzüge)
@@ -3600,6 +3628,26 @@
 
             // C-Positionen Header einfügen (wenn es Abzüge gibt)
             if (cPositionen.length > 0) {
+                // Summe C berechnen (Abzüge)
+                let summeC = stornopuffer;
+                if (r.abrechnungstyp === 'EA' && zaAbzuege.length > 0) {
+                    summeC += zaAbzuege.reduce((sum, za) => sum + (za.netto_auszahlung || 0), 0);
+                }
+
+                // Summe B berechnen (für Zwischensumme)
+                let summeB = 0;
+                if (zubuchungen.length > 0) {
+                    summeB = zubuchungen.reduce((sum, z) => sum + z.betrag, 0);
+                }
+
+                // Zwischensumme nach C (= Netto) einfügen
+                cPositionen.push(`
+                    <tr class="subtotal-row">
+                        <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
+                        <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(summeA + summeB - summeC)}</td>
+                    </tr>`);
+
+                // Header am Anfang einfügen
                 cPositionen.unshift(`
                     <tr>
                         <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt;">Pos</th>
@@ -3626,15 +3674,7 @@
 
             // Alle restlichen Positionen für Folgeseiten (A-Rest, dann B, dann C)
             const restPositionen = [...aRest];
-            if (!allOnPage1 && (aRest.length > 0 || bPositionen.length > 0)) {
-                // Zwischensumme als Marker einfügen nach letzter A-Position
-                if (aRest.length > 0) {
-                    restPositionen.push('ZWISCHENSUMME');
-                }
-                restPositionen.push(...bPositionen);
-                restPositionen.push(...cPositionen);
-            } else if (!allOnPage1 && aRest.length === 0) {
-                // B- und C-Positionen auf Folgeseite (A passt auf Seite 1)
+            if (!allOnPage1) {
                 restPositionen.push(...bPositionen);
                 restPositionen.push(...cPositionen);
             }
@@ -4014,16 +4054,7 @@
                 ${aPage1.join('')}
                 ${allOnPage1 ? `
                 ${bPositionen.join('')}
-                <tr class="subtotal-row">
-                    <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
-                    <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(zwischensumme)}</td>
-                </tr>
                 ${cPositionen.join('')}` : ''}
-                ${!allOnPage1 && aRest.length === 0 ? `
-                <tr class="subtotal-row">
-                    <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
-                    <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(zwischensumme)}</td>
-                </tr>` : ''}
             </tbody>
         </table>
 
@@ -4064,9 +4095,6 @@
 
         let pages = '';
         let currentPage = 2;
-        let needsZwischensumme = aRest.length > 0; // Zwischensumme wenn A-Rest vorhanden
-        let shownZwischensumme = false;
-        let isFirstBPosition = true;
 
         // Alle Positionen in Chunks von ITEMS_PAGE_REST aufteilen
         for (let i = 0; i < restPositionen.length; i += ITEMS_PAGE_REST) {
@@ -4076,26 +4104,7 @@
             // Zeilen für diese Seite generieren
             let rowsHtml = '';
             chunk.forEach(item => {
-                if (item === 'ZWISCHENSUMME') {
-                    rowsHtml += `
-                <tr class="subtotal-row">
-                    <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
-                    <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(zwischensumme)}</td>
-                </tr>`;
-                    shownZwischensumme = true;
-                } else if (item.includes('class="abzug-row"') && isFirstBPosition && !shownZwischensumme) {
-                    // Übertrag vor erstem Abzug (wenn Zwischensumme nicht gezeigt wurde)
-                    rowsHtml += `
-                <tr class="subtotal-row">
-                    <td colspan="5" style="text-align: right; font-weight: 600;">Übertrag Zwischensumme</td>
-                    <td style="text-align: right; font-weight: 600;">${formatPdfEuro(zwischensumme)}</td>
-                </tr>`;
-                    rowsHtml += item;
-                    isFirstBPosition = false;
-                } else {
-                    if (item.includes('class="abzug-row"')) isFirstBPosition = false;
-                    rowsHtml += item;
-                }
+                rowsHtml += item;
             });
 
             pages += `
