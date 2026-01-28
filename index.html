@@ -1540,39 +1540,28 @@
             if (e.data && e.data.type === 'navigate') {
                 const iframe = document.querySelector('#content-container iframe');
                 if (iframe) {
-                    // Store the current iframe URL + filter state before navigating
                     const currentHash = window.location.hash.substring(1);
-                    try {
-                        const currentIframeUrl = iframe.contentWindow.location.href;
-                        // Speichere URL relativ zum Office-Ordner
-                        const urlPath = currentIframeUrl.split('/Office/')[1] || currentIframeUrl;
-                        sessionStorage.setItem('shellNavigateBackUrl', urlPath);
 
-                        // Speichere aktuelle Filter-Werte
-                        const navText = document.getElementById('shellNavText');
-                        const periodText = document.getElementById('shellPeriodDropdownText');
-                        const activeNavOpt = document.querySelector('#shellNavMenu .toolbar-nav-option.active');
-                        const activePeriodOpt = document.querySelector('#shellPeriodDropdown .toolbar-nav-option.active');
+                    // Filter-Werte speichern (für Shell-Wiederherstellung bei Zurück)
+                    const navText = document.getElementById('shellNavText');
+                    const periodText = document.getElementById('shellPeriodDropdownText');
+                    const activeNavOpt = document.querySelector('#shellNavMenu .toolbar-nav-option.active');
+                    const activePeriodOpt = document.querySelector('#shellPeriodDropdown .toolbar-nav-option.active');
 
-                        sessionStorage.setItem('shellNavigateBackFilters', JSON.stringify({
-                            navValue: activeNavOpt?.dataset.value || null,
-                            navLabel: navText?.textContent || null,
-                            periodValue: activePeriodOpt?.dataset.value || null,
-                            periodLabel: periodText?.textContent || null
-                        }));
-                    } catch (err) {
-                        // Cross-origin - kann URL nicht lesen
-                    }
+                    sessionStorage.setItem('shellNavigateBackFilters', JSON.stringify({
+                        navValue: activeNavOpt?.dataset.value || null,
+                        navLabel: navText?.textContent || null,
+                        periodValue: activePeriodOpt?.dataset.value || null,
+                        periodLabel: periodText?.textContent || null
+                    }));
 
                     if (currentHash && !e.data.url.includes('returnTo=')) {
-                        // Add returnTo parameter so we know where to go back
                         const separator = e.data.url.includes('?') ? '&' : '?';
                         iframe.src = e.data.url + separator + 'returnTo=' + currentHash;
                     } else {
                         iframe.src = e.data.url;
                     }
                 }
-                // Update active nav item if section specified
                 if (e.data.section) {
                     document.querySelectorAll('.nav-item').forEach(item => {
                         item.classList.remove('active');
@@ -1585,57 +1574,42 @@
             // Back navigation request from iframe
             if (e.data && e.data.type === 'navigateBack') {
                 const returnTo = e.data.returnTo;
-                const savedUrl = sessionStorage.getItem('shellNavigateBackUrl');
                 const savedFilters = sessionStorage.getItem('shellNavigateBackFilters');
+                const iframe = document.querySelector('#content-container iframe');
 
-                if (savedUrl) {
-                    // Gespeicherte URL wiederherstellen (ohne Neuladen der Shell)
-                    const iframe = document.querySelector('#content-container iframe');
-                    if (iframe) {
-                        // Filter als URL-Parameter anhängen
-                        let urlWithFilters = savedUrl;
-                        if (savedFilters) {
-                            try {
-                                const filters = JSON.parse(savedFilters);
-                                const params = new URLSearchParams();
-                                if (filters.navValue) params.set('nav', filters.navValue);
-                                if (filters.periodValue) params.set('period', filters.periodValue);
+                if (iframe && iframe.contentWindow) {
+                    // Browser-History zurück (lädt Seite aus Cache, kein Neuladen)
+                    iframe.contentWindow.history.back();
 
-                                if (params.toString()) {
-                                    const separator = savedUrl.includes('?') ? '&' : '?';
-                                    urlWithFilters = savedUrl + separator + params.toString();
-                                }
+                    // Shell-Filter wiederherstellen
+                    if (savedFilters) {
+                        try {
+                            const filters = JSON.parse(savedFilters);
+                            if (filters.navValue && filters.navLabel) {
+                                const navText = document.getElementById('shellNavText');
+                                if (navText) navText.textContent = filters.navLabel;
+                                document.querySelectorAll('#shellNavMenu .toolbar-nav-option').forEach(opt => {
+                                    opt.classList.toggle('active', opt.dataset.value === filters.navValue);
+                                });
+                            }
+                            if (filters.periodValue && filters.periodLabel) {
+                                const periodText = document.getElementById('shellPeriodDropdownText');
+                                if (periodText) periodText.textContent = filters.periodLabel;
+                                document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
+                                    opt.classList.toggle('active', opt.dataset.value === filters.periodValue);
+                                });
+                            }
+                        } catch (err) {}
+                    }
 
-                                // Shell-Filter wiederherstellen
-                                if (filters.navValue && filters.navLabel) {
-                                    const navText = document.getElementById('shellNavText');
-                                    if (navText) navText.textContent = filters.navLabel;
-                                    document.querySelectorAll('#shellNavMenu .toolbar-nav-option').forEach(opt => {
-                                        opt.classList.toggle('active', opt.dataset.value === filters.navValue);
-                                    });
-                                }
-                                if (filters.periodValue && filters.periodLabel) {
-                                    const periodText = document.getElementById('shellPeriodDropdownText');
-                                    if (periodText) periodText.textContent = filters.periodLabel;
-                                    document.querySelectorAll('#shellPeriodDropdown .toolbar-nav-option').forEach(opt => {
-                                        opt.classList.toggle('active', opt.dataset.value === filters.periodValue);
-                                    });
-                                }
-                            } catch (err) {}
-                        }
-
-                        iframe.src = urlWithFilters;
-
-                        // Sidebar active state aktualisieren
-                        if (returnTo && document.querySelector(`.sidebar [data-page="${returnTo}"]`)) {
-                            window.location.hash = returnTo;
-                            document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
-                            document.querySelector(`.sidebar [data-page="${returnTo}"]`).classList.add('active');
-                        }
+                    // Sidebar active state aktualisieren
+                    if (returnTo && document.querySelector(`.sidebar [data-page="${returnTo}"]`)) {
+                        window.location.hash = returnTo;
+                        document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+                        document.querySelector(`.sidebar [data-page="${returnTo}"]`).classList.add('active');
                     }
 
                     // Aufräumen
-                    sessionStorage.removeItem('shellNavigateBackUrl');
                     sessionStorage.removeItem('shellNavigateBackFilters');
                 } else if (returnTo && document.querySelector(`.sidebar [data-page="${returnTo}"]`)) {
                     // Fallback: Seite neu laden
