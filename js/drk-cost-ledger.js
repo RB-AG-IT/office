@@ -95,9 +95,28 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
         const pro = normalizePro(config.pro, kostenart);
         const zeitraum = normalizeZeitraum(config.zeitraum);
 
+        // Verteilung prüfen (nur bei Kunden-Kosten relevant)
+        const verteilung = config.verteilung || 'anteilig';
+        const explizitWgId = config.explizit_wg_id;
+
+        let relevantAttendance;
+        if (verteilung === 'explizit' && explizitWgId) {
+            // Explizit: Nur das ausgewählte WG bekommt ALLE Kosten
+            if (campaignAreaId === explizitWgId) {
+                // Dieses WG übernimmt alle Kosten → gesamte Kampagnen-Attendance
+                relevantAttendance = attendance || [];
+            } else {
+                // Anderes WG → keine Kosten
+                relevantAttendance = [];
+            }
+        } else {
+            // Anteilig: Jedes WG zahlt für seine eigenen Werber
+            relevantAttendance = gebietAttendance;
+        }
+
         // Einheiten berechnen (async wegen "einmalig + person" Prüfung)
         const { einheiten, neueWerberIds } = await berechneEinheitenFuerKW(
-            pro, zeitraum, gebietAttendance, kw,
+            pro, zeitraum, relevantAttendance, kw,
             customerId, campaignId, campaignAreaId, kostenart
         );
         const sollBetrag = einheiten * parseFloat(config.betrag);
@@ -117,8 +136,23 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
             const pro = normalizePro(sp.pro, 'sonderposten');
             const zeitraum = normalizeZeitraum(sp.zeitraum || 'einmalig');
 
+            // Verteilung prüfen
+            const verteilung = sp.verteilung || 'anteilig';
+            const explizitWgId = sp.explizit_wg_id;
+
+            let relevantAttendance;
+            if (verteilung === 'explizit' && explizitWgId) {
+                if (campaignAreaId === explizitWgId) {
+                    relevantAttendance = attendance || [];
+                } else {
+                    relevantAttendance = [];
+                }
+            } else {
+                relevantAttendance = gebietAttendance;
+            }
+
             const { einheiten, neueWerberIds } = await berechneEinheitenFuerKW(
-                pro, zeitraum, gebietAttendance, kw,
+                pro, zeitraum, relevantAttendance, kw,
                 customerId, campaignId, campaignAreaId, `sonderposten_${sp.name}`
             );
             const sollBetrag = einheiten * parseFloat(sp.summe);
