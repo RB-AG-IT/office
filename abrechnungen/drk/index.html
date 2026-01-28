@@ -3491,8 +3491,8 @@
                 }
             }
 
-            // C-Positionen: Zubuchungen (Kosten aus Ledger) - gruppiert nach Kostenart + WG
-            const cPositionen = [];
+            // B-Positionen: Zubuchungen (Kosten aus Ledger) - gruppiert nach Kostenart + WG
+            const bPositionen = [];
             const zubuchungen = calcData.zubuchungen || [];
             if (zubuchungen.length > 0) {
                 // Zubuchungen gruppieren
@@ -3516,7 +3516,7 @@
                 });
 
                 // Zubuchungen-Header
-                cPositionen.push(`
+                bPositionen.push(`
                     <tr>
                         <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt;">Pos</th>
                         <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt;">Beschreibung</th>
@@ -3526,37 +3526,37 @@
                         <th style="background: #1a1a2e; color: #fff; padding: 3mm 2mm; font-weight: 600; font-size: 8pt; text-align: right;">Gesamt (€)</th>
                     </tr>`);
 
-                let posNrC = 1;
+                let posNrB = 1;
                 Object.values(zubuchungenGruppiert).forEach(g => {
-                    cPositionen.push(`
+                    bPositionen.push(`
                         <tr>
-                            <td class="pos-nr">C${posNrC}</td>
+                            <td class="pos-nr">B${posNrB}</td>
                             <td class="pos-beschreibung">${g.bezeichnung}<br><span class="pos-sub">${g.gebietName}</span></td>
                             <td class="pos-right">${g.anzahl}</td>
                             <td class="pos-right">${formatPdfEuro(g.einzelpreis)}</td>
                             <td class="pos-right">+</td>
                             <td class="pos-right">${formatPdfEuro(g.gesamt)}</td>
                         </tr>`);
-                    posNrC++;
+                    posNrB++;
                 });
             }
 
-            // B-Positionen sammeln (Abzüge)
-            const bPositionen = [];
-            let posNrB = 1;
+            // C-Positionen sammeln (Abzüge)
+            const cPositionen = [];
+            let posNrC = 1;
 
             // Stornopuffer (nur bei ZA)
             if (stornopuffer > 0 && r.abrechnungstyp === 'ZA') {
-                bPositionen.push(`
+                cPositionen.push(`
                     <tr class="abzug-row">
-                        <td class="pos-nr">B${posNrB}</td>
+                        <td class="pos-nr">C${posNrC}</td>
                         <td class="pos-beschreibung">Stornopuffer -10%<br><span class="pos-sub">vertragliche Vereinbarung</span></td>
                         <td class="pos-right"></td>
                         <td class="pos-right"></td>
                         <td class="pos-right"></td>
                         <td class="pos-right text-red">-${formatPdfEuro(stornopuffer)}</td>
                     </tr>`);
-                posNrB++;
+                posNrC++;
             }
 
             // EA-Abzüge (bereits gezahlte ZAs)
@@ -3585,45 +3585,45 @@
             if (r.abrechnungstyp === 'EA' && zaAbzuege.length > 0) {
                 const formatDatum = (d) => d ? new Date(d).toLocaleDateString('de-DE') : '';
                 zaAbzuege.forEach(za => {
-                    bPositionen.push(`
+                    cPositionen.push(`
                         <tr class="abzug-row">
-                            <td class="pos-nr">B${posNrB}</td>
+                            <td class="pos-nr">C${posNrC}</td>
                             <td class="pos-beschreibung">Abzug ${za.invoice_number || 'ZA'}<br><span class="pos-sub">${formatDatum(za.period_start)} - ${formatDatum(za.period_end)}</span></td>
                             <td class="pos-right"></td>
                             <td class="pos-right"></td>
                             <td class="pos-right"></td>
                             <td class="pos-right text-red">-${formatPdfEuro(za.netto_auszahlung || 0)}</td>
                         </tr>`);
-                    posNrB++;
+                    posNrC++;
                 });
             }
 
             // Seitenaufteilung berechnen
             const ITEMS_PAGE_1 = 3;   // Seite 1 hat Header → wenig Platz
             const ITEMS_PAGE_REST = 10; // Folgeseiten ohne Header → viel Platz
-            const hasAbzuege = bPositionen.length > 0;
+            const hasAbzuege = cPositionen.length > 0;
 
-            // Seite 1: Platz für max 3 Positionen (A + C + B zusammen)
-            const totalPositionen = aPositionen.length + cPositionen.length + bPositionen.length;
+            // Seite 1: Platz für max 3 Positionen (A + B + C zusammen)
+            const totalPositionen = aPositionen.length + bPositionen.length + cPositionen.length;
             const allOnPage1 = totalPositionen <= ITEMS_PAGE_1;
 
             // Seite 1: A-Positionen (max 3, oder alle wenn alles auf Seite 1 passt)
             const aPage1 = aPositionen.slice(0, ITEMS_PAGE_1);
             const aRest = aPositionen.slice(ITEMS_PAGE_1);
 
-            // Alle restlichen Positionen für Folgeseiten (A-Rest, dann C, dann B)
+            // Alle restlichen Positionen für Folgeseiten (A-Rest, dann B, dann C)
             const restPositionen = [...aRest];
-            if (!allOnPage1 && (aRest.length > 0 || cPositionen.length > 0)) {
+            if (!allOnPage1 && (aRest.length > 0 || bPositionen.length > 0)) {
                 // Zwischensumme als Marker einfügen nach letzter A-Position
                 if (aRest.length > 0) {
                     restPositionen.push('ZWISCHENSUMME');
                 }
-                restPositionen.push(...cPositionen);
                 restPositionen.push(...bPositionen);
+                restPositionen.push(...cPositionen);
             } else if (!allOnPage1 && aRest.length === 0) {
-                // C- und B-Positionen auf Folgeseite (A passt auf Seite 1)
-                restPositionen.push(...cPositionen);
+                // B- und C-Positionen auf Folgeseite (A passt auf Seite 1)
                 restPositionen.push(...bPositionen);
+                restPositionen.push(...cPositionen);
             }
 
             // Berechne Gesamtseitenzahl
@@ -4000,12 +4000,12 @@
             <tbody>
                 ${aPage1.join('')}
                 ${allOnPage1 ? `
-                ${cPositionen.join('')}
+                ${bPositionen.join('')}
                 <tr class="subtotal-row">
                     <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
                     <td style="text-align: right; font-weight: 600; padding-top: 3mm;">${formatPdfEuro(zwischensumme)}</td>
                 </tr>
-                ${bPositionen.join('')}` : ''}
+                ${cPositionen.join('')}` : ''}
                 ${!allOnPage1 && aRest.length === 0 ? `
                 <tr class="subtotal-row">
                     <td colspan="5" style="text-align: right; font-weight: 600; padding-top: 3mm;">Zwischensumme</td>
