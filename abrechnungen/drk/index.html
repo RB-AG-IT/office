@@ -3675,6 +3675,9 @@
             let page1Positionen;
             let restPositionen;
 
+            // Hilfsfunktion: Prüft ob Zeile ein Header ist
+            const isHeader = (html) => html && html.includes('<th ');
+
             if (allOnPage1) {
                 // Alles auf Seite 1 inkl. Abschlussblock
                 page1Positionen = allPositionen;
@@ -3683,6 +3686,11 @@
                 // 6 Posten auf Seite 1 (ohne Abschlussblock), Rest auf Folgeseiten
                 page1Positionen = allPositionen.slice(0, ITEMS_PAGE_1_NO_BLOCK);
                 restPositionen = allPositionen.slice(ITEMS_PAGE_1_NO_BLOCK);
+
+                // Header nie alleine am Seitenende → auf nächste Seite verschieben
+                while (page1Positionen.length > 0 && isHeader(page1Positionen[page1Positionen.length - 1])) {
+                    restPositionen.unshift(page1Positionen.pop());
+                }
             }
 
             // Berechne Gesamtseitenzahl
@@ -4099,10 +4107,17 @@
         let pages = '';
         let currentPage = 2;
 
-        // Alle Positionen in Chunks von ITEMS_PAGE_REST aufteilen
-        for (let i = 0; i < restPositionen.length; i += ITEMS_PAGE_REST) {
-            const chunk = restPositionen.slice(i, i + ITEMS_PAGE_REST);
-            const isLastPage = i + ITEMS_PAGE_REST >= restPositionen.length;
+        // Alle Positionen in Chunks aufteilen (Header nie am Seitenende)
+        let remaining = [...restPositionen];
+        while (remaining.length > 0) {
+            let chunk = remaining.splice(0, ITEMS_PAGE_REST);
+
+            // Header nie am Seitenende → zurück in remaining
+            while (chunk.length > 0 && isHeader(chunk[chunk.length - 1])) {
+                remaining.unshift(chunk.pop());
+            }
+
+            const isLastPage = remaining.length === 0;
 
             // Zeilen für diese Seite generieren
             let rowsHtml = '';
@@ -4113,16 +4128,6 @@
             pages += `
     <div class="invoice-page">
         <table class="positions-table" style="margin-top: 10mm;">
-            <thead>
-                <tr>
-                    <th>Pos</th>
-                    <th>Beschreibung</th>
-                    <th>Anz MG</th>
-                    <th>Jahres-EUR</th>
-                    <th>%</th>
-                    <th>Gesamt</th>
-                </tr>
-            </thead>
             <tbody>
                 ${rowsHtml}
             </tbody>
