@@ -2384,7 +2384,11 @@
                 </tr>`);
 
                 let posNrC = 1;
-                Object.values(zubuchungenGruppiert).forEach(g => {
+                // Nach OV sortieren (gebietName)
+                const sortierteZubuchungen = Object.values(zubuchungenGruppiert).sort((a, b) =>
+                    (a.gebietName || '').localeCompare(b.gebietName || '', 'de')
+                );
+                sortierteZubuchungen.forEach(g => {
                     zwischensumme += g.gesamt;
                     rows.push(`<tr>
                         <td class="text-left">C${posNrC++}</td>
@@ -2944,7 +2948,11 @@
                 </tr>`);
 
                 let posNrC = 1;
-                Object.values(zubuchungenGruppiert).forEach(g => {
+                // Nach OV sortieren (gebietName)
+                const sortierteZubuchungen = Object.values(zubuchungenGruppiert).sort((a, b) =>
+                    (a.gebietName || '').localeCompare(b.gebietName || '', 'de')
+                );
+                sortierteZubuchungen.forEach(g => {
                     rows.push(`<tr>
                         <td class="text-left">C${posNrC++}</td>
                         <td class="text-left">${g.bezeichnung}${g.kostenart ? ' (' + g.kostenart + ')' : ''} ${g.gebietName}</td>
@@ -3548,7 +3556,11 @@
                     </tr>`);
 
                 let posNrB = 1;
-                Object.values(zubuchungenGruppiert).forEach(g => {
+                // Nach OV sortieren (gebietName)
+                const sortierteZubuchungen = Object.values(zubuchungenGruppiert).sort((a, b) =>
+                    (a.gebietName || '').localeCompare(b.gebietName || '', 'de')
+                );
+                sortierteZubuchungen.forEach(g => {
                     bPositionen.push(`
                         <tr>
                             <td class="pos-nr">B${posNrB}</td>
@@ -3562,7 +3574,7 @@
                 });
 
                 // Summe B berechnen
-                const summeB = Object.values(zubuchungenGruppiert).reduce((sum, g) => sum + g.gesamt, 0);
+                const summeB = sortierteZubuchungen.reduce((sum, g) => sum + g.gesamt, 0);
 
                 // Zwischensumme A+B einfügen
                 bPositionen.push(`
