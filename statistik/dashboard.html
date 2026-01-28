@@ -555,25 +555,27 @@
                     query = query.lte('start_date', endStr + 'T23:59:59');
                 }
 
-                // Für Kunde/Gebiet: Filter direkt in Query
+                // Für Kunde: Filter direkt in Query
                 if (personType === 'kunde') {
                     query = query.eq('customer_id', personId);
                 }
 
-                const { data: records, error } = await query;
-
-                // Für Gebiet: campaign_areas laden und Records filtern
-                let filteredRecords = records;
+                // Für Gebiet: campaign_areas laden und Query direkt filtern
                 if (personType === 'gebiet') {
                     const { data: campaignAreas } = await supabase
                         .from('campaign_areas')
                         .select('id')
                         .eq('customer_area_id', personId);
                     const campaignAreaIds = (campaignAreas || []).map(ca => ca.id);
-                    filteredRecords = (records || []).filter(r => campaignAreaIds.includes(r.campaign_area_id));
+                    if (campaignAreaIds.length > 0) {
+                        query = query.in('campaign_area_id', campaignAreaIds);
+                    }
                 }
 
+                const { data: records, error } = await query;
                 if (error) throw error;
+
+                const filteredRecords = records;
 
                 // Hilfsfunktion: Stats für eine Record-Gruppe berechnen
                 function calcStats(recs, label) {
