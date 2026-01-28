@@ -495,12 +495,44 @@
                 </table>
             </div>
 
+            <!-- Zubuchungen (Kosten aus Ledger) -->
+            <div class="detail-section" id="detailZubuchungenSection" style="display: none; margin-bottom: 1.5rem;">
+                <h3 class="text-normal--fett" style="margin-bottom: 0.5rem;">Zubuchungen (Kosten)</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Bezeichnung</th>
+                            <th>Gebiet</th>
+                            <th class="text-right">Betrag</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailZubuchungen"></tbody>
+                </table>
+            </div>
+
+            <!-- Abzüge bereits bezahlt (bei EA) -->
+            <div class="detail-section" id="detailBereitsAbgerechnetSection" style="display: none; margin-bottom: 1.5rem;">
+                <h3 class="text-normal--fett" style="margin-bottom: 0.5rem;">Abzüge bereits bezahlt</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Rechnungsnr.</th>
+                            <th>Zeitraum</th>
+                            <th class="text-right">Betrag</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailBereitsAbgerechnet"></tbody>
+                </table>
+            </div>
+
             <!-- Summen -->
-            <div class="detail-summen" style="display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; max-width: 300px; margin-left: auto; margin-bottom: 1.5rem;">
+            <div class="detail-summen" style="display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; max-width: 350px; margin-left: auto; margin-bottom: 1.5rem;">
                 <span class="text-normal">Zwischensumme:</span>
                 <span class="text-normal text-right" id="detailZwischensumme">0,00 €</span>
                 <span class="text-normal" id="detailStornopufferLabel" style="display: none;">Stornopuffer:</span>
-                <span class="text-normal text-right" id="detailStornopuffer" style="display: none;">0,00 €</span>
+                <span class="text-normal text-right text-error" id="detailStornopuffer" style="display: none;">0,00 €</span>
+                <span class="text-normal" id="detailBereitsAbgerechnetLabel" style="display: none;">Abzüge (bereits bezahlt):</span>
+                <span class="text-normal text-right text-error" id="detailBereitsAbgerechnetSumme" style="display: none;">0,00 €</span>
                 <span class="text-normal">Netto:</span>
                 <span class="text-normal text-right" id="detailNetto">0,00 €</span>
                 <span class="text-normal">USt (19%):</span>
@@ -2825,6 +2857,8 @@
                 const stornopuffer = r.calculation_data?.stornopuffer || 0;
 
                 document.getElementById('detailZwischensumme').textContent = formatEuro(zwischensumme);
+
+                // Stornopuffer
                 if (stornopuffer > 0) {
                     document.getElementById('detailStornopufferLabel').style.display = '';
                     document.getElementById('detailStornopuffer').style.display = '';
@@ -2833,6 +2867,43 @@
                     document.getElementById('detailStornopufferLabel').style.display = 'none';
                     document.getElementById('detailStornopuffer').style.display = 'none';
                 }
+
+                // Zubuchungen (Kosten aus Ledger)
+                const zubuchungen = r.calculation_data?.zubuchungen || [];
+                if (zubuchungen.length > 0) {
+                    document.getElementById('detailZubuchungenSection').style.display = '';
+                    document.getElementById('detailZubuchungen').innerHTML = zubuchungen.map(z => `
+                        <tr>
+                            <td>${z.bezeichnung || z.typ || '-'}</td>
+                            <td>${z.gebietName || '-'}</td>
+                            <td class="text-right">${formatEuro(z.betrag)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.getElementById('detailZubuchungenSection').style.display = 'none';
+                }
+
+                // Abzüge bereits bezahlt (bei EA)
+                const bereitsAbgerechnet = r.calculation_data?.bereitsAbgerechnet || [];
+                const bereitsAbgerechnetSumme = parseFloat(r.calculation_data?.bereitsAbgerechnetSumme) || 0;
+                if (bereitsAbgerechnet.length > 0 && bereitsAbgerechnetSumme > 0) {
+                    document.getElementById('detailBereitsAbgerechnetSection').style.display = '';
+                    document.getElementById('detailBereitsAbgerechnet').innerHTML = bereitsAbgerechnet.map(za => `
+                        <tr>
+                            <td>${za.invoice_number || '-'}</td>
+                            <td>${formatDate(za.period_start)} - ${formatDate(za.period_end)}</td>
+                            <td class="text-right text-error">-${formatEuro(za.netto_auszahlung)}</td>
+                        </tr>
+                    `).join('');
+                    document.getElementById('detailBereitsAbgerechnetLabel').style.display = '';
+                    document.getElementById('detailBereitsAbgerechnetSumme').style.display = '';
+                    document.getElementById('detailBereitsAbgerechnetSumme').textContent = '-' + formatEuro(bereitsAbgerechnetSumme);
+                } else {
+                    document.getElementById('detailBereitsAbgerechnetSection').style.display = 'none';
+                    document.getElementById('detailBereitsAbgerechnetLabel').style.display = 'none';
+                    document.getElementById('detailBereitsAbgerechnetSumme').style.display = 'none';
+                }
+
                 document.getElementById('detailNetto').textContent = formatEuro(netto);
                 document.getElementById('detailUst').textContent = formatEuro(ust);
                 document.getElementById('detailBrutto').textContent = formatEuro(brutto);
