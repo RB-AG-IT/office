@@ -476,69 +476,24 @@
                 </div>
             </div>
 
-            <!-- Positionen -->
+            <!-- Positionen & Summen (wie Vorschau) -->
             <div class="detail-section" style="margin-bottom: 1.5rem;">
-                <h3 class="text-normal--fett" style="margin-bottom: 0.5rem;">Positionen</h3>
-                <table class="table">
+                <table class="table table--compact">
                     <thead>
                         <tr>
-                            <th>Beschreibung</th>
+                            <th class="text-left">Pos</th>
+                            <th class="text-left">Beschreibung</th>
                             <th class="text-right">MG</th>
-                            <th class="text-right">JE</th>
-                            <th class="text-right">Satz</th>
-                            <th class="text-right">Betrag</th>
+                            <th class="text-right">JE (€)</th>
+                            <th class="text-center">%</th>
+                            <th class="text-right">Betrag (€)</th>
                         </tr>
                     </thead>
-                    <tbody id="detailPositionen">
-                        <tr><td colspan="5" class="text-klein">Keine Positionen</td></tr>
+                    <tbody id="detailTableBody">
+                        <tr><td colspan="6" class="text-klein">Keine Positionen</td></tr>
                     </tbody>
+                    <tfoot id="detailTableFoot"></tfoot>
                 </table>
-            </div>
-
-            <!-- Zubuchungen (Kosten aus Ledger) -->
-            <div class="detail-section" id="detailZubuchungenSection" style="display: none; margin-bottom: 1.5rem;">
-                <h3 class="text-normal--fett" style="margin-bottom: 0.5rem;">Zubuchungen (Kosten)</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Bezeichnung</th>
-                            <th>Gebiet</th>
-                            <th class="text-right">Betrag</th>
-                        </tr>
-                    </thead>
-                    <tbody id="detailZubuchungen"></tbody>
-                </table>
-            </div>
-
-            <!-- Abzüge bereits bezahlt (bei EA) -->
-            <div class="detail-section" id="detailBereitsAbgerechnetSection" style="display: none; margin-bottom: 1.5rem;">
-                <h3 class="text-normal--fett" style="margin-bottom: 0.5rem;">Abzüge bereits bezahlt</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Rechnungsnr.</th>
-                            <th>Zeitraum</th>
-                            <th class="text-right">Betrag</th>
-                        </tr>
-                    </thead>
-                    <tbody id="detailBereitsAbgerechnet"></tbody>
-                </table>
-            </div>
-
-            <!-- Summen -->
-            <div class="detail-summen" style="display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; max-width: 350px; margin-left: auto; margin-bottom: 1.5rem;">
-                <span class="text-normal">Zwischensumme:</span>
-                <span class="text-normal text-right" id="detailZwischensumme">0,00 €</span>
-                <span class="text-normal" id="detailStornopufferLabel" style="display: none;">Stornopuffer:</span>
-                <span class="text-normal text-right text-error" id="detailStornopuffer" style="display: none;">0,00 €</span>
-                <span class="text-normal" id="detailBereitsAbgerechnetLabel" style="display: none;">Abzüge (bereits bezahlt):</span>
-                <span class="text-normal text-right text-error" id="detailBereitsAbgerechnetSumme" style="display: none;">0,00 €</span>
-                <span class="text-normal">Netto:</span>
-                <span class="text-normal text-right" id="detailNetto">0,00 €</span>
-                <span class="text-normal">USt (19%):</span>
-                <span class="text-normal text-right" id="detailUst">0,00 €</span>
-                <span class="text-normal--fett">Brutto:</span>
-                <span class="text-normal--fett text-right" id="detailBrutto">0,00 €</span>
             </div>
 
             <!-- Zahlungen -->
@@ -2846,69 +2801,11 @@
                 document.getElementById('detailVertrag').textContent = r.vertragsnummer || '-';
                 document.getElementById('detailErstellt').textContent = formatDate(r.created_at);
 
-                // Positionen aus calculation_data
-                renderDetailPositionen(r.calculation_data);
-
-                // Summen
-                const netto = parseFloat(r.netto_auszahlung) || 0;
-                const ust = parseFloat(r.vat_amount) || 0;
-                const brutto = parseFloat(r.total_payout) || 0;
-                const zwischensumme = r.calculation_data?.zwischensumme || netto;
-                const stornopuffer = r.calculation_data?.stornopuffer || 0;
-
-                document.getElementById('detailZwischensumme').textContent = formatEuro(zwischensumme);
-
-                // Stornopuffer
-                if (stornopuffer > 0) {
-                    document.getElementById('detailStornopufferLabel').style.display = '';
-                    document.getElementById('detailStornopuffer').style.display = '';
-                    document.getElementById('detailStornopuffer').textContent = '-' + formatEuro(stornopuffer);
-                } else {
-                    document.getElementById('detailStornopufferLabel').style.display = 'none';
-                    document.getElementById('detailStornopuffer').style.display = 'none';
-                }
-
-                // Zubuchungen (Kosten aus Ledger)
-                const zubuchungen = r.calculation_data?.zubuchungen || [];
-                if (zubuchungen.length > 0) {
-                    document.getElementById('detailZubuchungenSection').style.display = '';
-                    document.getElementById('detailZubuchungen').innerHTML = zubuchungen.map(z => `
-                        <tr>
-                            <td>${z.bezeichnung || z.typ || '-'}</td>
-                            <td>${z.gebietName || '-'}</td>
-                            <td class="text-right">${formatEuro(z.betrag)}</td>
-                        </tr>
-                    `).join('');
-                } else {
-                    document.getElementById('detailZubuchungenSection').style.display = 'none';
-                }
-
-                // Abzüge bereits bezahlt (bei EA)
-                const bereitsAbgerechnet = r.calculation_data?.bereitsAbgerechnet || [];
-                const bereitsAbgerechnetSumme = parseFloat(r.calculation_data?.bereitsAbgerechnetSumme) || 0;
-                if (bereitsAbgerechnet.length > 0 && bereitsAbgerechnetSumme > 0) {
-                    document.getElementById('detailBereitsAbgerechnetSection').style.display = '';
-                    document.getElementById('detailBereitsAbgerechnet').innerHTML = bereitsAbgerechnet.map(za => `
-                        <tr>
-                            <td>${za.invoice_number || '-'}</td>
-                            <td>${formatDate(za.period_start)} - ${formatDate(za.period_end)}</td>
-                            <td class="text-right text-error">-${formatEuro(za.netto_auszahlung)}</td>
-                        </tr>
-                    `).join('');
-                    document.getElementById('detailBereitsAbgerechnetLabel').style.display = '';
-                    document.getElementById('detailBereitsAbgerechnetSumme').style.display = '';
-                    document.getElementById('detailBereitsAbgerechnetSumme').textContent = '-' + formatEuro(bereitsAbgerechnetSumme);
-                } else {
-                    document.getElementById('detailBereitsAbgerechnetSection').style.display = 'none';
-                    document.getElementById('detailBereitsAbgerechnetLabel').style.display = 'none';
-                    document.getElementById('detailBereitsAbgerechnetSumme').style.display = 'none';
-                }
-
-                document.getElementById('detailNetto').textContent = formatEuro(netto);
-                document.getElementById('detailUst').textContent = formatEuro(ust);
-                document.getElementById('detailBrutto').textContent = formatEuro(brutto);
+                // Tabelle mit Positionen, Zubuchungen und Summen befüllen
+                renderDetailTable(r);
 
                 // Zahlungen laden
+                const brutto = parseFloat(r.total_payout) || 0;
                 await loadRechnungZahlungen(rechnungId, brutto);
 
             } catch (err) {
@@ -2929,50 +2826,128 @@
             return (parseFloat(val) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
         }
 
-        function renderDetailPositionen(calcData) {
-            const tbody = document.getElementById('detailPositionen');
+        function renderDetailTable(r) {
+            const tbody = document.getElementById('detailTableBody');
+            const tfoot = document.getElementById('detailTableFoot');
+            const calcData = r.calculation_data;
+
             if (!calcData) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-klein">Keine Positionsdaten</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-klein">Keine Positionsdaten</td></tr>';
+                tfoot.innerHTML = '';
                 return;
             }
 
-            let html = '';
+            let rows = [];
+            let posNr = 1;
 
-            // Fall 1: Zusammen (positionen Array)
+            // Positionen
             if (calcData.positionen && Array.isArray(calcData.positionen)) {
                 calcData.positionen.forEach(p => {
-                    html += `<tr>
-                        <td>${p.gebietName || '-'}</td>
+                    const kondition = p.istSondierung ? 'Sonderkonditionen' : 'Regularkonditionen';
+                    rows.push(`<tr>
+                        <td>P${posNr++}</td>
+                        <td>${p.gebietName || '-'} (${kondition})</td>
                         <td class="text-right">${p.mg || 0}</td>
-                        <td class="text-right">${formatEuro(p.je)}</td>
-                        <td class="text-right">${p.satz || 0}%</td>
-                        <td class="text-right">${formatEuro(p.betrag)}</td>
-                    </tr>`;
+                        <td class="text-right">${(p.je || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                        <td class="text-center">${p.satz || 0}%</td>
+                        <td class="text-right">${(p.betrag || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                    </tr>`);
                 });
             }
             // Fall 2: Getrennt (einzelnes Gebiet)
             else if (calcData.gebiet) {
                 if (calcData.mgSond > 0) {
-                    html += `<tr>
-                        <td>${calcData.gebiet} (Sondierung)</td>
+                    rows.push(`<tr>
+                        <td>P${posNr++}</td>
+                        <td>${calcData.gebiet} (Sonderkonditionen)</td>
                         <td class="text-right">${calcData.mgSond}</td>
                         <td class="text-right">-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">${formatEuro(calcData.sondBetrag)}</td>
-                    </tr>`;
+                        <td class="text-center">-</td>
+                        <td class="text-right">${(calcData.sondBetrag || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                    </tr>`);
                 }
                 if (calcData.mgReg > 0) {
-                    html += `<tr>
-                        <td>${calcData.gebiet} (Regular)</td>
+                    rows.push(`<tr>
+                        <td>P${posNr++}</td>
+                        <td>${calcData.gebiet} (Regularkonditionen)</td>
                         <td class="text-right">${calcData.mgReg}</td>
                         <td class="text-right">-</td>
-                        <td class="text-right">-</td>
-                        <td class="text-right">${formatEuro(calcData.regBetrag)}</td>
-                    </tr>`;
+                        <td class="text-center">-</td>
+                        <td class="text-right">${(calcData.regBetrag || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                    </tr>`);
                 }
             }
 
-            tbody.innerHTML = html || '<tr><td colspan="5" class="text-klein">Keine Positionen</td></tr>';
+            // Zubuchungen (Kosten aus Ledger)
+            const zubuchungen = calcData.zubuchungen || [];
+            if (zubuchungen.length > 0) {
+                rows.push(`<tr class="table-section-header"><td colspan="6" class="text-normal--fett">Zubuchungen</td></tr>`);
+                zubuchungen.forEach(z => {
+                    rows.push(`<tr>
+                        <td>Z${posNr++}</td>
+                        <td>${z.bezeichnung || z.typ || '-'} (${z.gebietName || '-'})</td>
+                        <td class="text-right">-</td>
+                        <td class="text-right">-</td>
+                        <td class="text-center">-</td>
+                        <td class="text-right">${(z.betrag || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
+                    </tr>`);
+                });
+            }
+
+            tbody.innerHTML = rows.length > 0 ? rows.join('') : '<tr><td colspan="6" class="text-klein">Keine Positionen</td></tr>';
+
+            // Footer mit Summen
+            const netto = parseFloat(r.netto_auszahlung) || 0;
+            const ust = parseFloat(r.vat_amount) || 0;
+            const brutto = parseFloat(r.total_payout) || 0;
+            const zwischensumme = calcData.zwischensumme || netto;
+            const stornopuffer = calcData.stornopuffer || 0;
+            const stornopufferProzent = calcData.stornopufferProzent || 0;
+            const bereitsAbgerechnet = calcData.bereitsAbgerechnet || [];
+            const bereitsAbgerechnetSumme = parseFloat(calcData.bereitsAbgerechnetSumme) || 0;
+
+            let footerRows = [];
+
+            footerRows.push(`<tr class="table-sum-row">
+                <td colspan="5" class="text-right text-normal--fett">Zwischensumme</td>
+                <td class="text-right text-normal--fett">${zwischensumme.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+            </tr>`);
+
+            if (stornopuffer > 0) {
+                footerRows.push(`<tr>
+                    <td colspan="5" class="text-right">Stornopuffer (${stornopufferProzent}%)</td>
+                    <td class="text-right text-error">-${stornopuffer.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                </tr>`);
+            }
+
+            // Abzüge bereits bezahlt (bei EA)
+            if (bereitsAbgerechnet.length > 0 && bereitsAbgerechnetSumme > 0) {
+                footerRows.push(`<tr class="table-section-header">
+                    <td colspan="6" class="text-normal--fett" style="padding-top: 12px;">Abzüge bereits bezahlt</td>
+                </tr>`);
+                bereitsAbgerechnet.forEach(za => {
+                    const periode = `${formatDate(za.period_start)} - ${formatDate(za.period_end)}`;
+                    footerRows.push(`<tr>
+                        <td colspan="5" class="text-right">${za.invoice_number || '-'} (${periode})</td>
+                        <td class="text-right text-error">-${(za.netto_auszahlung || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+                    </tr>`);
+                });
+            }
+
+            footerRows.push(`<tr>
+                <td colspan="5" class="text-right text-normal--fett">Netto</td>
+                <td class="text-right text-normal--fett">${netto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+            </tr>`);
+            footerRows.push(`<tr>
+                <td colspan="5" class="text-right">USt (19%)</td>
+                <td class="text-right">${ust.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+            </tr>`);
+            footerRows.push(`<tr class="table-total-row">
+                <td colspan="5" class="text-right text-normal--fett">Brutto</td>
+                <td class="text-right text-normal--fett">${brutto.toLocaleString('de-DE', {minimumFractionDigits: 2})} €</td>
+            </tr>`);
+
+            tfoot.innerHTML = footerRows.join('');
         }
 
         async function loadRechnungZahlungen(rechnungId, brutto) {
