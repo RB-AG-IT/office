@@ -1621,16 +1621,19 @@
 
                         // Nach dem Laden des iFrames die Filter-Werte senden
                         iframe.onload = function() {
-                            if (parsedFilters && iframe.contentWindow) {
-                                // Nav-Filter an iFrame senden
-                                if (parsedFilters.navValue) {
-                                    iframe.contentWindow.postMessage({ type: 'navFilter', value: parsedFilters.navValue }, '*');
+                            // Kurze Verzögerung, damit die Seite vollständig initialisiert ist
+                            setTimeout(() => {
+                                if (parsedFilters && iframe.contentWindow) {
+                                    // Nav-Filter an iFrame senden
+                                    if (parsedFilters.navValue) {
+                                        iframe.contentWindow.postMessage({ type: 'navFilter', value: parsedFilters.navValue }, '*');
+                                    }
+                                    // Period-Filter an iFrame senden
+                                    if (parsedFilters.periodValue) {
+                                        iframe.contentWindow.postMessage({ type: 'periodFilter', value: parsedFilters.periodValue }, '*');
+                                    }
                                 }
-                                // Period-Filter an iFrame senden
-                                if (parsedFilters.periodValue) {
-                                    iframe.contentWindow.postMessage({ type: 'periodFilter', value: parsedFilters.periodValue }, '*');
-                                }
-                            }
+                            }, 100);
                         };
 
                         iframe.src = savedUrl;
