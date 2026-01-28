@@ -1663,10 +1663,13 @@
         let vertraegeData = {};
 
         // Kunden aus Supabase laden (inkl. Provision-Felder für Fallback)
+        // Cache für kampagnenspezifische Kunden-Config
+        let cachedCustomerConfig = {};
+
         async function loadKundenFromDB() {
             try {
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/customers?select=id,name,full_name,kd_id,empfaenger_typ,rechnungsart,provision_sondierung,provision_regular,stornopuffer,kosten,sonderposten&order=name`,
+                    `${SUPABASE_URL}/rest/v1/customers?select=id,name,full_name,kd_id,empfaenger_typ,rechnungsart&order=name`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 if (!response.ok) throw new Error('Fehler beim Laden der Kunden');
@@ -1676,17 +1679,32 @@
                     name: k.full_name || k.name,
                     kundenId: k.kd_id || '-',
                     empfaengerTyp: k.empfaenger_typ || '',
-                    rechnungsart: k.rechnungsart || 'zusammen',
-                    // Provision-Felder für Fallback
-                    provisionSondierung: k.provision_sondierung,
-                    provisionRegular: k.provision_regular,
-                    stornopuffer: k.stornopuffer,
-                    kosten: k.kosten,
-                    sonderposten: k.sonderposten
+                    rechnungsart: k.rechnungsart || 'zusammen'
                 }));
             } catch (err) {
                 console.error('Fehler beim Laden der Kunden:', err);
                 kundenData = [];
+            }
+        }
+
+        // Kampagnenspezifische Kunden-Config laden
+        async function loadCustomerConfig(customerId, campaignId) {
+            const cacheKey = `${customerId}_${campaignId}`;
+            if (cachedCustomerConfig[cacheKey]) return cachedCustomerConfig[cacheKey];
+
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/campaign_customer_config?customer_id=eq.${customerId}&campaign_id=eq.${campaignId}&select=*`,
+                    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+                );
+                if (!response.ok) return null;
+                const configs = await response.json();
+                const config = configs[0] || null;
+                cachedCustomerConfig[cacheKey] = config;
+                return config;
+            } catch (err) {
+                console.error('Fehler beim Laden der Kunden-Config:', err);
+                return null;
             }
         }
 
@@ -1894,9 +1912,9 @@
                     return;
                 }
 
-                // Kunden-Daten für Fallback holen
+                // Kampagnenspezifische Kunden-Config für Fallback laden
                 const kundeId = document.getElementById('abrKunde').value;
-                const kunde = kundenData.find(k => k.id === kundeId);
+                const kundeConfig = await loadCustomerConfig(kundeId, kampagneId);
 
                 // Default Provision-Werte
                 const defaultSondierung = {j1:80,j2:50,j3:30,j4:0,j5:0,limit:100,limitType:"mg"};
@@ -1911,15 +1929,15 @@
                     let effectiveKosten = g.kosten;
 
                     if (!g.individuelle_provision) {
-                        // Kunden-Provision als Fallback
-                        effectiveProvSond = kunde?.provisionSondierung || effectiveProvSond;
-                        effectiveProvReg = kunde?.provisionRegular || effectiveProvReg;
-                        effectiveStornopuffer = kunde?.stornopuffer ?? effectiveStornopuffer;
+                        // Kampagnenspezifische Kunden-Provision als Fallback
+                        effectiveProvSond = kundeConfig?.provision_sondierung || effectiveProvSond;
+                        effectiveProvReg = kundeConfig?.provision_regular || effectiveProvReg;
+                        effectiveStornopuffer = kundeConfig?.stornopuffer ?? effectiveStornopuffer;
                     }
 
                     if (!g.individuelle_kosten) {
-                        // Kunden-Kosten als Fallback
-                        effectiveKosten = kunde?.kosten || effectiveKosten;
+                        // Kampagnenspezifische Kunden-Kosten als Fallback
+                        effectiveKosten = kundeConfig?.kosten || effectiveKosten;
                     }
 
                     return `

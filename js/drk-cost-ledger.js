@@ -37,16 +37,17 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
     let effectiveSonderposten = area.sonderposten;
 
     if (!area.individuelle_kosten) {
-        // Kunden-Kosten laden
-        const { data: kunde, error: kundeError } = await supabase
-            .from('customers')
+        // Kampagnenspezifische Kunden-Kosten laden
+        const { data: kundeConfig, error: kundeError } = await supabase
+            .from('campaign_customer_config')
             .select('kosten, sonderposten')
-            .eq('id', customerId)
-            .single();
+            .eq('customer_id', customerId)
+            .eq('campaign_id', campaignId)
+            .maybeSingle();
 
-        if (!kundeError && kunde) {
-            effectiveKosten = kunde.kosten;
-            effectiveSonderposten = kunde.sonderposten;
+        if (!kundeError && kundeConfig) {
+            effectiveKosten = kundeConfig.kosten;
+            effectiveSonderposten = kundeConfig.sonderposten;
         }
     }
 

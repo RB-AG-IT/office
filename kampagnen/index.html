@@ -4649,26 +4649,36 @@ function cancelWgEdit() {
 // KUNDE KONFIGURATION
 // =====================================================================
 
-// Kunde Konfiguration öffnen
+// Kunde Konfiguration öffnen (kampagnenspezifisch)
 async function openKundeConfig(kundeId) {
-    if (!kundeId || kundeId === 'unbekannt') return;
+    if (!kundeId || kundeId === 'unbekannt' || !viewingCampaignId) return;
 
-    // Kunden-Daten aus Supabase laden
-    const { data: kunde, error } = await supabase
+    // Kunden-Basisdaten laden (für Name)
+    const { data: kunde, error: kundeError } = await supabase
         .from('customers')
-        .select('*')
+        .select('id, name')
         .eq('id', kundeId)
         .single();
 
-    if (error || !kunde) {
+    if (kundeError || !kunde) {
         showToast('Kunde nicht gefunden', 'error');
         return;
     }
 
-    kundeConfigData = kunde;
+    // Kampagnenspezifische Konfiguration laden
+    const { data: config, error: configError } = await supabase
+        .from('campaign_customer_config')
+        .select('*')
+        .eq('customer_id', kundeId)
+        .eq('campaign_id', viewingCampaignId)
+        .maybeSingle();
+
+    // Config-Daten (oder leeres Objekt wenn nicht vorhanden)
+    const configData = config || {};
+    kundeConfigData = { ...kunde, ...configData };
     activeKundeConfig = kundeId;
     activeWgConfig = null; // WG deselektieren
-    kundeSonderposten = [...(kunde.sonderposten || [])];
+    kundeSonderposten = [...(configData.sonderposten || [])];
 
     // WG Panel ausblenden, Platzhalter ausblenden, Kunde Panel anzeigen
     document.getElementById('wgConfigPlaceholder').style.display = 'none';
@@ -4683,8 +4693,8 @@ async function openKundeConfig(kundeId) {
     // WG-Dropdowns für Verteilung befüllen
     populateKundeWgDropdowns();
 
-    // Sondierung
-    const sond = kunde.provision_sondierung || {};
+    // Sondierung (aus kampagnenspezifischer Config)
+    const sond = configData.provision_sondierung || {};
     const sondAktiv = sond.aktiv !== false;
     document.getElementById('kundeSondierung').checked = sondAktiv;
     document.getElementById('kundeSondierungSection').style.display = sondAktiv ? 'block' : 'none';
@@ -4697,7 +4707,7 @@ async function openKundeConfig(kundeId) {
     document.getElementById('kundeSondLimitType').value = sond.limitType || 'mg';
 
     // Regular
-    const reg = kunde.provision_regular || {};
+    const reg = configData.provision_regular || {};
     document.getElementById('kundeRegJ1').value = reg.j1 ?? 60;
     document.getElementById('kundeRegJ2').value = reg.j2 ?? 40;
     document.getElementById('kundeRegJ3').value = reg.j3 ?? 20;
@@ -4705,7 +4715,7 @@ async function openKundeConfig(kundeId) {
     document.getElementById('kundeRegJ5').value = reg.j5 ?? 0;
 
     // Qualitätsbonus
-    const qb = kunde.qualitaetsbonus || {};
+    const qb = configData.qualitaetsbonus || {};
     const qbAktiv = typeof qb === 'object' ? qb.aktiv !== false : qb;
     const qbRegeln = typeof qb === 'object' && qb.regeln ? qb.regeln : [
         { storno: 15, pp: 3 }, { storno: 12, pp: 3 }, { storno: 10, pp: 3 }, { storno: 8, pp: 1 }
@@ -4720,19 +4730,19 @@ async function openKundeConfig(kundeId) {
     document.getElementById('kundeQualiPP3').value = qbRegeln[2]?.pp ?? 3;
     document.getElementById('kundeQualiStorno4').value = qbRegeln[3]?.storno ?? 8;
     document.getElementById('kundeQualiPP4').value = qbRegeln[3]?.pp ?? 1;
-    document.getElementById('kundeQualitaetsbonusDatum').value = kunde.qualitaetsbonus_datum || '';
+    document.getElementById('kundeQualitaetsbonusDatum').value = configData.qualitaetsbonus_datum || '';
 
     // Teilvergütung
-    document.getElementById('kundeTeilverguetung').checked = kunde.teilverguetung || false;
-    document.getElementById('kundeTeilvProzent').value = kunde.teilv_prozent ?? 50;
-    document.getElementById('kundeTeilvSection').style.display = kunde.teilverguetung ? 'flex' : 'none';
+    document.getElementById('kundeTeilverguetung').checked = configData.teilverguetung || false;
+    document.getElementById('kundeTeilvProzent').value = configData.teilv_prozent ?? 50;
+    document.getElementById('kundeTeilvSection').style.display = configData.teilverguetung ? 'flex' : 'none';
 
     // Abrechnung
-    document.getElementById('kundeStornopuffer').value = kunde.stornopuffer ?? 15;
-    document.getElementById('kundeEndabrWochen').value = kunde.endabr_wochen ?? 12;
+    document.getElementById('kundeStornopuffer').value = configData.stornopuffer ?? 15;
+    document.getElementById('kundeEndabrWochen').value = configData.endabr_wochen ?? 12;
 
     // Kostenübernahmen
-    const kosten = kunde.kosten || {};
+    const kosten = configData.kosten || {};
     const kostenarten = ['kfz', 'unterkunft', 'verpflegung', 'kleidung', 'ausweise'];
 
     kostenarten.forEach(art => {
@@ -4846,11 +4856,13 @@ async function saveKundeConfig() {
         }
     });
 
-    // In Supabase speichern
+    // In campaign_customer_config speichern (upsert)
     try {
         const { error } = await supabase
-            .from('customers')
-            .update({
+            .from('campaign_customer_config')
+            .upsert({
+                customer_id: activeKundeConfig,
+                campaign_id: viewingCampaignId,
                 provision_sondierung: sondierung,
                 provision_regular: regular,
                 qualitaetsbonus: qualitaetsbonus,
@@ -4861,8 +4873,7 @@ async function saveKundeConfig() {
                 endabr_wochen: parseInt(document.getElementById('kundeEndabrWochen').value) || 12,
                 kosten: kosten,
                 sonderposten: kundeSonderposten
-            })
-            .eq('id', activeKundeConfig);
+            }, { onConflict: 'customer_id,campaign_id' });
 
         if (error) throw error;
 
