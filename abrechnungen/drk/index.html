@@ -1439,6 +1439,21 @@
             closeAllDropdowns();
             if (!confirm('Entwurf wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) return;
             try {
+                // 1. Alle Ledger-Einträge für diese Rechnung LÖSCHEN (nicht nur NULL setzen)
+                // Dadurch wird der Ledger beim nächsten Trigger sauber neu aufgebaut
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/drk_cost_ledger?invoice_id=eq.${id}`,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Prefer': 'return=minimal'
+                        }
+                    }
+                );
+
+                // 2. Rechnung löschen
                 const res = await fetch(
                     `${SUPABASE_URL}/rest/v1/invoices?id=eq.${id}&status=eq.entwurf`,
                     {
