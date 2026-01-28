@@ -441,10 +441,12 @@
             return { start, end };
         }
 
-        // Initial: Zeitraum setzen (Gesamt für Kunde/Gebiet, Jahr für Werber)
+        // Initial: Zeitraum setzen (aus URL-Parameter oder Default)
         (function() {
+            const periodParam = urlParams.get('period');
             const isKundeOrGebiet = personType === 'kunde' || personType === 'gebiet';
-            const initialPeriod = isKundeOrGebiet ? 'all' : 'year';
+            // URL-Parameter hat Priorität, sonst Gesamt für Kunde/Gebiet, Jahr für Werber
+            const initialPeriod = periodParam || (isKundeOrGebiet ? 'all' : 'year');
             currentPeriod = initialPeriod;
             const initial = calculatePeriodDates(initialPeriod);
             periodStartDate = initial.start;
