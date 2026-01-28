@@ -884,6 +884,11 @@
                 handleSearch(e.data.query);
             }
 
+            // Search result selected from shell
+            if (e.data && e.data.type === 'searchSelect') {
+                handleSearchSelect(e.data.id, e.data.itemType);
+            }
+
             // Toolbar action from shell
             if (e.data && e.data.type === 'toolbarAction') {
                 if (e.data.action === 'openImportModal') {
@@ -1506,56 +1511,88 @@
         function handleSearch(query) {
             const search = query.toLowerCase().trim();
 
-            if (currentCategory === 'werber') {
-                // Filter Werber table
-                const rows = document.querySelectorAll('#werberTableBody tr:not(.totals-row)');
-                rows.forEach(row => {
-                    const name = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
-                    row.style.display = name.includes(search) || search === '' ? '' : 'none';
-                });
-            } else if (currentCategory === 'kunden') {
-                // Filter Kunden/Gebiete table (Parent-Child Struktur)
-                const rows = document.querySelectorAll('#kundenGebieteTableBody tr:not(.totals-row)');
-                let lastParentVisible = false;
-                rows.forEach(row => {
-                    if (row.classList.contains('child-row')) {
-                        // Child-Row: zeigen wenn Parent sichtbar oder selbst matcht
-                        const childName = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
-                        const matchesSelf = childName.includes(search);
-                        if (search === '' || lastParentVisible || matchesSelf) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    } else {
-                        // Parent-Row (Kunde)
-                        const name = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
-                        lastParentVisible = search === '' || name.includes(search);
-                        row.style.display = lastParentVisible ? '' : 'none';
-                    }
-                });
-            } else if (currentCategory === 'kampagnen') {
-                // Filter Kampagnen table (Parent-Child Struktur)
-                const rows = document.querySelectorAll('#kampagnenTableBody tr:not(.totals-row)');
-                let lastParentVisible = false;
-                rows.forEach(row => {
-                    if (row.classList.contains('child-row')) {
-                        // Child-Row (Gebiet): zeigen wenn Parent sichtbar oder selbst matcht
-                        const childName = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
-                        const matchesSelf = childName.includes(search);
-                        if (search === '' || lastParentVisible || matchesSelf) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    } else {
-                        // Parent-Row (Kampagne)
-                        const name = row.querySelector('.user-badge__name')?.textContent.toLowerCase() || '';
-                        lastParentVisible = search === '' || name.includes(search);
-                        row.style.display = lastParentVisible ? '' : 'none';
-                    }
-                });
+            // Wenn leer oder zu kurz: keine Ergebnisse senden
+            if (search.length < 2) {
+                sendSearchResults([], query);
+                return;
             }
+
+            // Alle Kategorien durchsuchen
+            const results = [];
+
+            // Werber durchsuchen
+            werberData.forEach(w => {
+                if (w.name && w.name.toLowerCase().includes(search)) {
+                    results.push({
+                        id: w.id,
+                        name: w.name,
+                        type: 'werber',
+                        subtitle: 'Werber'
+                    });
+                }
+            });
+
+            // Kunden durchsuchen
+            kundenData.forEach(k => {
+                if (k.name && k.name.toLowerCase().includes(search)) {
+                    results.push({
+                        id: k.id,
+                        name: k.name,
+                        type: 'kunde',
+                        subtitle: 'Kunde'
+                    });
+                }
+            });
+
+            // Werbegebiete durchsuchen
+            gebieteData.forEach(g => {
+                if (g.name && g.name.toLowerCase().includes(search)) {
+                    results.push({
+                        id: g.id,
+                        name: g.name,
+                        type: 'gebiet',
+                        subtitle: 'Werbegebiet'
+                    });
+                }
+            });
+
+            // Kampagnen durchsuchen
+            kampagnenData.forEach(k => {
+                if (k.name && k.name.toLowerCase().includes(search)) {
+                    results.push({
+                        id: k.id,
+                        name: k.name,
+                        type: 'kampagne',
+                        subtitle: 'Kampagne'
+                    });
+                }
+            });
+
+            // Ergebnisse an Shell senden
+            sendSearchResults(results, query);
+        }
+
+        // Handler wenn Suchergebnis ausgewählt wird
+        function handleSearchSelect(id, type) {
+            switch (type) {
+                case 'werber':
+                    const werber = werberData.find(w => w.id === id);
+                    if (werber) openWerberDashboard(id, werber.name);
+                    break;
+                case 'kunde':
+                    const kunde = kundenData.find(k => k.id === id);
+                    if (kunde) openKundeDashboard(id, kunde.name);
+                    break;
+                case 'gebiet':
+                    const gebiet = gebieteData.find(g => g.id === id);
+                    if (gebiet) openGebietDashboard(id, gebiet.name);
+                    break;
+                case 'kampagne':
+                    const kampagne = kampagnenData.find(k => k.id === id);
+                    if (kampagne) openKampagneDashboard(id, kampagne.name);
+                    break;
+            }
+        }
 
         }
 

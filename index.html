@@ -1528,20 +1528,23 @@
             }
 
             shellSearchDropdownHeader.textContent = data.headerText || 'Ergebnisse';
-            shellSearchResults.innerHTML = data.results.map(item =>
-                `<div class="shell-search-result-item" onclick="handleShellSearchSelect('${item.id}', '${item.name.replace(/'/g, "\\'")}')">${item.name}</div>`
-            ).join('');
+            shellSearchResults.innerHTML = data.results.map(item => {
+                const subtitle = item.subtitle ? `<span class="shell-search-result-subtitle">${item.subtitle}</span>` : '';
+                return `<div class="shell-search-result-item" onclick="handleShellSearchSelect('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${item.type || ''}')">
+                    <span class="shell-search-result-name">${item.name}</span>${subtitle}
+                </div>`;
+            }).join('');
             shellSearchDropdown.classList.add('active');
         }
 
-        function handleShellSearchSelect(id, name) {
+        function handleShellSearchSelect(id, name, itemType) {
             closeShellSearchDropdown();
             shellSearchInput.value = '';
 
             // Tell iframe to navigate to selected item
             const iframe = getActiveIframe();
             if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({ type: 'searchSelect', id: id, name: name }, '*');
+                iframe.contentWindow.postMessage({ type: 'searchSelect', id: id, name: name, itemType: itemType }, '*');
             }
         }
 
