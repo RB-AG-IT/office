@@ -3431,6 +3431,23 @@
                 }
             }
 
+            // Zubuchungen (Kosten aus Ledger) als A-Positionen
+            const zubuchungen = calcData.zubuchungen || [];
+            if (zubuchungen.length > 0) {
+                zubuchungen.forEach(z => {
+                    aPositionen.push(`
+                        <tr>
+                            <td class="pos-nr">A${posNr}</td>
+                            <td class="pos-beschreibung">${z.bezeichnung || z.typ || 'Zubuchung'}<br><span class="pos-sub">${z.gebietName || ''}</span></td>
+                            <td class="pos-right">-</td>
+                            <td class="pos-right">-</td>
+                            <td class="pos-right">-</td>
+                            <td class="pos-right">${formatPdfEuro(z.betrag)}</td>
+                        </tr>`);
+                    posNr++;
+                });
+            }
+
             // B-Positionen sammeln (Abzüge)
             const bPositionen = [];
             let posNrB = 1;
