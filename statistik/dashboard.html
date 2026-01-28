@@ -756,7 +756,7 @@
                 function buildQuery(roleField, roleId) {
                     let query = supabase
                         .from('records')
-                        .select('record_type, yearly_amount, record_status, start_date')
+                        .select('record_type, yearly_amount, record_status, start_date, created_at')
                         .eq('record_status', 'aktiv')
                         .is('deleted_at', null)
                         .eq(roleField, roleId);
@@ -796,8 +796,18 @@
                         return { labels: [], nmgJE: [], erhJE: [], nmgAnzahl: [], erhAnzahl: [], gesamtAnzahl: [] };
                     }
 
+                    // Hilfsfunktion: Gültiges Datum aus Record (start_date oder Fallback created_at)
+                    function getRecordDate(r) {
+                        if (r.start_date && r.start_date.length > 0) return r.start_date;
+                        if (r.created_at && r.created_at.length > 0) return r.created_at;
+                        return null;
+                    }
+
                     // Min/Max Datum aus Records ermitteln
-                    const dates = records.map(r => new Date(r.start_date)).filter(d => !isNaN(d));
+                    const dates = records.map(r => {
+                        const dateStr = getRecordDate(r);
+                        return dateStr ? new Date(dateStr) : null;
+                    }).filter(d => d && !isNaN(d));
                     if (dates.length === 0) {
                         return { labels: [], nmgJE: [], erhJE: [], nmgAnzahl: [], erhAnzahl: [], gesamtAnzahl: [] };
                     }
@@ -822,14 +832,16 @@
 
                     // Records in Buckets einordnen
                     records.forEach(r => {
-                        const date = new Date(r.start_date);
+                        const dateStr = getRecordDate(r);
+                        if (!dateStr) return;
+                        const date = new Date(dateStr);
                         if (isNaN(date)) return;
 
                         let bucketKey, bucketLabel;
 
                         switch (granularity) {
                             case 'days':
-                                bucketKey = r.start_date.split('T')[0];
+                                bucketKey = dateStr.split('T')[0];
                                 bucketLabel = `${dayLabels[date.getDay()]} ${date.getDate()}.${date.getMonth() + 1}`;
                                 break;
                             case 'weeks':
@@ -913,7 +925,7 @@
                     if (campaignAreaIds.length > 0) {
                         let query = supabase
                             .from('records')
-                            .select('record_type, yearly_amount, record_status, start_date')
+                            .select('record_type, yearly_amount, record_status, start_date, created_at')
                             .eq('record_status', 'aktiv')
                             .in('campaign_area_id', campaignAreaIds)
                             .is('deleted_at', null);
