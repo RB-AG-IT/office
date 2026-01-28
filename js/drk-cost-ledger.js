@@ -20,10 +20,10 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
         return;
     }
 
-    // 1. Kosten-Config aus campaign_areas laden
+    // 1. Kosten-Config aus campaign_areas laden (inkl. individuelle_kosten Flag)
     const { data: area, error: areaError } = await supabase
         .from('campaign_areas')
-        .select('kosten, sonderposten')
+        .select('kosten, sonderposten, individuelle_kosten')
         .eq('id', campaignAreaId)
         .single();
 
@@ -32,7 +32,25 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
         return;
     }
 
-    if (!area.kosten) return;
+    // 1b. Fallback auf Kunden-Kosten wenn WG keine individuellen hat
+    let effectiveKosten = area.kosten;
+    let effectiveSonderposten = area.sonderposten;
+
+    if (!area.individuelle_kosten) {
+        // Kunden-Kosten laden
+        const { data: kunde, error: kundeError } = await supabase
+            .from('customers')
+            .select('kosten, sonderposten')
+            .eq('id', customerId)
+            .single();
+
+        if (!kundeError && kunde) {
+            effectiveKosten = kunde.kosten;
+            effectiveSonderposten = kunde.sonderposten;
+        }
+    }
+
+    if (!effectiveKosten) return;
 
     // 2. Attendance für diese KW laden
     const { data: attendance, error: attError } = await supabase
@@ -69,7 +87,7 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
     const kostenarten = ['kfz', 'unterkunft', 'verpflegung', 'kleidung', 'ausweise'];
 
     for (const kostenart of kostenarten) {
-        const config = area.kosten[kostenart];
+        const config = effectiveKosten[kostenart];
         if (!config?.aktiv || !config?.betrag) continue;
 
         // Pro-Wert normalisieren (Fallback für alte Daten)
@@ -91,8 +109,8 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
     }
 
     // 6. Sonderposten analog behandeln
-    if (area.sonderposten && Array.isArray(area.sonderposten)) {
-        for (const sp of area.sonderposten) {
+    if (effectiveSonderposten && Array.isArray(effectiveSonderposten)) {
+        for (const sp of effectiveSonderposten) {
             if (!sp.name || !sp.summe) continue;
 
             const pro = normalizePro(sp.pro, 'sonderposten');

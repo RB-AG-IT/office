@@ -1662,11 +1662,11 @@
         let kampagnenData = {};
         let vertraegeData = {};
 
-        // Kunden aus Supabase laden
+        // Kunden aus Supabase laden (inkl. Provision-Felder für Fallback)
         async function loadKundenFromDB() {
             try {
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/customers?select=id,name,full_name,kd_id,empfaenger_typ,rechnungsart&order=name`,
+                    `${SUPABASE_URL}/rest/v1/customers?select=id,name,full_name,kd_id,empfaenger_typ,rechnungsart,provision_sondierung,provision_regular,stornopuffer,kosten,sonderposten&order=name`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 if (!response.ok) throw new Error('Fehler beim Laden der Kunden');
@@ -1676,7 +1676,13 @@
                     name: k.full_name || k.name,
                     kundenId: k.kd_id || '-',
                     empfaengerTyp: k.empfaenger_typ || '',
-                    rechnungsart: k.rechnungsart || 'zusammen'
+                    rechnungsart: k.rechnungsart || 'zusammen',
+                    // Provision-Felder für Fallback
+                    provisionSondierung: k.provision_sondierung,
+                    provisionRegular: k.provision_regular,
+                    stornopuffer: k.stornopuffer,
+                    kosten: k.kosten,
+                    sonderposten: k.sonderposten
                 }));
             } catch (err) {
                 console.error('Fehler beim Laden der Kunden:', err);
@@ -1872,9 +1878,9 @@
             container.innerHTML = '<div class="text-klein">Lade Einsatzgebiete...</div>';
 
             try {
-                // Campaign_areas aus Supabase laden
+                // Campaign_areas aus Supabase laden (inkl. individuelle_provision/kosten Flag)
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/campaign_areas?campaign_id=eq.${kampagneId}&select=id,name,provision_sondierung,provision_regular,einwohner,stornopuffer,kosten`,
+                    `${SUPABASE_URL}/rest/v1/campaign_areas?campaign_id=eq.${kampagneId}&select=id,name,provision_sondierung,provision_regular,einwohner,stornopuffer,kosten,individuelle_provision,individuelle_kosten`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
 
@@ -1888,21 +1894,48 @@
                     return;
                 }
 
-                // Checkboxen rendern (MG/JE wird bei Vorschau aus Records berechnet)
-                container.innerHTML = gebiete.map(g => `
+                // Kunden-Daten für Fallback holen
+                const kundeId = document.getElementById('abrKunde').value;
+                const kunde = kundenData.find(k => k.id === kundeId);
+
+                // Default Provision-Werte
+                const defaultSondierung = {j1:80,j2:50,j3:30,j4:0,j5:0,limit:100,limitType:"mg"};
+                const defaultRegular = {j1:60,j2:40,j3:20,j4:0,j5:0};
+
+                // Checkboxen rendern mit Fallback-Logik
+                container.innerHTML = gebiete.map(g => {
+                    // Fallback: Wenn WG keine individuelle Provision hat → Kunden-Provision
+                    let effectiveProvSond = g.provision_sondierung;
+                    let effectiveProvReg = g.provision_regular;
+                    let effectiveStornopuffer = g.stornopuffer;
+                    let effectiveKosten = g.kosten;
+
+                    if (!g.individuelle_provision) {
+                        // Kunden-Provision als Fallback
+                        effectiveProvSond = kunde?.provisionSondierung || effectiveProvSond;
+                        effectiveProvReg = kunde?.provisionRegular || effectiveProvReg;
+                        effectiveStornopuffer = kunde?.stornopuffer ?? effectiveStornopuffer;
+                    }
+
+                    if (!g.individuelle_kosten) {
+                        // Kunden-Kosten als Fallback
+                        effectiveKosten = kunde?.kosten || effectiveKosten;
+                    }
+
+                    return `
                     <label class="checkbox-item">
                         <input type="checkbox" value="${g.id}"
                             data-name="${g.name}"
-                            data-provision-sondierung='${JSON.stringify(g.provision_sondierung || {j1:80,j2:50,j3:30,j4:0,j5:0,limit:100,limitType:"mg"})}'
-                            data-provision-regular='${JSON.stringify(g.provision_regular || {j1:60,j2:40,j3:20,j4:0,j5:0})}'
+                            data-provision-sondierung='${JSON.stringify(effectiveProvSond || defaultSondierung)}'
+                            data-provision-regular='${JSON.stringify(effectiveProvReg || defaultRegular)}'
                             data-einwohner="${g.einwohner || 0}"
-                            data-stornopuffer="${g.stornopuffer || 10}"
-                            data-kosten='${JSON.stringify(g.kosten || {})}'
+                            data-stornopuffer="${effectiveStornopuffer || 10}"
+                            data-kosten='${JSON.stringify(effectiveKosten || {})}'
                             checked>
                         <span class="checkbox-label">${g.name}</span>
                         <span class="checkbox-info text-klein" id="gebietInfo_${g.id}">Lade MG...</span>
                     </label>
-                `).join('');
+                `}).join('');
 
                 // Event-Listener für Checkboxen
                 container.querySelectorAll('input[type="checkbox"]').forEach(cb => {

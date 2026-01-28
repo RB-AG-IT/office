@@ -320,6 +320,27 @@
                                 <div class="anzeigenfeld anzeigenfeld--pills" id="wgKwSelection"></div>
                             </div>
 
+                            <!-- Individuelle Einstellungen Toggles -->
+                            <div class="unterabschnitt--card" id="wgIndividuellSection" style="background: var(--info-bg); border-color: var(--info-border);">
+                                <div class="zeile" style="gap: var(--spacing-lg);">
+                                    <div class="zeile zeile--center" style="gap: var(--spacing-xs);">
+                                        <label class="toggle-switch small">
+                                            <input type="checkbox" id="wgIndividuelleProvision" onchange="toggleWgIndividuelleProvision()">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <span class="text-klein--fett">Individuelle Provision</span>
+                                    </div>
+                                    <div class="zeile zeile--center" style="gap: var(--spacing-xs);">
+                                        <label class="toggle-switch small">
+                                            <input type="checkbox" id="wgIndividuelleKosten" onchange="toggleWgIndividuelleKosten()">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <span class="text-klein--fett">Individuelle Kosten</span>
+                                    </div>
+                                </div>
+                                <span class="text-klein text-sekundaer" id="wgIndividuellHint">Deaktiviert = Kunden-Einstellungen werden verwendet</span>
+                            </div>
+
                             <!-- Gruppenbild -->
                             <div class="unterabschnitt--card">
                                 <div class="zeile">
@@ -1023,6 +1044,632 @@
                                     Abbrechen
                                 </button>
                                 <button class="btn btn-primary" onclick="saveWgConfig()">
+                                    <span class="icon icon--haken"></span>
+                                    Speichern
+                                </button>
+                            </div>
+                    </div>
+
+                    <!-- Linke Seite: Kunde Konfiguration -->
+                    <div class="page-content page-content--modal" id="kundeConfigPanel" style="display: none;">
+                            <!-- Kunde Header -->
+                            <div class="zeile zeile--center zeile--spread">
+                                <div class="text-ueberschrift-abschnitt" id="kundeConfigName"></div>
+                                <span class="badge badge--info">Kunde</span>
+                            </div>
+
+                            <!-- Info-Hinweis -->
+                            <div class="unterabschnitt--card" style="background: var(--info-bg); border-color: var(--info-border);">
+                                <span class="text-klein">Diese Einstellungen gelten für alle Werbegebiete dieses Kunden, sofern sie nicht individuell überschrieben werden.</span>
+                            </div>
+
+                            <!-- SONDIERUNG Provisionen -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                    <div>
+                                        <div class="text-ueberschrift-unterabschnitt">Sondierung</div>
+                                        <span class="text-klein text-sekundaer">Provisionen für Sondierungsphase</span>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="kundeSondierung" checked onchange="toggleKundeSondierung()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div id="kundeSondierungSection">
+                                    <div class="zeile zeile--spread">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 1</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeSondJ1" value="80" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 2</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeSondJ2" value="50" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 3</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeSondJ3" value="30" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 4</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeSondJ4" value="0" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 5</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeSondJ5" value="0" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="zeile">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Limit</label>
+                                            <input type="number" class="eingabefeld" id="kundeSondLimit" value="100" min="0">
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                            <label class="eingabefeld-beschriftung-oben">Typ</label>
+                                            <select class="eingabefeld" id="kundeSondLimitType">
+                                                <option value="mg">MG</option>
+                                                <option value="prozent">% Bevölkerung</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- REGULAR Provisionen -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                    <div>
+                                        <div class="text-ueberschrift-unterabschnitt">Regular</div>
+                                        <span class="text-klein text-sekundaer">Provisionen nach Sondierung</span>
+                                    </div>
+                                    <button type="button" class="btn btn-icon open" onclick="toggleCollapse(this, 'kundeRegularSection')">
+                                        <span class="icon icon--pfeil-unten"></span>
+                                    </button>
+                                </div>
+                                <div id="kundeRegularSection">
+                                    <div class="zeile zeile--spread">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 1</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeRegJ1" value="60" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 2</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeRegJ2" value="40" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 3</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeRegJ3" value="20" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 4</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeRegJ4" value="0" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Jahr 5</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeRegJ5" value="0" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Qualitätsbonus -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                    <div>
+                                        <div class="text-ueberschrift-unterabschnitt">Qualitätsbonus</div>
+                                        <span class="text-klein text-sekundaer">Bonus bei niedriger Stornoquote</span>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="kundeQualitaetsbonus" checked onchange="toggleKundeQualiRules()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div id="kundeQualiRulesSection">
+                                    <div class="zeile">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Storno unter</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeQualiStorno1" value="15" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Bonus</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <span class="text-klein--fett">+</span>
+                                                <input type="number" class="eingabefeld" id="kundeQualiPP1" value="3" min="0" max="20">
+                                                <span class="text-normal--fett">PP</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="zeile">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeQualiStorno2" value="12" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <div class="eingabefeld-mit-einheit">
+                                                <span class="text-klein--fett">+</span>
+                                                <input type="number" class="eingabefeld" id="kundeQualiPP2" value="3" min="0" max="20">
+                                                <span class="text-normal--fett">PP</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="zeile">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeQualiStorno3" value="10" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <div class="eingabefeld-mit-einheit">
+                                                <span class="text-klein--fett">+</span>
+                                                <input type="number" class="eingabefeld" id="kundeQualiPP3" value="3" min="0" max="20">
+                                                <span class="text-normal--fett">PP</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="zeile">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeQualiStorno4" value="8" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <div class="eingabefeld-mit-einheit">
+                                                <span class="text-klein--fett">+</span>
+                                                <input type="number" class="eingabefeld" id="kundeQualiPP4" value="1" min="0" max="20">
+                                                <span class="text-normal--fett">PP</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="zeile" style="margin-top: 12px;">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                            <label class="eingabefeld-beschriftung-oben">Berechnungsdatum</label>
+                                            <input type="date" class="eingabefeld" id="kundeQualitaetsbonusDatum">
+                                            <span class="text-klein text-sekundaer">Leer = Standard (bei VJ2-Abrechnung)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Teilvergütung -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                    <div>
+                                        <div class="text-ueberschrift-unterabschnitt">Teilvergütung</div>
+                                        <span class="text-klein text-sekundaer">Bei vorzeitigem Storno</span>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="kundeTeilverguetung" onchange="toggleKundeTeilv()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div id="kundeTeilvSection" style="display: none;">
+                                    <div class="zeile">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                            <label class="eingabefeld-beschriftung-oben">% der eingezogenen Beiträge</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeTeilvProzent" value="50" min="0" max="100">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Abrechnung -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                    <div>
+                                        <div class="text-ueberschrift-unterabschnitt">Abrechnung</div>
+                                        <span class="text-klein text-sekundaer">Stornopuffer und Endabrechnung</span>
+                                    </div>
+                                    <button type="button" class="btn btn-icon open" onclick="toggleCollapse(this, 'kundeAbrechnungSection')">
+                                        <span class="icon icon--pfeil-unten"></span>
+                                    </button>
+                                </div>
+                                <div id="kundeAbrechnungSection">
+                                    <div class="zeile">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Stornopuffer</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeStornopuffer" value="15" min="0" max="50">
+                                                <span class="text-normal--fett">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="zeile">
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                            <label class="eingabefeld-beschriftung-oben">Endabr. nach</label>
+                                            <div class="eingabefeld-mit-einheit">
+                                                <input type="number" class="eingabefeld" id="kundeEndabrWochen" value="12" min="1" max="52">
+                                                <span>Wochen</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Kostenübernahmen -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                    <div>
+                                        <div class="text-ueberschrift-unterabschnitt">Kostenübernahmen</div>
+                                        <span class="text-klein text-sekundaer">DRK Verband</span>
+                                    </div>
+                                    <button type="button" class="btn btn-icon open" onclick="toggleCollapse(this, 'kundeKostenSection')">
+                                        <span class="icon icon--pfeil-unten"></span>
+                                    </button>
+                                </div>
+                                <div class="kosten-items" id="kundeKostenSection">
+                                    <!-- KFZ -->
+                                    <div class="kosten-item">
+                                        <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                            <span class="text-normal">KFZ</span>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="kundeKostenKfz" onchange="toggleKundeKosten('kfz')">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div id="kundeKfzConfig" style="display: none;">
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe">
+                                                    <label class="eingabefeld-beschriftung-oben">Kostenart</label>
+                                                    <select class="eingabefeld" id="kundeKfzArt" onchange="toggleKundeKostenartFrei('kfz')">
+                                                        <option value="aufwand">Aufwands- & Beschaffungskosten</option>
+                                                        <option value="frei">Frei Eintragbar</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-1-5" id="kundeKfzArtFreiGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">Beschreibung</label>
+                                                    <input type="text" class="eingabefeld" id="kundeKfzArtFrei" placeholder="z.B. Kilometerpauschale">
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Betrag</label>
+                                                    <div class="eingabefeld-mit-einheit">
+                                                        <input type="number" class="eingabefeld" id="kundeKfzBetrag" value="0" min="0" step="0.01">
+                                                        <span class="text-normal--fett">€</span>
+                                                    </div>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Zeitraum</label>
+                                                    <select class="eingabefeld" id="kundeKfzZeitraum">
+                                                        <option value="tag">pro Tag</option>
+                                                        <option value="woche">pro Woche</option>
+                                                        <option value="abschnitt">pro Abschnitt (3W)</option>
+                                                        <option value="einmalig">einmalig</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                                    <label class="eingabefeld-beschriftung-oben">Verteilung</label>
+                                                    <select class="eingabefeld" id="kundeKfzVerteilung" onchange="toggleKundeKostenVerteilung('kfz')">
+                                                        <option value="anteilig">Anteilig (nach Werber-Anzahl)</option>
+                                                        <option value="explizit">Ein WG übernimmt</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1" id="kundeKfzWgGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">WG auswählen</label>
+                                                    <select class="eingabefeld" id="kundeKfzWg"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Unterkunft -->
+                                    <div class="kosten-item">
+                                        <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                            <span class="text-normal">Unterkunft</span>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="kundeKostenUnterkunft" onchange="toggleKundeKosten('unterkunft')">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div id="kundeUnterkunftConfig" style="display: none;">
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe">
+                                                    <label class="eingabefeld-beschriftung-oben">Kostenart</label>
+                                                    <select class="eingabefeld" id="kundeUnterkunftArt" onchange="toggleKundeKostenartFrei('unterkunft')">
+                                                        <option value="aufwand">Aufwands- & Beschaffungskosten</option>
+                                                        <option value="frei">Frei Eintragbar</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-1-5" id="kundeUnterkunftArtFreiGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">Beschreibung</label>
+                                                    <input type="text" class="eingabefeld" id="kundeUnterkunftArtFrei" placeholder="z.B. Hotelkosten">
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Betrag</label>
+                                                    <div class="eingabefeld-mit-einheit">
+                                                        <input type="number" class="eingabefeld" id="kundeUnterkunftBetrag" value="0" min="0" step="0.01">
+                                                        <span class="text-normal--fett">€</span>
+                                                    </div>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Pro</label>
+                                                    <select class="eingabefeld" id="kundeUnterkunftPro">
+                                                        <option value="team">Team</option>
+                                                        <option value="person">Person</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Zeitraum</label>
+                                                    <select class="eingabefeld" id="kundeUnterkunftZeitraum">
+                                                        <option value="tag">pro Tag</option>
+                                                        <option value="woche">pro Woche</option>
+                                                        <option value="abschnitt">pro Abschnitt (3W)</option>
+                                                        <option value="einmalig">einmalig</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                                    <label class="eingabefeld-beschriftung-oben">Verteilung</label>
+                                                    <select class="eingabefeld" id="kundeUnterkunftVerteilung" onchange="toggleKundeKostenVerteilung('unterkunft')">
+                                                        <option value="anteilig">Anteilig (nach Werber-Anzahl)</option>
+                                                        <option value="explizit">Ein WG übernimmt</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1" id="kundeUnterkunftWgGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">WG auswählen</label>
+                                                    <select class="eingabefeld" id="kundeUnterkunftWg"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Verpflegung -->
+                                    <div class="kosten-item">
+                                        <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                            <span class="text-normal">Verpflegung</span>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="kundeKostenVerpflegung" onchange="toggleKundeKosten('verpflegung')">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div id="kundeVerpflegungConfig" style="display: none;">
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe">
+                                                    <label class="eingabefeld-beschriftung-oben">Kostenart</label>
+                                                    <select class="eingabefeld" id="kundeVerpflegungArt" onchange="toggleKundeKostenartFrei('verpflegung')">
+                                                        <option value="aufwand">Aufwands- & Beschaffungskosten</option>
+                                                        <option value="frei">Frei Eintragbar</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-1-5" id="kundeVerpflegungArtFreiGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">Beschreibung</label>
+                                                    <input type="text" class="eingabefeld" id="kundeVerpflegungArtFrei" placeholder="z.B. Tagessatz">
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Betrag</label>
+                                                    <div class="eingabefeld-mit-einheit">
+                                                        <input type="number" class="eingabefeld" id="kundeVerpflegungBetrag" value="0" min="0" step="0.01">
+                                                        <span class="text-normal--fett">€</span>
+                                                    </div>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Pro</label>
+                                                    <select class="eingabefeld" id="kundeVerpflegungPro">
+                                                        <option value="team">Team</option>
+                                                        <option value="person">Person</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Zeitraum</label>
+                                                    <select class="eingabefeld" id="kundeVerpflegungZeitraum">
+                                                        <option value="tag">pro Tag</option>
+                                                        <option value="woche">pro Woche</option>
+                                                        <option value="abschnitt">pro Abschnitt (3W)</option>
+                                                        <option value="einmalig">einmalig</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                                    <label class="eingabefeld-beschriftung-oben">Verteilung</label>
+                                                    <select class="eingabefeld" id="kundeVerpflegungVerteilung" onchange="toggleKundeKostenVerteilung('verpflegung')">
+                                                        <option value="anteilig">Anteilig (nach Werber-Anzahl)</option>
+                                                        <option value="explizit">Ein WG übernimmt</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1" id="kundeVerpflegungWgGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">WG auswählen</label>
+                                                    <select class="eingabefeld" id="kundeVerpflegungWg"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Kleidung -->
+                                    <div class="kosten-item">
+                                        <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                            <span class="text-normal">Kleidung</span>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="kundeKostenKleidung" onchange="toggleKundeKosten('kleidung')">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div id="kundeKleidungConfig" style="display: none;">
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe">
+                                                    <label class="eingabefeld-beschriftung-oben">Kostenart</label>
+                                                    <select class="eingabefeld" id="kundeKleidungArt" onchange="toggleKundeKostenartFrei('kleidung')">
+                                                        <option value="aufwand">Aufwands- & Beschaffungskosten</option>
+                                                        <option value="frei">Frei Eintragbar</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-1-5" id="kundeKleidungArtFreiGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">Beschreibung</label>
+                                                    <input type="text" class="eingabefeld" id="kundeKleidungArtFrei" placeholder="z.B. T-Shirts">
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Betrag</label>
+                                                    <div class="eingabefeld-mit-einheit">
+                                                        <input type="number" class="eingabefeld" id="kundeKleidungBetrag" value="0" min="0" step="0.01">
+                                                        <span class="text-normal--fett">€</span>
+                                                    </div>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Pro</label>
+                                                    <select class="eingabefeld" id="kundeKleidungPro">
+                                                        <option value="team">Team</option>
+                                                        <option value="person">Person</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Zeitraum</label>
+                                                    <select class="eingabefeld" id="kundeKleidungZeitraum">
+                                                        <option value="tag">pro Tag</option>
+                                                        <option value="woche">pro Woche</option>
+                                                        <option value="abschnitt">pro Abschnitt (3W)</option>
+                                                        <option value="einmalig">einmalig</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                                    <label class="eingabefeld-beschriftung-oben">Verteilung</label>
+                                                    <select class="eingabefeld" id="kundeKleidungVerteilung" onchange="toggleKundeKostenVerteilung('kleidung')">
+                                                        <option value="anteilig">Anteilig (nach Werber-Anzahl)</option>
+                                                        <option value="explizit">Ein WG übernimmt</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1" id="kundeKleidungWgGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">WG auswählen</label>
+                                                    <select class="eingabefeld" id="kundeKleidungWg"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Ausweise -->
+                                    <div class="kosten-item">
+                                        <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                            <span class="text-normal">Ausweise</span>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="kundeKostenAusweise" onchange="toggleKundeKosten('ausweise')">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div id="kundeAusweiseConfig" style="display: none;">
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe">
+                                                    <label class="eingabefeld-beschriftung-oben">Kostenart</label>
+                                                    <select class="eingabefeld" id="kundeAusweiseArt" onchange="toggleKundeKostenartFrei('ausweise')">
+                                                        <option value="aufwand">Aufwands- & Beschaffungskosten</option>
+                                                        <option value="frei">Frei Eintragbar</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-1-5" id="kundeAusweiseArtFreiGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">Beschreibung</label>
+                                                    <input type="text" class="eingabefeld" id="kundeAusweiseArtFrei" placeholder="z.B. Mitarbeiterausweise">
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Betrag</label>
+                                                    <div class="eingabefeld-mit-einheit">
+                                                        <input type="number" class="eingabefeld" id="kundeAusweiseBetrag" value="0" min="0" step="0.01">
+                                                        <span class="text-normal--fett">€</span>
+                                                    </div>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Pro</label>
+                                                    <select class="eingabefeld" id="kundeAusweisePro">
+                                                        <option value="team">Team</option>
+                                                        <option value="person">Person</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                                                    <label class="eingabefeld-beschriftung-oben">Zeitraum</label>
+                                                    <select class="eingabefeld" id="kundeAusweiseZeitraum">
+                                                        <option value="tag">pro Tag</option>
+                                                        <option value="woche">pro Woche</option>
+                                                        <option value="abschnitt">pro Abschnitt (3W)</option>
+                                                        <option value="einmalig">einmalig</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="zeile">
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                                    <label class="eingabefeld-beschriftung-oben">Verteilung</label>
+                                                    <select class="eingabefeld" id="kundeAusweiseVerteilung" onchange="toggleKundeKostenVerteilung('ausweise')">
+                                                        <option value="anteilig">Anteilig (nach Werber-Anzahl)</option>
+                                                        <option value="explizit">Ein WG übernimmt</option>
+                                                    </select>
+                                                </div>
+                                                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1" id="kundeAusweiseWgGruppe" style="display: none;">
+                                                    <label class="eingabefeld-beschriftung-oben">WG auswählen</label>
+                                                    <select class="eingabefeld" id="kundeAusweiseWg"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sonderposten -->
+                            <div class="unterabschnitt--card">
+                                <div class="zeile eingabefeld-gruppe--mit-aktion">
+                                    <div>
+                                        <div class="text-ueberschrift-unterabschnitt">Sonderposten</div>
+                                        <span class="text-klein text-sekundaer">Weitere Kosten</span>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="kundeSonderpostenToggle" onchange="toggleKundeSonderposten()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div id="kundeSonderpostenSection" style="display: none;">
+                                    <div id="kundeSonderpostenList"></div>
+                                    <div class="zeile">
+                                        <button class="btn btn-secondary btn-sm" onclick="addKundeSonderposten()">
+                                            <span class="icon icon--plus"></span>
+                                            Sonderposten hinzufügen
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer für Kunde Config -->
+                            <div class="page-footer" id="kundeConfigFooter">
+                                <button class="btn btn-secondary" onclick="cancelKundeEdit()">
+                                    Abbrechen
+                                </button>
+                                <button class="btn btn-primary" onclick="saveKundeConfig()">
                                     <span class="icon icon--haken"></span>
                                     Speichern
                                 </button>
@@ -2196,11 +2843,13 @@ function initCampaignWerbegebiete(campaign) {
     // Reset
     campaignWerbegebiete = [];
     activeWgConfig = null;
+    activeKundeConfig = null;
     selectedWgKunde = null;
 
     // Konfiguration-Panel zurücksetzen
     document.getElementById('wgConfigPlaceholder').style.display = 'flex';
     document.getElementById('wgConfigPanel').style.display = 'none';
+    document.getElementById('kundeConfigPanel').style.display = 'none';
 
     // Kunden-Dropdown zurücksetzen
     const kundeSelect = document.getElementById('wgKundeSelect');
@@ -2261,7 +2910,9 @@ function initCampaignWerbegebiete(campaign) {
             rahmenvertrag: eg.rahmenvertrag || '',
             avv: eg.avv || '',
             erhohungen: eg.erhohungen !== false,
-            paymentModalities: eg.paymentModalities || ['monthly', 'quarterly', 'biannual', 'annual']
+            paymentModalities: eg.paymentModalities || ['monthly', 'quarterly', 'biannual', 'annual'],
+            individuelleProvision: eg.individuelle_provision || false,
+            individuelleKosten: eg.individuelle_kosten || false
         };
 
         campaignWerbegebiete.push(wgConfig);
@@ -2300,16 +2951,29 @@ function renderAllCampaignWerbegebiete() {
 
     let html = '';
     Object.entries(kundenMap).forEach(([kundeId, data]) => {
-        // Kunde Header
-        html += `<div class="eingabefeld-beschriftung-oben" style="margin-top: var(--spacing-md); margin-bottom: var(--spacing-xs);">${data.name}</div>`;
+        // Kunde als klickbarer Eintrag (★ Symbol)
+        const isKundeActive = activeKundeConfig === kundeId;
+        html += `
+            <div class="anzeigenfeld anzeigenfeld--card ${isKundeActive ? 'active' : ''}" style="margin-top: var(--spacing-md);">
+                <div class="anzeigenfeld--card-main" onclick="openKundeConfig('${kundeId}')">
+                    <div class="user-badge user-badge--kunde user-badge--small">
+                        <div class="user-badge__avatar">★</div>
+                        <div class="user-badge__info">
+                            <span class="user-badge__name">${data.name}</span>
+                            <span class="user-badge__type">Kunde</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
 
-        // WGs des Kunden
+        // WGs des Kunden (eingerückt)
         data.wgs.forEach(wg => {
             const wgInitials = getInitials(wg.name);
             const isActive = activeWgConfig === wg.id;
 
             html += `
-                <div class="anzeigenfeld anzeigenfeld--card ${isActive ? 'active' : ''}">
+                <div class="anzeigenfeld anzeigenfeld--card ${isActive ? 'active' : ''}" style="margin-left: var(--spacing-md);">
                     <div class="anzeigenfeld--card-main" onclick="openWgConfig('${wg.id}')">
                         <div class="user-badge user-badge--werbegebiet user-badge--small">
                             <div class="user-badge__avatar">${wgInitials}</div>
@@ -2565,8 +3229,12 @@ const kundenVertraege = {};
 let selectedWgKunde = null;
 let campaignWerbegebiete = []; // WGs die zur Kampagne hinzugefügt wurden
 let activeWgConfig = null; // Aktuell ausgewähltes WG zur Konfiguration
+let activeKundeConfig = null; // Aktuell ausgewählter Kunde zur Konfiguration
 let wgSonderposten = []; // Sonderposten für das aktuelle WG
+let kundeSonderposten = []; // Sonderposten für den aktuellen Kunden
+let kundeConfigData = null; // Aktueller Kunde-Datensatz für Konfiguration
 let wgEditMode = false; // Edit-Modus für WG Konfiguration
+let kundeEditMode = false; // Edit-Modus für Kunde Konfiguration
 
 // Kunden aus Supabase laden und Select befüllen
 async function loadKundenForSelect() {
@@ -2845,16 +3513,24 @@ async function openWgConfig(wgId) {
     if (!wg) return;
 
     activeWgConfig = wgId;
+    activeKundeConfig = null; // Kunde deselektieren
     wgSonderposten = [...(wg.sonderposten || [])];
 
-    // Platzhalter ausblenden, Panel anzeigen
+    // Platzhalter und Kunde-Panel ausblenden, WG-Panel anzeigen
     document.getElementById('wgConfigPlaceholder').style.display = 'none';
+    document.getElementById('kundeConfigPanel').style.display = 'none';
     const panel = document.getElementById('wgConfigPanel');
     panel.style.display = 'flex';
     panel.scrollTop = 0;
 
     // WG-Name in Header setzen
     document.getElementById('wgConfigName').textContent = wg.name;
+
+    // Individuelle Toggles setzen
+    const indProv = wg.individuelleProvision || false;
+    const indKost = wg.individuelleKosten || false;
+    document.getElementById('wgIndividuelleProvision').checked = indProv;
+    document.getElementById('wgIndividuelleKosten').checked = indKost;
 
     // KW Pills generieren
     renderKwPills(wg);
@@ -3024,6 +3700,10 @@ async function openWgConfig(wgId) {
     // Liste aktualisieren für active state
     renderAllCampaignWerbegebiete();
 
+    // Individuelle Provisions-/Kosten-Sektionen initialisieren
+    updateWgProvisionSections(wg.individuelleProvision || false);
+    updateWgKostenSections(wg.individuelleKosten || false);
+
     // Standardmäßig im Read-Modus starten
     setWgConfigEditable(false);
 }
@@ -3062,6 +3742,100 @@ function toggleWgKw(kw) {
 function toggleSondierung() {
     const checked = document.getElementById('wgSondierung').checked;
     document.getElementById('sondierungSection').style.display = checked ? 'block' : 'none';
+}
+
+// WG: Individuelle Provision toggle
+function toggleWgIndividuelleProvision() {
+    const checked = document.getElementById('wgIndividuelleProvision').checked;
+    updateWgProvisionSections(checked);
+}
+
+// WG: Individuelle Kosten toggle
+function toggleWgIndividuelleKosten() {
+    const checked = document.getElementById('wgIndividuelleKosten').checked;
+    updateWgKostenSections(checked);
+}
+
+// WG: Provisions-Sektionen enabled/disabled setzen
+function updateWgProvisionSections(enabled) {
+    const sections = ['sondierungSection', 'regularSection', 'qualiRulesSection', 'teilvSection', 'abrechnungSection'];
+    const toggleIds = ['wgSondierung', 'wgQualitaetsbonus', 'wgTeilverguetung'];
+
+    // Hinweis aktualisieren
+    const hintEl = document.getElementById('wgIndividuellHint');
+    if (hintEl) {
+        const kostChecked = document.getElementById('wgIndividuelleKosten').checked;
+        if (!enabled && !kostChecked) {
+            hintEl.textContent = 'Deaktiviert = Kunden-Einstellungen werden verwendet';
+        } else {
+            const parts = [];
+            if (enabled) parts.push('Provision');
+            if (kostChecked) parts.push('Kosten');
+            hintEl.textContent = `Individuelle ${parts.join(' und ')} aktiv`;
+        }
+    }
+
+    // Sektionen und Inputs deaktivieren wenn nicht individuell
+    const provisionSections = document.querySelectorAll('#wgConfigPanel .unterabschnitt--card');
+    provisionSections.forEach(section => {
+        // Nur Provisions-relevante Sektionen (nicht Kosten, Gruppenbild, Verträge etc.)
+        const header = section.querySelector('.text-ueberschrift-unterabschnitt');
+        if (!header) return;
+        const title = header.textContent.trim();
+        const isProvisionSection = ['Sondierung', 'Regular', 'Qualitätsbonus', 'Teilvergütung', 'Abrechnung'].includes(title);
+
+        if (isProvisionSection) {
+            section.style.opacity = enabled ? '1' : '0.5';
+            section.querySelectorAll('input, select').forEach(el => {
+                if (!enabled) {
+                    el.dataset.disabledByToggle = 'true';
+                    el.disabled = true;
+                } else if (el.dataset.disabledByToggle) {
+                    delete el.dataset.disabledByToggle;
+                    el.disabled = false;
+                }
+            });
+        }
+    });
+}
+
+// WG: Kosten-Sektionen enabled/disabled setzen
+function updateWgKostenSections(enabled) {
+    // Hinweis aktualisieren
+    const hintEl = document.getElementById('wgIndividuellHint');
+    if (hintEl) {
+        const provChecked = document.getElementById('wgIndividuelleProvision').checked;
+        if (!enabled && !provChecked) {
+            hintEl.textContent = 'Deaktiviert = Kunden-Einstellungen werden verwendet';
+        } else {
+            const parts = [];
+            if (provChecked) parts.push('Provision');
+            if (enabled) parts.push('Kosten');
+            hintEl.textContent = `Individuelle ${parts.join(' und ')} aktiv`;
+        }
+    }
+
+    // Kostenübernahmen und Sonderposten Sektionen
+    const provisionSections = document.querySelectorAll('#wgConfigPanel .unterabschnitt--card');
+    provisionSections.forEach(section => {
+        const header = section.querySelector('.text-ueberschrift-unterabschnitt');
+        if (!header) return;
+        const title = header.textContent.trim();
+        const isKostenSection = ['Kostenübernahmen', 'Sonderposten'].includes(title);
+
+        if (isKostenSection) {
+            section.style.opacity = enabled ? '1' : '0.5';
+            section.querySelectorAll('input, select').forEach(el => {
+                if (!enabled) {
+                    el.dataset.disabledByToggle = 'true';
+                    el.disabled = true;
+                } else if (el.dataset.disabledByToggle) {
+                    delete el.dataset.disabledByToggle;
+                    el.disabled = false;
+                }
+            });
+        }
+    });
 }
 
 // Qualitätsbonus ein-/ausblenden
@@ -3792,6 +4566,10 @@ async function saveWgConfig() {
     // Erhöhungen
     wg.erhohungen = document.getElementById('wgErhohungen').checked;
 
+    // Individuelle Toggles
+    wg.individuelleProvision = document.getElementById('wgIndividuelleProvision').checked;
+    wg.individuelleKosten = document.getElementById('wgIndividuelleKosten').checked;
+
     // In Supabase speichern
     try {
         const { error } = await supabase
@@ -3812,7 +4590,9 @@ async function saveWgConfig() {
                 gruppenbild_url: wg.gruppenbild,
                 payment_modalities: wg.paymentModalities,
                 erhohungen_enabled: wg.erhohungen,
-                active_kws: wg.kws
+                active_kws: wg.kws,
+                individuelle_provision: wg.individuelleProvision,
+                individuelle_kosten: wg.individuelleKosten
             })
             .eq('id', wg.id);
 
@@ -3864,6 +4644,411 @@ function cancelWgEdit() {
         setWgConfigEditable(false);
     }
 }
+
+// =====================================================================
+// KUNDE KONFIGURATION
+// =====================================================================
+
+// Kunde Konfiguration öffnen
+async function openKundeConfig(kundeId) {
+    if (!kundeId || kundeId === 'unbekannt') return;
+
+    // Kunden-Daten aus Supabase laden
+    const { data: kunde, error } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('id', kundeId)
+        .single();
+
+    if (error || !kunde) {
+        showToast('Kunde nicht gefunden', 'error');
+        return;
+    }
+
+    kundeConfigData = kunde;
+    activeKundeConfig = kundeId;
+    activeWgConfig = null; // WG deselektieren
+    kundeSonderposten = [...(kunde.sonderposten || [])];
+
+    // WG Panel ausblenden, Platzhalter ausblenden, Kunde Panel anzeigen
+    document.getElementById('wgConfigPlaceholder').style.display = 'none';
+    document.getElementById('wgConfigPanel').style.display = 'none';
+    const panel = document.getElementById('kundeConfigPanel');
+    panel.style.display = 'flex';
+    panel.scrollTop = 0;
+
+    // Kunde-Name in Header setzen
+    document.getElementById('kundeConfigName').textContent = kunde.name || 'Kunde';
+
+    // WG-Dropdowns für Verteilung befüllen
+    populateKundeWgDropdowns();
+
+    // Sondierung
+    const sond = kunde.provision_sondierung || {};
+    const sondAktiv = sond.aktiv !== false;
+    document.getElementById('kundeSondierung').checked = sondAktiv;
+    document.getElementById('kundeSondierungSection').style.display = sondAktiv ? 'block' : 'none';
+    document.getElementById('kundeSondJ1').value = sond.j1 ?? 80;
+    document.getElementById('kundeSondJ2').value = sond.j2 ?? 50;
+    document.getElementById('kundeSondJ3').value = sond.j3 ?? 30;
+    document.getElementById('kundeSondJ4').value = sond.j4 ?? 0;
+    document.getElementById('kundeSondJ5').value = sond.j5 ?? 0;
+    document.getElementById('kundeSondLimit').value = sond.limit ?? 100;
+    document.getElementById('kundeSondLimitType').value = sond.limitType || 'mg';
+
+    // Regular
+    const reg = kunde.provision_regular || {};
+    document.getElementById('kundeRegJ1').value = reg.j1 ?? 60;
+    document.getElementById('kundeRegJ2').value = reg.j2 ?? 40;
+    document.getElementById('kundeRegJ3').value = reg.j3 ?? 20;
+    document.getElementById('kundeRegJ4').value = reg.j4 ?? 0;
+    document.getElementById('kundeRegJ5').value = reg.j5 ?? 0;
+
+    // Qualitätsbonus
+    const qb = kunde.qualitaetsbonus || {};
+    const qbAktiv = typeof qb === 'object' ? qb.aktiv !== false : qb;
+    const qbRegeln = typeof qb === 'object' && qb.regeln ? qb.regeln : [
+        { storno: 15, pp: 3 }, { storno: 12, pp: 3 }, { storno: 10, pp: 3 }, { storno: 8, pp: 1 }
+    ];
+    document.getElementById('kundeQualitaetsbonus').checked = qbAktiv;
+    document.getElementById('kundeQualiRulesSection').style.display = qbAktiv ? 'block' : 'none';
+    document.getElementById('kundeQualiStorno1').value = qbRegeln[0]?.storno ?? 15;
+    document.getElementById('kundeQualiPP1').value = qbRegeln[0]?.pp ?? 3;
+    document.getElementById('kundeQualiStorno2').value = qbRegeln[1]?.storno ?? 12;
+    document.getElementById('kundeQualiPP2').value = qbRegeln[1]?.pp ?? 3;
+    document.getElementById('kundeQualiStorno3').value = qbRegeln[2]?.storno ?? 10;
+    document.getElementById('kundeQualiPP3').value = qbRegeln[2]?.pp ?? 3;
+    document.getElementById('kundeQualiStorno4').value = qbRegeln[3]?.storno ?? 8;
+    document.getElementById('kundeQualiPP4').value = qbRegeln[3]?.pp ?? 1;
+    document.getElementById('kundeQualitaetsbonusDatum').value = kunde.qualitaetsbonus_datum || '';
+
+    // Teilvergütung
+    document.getElementById('kundeTeilverguetung').checked = kunde.teilverguetung || false;
+    document.getElementById('kundeTeilvProzent').value = kunde.teilv_prozent ?? 50;
+    document.getElementById('kundeTeilvSection').style.display = kunde.teilverguetung ? 'flex' : 'none';
+
+    // Abrechnung
+    document.getElementById('kundeStornopuffer').value = kunde.stornopuffer ?? 15;
+    document.getElementById('kundeEndabrWochen').value = kunde.endabr_wochen ?? 12;
+
+    // Kostenübernahmen
+    const kosten = kunde.kosten || {};
+    const kostenarten = ['kfz', 'unterkunft', 'verpflegung', 'kleidung', 'ausweise'];
+
+    kostenarten.forEach(art => {
+        const k = kosten[art] || {};
+        const artCap = art.charAt(0).toUpperCase() + art.slice(1);
+
+        document.getElementById(`kundeKosten${artCap}`).checked = k.aktiv || false;
+        document.getElementById(`kunde${artCap}Config`).style.display = k.aktiv ? 'block' : 'none';
+        document.getElementById(`kunde${artCap}Art`).value = k.art || 'aufwand';
+        document.getElementById(`kunde${artCap}ArtFrei`).value = k.artFrei || '';
+        document.getElementById(`kunde${artCap}Betrag`).value = k.betrag ?? 0;
+        document.getElementById(`kunde${artCap}Zeitraum`).value = k.zeitraum || 'woche';
+
+        // Pro (nicht für KFZ)
+        if (art !== 'kfz') {
+            document.getElementById(`kunde${artCap}Pro`).value = k.pro || 'person';
+        }
+
+        // Verteilung
+        document.getElementById(`kunde${artCap}Verteilung`).value = k.verteilung || 'anteilig';
+        document.getElementById(`kunde${artCap}WgGruppe`).style.display = k.verteilung === 'explizit' ? 'block' : 'none';
+        if (k.explizit_wg_id) {
+            document.getElementById(`kunde${artCap}Wg`).value = k.explizit_wg_id;
+        }
+
+        toggleKundeKostenartFrei(art);
+    });
+
+    // Sonderposten
+    const hatSonderposten = kundeSonderposten.length > 0;
+    document.getElementById('kundeSonderpostenToggle').checked = hatSonderposten;
+    document.getElementById('kundeSonderpostenSection').style.display = hatSonderposten ? 'block' : 'none';
+    renderKundeSonderposten();
+
+    // Liste aktualisieren für active state
+    renderAllCampaignWerbegebiete();
+
+    // Edit-Modus aktivieren (Kunde-Config ist immer editierbar)
+    setKundeConfigEditable(true);
+}
+
+// WG-Dropdowns für Verteilung befüllen
+function populateKundeWgDropdowns() {
+    const kundenWgs = campaignWerbegebiete.filter(wg => wg.kunde === activeKundeConfig);
+    const options = kundenWgs.map(wg => `<option value="${wg.id}">${wg.name}</option>`).join('');
+
+    ['Kfz', 'Unterkunft', 'Verpflegung', 'Kleidung', 'Ausweise'].forEach(art => {
+        const select = document.getElementById(`kunde${art}Wg`);
+        if (select) {
+            select.innerHTML = '<option value="">WG auswählen...</option>' + options;
+        }
+    });
+}
+
+// Kunde-Konfiguration speichern
+async function saveKundeConfig() {
+    if (!kundeConfigData || !activeKundeConfig) return;
+
+    // Sondierung
+    const sondierung = {
+        aktiv: document.getElementById('kundeSondierung').checked,
+        j1: parseInt(document.getElementById('kundeSondJ1').value) || 0,
+        j2: parseInt(document.getElementById('kundeSondJ2').value) || 0,
+        j3: parseInt(document.getElementById('kundeSondJ3').value) || 0,
+        j4: parseInt(document.getElementById('kundeSondJ4').value) || 0,
+        j5: parseInt(document.getElementById('kundeSondJ5').value) || 0,
+        limit: parseFloat(document.getElementById('kundeSondLimit').value) || 100,
+        limitType: document.getElementById('kundeSondLimitType').value
+    };
+
+    // Regular
+    const regular = {
+        j1: parseInt(document.getElementById('kundeRegJ1').value) || 0,
+        j2: parseInt(document.getElementById('kundeRegJ2').value) || 0,
+        j3: parseInt(document.getElementById('kundeRegJ3').value) || 0,
+        j4: parseInt(document.getElementById('kundeRegJ4').value) || 0,
+        j5: parseInt(document.getElementById('kundeRegJ5').value) || 0
+    };
+
+    // Qualitätsbonus
+    const qualitaetsbonus = {
+        aktiv: document.getElementById('kundeQualitaetsbonus').checked,
+        regeln: [
+            { storno: parseInt(document.getElementById('kundeQualiStorno1').value) || 15, pp: parseInt(document.getElementById('kundeQualiPP1').value) || 3 },
+            { storno: parseInt(document.getElementById('kundeQualiStorno2').value) || 12, pp: parseInt(document.getElementById('kundeQualiPP2').value) || 3 },
+            { storno: parseInt(document.getElementById('kundeQualiStorno3').value) || 10, pp: parseInt(document.getElementById('kundeQualiPP3').value) || 3 },
+            { storno: parseInt(document.getElementById('kundeQualiStorno4').value) || 8, pp: parseInt(document.getElementById('kundeQualiPP4').value) || 1 }
+        ]
+    };
+    const qbDatumVal = document.getElementById('kundeQualitaetsbonusDatum').value;
+
+    // Kosten
+    const kosten = {};
+    ['kfz', 'unterkunft', 'verpflegung', 'kleidung', 'ausweise'].forEach(art => {
+        const artCap = art.charAt(0).toUpperCase() + art.slice(1);
+        const verteilung = document.getElementById(`kunde${artCap}Verteilung`).value;
+
+        kosten[art] = {
+            aktiv: document.getElementById(`kundeKosten${artCap}`).checked,
+            art: document.getElementById(`kunde${artCap}Art`).value,
+            artFrei: document.getElementById(`kunde${artCap}ArtFrei`).value,
+            betrag: parseFloat(document.getElementById(`kunde${artCap}Betrag`).value) || 0,
+            zeitraum: document.getElementById(`kunde${artCap}Zeitraum`).value,
+            verteilung: verteilung,
+            explizit_wg_id: verteilung === 'explizit' ? document.getElementById(`kunde${artCap}Wg`).value || null : null
+        };
+
+        // Pro (nicht für KFZ)
+        if (art !== 'kfz') {
+            kosten[art].pro = document.getElementById(`kunde${artCap}Pro`).value;
+        }
+    });
+
+    // In Supabase speichern
+    try {
+        const { error } = await supabase
+            .from('customers')
+            .update({
+                provision_sondierung: sondierung,
+                provision_regular: regular,
+                qualitaetsbonus: qualitaetsbonus,
+                qualitaetsbonus_datum: qbDatumVal || null,
+                teilverguetung: document.getElementById('kundeTeilverguetung').checked,
+                teilv_prozent: parseInt(document.getElementById('kundeTeilvProzent').value) || 50,
+                stornopuffer: parseInt(document.getElementById('kundeStornopuffer').value) || 15,
+                endabr_wochen: parseInt(document.getElementById('kundeEndabrWochen').value) || 12,
+                kosten: kosten,
+                sonderposten: kundeSonderposten
+            })
+            .eq('id', activeKundeConfig);
+
+        if (error) throw error;
+
+        showToast(`${kundeConfigData.name} gespeichert`, 'success');
+
+    } catch (error) {
+        console.error('Fehler beim Speichern der Kunden-Konfiguration:', error);
+        showToast('Fehler beim Speichern: ' + error.message, 'error');
+    }
+}
+
+// Abbrechen der Kunde Bearbeitung
+function cancelKundeEdit() {
+    if (activeKundeConfig) {
+        openKundeConfig(activeKundeConfig);
+    }
+}
+
+// Kunde Config editable/readonly setzen
+function setKundeConfigEditable(editable) {
+    kundeEditMode = editable;
+
+    const configBody = document.getElementById('kundeConfigPanel');
+    if (!configBody) return;
+
+    const inputs = configBody.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.disabled = !editable;
+    });
+
+    const toggles = configBody.querySelectorAll('.toggle-switch input');
+    toggles.forEach(toggle => {
+        toggle.disabled = !editable;
+        const slider = toggle.closest('.toggle-switch');
+        if (slider) {
+            slider.style.opacity = editable ? '1' : '0.6';
+            slider.style.pointerEvents = editable ? 'auto' : 'none';
+        }
+    });
+
+    const footer = document.getElementById('kundeConfigFooter');
+    if (footer) {
+        footer.style.display = editable ? 'flex' : 'none';
+    }
+}
+
+// Kunde Toggle-Funktionen
+function toggleKundeSondierung() {
+    const checked = document.getElementById('kundeSondierung').checked;
+    document.getElementById('kundeSondierungSection').style.display = checked ? 'block' : 'none';
+}
+
+function toggleKundeQualiRules() {
+    const checked = document.getElementById('kundeQualitaetsbonus').checked;
+    document.getElementById('kundeQualiRulesSection').style.display = checked ? 'block' : 'none';
+}
+
+function toggleKundeTeilv() {
+    const checked = document.getElementById('kundeTeilverguetung').checked;
+    document.getElementById('kundeTeilvSection').style.display = checked ? 'flex' : 'none';
+}
+
+function toggleKundeKosten(art) {
+    const artCap = art.charAt(0).toUpperCase() + art.slice(1);
+    const checked = document.getElementById(`kundeKosten${artCap}`).checked;
+    document.getElementById(`kunde${artCap}Config`).style.display = checked ? 'block' : 'none';
+}
+
+function toggleKundeKostenartFrei(art) {
+    const artCap = art.charAt(0).toUpperCase() + art.slice(1);
+    const artValue = document.getElementById(`kunde${artCap}Art`).value;
+    document.getElementById(`kunde${artCap}ArtFreiGruppe`).style.display = artValue === 'frei' ? 'flex' : 'none';
+}
+
+function toggleKundeKostenVerteilung(art) {
+    const artCap = art.charAt(0).toUpperCase() + art.slice(1);
+    const verteilung = document.getElementById(`kunde${artCap}Verteilung`).value;
+    document.getElementById(`kunde${artCap}WgGruppe`).style.display = verteilung === 'explizit' ? 'block' : 'none';
+}
+
+// Kunde Sonderposten
+function toggleKundeSonderposten() {
+    const checked = document.getElementById('kundeSonderpostenToggle').checked;
+    document.getElementById('kundeSonderpostenSection').style.display = checked ? 'block' : 'none';
+
+    if (checked && kundeSonderposten.length === 0) {
+        addKundeSonderposten();
+    }
+}
+
+function addKundeSonderposten() {
+    kundeSonderposten.push({
+        bezeichnung: '',
+        betrag: 0,
+        pro: 'team',
+        zeitraum: 'einmalig',
+        verteilung: 'anteilig',
+        explizit_wg_id: null
+    });
+    renderKundeSonderposten();
+}
+
+function removeKundeSonderposten(index) {
+    kundeSonderposten.splice(index, 1);
+    renderKundeSonderposten();
+
+    if (kundeSonderposten.length === 0) {
+        document.getElementById('kundeSonderpostenToggle').checked = false;
+        document.getElementById('kundeSonderpostenSection').style.display = 'none';
+    }
+}
+
+function renderKundeSonderposten() {
+    const container = document.getElementById('kundeSonderpostenList');
+    if (!container) return;
+
+    const kundenWgs = campaignWerbegebiete.filter(wg => wg.kunde === activeKundeConfig);
+    const wgOptions = kundenWgs.map(wg => `<option value="${wg.id}">${wg.name}</option>`).join('');
+
+    container.innerHTML = kundeSonderposten.map((sp, index) => `
+        <div class="kosten-item" style="border: 1px solid var(--border-color); padding: var(--spacing-sm); border-radius: var(--radius-s); margin-bottom: var(--spacing-sm);">
+            <div class="zeile zeile--spread">
+                <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-2">
+                    <label class="eingabefeld-beschriftung-oben">Bezeichnung</label>
+                    <input type="text" class="eingabefeld" value="${sp.bezeichnung || ''}" onchange="kundeSonderposten[${index}].bezeichnung = this.value" placeholder="z.B. Sonderzulage">
+                </div>
+                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                    <label class="eingabefeld-beschriftung-oben">Betrag</label>
+                    <div class="eingabefeld-mit-einheit">
+                        <input type="number" class="eingabefeld" value="${sp.betrag || 0}" onchange="kundeSonderposten[${index}].betrag = parseFloat(this.value) || 0" min="0" step="0.01">
+                        <span class="text-normal--fett">€</span>
+                    </div>
+                </div>
+                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                    <label class="eingabefeld-beschriftung-oben">Pro</label>
+                    <select class="eingabefeld" onchange="kundeSonderposten[${index}].pro = this.value">
+                        <option value="team" ${sp.pro === 'team' ? 'selected' : ''}>Team</option>
+                        <option value="person" ${sp.pro === 'person' ? 'selected' : ''}>Person</option>
+                    </select>
+                </div>
+                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
+                    <label class="eingabefeld-beschriftung-oben">Zeitraum</label>
+                    <select class="eingabefeld" onchange="kundeSonderposten[${index}].zeitraum = this.value">
+                        <option value="tag" ${sp.zeitraum === 'tag' ? 'selected' : ''}>pro Tag</option>
+                        <option value="woche" ${sp.zeitraum === 'woche' ? 'selected' : ''}>pro Woche</option>
+                        <option value="abschnitt" ${sp.zeitraum === 'abschnitt' ? 'selected' : ''}>pro Abschnitt</option>
+                        <option value="einmalig" ${sp.zeitraum === 'einmalig' ? 'selected' : ''}>einmalig</option>
+                    </select>
+                </div>
+                <button class="btn btn-icon btn--hover-rot" onclick="removeKundeSonderposten(${index})" title="Entfernen">
+                    <span class="icon icon--loeschen"></span>
+                </button>
+            </div>
+            <div class="zeile">
+                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                    <label class="eingabefeld-beschriftung-oben">Verteilung</label>
+                    <select class="eingabefeld" onchange="kundeSonderposten[${index}].verteilung = this.value; renderKundeSonderposten();">
+                        <option value="anteilig" ${sp.verteilung === 'anteilig' ? 'selected' : ''}>Anteilig (nach Werber-Anzahl)</option>
+                        <option value="explizit" ${sp.verteilung === 'explizit' ? 'selected' : ''}>Ein WG übernimmt</option>
+                    </select>
+                </div>
+                ${sp.verteilung === 'explizit' ? `
+                <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                    <label class="eingabefeld-beschriftung-oben">WG auswählen</label>
+                    <select class="eingabefeld" onchange="kundeSonderposten[${index}].explizit_wg_id = this.value">
+                        <option value="">WG auswählen...</option>
+                        ${wgOptions}
+                    </select>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+
+    // WG-Werte setzen nach Render
+    kundeSonderposten.forEach((sp, index) => {
+        if (sp.verteilung === 'explizit' && sp.explizit_wg_id) {
+            const select = container.querySelector(`div:nth-child(${index + 1}) select[onchange*="explizit_wg_id"]`);
+            if (select) select.value = sp.explizit_wg_id;
+        }
+    });
+}
+
+// =====================================================================
+// ENDE KUNDE KONFIGURATION
+// =====================================================================
 
 // WG Config editable/readonly setzen
 function setWgConfigEditable(editable) {
