@@ -6581,6 +6581,26 @@ async function saveWerberAreaAssignment(campaignId, kw, werberId, campaignAreaId
             console.error('Fehler beim Speichern der WG-Zuordnung:', error);
             return false;
         }
+
+        // Ledger für betroffene WGs neu berechnen
+        if (typeof aktualisiereDrkKostenLedger === 'function') {
+            try {
+                const campaign = campaigns.find(c => c.id === campaignId);
+                const year = campaign?.year || new Date().getFullYear();
+                const betroffeneWgs = new Set([campaignAreaId]);
+                if (altesWg) betroffeneWgs.add(altesWg);
+
+                for (const wgId of betroffeneWgs) {
+                    const wg = campaign?.einsatzgebiete?.find(eg => eg.id === wgId);
+                    if (wg?.kunde) {
+                        await aktualisiereDrkKostenLedger(wg.kunde, campaignId, wgId, kw, year);
+                    }
+                }
+            } catch (ledgerError) {
+                console.error('Ledger-Aktualisierung nach WG-Zuordnung fehlgeschlagen:', ledgerError);
+            }
+        }
+
         return true;
     } catch (error) {
         console.error('Fehler beim Speichern der WG-Zuordnung:', error);
