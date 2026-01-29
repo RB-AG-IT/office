@@ -1116,14 +1116,22 @@
                                     <div class="zeile">
                                         <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-0-5">
                                             <label class="eingabefeld-beschriftung-oben">Limit</label>
-                                            <input type="number" class="eingabefeld" id="kundeSondLimit" value="100" min="0">
+                                            <input type="number" class="eingabefeld" id="kundeSondLimit" value="100" min="0" onchange="updateKundeSondLimitCalc()">
                                         </div>
                                         <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
                                             <label class="eingabefeld-beschriftung-oben">Typ</label>
-                                            <select class="eingabefeld" id="kundeSondLimitType">
+                                            <select class="eingabefeld" id="kundeSondLimitType" onchange="updateKundeSondLimitCalc()">
                                                 <option value="mg">MG</option>
                                                 <option value="prozent">% Bevölkerung</option>
                                             </select>
+                                        </div>
+                                        <div class="eingabefeld-gruppe eingabefeld-gruppe--fixed-1">
+                                            <label class="eingabefeld-beschriftung-oben">Einwohner</label>
+                                            <input type="number" class="eingabefeld" id="kundeSondEinwohner" placeholder="Auto" min="0" onchange="updateKundeSondLimitCalc()">
+                                        </div>
+                                        <div class="eingabefeld-gruppe">
+                                            <label class="eingabefeld-beschriftung-oben">&nbsp;</label>
+                                            <span class="text-klein text-sekundaer" id="kundeSondLimitCalc" style="height: var(--eingabefeld-hoehe); display: flex; align-items: center;"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -3916,6 +3924,28 @@ function updateSondLimitCalc() {
     }
 }
 
+// Kunden Sond-Limit Berechnung aktualisieren
+function updateKundeSondLimitCalc() {
+    const limitType = document.getElementById('kundeSondLimitType').value;
+    const limitValue = parseFloat(document.getElementById('kundeSondLimit').value) || 0;
+    const calcEl = document.getElementById('kundeSondLimitCalc');
+
+    if (limitType === 'prozent') {
+        const eingabe = parseInt(document.getElementById('kundeSondEinwohner').value);
+        const kunde = kundenListe.find(k => k.id === activeKundeConfig);
+        const bevolkerung = eingabe > 0 ? eingabe : (kunde?.einwohner || 0);
+
+        if (bevolkerung > 0) {
+            const mg = Math.round(bevolkerung * limitValue / 100);
+            calcEl.textContent = `= ${mg.toLocaleString('de-DE')} MG`;
+        } else {
+            calcEl.textContent = '= ? MG';
+        }
+    } else {
+        calcEl.textContent = '';
+    }
+}
+
 // Verträge aus Supabase für Kunde laden
 async function loadVertraegeForKunde(kundeId) {
     if (!kundeId || kundenVertraege[kundeId]) return; // Bereits geladen oder kein Kunde
@@ -4721,6 +4751,21 @@ async function openKundeConfig(kundeId) {
     document.getElementById('kundeSondLimit').value = sond.limit ?? 100;
     document.getElementById('kundeSondLimitType').value = sond.limitType || 'mg';
 
+    // Einwohner-Feld
+    const kundeSondEinwohnerEl = document.getElementById('kundeSondEinwohner');
+    if (sond.einwohner > 0) {
+        kundeSondEinwohnerEl.value = sond.einwohner;
+    } else {
+        kundeSondEinwohnerEl.value = '';
+    }
+    // Placeholder mit Kunden-Stammdaten
+    const kunde = kundenListe.find(k => k.id === activeKundeConfig);
+    kundeSondEinwohnerEl.placeholder = kunde?.einwohner > 0
+        ? `${kunde.einwohner.toLocaleString('de-DE')} (Kunde)`
+        : 'Keine Daten';
+
+    updateKundeSondLimitCalc();
+
     // Regular
     const reg = configData.provision_regular || {};
     document.getElementById('kundeRegJ1').value = reg.j1 ?? 60;
@@ -4825,7 +4870,8 @@ async function saveKundeConfig() {
         j4: parseInt(document.getElementById('kundeSondJ4').value) || 0,
         j5: parseInt(document.getElementById('kundeSondJ5').value) || 0,
         limit: parseFloat(document.getElementById('kundeSondLimit').value) || 100,
-        limitType: document.getElementById('kundeSondLimitType').value
+        limitType: document.getElementById('kundeSondLimitType').value,
+        einwohner: parseInt(document.getElementById('kundeSondEinwohner').value) || 0
     };
 
     // Regular
