@@ -183,7 +183,11 @@
             <!-- Ansprechpartner -->
             <div class="abschnitt--card">
                 <div class="zeile zeile--header" style="justify-content: space-between;">
-                    <div class="text-ueberschrift-abschnitt">Ansprechpartner</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="text-ueberschrift-abschnitt">Ansprechpartner</div>
+                        <span id="pillRechnung"></span>
+                        <span id="pillFormular"></span>
+                    </div>
                     <button type="button" class="btn btn-secondary btn-sm" onclick="addContactPerson()">
                         <span class="icon icon--plus"></span>
                         Hinzufügen
@@ -531,6 +535,25 @@
 
         // CONTACT_ROLES ist zentral in main.js definiert
 
+        // Pill Badge mit Status-Farbe für Kontaktdaten-Vollständigkeit
+        function getContactStatusPill(role, contacts) {
+            const badgeText = CONTACT_ROLE_BADGES[role];
+            if (!badgeText) return '';
+            const person = contacts.find(c => c.role === role);
+            if (!person) {
+                return `<span class="pill pill--error" style="font-size: 10px;"><span class="icon icon--schliessen" style="margin-right: 3px;"></span>${badgeText}</span>`;
+            }
+            const hasEmail = !!(person.email && person.email.trim());
+            const hasPhone = !!(person.phone && person.phone.trim());
+            if (hasEmail && hasPhone) {
+                return `<span class="pill pill--success" style="font-size: 10px;"><span class="icon icon--haken" style="margin-right: 3px;"></span>${badgeText}</span>`;
+            } else if (hasEmail || hasPhone) {
+                return `<span class="pill pill--warning" style="font-size: 10px;"><span class="icon icon--uhr" style="margin-right: 3px;"></span>${badgeText}</span>`;
+            } else {
+                return `<span class="pill pill--error" style="font-size: 10px;"><span class="icon icon--schliessen" style="margin-right: 3px;"></span>${badgeText}</span>`;
+            }
+        }
+
         function addContactPerson() {
             const newId = Date.now();
             contactPersons.push({
@@ -613,12 +636,22 @@
                         badgeEl.textContent = badgeText;
                     }
                 }
+                updateContactStatusPills();
             }
+        }
+
+        function updateContactStatusPills() {
+            const pillRechnung = document.getElementById('pillRechnung');
+            const pillFormular = document.getElementById('pillFormular');
+            if (pillRechnung) pillRechnung.innerHTML = getContactStatusPill('schatzmeister', contactPersons);
+            if (pillFormular) pillFormular.innerHTML = getContactStatusPill('mitgliederbeauftragte', contactPersons);
         }
 
         function renderContactPersons() {
             const container = document.getElementById('contactPersonsContainer');
             const emptyHint = document.getElementById('noContactsHint');
+
+            updateContactStatusPills();
 
             if (contactPersons.length === 0) {
                 container.innerHTML = '';
@@ -1149,11 +1182,14 @@
             // Ortsverein/Stadtverband-Kunde: nur 1 Einsatzgebiet
             if (kundenTyp === 'Ortsverein' || kundenTyp === 'Stadtverband') {
                 const area = { ...areas[0], originalIndex: 0 };
+                const areaContacts = area.contactPersons || [];
+                const ovPillR = getContactStatusPill('schatzmeister', areaContacts);
+                const ovPillF = getContactStatusPill('mitgliederbeauftragte', areaContacts);
                 html = `
                     <div class="list">
                         <div class="list-item">
                             <div class="list-item-info">
-                                <span class="list-item-name">${area.name || '(Name fehlt)'}</span>
+                                <span class="list-item-name">${area.name || '(Name fehlt)'} ${ovPillR} ${ovPillF}</span>
                                 <span class="list-item-meta">${formatAddress(area)}</span>
                             </div>
                             <div class="list-item-actions">
@@ -1269,11 +1305,14 @@
 
         function renderAreaItem(area, isKV) {
             const prefix = isKV ? '<strong>KV</strong> ' : '';
+            const areaContacts = area.contactPersons || [];
+            const pillRechnung = getContactStatusPill('schatzmeister', areaContacts);
+            const pillFormular = getContactStatusPill('mitgliederbeauftragte', areaContacts);
             return `
                 <div class="zeile zeile--center zeile--no-padding">
                     <div class="list-item" style="flex: 1;">
                         <div class="list-item-info">
-                            <span class="list-item-name">${prefix}${area.name || '(Name fehlt)'}</span>
+                            <span class="list-item-name">${prefix}${area.name || '(Name fehlt)'} ${pillRechnung} ${pillFormular}</span>
                             <span class="list-item-meta">${formatAddress(area)}</span>
                         </div>
                         <div class="list-item-actions">
