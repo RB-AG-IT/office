@@ -427,6 +427,7 @@
                 </div>
                 <div class="page-header-mitte"></div>
                 <div class="page-header-rechts" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; cursor: pointer;"><input type="checkbox" id="csvInklStornos"> inkl. Stornos</label>
                     <button class="btn btn-secondary btn-sm" onclick="downloadMitgliederliste('NMG')" title="Neumitglieder-Liste herunterladen"><span class="icon icon--download"></span> NMG</button>
                     <button class="btn btn-secondary btn-sm" onclick="downloadMitgliederliste('ERH')" title="Erhöhungen-Liste herunterladen"><span class="icon icon--download"></span> ERH</button>
                     <button class="btn btn-icon" onclick="closeRechnungDetailModal()">
@@ -3005,8 +3006,13 @@
                     });
                     const loadedRecords = await res.json();
 
-                    // Record-Type filtern (NMG/ERH)
-                    const filteredRecords = loadedRecords.filter(rec => rec.record_type === recordType);
+                    // Record-Type filtern (NMG/ERH) + ggf. Stornos ausschließen
+                    const inklStornos = document.getElementById('csvInklStornos')?.checked || false;
+                    const filteredRecords = loadedRecords.filter(rec => {
+                        if (rec.record_type !== recordType) return false;
+                        if (!inklStornos && rec.record_status === 'storno') return false;
+                        return true;
+                    });
 
                     // Sortierung nach gespeicherter Reihenfolge beibehalten
                     const idOrder = new Map(recordIds.map((id, idx) => [id, idx]));
