@@ -10,9 +10,5 @@ CREATE TABLE public.campaign_assignment_overrides (
     UNIQUE(campaign_id, werber_id, kw, day)
 );
 
--- RLS aktivieren
-ALTER TABLE public.campaign_assignment_overrides ENABLE ROW LEVEL SECURITY;
-
--- Policy: Service-Role hat vollen Zugriff
-CREATE POLICY "Service role full access" ON public.campaign_assignment_overrides
-    FOR ALL USING (true) WITH CHECK (true);
+-- RLS deaktivieren
+ALTER TABLE public.campaign_assignment_overrides DISABLE ROW LEVEL SECURITY;
