@@ -5760,7 +5760,7 @@ const KOSTENART_LABELS = {
     'kfz': 'KFZ',
     'unterkunft': 'Unterkunft',
     'verpflegung': 'Verpflegung',
-    'kleidung': 'DRK Vollmontour',
+    'kleidung': 'DRK Kleidung - Vollmontur',
     'ausweise': 'DRK-Ausweise'
 };
 
