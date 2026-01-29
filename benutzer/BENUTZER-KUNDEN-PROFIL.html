@@ -603,6 +603,15 @@
                             ? contact.customRole
                             : CONTACT_ROLES[contact.role] || 'Unbekannt';
                     }
+                    // Badge live updaten
+                    const badgeEl = card?.querySelector('.pill');
+                    const badgeText = CONTACT_ROLE_BADGES[contact.role] || '';
+                    if (badgeEl && !badgeText) badgeEl.remove();
+                    else if (!badgeEl && badgeText) {
+                        heading?.insertAdjacentHTML('afterend', ` <span class="pill pill--info" style="font-size: 10px;">${badgeText}</span>`);
+                    } else if (badgeEl && badgeText) {
+                        badgeEl.textContent = badgeText;
+                    }
                 }
             }
         }
@@ -624,14 +633,16 @@
                     ? contact.customRole
                     : CONTACT_ROLES[contact.role] || 'Unbekannt';
                 const showCustomRole = contact.role === 'sonstige';
+                const badgeText = CONTACT_ROLE_BADGES[contact.role] || '';
 
                 return `
                     <div class="unterabschnitt--card" data-contact-id="${contact.id}">
                         <button type="button" class="btn btn-icon btn-danger" onclick="removeContactPerson('${contact.id}')" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
                             <span class="icon icon--schliessen"></span>
                         </button>
-                        <div class="zeile">
+                        <div class="zeile" style="align-items: center; gap: 8px;">
                             <div class="text-ueberschrift-unterabschnitt">${roleLabel}</div>
+                            ${badgeText ? `<span class="pill pill--info" style="font-size: 10px;">${badgeText}</span>` : ''}
                         </div>
                         <div class="zeile">
                             <div class="eingabefeld-gruppe">
@@ -1628,6 +1639,14 @@
                             ? contact.customRole
                             : CONTACT_ROLES[contact.role] || 'Unbekannt';
                     }
+                    const badgeEl = card?.querySelector('.pill');
+                    const badgeText = CONTACT_ROLE_BADGES[contact.role] || '';
+                    if (badgeEl && !badgeText) badgeEl.remove();
+                    else if (!badgeEl && badgeText) {
+                        heading?.insertAdjacentHTML('afterend', ` <span class="pill pill--info" style="font-size: 10px;">${badgeText}</span>`);
+                    } else if (badgeEl && badgeText) {
+                        badgeEl.textContent = badgeText;
+                    }
                 }
             }
         }
@@ -1643,14 +1662,16 @@
             container.innerHTML = areaContactPersons.map(contact => {
                 const roleLabel = contact.role === 'sonstige' && contact.customRole ? contact.customRole : CONTACT_ROLES[contact.role] || 'Unbekannt';
                 const showCustomRole = contact.role === 'sonstige';
+                const badgeText = CONTACT_ROLE_BADGES[contact.role] || '';
 
                 return `
                     <div class="unterabschnitt--card" data-area-contact-id="${contact.id}">
                         <button type="button" class="btn btn-icon btn-danger" onclick="removeAreaContactPerson('${contact.id}')" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
                             <span class="icon icon--schliessen"></span>
                         </button>
-                        <div class="zeile">
+                        <div class="zeile" style="align-items: center; gap: 8px;">
                             <div class="text-ueberschrift-unterabschnitt">${roleLabel}</div>
+                            ${badgeText ? `<span class="pill pill--info" style="font-size: 10px;">${badgeText}</span>` : ''}
                         </div>
                         <div class="zeile">
                             <div class="eingabefeld-gruppe">

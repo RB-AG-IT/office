@@ -5765,7 +5765,13 @@ const CONTACT_ROLES = {
     'vorstandsvorsitzender': 'Vorstandsvorsitzender',
     'bereitschaftsleiter': 'Bereitschaftsleiter',
     'schatzmeister': 'Schatzmeister',
+    'jugendrotkreuzleitung': 'Jugendrotkreuzleitung',
     'sonstige': 'Sonstige'
+};
+
+const CONTACT_ROLE_BADGES = {
+    'schatzmeister': 'Pre-Fill Rechnung',
+    'mitgliederbeauftragte': 'Pre-Fill Formular + Email Ansprechpartner'
 };
 
 /**
