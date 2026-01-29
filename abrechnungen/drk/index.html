@@ -2487,6 +2487,29 @@
             abrechnungData.netto = netto;
             abrechnungData.ust = ust;
             abrechnungData.brutto = brutto;
+
+            // Separate Beträge pro Rechnungstyp (proportional)
+            const sondBetragSum = sondierungPositionen.reduce((sum, p) => sum + p.betrag, 0);
+            const regBetragSum = regularPositionen.reduce((sum, p) => sum + p.betrag, 0);
+            const totalPositionenBetrag = sondBetragSum + regBetragSum;
+
+            if (totalPositionenBetrag > 0) {
+                const sondAnteil = sondBetragSum / totalPositionenBetrag;
+                const regAnteil = regBetragSum / totalPositionenBetrag;
+                abrechnungData.sondierungNetto = Math.round(netto * sondAnteil * 100) / 100;
+                abrechnungData.sondierungUst = Math.round(ust * sondAnteil * 100) / 100;
+                abrechnungData.sondierungBrutto = Math.round(brutto * sondAnteil * 100) / 100;
+                abrechnungData.regularNetto = Math.round(netto * regAnteil * 100) / 100;
+                abrechnungData.regularUst = Math.round(ust * regAnteil * 100) / 100;
+                abrechnungData.regularBrutto = Math.round(brutto * regAnteil * 100) / 100;
+            } else {
+                abrechnungData.sondierungNetto = 0;
+                abrechnungData.sondierungUst = 0;
+                abrechnungData.sondierungBrutto = 0;
+                abrechnungData.regularNetto = 0;
+                abrechnungData.regularUst = 0;
+                abrechnungData.regularBrutto = 0;
+            }
         }
 
         // Vorschau für getrennte Rechnungen (eine pro Einsatzgebiet)
@@ -2742,6 +2765,12 @@
                     rpcData.netto = abrechnungData.netto;
                     rpcData.ust = abrechnungData.ust;
                     rpcData.brutto = abrechnungData.brutto;
+                    rpcData.sondierungNetto = abrechnungData.sondierungNetto;
+                    rpcData.sondierungUst = abrechnungData.sondierungUst;
+                    rpcData.sondierungBrutto = abrechnungData.sondierungBrutto;
+                    rpcData.regularNetto = abrechnungData.regularNetto;
+                    rpcData.regularUst = abrechnungData.regularUst;
+                    rpcData.regularBrutto = abrechnungData.regularBrutto;
                 } else {
                     // Getrennt-Format: Array von Rechnungen
                     rpcData.rechnungsart = 'getrennt';

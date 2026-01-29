@@ -75,10 +75,10 @@ BEGIN
                 true,  -- ist_sondierung
                 v_zeitraum_von,
                 v_zeitraum_bis,
-                (input_data->>'netto')::NUMERIC,
+                COALESCE((input_data->>'sondierungNetto')::NUMERIC, (input_data->>'netto')::NUMERIC),
                 19,
-                (input_data->>'ust')::NUMERIC,
-                (input_data->>'brutto')::NUMERIC,
+                COALESCE((input_data->>'sondierungUst')::NUMERIC, (input_data->>'ust')::NUMERIC),
+                COALESCE((input_data->>'sondierungBrutto')::NUMERIC, (input_data->>'brutto')::NUMERIC),
                 jsonb_build_object(
                     'positionen', input_data->'sondierungPositionen',
                     'zubuchungen', COALESCE(input_data->'zubuchungen', '[]'::JSONB),
@@ -157,10 +157,10 @@ BEGIN
                 false,  -- ist_sondierung = false (Regular)
                 v_zeitraum_von,
                 v_zeitraum_bis,
-                (input_data->>'netto')::NUMERIC,
+                COALESCE((input_data->>'regularNetto')::NUMERIC, (input_data->>'netto')::NUMERIC),
                 19,
-                (input_data->>'ust')::NUMERIC,
-                (input_data->>'brutto')::NUMERIC,
+                COALESCE((input_data->>'regularUst')::NUMERIC, (input_data->>'ust')::NUMERIC),
+                COALESCE((input_data->>'regularBrutto')::NUMERIC, (input_data->>'brutto')::NUMERIC),
                 jsonb_build_object(
                     'positionen', input_data->'regularPositionen',
                     'zubuchungen', COALESCE(input_data->'zubuchungen', '[]'::JSONB),
