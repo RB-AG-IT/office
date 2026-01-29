@@ -105,7 +105,7 @@
                     </div>
                     <div class="eingabefeld-gruppe">
                         <label class="eingabefeld-beschriftung-oben">Telefon</label>
-                        <input type="tel" class="eingabefeld" id="contactPhone" placeholder="+49 621 12345">
+                        <input type="tel" class="eingabefeld" id="contactPhone" placeholder="+49 621 12345" oninput="formatPhone(this)">
                         <span class="eingabefeld-beschriftung-unten"></span>
                     </div>
                 </div>
@@ -562,18 +562,46 @@
             renderContactPersons();
         }
 
+        // Telefonnummer formatieren: +49 123 5920818
+        function formatPhone(input) {
+            let raw = input.value.replace(/[^\d+]/g, '');
+            let formatted = '';
+            if (raw.startsWith('+')) {
+                formatted = '+';
+                raw = raw.substring(1);
+            }
+            const digits = raw.replace(/\D/g, '');
+            for (let i = 0; i < digits.length; i++) {
+                if (i === 2 || i === 5) formatted += ' ';
+                formatted += digits[i];
+            }
+            const cursor = input.selectionStart;
+            input.value = formatted;
+            input.setSelectionRange(cursor, cursor);
+            return formatted;
+        }
+
         function updateContactPerson(id, field, value) {
             const contact = contactPersons.find(c => String(c.id) === String(id));
             if (contact) {
                 contact[field] = value;
 
-                // Bei Rolle "sonstige": Freitext-Feld anzeigen
-                if (field === 'role') {
+                // Bei Rolle: Überschrift live aktualisieren + Freitext-Feld
+                if (field === 'role' || field === 'customRole') {
                     const card = document.querySelector(`[data-contact-id="${id}"]`);
-                    const customRoleInput = card?.querySelector('.sonstige-rolle-input');
-                    if (customRoleInput) {
-                        customRoleInput.style.display = value === 'sonstige' ? 'block' : 'none';
-                        if (value !== 'sonstige') contact.customRole = '';
+                    if (field === 'role') {
+                        const customRoleInput = card?.querySelector('.sonstige-rolle-input');
+                        if (customRoleInput) {
+                            customRoleInput.style.display = value === 'sonstige' ? 'block' : 'none';
+                            if (value !== 'sonstige') contact.customRole = '';
+                        }
+                    }
+                    // Überschrift live updaten
+                    const heading = card?.querySelector('.text-ueberschrift-unterabschnitt');
+                    if (heading) {
+                        heading.textContent = contact.role === 'sonstige' && contact.customRole
+                            ? contact.customRole
+                            : CONTACT_ROLES[contact.role] || 'Unbekannt';
                     }
                 }
             }
@@ -649,6 +677,7 @@
                                 <label class="eingabefeld-beschriftung-oben">Telefon</label>
                                 <input type="tel" class="eingabefeld" value="${contact.phone}"
                                     onchange="updateContactPerson('${contact.id}', 'phone', this.value)"
+                                    oninput="formatPhone(this)"
                                     placeholder="+49 123 456789">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
@@ -1584,12 +1613,20 @@
             const contact = areaContactPersons.find(c => String(c.id) === String(id));
             if (contact) {
                 contact[field] = value;
-                if (field === 'role') {
+                if (field === 'role' || field === 'customRole') {
                     const card = document.querySelector(`[data-area-contact-id="${id}"]`);
-                    const customInput = card?.querySelector('.sonstige-rolle-input');
-                    if (customInput) {
-                        customInput.style.display = value === 'sonstige' ? 'block' : 'none';
-                        if (value !== 'sonstige') contact.customRole = '';
+                    if (field === 'role') {
+                        const customInput = card?.querySelector('.sonstige-rolle-input');
+                        if (customInput) {
+                            customInput.style.display = value === 'sonstige' ? 'block' : 'none';
+                            if (value !== 'sonstige') contact.customRole = '';
+                        }
+                    }
+                    const heading = card?.querySelector('.text-ueberschrift-unterabschnitt');
+                    if (heading) {
+                        heading.textContent = contact.role === 'sonstige' && contact.customRole
+                            ? contact.customRole
+                            : CONTACT_ROLES[contact.role] || 'Unbekannt';
                     }
                 }
             }
@@ -1649,7 +1686,7 @@
                             </div>
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Telefon</label>
-                                <input type="tel" class="eingabefeld" value="${contact.phone}" onchange="updateAreaContactPerson('${contact.id}', 'phone', this.value)" placeholder="+49 123 456789">
+                                <input type="tel" class="eingabefeld" value="${contact.phone}" onchange="updateAreaContactPerson('${contact.id}', 'phone', this.value)" oninput="formatPhone(this)" placeholder="+49 123 456789">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                         </div>
