@@ -2866,9 +2866,10 @@
             const recordType = typ === 'ERH' ? 'erhoehung' : 'neumitglied';
 
             try {
-                // Records für den Zeitraum und Typ laden
+                // Records für den Zeitraum und Typ laden (nur aktive)
                 let query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(name)`;
                 query += `&record_type=eq.${recordType}`;
+                query += `&record_status=eq.aktiv`;
                 query += `&campaign_id=eq.${r.campaign_id}`;
 
                 // Zeitraum-Filter
