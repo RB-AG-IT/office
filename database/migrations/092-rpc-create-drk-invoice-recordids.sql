@@ -46,6 +46,106 @@ BEGIN
 
     -- Fall 1: Zusammen - Eine Rechnung für alle Einsatzgebiete
     IF v_rechnungsart = 'zusammen' THEN
+
+        -- Fall 1b: EA als einzelne Rechnung (Sondierung + Regular zusammen)
+        IF (input_data->>'einzelrechnung')::BOOLEAN = true THEN
+            INSERT INTO invoices (
+                customer_id,
+                campaign_id,
+                status,
+                abrechnungstyp,
+                empfaenger_typ,
+                kunden_nr,
+                vertragsnummer,
+                ist_sondierung,
+                period_start,
+                period_end,
+                netto_auszahlung,
+                vat_rate,
+                vat_amount,
+                total_payout,
+                calculation_data
+            ) VALUES (
+                v_kunde_id,
+                v_kampagne_id,
+                v_status,
+                v_typ,
+                v_empfaenger_typ,
+                v_kunden_nr,
+                v_vertrag,
+                NULL,  -- ist_sondierung = NULL (enthält beides)
+                v_zeitraum_von,
+                v_zeitraum_bis,
+                (input_data->>'netto')::NUMERIC,
+                19,
+                (input_data->>'ust')::NUMERIC,
+                (input_data->>'brutto')::NUMERIC,
+                jsonb_build_object(
+                    'sondierungPositionen', COALESCE(input_data->'sondierungPositionen', '[]'::JSONB),
+                    'regularPositionen', COALESCE(input_data->'regularPositionen', '[]'::JSONB),
+                    'zubuchungen', COALESCE(input_data->'zubuchungen', '[]'::JSONB),
+                    'stornopuffer', input_data->'stornopuffer',
+                    'stornopufferProzent', input_data->'stornopufferProzent',
+                    'zwischensumme', input_data->'zwischensumme',
+                    'bereitsAbgerechnetSumme', input_data->'bereitsAbgerechnetSumme',
+                    'sondierungNetto', input_data->'sondierungNetto',
+                    'regularNetto', input_data->'regularNetto'
+                )
+            ) RETURNING id INTO v_new_invoice_id;
+
+            v_created_invoices := v_created_invoices || jsonb_build_object(
+                'id', v_new_invoice_id,
+                'typ', 'ea'
+            );
+
+            -- Entitlements für Sondierung aktualisieren
+            FOR v_record IN SELECT * FROM jsonb_array_elements(COALESCE(input_data->'sondierungPositionen', '[]'::JSONB))
+            LOOP
+                UPDATE record_entitlements
+                SET
+                    invoice_id = v_new_invoice_id,
+                    status = 'abgerechnet',
+                    abgerechnet_am = NOW()::DATE,
+                    ist_sondierung = true,
+                    basis_satz = (v_record->>'satz')::INTEGER
+                WHERE customer_id = v_kunde_id
+                  AND campaign_area_id = (v_record->>'gebietId')::UUID
+                  AND verguetungsjahr = 1
+                  AND status IN ('faellig', 'ausstehend')
+                  AND invoice_id IS NULL;
+            END LOOP;
+
+            -- Entitlements für Regular aktualisieren
+            FOR v_record IN SELECT * FROM jsonb_array_elements(COALESCE(input_data->'regularPositionen', '[]'::JSONB))
+            LOOP
+                UPDATE record_entitlements
+                SET
+                    invoice_id = v_new_invoice_id,
+                    status = 'abgerechnet',
+                    abgerechnet_am = NOW()::DATE,
+                    ist_sondierung = false,
+                    basis_satz = (v_record->>'satz')::INTEGER
+                WHERE customer_id = v_kunde_id
+                  AND campaign_area_id = (v_record->>'gebietId')::UUID
+                  AND verguetungsjahr = 1
+                  AND status IN ('faellig', 'ausstehend')
+                  AND invoice_id IS NULL;
+            END LOOP;
+
+            -- Ledger-Einträge mit invoice_id aktualisieren
+            FOR v_zubuchung IN SELECT * FROM jsonb_array_elements(COALESCE(input_data->'zubuchungen', '[]'::JSONB))
+            LOOP
+                v_ledger_id := (v_zubuchung->>'ledgerId')::UUID;
+                IF v_ledger_id IS NOT NULL THEN
+                    UPDATE drk_cost_ledger
+                    SET invoice_id = v_new_invoice_id
+                    WHERE id = v_ledger_id AND invoice_id IS NULL;
+                END IF;
+            END LOOP;
+
+        ELSE
+        -- Fall 1a: ZA - Sondierung und Regular als separate Rechnungen
+
         -- Sondierungsrechnung erstellen (wenn Positionen vorhanden)
         IF jsonb_array_length(COALESCE(input_data->'sondierungPositionen', '[]'::JSONB)) > 0 THEN
             INSERT INTO invoices (
@@ -209,6 +309,8 @@ BEGIN
                 END IF;
             END LOOP;
         END IF;
+
+        END IF; -- Ende ELSE (Fall 1a: ZA separate Rechnungen)
 
     -- Fall 2: Getrennt - Eine Rechnung pro Einsatzgebiet (enthält Sondierung + Regular)
     ELSE

@@ -2083,7 +2083,7 @@
                 // Bei EA: Bereits bezahlte ZAs laden
                 if (abrTyp === 'EA') {
                     const zaResponse = await fetch(
-                        `${SUPABASE_URL}/rest/v1/invoices?customer_id=eq.${kundeId}&campaign_id=eq.${kampagneId}&abrechnungstyp=eq.ZA&status=neq.storniert&select=id,invoice_number,netto_auszahlung,period_start,period_end,campaign_area_id`,
+                        `${SUPABASE_URL}/rest/v1/invoices?customer_id=eq.${kundeId}&campaign_id=eq.${kampagneId}&abrechnungstyp=eq.ZA&status=neq.storniert&select=id,invoice_number,netto_auszahlung,period_start,period_end,campaign_area_id,ist_sondierung,calculation_data`,
                         { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                     );
                     if (zaResponse.ok) {
@@ -2175,6 +2175,24 @@
             const sondierungPositionen = [];
             const regularPositionen = [];
 
+            // Bei EA: Sondierungs-RecordIds aus den ZA-Rechnungen extrahieren
+            let eingefroreneSondierungIds = new Set();
+            if (typ === 'EA' && abrechnungData.bereitsAbgerechnet?.length > 0) {
+                abrechnungData.bereitsAbgerechnet.forEach(za => {
+                    if (za.calculation_data?.positionen) {
+                        // Zusammen-Modus ZAs: ist_sondierung=true → Sondierung
+                        if (za.ist_sondierung === true) {
+                            za.calculation_data.positionen.forEach(p => {
+                                (p.recordIds || []).forEach(id => eingefroreneSondierungIds.add(id));
+                            });
+                        }
+                    } else if (za.calculation_data?.sondierungRecordIds) {
+                        // Getrennt-Modus ZAs
+                        za.calculation_data.sondierungRecordIds.forEach(id => eingefroreneSondierungIds.add(id));
+                    }
+                });
+            }
+
             gebiete.forEach(gebiet => {
                 // Records für dieses Gebiet filtern
                 let gebietRecords = records.filter(r => r.campaign_area_id === gebiet.id);
@@ -2197,9 +2215,15 @@
                     }
                 }
 
-                // Aufteilung: erste X → Sondierung, Rest → Regular
-                const sondierungRecords = gebietRecords.slice(0, sondierungLimit);
-                const regularRecords = gebietRecords.slice(sondierungLimit);
+                // Aufteilung: bei EA eingefrorene Zuordnung nutzen, sonst Limit
+                let sondierungRecords, regularRecords;
+                if (typ === 'EA' && eingefroreneSondierungIds.size > 0) {
+                    sondierungRecords = gebietRecords.filter(r => eingefroreneSondierungIds.has(r.id));
+                    regularRecords = gebietRecords.filter(r => !eingefroreneSondierungIds.has(r.id));
+                } else {
+                    sondierungRecords = gebietRecords.slice(0, sondierungLimit);
+                    regularRecords = gebietRecords.slice(sondierungLimit);
+                }
 
                 // Nach Familienname sortieren
                 sondierungRecords.sort((a, b) => (a.last_name || '').localeCompare(b.last_name || ''));
@@ -2444,7 +2468,7 @@
                 </tr>`);
             }
 
-            // Bei EA: Bereits bezahlte ZAs anzeigen
+            // Bei EA: Bereits bezahlte ZAs anzeigen mit Sondierung/Regular-Label
             if (typ === 'EA' && bereitsAbgerechnetSumme > 0) {
                 const gebietIds = gebiete.map(g => g.id);
                 const relevanteZAs = abrechnungData.bereitsAbgerechnet.filter(za =>
@@ -2455,8 +2479,18 @@
                 </tr>`);
                 relevanteZAs.forEach(za => {
                     const periode = `${formatDate(za.period_start)} - ${formatDate(za.period_end)}`;
+                    // Label: Sondierung/Regular/Gebietname
+                    let zaLabel = '';
+                    if (za.ist_sondierung === true) {
+                        zaLabel = ' (Sondierung)';
+                    } else if (za.ist_sondierung === false) {
+                        zaLabel = ' (Regular)';
+                    } else if (za.campaign_area_id) {
+                        const zaGebiet = gebiete.find(g => g.id === za.campaign_area_id);
+                        zaLabel = zaGebiet ? ` (${zaGebiet.name})` : '';
+                    }
                     footerRows.push(`<tr>
-                        <td colspan="5" class="text-right">${za.invoice_number} (${periode})</td>
+                        <td colspan="5" class="text-right">${za.invoice_number}${zaLabel} (${periode})</td>
                         <td class="text-right text-error">-${(za.netto_auszahlung || 0).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</td>
                     </tr>`);
                 });
@@ -2488,28 +2522,57 @@
             abrechnungData.ust = ust;
             abrechnungData.brutto = brutto;
 
-            // Separate Beträge pro Rechnungstyp (proportional)
+            // Separate Beträge pro Rechnungstyp (eigenständige Berechnung)
             const sondBetragSum = sondierungPositionen.reduce((sum, p) => sum + p.betrag, 0);
             const regBetragSum = regularPositionen.reduce((sum, p) => sum + p.betrag, 0);
-            const totalPositionenBetrag = sondBetragSum + regBetragSum;
+            const zubuchungenBetrag = zubuchungen.reduce((sum, z) => sum + z.betrag, 0);
 
-            if (totalPositionenBetrag > 0) {
-                const sondAnteil = sondBetragSum / totalPositionenBetrag;
-                const regAnteil = regBetragSum / totalPositionenBetrag;
-                abrechnungData.sondierungNetto = Math.round(netto * sondAnteil * 100) / 100;
-                abrechnungData.sondierungUst = Math.round(ust * sondAnteil * 100) / 100;
-                abrechnungData.sondierungBrutto = Math.round(brutto * sondAnteil * 100) / 100;
-                abrechnungData.regularNetto = Math.round(netto * regAnteil * 100) / 100;
-                abrechnungData.regularUst = Math.round(ust * regAnteil * 100) / 100;
-                abrechnungData.regularBrutto = Math.round(brutto * regAnteil * 100) / 100;
-            } else {
-                abrechnungData.sondierungNetto = 0;
-                abrechnungData.sondierungUst = 0;
-                abrechnungData.sondierungBrutto = 0;
-                abrechnungData.regularNetto = 0;
-                abrechnungData.regularUst = 0;
-                abrechnungData.regularBrutto = 0;
+            // Zubuchungen auf Sondierung (falls keine Sondierung → Regular)
+            const hatSondierung = sondierungPositionen.length > 0;
+
+            // Sondierung: Positionen + Zubuchungen − Stornopuffer
+            const sondZwischensumme = sondBetragSum + (hatSondierung ? zubuchungenBetrag : 0);
+            const sondStornopuffer = sondZwischensumme * stornopufferProzent / 100;
+            let sondNetto = sondZwischensumme - sondStornopuffer;
+
+            // Regular: Positionen (+ Zubuchungen falls keine Sondierung) − Stornopuffer
+            const regZwischensumme = regBetragSum + (hatSondierung ? 0 : zubuchungenBetrag);
+            const regStornopuffer = regZwischensumme * stornopufferProzent / 100;
+            let regNetto = regZwischensumme - regStornopuffer;
+
+            // Bei EA: bereitsAbgerechnet getrennt nach Sondierung/Regular abziehen
+            if (typ === 'EA' && abrechnungData.bereitsAbgerechnet?.length > 0) {
+                const gebietIds = gebiete.map(g => g.id);
+                let bereitsAbgerechnetSondierung = 0;
+                let bereitsAbgerechnetRegular = 0;
+                abrechnungData.bereitsAbgerechnet.forEach(za => {
+                    if (!za.campaign_area_id || gebietIds.includes(za.campaign_area_id)) {
+                        if (za.ist_sondierung === true) {
+                            bereitsAbgerechnetSondierung += (za.netto_auszahlung || 0);
+                        } else if (za.ist_sondierung === false) {
+                            bereitsAbgerechnetRegular += (za.netto_auszahlung || 0);
+                        } else {
+                            // Getrennt-Modus ZAs (ist_sondierung=NULL): anteilig aufteilen
+                            // oder komplett von Gesamt abziehen (wird schon oben gemacht)
+                            bereitsAbgerechnetSondierung += (za.netto_auszahlung || 0);
+                        }
+                    }
+                });
+                sondNetto -= bereitsAbgerechnetSondierung;
+                regNetto -= bereitsAbgerechnetRegular;
             }
+
+            const sondUst = sondNetto * 0.19;
+            const sondBrutto = sondNetto + sondUst;
+            const regUst = regNetto * 0.19;
+            const regBrutto = regNetto + regUst;
+
+            abrechnungData.sondierungNetto = Math.round(sondNetto * 100) / 100;
+            abrechnungData.sondierungUst = Math.round(sondUst * 100) / 100;
+            abrechnungData.sondierungBrutto = Math.round(sondBrutto * 100) / 100;
+            abrechnungData.regularNetto = Math.round(regNetto * 100) / 100;
+            abrechnungData.regularUst = Math.round(regUst * 100) / 100;
+            abrechnungData.regularBrutto = Math.round(regBrutto * 100) / 100;
         }
 
         // Vorschau für getrennte Rechnungen (eine pro Einsatzgebiet)
@@ -2765,6 +2828,10 @@
                     rpcData.netto = abrechnungData.netto;
                     rpcData.ust = abrechnungData.ust;
                     rpcData.brutto = abrechnungData.brutto;
+                    // Bei EA: Eine einzelne Rechnung (nicht Sondierung + Regular getrennt)
+                    if (abrechnungData.typ === 'EA') {
+                        rpcData.einzelrechnung = true;
+                    }
                     rpcData.sondierungNetto = abrechnungData.sondierungNetto;
                     rpcData.sondierungUst = abrechnungData.sondierungUst;
                     rpcData.sondierungBrutto = abrechnungData.sondierungBrutto;
