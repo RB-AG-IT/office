@@ -2115,7 +2115,7 @@
                                     data-kostenart="${k.kostenart}"
                                     data-einheiten="${k.einheiten || 1}"
                                     data-einzelbetrag="${k.einzelbetrag || k.betrag}">
-                                <span class="checkbox-label">${k.bezeichnung || k.kostenart} (${gebietName})</span>
+                                <span class="checkbox-label">${KOSTENART_LABELS[k.kostenart] || k.kostenart}${k.bezeichnung && k.bezeichnung !== k.kostenart ? ' (' + k.bezeichnung + ')' : ''} (${gebietName})</span>
                                 <span class="checkbox-info text-klein">${formatCurrency(k.betrag)}</span>
                             </label>`;
                     }).join('');
@@ -2420,7 +2420,7 @@
                     zwischensumme += g.gesamt;
                     rows.push(`<tr>
                         <td class="text-left">C${posNrC++}</td>
-                        <td class="text-left">${g.bezeichnung}${g.kostenart ? ' (' + g.kostenart + ')' : ''} ${g.gebietName}</td>
+                        <td class="text-left">${KOSTENART_LABELS[g.kostenart] || g.kostenart}${g.bezeichnung && g.bezeichnung !== g.kostenart ? ' (' + g.bezeichnung + ')' : ''} ${g.gebietName}</td>
                         <td class="text-right">${g.anzahl}</td>
                         <td class="text-right">${g.einzelpreis.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td class="text-center">+</td>
@@ -3277,7 +3277,7 @@
                 sortierteZubuchungen.forEach(g => {
                     rows.push(`<tr>
                         <td class="text-left">C${posNrC++}</td>
-                        <td class="text-left">${g.bezeichnung}${g.kostenart ? ' (' + g.kostenart + ')' : ''} ${g.gebietName}</td>
+                        <td class="text-left">${KOSTENART_LABELS[g.kostenart] || g.kostenart}${g.bezeichnung && g.bezeichnung !== g.kostenart ? ' (' + g.bezeichnung + ')' : ''} ${g.gebietName}</td>
                         <td class="text-right">${g.anzahl}</td>
                         <td class="text-right">${(g.einzelpreis || 0).toLocaleString('de-DE', {minimumFractionDigits: 2})}</td>
                         <td class="text-center">+</td>
@@ -3543,7 +3543,7 @@
                     return `<tr>
                         <td class="col-s text-left">KW ${e.kw}</td>
                         <td class="col-s text-center"><span class="badge badge--small ${typBadge}">${e.typ}</span></td>
-                        <td class="col-name text-left">${e.bezeichnung || e.kostenart || '-'}</td>
+                        <td class="col-name text-left">${KOSTENART_LABELS[e.kostenart] || e.bezeichnung || e.kostenart || '-'}${e.bezeichnung && e.bezeichnung !== e.kostenart ? ' (' + e.bezeichnung + ')' : ''}</td>
                         <td class="col-m text-left">${e.campaign_areas?.name || '-'}</td>
                         <td class="col-s text-right">${e.einheiten || 1}</td>
                         <td class="col-m text-right">${formatCurrency(e.betrag)}</td>
@@ -3611,7 +3611,7 @@
                     return `<tr>
                         <td class="col-s text-left">KW ${e.kw}/${e.year}</td>
                         <td class="col-s text-center"><span class="badge badge--small ${typBadge}">${e.typ}</span></td>
-                        <td class="col-name text-left">${e.bezeichnung || e.kostenart || '-'}</td>
+                        <td class="col-name text-left">${KOSTENART_LABELS[e.kostenart] || e.bezeichnung || e.kostenart || '-'}${e.bezeichnung && e.bezeichnung !== e.kostenart ? ' (' + e.bezeichnung + ')' : ''}</td>
                         <td class="col-m text-left">${e.campaign_areas?.name || '-'}</td>
                         <td class="col-s text-right">${e.einheiten || 1}</td>
                         <td class="col-m text-right">${formatCurrency(e.betrag)}</td>
@@ -3887,7 +3887,7 @@
                     bPositionen.push(`
                         <tr>
                             <td class="pos-nr">B${posNrB}</td>
-                            <td class="pos-beschreibung">${g.bezeichnung}${g.kostenart ? ' (' + g.kostenart + ')' : ''}<br><span class="pos-sub">${g.gebietName}</span></td>
+                            <td class="pos-beschreibung">${KOSTENART_LABELS[g.kostenart] || g.kostenart}${g.bezeichnung && g.bezeichnung !== g.kostenart ? ' (' + g.bezeichnung + ')' : ''}<br><span class="pos-sub">${g.gebietName}</span></td>
                             <td class="pos-right">${g.anzahl}</td>
                             <td class="pos-right">${formatPdfEuro(g.einzelpreis)}</td>
                             <td class="pos-right">+</td>

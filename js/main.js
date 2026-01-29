@@ -5756,6 +5756,14 @@ function getAuditButtonsHTML(contextId = 'default') {
 /**
  * Ansprechpartner-Rollen (zentral für alle Seiten)
  */
+const KOSTENART_LABELS = {
+    'kfz': 'KFZ',
+    'unterkunft': 'Unterkunft',
+    'verpflegung': 'Verpflegung',
+    'kleidung': 'DRK Vollmontour',
+    'ausweise': 'DRK-Ausweise'
+};
+
 const CONTACT_ROLES = {
     'geschaeftsfuehrer': 'Geschäftsführer',
     'mitgliederbeauftragte': 'Mitgliederbeauftragte',

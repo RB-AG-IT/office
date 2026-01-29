@@ -178,7 +178,8 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
 
         await aktualisiereLedgerEintrag(
             supabase, customerId, campaignId, campaignAreaId,
-            kostenart, pro, zeitraum, config.betrag, config.artFrei || kostenart,
+            kostenart, pro, zeitraum, config.betrag,
+            config.art === 'frei' && config.artFrei ? config.artFrei : (config.art === 'aufwand' ? 'Aufwands- & Beschaffungskosten' : kostenart),
             sollBetrag, einheiten, kw, year, neueWerberIds
         );
     }
@@ -386,7 +387,7 @@ async function aktualisiereLedgerEintrag(
         if (!bereitsAbgerechnet) {
             // Update erlaubt
             await supabase.from('drk_cost_ledger')
-                .update({ betrag: sollBetrag, einheiten: einheiten })
+                .update({ betrag: sollBetrag, einheiten: einheiten, bezeichnung: bezeichnung })
                 .eq('id', existing.id);
         } else {
             // Korrektur-Buchung mit Differenz
@@ -422,6 +423,11 @@ async function aktualisiereLedgerEintrag(
                 onConflict: 'customer_id,campaign_id,campaign_area_id,user_id,kostenart'
             });
         }
+    } else if (existing && !bereitsAbgerechnet) {
+        // Bezeichnung aktualisieren auch ohne Betragsänderung
+        await supabase.from('drk_cost_ledger')
+            .update({ bezeichnung: bezeichnung })
+            .eq('id', existing.id);
     }
 }
 
