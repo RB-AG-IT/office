@@ -6538,6 +6538,38 @@ async function saveWerberAreaAssignment(campaignId, kw, werberId, campaignAreaId
             return false;
         }
 
+        // Aktuelles (altes) WG laden bevor wir updaten
+        const { data: currentWerber } = await supabase
+            .from('campaign_assignment_werber')
+            .select('campaign_area_id')
+            .eq('assignment_id', assignment.id)
+            .eq('werber_id', werberId)
+            .single();
+
+        const altesWg = currentWerber?.campaign_area_id;
+
+        // Overrides für vergangene Tage speichern (nur wenn aktuelle KW und WG sich ändert)
+        if (altesWg && altesWg !== campaignAreaId) {
+            const now = new Date();
+            const currentKw = getKW(now);
+
+            if (kw === currentKw) {
+                const todayIndex = (now.getDay() + 6) % 7; // 0=Mo, 1=Di, ..., 5=Sa, 6=So
+
+                for (let day = 0; day < todayIndex && day <= 5; day++) {
+                    await supabase
+                        .from('campaign_assignment_overrides')
+                        .upsert({
+                            campaign_id: campaignId,
+                            werber_id: werberId,
+                            kw: kw,
+                            day: day,
+                            campaign_area_id: altesWg
+                        }, { onConflict: 'campaign_id,werber_id,kw,day' });
+                }
+            }
+        }
+
         // campaign_area_id in campaign_assignment_werber updaten
         const { error } = await supabase
             .from('campaign_assignment_werber')

@@ -4,6 +4,49 @@
  */
 
 /**
+ * Filtert Attendance tagesgenau nach WG-Zuordnung (Override > Wochen-Zuordnung)
+ * Gibt tiefe Kopien zurück, bei denen day_X = false für Tage die nicht zu diesem WG gehören
+ */
+function filterAttendanceByWgAndDay(attendance, overrides, assignments, campaignAreaId, kw) {
+    if (!attendance || attendance.length === 0) return [];
+
+    const assignment = assignments?.find(a => a.kw === kw);
+    const result = [];
+
+    attendance.forEach(a => {
+        // Wochen-Zuordnung für diesen Werber
+        const werber = assignment?.campaign_assignment_werber?.find(w => w.werber_id === a.user_id);
+        const wochenWgId = werber?.campaign_area_id;
+
+        // Tiefe Kopie der Attendance
+        const copy = { ...a };
+        let hatRelevanteTage = false;
+
+        for (let day = 0; day <= 5; day++) {
+            if (copy[`day_${day}`] !== true) continue;
+
+            // Override für diesen Werber + Tag?
+            const override = (overrides || []).find(
+                o => o.werber_id === a.user_id && o.day === day
+            );
+            const tagesWgId = override ? override.campaign_area_id : wochenWgId;
+
+            if (tagesWgId !== campaignAreaId) {
+                copy[`day_${day}`] = false;
+            } else {
+                hatRelevanteTage = true;
+            }
+        }
+
+        if (hatRelevanteTage) {
+            result.push(copy);
+        }
+    });
+
+    return result;
+}
+
+/**
  * Aktualisiert den DRK-Kosten-Ledger für eine bestimmte KW
  * Wird aufgerufen bei: Attendance-Änderung ODER Kampagnen-Modal speichern
  *
@@ -77,12 +120,17 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
         return;
     }
 
-    // 4. Nur Attendance für dieses Gebiet filtern
-    const gebietAttendance = (attendance || []).filter(a => {
-        const assignment = assignments?.find(ass => ass.kw === kw);
-        const werber = assignment?.campaign_assignment_werber?.find(w => w.werber_id === a.user_id);
-        return werber?.campaign_area_id === campaignAreaId;
-    });
+    // 3b. Overrides für diese KW laden
+    const { data: overrides } = await supabase
+        .from('campaign_assignment_overrides')
+        .select('werber_id, day, campaign_area_id')
+        .eq('campaign_id', campaignId)
+        .eq('kw', kw);
+
+    // 4. Attendance tagesgenau für dieses Gebiet filtern (mit Overrides)
+    const gebietAttendance = filterAttendanceByWgAndDay(
+        attendance, overrides, assignments, campaignAreaId, kw
+    );
 
     // 5. Pro Kostenart berechnen und Ledger aktualisieren
     const kostenarten = ['kfz', 'unterkunft', 'verpflegung', 'kleidung', 'ausweise'];
@@ -110,7 +158,7 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
                 relevantAttendance = [];
             }
         } else {
-            // Anteilig: Jedes WG zahlt für seine eigenen Werber
+            // Anteilig: Jedes WG zahlt für seine eigenen Werber (tagesgenau)
             relevantAttendance = gebietAttendance;
         }
 
@@ -122,7 +170,7 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
 
         // Bei "pro: team" und Kunden-Kosten: Anteilige Aufteilung auf WGs
         if (pro === 'team' && zeitraum === 'tag' && !area.individuelle_kosten && verteilung !== 'explizit') {
-            const anteil = berechneWgAnteil(attendance, assignments, campaignAreaId, kw);
+            const anteil = berechneWgAnteil(attendance, assignments, overrides, campaignAreaId, kw);
             einheiten = einheiten * anteil;
         }
 
@@ -165,7 +213,7 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
 
             // Bei "pro: team" und Kunden-Kosten: Anteilige Aufteilung auf WGs
             if (pro === 'team' && zeitraum === 'tag' && !area.individuelle_kosten && verteilung !== 'explizit') {
-                const anteil = berechneWgAnteil(attendance, assignments, campaignAreaId, kw);
+                const anteil = berechneWgAnteil(attendance, assignments, overrides, campaignAreaId, kw);
                 einheiten = einheiten * anteil;
             }
 
@@ -181,32 +229,34 @@ async function aktualisiereDrkKostenLedger(customerId, campaignId, campaignAreaI
 }
 
 /**
- * Berechnet den Anteil eines WGs an Team-Kosten (nach Tagen)
+ * Berechnet den Anteil eines WGs an Team-Kosten (nach Tagen, tagesgenau mit Overrides)
  * Anteil = WG-Tage / Summe aller WG-Tage
  */
-function berechneWgAnteil(attendance, assignments, campaignAreaId, kw) {
+function berechneWgAnteil(attendance, assignments, overrides, campaignAreaId, kw) {
     if (!attendance || attendance.length === 0 || !assignments) return 0;
 
-    // Alle WG-IDs aus Assignments sammeln
     const assignment = assignments.find(a => a.kw === kw);
     if (!assignment?.campaign_assignment_werber) return 1;
 
-    // Tage pro WG zählen
+    // Tage pro WG zählen (tagesgenau mit Overrides)
     const tageProWg = {};
 
     attendance.forEach(a => {
-        // WG-Zuordnung finden
         const werber = assignment.campaign_assignment_werber.find(w => w.werber_id === a.user_id);
-        if (!werber?.campaign_area_id) return;
+        const wochenWgId = werber?.campaign_area_id;
 
-        const wgId = werber.campaign_area_id;
-        if (!tageProWg[wgId]) tageProWg[wgId] = new Set();
-
-        // Tage zählen (ohne Sonntag = day_6)
         for (let day = 0; day <= 5; day++) {
-            if (a[`day_${day}`] === true) {
-                tageProWg[wgId].add(day);
-            }
+            if (a[`day_${day}`] !== true) continue;
+
+            // Override für diesen Werber + Tag?
+            const override = (overrides || []).find(
+                o => o.werber_id === a.user_id && o.day === day
+            );
+            const tagesWgId = override ? override.campaign_area_id : wochenWgId;
+
+            if (!tagesWgId) continue;
+            if (!tageProWg[tagesWgId]) tageProWg[tagesWgId] = new Set();
+            tageProWg[tagesWgId].add(day);
         }
     });
 
@@ -378,6 +428,7 @@ async function aktualisiereLedgerEintrag(
 /**
  * Berechnet Einheiten für eine KW basierend auf pro/zeitraum
  * Bei "einmalig + person": Prüft gegen drk_cost_person_tracking Tabelle
+ * Bei "woche"/"abschnitt": >= 3 Tage in diesem WG nötig
  *
  * @returns {Promise<{einheiten: number, neueWerberIds: string[]}>}
  */
@@ -388,6 +439,7 @@ async function berechneEinheitenFuerKW(pro, zeitraum, attendance, kw, customerId
     const tage = new Set();
     let personenTage = 0;
     const werberIds = new Set();
+    const tageProPerson = {};
 
     attendance.forEach(a => {
         for (let day = 0; day <= 5; day++) {
@@ -395,23 +447,42 @@ async function berechneEinheitenFuerKW(pro, zeitraum, attendance, kw, customerId
                 tage.add(day);
                 personenTage++;
                 werberIds.add(a.user_id);
+                if (!tageProPerson[a.user_id]) tageProPerson[a.user_id] = 0;
+                tageProPerson[a.user_id]++;
             }
         }
     });
 
     const teamTage = tage.size;
-    const personen = werberIds.size;
 
     if (zeitraum === 'tag') {
         return { einheiten: pro === 'team' ? teamTage : personenTage, neueWerberIds: [] };
     }
     if (zeitraum === 'woche') {
-        // 1 Woche wenn mind. 1 Tag aktiv
-        return { einheiten: teamTage > 0 ? (pro === 'team' ? 1 : personen) : 0, neueWerberIds: [] };
+        if (pro === 'team') {
+            // Team zählt nur wenn >= 3 Teamtage in diesem WG
+            return { einheiten: teamTage >= 3 ? 1 : 0, neueWerberIds: [] };
+        } else {
+            // Person zählt nur wenn >= 3 Tage in diesem WG
+            let qualifiziertePersonen = 0;
+            for (const userId in tageProPerson) {
+                if (tageProPerson[userId] >= 3) qualifiziertePersonen++;
+            }
+            return { einheiten: qualifiziertePersonen, neueWerberIds: [] };
+        }
     }
     if (zeitraum === 'abschnitt') {
-        // Abschnitt = 3 Wochen, pro KW anteilig 1/3
-        return { einheiten: teamTage > 0 ? (pro === 'team' ? 1/3 : personen/3) : 0, neueWerberIds: [] };
+        if (pro === 'team') {
+            // Abschnitt = 3 Wochen, pro KW: >= 3 Teamtage → 1/3, sonst 0
+            return { einheiten: teamTage >= 3 ? 1/3 : 0, neueWerberIds: [] };
+        } else {
+            // Pro KW: Person mit >= 3 Tagen → 1/3 pro Person, sonst 0
+            let qualifiziertePersonen = 0;
+            for (const userId in tageProPerson) {
+                if (tageProPerson[userId] >= 3) qualifiziertePersonen++;
+            }
+            return { einheiten: qualifiziertePersonen / 3, neueWerberIds: [] };
+        }
     }
     if (zeitraum === 'einmalig') {
         const supabase = window.supabaseClient || window.parent?.supabaseClient || window.supabase;
