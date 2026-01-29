@@ -2198,8 +2198,84 @@ async function loadAllData() {
 
     console.log(`Geladen: ${employees.length} Werber, ${campaigns.length} Kampagnen`);
 
+    // Kontaktdaten für Kampagnen-Badges laden
+    await loadContactDataForCampaigns();
+
     // UI aktualisieren
     renderCampaigns();
+}
+
+// Kontaktdaten-Cache für Kampagnen-Badges
+let campaignContactsCache = { areaContacts: {}, customerContacts: {} };
+
+async function loadContactDataForCampaigns() {
+    // Alle relevanten customer_area_ids und customer_ids sammeln
+    const areaIds = new Set();
+    const customerIds = new Set();
+    campaigns.forEach(c => {
+        (c.einsatzgebiete || []).forEach(eg => {
+            if (eg.customer_area_id) areaIds.add(eg.customer_area_id);
+            if (eg.kunde) customerIds.add(eg.kunde);
+        });
+    });
+
+    // Parallel laden
+    const [areaContactsData, customerContactsData] = await Promise.all([
+        areaIds.size > 0 ? supabase.from('customer_area_contacts').select('area_id, role, email, phone').in('area_id', [...areaIds]) : { data: [] },
+        customerIds.size > 0 ? supabase.from('customer_contacts').select('customer_id, role, email, phone').in('customer_id', [...customerIds]) : { data: [] }
+    ]);
+
+    // Cache aufbauen
+    campaignContactsCache.areaContacts = {};
+    (areaContactsData.data || []).forEach(c => {
+        if (!campaignContactsCache.areaContacts[c.area_id]) campaignContactsCache.areaContacts[c.area_id] = [];
+        campaignContactsCache.areaContacts[c.area_id].push(c);
+    });
+    campaignContactsCache.customerContacts = {};
+    (customerContactsData.data || []).forEach(c => {
+        if (!campaignContactsCache.customerContacts[c.customer_id]) campaignContactsCache.customerContacts[c.customer_id] = [];
+        campaignContactsCache.customerContacts[c.customer_id].push(c);
+    });
+}
+
+function getCampaignContactPill(campaign, role) {
+    const badgeText = role === 'schatzmeister' ? 'Pre-Fill Rechnung' : 'Pre-Fill Formular + Email Ansprechpartner';
+    const einsatzgebiete = campaign.einsatzgebiete || [];
+    if (einsatzgebiete.length === 0) {
+        return `<span class="pill pill--error" style="font-size: 10px;"><span class="icon icon--schliessen" style="margin-right: 3px;"></span>${badgeText}</span>`;
+    }
+
+    // Aktuelle KW bestimmen für aktive WGs
+    const currentKw = getCurrentWeek();
+    const assignment = campaign.assignments?.[currentKw];
+
+    let allOk = true;
+    let activeOk = true;
+    let anyOk = false;
+
+    einsatzgebiete.forEach(eg => {
+        const areaContacts = campaignContactsCache.areaContacts[eg.customer_area_id] || [];
+        const customerContacts = campaignContactsCache.customerContacts[eg.kunde] || [];
+        const person = areaContacts.find(c => c.role === role) || customerContacts.find(c => c.role === role);
+        const hasContact = person && ((person.email && person.email.trim()) || (person.phone && person.phone.trim()));
+
+        if (hasContact) {
+            anyOk = true;
+        } else {
+            allOk = false;
+            // Prüfe ob dieses WG in der aktuellen KW aktiv ist
+            const isActiveWg = assignment?.wgMaZuordnung?.[eg.id] && assignment.wgMaZuordnung[eg.id].length > 0;
+            if (isActiveWg) activeOk = false;
+        }
+    });
+
+    if (allOk) {
+        return `<span class="pill pill--success" style="font-size: 10px;"><span class="icon icon--haken" style="margin-right: 3px;"></span>${badgeText}</span>`;
+    } else if (anyOk && activeOk) {
+        return `<span class="pill pill--warning" style="font-size: 10px;"><span class="icon icon--uhr" style="margin-right: 3px;"></span>${badgeText}</span>`;
+    } else {
+        return `<span class="pill pill--error" style="font-size: 10px;"><span class="icon icon--schliessen" style="margin-right: 3px;"></span>${badgeText}</span>`;
+    }
 }
 
 // Anwesenheit initialisieren für einen Mitarbeiter in einer KW
@@ -2745,9 +2821,11 @@ function renderCampaigns() {
                     <span class="text-klein--fett text-secondary">${startDate} - ${endDate}</span>
                     <span class="text-klein--fett text-secondary">KW ${campaign.kwFrom} - KW ${campaign.kwTo}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;${weekCount} Wochen</span>
                 </div>
-                <div class="anzeigenfeld">
+                <div class="anzeigenfeld" style="flex-wrap: wrap; gap: 4px;">
                     <span class="pill ${statusPillClass[status]}">${statusIcon[status]}${statusLabels[status]}</span>
                     ${contractStatusHTML}
+                    ${getCampaignContactPill(campaign, 'schatzmeister')}
+                    ${getCampaignContactPill(campaign, 'mitgliederbeauftragte')}
                 </div>
 
                 <div class="campaign-content">
