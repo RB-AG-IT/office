@@ -1360,7 +1360,7 @@
 
                 // PDF als Base64 generieren
                 const pdfBase64 = await generateDrkPDF(rechnung, 'base64');
-                const filename = `Rechnung_${rechnung.invoice_number || 'Entwurf'}.pdf`;
+                const filename = `${new Date().toLocaleDateString('de-DE')}-${rechnung.customers?.name || 'Unbekannt'}-RE-${rechnung.invoice_number || 'Entwurf'}${rechnung.ist_sondierung === true ? '-Sonderkonditionen' : rechnung.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`;
 
                 // Edge Function aufrufen
                 const response = await fetch(
@@ -1499,7 +1499,7 @@
 
                     // PDF als Base64 generieren
                     const pdfBase64 = await generateDrkPDF(rechnung, 'base64');
-                    const filename = `Rechnung_${rechnung.invoice_number || 'Entwurf'}.pdf`;
+                    const filename = `${new Date().toLocaleDateString('de-DE')}-${rechnung.customers?.name || 'Unbekannt'}-RE-${rechnung.invoice_number || 'Entwurf'}${rechnung.ist_sondierung === true ? '-Sonderkonditionen' : rechnung.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`;
 
                     // Edge Function aufrufen
                     const response = await fetch(
@@ -3113,15 +3113,11 @@
                 link.href = url;
 
                 // Dateiname
-                const formatDayMonth = (dateStr) => {
-                    if (!dateStr) return '';
-                    const d = new Date(dateStr);
-                    return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
-                };
-                const vonBis = r.period_start && r.period_end ? `${formatDayMonth(r.period_start)}-${formatDayMonth(r.period_end)}` : '';
-                const wgName = (calcData?.positionen?.[0]?.gebietName || calcData?.gebiet || '').toUpperCase().replace(/\s+/g, '-');
-                const abrNr = (r.invoice_number || 'Entwurf').replace(/-(?=ZA|VA|SA)/g, '_');
-                const filename = [typ, vonBis, wgName, abrNr].filter(Boolean).join('-') + '.csv';
+                const heute = new Date().toLocaleDateString('de-DE');
+                const kundeName = r.customers?.name || 'Unbekannt';
+                const reNr = r.invoice_number || 'Entwurf';
+                const sondKond = r.ist_sondierung === true ? '-Sonderkonditionen' : r.ist_sondierung === false ? '-Regularkonditionen' : '';
+                const filename = `${heute}-${kundeName}-${typ}-LISTE-${reNr}${sondKond}.csv`;
                 link.download = filename;
                 link.click();
                 URL.revokeObjectURL(url);
@@ -4544,7 +4540,7 @@
 
             const opt = {
                 margin: [0, 0, 0, 0],
-                filename: `Rechnung_${rechnung.invoice_number || 'Entwurf'}.pdf`,
+                filename: `${new Date().toLocaleDateString('de-DE')}-${rechnung.customers?.name || 'Unbekannt'}-RE-${rechnung.invoice_number || 'Entwurf'}${rechnung.ist_sondierung === true ? '-Sonderkonditionen' : rechnung.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 4, useCORS: true, logging: false },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -4623,7 +4619,7 @@
 
                 // PDF als Base64 generieren
                 const pdfBase64 = await generateDrkPDF(currentRechnungData, 'base64');
-                const filename = `Rechnung_${currentRechnungData.invoice_number || 'Entwurf'}.pdf`;
+                const filename = `${new Date().toLocaleDateString('de-DE')}-${currentRechnungData.customers?.name || 'Unbekannt'}-RE-${currentRechnungData.invoice_number || 'Entwurf'}${currentRechnungData.ist_sondierung === true ? '-Sonderkonditionen' : currentRechnungData.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`;
 
                 // Edge Function aufrufen
                 const response = await fetch(
