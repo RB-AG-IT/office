@@ -2220,6 +2220,7 @@
                         satz: satzSondierung,
                         betrag: sondJe * satzSondierung / 100,
                         records: sondierungRecords,
+                        recordIds: sondierungRecords.map(r => r.id),
                         istSondierung: true
                     });
                 }
@@ -2235,6 +2236,7 @@
                         satz: satzRegular,
                         betrag: regJe * satzRegular / 100,
                         records: regularRecords,
+                        recordIds: regularRecords.map(r => r.id),
                         istSondierung: false
                     });
                 }
@@ -2602,7 +2604,9 @@
                     netto,
                     ust,
                     brutto,
-                    records: gebietRecords
+                    records: gebietRecords,
+                    sondierungRecordIds: sondierungRecords.map(r => r.id),
+                    regularRecordIds: regularRecords.map(r => r.id)
                 });
             });
 
@@ -2864,45 +2868,82 @@
 
             const r = currentRechnungData;
             const recordType = typ === 'ERH' ? 'erhoehung' : 'neumitglied';
+            const calcData = r.calculation_data;
 
             try {
-                // Records für den Zeitraum und Typ laden (nur aktive)
-                let query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(name)`;
-                query += `&record_type=eq.${recordType}`;
-                query += `&record_status=eq.aktiv`;
-                query += `&campaign_id=eq.${r.campaign_id}`;
+                // Record-IDs aus calculation_data extrahieren
+                let recordIds = [];
 
-                // Zeitraum-Filter
-                if (r.period_start) {
-                    query += `&start_date=gte.${r.period_start}`;
-                }
-                if (r.period_end) {
-                    query += `&start_date=lte.${r.period_end}T23:59:59`;
-                }
-
-                // WG-Filter aus calculation_data extrahieren
-                const calcData = r.calculation_data;
-                const gebietIds = new Set();
                 if (calcData?.positionen) {
+                    // Zusammen-Modus: recordIds aus den Positionen
                     calcData.positionen.forEach(p => {
-                        if (p.gebietId) gebietIds.add(p.gebietId);
+                        if (p.recordIds) {
+                            recordIds = recordIds.concat(p.recordIds);
+                        }
                     });
+                } else if (calcData?.sondierungRecordIds || calcData?.regularRecordIds) {
+                    // Getrennt-Modus: sondierungRecordIds + regularRecordIds
+                    if (calcData.sondierungRecordIds) {
+                        recordIds = recordIds.concat(calcData.sondierungRecordIds);
+                    }
+                    if (calcData.regularRecordIds) {
+                        recordIds = recordIds.concat(calcData.regularRecordIds);
+                    }
                 }
 
-                // WG-Filter anwenden
-                if (gebietIds.size > 0) {
-                    query += `&campaign_area_id=in.(${Array.from(gebietIds).join(',')})`;
-                } else if (r.campaign_area_id) {
-                    query += `&campaign_area_id=eq.${r.campaign_area_id}`;
-                }
+                let records;
 
-                const res = await fetch(query, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-                const records = await res.json();
+                if (recordIds.length > 0) {
+                    // Neue Logik: Records per gespeicherter IDs laden (KEIN Status-Filter!)
+                    const query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(name)&id=in.(${recordIds.join(',')})`;
+                    const res = await fetch(query, {
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                    });
+                    const loadedRecords = await res.json();
+
+                    // Record-Type filtern (NMG/ERH)
+                    const filteredRecords = loadedRecords.filter(rec => rec.record_type === recordType);
+
+                    // Sortierung nach gespeicherter Reihenfolge beibehalten
+                    const idOrder = new Map(recordIds.map((id, idx) => [id, idx]));
+                    filteredRecords.sort((a, b) => (idOrder.get(a.id) ?? 999999) - (idOrder.get(b.id) ?? 999999));
+
+                    records = filteredRecords;
+                } else {
+                    // Fallback für alte Rechnungen ohne recordIds: frische Query
+                    let query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(name)`;
+                    query += `&record_type=eq.${recordType}`;
+                    query += `&record_status=eq.aktiv`;
+                    query += `&campaign_id=eq.${r.campaign_id}`;
+
+                    if (r.period_start) {
+                        query += `&start_date=gte.${r.period_start}`;
+                    }
+                    if (r.period_end) {
+                        query += `&start_date=lte.${r.period_end}T23:59:59`;
+                    }
+
+                    const gebietIds = new Set();
+                    if (calcData?.positionen) {
+                        calcData.positionen.forEach(p => {
+                            if (p.gebietId) gebietIds.add(p.gebietId);
+                        });
+                    }
+
+                    if (gebietIds.size > 0) {
+                        query += `&campaign_area_id=in.(${Array.from(gebietIds).join(',')})`;
+                    } else if (r.campaign_area_id) {
+                        query += `&campaign_area_id=eq.${r.campaign_area_id}`;
+                    }
+
+                    const res = await fetch(query, {
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                    });
+                    records = await res.json();
+                }
 
                 if (!records || records.length === 0) {
-                    showToast(`Keine ${typ}-Datensätze im Zeitraum gefunden`, 'warning');
+                    showToast(`Keine ${typ}-Datensätze gefunden`, 'warning');
                     return;
                 }
 
@@ -2967,14 +3008,14 @@
                 const link = document.createElement('a');
                 link.href = url;
 
-                // Dateiname: VonBis-WG-AbrNr-Art.csv (z.B. 13.01-26.01-HARSEWINKEL-26-OV-019_ZA-00008-NMG.csv)
+                // Dateiname
                 const formatDayMonth = (dateStr) => {
                     if (!dateStr) return '';
                     const d = new Date(dateStr);
                     return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
                 };
                 const vonBis = r.period_start && r.period_end ? `${formatDayMonth(r.period_start)}-${formatDayMonth(r.period_end)}` : '';
-                const wgName = (calcData?.positionen?.[0]?.gebietName || '').toUpperCase().replace(/\s+/g, '-');
+                const wgName = (calcData?.positionen?.[0]?.gebietName || calcData?.gebiet || '').toUpperCase().replace(/\s+/g, '-');
                 const abrNr = (r.invoice_number || 'Entwurf').replace(/-(?=ZA|VA|SA)/g, '_');
                 const filename = [typ, vonBis, wgName, abrNr].filter(Boolean).join('-') + '.csv';
                 link.download = filename;
