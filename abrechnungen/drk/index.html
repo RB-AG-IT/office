@@ -2045,7 +2045,7 @@
             try {
                 // Records für Zeitraum und Gebiete laden
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/records?campaign_area_id=in.(${gebietIds.join(',')})&start_date=gte.${zeitraumVon}&start_date=lte.${zeitraumBis}&record_status=eq.aktiv&select=id,campaign_area_id,yearly_amount,old_amount,record_type,last_name,first_name,start_date`,
+                    `${SUPABASE_URL}/rest/v1/records?campaign_area_id=in.(${gebietIds.join(',')})&start_date=gte.${zeitraumVon}&start_date=lte.${zeitraumBis}&record_status=eq.aktiv&deleted_at=is.null&select=id,campaign_area_id,yearly_amount,old_amount,record_type,last_name,first_name,start_date`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
 
@@ -2999,7 +2999,7 @@
 
                 if (recordIds.length > 0) {
                     // Neue Logik: Records per gespeicherter IDs laden (KEIN Status-Filter!)
-                    const query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(name)&id=in.(${recordIds.join(',')})`;
+                    const query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(name)&id=in.(${recordIds.join(',')})&deleted_at=is.null`;
                     const res = await fetch(query, {
                         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                     });
