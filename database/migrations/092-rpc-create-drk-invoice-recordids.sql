@@ -182,9 +182,9 @@ BEGIN
                 jsonb_build_object(
                     'positionen', input_data->'sondierungPositionen',
                     'zubuchungen', COALESCE(input_data->'zubuchungen', '[]'::JSONB),
-                    'stornopuffer', input_data->'stornopuffer',
+                    'stornopuffer', COALESCE(input_data->'sondierungStornopuffer', input_data->'stornopuffer'),
                     'stornopufferProzent', input_data->'stornopufferProzent',
-                    'zwischensumme', input_data->'zwischensumme'
+                    'zwischensumme', COALESCE(input_data->'sondierungZwischensumme', input_data->'zwischensumme')
                 )
             ) RETURNING id INTO v_new_invoice_id;
 
@@ -263,10 +263,10 @@ BEGIN
                 COALESCE((input_data->>'regularBrutto')::NUMERIC, (input_data->>'brutto')::NUMERIC),
                 jsonb_build_object(
                     'positionen', input_data->'regularPositionen',
-                    'zubuchungen', COALESCE(input_data->'zubuchungen', '[]'::JSONB),
-                    'stornopuffer', input_data->'stornopuffer',
+                    'zubuchungen', '[]'::JSONB,
+                    'stornopuffer', COALESCE(input_data->'regularStornopuffer', input_data->'stornopuffer'),
                     'stornopufferProzent', input_data->'stornopufferProzent',
-                    'zwischensumme', input_data->'zwischensumme'
+                    'zwischensumme', COALESCE(input_data->'regularZwischensumme', input_data->'zwischensumme')
                 )
             ) RETURNING id INTO v_new_invoice_id;
 
