@@ -46,7 +46,15 @@ serve(async (req) => {
       throw new Error(`Record nicht gefunden: ${recordId}`);
     }
 
-    // 3. Prüfen ob Email gesendet werden soll
+    // 3. Prüfen ob Email bereits gesendet wurde (Schutz vor Doppelversand)
+    if (record.email_status === "sent") {
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: "already_sent" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 4. Prüfen ob Email gesendet werden soll
     if (record.record_type !== "neumitglied" || !record.email) {
       await supabase
         .from("records")
@@ -108,11 +116,12 @@ serve(async (req) => {
               anschriftOv = [strasseHnr, plzOrt].filter(Boolean).join(", ");
             }
 
-            // Ansprechpartner laden
+            // Ansprechpartner laden (nur Mitgliederbeauftragte)
             const { data: contacts } = await supabase
               .from("customer_area_contacts")
               .select("first_name, last_name, phone, email")
               .eq("area_id", campaignArea.customer_area_id)
+              .eq("role", "mitgliederbeauftragte")
               .limit(1);
 
             if (contacts && contacts.length > 0) {
@@ -141,12 +150,13 @@ serve(async (req) => {
                 }
               }
 
-              // Fallback: Kunden-Ansprechpartner
+              // Fallback: Kunden-Ansprechpartner (nur Mitgliederbeauftragte)
               if (!ansprechpartnerName) {
                 const { data: customerContacts } = await supabase
                   .from("customer_contacts")
                   .select("first_name, last_name, phone, email")
                   .eq("customer_id", customerId)
+                  .eq("role", "mitgliederbeauftragte")
                   .limit(1);
 
                 if (customerContacts && customerContacts.length > 0) {

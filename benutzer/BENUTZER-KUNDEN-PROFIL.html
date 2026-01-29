@@ -558,12 +558,12 @@
             const confirmed = await showConfirm('Ansprechpartner entfernen', 'Möchten Sie diesen Ansprechpartner wirklich entfernen?', 'warning');
             if (!confirmed) return;
 
-            contactPersons = contactPersons.filter(c => c.id !== id);
+            contactPersons = contactPersons.filter(c => String(c.id) !== String(id));
             renderContactPersons();
         }
 
         function updateContactPerson(id, field, value) {
-            const contact = contactPersons.find(c => c.id === id);
+            const contact = contactPersons.find(c => String(c.id) === String(id));
             if (contact) {
                 contact[field] = value;
 
@@ -599,7 +599,7 @@
 
                 return `
                     <div class="unterabschnitt--card" data-contact-id="${contact.id}">
-                        <button type="button" class="btn btn-icon btn-danger" onclick="removeContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
+                        <button type="button" class="btn btn-icon btn-danger" onclick="removeContactPerson('${contact.id}')" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
                             <span class="icon icon--schliessen"></span>
                         </button>
                         <div class="zeile">
@@ -609,14 +609,14 @@
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Vorname</label>
                                 <input type="text" class="eingabefeld" value="${contact.firstName}"
-                                    onchange="updateContactPerson(${contact.id}, 'firstName', this.value)"
+                                    onchange="updateContactPerson('${contact.id}', 'firstName', this.value)"
                                     placeholder="Vorname">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Nachname</label>
                                 <input type="text" class="eingabefeld" value="${contact.lastName}"
-                                    onchange="updateContactPerson(${contact.id}, 'lastName', this.value)"
+                                    onchange="updateContactPerson('${contact.id}', 'lastName', this.value)"
                                     placeholder="Nachname">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
@@ -624,7 +624,7 @@
                         <div class="zeile">
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Rolle</label>
-                                <select class="eingabefeld" onchange="updateContactPerson(${contact.id}, 'role', this.value)">
+                                <select class="eingabefeld" onchange="updateContactPerson('${contact.id}', 'role', this.value)">
                                     ${Object.entries(CONTACT_ROLES).map(([key, label]) =>
                                         `<option value="${key}" ${contact.role === key ? 'selected' : ''}>${label}</option>`
                                     ).join('')}
@@ -632,7 +632,7 @@
                                 <span class="eingabefeld-beschriftung-unten"></span>
                                 <div class="sonstige-rolle-input" style="display: ${showCustomRole ? 'block' : 'none'}; margin-top: 8px;">
                                     <input type="text" class="eingabefeld" value="${contact.customRole || ''}"
-                                        onchange="updateContactPerson(${contact.id}, 'customRole', this.value)"
+                                        onchange="updateContactPerson('${contact.id}', 'customRole', this.value)"
                                         placeholder="Rolle beschreiben...">
                                 </div>
                             </div>
@@ -641,14 +641,14 @@
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">E-Mail</label>
                                 <input type="email" class="eingabefeld" value="${contact.email}"
-                                    onchange="updateContactPerson(${contact.id}, 'email', this.value)"
+                                    onchange="updateContactPerson('${contact.id}', 'email', this.value)"
                                     placeholder="email@example.de">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Telefon</label>
                                 <input type="tel" class="eingabefeld" value="${contact.phone}"
-                                    onchange="updateContactPerson(${contact.id}, 'phone', this.value)"
+                                    onchange="updateContactPerson('${contact.id}', 'phone', this.value)"
                                     placeholder="+49 123 456789">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
@@ -1576,12 +1576,12 @@
         async function removeAreaContactPerson(id) {
             const confirmed = await showConfirm('Ansprechpartner entfernen', 'Möchten Sie diesen Ansprechpartner wirklich entfernen?', 'warning');
             if (!confirmed) return;
-            areaContactPersons = areaContactPersons.filter(c => c.id !== id);
+            areaContactPersons = areaContactPersons.filter(c => String(c.id) !== String(id));
             renderAreaContactPersons();
         }
 
         function updateAreaContactPerson(id, field, value) {
-            const contact = areaContactPersons.find(c => c.id === id);
+            const contact = areaContactPersons.find(c => String(c.id) === String(id));
             if (contact) {
                 contact[field] = value;
                 if (field === 'role') {
@@ -1609,7 +1609,7 @@
 
                 return `
                     <div class="unterabschnitt--card" data-area-contact-id="${contact.id}">
-                        <button type="button" class="btn btn-icon btn-danger" onclick="removeAreaContactPerson(${contact.id})" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
+                        <button type="button" class="btn btn-icon btn-danger" onclick="removeAreaContactPerson('${contact.id}')" title="Entfernen" style="position: absolute; top: 12px; right: 12px;">
                             <span class="icon icon--schliessen"></span>
                         </button>
                         <div class="zeile">
@@ -1618,38 +1618,38 @@
                         <div class="zeile">
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Vorname</label>
-                                <input type="text" class="eingabefeld" value="${contact.firstName}" onchange="updateAreaContactPerson(${contact.id}, 'firstName', this.value)" placeholder="Vorname">
+                                <input type="text" class="eingabefeld" value="${contact.firstName}" onchange="updateAreaContactPerson('${contact.id}', 'firstName', this.value)" placeholder="Vorname">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Nachname</label>
-                                <input type="text" class="eingabefeld" value="${contact.lastName}" onchange="updateAreaContactPerson(${contact.id}, 'lastName', this.value)" placeholder="Nachname">
+                                <input type="text" class="eingabefeld" value="${contact.lastName}" onchange="updateAreaContactPerson('${contact.id}', 'lastName', this.value)" placeholder="Nachname">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                         </div>
                         <div class="zeile">
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Rolle</label>
-                                <select class="eingabefeld" onchange="updateAreaContactPerson(${contact.id}, 'role', this.value)">
+                                <select class="eingabefeld" onchange="updateAreaContactPerson('${contact.id}', 'role', this.value)">
                                     ${Object.entries(CONTACT_ROLES).map(([key, label]) =>
                                         `<option value="${key}" ${contact.role === key ? 'selected' : ''}>${label}</option>`
                                     ).join('')}
                                 </select>
                                 <span class="eingabefeld-beschriftung-unten"></span>
                                 <div class="sonstige-rolle-input" style="display: ${showCustomRole ? 'block' : 'none'}; margin-top: 8px;">
-                                    <input type="text" class="eingabefeld" value="${contact.customRole || ''}" onchange="updateAreaContactPerson(${contact.id}, 'customRole', this.value)" placeholder="Rolle beschreiben...">
+                                    <input type="text" class="eingabefeld" value="${contact.customRole || ''}" onchange="updateAreaContactPerson('${contact.id}', 'customRole', this.value)" placeholder="Rolle beschreiben...">
                                 </div>
                             </div>
                         </div>
                         <div class="zeile">
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">E-Mail</label>
-                                <input type="email" class="eingabefeld" value="${contact.email}" onchange="updateAreaContactPerson(${contact.id}, 'email', this.value)" placeholder="email@example.de">
+                                <input type="email" class="eingabefeld" value="${contact.email}" onchange="updateAreaContactPerson('${contact.id}', 'email', this.value)" placeholder="email@example.de">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                             <div class="eingabefeld-gruppe">
                                 <label class="eingabefeld-beschriftung-oben">Telefon</label>
-                                <input type="tel" class="eingabefeld" value="${contact.phone}" onchange="updateAreaContactPerson(${contact.id}, 'phone', this.value)" placeholder="+49 123 456789">
+                                <input type="tel" class="eingabefeld" value="${contact.phone}" onchange="updateAreaContactPerson('${contact.id}', 'phone', this.value)" placeholder="+49 123 456789">
                                 <span class="eingabefeld-beschriftung-unten"></span>
                             </div>
                         </div>
