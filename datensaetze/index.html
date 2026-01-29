@@ -400,6 +400,18 @@
 
             // Filter-Dropdown aktualisieren (nur Gebiete mit Bestandsmitgliedern)
             populateBestandGebietFilter();
+
+            // Prefill: Wenn per URL ein customer_area übergeben wurde, Dropdown vorbelegen
+            const urlParams = new URLSearchParams(window.location.search);
+            const contextType = urlParams.get('type');
+            const contextId = urlParams.get('id');
+            if (contextType === 'customer_area' && contextId) {
+                const select = document.getElementById('bestandGebietFilter');
+                if (select && [...select.options].some(o => o.value === contextId)) {
+                    select.value = contextId;
+                    filterBestandByGebiet();
+                }
+            }
         }
 
         // Bestandsmitglied transformieren (neue einheitliche IDs mit 26 Feldern)
