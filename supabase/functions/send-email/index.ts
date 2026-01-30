@@ -43,22 +43,24 @@ const intervallMap: Record<string, string> = {
 // Einzelne Email versenden
 // ============================================
 
-async function sendEmailForRecord(supabase: any, record: any, vorlageTyp: string): Promise<{ success: boolean; skipped?: boolean; reason?: string; error?: string }> {
+async function sendEmailForRecord(supabase: any, record: any, vorlageTyp: string, force = false): Promise<{ success: boolean; skipped?: boolean; reason?: string; error?: string }> {
   const recordId = record.id;
 
   try {
-    // 1. Prüfen ob Email bereits gesendet (Doppelversand-Schutz)
-    if (record.email_status === "sent") {
-      return { success: true, skipped: true, reason: "already_sent" };
-    }
+    if (!force) {
+      // 1. Prüfen ob Email bereits gesendet (Doppelversand-Schutz)
+      if (record.email_status === "sent") {
+        return { success: true, skipped: true, reason: "already_sent" };
+      }
 
-    // 2. Prüfen ob max. Versuche erreicht
-    if ((record.email_retry_count || 0) >= 3) {
-      await supabase
-        .from("records")
-        .update({ email_status: "permanently_failed" })
-        .eq("id", recordId);
-      return { success: false, skipped: true, reason: "max_retries_reached" };
+      // 2. Prüfen ob max. Versuche erreicht
+      if ((record.email_retry_count || 0) >= 3) {
+        await supabase
+          .from("records")
+          .update({ email_status: "permanently_failed" })
+          .eq("id", recordId);
+        return { success: false, skipped: true, reason: "max_retries_reached" };
+      }
     }
 
     // 3. Prüfen ob Email gesendet werden soll (nur bei willkommen)
@@ -332,6 +334,7 @@ serve(async (req) => {
 
     const recordId = payload.record_id || payload.record?.id;
     const vorlageTyp = payload.vorlage_typ || "willkommen";
+    const force = payload.force === true;
 
     // ============================================
     // MODUS 1: Einzelne Email (mit record_id)
@@ -350,7 +353,7 @@ serve(async (req) => {
         );
       }
 
-      const result = await sendEmailForRecord(supabase, record, vorlageTyp);
+      const result = await sendEmailForRecord(supabase, record, vorlageTyp, force);
       return new Response(
         JSON.stringify(result),
         { status: result.success ? 200 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
