@@ -54,6 +54,18 @@ serve(async (req) => {
       );
     }
 
+    // 3b. Prüfen ob max. Versuche erreicht (Schutz vor Endlos-Loop)
+    if ((record.email_retry_count || 0) >= 3) {
+      await supabase
+        .from("records")
+        .update({ email_status: "permanently_failed" })
+        .eq("id", recordId);
+      return new Response(
+        JSON.stringify({ success: false, skipped: true, reason: "max_retries_reached" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // 4. Prüfen ob Email gesendet werden soll
     if (record.record_type !== "neumitglied" || !record.email) {
       await supabase
@@ -295,13 +307,24 @@ ${emailBody.replace(/\n/g, "<br>")}
   } catch (error) {
     console.error("Email-Fehler:", error.message);
 
-    // Fehler in DB speichern
+    // Fehler in DB speichern + Retry-Zähler erhöhen
     if (recordId) {
+      // Aktuellen retry_count laden
+      const { data: currentRecord } = await supabase
+        .from("records")
+        .select("email_retry_count")
+        .eq("id", recordId)
+        .single();
+
+      const newRetryCount = ((currentRecord?.email_retry_count || 0) + 1);
+      const newStatus = newRetryCount >= 3 ? "permanently_failed" : "failed";
+
       await supabase
         .from("records")
         .update({
-          email_status: "failed",
+          email_status: newStatus,
           email_error: error.message,
+          email_retry_count: newRetryCount,
         })
         .eq("id", recordId);
 
