@@ -919,9 +919,10 @@ const ModalTemplates = {
                                     <div class="text-ueberschrift-unterabschnitt">Adresse</div>
                                 </div>
                                 <div class="zeile">
-                                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-3">
+                                    <div class="eingabefeld-gruppe eingabefeld-gruppe--flex-3 autocomplete-container">
                                         <label class="eingabefeld-beschriftung-oben">Straße</label>
                                         <input type="text" class="eingabefeld" id="editStrasse">
+                                        <div class="autocomplete-results" id="editStrasseAutocomplete"></div>
                                         <span class="eingabefeld-beschriftung-unten"></span>
                                     </div>
                                     <div class="eingabefeld-gruppe">
@@ -7822,6 +7823,14 @@ function openEditModal(type, id) {
     if (telefonFestnetzEl) telefonFestnetzEl.value = record.phoneFixed || '';
 
     // === Adresse ===
+    initAddressAutocomplete({
+        streetId: 'editStrasse',
+        resultsId: 'editStrasseAutocomplete',
+        houseNumberId: 'editHausnummer',
+        postalCodeId: 'editPLZ',
+        cityId: 'editOrt'
+    });
+
     const strasseEl = document.getElementById('editStrasse');
     if (strasseEl) strasseEl.value = record.street || '';
 
