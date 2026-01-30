@@ -22,26 +22,19 @@ serve(async (req) => {
       const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
       // Nur beim ersten Öffnen speichern
-      const { data: record } = await supabase
-        .from("records")
-        .select("id, email_opened_at")
-        .eq("email_tracking_id", trackingId)
+      const { data: emailSend } = await supabase
+        .from("email_sends")
+        .select("id, opened_at")
+        .eq("tracking_id", trackingId)
         .single();
 
-      if (record && !record.email_opened_at) {
+      if (emailSend && !emailSend.opened_at) {
         await supabase
-          .from("records")
-          .update({ email_opened_at: new Date().toISOString() })
-          .eq("id", record.id);
+          .from("email_sends")
+          .update({ opened_at: new Date().toISOString() })
+          .eq("id", emailSend.id);
 
-        await supabase
-          .from("email_log")
-          .insert({
-            record_id: record.id,
-            event_type: "opened",
-          });
-
-        console.log(`Email geöffnet: ${record.id}`);
+        console.log(`Email geöffnet: ${emailSend.id}`);
       }
     } catch (error) {
       console.error("Tracking-Fehler:", error.message);

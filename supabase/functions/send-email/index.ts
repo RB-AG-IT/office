@@ -47,29 +47,55 @@ async function sendEmailForRecord(supabase: any, record: any, vorlageTyp: string
   const recordId = record.id;
 
   try {
-    if (!force) {
-      // 1. Prüfen ob Email bereits gesendet (Doppelversand-Schutz)
-      if (record.email_status === "sent") {
-        return { success: true, skipped: true, reason: "already_sent" };
+    // 1. Bestehenden Eintrag in email_sends suchen
+    const { data: existingSend } = await supabase
+      .from("email_sends")
+      .select("id, status, retry_count, tracking_id")
+      .eq("record_id", recordId)
+      .eq("vorlage_typ", vorlageTyp)
+      .single();
+
+    let emailSendId: string;
+    let trackingId: string;
+
+    if (existingSend) {
+      emailSendId = existingSend.id;
+      trackingId = existingSend.tracking_id;
+
+      if (!force) {
+        // Doppelversand-Schutz
+        if (existingSend.status === "sent") {
+          return { success: true, skipped: true, reason: "already_sent" };
+        }
+
+        // Max. Versuche erreicht
+        if ((existingSend.retry_count || 0) >= 3) {
+          await supabase
+            .from("email_sends")
+            .update({ status: "permanently_failed" })
+            .eq("id", emailSendId);
+          return { success: false, skipped: true, reason: "max_retries_reached" };
+        }
+      }
+    } else {
+      // Neuen Eintrag erstellen
+      const { data: newSend, error: insertError } = await supabase
+        .from("email_sends")
+        .insert({ record_id: recordId, vorlage_typ: vorlageTyp })
+        .select("id, tracking_id")
+        .single();
+
+      if (insertError || !newSend) {
+        throw new Error("email_sends Eintrag konnte nicht erstellt werden");
       }
 
-      // 2. Prüfen ob max. Versuche erreicht
-      if ((record.email_retry_count || 0) >= 3) {
-        await supabase
-          .from("records")
-          .update({ email_status: "permanently_failed" })
-          .eq("id", recordId);
-        return { success: false, skipped: true, reason: "max_retries_reached" };
-      }
+      emailSendId = newSend.id;
+      trackingId = newSend.tracking_id;
     }
 
-    // 3. Prüfen ob Email gesendet werden soll (nur bei willkommen)
+    // 2. Prüfen ob Email gesendet werden soll (nur bei willkommen)
     if (vorlageTyp === "willkommen") {
       if (record.record_type !== "neumitglied" || !record.email) {
-        await supabase
-          .from("records")
-          .update({ email_status: "skipped" })
-          .eq("id", recordId);
         return { success: true, skipped: true, reason: "not_applicable" };
       }
     } else {
@@ -78,7 +104,7 @@ async function sendEmailForRecord(supabase: any, record: any, vorlageTyp: string
       }
     }
 
-    // 4. Email-Vorlage laden
+    // 3. Email-Vorlage laden
     const { data: vorlage, error: vorlageError } = await supabase
       .from("email_vorlagen")
       .select("betreff, inhalt")
@@ -90,7 +116,7 @@ async function sendEmailForRecord(supabase: any, record: any, vorlageTyp: string
       throw new Error("Email-Vorlage nicht gefunden");
     }
 
-    // 5. Werbegebiet-Daten laden
+    // 4. Werbegebiet-Daten laden
     let werbegebietName = "DRK Mitgliederwerbung";
     let websiteLink = "";
     let datenschutzLink = "";
@@ -182,7 +208,7 @@ async function sendEmailForRecord(supabase: any, record: any, vorlageTyp: string
       }
     }
 
-    // 6. Adresse zusammenbauen
+    // 5. Adresse zusammenbauen
     const adresse = [
       record.street && record.house_number ? `${record.street} ${record.house_number}` : record.street,
       record.zip_code && record.city ? `${record.zip_code} ${record.city}` : record.city,
@@ -190,7 +216,7 @@ async function sendEmailForRecord(supabase: any, record: any, vorlageTyp: string
 
     const telefon = record.phone_mobile || record.phone_fixed || "";
 
-    // 7. Platzhalter ersetzen
+    // 6. Platzhalter ersetzen
     let emailBody = vorlage.inhalt
       .replace(/\{\{anrede\}\}/g, record.salutation || "")
       .replace(/\{\{vorname\}\}/g, record.first_name || "")
@@ -217,10 +243,10 @@ async function sendEmailForRecord(supabase: any, record: any, vorlageTyp: string
       .replace(/\{\{nachname\}\}/g, record.last_name || "")
       .replace(/\{\{werbegebiet_name\}\}/g, werbegebietName);
 
-    // 8. Tracking-Pixel URL
-    const trackingUrl = `${SUPABASE_URL}/functions/v1/email-tracking?id=${record.email_tracking_id}`;
+    // 7. Tracking-Pixel URL
+    const trackingUrl = `${SUPABASE_URL}/functions/v1/email-tracking?id=${trackingId}`;
 
-    // 9. HTML-Email mit Tracking-Pixel
+    // 8. HTML-Email mit Tracking-Pixel
     const htmlBody = `<!DOCTYPE html>
 <html>
 <head>
@@ -233,7 +259,7 @@ ${emailBody.replace(/\n/g, "<br>")}
 </body>
 </html>`;
 
-    // 10. Email senden via SMTP
+    // 9. Email senden via SMTP
     const client = new SMTPClient({
       connection: {
         hostname: "smtp.hostinger.com",
@@ -256,23 +282,14 @@ ${emailBody.replace(/\n/g, "<br>")}
 
     await client.close();
 
-    // 11. Status aktualisieren
+    // 10. Status in email_sends aktualisieren
     await supabase
-      .from("records")
+      .from("email_sends")
       .update({
-        email_status: "sent",
-        email_sent_at: new Date().toISOString(),
+        status: "sent",
+        sent_at: new Date().toISOString(),
       })
-      .eq("id", recordId);
-
-    // 12. Log-Eintrag
-    await supabase
-      .from("email_log")
-      .insert({
-        record_id: recordId,
-        event_type: "sent",
-        event_data: { to: record.email, subject: emailSubject },
-      });
+      .eq("id", emailSendId);
 
     console.log(`Email gesendet an: ${record.email}`);
     return { success: true };
@@ -280,32 +297,27 @@ ${emailBody.replace(/\n/g, "<br>")}
   } catch (error) {
     console.error(`Email-Fehler fuer ${record.email}:`, error.message);
 
-    // Fehler in DB speichern + Retry-Zaehler erhoehen
-    const { data: currentRecord } = await supabase
-      .from("records")
-      .select("email_retry_count")
-      .eq("id", recordId)
+    // Fehler in email_sends speichern + Retry-Zaehler erhoehen
+    const { data: currentSend } = await supabase
+      .from("email_sends")
+      .select("id, retry_count")
+      .eq("record_id", recordId)
+      .eq("vorlage_typ", vorlageTyp)
       .single();
 
-    const newRetryCount = ((currentRecord?.email_retry_count || 0) + 1);
-    const newStatus = newRetryCount >= 3 ? "permanently_failed" : "failed";
+    if (currentSend) {
+      const newRetryCount = ((currentSend.retry_count || 0) + 1);
+      const newStatus = newRetryCount >= 3 ? "permanently_failed" : "failed";
 
-    await supabase
-      .from("records")
-      .update({
-        email_status: newStatus,
-        email_error: error.message,
-        email_retry_count: newRetryCount,
-      })
-      .eq("id", recordId);
-
-    await supabase
-      .from("email_log")
-      .insert({
-        record_id: recordId,
-        event_type: "failed",
-        event_data: { error: error.message },
-      });
+      await supabase
+        .from("email_sends")
+        .update({
+          status: newStatus,
+          error: error.message,
+          retry_count: newRetryCount,
+        })
+        .eq("id", currentSend.id);
+    }
 
     return { success: false, error: error.message };
   }
@@ -368,14 +380,13 @@ serve(async (req) => {
 
     const twoDaysAgo = new Date(Date.now() - MAX_AGE_DAYS * 24 * 60 * 60 * 1000).toISOString();
 
-    // Nur Records der letzten 2 Tage laden (max 3 Versuche)
-    const { data: records, error } = await supabase
-      .from("records")
-      .select("*")
-      .in("email_status", ["queued", "failed"])
-      .lt("email_retry_count", 3)
-      .eq("record_type", "neumitglied")
-      .not("email", "is", null)
+    // Offene Eintraege in email_sends suchen
+    const { data: pendingSends, error } = await supabase
+      .from("email_sends")
+      .select("record_id")
+      .eq("vorlage_typ", "willkommen")
+      .in("status", ["queued", "failed"])
+      .lt("retry_count", 3)
       .gte("created_at", twoDaysAgo)
       .order("created_at", { ascending: true })
       .limit(20);
@@ -384,19 +395,28 @@ serve(async (req) => {
       throw new Error(`DB-Abfrage fehlgeschlagen: ${error.message}`);
     }
 
-    if (!records || records.length === 0) {
+    if (!pendingSends || pendingSends.length === 0) {
       return new Response(
         JSON.stringify({ success: true, processed: 0, message: "Keine ausstehenden Emails" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`${records.length} ausstehende Emails gefunden`);
+    console.log(`${pendingSends.length} ausstehende Emails gefunden`);
 
     let successCount = 0;
     let failCount = 0;
 
-    for (const record of records) {
+    for (const send of pendingSends) {
+      // Record-Daten laden
+      const { data: record } = await supabase
+        .from("records")
+        .select("*")
+        .eq("id", send.record_id)
+        .single();
+
+      if (!record) continue;
+
       const result = await sendEmailForRecord(supabase, record, "willkommen");
       if (result.success && !result.skipped) {
         successCount++;
@@ -408,7 +428,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        processed: records.length,
+        processed: pendingSends.length,
         sent: successCount,
         failed: failCount,
       }),
