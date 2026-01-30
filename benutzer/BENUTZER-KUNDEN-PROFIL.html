@@ -818,7 +818,7 @@
 
                 // Download-Handler
                 list.querySelectorAll('[data-action="download"]').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
+                    btn.addEventListener('click', async (e) => {
                         e.stopPropagation();
                         const index = parseInt(btn.dataset.index);
                         const fileData = files[index];
@@ -832,6 +832,17 @@
                             document.body.removeChild(a);
                             URL.revokeObjectURL(url);
                         } else if (fileData.url) {
+                            // Signierte URL erstellen für korrekten Content-Type
+                            const storagePath = fileData.url.split('/customer-contracts/').pop();
+                            if (storagePath) {
+                                const { data: signedData, error } = await supabase.storage
+                                    .from('customer-contracts')
+                                    .createSignedUrl(decodeURIComponent(storagePath), 300);
+                                if (signedData?.signedUrl) {
+                                    window.open(signedData.signedUrl, '_blank');
+                                    return;
+                                }
+                            }
                             window.open(fileData.url, '_blank');
                         }
                     });
@@ -2074,7 +2085,7 @@
                         const fileName = `${custId}/${type}/${Date.now()}_${sanitizedName}`;
                         const { data: uploadData, error: uploadError } = await supabase.storage
                             .from('customer-contracts')
-                            .upload(fileName, file.file);
+                            .upload(fileName, file.file, { contentType: 'application/pdf' });
 
                         if (uploadError) {
                             throw new Error(`Upload-Fehler für "${file.name}": ${uploadError.message}`);
