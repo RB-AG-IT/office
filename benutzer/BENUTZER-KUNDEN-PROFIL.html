@@ -587,9 +587,7 @@
 
         // Telefonnummer formatieren: +49 123 5920818
         function formatPhone(input) {
-            const oldValue = input.value;
-            const oldCursor = input.selectionStart;
-            let raw = oldValue.replace(/[^\d+]/g, '');
+            let raw = input.value.replace(/[^\d+]/g, '');
             let formatted = '';
             if (raw.startsWith('+')) {
                 formatted = '+';
@@ -601,11 +599,6 @@
                 formatted += digits[i];
             }
             input.value = formatted;
-            // Cursor-Position anpassen: Spaces vor dem Cursor zählen
-            const spacesBeforeOld = (oldValue.substring(0, oldCursor).match(/ /g) || []).length;
-            const spacesBeforeNew = (formatted.substring(0, oldCursor + 1).match(/ /g) || []).length;
-            const newCursor = oldCursor + (spacesBeforeNew - spacesBeforeOld);
-            input.setSelectionRange(newCursor, newCursor);
             return formatted;
         }
 
