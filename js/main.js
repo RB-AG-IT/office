@@ -8699,7 +8699,7 @@ function initTableModalEventListeners() {
     // Edit Modal
     const editModal = document.getElementById('editModal');
     if (editModal) {
-        editModal.addEventListener('click', function(e) {
+        editModal.addEventListener('mousedown', function(e) {
             if (e.target === this) {
                 closeEditModal();
             }
