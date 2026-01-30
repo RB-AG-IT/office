@@ -1706,7 +1706,10 @@ async function confirmStorno() {
             .update({
                 record_status: 'storno',
                 storno_date: datum,
-                storno_reason: grund
+                storno_reason: grund,
+                beschwerde: beschwerde || false,
+                beschwerde_grund: beschwerde ? beschwerdeGrund : null,
+                str_per_mail_bestaetigt: mailBestaetigung || false
             })
             .in('id', recordIds);
 
