@@ -830,18 +830,17 @@
                             document.body.removeChild(a);
                             URL.revokeObjectURL(url);
                         } else if (fileData.url) {
-                            // Signierte URL erstellen für korrekten Content-Type
-                            const storagePath = fileData.url.split('/customer-contracts/').pop();
-                            if (storagePath) {
-                                const { data: signedData, error } = await supabase.storage
-                                    .from('customer-contracts')
-                                    .createSignedUrl(decodeURIComponent(storagePath), 300);
-                                if (signedData?.signedUrl) {
-                                    window.open(signedData.signedUrl, '_blank');
-                                    return;
-                                }
+                            // Datei als Blob laden und mit korrektem Content-Type öffnen
+                            try {
+                                const response = await fetch(fileData.url);
+                                const blob = await response.blob();
+                                const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+                                const blobUrl = URL.createObjectURL(pdfBlob);
+                                window.open(blobUrl, '_blank');
+                            } catch (err) {
+                                console.error('PDF-Download fehlgeschlagen:', err);
+                                window.open(fileData.url, '_blank');
                             }
-                            window.open(fileData.url, '_blank');
                         }
                     });
                 });
