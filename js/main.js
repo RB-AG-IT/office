@@ -701,10 +701,12 @@ const ModalTemplates = {
                                 <select class="eingabefeld" id="stornoGrund" onchange="toggleStornoGrundFreitext && toggleStornoGrundFreitext()">
                                     <option value="">Bitte auswählen...</option>
                                     <option value="widerruf">Widerruf</option>
-                                    <option value="kuendigung">Kündigung</option>
-                                    <option value="nichtzahlung">Nichtzahlung</option>
-                                    <option value="doppelt">Doppelerfassung</option>
-                                    <option value="fehler">Eingabefehler</option>
+                                    <option value="partner_dagegen">Partner dagegen</option>
+                                    <option value="finanzielle_situation">Finanzielle Situation</option>
+                                    <option value="verstorben">Verstorben</option>
+                                    <option value="einmalig_spenden">Wollte einmalig spenden</option>
+                                    <option value="ueberrumpelt">Hat sich überrumpelt gefühlt</option>
+                                    <option value="nicht_entscheidungsfaehig">Ist nicht entscheidungsfähig</option>
                                     <option value="sonstiges">Sonstiges</option>
                                     <option value="freitext">Freie Eingabe</option>
                                 </select>
