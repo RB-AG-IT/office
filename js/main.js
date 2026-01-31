@@ -1723,6 +1723,24 @@ async function confirmStorno() {
 
         // Gegenbuchungen werden automatisch durch DB-Trigger erstellt (022-ledger-triggers.sql)
 
+        // Storno-Mail versenden (falls Checkbox aktiviert)
+        if (mailBestaetigung) {
+            for (const id of recordIds) {
+                try {
+                    await fetch('https://lgztglycqtiwcmiydxnm.supabase.co/functions/v1/send-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0'
+                        },
+                        body: JSON.stringify({ record_id: id, vorlage_typ: 'storno' })
+                    });
+                } catch (mailErr) {
+                    console.error('Storno-Mail Fehler für', id, mailErr);
+                }
+            }
+        }
+
         // Lokale Daten aktualisieren (falls recordsData verfügbar)
         if (typeof recordsData !== 'undefined') {
             recordIds.forEach(id => {
