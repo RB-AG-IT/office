@@ -55,7 +55,7 @@ serve(async (req) => {
         *,
         customers (
           id,
-          name,
+          name_short,
           kunden_id
         )
       `)
@@ -111,7 +111,7 @@ serve(async (req) => {
       .filter(Boolean).join(" ") || "Sehr geehrte Damen und Herren";
 
     // Kundenname
-    const kundenName = invoice.customers?.name || "Kunde";
+    const kundenName = invoice.customers?.name_short || '';
 
     // Abrechnungstyp-Text
     const typTexte: Record<string, string> = {

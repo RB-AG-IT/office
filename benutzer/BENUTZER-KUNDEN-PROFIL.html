@@ -455,20 +455,20 @@
             const kundenWebsite = document.getElementById('customerWebsite')?.value || '';
 
             const areaData = {
-                name: kundenNameVoll,
+                name_long: kundenNameVoll,
                 vereinstyp: 'OV',
-                vereinsname: kundenNameKurz,
+                name_short: kundenNameKurz,
                 rechtsform: 'e.V.',
                 street: kundenStreet,
-                houseNumber: kundenHouseNumber,
-                zip: kundenZip,
+                house_number: kundenHouseNumber,
+                postal_code: kundenZip,
                 city: kundenCity,
                 country: kundenCountry,
                 bundesland: kundenBundesland,
                 website: kundenWebsite,
-                privacyPolicy: '',
+                privacy_policy: '',
                 kvZuordnung: null,
-                isKreisverbandsgebiet: false,
+                is_kreisverbandsgebiet: false,
                 contactPersons: [],
                 einwohner: 0
             };
@@ -477,12 +477,12 @@
                 currentCustomer.areas.push(areaData);
             } else {
                 const existingArea = currentCustomer.areas[0];
-                existingArea.name = kundenNameVoll;
-                existingArea.vereinsname = kundenNameKurz;
+                existingArea.name_long = kundenNameVoll;
+                existingArea.name_short = kundenNameKurz;
                 existingArea.vereinstyp = 'OV';
                 existingArea.street = kundenStreet;
-                existingArea.houseNumber = kundenHouseNumber;
-                existingArea.zip = kundenZip;
+                existingArea.house_number = kundenHouseNumber;
+                existingArea.postal_code = kundenZip;
                 existingArea.city = kundenCity;
                 existingArea.country = kundenCountry;
                 existingArea.bundesland = kundenBundesland;
@@ -1032,34 +1032,15 @@
 
         // Areas von DB-Format zu lokalem Format konvertieren
         function convertAreasFromDB(dbAreas) {
-            // Mapping von DB-ID zu Index erstellen
+            // Mapping von DB-ID zu Index erstellen (für kvZuordnung)
             const idToIndex = {};
             dbAreas.forEach((area, idx) => {
                 idToIndex[area.id] = idx;
             });
 
             return dbAreas.map(area => ({
-                id: area.id,
-                name: area.name || '',
-                vereinstyp: area.vereinstyp || 'OV',
-                vereinsname: area.vereinsname || '',
-                rechtsform: area.rechtsform || '',
-                einwohner: area.einwohner || 0,
-                email: area.email || '',
-                phone: area.phone || '',
-                street: area.street || '',
-                houseNumber: area.house_number || '',
-                zip: area.postal_code || '',
-                city: area.city || '',
-                country: area.country || '',
-                bundesland: area.bundesland || '',
-                addressExtra: area.address_extra || '',
-                website: area.website || '',
-                privacyPolicy: area.privacy_policy || '',
-                kvZuordnung: area.parent_area_id ? idToIndex[area.parent_area_id] : null,
-                parentAreaId: area.parent_area_id,
-                isKreisverbandsgebiet: area.is_kreisverbandsgebiet || false,
-                contactPersons: area.contactPersons || []
+                ...area,
+                kvZuordnung: area.parent_area_id ? idToIndex[area.parent_area_id] : null
             }));
         }
 
@@ -1126,7 +1107,7 @@
         function populateForm(customer) {
             document.getElementById('organisation').value = customer.organisation || 'DRK';
             document.getElementById('namePrefix').value = customer.name_prefix || 'Kreisverband';
-            document.getElementById('name').value = customer.name || '';
+            document.getElementById('name').value = customer.name_short || '';
             document.getElementById('nameSuffix').value = customer.name_suffix || 'e.V.';
             document.getElementById('type').value = customer.type || 'kreisverband';
             document.getElementById('kdId').value = customer.kd_id || '';
@@ -1197,7 +1178,7 @@
                     <div class="list">
                         <div class="list-item">
                             <div class="list-item-info">
-                                <span class="list-item-name">${area.name || '(Name fehlt)'} ${ovPillR} ${ovPillF}</span>
+                                <span class="list-item-name">${area.name_long || '(Name fehlt)'} ${ovPillR} ${ovPillF}</span>
                                 <span class="list-item-meta">${formatAddress(area)}</span>
                             </div>
                             <div class="list-item-actions">
@@ -1215,7 +1196,7 @@
 
             // Kreisverband-Kunde
             if (kundenTyp === 'Kreisverband') {
-                const kreisverbandsgebiet = areas.map((a, i) => ({ ...a, originalIndex: i })).find(a => a.isKreisverbandsgebiet);
+                const kreisverbandsgebiet = areas.map((a, i) => ({ ...a, originalIndex: i })).find(a => a.is_kreisverbandsgebiet);
                 const ortsvereine = areas.map((a, i) => ({ ...a, originalIndex: i })).filter(a => a.vereinstyp === 'OV');
 
                 if (kreisverbandsgebiet) {
@@ -1260,7 +1241,7 @@
 
             kreisverbände.forEach(kv => {
                 const zugeordneteOVs = ortsvereineZugeordnet.filter(ov => ov.kvZuordnung === kv.originalIndex);
-                const hasKreisverbandsgebiet = kv.isKreisverbandsgebiet === true;
+                const hasKreisverbandsgebiet = kv.is_kreisverbandsgebiet === true;
                 const totalCount = zugeordneteOVs.length + (hasKreisverbandsgebiet ? 1 : 0);
                 const countLabel = hasKreisverbandsgebiet ? `${totalCount} Einsatzgebiet${totalCount !== 1 ? 'e' : ''}` : `${zugeordneteOVs.length} Ortsverein${zugeordneteOVs.length !== 1 ? 'e' : ''}`;
 
@@ -1274,7 +1255,7 @@
                         <div class="zeile zeile--center zeile--no-padding">
                             <div class="list-group-header" style="flex: 1;">
                                 <div class="list-group-info">
-                                    <span class="list-group-name">${kv.name}</span>
+                                    <span class="list-group-name">${kv.name_long}</span>
                                     <span class="list-group-meta">${countLabel}</span>
                                 </div>
                                 <div class="list-item-actions">
@@ -1320,7 +1301,7 @@
                 <div class="zeile zeile--center zeile--no-padding">
                     <div class="list-item" style="flex: 1;">
                         <div class="list-item-info">
-                            <span class="list-item-name">${prefix}${area.name || '(Name fehlt)'} ${pillRechnung} ${pillFormular}</span>
+                            <span class="list-item-name">${prefix}${area.name_long || '(Name fehlt)'} ${pillRechnung} ${pillFormular}</span>
                             <span class="list-item-meta">${formatAddress(area)}</span>
                         </div>
                         <div class="list-item-actions">
@@ -1394,7 +1375,7 @@
                 const isAddingKv = type === 'kreisverband';
 
                 if (isKvCustomer && isAddingKv) {
-                    const hasKg = (currentCustomer.areas || []).some(a => a.isKreisverbandsgebiet);
+                    const hasKg = (currentCustomer.areas || []).some(a => a.is_kreisverbandsgebiet);
                     kgContainer.style.display = hasKg ? 'none' : '';
                     kgCheckbox.checked = false;
                 } else if (isLvCustomer && isAddingKv) {
@@ -1439,18 +1420,18 @@
             currentAreaType = area.vereinstyp === 'OV' ? 'ortsverein' : 'kreisverband';
 
             document.getElementById('areaEinwohner').value = area.einwohner || '';
-            document.getElementById('areaVereinsname').value = area.vereinsname || '';
+            document.getElementById('areaVereinsname').value = area.name_short || '';
             document.getElementById('areaEmail').value = area.email || '';
             document.getElementById('areaPhone').value = area.phone || '';
             document.getElementById('areaStreet').value = area.street || '';
-            document.getElementById('areaHouseNumber').value = area.houseNumber || '';
-            document.getElementById('areaZip').value = area.zip || '';
+            document.getElementById('areaHouseNumber').value = area.house_number || '';
+            document.getElementById('areaZip').value = area.postal_code || '';
             document.getElementById('areaCity').value = area.city || '';
             document.getElementById('areaCountry').value = area.country || '';
             document.getElementById('areaBundesland').value = area.bundesland || '';
-            document.getElementById('areaAddressExtra').value = area.addressExtra || '';
+            document.getElementById('areaAddressExtra').value = area.address_extra || '';
             document.getElementById('areaWebsite').value = area.website || '';
-            document.getElementById('areaPrivacyPolicy').value = area.privacyPolicy || '';
+            document.getElementById('areaPrivacyPolicy').value = area.privacy_policy || '';
 
             // KV-Zuordnung
             const kvZuordnungContainer = document.getElementById('kvZuordnungContainer');
@@ -1473,7 +1454,7 @@
                 const isKvOrLv = kundenTyp === 'Kreisverband' || kundenTyp === 'Landesverband';
                 if (isKvOrLv && area.vereinstyp === 'KV') {
                     kgContainer.style.display = '';
-                    kgCheckbox.checked = area.isKreisverbandsgebiet === true;
+                    kgCheckbox.checked = area.is_kreisverbandsgebiet === true;
                 } else {
                     kgContainer.style.display = 'none';
                     kgCheckbox.checked = false;
@@ -1525,23 +1506,23 @@
 
             const areaData = {
                 id: existingId,
-                name: name,
+                name_long: name,
                 vereinstyp: vereinstyp,
-                vereinsname: vereinsname,
+                name_short: vereinsname,
                 rechtsform: '',
                 email: document.getElementById('areaEmail').value.trim(),
                 phone: document.getElementById('areaPhone').value.trim(),
                 street: document.getElementById('areaStreet').value.trim(),
-                houseNumber: document.getElementById('areaHouseNumber').value.trim(),
-                zip: document.getElementById('areaZip').value.trim(),
+                house_number: document.getElementById('areaHouseNumber').value.trim(),
+                postal_code: document.getElementById('areaZip').value.trim(),
                 city: document.getElementById('areaCity').value.trim(),
                 country: document.getElementById('areaCountry').value.trim(),
                 bundesland: document.getElementById('areaBundesland').value.trim(),
-                addressExtra: document.getElementById('areaAddressExtra').value.trim(),
+                address_extra: document.getElementById('areaAddressExtra').value.trim(),
                 website: document.getElementById('areaWebsite').value.trim(),
-                privacyPolicy: document.getElementById('areaPrivacyPolicy').value.trim(),
+                privacy_policy: document.getElementById('areaPrivacyPolicy').value.trim(),
                 kvZuordnung: kvZuordnungIndex,
-                isKreisverbandsgebiet: isKreisverbandsgebiet,
+                is_kreisverbandsgebiet: isKreisverbandsgebiet,
                 contactPersons: areaContactPersons.map(c => ({ ...c })),
                 einwohner: parseInt(document.getElementById('areaEinwohner').value) || 0
             };
@@ -1560,7 +1541,7 @@
         async function removeArea(index) {
             const area = currentCustomer.areas[index];
             const typeName = area.vereinstyp === 'OV' ? 'Ortsverein' : 'Einsatzgebiet';
-            const confirmed = await showConfirm(`${typeName} entfernen?`, `Möchten Sie "${area.name}" wirklich entfernen?`, 'warning');
+            const confirmed = await showConfirm(`${typeName} entfernen?`, `Möchten Sie "${area.name_long}" wirklich entfernen?`, 'warning');
             if (!confirmed) return;
 
             // Bei KV: OV-Zuordnungen anpassen
@@ -1588,7 +1569,7 @@
 
             if (zugeordneteOVs.length > 0) {
                 const deleteOVsToo = await showConfirm(
-                    `Kreisverband "${kv.name}" löschen`,
+                    `Kreisverband "${kv.name_long}" löschen`,
                     `Dieser Kreisverband hat ${zugeordneteOVs.length} zugeordnete Ortsverein${zugeordneteOVs.length !== 1 ? 'e' : ''}.\n\nMöchten Sie auch alle Ortsvereine löschen?`,
                     'warning'
                 );
@@ -1626,7 +1607,7 @@
                 const actualIndex = currentCustomer.areas.indexOf(kv);
                 const option = document.createElement('option');
                 option.value = actualIndex.toString();
-                option.textContent = kv.name || `Kreisverband ${idx + 1}`;
+                option.textContent = kv.name_long || `Kreisverband ${idx + 1}`;
                 select.appendChild(option);
             });
         }
@@ -1785,9 +1766,9 @@
                 const customerData = {
                     organisation: org,
                     name_prefix: prefix,
-                    name: name,
+                    name_short: name,
                     name_suffix: suffix,
-                    full_name: fullName,
+                    name_long: fullName,
                     type: document.getElementById('type').value,
                     kd_id: document.getElementById('kdId').value.trim(),
                     einwohner: parseInt(document.getElementById('customerEinwohner').value) || null,
@@ -1807,7 +1788,7 @@
                 };
 
                 // Validierung
-                if (!customerData.name) {
+                if (!customerData.name_short) {
                     showToast('Bitte Namen eingeben', 'warning');
                     return;
                 }
@@ -1927,23 +1908,23 @@
 
                     const areaData = {
                         customer_id: custId,
-                        name: kv.name,
+                        name_long: kv.name_long,
                         vereinstyp: 'KV',
-                        vereinsname: kv.vereinsname,
+                        name_short: kv.name_short,
                         rechtsform: kv.rechtsform,
                         einwohner: kv.einwohner || null,
                         email: kv.email,
                         phone: kv.phone,
                         street: kv.street,
-                        house_number: kv.houseNumber,
-                        postal_code: kv.zip,
+                        house_number: kv.house_number,
+                        postal_code: kv.postal_code,
                         city: kv.city,
                         country: kv.country,
                         bundesland: kv.bundesland,
-                        address_extra: kv.addressExtra,
+                        address_extra: kv.address_extra,
                         website: kv.website,
-                        privacy_policy: kv.privacyPolicy,
-                        is_kreisverbandsgebiet: kv.isKreisverbandsgebiet || false,
+                        privacy_policy: kv.privacy_policy,
+                        is_kreisverbandsgebiet: kv.is_kreisverbandsgebiet || false,
                         parent_area_id: null
                     };
 
@@ -1983,22 +1964,22 @@
 
                     const areaData = {
                         customer_id: custId,
-                        name: ov.name,
+                        name_long: ov.name_long,
                         vereinstyp: 'OV',
-                        vereinsname: ov.vereinsname,
+                        name_short: ov.name_short,
                         rechtsform: ov.rechtsform,
                         einwohner: ov.einwohner || null,
                         email: ov.email,
                         phone: ov.phone,
                         street: ov.street,
-                        house_number: ov.houseNumber,
-                        postal_code: ov.zip,
+                        house_number: ov.house_number,
+                        postal_code: ov.postal_code,
                         city: ov.city,
                         country: ov.country,
                         bundesland: ov.bundesland,
-                        address_extra: ov.addressExtra,
+                        address_extra: ov.address_extra,
                         website: ov.website,
-                        privacy_policy: ov.privacyPolicy,
+                        privacy_policy: ov.privacy_policy,
                         is_kreisverbandsgebiet: false,
                         parent_area_id: parentId
                     };

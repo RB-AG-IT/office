@@ -543,7 +543,7 @@
             // Kunden laden
             const { data: customers, error: customersError } = await supabase
                 .from('customers')
-                .select('id, name, full_name');
+                .select('id, name_short, name_long');
 
             if (customersError) {
                 console.error('Fehler beim Laden der Kunden:', customersError);
@@ -553,7 +553,7 @@
             // Customer Areas laden
             const { data: areas, error: areasError } = await supabase
                 .from('customer_areas')
-                .select('id, customer_id, name');
+                .select('id, customer_id, name_long');
 
             if (areasError) {
                 console.error('Fehler beim Laden der Gebiete:', areasError);
@@ -610,7 +610,7 @@
 
                 return {
                     id: customer.id,
-                    name: customer.full_name || customer.name,
+                    name: customer.name_long,
                     records: stats.aktiv,
                     nettoJE: stats.nettoJE,
                     storno: stornoQuote,
@@ -627,7 +627,7 @@
 
                 return {
                     id: area.id,
-                    name: area.name,
+                    name: area.name_long,
                     records: stats.aktiv,
                     nettoJE: stats.nettoJE,
                     storno: stornoQuote,

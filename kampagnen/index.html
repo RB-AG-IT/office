@@ -2042,7 +2042,7 @@ async function loadCampaignsFromSupabase() {
             // Campaign Areas laden (mit customer_areas JOIN für customer_id)
             const { data: areasData } = await supabase
                 .from('campaign_areas')
-                .select('*, customer_areas(customer_id, name)')
+                .select('*, customer_areas(customer_id, name_long)')
                 .eq('campaign_id', campaign.id);
 
             // Assignments laden
@@ -2103,7 +2103,7 @@ async function loadCampaignsFromSupabase() {
                 id: area.id,
                 customer_area_id: area.customer_area_id,
                 kunde: area.customer_areas?.customer_id || null,
-                name: area.customer_areas?.name || '',
+                name: area.customer_areas?.name_long || '',
                 plz: area.plz,
                 einwohner: area.einwohner || 0,
                 rahmenvertrag: area.rahmenvertrag_name,
@@ -3327,8 +3327,8 @@ async function loadKundenForSelect() {
     try {
         const { data: customers, error } = await supabase
             .from('customers')
-            .select('id, name, organisation, name_prefix, name_suffix, einwohner')
-            .order('name', { ascending: true });
+            .select('id, name_short, name_long, einwohner')
+            .order('name_long', { ascending: true });
 
         if (error) throw error;
 
@@ -3347,12 +3347,7 @@ async function loadKundenForSelect() {
         kundenListe.forEach(kunde => {
             const option = document.createElement('option');
             option.value = kunde.id;
-            // Name zusammensetzen
-            const fullName = [kunde.organisation, kunde.name_prefix, kunde.name, kunde.name_suffix]
-                .filter(Boolean)
-                .join(' ')
-                .trim();
-            option.textContent = fullName || kunde.name || 'Unbenannt';
+            option.textContent = kunde.name_long || 'Unbenannt';
             select.appendChild(option);
         });
 
@@ -3375,14 +3370,14 @@ async function loadWerbegebieteForKunde(kundeId) {
             .from('customer_areas')
             .select('*')
             .eq('customer_id', kundeId)
-            .order('name', { ascending: true });
+            .order('name_long', { ascending: true });
 
         if (error) throw error;
 
         // In Cache speichern
         kundenWerbegebiete[kundeId] = (areas || []).map(area => ({
             id: area.id,
-            name: area.name,
+            name: area.name_long,
             plz: area.plz,
             einwohner: area.einwohner || 0
         }));
@@ -3532,13 +3527,7 @@ async function addWgToCampaign(wgId) {
 // Kunde Name holen
 function getKundeName(kundeId) {
     const kunde = kundenListe.find(k => k.id === kundeId);
-    if (!kunde) return kundeId;
-
-    const fullName = [kunde.organisation, kunde.name_prefix, kunde.name, kunde.name_suffix]
-        .filter(Boolean)
-        .join(' ')
-        .trim();
-    return fullName || kunde.name || 'Unbenannt';
+    return kunde?.name_long || 'Unbenannt';
 }
 
 // Formular-Link für Werbegebiet generieren
@@ -4776,14 +4765,9 @@ function cancelWgEdit() {
 async function openKundeConfig(kundeId) {
     if (!kundeId || kundeId === 'unbekannt' || !viewingCampaignId) return;
 
-    // Kunden-Basisdaten laden (für Name)
-    const { data: kunde, error: kundeError } = await supabase
-        .from('customers')
-        .select('id, name')
-        .eq('id', kundeId)
-        .single();
-
-    if (kundeError || !kunde) {
+    // Kunden-Basisdaten aus kundenListe
+    const kunde = kundenListe.find(k => k.id === kundeId);
+    if (!kunde) {
         showToast('Kunde nicht gefunden', 'error');
         return;
     }
@@ -4811,7 +4795,7 @@ async function openKundeConfig(kundeId) {
     panel.scrollTop = 0;
 
     // Kunde-Name in Header setzen
-    document.getElementById('kundeConfigName').textContent = kunde.name || 'Kunde';
+    document.getElementById('kundeConfigName').textContent = kunde.name_long || 'Kunde';
 
     // WG-Dropdowns für Verteilung befüllen
     populateKundeWgDropdowns();
@@ -6989,14 +6973,15 @@ async function loadLastSchriebe(campaignId) {
         let areasMap = {};
         const { data: allAreas } = await supabase
             .from('campaign_areas')
-            .select('id, name, plz')
+            .select('id, name, plz, customer_areas(name_long)')
             .eq('campaign_id', campaignId);
 
         if (allAreas) {
             // verfuegbareWerbegebiete für Modal-Dropdown befüllen
             verfuegbareWerbegebiete.length = 0; // Array leeren
             allAreas.forEach(a => {
-                const displayName = a.plz ? `${a.name} (${a.plz})` : a.name;
+                const liveName = a.customer_areas?.name_long || a.name;
+                const displayName = a.plz ? `${liveName} (${a.plz})` : liveName;
                 areasMap[a.id] = displayName;
                 verfuegbareWerbegebiete.push({ id: a.id, name: displayName });
             });

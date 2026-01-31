@@ -717,7 +717,7 @@
             try {
                 // 1. Kunden laden
                 const kundenRes = await fetch(
-                    `${SUPABASE_URL}/rest/v1/customers?select=id,full_name,name,kd_id&order=full_name`,
+                    `${SUPABASE_URL}/rest/v1/customers?select=id,kd_id,name_short,name_long&order=name_long`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 const kunden = await kundenRes.json();
@@ -753,7 +753,7 @@
                 kunden.forEach(k => {
                     kundenMap[k.id] = {
                         id: k.id,
-                        name: k.full_name || k.name,
+                        name: k.name_long,
                         kundenId: k.kd_id || '-',
                         vj1: 0, vj2: 0, vj3: 0, vj4: 0, vj5: 0,
                         mitglieder: 0,
@@ -819,7 +819,7 @@
         async function loadDrkRechnungenFromDB() {
             try {
                 const res = await fetch(
-                    `${SUPABASE_URL}/rest/v1/invoices?select=id,invoice_number,customer_id,customers(full_name,name),abrechnungstyp,total_payout,status,created_at&customer_id=not.is.null&order=created_at.desc`,
+                    `${SUPABASE_URL}/rest/v1/invoices?select=id,invoice_number,customer_id,customers(name_short,name_long),abrechnungstyp,total_payout,status,created_at&customer_id=not.is.null&order=created_at.desc`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 const rechnungen = await res.json();
@@ -830,7 +830,7 @@
                 drkRechnungenData = Array.isArray(rechnungen) ? rechnungen.map(r => ({
                     id: r.id,
                     rechnungsnummer: r.invoice_number || '-',
-                    kunde: r.customers?.full_name || r.customers?.name || '-',
+                    kunde: r.customers?.name_long || '-',
                     typ: r.abrechnungstyp || '-',
                     brutto: formatEuro(r.total_payout),
                     status: r.status || 'entwurf',
@@ -847,7 +847,7 @@
         async function loadDrkFaelligFromDB() {
             try {
                 const res = await fetch(
-                    `${SUPABASE_URL}/rest/v1/record_entitlements?select=id,customer_id,customers(full_name,name),campaign_id,campaigns(name,year),verguetungsjahr,jahreseuros,faellig_ab&status=eq.faellig&order=faellig_ab`,
+                    `${SUPABASE_URL}/rest/v1/record_entitlements?select=id,customer_id,customers(name_short,name_long),campaign_id,campaigns(name,year),verguetungsjahr,jahreseuros,faellig_ab&status=eq.faellig&order=faellig_ab`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 const faellig = await res.json();
@@ -867,7 +867,7 @@
                                 customerId: f.customer_id,
                                 campaignId: f.campaign_id,
                                 vj: f.verguetungsjahr,
-                                kunde: f.customers?.full_name || f.customers?.name || '-',
+                                kunde: f.customers?.name_long || '-',
                                 kampagne: f.campaigns?.name ? `${f.campaigns.name}${f.campaigns.year ? ' (' + f.campaigns.year + ')' : ''}` : '-',
                                 typ: vjToTyp[f.verguetungsjahr] || 'ZA',
                                 faelligSeit: f.faellig_ab,
@@ -1361,7 +1361,7 @@
 
                 // PDF als Base64 generieren
                 const pdfBase64 = await generateDrkPDF(rechnung, 'base64');
-                const filename = `${new Date().toLocaleDateString('de-DE')}-${rechnung.customers?.name || 'Unbekannt'}-RE-${rechnung.invoice_number || 'Entwurf'}${rechnung.ist_sondierung === true ? '-Sonderkonditionen' : rechnung.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`;
+                const filename = `${new Date().toLocaleDateString('de-DE')}-${rechnung.customers?.name_short || ''}-RE-${rechnung.invoice_number || 'Entwurf'}${rechnung.ist_sondierung === true ? '-Sonderkonditionen' : rechnung.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`;
 
                 // Edge Function aufrufen
                 const response = await fetch(
@@ -1500,7 +1500,7 @@
 
                     // PDF als Base64 generieren
                     const pdfBase64 = await generateDrkPDF(rechnung, 'base64');
-                    const filename = `${new Date().toLocaleDateString('de-DE')}-${rechnung.customers?.name || 'Unbekannt'}-RE-${rechnung.invoice_number || 'Entwurf'}${rechnung.ist_sondierung === true ? '-Sonderkonditionen' : rechnung.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`;
+                    const filename = `${new Date().toLocaleDateString('de-DE')}-${rechnung.customers?.name_short || ''}-RE-${rechnung.invoice_number || 'Entwurf'}${rechnung.ist_sondierung === true ? '-Sonderkonditionen' : rechnung.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`;
 
                     // Edge Function aufrufen
                     const response = await fetch(
@@ -1675,14 +1675,14 @@
         async function loadKundenFromDB() {
             try {
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/customers?select=id,name,full_name,kd_id,empfaenger_typ,rechnungsart&order=name`,
+                    `${SUPABASE_URL}/rest/v1/customers?select=id,kd_id,empfaenger_typ,rechnungsart,name_short,name_long&order=name_short`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 if (!response.ok) throw new Error('Fehler beim Laden der Kunden');
                 const kunden = await response.json();
                 kundenData = kunden.map(k => ({
                     id: k.id,
-                    name: k.full_name || k.name,
+                    name: k.name_long,
                     kundenId: k.kd_id || '-',
                     empfaengerTyp: k.empfaenger_typ || '',
                     rechnungsart: k.rechnungsart || 'zusammen'
@@ -1904,7 +1904,7 @@
             try {
                 // Campaign_areas aus Supabase laden (inkl. individuelle_provision/kosten Flag)
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/campaign_areas?campaign_id=eq.${kampagneId}&select=id,name,provision_sondierung,provision_regular,einwohner,stornopuffer,kosten,individuelle_provision,individuelle_kosten`,
+                    `${SUPABASE_URL}/rest/v1/campaign_areas?campaign_id=eq.${kampagneId}&select=id,provision_sondierung,provision_regular,einwohner,stornopuffer,kosten,individuelle_provision,individuelle_kosten,customer_areas(name_long)`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
 
@@ -1949,14 +1949,14 @@
                     return `
                     <label class="checkbox-item">
                         <input type="checkbox" value="${g.id}"
-                            data-name="${g.name}"
+                            data-name="${g.customer_areas?.name_long}"
                             data-provision-sondierung='${JSON.stringify(effectiveProvSond || defaultSondierung)}'
                             data-provision-regular='${JSON.stringify(effectiveProvReg || defaultRegular)}'
                             data-einwohner="${g.einwohner || 0}"
                             data-stornopuffer="${effectiveStornopuffer || 10}"
                             data-kosten='${JSON.stringify(effectiveKosten || {})}'
                             checked>
-                        <span class="checkbox-label">${g.name}</span>
+                        <span class="checkbox-label">${g.customer_areas?.name_long}</span>
                         <span class="checkbox-info text-klein" id="gebietInfo_${g.id}">Lade MG...</span>
                     </label>
                 `}).join('');
@@ -3000,7 +3000,7 @@
 
                 if (recordIds.length > 0) {
                     // Neue Logik: Records per gespeicherter IDs laden (KEIN Status-Filter!)
-                    const query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(name)&id=in.(${recordIds.join(',')})&deleted_at=is.null`;
+                    const query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(customer_areas(name_long))&id=in.(${recordIds.join(',')})&deleted_at=is.null`;
                     const res = await fetch(query, {
                         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
                     });
@@ -3021,7 +3021,7 @@
                     records = filteredRecords;
                 } else {
                     // Fallback für alte Rechnungen ohne recordIds: frische Query
-                    let query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(name)`;
+                    let query = `${SUPABASE_URL}/rest/v1/records?select=*,campaign_areas(customer_areas(name_long))`;
                     query += `&record_type=eq.${recordType}`;
                     query += `&record_status=eq.aktiv`;
                     query += `&campaign_id=eq.${r.campaign_id}`;
@@ -3074,7 +3074,7 @@
                         let value = '';
 
                         if (col.field === '_werbegebiet') {
-                            value = rec.campaign_areas?.name || '';
+                            value = rec.campaign_areas?.customer_areas?.name_long || '';
                         } else {
                             value = rec[col.field] ?? '';
                         }
@@ -3121,7 +3121,7 @@
 
                 // Dateiname
                 const heute = new Date().toLocaleDateString('de-DE');
-                const kundeName = r.customers?.name || 'Unbekannt';
+                const kundeName = r.customers?.name_short || '';
                 const reNr = r.invoice_number || 'Entwurf';
                 const sondKond = r.ist_sondierung === true ? '-Sonderkonditionen' : r.ist_sondierung === false ? '-Regularkonditionen' : '';
                 const filename = `${heute}-${kundeName}-${typ}-LISTE-${reNr}${sondKond}.csv`;
@@ -3141,7 +3141,7 @@
             try {
                 // Rechnung mit Kunde und Kampagne laden
                 const res = await fetch(
-                    `${SUPABASE_URL}/rest/v1/invoices?select=*,customers(full_name,name),campaigns(name)&id=eq.${rechnungId}`,
+                    `${SUPABASE_URL}/rest/v1/invoices?select=*,customers(name_short,name_long),campaigns(name)&id=eq.${rechnungId}`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 const data = await res.json();
@@ -3153,7 +3153,7 @@
                 // Kopfbereich füllen
                 document.getElementById('detailRechnungsnummer').textContent = r.invoice_number || '(Entwurf)';
                 document.getElementById('detailStatus').value = r.status || 'entwurf';
-                document.getElementById('detailKunde').textContent = r.customers?.full_name || r.customers?.name || '-';
+                document.getElementById('detailKunde').textContent = r.customers?.name_long || '-';
                 document.getElementById('detailKampagne').textContent = r.campaigns?.name || '-';
                 document.getElementById('detailTypLabel').textContent = r.abrechnungstyp || '-';
                 document.getElementById('detailTyp').textContent = formatAbrechnungstyp(r.abrechnungstyp, r.ist_sondierung);
@@ -3422,7 +3422,7 @@
             try {
                 // Rechnung aus DB laden
                 const res = await fetch(
-                    `${SUPABASE_URL}/rest/v1/invoices?select=*,customers(name)&id=eq.${rechnungId}`,
+                    `${SUPABASE_URL}/rest/v1/invoices?select=*,customers(name_short)&id=eq.${rechnungId}`,
                     { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
                 );
                 const data = await res.json();
@@ -3519,7 +3519,7 @@
             // Ledger-Einträge laden
             try {
                 const res = await fetch(
-                    `${SUPABASE_URL}/rest/v1/drk_cost_ledger?invoice_id=eq.${invoiceId}&select=*,campaign_areas(name)&order=kw.asc,kostenart.asc`,
+                    `${SUPABASE_URL}/rest/v1/drk_cost_ledger?invoice_id=eq.${invoiceId}&select=*,campaign_areas(customer_areas(name_long))&order=kw.asc,kostenart.asc`,
                     {
                         headers: {
                             'apikey': SUPABASE_KEY,
@@ -3547,7 +3547,7 @@
                         <td class="col-s text-left">KW ${e.kw}</td>
                         <td class="col-s text-center"><span class="badge badge--small ${typBadge}">${e.typ}</span></td>
                         <td class="col-name text-left">${KOSTENART_LABELS[e.kostenart] || e.bezeichnung || e.kostenart || '-'}${e.bezeichnung && e.bezeichnung !== e.kostenart ? ' (' + e.bezeichnung + ')' : ''}</td>
-                        <td class="col-m text-left">${e.campaign_areas?.name || '-'}</td>
+                        <td class="col-m text-left">${e.campaign_areas?.customer_areas?.name_long || '-'}</td>
                         <td class="col-s text-right">${e.einheiten || 1}</td>
                         <td class="col-m text-right">${formatCurrency(e.betrag)}</td>
                     </tr>`;
@@ -3585,7 +3585,7 @@
             // Alle Ledger-Einträge für diesen Kunden laden
             try {
                 const res = await fetch(
-                    `${SUPABASE_URL}/rest/v1/drk_cost_ledger?customer_id=eq.${customerId}&select=*,campaign_areas(name)&order=year.desc,kw.desc,kostenart.asc`,
+                    `${SUPABASE_URL}/rest/v1/drk_cost_ledger?customer_id=eq.${customerId}&select=*,campaign_areas(customer_areas(name_long))&order=year.desc,kw.desc,kostenart.asc`,
                     {
                         headers: {
                             'apikey': SUPABASE_KEY,
@@ -3615,7 +3615,7 @@
                         <td class="col-s text-left">KW ${e.kw}/${e.year}</td>
                         <td class="col-s text-center"><span class="badge badge--small ${typBadge}">${e.typ}</span></td>
                         <td class="col-name text-left">${KOSTENART_LABELS[e.kostenart] || e.bezeichnung || e.kostenart || '-'}${e.bezeichnung && e.bezeichnung !== e.kostenart ? ' (' + e.bezeichnung + ')' : ''}</td>
-                        <td class="col-m text-left">${e.campaign_areas?.name || '-'}</td>
+                        <td class="col-m text-left">${e.campaign_areas?.customer_areas?.name_long || '-'}</td>
                         <td class="col-s text-right">${e.einheiten || 1}</td>
                         <td class="col-m text-right">${formatCurrency(e.betrag)}</td>
                     </tr>`;
@@ -3762,7 +3762,7 @@
                 : '-';
 
             // Kundendaten
-            const kundenName = r.customers?.full_name || r.customers?.name || 'Unbekannt';
+            const kundenName = r.customers?.name_long || '';
             const kundenStrasse = r.customers?.street ? `${r.customers.street} ${r.customers.house_number || ''}`.trim() : '';
             const kundenOrt = r.customers?.postal_code ? `${r.customers.postal_code} ${r.customers.city || ''}`.trim() : '';
             const kundenEmail = schatzmeister?.email || '';
@@ -4547,7 +4547,7 @@
 
             const opt = {
                 margin: [0, 0, 0, 0],
-                filename: `${new Date().toLocaleDateString('de-DE')}-${rechnung.customers?.name || 'Unbekannt'}-RE-${rechnung.invoice_number || 'Entwurf'}${rechnung.ist_sondierung === true ? '-Sonderkonditionen' : rechnung.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`,
+                filename: `${new Date().toLocaleDateString('de-DE')}-${rechnung.customers?.name_short || ''}-RE-${rechnung.invoice_number || 'Entwurf'}${rechnung.ist_sondierung === true ? '-Sonderkonditionen' : rechnung.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 4, useCORS: true, logging: false },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -4626,7 +4626,7 @@
 
                 // PDF als Base64 generieren
                 const pdfBase64 = await generateDrkPDF(currentRechnungData, 'base64');
-                const filename = `${new Date().toLocaleDateString('de-DE')}-${currentRechnungData.customers?.name || 'Unbekannt'}-RE-${currentRechnungData.invoice_number || 'Entwurf'}${currentRechnungData.ist_sondierung === true ? '-Sonderkonditionen' : currentRechnungData.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`;
+                const filename = `${new Date().toLocaleDateString('de-DE')}-${currentRechnungData.customers?.name_short || ''}-RE-${currentRechnungData.invoice_number || 'Entwurf'}${currentRechnungData.ist_sondierung === true ? '-Sonderkonditionen' : currentRechnungData.ist_sondierung === false ? '-Regularkonditionen' : ''}.pdf`;
 
                 // Edge Function aufrufen
                 const response = await fetch(

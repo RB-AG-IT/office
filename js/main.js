@@ -2897,8 +2897,8 @@ const ImportSystem = {
 
         try {
             const [customersRes, campaignsRes, usersRes] = await Promise.all([
-                supabase.from('customers').select('id, name, full_name'),
-                supabase.from('campaigns').select('id, name, year, kw_from, kw_to, customer_id, campaign_areas(id, name, plz, customer_area_id, customer_areas(customer_id))'),
+                supabase.from('customers').select('id, name_short, name_long'),
+                supabase.from('campaigns').select('id, name, year, kw_from, kw_to, customer_id, campaign_areas(id, name, plz, customer_area_id, customer_areas(customer_id, name_long))'),
                 supabase.from('users').select('id, name, role')
             ]);
 
@@ -2973,7 +2973,7 @@ const ImportSystem = {
         }
 
         areaSelect.innerHTML = '<option value="">Bitte wählen...</option>' +
-            areas.map(a => `<option value="${a.id}">${a.name}${a.plz ? ' (' + a.plz + ')' : ''}</option>`).join('');
+            areas.map(a => `<option value="${a.id}">${a.customer_areas?.name_long || ''}${a.plz ? ' (' + a.plz + ')' : ''}</option>`).join('');
         areaSelect.disabled = false;
     },
 
@@ -2983,7 +2983,7 @@ const ImportSystem = {
         const customerSelect = document.getElementById('importCustomerSelect');
         if (customerSelect) {
             customerSelect.innerHTML = '<option value="">Bitte wählen...</option>' +
-                this.customers.map(c => `<option value="${c.id}">${c.full_name || c.name}</option>`).join('');
+                this.customers.map(c => `<option value="${c.id}">${c.name_long}</option>`).join('');
         }
 
         // Kampagne-Dropdown (initial deaktiviert)
@@ -3838,8 +3838,8 @@ const BestandImportSystem = {
         try {
             const { data, error } = await supabase
                 .from('customer_areas')
-                .select('id, name, customers(name)')
-                .order('name');
+                .select('id, name_long, customers(name_short)')
+                .order('name_long');
 
             if (!error && data) {
                 this.customerAreas = data;
@@ -3856,10 +3856,10 @@ const BestandImportSystem = {
 
         select.innerHTML = '<option value="">Bitte wählen...</option>';
         this.customerAreas.forEach(area => {
-            const customerName = area.customers?.name || '';
+            const customerName = area.customers?.name_short || '';
             const option = document.createElement('option');
             option.value = area.id;
-            option.textContent = customerName ? `${area.name} (${customerName})` : area.name;
+            option.textContent = customerName ? `${area.name_long} (${customerName})` : area.name_long;
             select.appendChild(option);
         });
 
@@ -5840,8 +5840,8 @@ const CONTACT_ROLE_BADGES = {
 function formatAddress(addressObj) {
     if (!addressObj) return '';
     let parts = [];
-    if (addressObj.street) parts.push(addressObj.street + (addressObj.houseNumber ? ' ' + addressObj.houseNumber : ''));
-    if (addressObj.zip || addressObj.city) parts.push((addressObj.zip || '') + ' ' + (addressObj.city || ''));
+    if (addressObj.street) parts.push(addressObj.street + (addressObj.house_number ? ' ' + addressObj.house_number : ''));
+    if (addressObj.postal_code || addressObj.city) parts.push((addressObj.postal_code || '') + ' ' + (addressObj.city || ''));
     return parts.join(', ') || '';
 }
 
