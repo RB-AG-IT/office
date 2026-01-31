@@ -12479,14 +12479,14 @@ async function ladeWerberStatistiken(options = {}) {
             }
         });
 
-        // 8. Stornorücklagen laden
+        // 8. Stornorücklagen laden (deaktiviert)
         const stornorucklageMap = {};
-        for (const user of users || []) {
-            const sr = await ladeStornorucklagen(user.id);
-            if (sr) {
-                stornorucklageMap[user.id] = sr;
-            }
-        }
+        // for (const user of users || []) {
+        //     const sr = await ladeStornorucklagen(user.id);
+        //     if (sr) {
+        //         stornorucklageMap[user.id] = sr;
+        //     }
+        // }
 
         // 9. Einsatztage laden (mit präzisem Zeitraum-Filter)
         // ISO-Woche aus Datum berechnen

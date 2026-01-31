@@ -306,15 +306,11 @@
         // ========== SUPABASE DATA LOADING ==========
         async function loadAllData() {
             try {
-                // Erst Einsatztage laden (wird von anderen Funktionen benötigt)
-                await loadEinsatztage();
+                // Einsatztage + Werber parallel laden
+                await Promise.all([loadEinsatztage(), loadWerberData()]);
 
-                // Dann Rest parallel laden
-                await Promise.all([
-                    loadWerberData(),
-                    loadKundenData(),
-                    loadKampagnenData()
-                ]);
+                // Kunden + Kampagnen brauchen Einsatztage-Daten
+                await Promise.all([loadKundenData(), loadKampagnenData()]);
             } catch (error) {
                 console.error('Fehler beim Laden der Daten:', error);
                 showToast('Fehler beim Laden der Statistik-Daten', 'error');
