@@ -709,16 +709,17 @@
             // Daten aus dem data-Objekt holen (Fallback auf Hauptfelder)
             const d = r.data || {};
 
-            // Aufnahmedatum formatieren (DD.MM.YYYY HH:MM) - aus start_date
-            const startDate = r.start_date ? new Date(r.start_date) : null;
+            // Aufnahmedatum formatieren (DD.MM.YYYY HH:MM) - Datum aus start_date, Uhrzeit aus created_at
+            const startDate = r.start_date ? new Date(r.start_date + 'T00:00:00') : null;
+            const createdAt = r.created_at ? new Date(r.created_at) : null;
             const entryDateStr = startDate ? startDate.toLocaleDateString('de-DE', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
-            }) + ' ' + startDate.toLocaleTimeString('de-DE', {
+            }) + (createdAt ? ' ' + createdAt.toLocaleTimeString('de-DE', {
                 hour: '2-digit',
                 minute: '2-digit'
-            }) : '';
+            }) : '') : '';
 
             // Jahresbeitrag formatieren - aus data oder Hauptfeld
             const yearlyAmountVal = d.yearlyAmount || r.yearly_amount || 0;
