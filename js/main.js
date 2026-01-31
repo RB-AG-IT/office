@@ -1747,7 +1747,7 @@ async function confirmStorno() {
 
                 // Edge Function aufrufen
                 try {
-                    await fetch('https://lgztglycqtiwcmiydxnm.supabase.co/functions/v1/send-email', {
+                    const res = await fetch('https://lgztglycqtiwcmiydxnm.supabase.co/functions/v1/send-email', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1755,6 +1755,11 @@ async function confirmStorno() {
                         },
                         body: JSON.stringify({ record_id: id, vorlage_typ: 'storno' })
                     });
+                    const resData = await res.json();
+                    if (resData.reason === 'queued_for_morning') {
+                        showToast('Storno-Mail wird morgen früh versendet', 'info');
+                        supabase.removeChannel(channel);
+                    }
                 } catch (mailErr) {
                     console.error('Storno-Mail Fehler für', id, mailErr);
                 }

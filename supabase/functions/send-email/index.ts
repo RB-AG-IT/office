@@ -13,7 +13,7 @@ const EMAIL_ADDRESS = "verwaltung@drk-mitgliederwerbungen.de";
 const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD") || "";
 
 // Max. Alter in Tagen fuer automatischen Versand (Cron-Modus)
-const MAX_AGE_DAYS = 2;
+const MAX_AGE_DAYS = 3;
 
 // ============================================
 // Hilfsfunktionen
@@ -258,7 +258,17 @@ ${emailBody.replace(/\n/g, "<br>")}
 </body>
 </html>`;
 
-    // 9. Email senden via SMTP
+    // 9. Storno-Mails: Ausserhalb 8-17 Uhr (Berlin) nur queuen, nicht senden
+    if (vorlageTyp === "storno" && !force) {
+      const berlinHour = new Date().toLocaleString("en-US", { timeZone: "Europe/Berlin", hour: "numeric", hour12: false });
+      const hour = parseInt(berlinHour, 10);
+      if (hour >= 17 || hour < 8) {
+        console.log(`Storno-Mail fuer ${record.email} queued (ausserhalb Sendezeit, ${hour} Uhr Berlin)`);
+        return { success: true, skipped: true, reason: "queued_for_morning" };
+      }
+    }
+
+    // 10. Email senden via SMTP
     const client = new SMTPClient({
       connection: {
         hostname: "smtp.hostinger.com",
@@ -374,7 +384,6 @@ serve(async (req) => {
     // ============================================
     // MODUS 2: Cron (ohne record_id)
     // Sucht alle offenen Emails und verschickt sie
-    // IMMER nur willkommen-Mails (hardcoded)
     // ============================================
 
     const twoDaysAgo = new Date(Date.now() - MAX_AGE_DAYS * 24 * 60 * 60 * 1000).toISOString();
@@ -382,8 +391,8 @@ serve(async (req) => {
     // Offene Eintraege in email_sends suchen
     const { data: pendingSends, error } = await supabase
       .from("email_sends")
-      .select("record_id")
-      .eq("vorlage_typ", "willkommen")
+      .select("record_id, vorlage_typ")
+      .in("vorlage_typ", ["willkommen", "storno"])
       .in("status", ["queued", "failed"])
       .lt("retry_count", 3)
       .gte("created_at", twoDaysAgo)
@@ -416,7 +425,7 @@ serve(async (req) => {
 
       if (!record) continue;
 
-      const result = await sendEmailForRecord(supabase, record, "willkommen");
+      const result = await sendEmailForRecord(supabase, record, send.vorlage_typ);
       if (result.success && !result.skipped) {
         successCount++;
       } else if (!result.success) {
