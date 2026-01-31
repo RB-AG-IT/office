@@ -2042,7 +2042,7 @@ async function loadCampaignsFromSupabase() {
             // Campaign Areas laden (mit customer_areas JOIN für customer_id)
             const { data: areasData } = await supabase
                 .from('campaign_areas')
-                .select('*, customer_areas(customer_id)')
+                .select('*, customer_areas(customer_id, name)')
                 .eq('campaign_id', campaign.id);
 
             // Assignments laden
@@ -2973,7 +2973,7 @@ function initCampaignWerbegebiete(campaign) {
         const wgConfig = {
             id: eg.id,
             customer_area_id: eg.customer_area_id,
-            name: eg.name,
+            name: eg.customer_areas?.name || '',
             plz: eg.plz,
             einwohner: eg.einwohner || 0,
             kunde: eg.kunde,
