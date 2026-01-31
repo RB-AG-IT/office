@@ -553,7 +553,7 @@
             // Customer Areas laden
             const { data: areas, error: areasError } = await supabase
                 .from('customer_areas')
-                .select('id, customer_id, name_long');
+                .select('id, customer_id, name_long, vereinstyp, name_short');
 
             if (areasError) {
                 console.error('Fehler beim Laden der Gebiete:', areasError);
@@ -627,7 +627,7 @@
 
                 return {
                     id: area.id,
-                    name: area.name_long,
+                    name: [area.vereinstyp, area.name_short].filter(Boolean).join(' '),
                     records: stats.aktiv,
                     nettoJE: stats.nettoJE,
                     storno: stornoQuote,
