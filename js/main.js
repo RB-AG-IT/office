@@ -6865,6 +6865,9 @@ function handleDropdownAction(action, dropdownMenu) {
         case 'mail':
             sendMailSingle(type, id, record);
             break;
+        case 'stornomail':
+            sendStornoMailSingle(type, id, record);
+            break;
         case 'pdf':
             downloadPDFSingle(type, id, record);
             break;
@@ -6966,9 +6969,50 @@ async function sendWelcomeEmail(record) {
     }
 }
 
+async function sendStornoEmail(record) {
+    if (!record.email) {
+        console.warn('Keine E-Mail-Adresse vorhanden');
+        return false;
+    }
+
+    const recordId = record._raw?.id || record.id;
+    if (!recordId) {
+        console.error('Keine Record-ID vorhanden');
+        return false;
+    }
+
+    try {
+        const response = await fetch('https://lgztglycqtiwcmiydxnm.supabase.co/functions/v1/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnenRnbHljcXRpd2NtaXlkeG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDc2MTUsImV4cCI6MjA3OTM4MzYxNX0.a_ZeubRokmhdevV3JinTiD1Ji92C4bDHSiiDcYGZnt0'
+            },
+            body: JSON.stringify({ record_id: recordId, vorlage_typ: 'storno', force: true })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            if (result.skipped) {
+                console.log('Stornomail bereits gesendet oder übersprungen:', result.reason);
+                return true;
+            }
+            console.log('Stornomail erfolgreich gesendet an:', record.email);
+            return true;
+        } else {
+            console.error('Stornomail-Versand fehlgeschlagen:', result.error);
+            return false;
+        }
+    } catch (err) {
+        console.error('Fehler beim Stornomail-Versand:', err);
+        return false;
+    }
+}
+
 /**
  * Unified Table Action Handler
- * @param {string} action - Aktion ('mail', 'pdf', 'storno', 'delete')
+ * @param {string} action - Aktion ('mail', 'pdf', 'storno', 'stornomail', 'delete')
  * @param {string} type - Tabellentyp ('records' oder 'bestand')
  * @param {Object} [singleRecord] - Optional: Einzelner Record für Single-Actions
  */
@@ -7019,6 +7063,32 @@ async function tableAction(action, type, singleRecord = null) {
             }
             if (failCount > 0) {
                 showToast(failCount === 1 ? 'E-Mail fehlgeschlagen' : `${failCount} E-Mails fehlgeschlagen`, 'error');
+            }
+            break;
+
+        case 'stornomail':
+            const stornoRecordsWithEmail = records.filter(r => r.email);
+            if (stornoRecordsWithEmail.length === 0) {
+                showToast('Keine E-Mail-Adresse vorhanden', 'warning');
+                break;
+            }
+
+            let stornoSuccessCount = 0;
+            let stornoFailCount = 0;
+            for (const record of stornoRecordsWithEmail) {
+                const success = await sendStornoEmail(record);
+                if (success) {
+                    stornoSuccessCount++;
+                } else {
+                    stornoFailCount++;
+                }
+            }
+
+            if (stornoSuccessCount > 0) {
+                showToast(stornoSuccessCount === 1 ? 'Stornomail gesendet' : `${stornoSuccessCount} Stornomails gesendet`, 'success');
+            }
+            if (stornoFailCount > 0) {
+                showToast(stornoFailCount === 1 ? 'Stornomail fehlgeschlagen' : `${stornoFailCount} Stornomails fehlgeschlagen`, 'error');
             }
             break;
 
@@ -7082,6 +7152,7 @@ async function deleteSelected(type) { await tableAction('delete', type); }
 
 // Wrapper für Rückwärtskompatibilität (Single Actions)
 function sendMailSingle(type, id, record) { tableAction('mail', type, record); }
+function sendStornoMailSingle(type, id, record) { tableAction('stornomail', type, record); }
 function downloadPDFSingle(type, id, record) { tableAction('pdf', type, record); }
 async function deleteSingle(type, id, record) { await tableAction('delete', type, record); }
 
@@ -7286,6 +7357,12 @@ function renderRecordsTable() {
                                 <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                             Willkommensmail senden
+                        </div>
+                        <div class="dropdown-item" onclick="handleDropdownAction('stornomail', this.parentElement)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Stornomail senden
                         </div>
                         <div class="dropdown-item" onclick="handleDropdownAction('pdf', this.parentElement)">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
