@@ -128,21 +128,20 @@ async function sendEmailForRecord(supabase: any, record: any, vorlageTyp: string
     if (record.campaign_area_id) {
       const { data: campaignArea } = await supabase
         .from("campaign_areas")
-        .select("name, customer_area_id")
+        .select("customer_area_id")
         .eq("id", record.campaign_area_id)
         .single();
 
       if (campaignArea) {
-        werbegebietName = campaignArea.name || werbegebietName;
-
         if (campaignArea.customer_area_id) {
           const { data: customerArea } = await supabase
             .from("customer_areas")
-            .select("website, privacy_policy, customer_id, street, house_number, postal_code, city")
+            .select("name_long, website, privacy_policy, customer_id, street, house_number, postal_code, city")
             .eq("id", campaignArea.customer_area_id)
             .single();
 
           if (customerArea) {
+            werbegebietName = customerArea.name_long || "";
             websiteLink = customerArea.website || "";
             datenschutzLink = customerArea.privacy_policy || "";
 

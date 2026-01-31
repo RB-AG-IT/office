@@ -2898,7 +2898,7 @@ const ImportSystem = {
         try {
             const [customersRes, campaignsRes, usersRes] = await Promise.all([
                 supabase.from('customers').select('id, name_short, name_long'),
-                supabase.from('campaigns').select('id, name, year, kw_from, kw_to, customer_id, campaign_areas(id, name, plz, customer_area_id, customer_areas(customer_id, name_long))'),
+                supabase.from('campaigns').select('id, name, year, kw_from, kw_to, customer_id, campaign_areas(id, plz, customer_area_id, customer_areas(customer_id, name_long))'),
                 supabase.from('users').select('id, name, role')
             ]);
 
