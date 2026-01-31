@@ -1845,7 +1845,8 @@ async function confirmUnstorno() {
             .update({
                 record_status: 'aktiv',
                 storno_date: null,
-                storno_reason: null
+                storno_reason: null,
+                str_per_mail_bestaetigt: null
             })
             .eq('id', id);
 
