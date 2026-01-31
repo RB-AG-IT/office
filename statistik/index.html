@@ -658,7 +658,7 @@
             // Werbegebiete (campaign_areas) laden
             const { data: werbegebiete, error: wgError } = await supabase
                 .from('campaign_areas')
-                .select('id, campaign_id, plz, customer_areas(name_long)');
+                .select('id, campaign_id, plz, customer_areas(vereinstyp, name_short)');
 
             if (wgError) {
                 console.error('Fehler beim Laden der Werbegebiete:', wgError);
@@ -716,7 +716,7 @@
 
                 werbegebieteByKampagne[wg.campaign_id].push({
                     id: wg.id,
-                    name: wg.plz ? `${wg.customer_areas?.name_long || ''} (${wg.plz})` : (wg.customer_areas?.name_long || ''),
+                    name: wg.plz ? `${[wg.customer_areas?.vereinstyp, wg.customer_areas?.name_short].filter(Boolean).join(' ')} (${wg.plz})` : [wg.customer_areas?.vereinstyp, wg.customer_areas?.name_short].filter(Boolean).join(' '),
                     records: stats.aktiv,
                     nettoJE: stats.nettoJE,
                     storno: stornoQuote
