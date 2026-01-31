@@ -1725,7 +1725,33 @@ async function confirmStorno() {
 
         // Storno-Mail versenden (falls Checkbox aktiviert)
         if (mailBestaetigung) {
+            // Realtime-Listener für Mail-Status
+            let pendingMails = recordIds.length;
             for (const id of recordIds) {
+                const channel = supabase
+                    .channel(`storno-mail-${id}`)
+                    .on('postgres_changes', {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'email_sends',
+                        filter: `record_id=eq.${id}`
+                    }, (payload) => {
+                        if (payload.new.vorlage_typ === 'storno') {
+                            if (payload.new.status === 'sent') {
+                                showToast('Storno-Mail erfolgreich versendet', 'success');
+                                supabase.removeChannel(channel);
+                            } else if (payload.new.status === 'failed' || payload.new.status === 'permanently_failed') {
+                                showToast('Storno-Mail Versand fehlgeschlagen', 'error');
+                                supabase.removeChannel(channel);
+                            }
+                        }
+                    })
+                    .subscribe();
+
+                // Timeout nach 30 Sekunden
+                setTimeout(() => { supabase.removeChannel(channel); }, 30000);
+
+                // Edge Function aufrufen
                 try {
                     await fetch('https://lgztglycqtiwcmiydxnm.supabase.co/functions/v1/send-email', {
                         method: 'POST',
