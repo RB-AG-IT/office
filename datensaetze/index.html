@@ -270,7 +270,7 @@
         async function loadAreas() {
             const { data, error } = await supabase
                 .from('campaign_areas')
-                .select('id, name, plz');
+                .select('id, plz, customer_areas(name_long)');
 
             if (error) {
                 console.error('Fehler beim Laden der Werbegebiete:', error);
@@ -279,7 +279,7 @@
 
             areasMap = {};
             (data || []).forEach(a => {
-                areasMap[a.id] = a.plz ? `${a.name} (${a.plz})` : a.name;
+                areasMap[a.id] = a.plz ? `${a.customer_areas?.name_long || ''} (${a.plz})` : (a.customer_areas?.name_long || '');
             });
         }
 
@@ -354,7 +354,6 @@
 
             Object.values(customerAreasMap)
                 .filter(area => areasWithBestand.size === 0 || areasWithBestand.has(area.id))
-                .sort((a, b) => a.name.localeCompare(b.name))
                 .forEach(area => {
                     const option = document.createElement('option');
                     option.value = area.id;
