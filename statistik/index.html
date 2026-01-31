@@ -322,27 +322,23 @@
         let einsatztageByKunde = {}; // customer_id -> Anzahl Einsatztage
 
         async function loadEinsatztage() {
-            // Erst Kampagnen laden um nach Zeitraum filtern zu können
-            let campaignsQuery = supabase
-                .from('campaigns')
-                .select('id, year, kw_from, kw_to');
+            // Alle Basis-Daten parallel laden
+            const [campaignsResult, campaignAreasResult, customerAreasResult, attendanceResult] = await Promise.all([
+                supabase.from('campaigns').select('id, year, kw_from, kw_to'),
+                supabase.from('campaign_areas').select('id, campaign_id, customer_area_id'),
+                supabase.from('customer_areas').select('id, customer_id'),
+                supabase.from('campaign_attendance').select('user_id, campaign_id, kw, day_0, day_1, day_2, day_3, day_4, day_5, day_6')
+            ]);
 
-            const { data: campaigns, error: campaignsError } = await campaignsQuery;
+            const { data: campaigns, error: campaignsError } = campaignsResult;
 
             if (campaignsError) {
                 console.error('Fehler beim Laden der Kampagnen:', campaignsError);
                 return;
             }
 
-            // Campaign Areas laden für Zuordnung campaign -> customer
-            const { data: campaignAreas } = await supabase
-                .from('campaign_areas')
-                .select('id, campaign_id, customer_area_id');
-
-            // Customer Areas laden für customer_id
-            const { data: customerAreas } = await supabase
-                .from('customer_areas')
-                .select('id, customer_id');
+            const { data: campaignAreas } = campaignAreasResult;
+            const { data: customerAreas } = customerAreasResult;
 
             // Map: customer_area_id -> customer_id
             const customerAreaToCustomer = {};
@@ -402,15 +398,17 @@
                 campaigns.forEach(c => validCampaignIds.add(c.id));
             }
 
-            // Attendance laden
-            const { data: attendance, error } = await supabase
-                .from('campaign_attendance')
-                .select('user_id, campaign_id, kw, day_0, day_1, day_2, day_3, day_4, day_5, day_6');
+            // Attendance aus parallelem Load
+            const { data: attendance, error: attendanceError } = attendanceResult;
 
-            if (error) {
-                console.error('Fehler beim Laden der Einsatztage:', error);
+            if (attendanceError) {
+                console.error('Fehler beim Laden der Einsatztage:', attendanceError);
                 return;
             }
+
+            // Campaigns-Map für schnellen Zugriff
+            const campaignsMap = {};
+            (campaigns || []).forEach(c => { campaignsMap[c.id] = c; });
 
             // Zähle Tage pro User, pro Kampagne und pro Kunde (nur für Kampagnen im Zeitraum)
             einsatztageMap = {};
@@ -427,7 +425,7 @@
 
                 // Zusätzlich KW-Filter innerhalb der Kampagne
                 if (periodStartDate || periodEndDate) {
-                    const campaign = campaigns.find(c => c.id === row.campaign_id);
+                    const campaign = campaignsMap[row.campaign_id];
                     if (campaign) {
                         const cYear = campaign.year || new Date().getFullYear();
                         const startYear = periodStartDate ? periodStartDate.getFullYear() : 0;
@@ -444,8 +442,8 @@
                 const days = [row.day_0, row.day_1, row.day_2, row.day_3, row.day_4, row.day_5, row.day_6];
 
                 // Kampagnen-Jahr für Datums-Berechnung
-                const campaign = campaigns.find(c => c.id === row.campaign_id);
-                const cYear = campaign?.year || new Date().getFullYear();
+                const campaign2 = campaignsMap[row.campaign_id];
+                const cYear = campaign2?.year || new Date().getFullYear();
 
                 // Datum aus KW + dayIndex berechnen (dayIndex: 0=Mo, 6=So)
                 function getDateFromKwAndDay(year, kw, dayIndex) {
