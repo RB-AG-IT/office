@@ -1078,12 +1078,6 @@ const ModalTemplates = {
 
                     <!-- Step 1: Zuordnung -->
                     <div class="page-content page-content--modal import-step-content" id="importStep1">
-                        <div class="abschnitt" style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-                            <div class="zeile" style="gap: 10px; align-items: center;">
-                                <span style="font-size: 1.5rem;">&#9888;</span>
-                                <span style="font-weight: 700; color: #856404; font-size: 1rem;">Hinweis: Beim Import werden KEINE Willkommensmails versendet. Der E-Mail-Status wird automatisch auf „gesendet" gesetzt, damit kein nachträglicher Versand ausgelöst wird. Der Mailversand erfolgt ausschließlich über das Aufnahmeformular.</span>
-                            </div>
-                        </div>
                         <div class="abschnitt">
                             <div class="zeile">
                                 <span class="text-ueberschrift-unterabschnitt">Kunde & Kampagne zuordnen</span>
@@ -3561,7 +3555,6 @@ const ImportSystem = {
                         return dateStr ? dateStr + 'T12:00:00' : null;
                     })(),
                     data: data, // Alle Daten auch als JSON speichern
-                    email_status: 'sent' // Import: keine Willkommensmail versenden
                 };
             });
 
